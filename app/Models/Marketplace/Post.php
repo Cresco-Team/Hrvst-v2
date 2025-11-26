@@ -25,7 +25,7 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
     'vegetable_id',
     'type',
     'status',
-    'target_month',
+    'expected_harvest_month',
     'scheduled_date',
     'time_slot',
     'estimated_total_weight',
@@ -42,7 +42,6 @@ class Post extends Model implements HasMedia
             'type' => PostType::class,
             'status' => PostStatus::class,
             'time_slot' => PostTimeSlot::class,
-            // target_month stored as varchar(7) 'YYYY-MM' — no date cast
             'scheduled_date' => 'date',
             'estimated_total_weight' => 'decimal:2',
         ];
