@@ -141,18 +141,34 @@ function handleDeleteItem() {
 
 // ─── Tabs + pagination ────────────────────────────────────────────────────────
 
-const activeTab = computed(() => props.filters.status ?? 'growing')
+const DEFAULT_HARVESTED_STATUS = 'ongoing'
 
-function handleTabChange(value: string | number) {
+const mainTab = computed(() => (isGrowing.value ? 'growing' : 'harvested'))
+
+const subTab = computed(() => props.filters.status)
+
+function handleMainTabChange(value: string | number) {
     router.visit(
-        index({ query: { status: value === 'growing' ? undefined : value } })
-            .url,
+        index({
+            query: {
+                status:
+                    value === 'growing' ? undefined : DEFAULT_HARVESTED_STATUS,
+            },
+        }).url,
         {
             preserveState: true,
             preserveScroll: true,
             only: ['growingPosts', 'harvestedItems', 'filters', 'summary'],
         },
     )
+}
+
+function handleSubTabChange(value: string | number) {
+    router.visit(index({ query: { status: value } }).url, {
+        preserveState: true,
+        preserveScroll: true,
+        only: ['harvestedItems', 'filters'],
+    })
 }
 
 function handlePageChange(page: number) {
@@ -235,17 +251,39 @@ const breadcrumbs: BreadcrumbItem[] = [
                 </div>
             </Deferred>
 
-            <Tabs
-                :model-value="activeTab"
-                @update:model-value="handleTabChange"
-            >
-                <TabsList>
-                    <TabsTrigger value="growing">Growing</TabsTrigger>
-                    <TabsTrigger value="ongoing">Ongoing</TabsTrigger>
-                    <TabsTrigger value="unsettled">Unsettled</TabsTrigger>
-                    <TabsTrigger value="fulfilled">Fulfilled</TabsTrigger>
-                </TabsList>
-            </Tabs>
+            <!-- ── Tier 1: Post status (Growing vs Harvested) ────────────────── -->
+            <div class="flex flex-col gap-3">
+                <Tabs
+                    :model-value="mainTab"
+                    @update:model-value="handleMainTabChange"
+                >
+                    <TabsList>
+                        <TabsTrigger value="growing">Growing</TabsTrigger>
+                        <TabsTrigger value="harvested"
+                            >Ready for Schedule</TabsTrigger
+                        >
+                    </TabsList>
+                </Tabs>
+
+                <!-- ── Tier 2: PostItem status (only once harvested) ──────────── -->
+                <Tabs
+                    v-if="!isGrowing"
+                    :model-value="subTab"
+                    @update:model-value="handleSubTabChange"
+                >
+                    <TabsList class="h-8 bg-transparent p-0">
+                        <TabsTrigger value="ongoing" class="text-xs">
+                            Not yet Scheduled
+                        </TabsTrigger>
+                        <TabsTrigger value="unsettled" class="text-xs">
+                            Expired Scheule
+                        </TabsTrigger>
+                        <TabsTrigger value="fulfilled" class="text-xs">
+                            Fulfilled Schedule
+                        </TabsTrigger>
+                    </TabsList>
+                </Tabs>
+            </div>
 
             <!-- ── Growing ────────────────────────────────────────────────────── -->
             <template v-if="isGrowing">
