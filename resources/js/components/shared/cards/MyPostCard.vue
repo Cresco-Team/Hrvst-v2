@@ -6,6 +6,7 @@ import {
     MoreVertical,
     Pencil,
     Trash,
+    CalendarClock,
 } from 'lucide-vue-next'
 import { computed } from 'vue'
 import { AspectRatio } from '@/components/ui/aspect-ratio'
@@ -107,7 +108,7 @@ const canHarvest = computed(() => {
                         :disabled="!canHarvest"
                         @click="canHarvest && emit('harvest', post)"
                     >
-                        <Leaf class="mr-2 size-4 text-lime-600" />
+                        <CalendarClock class="mr-2 size-4 text-lime-600" />
                         Schedule Arrival
                     </DropdownMenuItem>
                     <DropdownMenuItem @click="emit('edit', post)">
