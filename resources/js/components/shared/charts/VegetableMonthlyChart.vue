@@ -18,7 +18,7 @@ const { chartData, chartOptions } = useMonthlyVolumeChart(
     <Card>
         <CardHeader>
             <CardTitle class="text-sm font-semibold"
-                >Monthly Market Volume</CardTitle
+                >Vegetable Monthly Market Volume</CardTitle
             >
         </CardHeader>
         <CardContent>
@@ -30,7 +30,7 @@ const { chartData, chartOptions } = useMonthlyVolumeChart(
                 class="flex items-center gap-2 rounded-lg border border-dashed p-6 text-sm text-muted-foreground"
             >
                 <AlertCircle class="size-4 shrink-0" />
-                No completed market activity recorded for this variety.
+                No completed market activity recorded for this vegetable.
             </div>
         </CardContent>
     </Card>
