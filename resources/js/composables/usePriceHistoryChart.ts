@@ -21,8 +21,8 @@ export function usePriceHistoryChart(prices: MaybeRefOrGetter<PriceHistoryResour
         {
           label: 'Max (₱/kg)',
           data: sorted.map((p) => p.price_max),
-          borderColor: 'rgb(99, 102, 241)',
-          backgroundColor: 'rgba(99, 102, 241, 0.08)',
+          borderColor: 'rgb(34, 197, 94)',
+          backgroundColor: 'rgba(34, 197, 94, 0.08)',
           fill: true,
           tension: 0.4,
           pointRadius: 3,
@@ -32,7 +32,6 @@ export function usePriceHistoryChart(prices: MaybeRefOrGetter<PriceHistoryResour
           label: 'Min (₱/kg)',
           data: sorted.map((p) => p.price_min),
           borderColor: 'rgb(34, 197, 94)',
-          backgroundColor: 'rgba(34, 197, 94, 0.08)',
           fill: true,
           tension: 0.4,
           pointRadius: 3,
