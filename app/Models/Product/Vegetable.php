@@ -3,6 +3,7 @@
 namespace App\Models\Product;
 
 use App\Models\Marketplace\Post;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -12,14 +13,10 @@ use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
+#[Fillable(['category_id', 'name'])]
 class Vegetable extends Model implements HasMedia
 {
     use HasFactory, InteractsWithMedia;
-
-    protected $fillable = [
-        'category_id',
-        'name',
-    ];
 
     protected $with = ['media'];
 
