@@ -19,7 +19,7 @@ return new class extends Migration
 
             $table->timestamps();
 
-            $table->unique(['crop_id', 'recorded_at']);
+            $table->unique(['vegetable_id', 'recorded_at']);
         });
     }
 

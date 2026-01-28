@@ -14,7 +14,7 @@ return new class extends Migration
 
             $table->string('name');
             $table->string('image_path');
-            $table->integer('crop_weeks');
+            $table->integer('vegetable_weeks');
             
             $table->timestamps();
 
