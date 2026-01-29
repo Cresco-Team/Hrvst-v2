@@ -13,12 +13,10 @@ return new class extends Migration
             $table->foreignId('category_id')->constrained();
 
             $table->string('name');
-            $table->string('image_path');
-            $table->integer('vegetable_weeks');
             
             $table->timestamps();
 
-            $table->index(['name', 'category_id']);
+            $table->index(['category_id', 'name']);
             $table->unique(['category_id', 'name']);
         });
     }
