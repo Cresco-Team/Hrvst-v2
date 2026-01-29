@@ -8,9 +8,9 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('variety_prices', function (Blueprint $table) {
+        Schema::create('price_histories', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('vegetable_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('variety_id')->constrained()->cascadeOnDelete();
 
             $table->decimal('price_min', 5, 2);
             $table->decimal('price_max', 5, 2);
@@ -19,12 +19,13 @@ return new class extends Migration
 
             $table->timestamps();
 
-            $table->unique(['vegetable_id', 'recorded_at']);
+            $table->unique(['variety_id', 'recorded_at']);
+            $table->unique(['variety_id', 'recorded_at']);
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('vegetable_variants');
+        Schema::dropIfExists('price_histories');
     }
 };

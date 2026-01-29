@@ -16,12 +16,13 @@ return new class extends Migration
 
             $table->timestamps();
 
-            $table->unique(['vegetable_id', 'recorded_at']);
+            $table->index(['vegetable_id', 'name']);
+            $table->unique(['vegetable_id', 'name']);
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('vegetable_prices');
+        Schema::dropIfExists('varieties');
     }
 };

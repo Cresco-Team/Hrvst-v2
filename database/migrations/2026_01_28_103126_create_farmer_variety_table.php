@@ -8,12 +8,12 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('farmer_varieties', function (Blueprint $table) {
+        Schema::create('farmer_variety', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('farmer_id')->constrained('farmers')->cascadeOnDelete();
-            $table->foreignId('vegetable_id')->constrained('vegetables')->cascadeOnDelete();
+            $table->foreignId('farmer_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('variety_id')->constrained()->cascadeOnDelete();
 
-            $table->string('yield_kg');
+            $table->string('weight_kg');
 
             $table->date('date_planted');
             $table->date('expected_harvest_date');
@@ -27,6 +27,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('farmer_vegetable');
+        Schema::dropIfExists('farmer_variety');
     }
 };
