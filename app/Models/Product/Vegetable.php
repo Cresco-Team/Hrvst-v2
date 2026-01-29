@@ -28,20 +28,4 @@ class Vegetable extends Model
     {
         return $this->hasMany(Variety::class);
     }
-
-    /* ---------- accessors ---------- */
-
-    public function averagePrice(): Attribute
-    {
-        return Attribute::make(
-            get: fn () => ($this->price_min + $this->price_max) / 2,
-        );
-    }
-
-    public function priceRange(): Attribute
-    {
-        return Attribute::make(
-            get: fn () => "₱{$this->price_min} - ₱{$this->price_max}",
-        );
-    }
 }
