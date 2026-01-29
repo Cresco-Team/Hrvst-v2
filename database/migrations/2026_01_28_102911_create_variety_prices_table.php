@@ -8,11 +8,14 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('vegetable_variants', function (Blueprint $table) {
+        Schema::create('variety_prices', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('vegetable_id')->constrained();
+            $table->foreignId('vegetable_id')->constrained()->cascadeOnDelete();
 
-            $table->string('name');
+            $table->decimal('price_min', 5, 2);
+            $table->decimal('price_max', 5, 2);
+
+            $table->date('recorded_at');
 
             $table->timestamps();
 

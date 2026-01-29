@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('farmer_vegetable', function (Blueprint $table) {
+        Schema::create('farmer_varieties', function (Blueprint $table) {
             $table->id();
             $table->foreignId('farmer_id')->constrained('farmers')->cascadeOnDelete();
             $table->foreignId('vegetable_id')->constrained('vegetables')->cascadeOnDelete();
