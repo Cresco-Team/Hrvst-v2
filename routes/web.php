@@ -28,7 +28,7 @@ if (app()->environment('local', 'development')) {
         Route::get('login/admin', function () {
             Auth::loginUsingId(1);
 
-            return redirect()->route('admin.dashboard.index');
+            return redirect()->route('admin.dashboard');
         })->name('login.admin');
     });
 }
