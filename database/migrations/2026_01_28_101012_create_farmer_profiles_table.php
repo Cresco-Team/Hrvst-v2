@@ -12,7 +12,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->unique()->constrained()->cascadeOnDelete();
 
-            $table->boolean('isApproved')->default(false);
+            $table->boolean('is_approved')->default(false);
 
             $table->foreignId('municipality_id')->constrained();
             $table->foreignId('barangay_id')->constrained();

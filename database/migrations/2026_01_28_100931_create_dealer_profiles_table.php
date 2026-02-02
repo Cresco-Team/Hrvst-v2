@@ -10,8 +10,9 @@ return new class extends Migration
     {
         Schema::create('dealer_profiles', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
 
-            $table->boolean('isApproved')->default(false);
+            $table->boolean('is_approved')->default(false);
 
             $table->string('document_image')->nullable();
 
