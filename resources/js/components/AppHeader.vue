@@ -37,6 +37,7 @@ import { getInitials } from '@/composables/useInitials';
 import { toUrl } from '@/lib/utils';
 import { dashboard } from '@/routes';
 import type { BreadcrumbItem, NavItem } from '@/types';
+import admin from '@/routes/admin';
 
 type Props = {
     breadcrumbs?: BreadcrumbItem[];
@@ -53,13 +54,25 @@ const { isCurrentUrl, whenCurrentUrl } = useCurrentUrl();
 const activeItemStyles =
     'text-neutral-900 dark:bg-neutral-800 dark:text-neutral-100';
 
-const mainNavItems: NavItem[] = [
-    {
-        title: 'Dashboard',
-        href: dashboard(),
-        icon: LayoutGrid,
-    },
-];
+const mainNavItems = computed<NavItem[]>(() => {
+    const items: NavItem[] = [
+        {
+            title: 'Home',
+            href: dashboard(),
+            icon: LayoutGrid,
+        },
+    ];
+        
+        if (page.props.auth.user.roles.includes('admin')) {
+            items.push({
+                title: 'Dashboard',
+                href: admin.dashboard(),
+                icon: LayoutGrid
+            })
+        }
+    
+    return items
+})
 
 const rightNavItems: NavItem[] = [
     {
