@@ -3,7 +3,7 @@ import { Head } from '@inertiajs/vue3';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { dashboard } from '@/routes';
 import { type BreadcrumbItem } from '@/types';
-import PlaceholderPattern from '@/components/PlaceholderPattern.vue';
+import StatCard from '@/components/shared/cards/StatCard.vue';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -14,33 +14,20 @@ const breadcrumbs: BreadcrumbItem[] = [
 </script>
 
 <template>
-    <Head title="Dashboard" />
+    <Head title="Admin Dashboard" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div
             class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4"
         >
             <div class="grid auto-rows-min gap-4 md:grid-cols-3">
-                <div
-                    class="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border"
-                >
-                    <PlaceholderPattern />
-                </div>
-                <div
-                    class="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border"
-                >
-                    <PlaceholderPattern />
-                </div>
-                <div
-                    class="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border"
-                >
-                    <PlaceholderPattern />
-                </div>
+                <StatCard title="Average Volatility" value="#" />
+                <StatCard title="Total Farmers" value="#" />
+                <StatCard title="Total Dealers" value="#" />
             </div>
-            <div
-                class="relative min-h-[100vh] flex-1 rounded-xl border border-sidebar-border/70 md:min-h-min dark:border-sidebar-border"
-            >
-                <PlaceholderPattern />
+            <div class="grid auto-rows-min gap-2 md:grid-cols-2">
+                <StatCard title="Hello" value="Nigga" />
+                <StatCard title="Hello" value="Nigga" />
             </div>
         </div>
     </AppLayout>
