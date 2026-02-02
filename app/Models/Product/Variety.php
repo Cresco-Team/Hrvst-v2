@@ -26,10 +26,15 @@ class Variety extends Model
 
     public function farmers(): BelongsToMany
     {
-        return $this->belongsTo(FarmerProfile::class, 'farmer_variety')
-            ->using(FarmerVariety::class)
+        return $this->belongsTo(FarmerProfile::class, 'plantings')
+            ->using(Planting::class)
             ->withPivot(['weight_kg', 'date_planted', 'date_harvested'])
             ->withTimestamps();
+    }
+
+    public function plantings(): HasMany
+    {
+        return $this->hasMany(Planting::class);
     }
 
     public function vegetable(): BelongsTo

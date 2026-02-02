@@ -2,14 +2,16 @@
 
 namespace App\Models\Product;
 
+use App\Models\Messaging\Conversation;
 use App\Models\Profiles\FarmerProfile;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\Pivot;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class FarmerVariety extends Pivot
+class Planting extends Model
 {
     protected $fillable = [
         'farmer_id',
@@ -37,6 +39,11 @@ class FarmerVariety extends Pivot
     public function variety(): BelongsTo
     {
         return $this->belongsTo(Variety::class);
+    }
+
+    public function conversations(): HasMany
+    {
+        return $this->hasMany(Conversation::class);
     }
 
     /* ---------- predicate ---------- */
