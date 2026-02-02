@@ -20,7 +20,6 @@ return new class extends Migration
             $table->timestamps();
 
             $table->unique(['variety_id', 'recorded_at']);
-            $table->unique(['variety_id', 'recorded_at']);
         });
     }
 
