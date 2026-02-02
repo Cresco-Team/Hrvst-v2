@@ -59,4 +59,11 @@ class User extends Authenticatable
     {
         return $this->hasOne(DealerProfile::class);
     }
+
+    /* ---------- accessors ---------- */
+
+    public function hasRole(string $role): bool
+    {
+        return $this->roles()->where('name', $role)->exists();
+    }
 }
