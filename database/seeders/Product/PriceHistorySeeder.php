@@ -27,13 +27,15 @@ class PriceHistorySeeder extends Seeder
                     'created_at'  => now(),
                     'updated_at'  => now(),
                 ];
-
-                PriceHistory::upsert(
-                    $rows,
-                    ['variety_id', 'recorded_at'],
-                    ['price_min', 'price_max', 'updated_at'],
-                );
             }
         }
+
+        collect($rows)->chunk(500)->each(function ($chunk) {
+            PriceHistory::upsert(
+                $chunk->toArray(),
+                ['variety_id', 'recorded_at'],
+                ['price_min', 'price_max', 'updated_at'],
+            );
+        });
     }
 }
