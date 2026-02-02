@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('password');
             $table->string('phone_number')->unique();
             $table->boolean('isApproved')->default(false);
-            $table->string('user_image')->nullable;
+            $table->string('user_image')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });
