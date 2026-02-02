@@ -12,12 +12,14 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->unique()->constrained()->cascadeOnDelete();
 
+            $table->boolean('isApproved')->default(false);
+
             $table->foreignId('municipality_id')->constrained();
             $table->foreignId('barangay_id')->constrained();
             $table->double('latitude');
             $table->double('longitude');
 
-            $table->string('farm_image_path')->nullable();
+            $table->string('farm_image')->nullable();
             
             $table->timestamps();
         });
