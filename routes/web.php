@@ -16,15 +16,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         /** @var \App\Models\User $user */
         $user = Auth::user();
 
-        if ($user->hasRole('admin')) return redirect()->route('admin.dashboard.index');
+        if ($user->hasRole('admin')) return redirect()->route('admin.dashboard');
 
         return Inertia::render('Dashboard');
-    });
+    })->name('dashboard');
 });
-
-Route::get('dashboard', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
 
 /* Development only */
 if (app()->environment('local', 'development')) {
