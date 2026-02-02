@@ -22,7 +22,6 @@ class AdminSeeder extends Seeder
         ], [
             'name' => 'Admin Joe',
             'password' => Hash::make('password'),
-            'isApproved' => true,
         ]);
 
         $user->roles()->syncWithoutDetaching([$adminRole->id]);
