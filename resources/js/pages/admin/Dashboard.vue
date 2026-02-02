@@ -26,8 +26,8 @@ const breadcrumbs: BreadcrumbItem[] = [
                 <StatCard title="Total Dealers" value="#" />
             </div>
             <div class="grid auto-rows-min gap-2 md:grid-cols-2">
-                <StatCard title="Hello" value="Nigga" />
-                <StatCard title="Hello" value="Nigga" />
+                <StatCard title="Vagetables" value="Table" />
+                <StatCard title="Users" value="Table" />
             </div>
         </div>
     </AppLayout>
