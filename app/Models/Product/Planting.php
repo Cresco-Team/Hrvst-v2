@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Planting extends Model
@@ -31,9 +32,9 @@ class Planting extends Model
 
     /* ---------- relations ---------- */
 
-    public function farmer(): BelongsTo
+    public function farmers(): BelongsToMany
     {
-        return $this->belongsTo(FarmerProfile::class);
+        return $this->belongsToMany(FarmerProfile::class);
     }
 
     public function variety(): BelongsTo
