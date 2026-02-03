@@ -10,6 +10,7 @@ return new class extends Migration
     {
         Schema::create('municipalities', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('province_id')->constrained();
 
             $table->string('name');
             $table->decimal('latitude', 10, 8);
