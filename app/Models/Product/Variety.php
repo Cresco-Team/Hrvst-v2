@@ -37,9 +37,9 @@ class Variety extends Model
         return $this->hasMany(Planting::class);
     }
 
-    public function vegetable(): BelongsTo
+    public function vegetables(): BelongsToMany
     {
-        return $this->belongsTo(Vegetable::class);
+        return $this->belongsToMany(Vegetable::class);
     }
 
     public function prices(): HasMany
