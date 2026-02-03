@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Product\StoreVegetableRequest;
 use App\Http\Requests\Admin\Product\UpdateVegetableRequest;
 use App\Models\Product\Vegetable;
-use App\Services\VegetableService;
+use App\Services\Product\VegetableService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
