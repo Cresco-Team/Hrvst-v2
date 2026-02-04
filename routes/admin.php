@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\DealerController;
 use App\Http\Controllers\Admin\FarmerController;
 use App\Http\Controllers\Admin\FarmerMapController;
 use App\Http\Controllers\Admin\VarietyController;
@@ -35,4 +36,11 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
         Route::get('/{id}', [FarmerMapController::class, 'show'])
             ->name('show');
     });
+
+    Route::get('/dealers', [DealerController::class, 'index'])
+        ->name('dealers.index');
+    Route::get('/dealers/{dealer}', [DealerController::class, 'show'])
+        ->name('dealers.show');
+    Route::delete('/dealers/{dealer}', [DealerController::class, 'destroy'])
+        ->name('dealers.destroy');
 });
