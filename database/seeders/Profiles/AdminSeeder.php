@@ -1,6 +1,6 @@
 <?php
 
-namespace Database\Seeders;
+namespace Database\Seeders\Profiles;
 
 use App\Models\Profiles\Role;
 use App\Models\User;
