@@ -2,14 +2,15 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
-
 use App\Models\Messaging\Conversation;
+use App\Models\Messaging\ConversationParticipant;
+use App\Models\Messaging\Message;
 use App\Models\Profiles\DealerProfile;
 use App\Models\Profiles\FarmerProfile;
 use App\Models\Profiles\Role;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -24,7 +25,6 @@ class User extends Authenticatable
         'email',
         'password',
         'phone_number',
-        'isApproved',
         'user_image',
     ];
 
@@ -64,11 +64,17 @@ class User extends Authenticatable
     public function conversations(): BelongsToMany
     {
         return $this->belongsToMany(Conversation::class, 'conversation_participants')
+            ->using(ConversationParticipant::class)
             ->withPivot(['last_read_at'])
             ->withTimestamps();
     }
 
-    /* ---------- accessors ---------- */
+    public function messages(): HasMany
+    {
+        return $this->hasMany(Message::class, 'sender_id');
+    }
+
+    /* ---------- methods ---------- */
 
     public function hasRole(string $role): bool
     {

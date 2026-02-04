@@ -8,8 +8,9 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('conversation_participant', function (Blueprint $table) {
-            $table->id();$table->foreignId('conversation_id')->constrained()->cascadeOnDelete();
+        Schema::create('conversation_participants', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('conversation_id')->constrained()->cascadeOnDelete();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
 
             $table->timestamp('last_read_at')->nullable();
@@ -22,6 +23,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('conversation_participant');
+        Schema::dropIfExists('conversation_participants');
     }
 };

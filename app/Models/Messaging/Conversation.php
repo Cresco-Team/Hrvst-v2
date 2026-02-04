@@ -8,10 +8,15 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Conversation extends Model
 {
-    protected $fillable = ['planting_id'];
+    protected $fillable = ['planting_id', 'last_message_at'];
+
+    protected $casts = [
+        'last_message_at' => 'datetime',
+    ];
 
     /* ---------- relations ---------- */
 
@@ -33,10 +38,12 @@ class Conversation extends Model
         return $this->hasMany(Message::class);
     }
 
-    public function latestMessage(): HasMany
+    public function latestMessage(): HasOne
     {
-        return $this->messages()->latest();
+        return $this->hasOne(Message::class)->latestOfMany();
     }
+
+    /* ---------- methods ---------- */
 
     public function getOtherParticipant(int $userId): ?User
     {

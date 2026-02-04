@@ -3,6 +3,7 @@
 namespace App\Services\Admin;
 
 use App\Models\Profiles\DealerProfile;
+use Carbon\Carbon;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 
@@ -13,39 +14,37 @@ class DealerService
      */
     public static function paginated(int $perPage = 20): LengthAwarePaginator
     {
-        return DealerProfile::with(['user'])
+        return DealerProfile::query()
+            ->with(['user'])
             ->where('is_approved', true)
-            ->orderBy('created_at', 'desc')
+            ->select('dealer_profiles.*')
+            ->addSelect([
+                // Total conversations count
+                'total_conversations_count' => DB::table('conversation_participants')
+                    ->selectRaw('COUNT(DISTINCT conversation_id)')
+                    ->whereColumn('conversation_participants.user_id', 'dealer_profiles.user_id'),
+                
+                // Active conversations count (messages in last 30 days)
+                'active_conversations_count' => DB::table('conversation_participants')
+                    ->selectRaw('COUNT(DISTINCT conversation_participants.conversation_id)')
+                    ->join('conversations', 'conversation_participants.conversation_id', '=', 'conversations.id')
+                    ->whereColumn('conversation_participants.user_id', 'dealer_profiles.user_id')
+                    ->where('conversations.last_message_at', '>=', now()->subDays(30)),
+                
+                // Last activity timestamp
+                'last_activity_at' => DB::table('messages')
+                    ->selectRaw('MAX(created_at)')
+                    ->whereColumn('messages.sender_id', 'dealer_profiles.user_id')
+            ])
+            ->orderBy('dealer_profiles.created_at', 'desc')
             ->paginate($perPage)
-            ->through(function ($dealer) {
-                // Get total conversations count
-                $totalConversations = DB::table('conversation_participants')
-                    ->where('user_id', $dealer->user_id)
-                    ->distinct('conversation_id')
-                    ->count('conversation_id');
-
-                // Get active conversations (with messages in last 30 days)
-                $activeConversations = DB::table('conversation_participants')
-                    ->where('user_id', $dealer->user_id)
-                    ->whereExists(function ($query) {
-                        $query->select(DB::raw(1))
-                            ->from('messages')
-                            ->whereColumn('messages.conversation_id', 'conversation_participants.conversation_id')
-                            ->where('messages.created_at', '>=', now()->subDays(30));
-                    })
-                    ->distinct('conversation_id')
-                    ->count('conversation_id');
-
-                // Get last activity (last message sent by this dealer)
-                $lastActivity = DB::table('messages')
-                    ->where('sender_id', $dealer->user_id)
-                    ->latest('created_at')
-                    ->first(['created_at']);
-
-                // Determine status based on activity
+            ->through(function (DealerProfile $dealer) {
+                // Calculate status based on last activity
                 $status = 'inactive';
-                if ($lastActivity) {
-                    $daysSinceActivity = now()->diffInDays($lastActivity->created_at);
+                if ($dealer->last_activity_at) {
+                    $lastActivity = Carbon::parse($dealer->last_activity_at);
+                    $daysSinceActivity = now()->diffInDays($lastActivity);
+                    
                     if ($daysSinceActivity <= 7) {
                         $status = 'active';
                     } elseif ($daysSinceActivity <= 30) {
@@ -63,11 +62,13 @@ class DealerService
                         'user_image' => $dealer->user->user_image,
                     ],
                     'activity' => [
-                        'total_conversations' => $totalConversations,
-                        'active_conversations' => $activeConversations,
-                        'last_activity_at' => $lastActivity ? $lastActivity->created_at : null,
-                        'last_activity_human' => $lastActivity 
-                            ? \Carbon\Carbon::parse($lastActivity->created_at)->diffForHumans() 
+                        'total_conversations' => (int) ($dealer->total_conversations_count ?? 0),
+                        'active_conversations' => (int) ($dealer->active_conversations_count ?? 0),
+                        'last_activity_at' => $dealer->last_activity_at 
+                            ? Carbon::parse($dealer->last_activity_at)->format('M d, Y g:i A')
+                            : null,
+                        'last_activity_human' => $dealer->last_activity_at 
+                            ? Carbon::parse($dealer->last_activity_at)->diffForHumans() 
                             : null,
                         'status' => $status,
                     ],
@@ -86,7 +87,7 @@ class DealerService
         $totalDealers = DealerProfile::where('is_approved', true)->count();
 
         // Active this week (sent messages in last 7 days)
-        $activeThisWeek = DB::table('dealer_profiles')
+        $activeThisWeek = DealerProfile::query()
             ->where('is_approved', true)
             ->whereExists(function ($query) {
                 $query->select(DB::raw(1))
@@ -121,7 +122,8 @@ class DealerService
      */
     public static function find(int $dealerId): ?array
     {
-        $dealer = DealerProfile::with(['user'])
+        $dealer = DealerProfile::query()
+            ->with(['user'])
             ->where('is_approved', true)
             ->find($dealerId);
 
@@ -129,23 +131,18 @@ class DealerService
             return null;
         }
 
-        // Get total conversations count
+        // Get conversation counts
         $totalConversations = DB::table('conversation_participants')
             ->where('user_id', $dealer->user_id)
             ->distinct('conversation_id')
             ->count('conversation_id');
 
-        // Get active conversations (with messages in last 30 days)
         $activeConversations = DB::table('conversation_participants')
-            ->where('user_id', $dealer->user_id)
-            ->whereExists(function ($query) {
-                $query->select(DB::raw(1))
-                    ->from('messages')
-                    ->whereColumn('messages.conversation_id', 'conversation_participants.conversation_id')
-                    ->where('messages.created_at', '>=', now()->subDays(30));
-            })
-            ->distinct('conversation_id')
-            ->count('conversation_id');
+            ->join('conversations', 'conversation_participants.conversation_id', '=', 'conversations.id')
+            ->where('conversation_participants.user_id', $dealer->user_id)
+            ->where('conversations.last_message_at', '>=', now()->subDays(30))
+            ->distinct('conversation_participants.conversation_id')
+            ->count('conversation_participants.conversation_id');
 
         // Get last activity
         $lastActivity = DB::table('messages')
@@ -156,7 +153,7 @@ class DealerService
         // Calculate status
         $status = 'inactive';
         if ($lastActivity) {
-            $daysSinceActivity = now()->diffInDays($lastActivity->created_at);
+            $daysSinceActivity = now()->diffInDays(Carbon::parse($lastActivity->created_at));
             if ($daysSinceActivity <= 7) {
                 $status = 'active';
             } elseif ($daysSinceActivity <= 30) {
@@ -167,7 +164,7 @@ class DealerService
         // Get favorite categories (most inquired vegetables)
         $favoriteCategories = DB::table('conversation_participants')
             ->join('conversations', 'conversation_participants.conversation_id', '=', 'conversations.id')
-            ->join('plantings', 'conversations.planting_id', 'plantings.id')
+            ->join('plantings', 'conversations.planting_id', '=', 'plantings.id')
             ->join('varieties', 'plantings.variety_id', '=', 'varieties.id')
             ->join('vegetables', 'varieties.vegetable_id', '=', 'vegetables.id')
             ->join('categories', 'vegetables.category_id', '=', 'categories.id')
@@ -216,9 +213,11 @@ class DealerService
             'activity' => [
                 'total_conversations' => $totalConversations,
                 'active_conversations' => $activeConversations,
-                'last_activity_at' => $lastActivity ? $lastActivity->created_at : null,
+                'last_activity_at' => $lastActivity 
+                    ? Carbon::parse($lastActivity->created_at)->format('M d, Y g:i A')
+                    : null,
                 'last_activity_human' => $lastActivity 
-                    ? \Carbon\Carbon::parse($lastActivity->created_at)->diffForHumans() 
+                    ? Carbon::parse($lastActivity->created_at)->diffForHumans() 
                     : null,
                 'status' => $status,
                 'favorite_categories' => $favoriteCategories->map(function ($cat) {
@@ -238,7 +237,7 @@ class DealerService
                     ],
                     'last_message' => $conversation->last_message,
                     'last_message_at' => $conversation->last_message_at 
-                        ? \Carbon\Carbon::parse($conversation->last_message_at)->diffForHumans()
+                        ? Carbon::parse($conversation->last_message_at)->diffForHumans()
                         : null,
                 ];
             })->toArray(),
