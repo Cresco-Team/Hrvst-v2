@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('conversations', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('variety_id')->constrained('plantings');
+            $table->foreignId('planting_id')->constrained('plantings');
 
             $table->timestamp('last_message_at')->nullable();
             $table->timestamps();
