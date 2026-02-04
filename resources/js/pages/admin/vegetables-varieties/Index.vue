@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
-import { Head } from '@inertiajs/vue3'
-import { router } from '@inertiajs/vue3'
+import { ref, onMounted, onUnmounted, computed } from 'vue'
+import { Head, router, usePage } from '@inertiajs/vue3'
 import { useFlash } from '@/composables/useFlash'
 import AppLayout from '@/layouts/AppLayout.vue'
 import admin from '@/routes/admin'
@@ -20,6 +19,7 @@ interface Variety {
     vegetable_id: number
     name: string
     image_path: string
+    image_url?: string
     weeks_to_harvest: number
     vegetable: {
         id: number
@@ -90,7 +90,6 @@ function showToast() {
     toastTimer = setTimeout(() => { toastVisible.value = false }, 4000)
 }
 
-// watch flash changes on every navigation
 router.on('success', () => {
     if (flash.value?.message) showToast()
 })
@@ -133,18 +132,15 @@ function handleFilterChange(filter: string | null) {
     )
 }
 
-/* -- CRUD via Inertia -- */
-function handleSubmit(payload: {
-    vegetable_id: number
-    name: string
-    image_path: string
-    weeks_to_harvest: number
-}) {
+/* -- CRUD via Inertia with FormData -- */
+function handleSubmit(formData: FormData) {
     isSubmitting.value = true
 
     if (activeVariety.value) {
-        // UPDATE
-        router.put(`/admin/vegetables-varieties/${activeVariety.value.id}`, payload, {
+        // UPDATE - Laravel needs _method: PUT for updates with FormData
+        formData.append('_method', 'PUT')
+        
+        router.post(`/admin/vegetables-varieties/${activeVariety.value.id}`, formData, {
             onSuccess() {
                 formOpen.value = false
                 isSubmitting.value = false
@@ -155,7 +151,7 @@ function handleSubmit(payload: {
         })
     } else {
         // CREATE
-        router.post('/admin/vegetables-varieties', payload, {
+        router.post('/admin/vegetables-varieties', formData, {
             onSuccess() {
                 formOpen.value = false
                 isSubmitting.value = false

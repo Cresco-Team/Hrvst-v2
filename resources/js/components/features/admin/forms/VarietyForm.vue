@@ -144,8 +144,9 @@ function close() {
 
 <template>
     <Dialog :open="open" @update:open="close">
-        <DialogContent class="sm:max-w-lg">
-            <DialogHeader>
+        <DialogContent class="flex max-h-[85vh] flex-col gap-0 p-0 sm:max-w-lg">
+            <!-- Fixed Header -->
+            <DialogHeader class="space-y-2 border-b px-6 py-4">
                 <DialogTitle class="flex items-center gap-2">
                     <Leaf class="size-5 text-primary" />
                     {{ title }}
@@ -153,113 +154,119 @@ function close() {
                 <DialogDescription>{{ description }}</DialogDescription>
             </DialogHeader>
 
-            <div class="flex flex-col gap-5 py-4">
-                <!-- Parent Vegetable Selection -->
-                <div class="flex flex-col gap-2">
-                    <Label for="vegetable_id" class="flex items-center gap-1.5">
-                        Parent Vegetable
-                        <Badge variant="secondary" class="text-xs font-normal">Required</Badge>
-                    </Label>
-                    <Select v-model="form.vegetable_id">
-                        <SelectTrigger 
-                            id="vegetable_id"
-                            :class="{ 'border-destructive': errors.vegetable_id }"
-                        >
-                            <SelectValue placeholder="Select the vegetable type..." />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectGroup 
-                                v-for="(vegetables, category) in vegetableOptions" 
-                                :key="category"
+            <!-- Scrollable Content Area -->
+            <div class="flex-1 overflow-y-auto px-6 py-4">
+                <div class="flex flex-col gap-5">
+                    <!-- Parent Vegetable Selection -->
+                    <div class="flex flex-col gap-2">
+                        <Label for="vegetable_id" class="flex items-center gap-1.5">
+                            Parent Vegetable
+                            <Badge variant="secondary" class="text-xs font-normal">Required</Badge>
+                        </Label>
+                        <Select v-model="form.vegetable_id">
+                            <SelectTrigger 
+                                id="vegetable_id"
+                                :class="{ 'border-destructive': errors.vegetable_id }"
                             >
-                                <SelectLabel>{{ category }}</SelectLabel>
-                                <SelectItem
-                                    v-for="(name, id) in vegetables"
-                                    :key="id"
-                                    :value="id.toString()"
+                                <SelectValue placeholder="Select the vegetable type..." />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectGroup 
+                                    v-for="(vegetables, category) in vegetableOptions" 
+                                    :key="category"
                                 >
-                                    {{ name }}
-                                </SelectItem>
-                            </SelectGroup>
-                        </SelectContent>
-                    </Select>
-                    <p v-if="errors.vegetable_id" class="text-xs text-destructive">
-                        {{ errors.vegetable_id }}
-                    </p>
-                    <p v-else class="text-xs text-muted-foreground">
-                        Choose the vegetable this variety belongs to
-                    </p>
-                </div>
-
-                <!-- Variety Name -->
-                <div class="flex flex-col gap-2">
-                    <Label for="variety_name" class="flex items-center gap-1.5">
-                        Variety Name
-                        <Badge variant="secondary" class="text-xs font-normal">Required</Badge>
-                    </Label>
-                    <Input
-                        id="variety_name"
-                        v-model="form.name"
-                        placeholder="e.g. Cherry, Beefsteak, Romaine..."
-                        :class="{ 'border-destructive': errors.name }"
-                    />
-                    <p v-if="errors.name" class="text-xs text-destructive">
-                        {{ errors.name }}
-                    </p>
-                    <p v-else-if="selectedVegetableName && form.name" class="text-xs text-muted-foreground">
-                        Full name will be: <span class="font-medium">{{ selectedVegetableName }} {{ form.name }}</span>
-                    </p>
-                    <p v-else class="text-xs text-muted-foreground">
-                        The specific type or cultivar name
-                    </p>
-                </div>
-
-                <!-- Image Upload -->
-                <ImageUpload
-                    v-model="form.image"
-                    :existing-image-url="existingImageUrl"
-                    :error="errors.image"
-                    :required="!isEditMode"
-                />
-
-                <!-- Weeks to Harvest -->
-                <div class="flex flex-col gap-2">
-                    <Label for="weeks_to_harvest" class="flex items-center gap-1.5">
-                        <Clock class="size-3.5" />
-                        Weeks to Harvest
-                    </Label>
-                    <div class="flex items-center gap-3">
-                        <Input
-                            id="weeks_to_harvest"
-                            v-model.number="form.weeks_to_harvest"
-                            type="number"
-                            min="1"
-                            max="52"
-                            class="max-w-[120px]"
-                            :class="{ 'border-destructive': errors.weeks_to_harvest }"
-                        />
-                        <span class="text-sm text-muted-foreground">
-                            {{ form.weeks_to_harvest }} week{{ form.weeks_to_harvest !== 1 ? 's' : '' }}
-                            ({{ Math.round(form.weeks_to_harvest * 7) }} days)
-                        </span>
+                                    <SelectLabel>{{ category }}</SelectLabel>
+                                    <SelectItem
+                                        v-for="(name, id) in vegetables"
+                                        :key="id"
+                                        :value="id.toString()"
+                                    >
+                                        {{ name }}
+                                    </SelectItem>
+                                </SelectGroup>
+                            </SelectContent>
+                        </Select>
+                        <p v-if="errors.vegetable_id" class="text-xs text-destructive">
+                            {{ errors.vegetable_id }}
+                        </p>
+                        <p v-else class="text-xs text-muted-foreground">
+                            Choose the vegetable this variety belongs to
+                        </p>
                     </div>
-                    <p v-if="errors.weeks_to_harvest" class="text-xs text-destructive">
-                        {{ errors.weeks_to_harvest }}
-                    </p>
-                    <p v-else class="text-xs text-muted-foreground">
-                        Average time from planting to harvest (1-52 weeks)
-                    </p>
+
+                    <!-- Variety Name -->
+                    <div class="flex flex-col gap-2">
+                        <Label for="variety_name" class="flex items-center gap-1.5">
+                            Variety Name
+                            <Badge variant="secondary" class="text-xs font-normal">Required</Badge>
+                        </Label>
+                        <Input
+                            id="variety_name"
+                            v-model="form.name"
+                            placeholder="e.g. Cherry, Beefsteak, Romaine..."
+                            :class="{ 'border-destructive': errors.name }"
+                        />
+                        <p v-if="errors.name" class="text-xs text-destructive">
+                            {{ errors.name }}
+                        </p>
+                        <p v-else-if="selectedVegetableName && form.name" class="text-xs text-muted-foreground">
+                            Full name will be: <span class="font-medium">{{ selectedVegetableName }} {{ form.name }}</span>
+                        </p>
+                        <p v-else class="text-xs text-muted-foreground">
+                            The specific type or cultivar name
+                        </p>
+                    </div>
+
+                    <!-- Image Upload -->
+                    <ImageUpload
+                        v-model="form.image"
+                        :existing-image-url="existingImageUrl"
+                        :error="errors.image"
+                        :required="!isEditMode"
+                    />
+
+                    <!-- Weeks to Harvest -->
+                    <div class="flex flex-col gap-2">
+                        <Label for="weeks_to_harvest" class="flex items-center gap-1.5">
+                            <Clock class="size-3.5" />
+                            Weeks to Harvest
+                        </Label>
+                        <div class="flex items-center gap-3">
+                            <Input
+                                id="weeks_to_harvest"
+                                v-model.number="form.weeks_to_harvest"
+                                type="number"
+                                min="1"
+                                max="52"
+                                class="max-w-[120px]"
+                                :class="{ 'border-destructive': errors.weeks_to_harvest }"
+                            />
+                            <span class="text-sm text-muted-foreground">
+                                {{ form.weeks_to_harvest }} week{{ form.weeks_to_harvest !== 1 ? 's' : '' }}
+                                ({{ Math.round(form.weeks_to_harvest * 7) }} days)
+                            </span>
+                        </div>
+                        <p v-if="errors.weeks_to_harvest" class="text-xs text-destructive">
+                            {{ errors.weeks_to_harvest }}
+                        </p>
+                        <p v-else class="text-xs text-muted-foreground">
+                            Average time from planting to harvest (1-52 weeks)
+                        </p>
+                    </div>
                 </div>
             </div>
 
-            <DialogFooter class="gap-2">
-                <Button variant="outline" @click="close" :disabled="isSubmitting">
-                    Cancel
-                </Button>
-                <Button @click="handleSubmit" :disabled="isSubmitting">
-                    <Spinner v-if="isSubmitting" class="mr-2 size-4" />
-                    {{ isEditMode ? 'Save Changes' : 'Create Variety' }}
-                </Button>
+            <!-- Fixed Footer -->
+            <DialogFooter class="border-t px-6 py-4">
+                <div class="flex w-full gap-2 sm:justify-end">
+                    <Button variant="outline" @click="close" :disabled="isSubmitting">
+                        Cancel
+                    </Button>
+                    <Button @click="handleSubmit" :disabled="isSubmitting">
+                        <Spinner v-if="isSubmitting" class="mr-2 size-4" />
+                        {{ isEditMode ? 'Save Changes' : 'Create Variety' }}
+                    </Button>
+                </div>
             </DialogFooter>
         </DialogContent>
     </Dialog>
