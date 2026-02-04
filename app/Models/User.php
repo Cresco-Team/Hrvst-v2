@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 
+use App\Models\Messaging\Conversation;
 use App\Models\Profiles\DealerProfile;
 use App\Models\Profiles\FarmerProfile;
 use App\Models\Profiles\Role;
@@ -58,6 +59,13 @@ class User extends Authenticatable
     public function dealerProfile(): HasOne
     {
         return $this->hasOne(DealerProfile::class);
+    }
+
+    public function conversations(): BelongsToMany
+    {
+        return $this->belongsToMany(Conversation::class, 'conversation_participants')
+            ->withPivot(['last_read_at'])
+            ->withTimestamps();
     }
 
     /* ---------- accessors ---------- */
