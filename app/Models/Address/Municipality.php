@@ -11,7 +11,12 @@ class Municipality extends Model
 {
     public $timestamps = false;
 
-    protected $fillable = ['name', 'latitude', 'longitude'];
+    protected $fillable = [
+        'province_id', 
+        'name', 
+        'latitude', 
+        'longitude'
+    ];
 
     /* ---------- relations ---------- */
 
