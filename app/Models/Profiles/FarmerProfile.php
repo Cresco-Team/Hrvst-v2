@@ -16,7 +16,22 @@ class FarmerProfile extends Model
 {
     use HasFactory;
 
-    protected $fillable = [];
+    protected $fillable = [
+        'user_id',
+        'province_id',
+        'municipality_id',
+        'barangay_id',
+
+        'is_approved',
+
+        'latitude',
+        'longitude',
+        'farm_image',
+    ];
+
+    protected $casts = [
+        'is_approved' => 'boolean',
+    ];
 
     /* ---------- relations ---------- */
 
