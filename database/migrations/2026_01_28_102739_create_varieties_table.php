@@ -18,6 +18,7 @@ return new class extends Migration
 
             $table->timestamps();
 
+            $table->index('name', 'idx_variety_name');
             $table->index(['vegetable_id', 'name']);
             $table->unique(['vegetable_id', 'name']);
         });
