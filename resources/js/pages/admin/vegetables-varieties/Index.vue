@@ -12,6 +12,7 @@ import VarietySummaryCards from '@/components/features/admin/cards/VarietySummar
 import VarietyTable from '@/components/features/admin/tables/VarietyTable.vue'
 import VarietyForm from '@/components/features/admin/forms/VarietyForm.vue'
 import VarietyDeleteConfirm from '@/components/features/admin/dialogs/VarietyDeleteConfirm.vue'
+import PriceFreshnessFilter from '@/components/features/admin/filters/PriceFreshnessFilter.vue'
 
 /* -- types -- */
 interface Variety {
@@ -32,12 +33,21 @@ interface Variety {
         price_min: string
         price_max: string
     } | null
+    price_updated_human?: string
+    price_updated_date?: string
+    price_freshness?: 'fresh' | 'recent' | 'okay' | 'aging' | 'stale'
 }
 
 interface Summary {
     total_varieties: number
     total_vegetables: number
     average_weeks_to_harvest: number
+    price_stats: {
+        updated_week: number
+        updated_month: number
+        stale: number
+        no_price: number
+    }
 }
 
 interface VegetableOptions {
@@ -56,6 +66,9 @@ interface Props {
     }
     summary: Summary
     vegetableOptions: VegetableOptions
+    filters: {
+        price_filter: string | null
+    }
 }
 
 const props = defineProps<Props>()
@@ -111,6 +124,15 @@ function openDelete(variety: Variety) {
     deleteOpen.value = true
 }
 
+/* -- filtering -- */
+function handleFilterChange(filter: string | null) {
+    router.get(
+        '/admin/vegetables-varieties',
+        { price_filter: filter },
+        { preserveScroll: true, preserveState: true }
+    )
+}
+
 /* -- CRUD via Inertia -- */
 function handleSubmit(payload: {
     vegetable_id: number
@@ -158,7 +180,11 @@ function handleDelete() {
 
 /* -- server-side pagination -- */
 function handlePageChange(page: number) {
-    router.get('/admin/vegetables-varieties', { page }, { preserveScroll: true })
+    router.get(
+        '/admin/vegetables-varieties',
+        { page, price_filter: props.filters.price_filter },
+        { preserveScroll: true }
+    )
 }
 </script>
 
@@ -168,7 +194,7 @@ function handlePageChange(page: number) {
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex h-full flex-1 flex-col gap-6 p-4 lg:p-6">
 
-            <!-- page header -->
+            <!-- page header with filter -->
             <div class="flex items-end justify-between">
                 <div>
                     <h1 class="text-2xl font-semibold tracking-tight">Vegetables & Varieties</h1>
@@ -176,6 +202,13 @@ function handlePageChange(page: number) {
                         Manage all vegetable varieties, prices, and harvest times.
                     </p>
                 </div>
+                
+                <!-- Price Freshness Filter -->
+                <PriceFreshnessFilter
+                    :active-filter="filters.price_filter"
+                    :price-stats="summary.price_stats"
+                    @filter-change="handleFilterChange"
+                />
             </div>
 
             <!-- summary cards -->
