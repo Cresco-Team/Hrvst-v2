@@ -51,6 +51,7 @@ interface Variety {
     } | null
     price_updated_human?: string
     price_updated_date?: string
+    price_freshness?: 'fresh' | 'recent' | 'okay' | 'aging' | 'stale'
 }
 
 interface PaginatedData {
@@ -224,13 +225,44 @@ function sortIcon(state: string | false) {
                                 </div>
                             </template>
 
-                            <!-- Price Range Column with elegant timestamp -->
+                            <!-- Price Range Column with elegant timestamp and freshness indicator -->
                             <template v-else-if="cell.column.id === 'price_range'">
                                 <div v-if="row.original.latest_price" class="flex flex-col gap-1.5">
-                                    <!-- Price Badge -->
-                                    <Badge variant="secondary" class="w-fit font-mono">
-                                        ₱{{ row.original.latest_price.price_min }} - ₱{{ row.original.latest_price.price_max }}
-                                    </Badge>
+                                    <!-- Price Badge with freshness indicator -->
+                                    <div class="flex items-center gap-2">
+                                        <Badge variant="secondary" class="w-fit font-mono">
+                                            ₱{{ row.original.latest_price.price_min }} - ₱{{ row.original.latest_price.price_max }}
+                                        </Badge>
+                                        
+                                        <!-- Freshness dot indicator -->
+                                        <TooltipProvider v-if="row.original.price_freshness" :delay-duration="200">
+                                            <Tooltip>
+                                                <TooltipTrigger as-child>
+                                                    <div 
+                                                        class="size-2 rounded-full cursor-help"
+                                                        :class="{
+                                                            'bg-green-500': row.original.price_freshness === 'fresh',
+                                                            'bg-blue-500': row.original.price_freshness === 'recent',
+                                                            'bg-yellow-500': row.original.price_freshness === 'okay',
+                                                            'bg-orange-400': row.original.price_freshness === 'aging',
+                                                            'bg-orange-600': row.original.price_freshness === 'stale',
+                                                        }"
+                                                    />
+                                                </TooltipTrigger>
+                                                <TooltipContent>
+                                                    <p class="text-xs">
+                                                        {{ 
+                                                            row.original.price_freshness === 'fresh' ? '0-3 days old - Very fresh' :
+                                                            row.original.price_freshness === 'recent' ? '4-7 days old - Fresh' :
+                                                            row.original.price_freshness === 'okay' ? '8-14 days old - Good' :
+                                                            row.original.price_freshness === 'aging' ? '15-30 days old - Getting old' :
+                                                            '30+ days old - Needs update'
+                                                        }}
+                                                    </p>
+                                                </TooltipContent>
+                                            </Tooltip>
+                                        </TooltipProvider>
+                                    </div>
                                     
                                     <!-- Updated timestamp with tooltip -->
                                     <TooltipProvider v-if="row.original.price_updated_human" :delay-duration="200">
@@ -249,7 +281,7 @@ function sortIcon(state: string | false) {
                                 </div>
                                 
                                 <div v-else class="flex items-center gap-1.5 text-xs text-muted-foreground">
-                                    <Clock class="size-3 opacity-50" />
+                                    <div class="size-2 rounded-full bg-red-500" />
                                     <span>No price data</span>
                                 </div>
                             </template>
