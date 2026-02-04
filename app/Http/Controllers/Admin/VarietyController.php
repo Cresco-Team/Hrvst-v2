@@ -12,12 +12,15 @@ use Inertia\Inertia;
 
 class VarietyController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         return Inertia::render('admin/vegetables-varieties/Index', [
             'varieties' => VarietyService::paginated(),
             'summary' => VarietyService::summary(),
             'vegetableOptions' => VarietyService::vegetableOptions(),
+            'filters' => [
+                'price_filter' => $request->query('price_filter', null),
+            ],
         ]);
     }
 
