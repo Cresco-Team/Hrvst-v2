@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\FarmerController;
+use App\Http\Controllers\Admin\FarmerMapController;
 use App\Http\Controllers\Admin\VarietyController;
 use Illuminate\Support\Facades\Route;
 
@@ -25,4 +26,13 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
         ->name('farmers.show');
     Route::delete('/farmers/{farmer}', [FarmerController::class, 'destroy'])
         ->name('farmers.destroy');
+
+    Route::prefix('farmers-map')->name('farmers.map.')->group(function () {
+        Route::get('/', [FarmerMapController::class, 'index'])
+            ->name('index');
+        Route::get('/markers', [FarmerMapController::class, 'markers'])
+            ->name('markers');
+        Route::get('/{id}', [FarmerMapController::class, 'show'])
+            ->name('show');
+    });
 });
