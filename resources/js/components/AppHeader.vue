@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Link, usePage } from '@inertiajs/vue3';
-import { BookOpen, Folder, Gem, LayoutGrid, Menu, Search, Sprout, Wheat } from 'lucide-vue-next';
+import { BookOpen, Folder, Gem, LayoutGrid, Menu, Search, Sprout, Store, Wheat } from 'lucide-vue-next';
 import { computed } from 'vue';
 import AppLogo from '@/components/AppLogo.vue';
 import AppLogoIcon from '@/components/AppLogoIcon.vue';
@@ -76,6 +76,10 @@ const mainNavItems = computed<NavItem[]>(() => {
                 title: 'Farmers',
                 href: admin.farmers.index(),
                 icon: Sprout
+            }, {
+                title: 'Dealers',
+                href: admin.dealers.index(),
+                icon: Store
             })
         }
     
