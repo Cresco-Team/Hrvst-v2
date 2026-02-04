@@ -27,9 +27,13 @@ if (app()->environment('local', 'development')) {
     Route::prefix('dev')->name('dev.')->group(function () {
         Route::get('login/admin', function () {
             Auth::loginUsingId(1);
-
             return redirect()->route('admin.dashboard');
         })->name('login.admin');
+
+        Route::get('login/farmer', function () {
+            Auth::loginUsingId(2);
+            return redirect()->route('farmer.garden');
+        })->name('login.farmer');
     });
 }
 
