@@ -1,44 +1,61 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
 import { Head } from '@inertiajs/vue3'
-import { router, usePage } from '@inertiajs/vue3'
+import { router } from '@inertiajs/vue3'
 import { useFlash } from '@/composables/useFlash'
 import AppLayout from '@/layouts/AppLayout.vue'
 import admin from '@/routes/admin'
 import type { BreadcrumbItem } from '@/types'
 
 /* -- feature components -- */
-import VegetableSummaryCards from '@/components/features/admin/cards/VegetableSummaryCard.vue'
-import VegetableTable from '@/components/features/admin/tables/VegetableTable.vue'
-import VegetableForm from '@/components/features/admin/forms/VegetableForm.vue'
-import VegetableDeleteConfirm from '@/components/features/admin/dialogs/VegetableDeleteConfirm.vue'
+import VarietySummaryCards from '@/components/features/admin/cards/VarietySummaryCard.vue'
+import VarietyTable from '@/components/features/admin/tables/VarietyTable.vue'
+import VarietyForm from '@/components/features/admin/forms/VarietyForm.vue'
+import VarietyDeleteConfirm from '@/components/features/admin/dialogs/VarietyDeleteConfirm.vue'
 
 /* -- types -- */
-interface Vegetable {
+interface Variety {
     id: number
-    category_id: number
+    vegetable_id: number
     name: string
-    varieties_count: number
-    category: { id: number, name: string }
+    image_path: string
+    weeks_to_harvest: number
+    vegetable: {
+        id: number
+        name: string
+        category: {
+            id: number
+            name: string
+        }
+    }
+    latest_price: {
+        price_min: string
+        price_max: string
+    } | null
 }
 
 interface Summary {
-    total_vegetables: number
-    total_categories: number
     total_varieties: number
-    categories: { id: number, name: string, vegetables_count: number }[]
+    total_vegetables: number
+    average_weeks_to_harvest: number
+}
+
+interface VegetableOptions {
+    [categoryName: string]: {
+        [vegetableId: number]: string
+    }
 }
 
 interface Props {
-    vegetables: {
-        data: Vegetable[]
+    varieties: {
+        data: Variety[]
         current_page: number
         last_page: number
         per_page: number
         total: number
     }
     summary: Summary
-    categoryOptions: Record<number, string>
+    vegetableOptions: VegetableOptions
 }
 
 const props = defineProps<Props>()
@@ -46,7 +63,7 @@ const props = defineProps<Props>()
 /* -- breadcrumbs -- */
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Admin', href: admin.dashboard().url },
-    { title: 'Vegetables', href: admin.vegetables.index().url },
+    { title: 'Vegetables & Varieties', href: admin.vegetables_varieties.index().url },
 ]
 
 /* -- flash / toast -- */
@@ -76,31 +93,36 @@ onUnmounted(() => {
 /* -- modal state -- */
 const formOpen = ref(false)
 const deleteOpen = ref(false)
-const activeVegetable = ref<Vegetable | null>(null)
+const activeVariety = ref<Variety | null>(null)
 const isSubmitting = ref(false)
 
 function openCreate() {
-    activeVegetable.value = null
+    activeVariety.value = null
     formOpen.value = true
 }
 
-function openEdit(vegetable: Vegetable) {
-    activeVegetable.value = vegetable
+function openEdit(variety: Variety) {
+    activeVariety.value = variety
     formOpen.value = true
 }
 
-function openDelete(vegetable: Vegetable) {
-    activeVegetable.value = vegetable
+function openDelete(variety: Variety) {
+    activeVariety.value = variety
     deleteOpen.value = true
 }
 
 /* -- CRUD via Inertia -- */
-function handleSubmit(payload: { category_id: number, name: string }) {
+function handleSubmit(payload: {
+    vegetable_id: number
+    name: string
+    image_path: string
+    weeks_to_harvest: number
+}) {
     isSubmitting.value = true
 
-    if (activeVegetable.value) {
+    if (activeVariety.value) {
         // UPDATE
-        router.put(`/admin/vegetables/${activeVegetable.value.id}`, payload, {
+        router.put(`/admin/vegetables-varieties/${activeVariety.value.id}`, payload, {
             onSuccess() {
                 formOpen.value = false
                 isSubmitting.value = false
@@ -111,7 +133,7 @@ function handleSubmit(payload: { category_id: number, name: string }) {
         })
     } else {
         // CREATE
-        router.post('/admin/vegetables', payload, {
+        router.post('/admin/vegetables-varieties', payload, {
             onSuccess() {
                 formOpen.value = false
                 isSubmitting.value = false
@@ -124,24 +146,24 @@ function handleSubmit(payload: { category_id: number, name: string }) {
 }
 
 function handleDelete() {
-    if (!activeVegetable.value) return
+    if (!activeVariety.value) return
 
-    router.delete(`/admin/vegetables/${activeVegetable.value.id}`, {
+    router.delete(`/admin/vegetables-varieties/${activeVariety.value.id}`, {
         onSuccess() {
             deleteOpen.value = false
-            activeVegetable.value = null
+            activeVariety.value = null
         },
     })
 }
 
 /* -- server-side pagination -- */
 function handlePageChange(page: number) {
-    router.get('/admin/vegetables', { page }, { preserveScroll: true })
+    router.get('/admin/vegetables-varieties', { page }, { preserveScroll: true })
 }
 </script>
 
 <template>
-    <Head title="Vegetables" />
+    <Head title="Vegetables & Varieties" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex h-full flex-1 flex-col gap-6 p-4 lg:p-6">
@@ -149,19 +171,19 @@ function handlePageChange(page: number) {
             <!-- page header -->
             <div class="flex items-end justify-between">
                 <div>
-                    <h1 class="text-2xl font-semibold tracking-tight">Vegetables</h1>
+                    <h1 class="text-2xl font-semibold tracking-tight">Vegetables & Varieties</h1>
                     <p class="text-sm text-muted-foreground mt-0.5">
-                        Manage all registered vegetables and their categories.
+                        Manage all vegetable varieties, prices, and harvest times.
                     </p>
                 </div>
             </div>
 
             <!-- summary cards -->
-            <VegetableSummaryCards :summary="summary" />
+            <VarietySummaryCards :summary="summary" />
 
             <!-- data table -->
-            <VegetableTable
-                :vegetables="vegetables"
+            <VarietyTable
+                :varieties="varieties"
                 @open-create="openCreate"
                 @open-edit="openEdit"
                 @open-delete="openDelete"
@@ -171,18 +193,18 @@ function handlePageChange(page: number) {
     </AppLayout>
 
     <!-- -- modals -- -->
-    <VegetableForm
+    <VarietyForm
         :open="formOpen"
-        :vegetable="activeVegetable"
-        :category-options="categoryOptions"
+        :variety="activeVariety"
+        :vegetable-options="vegetableOptions"
         :is-submitting="isSubmitting"
         @update:open="formOpen = $event"
         @submit="handleSubmit"
     />
 
-    <VegetableDeleteConfirm
+    <VarietyDeleteConfirm
         :open="deleteOpen"
-        :vegetable="activeVegetable"
+        :variety="activeVariety"
         @update:open="deleteOpen = $event"
         @confirm="handleDelete"
     />

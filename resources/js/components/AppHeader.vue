@@ -70,7 +70,7 @@ const mainNavItems = computed<NavItem[]>(() => {
                 icon: LayoutGrid
             }, {
                 title: 'Vegetables',
-                href: admin.vegetables.index(),
+                href: admin.vegetables_varieties.index(),
                 icon: Sprout
             })
         }
