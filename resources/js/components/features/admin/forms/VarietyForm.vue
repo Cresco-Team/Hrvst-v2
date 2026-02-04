@@ -22,7 +22,7 @@ import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import { Spinner } from '@/components/ui/spinner'
 import { Badge } from '@/components/ui/badge'
-import { Leaf, Clock } from 'lucide-vue-next'
+import { Leaf, Clock, DollarSign } from 'lucide-vue-next'
 import ImageUpload from '@/components/shared/media/ImageUpload.vue'
 
 interface Variety {
@@ -31,6 +31,10 @@ interface Variety {
     name: string
     image_url?: string
     weeks_to_harvest: number
+    latest_price?: {
+        price_min: string
+        price_max: string
+    } | null
 }
 
 interface VegetableOptions {
@@ -57,6 +61,8 @@ const form = ref({
     name: '',
     image: null as File | null,
     weeks_to_harvest: 8,
+    price_min: '',
+    price_max: '',
 })
 
 const errors = ref<{
@@ -64,6 +70,8 @@ const errors = ref<{
     name?: string
     image?: string
     weeks_to_harvest?: string
+    price_min?: string
+    price_max?: string
 }>({})
 
 /* reset form whenever the modal opens or the target variety changes */
@@ -75,6 +83,8 @@ watch(
             name: props.variety?.name ?? '',
             image: null,
             weeks_to_harvest: props.variety?.weeks_to_harvest ?? 8,
+            price_min: props.variety?.latest_price?.price_min ?? '',
+            price_max: props.variety?.latest_price?.price_max ?? '',
         }
         errors.value = {}
     },
@@ -101,6 +111,16 @@ const selectedVegetableName = computed(() => {
 
 const existingImageUrl = computed(() => props.variety?.image_url ?? null)
 
+const priceRange = computed(() => {
+    const min = parseFloat(form.value.price_min)
+    const max = parseFloat(form.value.price_max)
+    
+    if (isNaN(min) || isNaN(max)) return null
+    
+    const avg = ((min + max) / 2).toFixed(2)
+    return `₱${min} - ₱${max} (avg: ₱${avg})`
+})
+
 /* ── actions ── */
 function validate(): boolean {
     errors.value = {}
@@ -117,6 +137,31 @@ function validate(): boolean {
     if (form.value.weeks_to_harvest < 1 || form.value.weeks_to_harvest > 52) {
         errors.value.weeks_to_harvest = 'Must be between 1 and 52 weeks'
     }
+    
+    // Price validation
+    const priceMin = parseFloat(form.value.price_min)
+    const priceMax = parseFloat(form.value.price_max)
+    
+    if (!form.value.price_min || isNaN(priceMin)) {
+        errors.value.price_min = 'Minimum price is required'
+    } else if (priceMin < 0) {
+        errors.value.price_min = 'Price cannot be negative'
+    } else if (priceMin > 9999.99) {
+        errors.value.price_min = 'Price cannot exceed ₱9,999.99'
+    }
+    
+    if (!form.value.price_max || isNaN(priceMax)) {
+        errors.value.price_max = 'Maximum price is required'
+    } else if (priceMax < 0) {
+        errors.value.price_max = 'Price cannot be negative'
+    } else if (priceMax > 9999.99) {
+        errors.value.price_max = 'Price cannot exceed ₱9,999.99'
+    }
+    
+    // Cross-validation: max must be >= min
+    if (!errors.value.price_min && !errors.value.price_max && priceMax < priceMin) {
+        errors.value.price_max = 'Maximum price must be greater than or equal to minimum price'
+    }
 
     return Object.keys(errors.value).length === 0
 }
@@ -129,6 +174,8 @@ function handleSubmit() {
     formData.append('vegetable_id', form.value.vegetable_id)
     formData.append('name', form.value.name.trim())
     formData.append('weeks_to_harvest', form.value.weeks_to_harvest.toString())
+    formData.append('price_min', parseFloat(form.value.price_min).toFixed(2))
+    formData.append('price_max', parseFloat(form.value.price_max).toFixed(2))
     
     if (form.value.image) {
         formData.append('image', form.value.image)
@@ -224,6 +271,67 @@ function close() {
                         :error="errors.image"
                         :required="!isEditMode"
                     />
+
+                    <!-- Price Range Section -->
+                    <div class="flex flex-col gap-3 rounded-lg border p-4 bg-muted/30">
+                        <Label class="flex items-center gap-1.5">
+                            <DollarSign class="size-3.5" />
+                            Current Market Price
+                            <Badge variant="secondary" class="text-xs font-normal">Required</Badge>
+                        </Label>
+                        
+                        <div class="grid grid-cols-2 gap-3">
+                            <!-- Minimum Price -->
+                            <div class="flex flex-col gap-2">
+                                <Label for="price_min" class="text-xs text-muted-foreground">
+                                    Minimum (₱)
+                                </Label>
+                                <Input
+                                    id="price_min"
+                                    v-model="form.price_min"
+                                    type="number"
+                                    step="0.01"
+                                    min="0"
+                                    max="9999.99"
+                                    placeholder="0.00"
+                                    :class="{ 'border-destructive': errors.price_min }"
+                                />
+                                <p v-if="errors.price_min" class="text-xs text-destructive">
+                                    {{ errors.price_min }}
+                                </p>
+                            </div>
+
+                            <!-- Maximum Price -->
+                            <div class="flex flex-col gap-2">
+                                <Label for="price_max" class="text-xs text-muted-foreground">
+                                    Maximum (₱)
+                                </Label>
+                                <Input
+                                    id="price_max"
+                                    v-model="form.price_max"
+                                    type="number"
+                                    step="0.01"
+                                    min="0"
+                                    max="9999.99"
+                                    placeholder="0.00"
+                                    :class="{ 'border-destructive': errors.price_max }"
+                                />
+                                <p v-if="errors.price_max" class="text-xs text-destructive">
+                                    {{ errors.price_max }}
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Price Range Preview -->
+                        <div v-if="priceRange" class="flex items-center gap-2 pt-1">
+                            <Badge variant="secondary" class="font-mono text-xs">
+                                {{ priceRange }}
+                            </Badge>
+                        </div>
+                        <p v-else class="text-xs text-muted-foreground">
+                            Enter the current market price range per kilogram
+                        </p>
+                    </div>
 
                     <!-- Weeks to Harvest -->
                     <div class="flex flex-col gap-2">

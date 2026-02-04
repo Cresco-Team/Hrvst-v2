@@ -3,7 +3,6 @@
 namespace App\Http\Requests\Admin\Product;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
 class UpdateVarietyRequest extends FormRequest
 {
@@ -14,35 +13,13 @@ class UpdateVarietyRequest extends FormRequest
 
     public function rules(): array
     {
-        $varietyId = $this->route('variety')?->id;
-
         return [
-            'vegetable_id' => [
-                'required',
-                'integer',
-                Rule::exists('vegetables', 'id'),
-            ],
-            'name' => [
-                'required',
-                'string',
-                'max:255',
-                // Unique combination of vegetable_id and name, excluding current variety
-                Rule::unique('varieties')->where(function ($query) {
-                    return $query->where('vegetable_id', $this->vegetable_id);
-                })->ignore($varietyId),
-            ],
-            'image' => [
-                'nullable',
-                'image',
-                'mimes:jpeg,jpg,png,webp',
-                'max:2048',
-            ],
-            'weeks_to_harvest' => [
-                'required',
-                'integer',
-                'min:1',
-                'max:52',
-            ],
+            'vegetable_id' => ['required', 'exists:vegetables,id'],
+            'name' => ['required', 'string', 'max:255'],
+            'image' => ['nullable', 'image', 'mimes:jpeg,jpg,png,webp', 'max:5120'], // Optional on update
+            'weeks_to_harvest' => ['required', 'integer', 'min:1', 'max:52'],
+            'price_min' => ['required', 'numeric', 'min:0', 'max:9999.99'],
+            'price_max' => ['required', 'numeric', 'min:0', 'max:9999.99', 'gte:price_min'],
         ];
     }
 
@@ -52,21 +29,21 @@ class UpdateVarietyRequest extends FormRequest
             'vegetable_id.required' => 'Please select a parent vegetable.',
             'vegetable_id.exists' => 'The selected vegetable does not exist.',
             'name.required' => 'Variety name is required.',
-            'name.unique' => 'This variety name already exists for the selected vegetable.',
             'image.image' => 'The file must be an image.',
-            'image.mimes' => 'Image must be jpeg, jpg, png, or webp format.',
-            'image.max' => 'Image size must not exceed 2MB.',
+            'image.mimes' => 'Image must be JPEG, PNG, or WebP format.',
+            'image.max' => 'Image size cannot exceed 5MB.',
             'weeks_to_harvest.required' => 'Weeks to harvest is required.',
-            'weeks_to_harvest.min' => 'Weeks to harvest must be at least 1 week.',
-            'weeks_to_harvest.max' => 'Weeks to harvest cannot exceed 52 weeks.',
-        ];
-    }
-
-    public function attributes(): array
-    {
-        return [
-            'vegetable_id' => 'parent vegetable',
-            'weeks_to_harvest' => 'harvest time',
+            'weeks_to_harvest.min' => 'Must be at least 1 week.',
+            'weeks_to_harvest.max' => 'Cannot exceed 52 weeks.',
+            'price_min.required' => 'Minimum price is required.',
+            'price_min.numeric' => 'Minimum price must be a number.',
+            'price_min.min' => 'Price cannot be negative.',
+            'price_min.max' => 'Price cannot exceed ₱9,999.99.',
+            'price_max.required' => 'Maximum price is required.',
+            'price_max.numeric' => 'Maximum price must be a number.',
+            'price_max.min' => 'Price cannot be negative.',
+            'price_max.max' => 'Price cannot exceed ₱9,999.99.',
+            'price_max.gte' => 'Maximum price must be greater than or equal to minimum price.',
         ];
     }
 }

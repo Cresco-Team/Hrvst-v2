@@ -2,6 +2,7 @@
 
 namespace App\Services\Product;
 
+use App\Models\Product\PriceHistory;
 use App\Models\Product\Variety;
 use App\Models\Product\Vegetable;
 use App\Services\Media\ImageUploadService;
@@ -100,7 +101,18 @@ class VarietyService
             $validated['image_path'] = $this->imageService->uploadVarietyImage($image);
         }
 
-        return Variety::create($validated);
+        // Extract price data before creating variety
+        $priceMin = $validated['price_min'];
+        $priceMax = $validated['price_max'];
+        unset($validated['price_min'], $validated['price_max']);
+
+        // Create the variety
+        $variety = Variety::create($validated);
+
+        // Create initial price history
+        $this->createPriceHistory($variety, $priceMin, $priceMax);
+
+        return $variety->load('latestPrice');
     }
 
     public function update(Variety $variety, array $validated, ?UploadedFile $image = null): Variety
@@ -113,9 +125,18 @@ class VarietyService
             );
         }
 
+        // Extract price data
+        $priceMin = $validated['price_min'];
+        $priceMax = $validated['price_max'];
+        unset($validated['price_min'], $validated['price_max']);
+
+        // Update variety
         $variety->update($validated);
 
-        return $variety;
+        // Update price history (create new entry for today)
+        $this->updatePriceHistory($variety, $priceMin, $priceMax);
+
+        return $variety->load('latestPrice');
     }
 
     public function delete(Variety $variety): bool
@@ -130,8 +151,39 @@ class VarietyService
             $this->imageService->deleteVarietyImage($variety->image_path);
         }
 
+        // Delete variety (price history will cascade delete)
         $variety->delete();
 
         return true;
+    }
+
+    /**
+     * Create a new price history entry for today
+     */
+    private function createPriceHistory(Variety $variety, float $priceMin, float $priceMax): void
+    {
+        PriceHistory::create([
+            'variety_id' => $variety->id,
+            'price_min' => $priceMin,
+            'price_max' => $priceMax,
+            'recorded_at' => now()->startOfDay(),
+        ]);
+    }
+
+    /**
+     * Update price history - create new entry for today or update existing
+     */
+    private function updatePriceHistory(Variety $variety, float $priceMin, float $priceMax): void
+    {
+        PriceHistory::updateOrCreate(
+            [
+                'variety_id' => $variety->id,
+                'recorded_at' => now()->startOfDay(),
+            ],
+            [
+                'price_min' => $priceMin,
+                'price_max' => $priceMax,
+            ]
+        );
     }
 }

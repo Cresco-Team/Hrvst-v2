@@ -16,8 +16,10 @@ class StoreVarietyRequest extends FormRequest
         return [
             'vegetable_id' => ['required', 'exists:vegetables,id'],
             'name' => ['required', 'string', 'max:255'],
-            'image' => ['required', 'image', 'mimes:jpeg,png,jpg,webp', 'max:5120'], // 5MB
+            'image' => ['required', 'image', 'mimes:jpeg,jpg,png,webp', 'max:5120'], // 5MB max
             'weeks_to_harvest' => ['required', 'integer', 'min:1', 'max:52'],
+            'price_min' => ['required', 'numeric', 'min:0', 'max:9999.99'],
+            'price_max' => ['required', 'numeric', 'min:0', 'max:9999.99', 'gte:price_min'],
         ];
     }
 
@@ -25,17 +27,24 @@ class StoreVarietyRequest extends FormRequest
     {
         return [
             'vegetable_id.required' => 'Please select a parent vegetable.',
-            'vegetable_id.exists' => 'Selected vegetable does not exist.',
+            'vegetable_id.exists' => 'The selected vegetable does not exist.',
             'name.required' => 'Variety name is required.',
-            'name.max' => 'Variety name must not exceed 255 characters.',
-            'image.required' => 'Please upload an image for this variety.',
-            'image.image' => 'File must be an image.',
-            'image.mimes' => 'Image must be a JPEG, PNG, JPG, or WebP file.',
-            'image.max' => 'Image must not exceed 5MB.',
+            'image.required' => 'Image is required.',
+            'image.image' => 'The file must be an image.',
+            'image.mimes' => 'Image must be JPEG, PNG, or WebP format.',
+            'image.max' => 'Image size cannot exceed 5MB.',
             'weeks_to_harvest.required' => 'Weeks to harvest is required.',
-            'weeks_to_harvest.integer' => 'Weeks to harvest must be a number.',
-            'weeks_to_harvest.min' => 'Weeks to harvest must be at least 1.',
-            'weeks_to_harvest.max' => 'Weeks to harvest must not exceed 52.',
+            'weeks_to_harvest.min' => 'Must be at least 1 week.',
+            'weeks_to_harvest.max' => 'Cannot exceed 52 weeks.',
+            'price_min.required' => 'Minimum price is required.',
+            'price_min.numeric' => 'Minimum price must be a number.',
+            'price_min.min' => 'Price cannot be negative.',
+            'price_min.max' => 'Price cannot exceed ₱9,999.99.',
+            'price_max.required' => 'Maximum price is required.',
+            'price_max.numeric' => 'Maximum price must be a number.',
+            'price_max.min' => 'Price cannot be negative.',
+            'price_max.max' => 'Price cannot exceed ₱9,999.99.',
+            'price_max.gte' => 'Maximum price must be greater than or equal to minimum price.',
         ];
     }
 }
