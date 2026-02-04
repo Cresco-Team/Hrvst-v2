@@ -16,15 +16,26 @@ class VarietyController extends Controller
         private VarietyService $varietyService
     ) {}
 
+    /**
+     * OPTIMIZED: Uses deferred props for instant navigation
+     */
     public function index(Request $request)
     {
         return Inertia::render('admin/vegetables-varieties/Index', [
-            'varieties' => VarietyService::paginated(),
-            'summary' => VarietyService::summary(),
-            'vegetableOptions' => VarietyService::vegetableOptions(),
+            // These load immediately (synchronous)
             'filters' => [
                 'price_filter' => $request->query('price_filter', null),
             ],
+            
+            // These load after page renders (deferred/lazy)
+            'varieties' => Inertia::defer(fn () => VarietyService::paginated(
+                perPage: 20,
+                priceFilter: $request->query('price_filter', null)
+            )),
+            
+            'summary' => Inertia::defer(fn () => VarietyService::summary()),
+            
+            'vegetableOptions' => Inertia::defer(fn () => VarietyService::vegetableOptions()),
         ]);
     }
 

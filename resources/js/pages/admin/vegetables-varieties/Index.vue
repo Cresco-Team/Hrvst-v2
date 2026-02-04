@@ -12,6 +12,7 @@ import VarietyTable from '@/components/features/admin/tables/VarietyTable.vue'
 import VarietyForm from '@/components/features/admin/forms/VarietyForm.vue'
 import VarietyDeleteConfirm from '@/components/features/admin/dialogs/VarietyDeleteConfirm.vue'
 import PriceFreshnessFilter from '@/components/features/admin/filters/PriceFreshnessFilter.vue'
+import { Skeleton } from '@/components/ui/skeleton'
 
 /* -- types -- */
 interface Variety {
@@ -57,15 +58,15 @@ interface VegetableOptions {
 }
 
 interface Props {
-    varieties: {
+    varieties?: {
         data: Variety[]
         current_page: number
         last_page: number
         per_page: number
         total: number
     }
-    summary: Summary
-    vegetableOptions: VegetableOptions
+    summary?: Summary
+    vegetableOptions?: VegetableOptions
     filters: {
         price_filter: string | null
     }
@@ -182,6 +183,11 @@ function handlePageChange(page: number) {
         { preserveScroll: true }
     )
 }
+
+/* -- loading states -- */
+const isLoadingSummary = computed(() => !props.summary)
+const isLoadingVarieties = computed(() => !props.varieties)
+const isLoadingOptions = computed(() => !props.vegetableOptions)
 </script>
 
 <template>
@@ -201,28 +207,52 @@ function handlePageChange(page: number) {
                 
                 <!-- Price Freshness Filter -->
                 <PriceFreshnessFilter
+                    v-if="summary"
                     :active-filter="filters.price_filter"
                     :price-stats="summary.price_stats"
                     @filter-change="handleFilterChange"
                 />
+                <Skeleton v-else class="h-9 w-32" />
             </div>
 
             <!-- summary cards -->
-            <VarietySummaryCards :summary="summary" />
+            <VarietySummaryCards v-if="summary" :summary="summary" />
+            <div v-else class="grid grid-cols-1 gap-4 md:grid-cols-3">
+                <Skeleton class="h-24 rounded-lg" />
+                <Skeleton class="h-24 rounded-lg" />
+                <Skeleton class="h-24 rounded-lg" />
+            </div>
 
             <!-- data table -->
             <VarietyTable
+                v-if="varieties"
                 :varieties="varieties"
                 @open-create="openCreate"
                 @open-edit="openEdit"
                 @open-delete="openDelete"
                 @page-change="handlePageChange"
             />
+            <div v-else class="flex flex-col gap-4">
+                <div class="flex items-center justify-between">
+                    <Skeleton class="h-9 w-64" />
+                    <Skeleton class="h-9 w-32" />
+                </div>
+                <div class="rounded-lg border">
+                    <div class="p-4 space-y-3">
+                        <Skeleton class="h-12 w-full" />
+                        <Skeleton class="h-12 w-full" />
+                        <Skeleton class="h-12 w-full" />
+                        <Skeleton class="h-12 w-full" />
+                        <Skeleton class="h-12 w-full" />
+                    </div>
+                </div>
+            </div>
         </div>
     </AppLayout>
 
     <!-- -- modals -- -->
     <VarietyForm
+        v-if="vegetableOptions"
         :open="formOpen"
         :variety="activeVariety"
         :vegetable-options="vegetableOptions"
