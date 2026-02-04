@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Conversation extends Model
 {
-    protected $fillable = [];
+    protected $fillable = ['planting_id'];
 
     /* ---------- relations ---------- */
 
