@@ -4,11 +4,17 @@ namespace App\Services\Product;
 
 use App\Models\Product\Variety;
 use App\Models\Product\Vegetable;
+use App\Services\Media\ImageUploadService;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\UploadedFile;
 
 class VarietyService
 {
+    public function __construct(
+        private ImageUploadService $imageService
+    ) {}
+
     public static function paginated(int $perPage = 20, ?string $priceFilter = null): LengthAwarePaginator
     {
         $query = Variety::with([
@@ -31,18 +37,20 @@ class VarietyService
         return $query->orderBy('name')
             ->paginate($perPage)
             ->through(function ($variety) {
+                // Add image URL
+                $variety->image_url = app(ImageUploadService::class)->getImageUrl($variety->image_path);
+                
                 if ($variety->latestPrice) {
                     $variety->price_updated_human = $variety->latestPrice->recorded_at->diffForHumans();
                     $variety->price_updated_date = $variety->latestPrice->recorded_at->format('M d, Y');
                     
-                    // Balanced freshness indicator - encourages weekly updates
                     $daysOld = $variety->latestPrice->recorded_at->diffInDays(now());
                     $variety->price_freshness = match (true) {
-                        $daysOld <= 3 => 'fresh',      // 0-3 days: Fresh
-                        $daysOld <= 7 => 'recent',     // 4-7 days: Still good
-                        $daysOld <= 14 => 'okay',      // 8-14 days: Acceptable
-                        $daysOld <= 30 => 'aging',     // 15-30 days: Getting old
-                        default => 'stale',            // 30+ days: Needs update
+                        $daysOld <= 3 => 'fresh',
+                        $daysOld <= 7 => 'recent',
+                        $daysOld <= 14 => 'okay',
+                        $daysOld <= 30 => 'aging',
+                        default => 'stale',
                     };
                 }
                 return $variety;
@@ -85,22 +93,41 @@ class VarietyService
             ->toArray();
     }
 
-    public static function create(array $validated): Variety
+    public function create(array $validated, ?UploadedFile $image = null): Variety
     {
+        // Handle image upload
+        if ($image) {
+            $validated['image_path'] = $this->imageService->uploadVarietyImage($image);
+        }
+
         return Variety::create($validated);
     }
 
-    public static function update(Variety $variety, array $validated): Variety
+    public function update(Variety $variety, array $validated, ?UploadedFile $image = null): Variety
     {
+        // Handle image upload and replace old one
+        if ($image) {
+            $validated['image_path'] = $this->imageService->uploadVarietyImage(
+                $image, 
+                $variety->image_path
+            );
+        }
+
         $variety->update($validated);
 
         return $variety;
     }
 
-    public static function delete(Variety $variety): bool
+    public function delete(Variety $variety): bool
     {
+        // Check for plantings
         if ($variety->plantings()->exists()) {
             return false;
+        }
+
+        // Delete image file
+        if ($variety->image_path) {
+            $this->imageService->deleteVarietyImage($variety->image_path);
         }
 
         $variety->delete();
