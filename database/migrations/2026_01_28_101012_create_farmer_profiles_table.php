@@ -11,11 +11,12 @@ return new class extends Migration
         Schema::create('farmer_profiles', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->unique()->constrained()->cascadeOnDelete();
+            $table->foreignId('province_id')->constrained();
+            $table->foreignId('municipality_id')->constrained();
+            $table->foreignId('barangay_id')->constrained();
 
             $table->boolean('is_approved')->default(false);
 
-            $table->foreignId('municipality_id')->constrained();
-            $table->foreignId('barangay_id')->constrained();
             $table->double('latitude');
             $table->double('longitude');
 
