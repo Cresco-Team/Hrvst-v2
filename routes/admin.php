@@ -12,7 +12,7 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
 
     Route::get('/vegetables-varieties', [VarietyController::class, 'index'])
         ->name('vegetables_varieties.index');
-    Route::post('/vegetables_varieties', [VarietyController::class, 'store'])
+    Route::post('/vegetables-varieties', [VarietyController::class, 'store'])
         ->name('vegetables_varieties.store');
     Route::put('/vegetables-varieties/{variety}', [VarietyController::class, 'update'])
         ->name('vegetables_varieties.update');
