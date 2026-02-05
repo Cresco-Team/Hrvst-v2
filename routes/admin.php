@@ -28,14 +28,12 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     Route::delete('/farmers/{farmer}', [FarmerController::class, 'destroy'])
         ->name('farmers.destroy');
 
-    Route::prefix('farmers-map')->name('farmers.map.')->group(function () {
-        Route::get('/', [FarmerMapController::class, 'index'])
-            ->name('index');
-        Route::get('/markers', [FarmerMapController::class, 'markers'])
-            ->name('markers');
-        Route::get('/{id}', [FarmerMapController::class, 'show'])
-            ->name('show');
-    });
+    Route::get('farmers-map', [FarmerMapController::class, 'index'])
+        ->name('farmers.map.index');
+        Route::get('farmers-map/markers', [FarmerMapController::class, 'markers'])
+        ->name('farmers.map.markers');
+        Route::get('farmers-map/{id}', [FarmerMapController::class, 'show'])
+        ->name('farmers.map.show');
 
     Route::get('/dealers', [DealerController::class, 'index'])
         ->name('dealers.index');
