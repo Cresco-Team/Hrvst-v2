@@ -37,7 +37,7 @@ class FarmerMapService
         return Variety::query()
             ->whereHas('plantings', function ($q) {
                 $q->where('status', 'active')
-                    ->whereHas('farmers', fn($fq) => $fq->where('is_approved', true));
+                    ->whereHas('farmer', fn($fq) => $fq->where('is_approved', true));
             })
             ->with('vegetable.category')
             ->orderBy('name')
