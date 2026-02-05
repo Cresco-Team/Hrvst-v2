@@ -19,7 +19,7 @@ return new class extends Migration
             $table->date('expected_harvest_date');
             $table->date('date_harvested');
 
-            $table->enum('status', ['active', 'harvested', 'expired']);
+            $table->enum('status', ['active', 'harvested', 'expired', 'cancelled']);
 
             $table->timestamps();
         });
