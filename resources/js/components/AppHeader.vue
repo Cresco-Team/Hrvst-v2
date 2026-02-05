@@ -38,6 +38,7 @@ import { toUrl } from '@/lib/utils';
 import { dashboard } from '@/routes';
 import type { BreadcrumbItem, NavItem } from '@/types';
 import admin from '@/routes/admin';
+import dealer from '@/routes/dealer';
 
 type Props = {
     breadcrumbs?: BreadcrumbItem[];
@@ -56,11 +57,6 @@ const activeItemStyles =
 
 const mainNavItems = computed<NavItem[]>(() => {
     const items: NavItem[] = [
-        {
-            title: 'Home',
-            href: dashboard(),
-            icon: LayoutGrid,
-        },
     ];
         
         if (page.props.auth.user.roles.includes('admin')) {
@@ -79,6 +75,14 @@ const mainNavItems = computed<NavItem[]>(() => {
             }, {
                 title: 'Dealers',
                 href: admin.dealers.index(),
+                icon: Store
+            })
+        }
+
+        if (page.props.auth.user.roles.includes('dealer')) {
+            items.push({
+                title: 'Market',
+                href: dealer.market(),
                 icon: Store
             })
         }
