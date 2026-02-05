@@ -214,8 +214,8 @@ watch([selectedMunicipality, selectedVariety, mapBounds], () => {
                 />
             </div>
 
-            <!-- Map Container -->
-            <div class="relative h-[calc(100vh-20rem)] w-full overflow-hidden rounded-lg border shadow-sm">
+            <!-- Map Container - Fixed z-index -->
+            <div class="relative h-[calc(100vh-20rem)] w-full overflow-hidden rounded-lg border shadow-sm z-10">
                 <!-- Loading Overlay -->
                 <Transition
                     enter-active-class="transition-opacity duration-200"
@@ -272,7 +272,7 @@ watch([selectedMunicipality, selectedVariety, mapBounds], () => {
             </div>
         </AppContent>
 
-        <!-- Sidebar -->
+        <!-- Sidebar - Highest z-index -->
         <FarmerMapSidebar
             :open="sidebarOpen"
             :farmer="selectedFarmer"

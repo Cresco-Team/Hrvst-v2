@@ -121,7 +121,9 @@ const initMap = () => {
 
     markerClusterGroup = L.markerClusterGroup({
         maxClusterRadius: 60,
-        disableClusteringAtZoom: 16,
+        disableClusteringAtZoom: 14,
+        spiderfyOnMaxZoom: true,
+        showCoverageOnHover: false,
         iconCreateFunction: (cluster) => {
             const count = cluster.getChildCount()
             const size = count < 10 ? 40 : count < 50 ? 50 : 60
@@ -181,5 +183,15 @@ onUnmounted(() => {
 :deep(.marker-cluster-custom) {
     background: transparent !important;
     border: none !important;
+}
+
+/* Ensure map stays below overlays */
+:deep(.leaflet-pane) {
+    z-index: 1 !important;
+}
+
+:deep(.leaflet-top),
+:deep(.leaflet-bottom) {
+    z-index: 2 !important;
 }
 </style>
