@@ -32,9 +32,9 @@ class Planting extends Model
 
     /* ---------- relations ---------- */
 
-    public function farmers(): BelongsToMany
+    public function farmer(): BelongsTo
     {
-        return $this->belongsToMany(FarmerProfile::class);
+        return $this->belongsTo(FarmerProfile::class, 'farmer_id');
     }
 
     public function variety(): BelongsTo
@@ -75,6 +75,13 @@ class Planting extends Model
         }
     }
 
+    public function markAsCancelled(): void
+    {
+        if ($this->status === 'active') {
+            $this->update(['status' => 'cancelled']);
+        }
+    }
+
     /* ---------- scopes ---------- */
 
     public function scopeActive(Builder $query): Builder
@@ -90,6 +97,18 @@ class Planting extends Model
     public function scopeExpired(Builder $query): Builder
     {
         return $query->where('status', 'expired');
+    }
+
+    public function scopeCancelled(Builder $query): Builder
+    {
+        return $query->where('status', 'cancelled');
+    }
+
+    public function scopeHarvestingSoon(Builder $query, int $days = 7): Builder
+    {
+        return $query->active()
+            ->whereNotNull('expected_harvest_date')
+            ->whereBetween('expected_harvest_date', [now(), now()->addDays($days)]);
     }
 
     /* ---------- accessors ---------- */
@@ -113,6 +132,7 @@ class Planting extends Model
                 'active'    => $this->isExpired() ? 'Overdue' : 'Growing',
                 'harvested' => 'Harvested',
                 'expired'   => 'Expired',
+                'cancelled' => 'Cancelled',
                 default     => 'Unknown',
             }
         );
