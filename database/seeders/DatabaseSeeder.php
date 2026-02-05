@@ -9,6 +9,7 @@ use Database\Seeders\Address\ProvinceSeeder;
 use Database\Seeders\Product\PriceHistorySeeder;
 use Database\Seeders\Product\VarietySeeder;
 use Database\Seeders\Profiles\AdminSeeder;
+use Database\Seeders\Profiles\DealerSeeder;
 use Database\Seeders\Profiles\FarmerSeeder;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -27,6 +28,7 @@ class DatabaseSeeder extends Seeder
             
             AdminSeeder::class,
             FarmerSeeder::class,
+            DealerSeeder::class,
         ]);
     }
 }
