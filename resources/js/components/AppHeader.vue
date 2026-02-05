@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Link, usePage } from '@inertiajs/vue3';
-import { BookOpen, Folder, Gem, LayoutGrid, Menu, Search, Sprout, Store, Wheat } from 'lucide-vue-next';
+import { BookOpen, Folder, Gem, LayoutGrid, Menu, MessagesSquare, Search, Sprout, Store, Wheat } from 'lucide-vue-next';
 import { computed } from 'vue';
 import AppLogo from '@/components/AppLogo.vue';
 import AppLogoIcon from '@/components/AppLogoIcon.vue';
@@ -90,18 +90,30 @@ const mainNavItems = computed<NavItem[]>(() => {
     return items
 })
 
-const rightNavItems: NavItem[] = [
-    {
-        title: 'Repository',
-        href: 'https://github.com/laravel/vue-starter-kit',
-        icon: Folder,
-    },
-    {
-        title: 'Documentation',
-        href: 'https://laravel.com/docs/starter-kits#vue',
-        icon: BookOpen,
-    },
-];
+const rightNavItems = computed<NavItem[]>(() => {
+    const items: NavItem[] = [
+        {
+            title: 'Repository',
+            href: 'https://github.com/laravel/vue-starter-kit',
+            icon: Folder,
+        },
+        {
+            title: 'Documentation',
+            href: 'https://laravel.com/docs/starter-kits#vue',
+            icon: BookOpen,
+        },
+    ]
+
+    if (page.props.auth.user.roles.includes('dealer')) {
+        items.push({
+            title: 'Conversation',
+            href: '#',
+            icon: MessagesSquare, 
+        })
+    }
+
+    return items;
+})
 </script>
 
 <template>
