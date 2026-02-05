@@ -36,7 +36,7 @@ if (app()->environment('local', 'development')) {
         })->name('login.farmer');
 
         Route::get('login/dealer', function () {
-            Auth::loginUsingId(2);
+            Auth::loginUsingId(3);
             return redirect()->route('dealer.market');
         })->name('login.dealer');
     });
@@ -44,3 +44,5 @@ if (app()->environment('local', 'development')) {
 
 require __DIR__.'/settings.php';
 require __DIR__.'/admin.php';
+require __DIR__.'/farmer.php';
+require __DIR__.'/dealer.php';
