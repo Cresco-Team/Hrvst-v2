@@ -42,7 +42,7 @@ const actions = [
                 v-for="action in actions"
                 :key="action.title"
                 :href="action.href"
-                class="group relative overflow-hidden rounded-lg border bg-gradient-to-br p-4 transition-all hover:shadow-md"
+                class="group relative overflow-hidden rounded-lg border bg-linear-to-br p-4 transition-all hover:shadow-md"
                 :class="action.gradient"
             >
                 <div class="flex items-start gap-3">
