@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { Head, router } from '@inertiajs/vue3'
-import { Users } from 'lucide-vue-next'
+import { Head, router, Link } from '@inertiajs/vue3'
+import { Users, Map } from 'lucide-vue-next'
 import AppShell from '@/components/AppShell.vue'
 import AppHeader from '@/components/AppHeader.vue'
 import AppContent from '@/components/AppContent.vue'
 import Heading from '@/components/Heading.vue'
 import FarmerSummaryCard from '@/components/features/admin/cards/FarmerSummaryCard.vue'
+import { Button } from '@/components/ui/button'
 import admin from '@/routes/admin'
 import FarmerTable from '@/components/features/admin/tables/FarmerTable.vue'
 
@@ -94,16 +95,25 @@ function handlePageChange(page: number) {
         />
         <AppContent variant="header" class="p-6">
             <div class="flex flex-col gap-6">
-                <div class="flex items-center gap-3">
-                    <div
-                        class="flex size-10 items-center justify-center rounded-lg bg-primary/10 text-primary"
-                    >
-                        <Users class="size-5" />
+                <div class="flex items-center justify-between gap-4">
+                    <div class="flex items-center gap-3">
+                        <div
+                            class="flex size-10 items-center justify-center rounded-lg bg-primary/10 text-primary"
+                        >
+                            <Users class="size-5" />
+                        </div>
+                        <Heading
+                            title="Farmers"
+                            description="Manage approved farmers and their active plantings"
+                        />
                     </div>
-                    <Heading
-                        title="Farmers"
-                        description="Manage approved farmers and their active plantings"
-                    />
+                    
+                    <Button as-child variant="outline" class="gap-2">
+                        <Link :href="admin.farmers.map.index()">
+                            <Map class="size-4" />
+                            Map View
+                        </Link>
+                    </Button>
                 </div>
 
                 <FarmerSummaryCard :summary="summary" />

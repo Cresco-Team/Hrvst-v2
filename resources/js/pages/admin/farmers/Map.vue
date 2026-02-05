@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import { Head } from '@inertiajs/vue3'
+import { Head, Link } from '@inertiajs/vue3'
 import axios from 'axios'
 import AppShell from '@/components/AppShell.vue'
 import AppHeader from '@/components/AppHeader.vue'
@@ -9,8 +9,10 @@ import Heading from '@/components/Heading.vue'
 import FarmerMap from '@/components/features/admin/map/FarmerMap.vue'
 import FarmerMapFilters from '@/components/features/admin/map/FarmerMapFilters.vue'
 import FarmerMapSidebar from '@/components/features/admin/map/FarmerMapSidebar.vue'
-import { Map as MapIcon } from 'lucide-vue-next'
-import { toast } from 'vue-sonner';
+import { Button } from '@/components/ui/button'
+import { Map as MapIcon, List } from 'lucide-vue-next'
+import { toast } from 'vue-sonner'
+import admin from '@/routes/admin'
 
 interface MarkerData {
     id: number
@@ -126,10 +128,8 @@ const fetchMarkers = async () => {
         const response = await axios.get('/admin/farmers-map/markers', { params })
         markers.value = response.data.markers
     } catch (error: any) {
-        toast({
-            title: 'Error loading markers',
-            description: error.response?.data?.message || 'Failed to load farmer markers',
-            variant: 'destructive',
+        toast.error('Error loading markers', {
+            description: error.response?.data?.message || 'Failed to load farmer markers'
         })
     } finally {
         loadingMarkers.value = false
@@ -146,10 +146,8 @@ const fetchFarmerDetails = async (farmerId: number) => {
         const response = await axios.get(`/admin/farmers-map/${farmerId}`)
         selectedFarmer.value = response.data
     } catch (error: any) {
-        toast({
-            title: 'Error loading farmer details',
-            description: error.response?.data?.error || 'Failed to load farmer information',
-            variant: 'destructive',
+        toast.error('Error loading farmer details', {
+            description: error.response?.data?.error || 'Failed to load farmer information'
         })
         sidebarOpen.value = false
     } finally {
@@ -193,14 +191,23 @@ watch([selectedMunicipality, selectedVariety, mapBounds], () => {
 
         <AppContent variant="header" class="container mx-auto p-4 md:p-6">
             <div class="mb-6 space-y-6">
-                <Heading
-                    title="Farmers Map"
-                    description="View all approved farmers on the map with their active plantings"
-                >
-                    <template #icon>
-                        <MapIcon class="size-5" />
-                    </template>
-                </Heading>
+                <div class="flex items-center justify-between gap-4">
+                    <Heading
+                        title="Farmers Map"
+                        description="View all approved farmers on the map with their active plantings"
+                    >
+                        <template #icon>
+                            <MapIcon class="size-5" />
+                        </template>
+                    </Heading>
+
+                    <Button as-child variant="outline" class="gap-2">
+                        <Link :href="admin.farmers.index()">
+                            <List class="size-4" />
+                            List View
+                        </Link>
+                    </Button>
+                </div>
 
                 <!-- Filters -->
                 <FarmerMapFilters
