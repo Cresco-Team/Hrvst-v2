@@ -34,12 +34,14 @@ class FarmerSeeder extends Seeder
             [
                 'is_approved' => true,
                 'province_id' => 1,
-                'municipality_id' => 1, // CHANGE if invalid
-                'barangay_id' => 1,     // CHANGE if invalid
+                'municipality_id' => 1,
+                'barangay_id' => 1,
                 'latitude' => 16.4023,
                 'longitude' => 120.5960,
                 'farm_image' => null,
             ]
         );
+
+        $this->command->info('✓ Test farmer created: farmer@hrvst.com / password');
     }
 }
