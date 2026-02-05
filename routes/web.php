@@ -34,6 +34,11 @@ if (app()->environment('local', 'development')) {
             Auth::loginUsingId(2);
             return redirect()->route('farmer.garden');
         })->name('login.farmer');
+
+        Route::get('login/dealer', function () {
+            Auth::loginUsingId(2);
+            return redirect()->route('dealer.market');
+        })->name('login.dealer');
     });
 }
 
