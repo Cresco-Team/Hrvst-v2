@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
+import { computed } from 'vue'
+import StatCard from '@/components/shared/cards/StatCard.vue'
 import { Users, MessageSquare, UserCheck, TrendingUp } from 'lucide-vue-next'
 
 interface Summary {
@@ -10,77 +10,39 @@ interface Summary {
     new_this_month: number
 }
 
-defineProps<{
+const props = defineProps<{
     summary: Summary
 }>()
+
+const items = computed(() => [
+    {
+        label: 'Total Dealers',
+        value: props.summary.total_dealers,
+        description: 'Approved dealers',
+        icon: Users,
+    },
+    {
+        label: 'Active This Week',
+        value: props.summary.active_this_week,
+        description: 'Active dealers',
+        icon: UserCheck,
+        valueColor: 'text-green-600 dark:text-green-500',
+    },
+    {
+        label: 'Total Conversations',
+        value: props.summary.total_conversations,
+        description: 'All time',
+        icon: MessageSquare,
+    },
+    {
+        label: 'New This Month',
+        value: props.summary.new_this_month,
+        description: 'New dealers',
+        icon: TrendingUp,
+    },
+])
 </script>
 
 <template>
-    <div class="grid grid-cols-1 gap-4 md:grid-cols-4">
-        <!-- Total Dealers -->
-        <Card>
-            <CardHeader class="pb-2">
-                <div class="flex items-center justify-between">
-                    <CardTitle class="text-sm font-medium text-muted-foreground">
-                        Total Dealers
-                    </CardTitle>
-                    <Users class="size-4 text-primary" />
-                </div>
-            </CardHeader>
-            <CardContent>
-                <p class="text-2xl font-bold">{{ summary.total_dealers }}</p>
-                <p class="text-xs text-muted-foreground mt-1">Approved dealers</p>
-            </CardContent>
-        </Card>
-
-        <!-- Active This Week -->
-        <Card>
-            <CardHeader class="pb-2">
-                <div class="flex items-center justify-between">
-                    <CardTitle class="text-sm font-medium text-muted-foreground">
-                        Active This Week
-                    </CardTitle>
-                    <UserCheck class="size-4 text-primary" />
-                </div>
-            </CardHeader>
-            <CardContent>
-                <p class="text-2xl font-bold text-green-600 dark:text-green-500">
-                    {{ summary.active_this_week }}
-                </p>
-                <p class="text-xs text-muted-foreground mt-1">Active dealers</p>
-            </CardContent>
-        </Card>
-
-        <!-- Total Conversations -->
-        <Card>
-            <CardHeader class="pb-2">
-                <div class="flex items-center justify-between">
-                    <CardTitle class="text-sm font-medium text-muted-foreground">
-                        Total Conversations
-                    </CardTitle>
-                    <MessageSquare class="size-4 text-primary" />
-                </div>
-            </CardHeader>
-            <CardContent>
-                <p class="text-2xl font-bold">{{ summary.total_conversations }}</p>
-                <p class="text-xs text-muted-foreground mt-1">All time</p>
-            </CardContent>
-        </Card>
-
-        <!-- New This Month -->
-        <Card>
-            <CardHeader class="pb-2">
-                <div class="flex items-center justify-between">
-                    <CardTitle class="text-sm font-medium text-muted-foreground">
-                        New This Month
-                    </CardTitle>
-                    <TrendingUp class="size-4 text-primary" />
-                </div>
-            </CardHeader>
-            <CardContent>
-                <p class="text-2xl font-bold">{{ summary.new_this_month }}</p>
-                <p class="text-xs text-muted-foreground mt-1">New dealers</p>
-            </CardContent>
-        </Card>
-    </div>
+    <StatCard :items="items" :columns="4" />
 </template>

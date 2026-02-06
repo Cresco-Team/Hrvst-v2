@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
+import { computed } from 'vue'
+import StatCard from '@/components/shared/cards/StatCard.vue'
 import { Users, Sprout, Clock, TrendingUp } from 'lucide-vue-next'
 
 interface Summary {
@@ -10,77 +10,40 @@ interface Summary {
     average_plantings_per_farmer: number
 }
 
-defineProps<{
+const props = defineProps<{
     summary: Summary
 }>()
+
+const items = computed(() => [
+    {
+        label: 'Total Farmers',
+        value: props.summary.total_farmers,
+        description: 'Approved farmers',
+        icon: Users,
+    },
+    {
+        label: 'Active Plantings',
+        value: props.summary.total_active_plantings,
+        description: 'Currently growing',
+        icon: Sprout,
+    },
+    {
+        label: 'Harvesting Soon',
+        value: props.summary.harvesting_soon,
+        description: 'Within 7 days',
+        icon: Clock,
+        iconColor: 'text-orange-500',
+        valueColor: 'text-orange-600 dark:text-orange-500',
+    },
+    {
+        label: 'Avg. Plantings',
+        value: props.summary.average_plantings_per_farmer,
+        description: 'Per farmer',
+        icon: TrendingUp,
+    },
+])
 </script>
 
 <template>
-    <div class="grid grid-cols-1 gap-4 md:grid-cols-4">
-        <!-- Total Farmers -->
-        <Card>
-            <CardHeader class="pb-2">
-                <div class="flex items-center justify-between">
-                    <CardTitle class="text-sm font-medium text-muted-foreground">
-                        Total Farmers
-                    </CardTitle>
-                    <Users class="size-4 text-primary" />
-                </div>
-            </CardHeader>
-            <CardContent>
-                <p class="text-2xl font-bold">{{ summary.total_farmers }}</p>
-                <p class="text-xs text-muted-foreground mt-1">Approved farmers</p>
-            </CardContent>
-        </Card>
-
-        <!-- Total Active Plantings -->
-        <Card>
-            <CardHeader class="pb-2">
-                <div class="flex items-center justify-between">
-                    <CardTitle class="text-sm font-medium text-muted-foreground">
-                        Active Plantings
-                    </CardTitle>
-                    <Sprout class="size-4 text-primary" />
-                </div>
-            </CardHeader>
-            <CardContent>
-                <p class="text-2xl font-bold">{{ summary.total_active_plantings }}</p>
-                <p class="text-xs text-muted-foreground mt-1">Currently growing</p>
-            </CardContent>
-        </Card>
-
-        <!-- Harvesting Soon -->
-        <Card>
-            <CardHeader class="pb-2">
-                <div class="flex items-center justify-between">
-                    <CardTitle class="text-sm font-medium text-muted-foreground">
-                        Harvesting Soon
-                    </CardTitle>
-                    <Clock class="size-4 text-orange-500" />
-                </div>
-            </CardHeader>
-            <CardContent>
-                <p class="text-2xl font-bold text-orange-600 dark:text-orange-500">
-                    {{ summary.harvesting_soon }}
-                </p>
-                <p class="text-xs text-muted-foreground mt-1">Within 7 days</p>
-            </CardContent>
-        </Card>
-
-        <!-- Average Plantings -->
-        <Card>
-            <CardHeader class="pb-2">
-                <div class="flex items-center justify-between">
-                    <CardTitle class="text-sm font-medium text-muted-foreground">
-                        Avg. Plantings
-                    </CardTitle>
-                    <TrendingUp class="size-4 text-primary" />
-                </div>
-            </CardHeader>
-            <CardContent>
-                <p class="text-2xl font-bold">{{ summary.average_plantings_per_farmer }}</p>
-                <p class="text-xs text-muted-foreground mt-1">Per farmer</p>
-            </CardContent>
-        </Card>
-    </div>
+    <StatCard :items="items" :columns="4" />
 </template>
