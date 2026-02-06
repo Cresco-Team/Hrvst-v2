@@ -11,12 +11,14 @@ use Illuminate\Support\Facades\DB;
 class FarmerPlantingService
 {
     /**
-     * Get paginated plantings for farmer with filters.
+     * Get paginated plantings for farmer with filters and search.
      */
     public static function paginated(
         int $farmerId, 
         int $perPage = 20,
-        ?string $statusFilter = null
+        ?string $statusFilter = null,
+        ?string $searchQuery = null,
+        int $page = 1
     ): LengthAwarePaginator {
         $query = Planting::with([
             'variety.vegetable.category',
@@ -32,9 +34,24 @@ class FarmerPlantingService
             }
         }
 
+        // Apply search filter
+        if ($searchQuery) {
+            $query->where(function ($q) use ($searchQuery) {
+                $q->whereHas('variety.vegetable', function ($q) use ($searchQuery) {
+                    $q->where('name', 'like', "%{$searchQuery}%");
+                })
+                ->orWhereHas('variety', function ($q) use ($searchQuery) {
+                    $q->where('name', 'like', "%{$searchQuery}%");
+                })
+                ->orWhereHas('variety.vegetable.category', function ($q) use ($searchQuery) {
+                    $q->where('name', 'like', "%{$searchQuery}%");
+                });
+            });
+        }
+
         return $query
             ->orderBy('expected_harvest_date', 'asc')
-            ->paginate($perPage)
+            ->paginate($perPage, ['*'], 'page', $page)
             ->through(function ($planting) {
                 return [
                     'id' => $planting->id,
@@ -60,28 +77,40 @@ class FarmerPlantingService
     }
 
     /**
-     * Get summary statistics (optimized single query).
+     * Get summary statistics.
+     * Database-agnostic implementation using Eloquent.
      */
     public static function summary(int $farmerId): array
     {
-        $stats = DB::table('plantings')
-            ->where('farmer_id', $farmerId)
-            ->selectRaw('
-                COUNT(CASE WHEN status = "active" THEN 1 END) as total_active,
-                SUM(CASE WHEN status = "active" THEN weight_kg ELSE 0 END) as total_weight_active,
-                COUNT(CASE WHEN status = "active" 
-                    AND expected_harvest_date BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 7 DAY) 
-                    THEN 1 END) as harvesting_soon,
-                COUNT(CASE WHEN status = "harvested" 
-                    AND date_harvested >= ? THEN 1 END) as harvested_this_month
-            ', [now()->startOfMonth()])
-            ->first();
+        // Calculate dates in PHP (database-agnostic)
+        $today = now()->startOfDay();
+        $sevenDaysFromNow = now()->addDays(7)->endOfDay();
+        $startOfMonth = now()->startOfMonth();
+
+        // Use Eloquent for cross-database compatibility
+        $totalActive = Planting::where('farmer_id', $farmerId)
+            ->where('status', 'active')
+            ->count();
+
+        $totalWeightActive = Planting::where('farmer_id', $farmerId)
+            ->where('status', 'active')
+            ->sum('weight_kg');
+
+        $harvestingSoon = Planting::where('farmer_id', $farmerId)
+            ->where('status', 'active')
+            ->whereBetween('expected_harvest_date', [$today, $sevenDaysFromNow])
+            ->count();
+
+        $harvestedThisMonth = Planting::where('farmer_id', $farmerId)
+            ->where('status', 'harvested')
+            ->where('date_harvested', '>=', $startOfMonth)
+            ->count();
 
         return [
-            'total_active' => (int) ($stats->total_active ?? 0),
-            'total_weight_active' => round($stats->total_weight_active ?? 0, 2),
-            'harvesting_soon' => (int) ($stats->harvesting_soon ?? 0),
-            'harvested_this_month' => (int) ($stats->harvested_this_month ?? 0),
+            'total_active' => $totalActive,
+            'total_weight_active' => round($totalWeightActive ?? 0, 2),
+            'harvesting_soon' => $harvestingSoon,
+            'harvested_this_month' => $harvestedThisMonth,
         ];
     }
 

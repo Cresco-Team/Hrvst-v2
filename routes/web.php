@@ -32,7 +32,7 @@ if (app()->environment('local', 'development')) {
 
         Route::get('login/farmer', function () {
             Auth::loginUsingId(2);
-            return redirect()->route('farmer.garden');
+            return redirect()->route('farmer.garden.index');
         })->name('login.farmer');
 
         Route::get('login/dealer', function () {

@@ -3,7 +3,6 @@ import { ref, computed } from 'vue'
 import {
     useVueTable,
     getCoreRowModel,
-    getFilteredRowModel,
     getSortedRowModel,
     getExpandedRowModel,
     FlexRender,
@@ -36,6 +35,8 @@ interface Props<TData> {
     entityName?: string
     enableSearch?: boolean
     enableExpand?: boolean
+    // ✅ NEW: Server-side search support
+    searchQuery?: string
 }
 
 const props = withDefaults(defineProps<Props<TData>>(), {
@@ -44,14 +45,16 @@ const props = withDefaults(defineProps<Props<TData>>(), {
     entityName: 'items',
     enableSearch: true,
     enableExpand: false,
+    searchQuery: '',
 })
 
-defineEmits<{
+const emit = defineEmits<{
     'page-change': [page: number]
+    'search': [query: string] // ✅ NEW: Emit search to parent for server-side handling
 }>()
 
 /* -- local state -- */
-const globalFilter = ref('')
+const localSearchQuery = ref(props.searchQuery)
 const expanded = ref<ExpandedState>({})
 
 /* -- table instance -- */
@@ -61,12 +64,6 @@ const table = useVueTable({
     },
     columns: props.columns,
     state: {
-        get globalFilter() {
-            return globalFilter.value
-        },
-        set globalFilter(value) {
-            globalFilter.value = value
-        },
         get expanded() {
             return expanded.value
         },
@@ -75,10 +72,11 @@ const table = useVueTable({
         },
     },
     getCoreRowModel: getCoreRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
     getSortedRowModel: getSortedRowModel(),
+    // ❌ REMOVED: getFilteredRowModel() - This was causing client-side filtering on server-paginated data
     ...(props.enableExpand ? { getExpandedRowModel: getExpandedRowModel() } : {}),
     manualPagination: true,
+    manualFiltering: true, // ✅ NEW: Tell TanStack we're handling filtering server-side
 })
 
 /* -- pagination helpers -- */
@@ -96,6 +94,22 @@ function sortIcon(state: string | false) {
     if (state === 'desc') return ChevronDown
     return ChevronsUpDown
 }
+
+/* -- search handler with debounce -- */
+let searchTimeout: ReturnType<typeof setTimeout> | null = null
+
+function handleSearchInput(event: Event) {
+    const query = (event.target as HTMLInputElement).value
+    localSearchQuery.value = query
+
+    // Clear existing timeout
+    if (searchTimeout) clearTimeout(searchTimeout)
+
+    // Debounce search (wait 300ms after user stops typing)
+    searchTimeout = setTimeout(() => {
+        emit('search', query)
+    }, 300)
+}
 </script>
 
 <template>
@@ -104,9 +118,10 @@ function sortIcon(state: string | false) {
         <div class="flex items-center justify-between">
             <Input
                 v-if="enableSearch"
-                v-model="globalFilter"
+                :value="localSearchQuery"
                 :placeholder="searchPlaceholder"
                 class="max-w-xs"
+                @input="handleSearchInput"
             />
             <slot name="toolbar-actions" />
         </div>

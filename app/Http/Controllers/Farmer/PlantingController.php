@@ -30,17 +30,25 @@ class PlantingController extends Controller
             abort(403, 'Farmer profile not found.');
         }
 
+        $page = (int) $request->query('page', 1);
+        $status = $request->query('status', 'all');
+        $search = $request->query('search');
+
         return Inertia::render('farmer/Garden', [
             // Instant load (synchronous)
             'filters' => [
-                'status' => $request->query('status', 'all'),
+                'status' => $status,
+                'page' => $page,
+                'search' => $search,
             ],
             
             // Deferred (load after page renders)
             'plantings' => Inertia::defer(fn () => FarmerPlantingService::paginated(
                 farmerId: $farmer->id,
                 perPage: 20,
-                statusFilter: $request->query('status', 'all')
+                statusFilter: $status,
+                searchQuery: $search,
+                page: $page
             )),
             
             'summary' => Inertia::defer(fn () => FarmerPlantingService::summary($farmer->id)),
