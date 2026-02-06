@@ -52,4 +52,9 @@ class PlantingPolicy
         return $this->view($user, $planting) 
             && $planting->status === 'active';
     }
+
+    public function destroy(User $user, Planting $planting): bool
+    {
+        return $user->hasRole('admin') || $this->view($user, $planting);
+    }
 }

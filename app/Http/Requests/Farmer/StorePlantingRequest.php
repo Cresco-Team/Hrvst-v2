@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests\Farmer;
 
-use App\Models\Product\Variety;
 use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -24,6 +23,11 @@ class StorePlantingRequest extends FormRequest
                 'before_or_equal:today',
                 'after_or_equal:' . now()->subYear()->format('Y-m-d'),
             ],
+            'expected_harvest_date' => [
+                'required',
+                'date',
+                'after:date_planted',
+            ],
         ];
     }
 
@@ -40,22 +44,15 @@ class StorePlantingRequest extends FormRequest
             'date_planted.date' => 'Invalid date format.',
             'date_planted.before_or_equal' => 'Cannot plant in the future.',
             'date_planted.after_or_equal' => 'Planting date cannot be more than 1 year in the past.',
+            'expected_harvest_date.required' => 'Expected harvest date is required.',
+            'expected_harvest_date.date' => 'Invalid harvest date format.',
+            'expected_harvest_date.after' => 'Harvest date must be after planting date.',
         ];
     }
 
-    /**
-     * Get validated data with auto-calculated expected_harvest_date.
-     */
-    public function validatedWithExpectedHarvest(): array
+    public function validatedWithStatus(): array
     {
         $validated = $this->validated();
-        
-        $variety = Variety::findOrFail($validated['variety_id']);
-        $datePlanted = Carbon::parse($validated['date_planted']);
-        
-        $validated['expected_harvest_date'] = $datePlanted
-            ->addWeeks($variety->weeks_to_harvest)
-            ->toDateString();
         
         // Auto-set status to 'expired' if expected harvest is in the past
         if (Carbon::parse($validated['expected_harvest_date'])->isPast()) {

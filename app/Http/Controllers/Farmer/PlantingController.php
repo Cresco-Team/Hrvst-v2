@@ -6,22 +6,19 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Farmer\StorePlantingRequest;
 use App\Http\Requests\Farmer\UpdatePlantingRequest;
 use App\Models\Product\Planting;
-use App\Services\Farmer\FarmerPlantingService;
+use App\Services\Farmer\PlantingService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class PlantingController extends Controller
 {
     public function __construct(
-        private FarmerPlantingService $plantingService
+        private PlantingService $plantingService
     ) {}
 
-    /**
-     * Display farmer's garden (plantings dashboard).
-     * Uses deferred props for instant navigation.
-     */
     public function index(Request $request): Response
     {
         $farmer = $request->user()->farmerProfile;
@@ -35,7 +32,6 @@ class PlantingController extends Controller
         $search = $request->query('search');
 
         return Inertia::render('farmer/Garden', [
-            // Instant load (synchronous)
             'filters' => [
                 'status' => $status,
                 'page' => $page,
@@ -43,7 +39,7 @@ class PlantingController extends Controller
             ],
             
             // Deferred (load after page renders)
-            'plantings' => Inertia::defer(fn () => FarmerPlantingService::paginated(
+            'plantings' => Inertia::defer(fn () => PlantingService::paginated(
                 farmerId: $farmer->id,
                 perPage: 20,
                 statusFilter: $status,
@@ -51,22 +47,19 @@ class PlantingController extends Controller
                 page: $page
             )),
             
-            'summary' => Inertia::defer(fn () => FarmerPlantingService::summary($farmer->id)),
+            'summary' => Inertia::defer(fn () => PlantingService::summary($farmer->id)),
             
-            'varietyOptions' => Inertia::defer(fn () => FarmerPlantingService::varietyOptionsForForm()),
+            'varietyOptions' => Inertia::defer(fn () => PlantingService::varietyOptionsForForm()),
         ]);
     }
 
-    /**
-     * Store a new planting.
-     */
     public function store(StorePlantingRequest $request): RedirectResponse
     {
         $farmer = $request->user()->farmerProfile;
 
         $this->plantingService->create(
             farmerId: $farmer->id,
-            validated: $request->validatedWithExpectedHarvest()
+            validated: $request->validatedWithStatus()
         );
 
         return redirect()->route('farmer.garden.index')
@@ -76,9 +69,6 @@ class PlantingController extends Controller
             ]);
     }
 
-    /**
-     * Update an existing planting.
-     */
     public function update(UpdatePlantingRequest $request, Planting $planting): RedirectResponse
     {
         $this->plantingService->update($planting, $request->validated());
@@ -90,12 +80,9 @@ class PlantingController extends Controller
             ]);
     }
 
-    /**
-     * Mark planting as harvested.
-     */
     public function harvest(Request $request, Planting $planting): RedirectResponse
     {
-        $this->authorize('harvest', $planting);
+        Gate::authorize('harvest', $planting);
 
         $validated = $request->validate([
             'actual_weight' => ['nullable', 'numeric', 'min:0.1', 'max:99999'],
@@ -113,12 +100,9 @@ class PlantingController extends Controller
             ]);
     }
 
-    /**
-     * Mark planting as cancelled.
-     */
     public function cancel(Planting $planting): RedirectResponse
     {
-        $this->authorize('cancel', $planting);
+        Gate::authorize('cancel', $planting);
 
         $this->plantingService->markAsCancelled($planting);
 
@@ -129,12 +113,9 @@ class PlantingController extends Controller
             ]);
     }
 
-    /**
-     * Delete a planting.
-     */
     public function destroy(Planting $planting): RedirectResponse
     {
-        $this->authorize('delete', $planting);
+        Gate::authorize('delete', $planting);
 
         $deleted = $this->plantingService->delete($planting);
 
