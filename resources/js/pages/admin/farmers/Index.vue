@@ -198,6 +198,10 @@ const pendingSheetOpen = ref(false)
 const isListView = computed(() => currentView.value === 'list')
 const isMapView = computed(() => currentView.value === 'map')
 
+const totalVisiblePlantings = computed(() => {
+    return markers.value.reduce((sum, m) => sum + m.active_plantings_count, 0)
+})
+
 const breadcrumbs = [
     { title: 'Admin', href: admin.dashboard().url },
     { title: 'Farmers', href: admin.farmers.index().url },
@@ -403,20 +407,9 @@ if (storedView && storedView !== props.view) {
                 </div>
 
                 <!-- MAP VIEW -->
-                <div v-if="isMapView" class="space-y-4">
-                    <!-- Map Filters -->
-                    <FarmerMapFilters
-                        :municipalities="filters.municipalities"
-                        :plantings="filters.plantings"
-                        :selected-municipality="selectedMunicipality"
-                        :selected-variety="selectedVariety"
-                        @update:selected-municipality="selectedMunicipality = $event"
-                        @update:selected-variety="selectedVariety = $event"
-                        @clear="handleClearFilters"
-                    />
-
+                <div v-if="isMapView" class="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_320px]">
                     <!-- Map Container -->
-                    <div class="relative h-[calc(100vh-28rem)] w-full overflow-hidden rounded-lg border shadow-sm">
+                    <div class="relative h-full min-h-[600px] w-full overflow-hidden rounded-lg border shadow-sm">
                         <!-- Loading Overlay -->
                         <Transition
                             enter-active-class="transition-opacity duration-200"
@@ -445,30 +438,71 @@ if (storedView && storedView !== props.view) {
                         />
                     </div>
 
-                    <!-- Map Legend -->
-                    <div class="rounded-lg border bg-card p-4">
-                        <p class="mb-2 text-sm font-medium">Map Legend</p>
-                        <div class="flex flex-wrap gap-3 text-xs">
-                            <div class="flex items-center gap-1.5">
-                                <div class="size-3 rounded-full bg-blue-500" />
-                                <span>Cluster (multiple farmers)</span>
+                    <!-- Right Sidebar: Filters & Legend -->
+                    <div class="flex flex-col gap-4">
+                        <!-- Map Filters -->
+                        <FarmerMapFilters
+                            :municipalities="filters.municipalities"
+                            :plantings="filters.plantings"
+                            :selected-municipality="selectedMunicipality"
+                            :selected-variety="selectedVariety"
+                            @update:selected-municipality="selectedMunicipality = $event"
+                            @update:selected-variety="selectedVariety = $event"
+                            @clear="handleClearFilters"
+                        />
+
+                        <!-- Map Stats -->
+                        <div class="rounded-lg border bg-card p-4">
+                            <p class="mb-3 text-sm font-semibold">Map Statistics</p>
+                            <div class="space-y-2 text-sm">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-muted-foreground">Visible farmers</span>
+                                    <span class="font-mono font-medium">{{ markers.length }}</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-muted-foreground">Total active plantings</span>
+                                    <span class="font-mono font-medium">
+                                        {{ totalVisiblePlantings }}
+                                    </span>
+                                </div>
                             </div>
-                            <div class="flex items-center gap-1.5">
-                                <div class="size-3 rounded-full bg-green-500" />
-                                <span>Leafy vegetables</span>
+                        </div>
+
+                        <!-- Map Legend -->
+                        <div class="rounded-lg border bg-card p-4">
+                            <p class="mb-3 text-sm font-semibold">Legend</p>
+                            <div class="space-y-2 text-xs">
+                                <div class="flex items-center gap-2">
+                                    <div class="size-3 shrink-0 rounded-full bg-blue-500" />
+                                    <span>Cluster (multiple farmers)</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <div class="size-3 shrink-0 rounded-full bg-green-500" />
+                                    <span>Leafy vegetables</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <div class="size-3 shrink-0 rounded-full bg-orange-500" />
+                                    <span>Root vegetables</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <div class="size-3 shrink-0 rounded-full bg-red-500" />
+                                    <span>Fruiting vegetables</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <div class="size-3 shrink-0 rounded-full bg-gray-500" />
+                                    <span>Other varieties</span>
+                                </div>
                             </div>
-                            <div class="flex items-center gap-1.5">
-                                <div class="size-3 rounded-full bg-orange-500" />
-                                <span>Root vegetables</span>
-                            </div>
-                            <div class="flex items-center gap-1.5">
-                                <div class="size-3 rounded-full bg-red-500" />
-                                <span>Fruiting vegetables</span>
-                            </div>
-                            <div class="flex items-center gap-1.5">
-                                <div class="size-3 rounded-full bg-gray-500" />
-                                <span>Other varieties</span>
-                            </div>
+                        </div>
+
+                        <!-- Instructions -->
+                        <div class="rounded-lg border border-dashed bg-muted/30 p-4">
+                            <p class="mb-2 text-xs font-medium">How to use</p>
+                            <ul class="space-y-1 text-xs text-muted-foreground">
+                                <li>• Click markers to view farmer details</li>
+                                <li>• Use filters to narrow results</li>
+                                <li>• Zoom in to see individual farmers</li>
+                            </ul>
                         </div>
                     </div>
                 </div>

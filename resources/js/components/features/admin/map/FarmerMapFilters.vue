@@ -68,9 +68,27 @@ const clearFilters = () => {
 </script>
 
 <template>
-    <div class="flex flex-col gap-3 rounded-lg border bg-card p-4 shadow-sm sm:flex-row sm:items-center sm:gap-3">
+    <div class="flex flex-col gap-3 rounded-lg border bg-card p-4 shadow-sm">
+        <!-- Header -->
+        <div class="flex items-center justify-between">
+            <p class="text-sm font-semibold">Filters</p>
+            <Button
+                v-if="hasActiveFilters"
+                variant="ghost"
+                size="sm"
+                class="h-7 gap-1.5 px-2"
+                @click="clearFilters"
+            >
+                <X class="size-3.5" />
+                Clear
+                <Badge variant="secondary" class="ml-1 px-1.5 py-0">
+                    {{ activeFilterCount }}
+                </Badge>
+            </Button>
+        </div>
+
         <!-- Municipality Filter -->
-        <div class="flex flex-1 flex-col gap-1.5">
+        <div class="flex flex-col gap-1.5">
             <label class="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
                 <MapPin class="size-3.5" />
                 Municipality
@@ -96,7 +114,7 @@ const clearFilters = () => {
         </div>
 
         <!-- Variety Filter -->
-        <div class="flex flex-1 flex-col gap-1.5">
+        <div class="flex flex-col gap-1.5">
             <label class="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
                 <Sprout class="size-3.5" />
                 Planting/Variety
@@ -125,23 +143,6 @@ const clearFilters = () => {
                     </SelectGroup>
                 </SelectContent>
             </Select>
-        </div>
-
-        <!-- Clear Filters Button -->
-        <div class="flex items-end sm:pt-5">
-            <Button
-                v-if="hasActiveFilters"
-                variant="outline"
-                size="sm"
-                class="w-full gap-1.5 sm:w-auto"
-                @click="clearFilters"
-            >
-                <X class="size-4" />
-                Clear
-                <Badge variant="secondary" class="ml-1 px-1.5 py-0.5">
-                    {{ activeFilterCount }}
-                </Badge>
-            </Button>
         </div>
     </div>
 </template>
