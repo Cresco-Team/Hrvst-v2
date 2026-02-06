@@ -49,13 +49,21 @@ const emit = defineEmits<{
     'search': [query: string]
 }>()
 
-const hasPrevPage = computed(() => props.plantings.current_page > 1)
-const hasNextPage = computed(() => props.plantings.current_page < props.plantings.last_page)
+// ✅ Safe data access with null checks
+const plantingsData = computed(() => props.plantings?.data ?? [])
+const hasPrevPage = computed(() => props.plantings && props.plantings.current_page > 1)
+const hasNextPage = computed(() => props.plantings && props.plantings.current_page < props.plantings.last_page)
 
-const paginationRange = computed(() => ({
-    start: (props.plantings.current_page - 1) * props.plantings.per_page + 1,
-    end: Math.min(props.plantings.current_page * props.plantings.per_page, props.plantings.total),
-}))
+const paginationRange = computed(() => {
+    if (!props.plantings) {
+        return { start: 0, end: 0 }
+    }
+    
+    return {
+        start: (props.plantings.current_page - 1) * props.plantings.per_page + 1,
+        end: Math.min(props.plantings.current_page * props.plantings.per_page, props.plantings.total),
+    }
+})
 
 let searchTimeout: ReturnType<typeof setTimeout> | null = null
 
@@ -87,11 +95,11 @@ function handleSearchInput(event: Event) {
 
         <!-- Grid of Cards -->
         <div 
-            v-if="plantings.data.length > 0"
+            v-if="plantingsData.length > 0"
             class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
         >
             <PlantingCard
-                v-for="planting in plantings.data"
+                v-for="planting in plantingsData"
                 :key="planting.id"
                 :planting="planting"
                 @open-edit="$emit('open-edit', $event)"
@@ -117,7 +125,7 @@ function handleSearchInput(event: Event) {
 
         <!-- Pagination -->
         <div 
-            v-if="plantings.total > 0"
+            v-if="plantings && plantings.total > 0"
             class="flex items-center justify-between rounded-lg border bg-card p-4"
         >
             <span class="text-sm text-muted-foreground">

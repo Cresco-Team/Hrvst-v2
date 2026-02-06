@@ -6,7 +6,7 @@ import type { Component } from 'vue'
 interface StatCardItem {
     label: string
     value: number | string
-    description: string
+    description?: string
     icon: Component
     iconColor?: string
     valueColor?: string
@@ -33,14 +33,14 @@ defineProps<{
         }"
     >
         <Card v-for="(item, index) in items" :key="index">
-            <CardHeader class="pb-2">
+            <CardHeader>
                 <div class="flex items-center justify-between">
                     <CardTitle class="text-sm font-medium text-muted-foreground">
                         {{ item.label }}
                     </CardTitle>
                     <component 
                         :is="item.icon" 
-                        class="size-4" 
+                        class="size-6" 
                         :class="item.iconColor || 'text-primary'" 
                     />
                 </div>

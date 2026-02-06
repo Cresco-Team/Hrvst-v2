@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Link, usePage } from '@inertiajs/vue3';
-import { BookOpen, Folder, Gem, LayoutGrid, Menu, MessagesSquare, Search, Sprout, Store, Wheat } from 'lucide-vue-next';
+import { Bell, BookOpen, Folder, Gem, LayoutGrid, Menu, MessagesSquare, Search, Sprout, Store, Wheat } from 'lucide-vue-next';
 import { computed } from 'vue';
 import AppLogo from '@/components/AppLogo.vue';
 import AppLogoIcon from '@/components/AppLogoIcon.vue';
@@ -39,6 +39,7 @@ import { dashboard } from '@/routes';
 import type { BreadcrumbItem, NavItem } from '@/types';
 import admin from '@/routes/admin';
 import dealer from '@/routes/dealer';
+import farmer from '@/routes/farmer';
 
 type Props = {
     breadcrumbs?: BreadcrumbItem[];
@@ -86,29 +87,50 @@ const mainNavItems = computed<NavItem[]>(() => {
                 icon: Store
             })
         }
+
+        if (page.props.auth.user.roles.includes('farmer')) {
+            items.push({
+                title: 'My Garden',
+                href: farmer.garden.index(),
+                icon: Sprout
+            })
+        }
     
     return items
 })
 
 const rightNavItems = computed<NavItem[]>(() => {
-    const items: NavItem[] = [
-        {
-            title: 'Repository',
-            href: 'https://github.com/laravel/vue-starter-kit',
-            icon: Folder,
-        },
-        {
-            title: 'Documentation',
-            href: 'https://laravel.com/docs/starter-kits#vue',
-            icon: BookOpen,
-        },
-    ]
+    const items: NavItem[] = []
+
+    if (page.props.auth.user.roles.includes('admin')) {
+        items.push({
+            title: 'Pending Users',
+            href: '#',
+            icon: Bell
+        });
+    }
 
     if (page.props.auth.user.roles.includes('dealer')) {
         items.push({
             title: 'Conversation',
             href: '#',
             icon: MessagesSquare, 
+        }, {
+            title: 'Notification',
+            href: '#',
+            icon: Bell, 
+        })
+    }
+
+    if (page.props.auth.user.roles.includes('farmer')) {
+        items.push({
+            title: 'Conversation',
+            href: '#',
+            icon: MessagesSquare, 
+        }, {
+            title: 'Notification',
+            href: '#',
+            icon: Bell, 
         })
     }
 
