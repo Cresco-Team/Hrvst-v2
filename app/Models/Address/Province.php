@@ -3,7 +3,6 @@
 namespace App\Models\Address;
 
 use App\Models\Profiles\FarmerProfile;
-use Faker\Provider\sv_SE\Municipality;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
