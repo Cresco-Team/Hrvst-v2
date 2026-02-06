@@ -1,38 +1,34 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import { Head, router } from '@inertiajs/vue3'
 import AppShell from '@/components/AppShell.vue'
 import AppHeader from '@/components/AppHeader.vue'
 import AppContent from '@/components/AppContent.vue'
-import PlantingSummaryCard from '@/components/features/farmer/cards/PlantingSummaryCard.vue'
 import PlantingGrid from '@/components/features/farmer/grids/PlantingGrid.vue'
+import ArchivedPlantingsTable from '@/components/features/farmer/tables/ArchivedPlantingsTable.vue'
 import PlantingForm from '@/components/features/farmer/forms/PlantingForm.vue'
 import HarvestPlantingDialog from '@/components/features/farmer/dialogs/HarvestPlantingDialog.vue'
 import CancelPlantingDialog from '@/components/features/farmer/dialogs/CancelPlantingDialog.vue'
 import DeletePlantingDialog from '@/components/features/farmer/dialogs/DeletePlantingDialog.vue'
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
-import { Plus, Sprout, Leaf } from 'lucide-vue-next'
-import { toast } from 'vue-sonner'
+import { Plus, Sprout } from 'lucide-vue-next'
 import farmer from '@/routes/farmer'
 
-interface Variety {
+interface ActivePlanting {
     id: number
-    name: string
-    category: string
-    image_path: string
-}
-
-interface Planting {
-    id: number
-    variety: Variety
+    variety: {
+        id: number
+        name: string
+        category: string
+        image_path: string
+    }
     weight_kg: number
     date_planted: string
     date_planted_human: string
     expected_harvest_date: string
     days_until_harvest: number | null
-    status: string
     status_badge: string
     can_edit: boolean
     can_delete: boolean
@@ -40,19 +36,23 @@ interface Planting {
     can_cancel: boolean
 }
 
-interface PaginatedPlantings {
-    data: Planting[]
+interface ArchivedPlanting {
+    id: number
+    variety_name: string
+    category: string
+    weight_kg: number
+    date_planted: string
+    expected_harvest_date: string
+    date_completed: string
+    status: 'harvested' | 'expired' | 'cancelled'
+}
+
+interface PaginatedData<T> {
+    data: T[]
     current_page: number
     last_page: number
     per_page: number
     total: number
-}
-
-interface Summary {
-    total_active: number
-    total_weight_active: number
-    harvesting_soon: number
-    harvested_this_month: number
 }
 
 interface VarietyOptionsByCategory {
@@ -65,12 +65,12 @@ interface VarietyOptionsByCategory {
 
 interface Props {
     filters: {
-        status: string | null
+        tab: 'active' | 'archived'
         page: number
         search: string | null
     }
-    plantings?: PaginatedPlantings
-    summary?: Summary
+    activePlantings?: PaginatedData<ActivePlanting> | null
+    archivedPlantings?: PaginatedData<ArchivedPlanting> | null
     varietyOptions?: VarietyOptionsByCategory
 }
 
@@ -86,44 +86,33 @@ const formOpen = ref(false)
 const harvestOpen = ref(false)
 const cancelOpen = ref(false)
 const deleteOpen = ref(false)
-const activePlanting = ref<Planting | null>(null)
+const activePlanting = ref<ActivePlanting | null>(null)
 const isSubmitting = ref(false)
 
-// Status filter tabs
-const statusTabs = [
-    { value: 'all', label: 'All', icon: Sprout },
-    { value: 'active', label: 'Growing', icon: Leaf },
-    { value: 'harvesting_soon', label: 'Ready Soon', icon: Sprout },
-    { value: 'harvested', label: 'Harvested', icon: Sprout },
-    { value: 'expired', label: 'Expired', icon: Sprout },
-    { value: 'cancelled', label: 'Cancelled', icon: Sprout },
-]
-
-const activeTab = computed(() => props.filters.status || 'all')
-
-function handleTabChange(value: string) {
+function handleTabChange(value: string | number) {
+    const tab = String(value)
     router.visit(farmer.garden.index().url, {
         data: { 
-            status: value === 'all' ? undefined : value,
+            tab,
             page: 1,
             search: props.filters.search || undefined,
         },
-        preserveScroll: true,
+        preserveScroll: false,
         preserveState: true,
-        only: ['plantings', 'filters'],
+        only: ['activePlantings', 'archivedPlantings', 'filters'],
     })
 }
 
 function handleSearch(query: string) {
     router.visit(farmer.garden.index().url, {
         data: { 
-            status: props.filters.status || undefined,
+            tab: props.filters.tab,
             page: 1,
             search: query || undefined,
         },
         preserveScroll: true,
         preserveState: true,
-        only: ['plantings', 'filters'],
+        only: ['activePlantings', 'archivedPlantings', 'filters'],
     })
 }
 
@@ -133,22 +122,22 @@ function openCreate() {
     formOpen.value = true
 }
 
-function openEdit(planting: Planting) {
+function openEdit(planting: ActivePlanting) {
     activePlanting.value = planting
     formOpen.value = true
 }
 
-function openHarvest(planting: Planting) {
+function openHarvest(planting: ActivePlanting) {
     activePlanting.value = planting
     harvestOpen.value = true
 }
 
-function openCancel(planting: Planting) {
+function openCancel(planting: ActivePlanting) {
     activePlanting.value = planting
     cancelOpen.value = true
 }
 
-function openDelete(planting: Planting) {
+function openDelete(planting: ActivePlanting) {
     activePlanting.value = planting
     deleteOpen.value = true
 }
@@ -157,26 +146,22 @@ function handleSubmit(formData: FormData) {
     isSubmitting.value = true
 
     if (activePlanting.value) {
-        // UPDATE
         formData.append('_method', 'PUT')
         
         router.post(farmer.garden.update(activePlanting.value.id).url, formData, {
             onSuccess() {
                 formOpen.value = false
                 isSubmitting.value = false
-                toast.success('Planting updated successfully!')
             },
             onError() {
                 isSubmitting.value = false
             },
         })
     } else {
-        // CREATE
         router.post(farmer.garden.store().url, formData, {
             onSuccess() {
                 formOpen.value = false
                 isSubmitting.value = false
-                toast.success('Planting added successfully!')
             },
             onError() {
                 isSubmitting.value = false
@@ -192,7 +177,6 @@ function handleHarvest(formData: FormData) {
         onSuccess() {
             harvestOpen.value = false
             activePlanting.value = null
-            toast.success('Planting marked as harvested!')
         },
     })
 }
@@ -204,7 +188,6 @@ function handleCancel() {
         onSuccess() {
             cancelOpen.value = false
             activePlanting.value = null
-            toast.success('Planting cancelled.')
         },
     })
 }
@@ -216,7 +199,6 @@ function handleDelete() {
         onSuccess() {
             deleteOpen.value = false
             activePlanting.value = null
-            toast.success('Planting deleted successfully.')
         },
     })
 }
@@ -224,12 +206,12 @@ function handleDelete() {
 function handlePageChange(page: number) {
     router.visit(farmer.garden.index().url, {
         data: { 
-            page, 
-            status: props.filters.status || undefined,
+            tab: props.filters.tab,
+            page,
             search: props.filters.search || undefined,
         },
         preserveScroll: true,
-        only: ['plantings', 'filters'],
+        only: ['activePlantings', 'archivedPlantings', 'filters'],
     })
 }
 </script>
@@ -241,74 +223,66 @@ function handlePageChange(page: number) {
         <AppHeader :breadcrumbs="breadcrumbs" />
         
         <AppContent variant="header" class="p-4 lg:p-8">
-            <div class="flex flex-col gap-8">
-                <!-- Page Header with Decorative Background -->
-                <div class="relative overflow-hidden rounded-2xl border-2 bg-gradient-to-br from-primary/5 via-primary/10 to-primary/5 p-8">
-                    <!-- Decorative Elements -->
-                    <div class="absolute right-0 top-0 size-64 rounded-full bg-primary/5 blur-3xl" />
-                    <div class="absolute bottom-0 left-0 size-48 rounded-full bg-primary/10 blur-3xl" />
-                    
-                    <div class="relative flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
-                        <div class="flex items-start gap-4">
-                            <div class="flex size-16 shrink-0 items-center justify-center rounded-2xl bg-primary/10 backdrop-blur-sm">
-                                <Sprout class="size-8 text-primary" />
-                            </div>
-                            <div>
-                                <h1 class="text-4xl font-bold tracking-tight">My Garden</h1>
-                                <p class="mt-2 text-lg text-muted-foreground">
-                                    Track and manage all your plantings in one place
-                                </p>
-                            </div>
+            <div class="flex flex-col gap-6">
+                <!-- Page Header -->
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="flex size-12 items-center justify-center rounded-xl bg-primary/10">
+                            <Sprout class="size-6 text-primary" />
                         </div>
-
-                        <Button @click="openCreate" size="lg" class="gap-2 shadow-lg">
-                            <Plus class="size-5" />
-                            Add Planting
-                        </Button>
+                        <div>
+                            <h1 class="text-3xl font-bold">My Garden</h1>
+                            <p class="text-sm text-muted-foreground">
+                                Manage your plantings
+                            </p>
+                        </div>
                     </div>
+
+                    <Button @click="openCreate" size="lg" class="gap-2">
+                        <Plus class="size-5" />
+                        Add Planting
+                    </Button>
                 </div>
 
-                <!-- Summary Cards -->
-                <PlantingSummaryCard v-if="summary" :summary="summary" />
-                <div v-else class="grid grid-cols-1 gap-4 md:grid-cols-4">
-                    <Skeleton class="h-28 rounded-xl" />
-                    <Skeleton class="h-28 rounded-xl" />
-                    <Skeleton class="h-28 rounded-xl" />
-                    <Skeleton class="h-28 rounded-xl" />
-                </div>
+                <!-- Tabs -->
+                <Tabs :model-value="filters.tab" @update:model-value="handleTabChange">
+                    <TabsList class="grid w-full max-w-md grid-cols-2">
+                        <TabsTrigger value="active">Active</TabsTrigger>
+                        <TabsTrigger value="archived">Archived</TabsTrigger>
+                    </TabsList>
 
-                <!-- Status Filter Tabs -->
-                <div class="rounded-xl border-2 bg-card p-1">
-                    <Tabs :model-value="activeTab" @update:model-value="handleTabChange">
-                        <TabsList class="w-full grid-cols-6">
-                            <TabsTrigger
-                                v-for="tab in statusTabs"
-                                :key="tab.value"
-                                :value="tab.value"
-                                class="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-                            >
-                                {{ tab.label }}
-                            </TabsTrigger>
-                        </TabsList>
-                    </Tabs>
-                </div>
+                    <!-- Active Tab Content -->
+                    <TabsContent value="active" class="mt-6">
+                        <PlantingGrid
+                            v-if="activePlantings"
+                            :plantings="activePlantings"
+                            :search-query="filters.search || ''"
+                            @open-edit="openEdit"
+                            @open-harvest="openHarvest"
+                            @open-cancel="openCancel"
+                            @open-delete="openDelete"
+                            @page-change="handlePageChange"
+                            @search="handleSearch"
+                        />
+                        <div v-else class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                            <Skeleton v-for="i in 8" :key="i" class="h-96 rounded-xl" />
+                        </div>
+                    </TabsContent>
 
-                <!-- Plantings Grid -->
-                <PlantingGrid
-                    v-if="plantings"
-                    :plantings="plantings"
-                    :search-query="filters.search || ''"
-                    @open-create="openCreate"
-                    @open-edit="openEdit"
-                    @open-harvest="openHarvest"
-                    @open-cancel="openCancel"
-                    @open-delete="openDelete"
-                    @page-change="handlePageChange"
-                    @search="handleSearch"
-                />
-                <div v-else class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                    <Skeleton v-for="i in 8" :key="i" class="h-96 rounded-xl" />
-                </div>
+                    <!-- Archived Tab Content -->
+                    <TabsContent value="archived" class="mt-6">
+                        <ArchivedPlantingsTable
+                            v-if="archivedPlantings"
+                            :plantings="archivedPlantings"
+                            :search-query="filters.search || ''"
+                            @page-change="handlePageChange"
+                            @search="handleSearch"
+                        />
+                        <div v-else class="rounded-xl border">
+                            <Skeleton class="h-96" />
+                        </div>
+                    </TabsContent>
+                </Tabs>
             </div>
         </AppContent>
     </AppShell>

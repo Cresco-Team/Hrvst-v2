@@ -2,9 +2,6 @@
 import { ref, computed } from 'vue'
 import { Head, router } from '@inertiajs/vue3'
 import { Search, Filter } from 'lucide-vue-next'
-import AppShell from '@/components/AppShell.vue'
-import AppHeader from '@/components/AppHeader.vue'
-import AppContent from '@/components/AppContent.vue'
 import PlantingCard from '@/components/features/dealer/cards/PlantingCard.vue'
 import MarketInsightsPanel from '@/components/features/dealer/panels/MarketInsightsPanel.vue'
 import CategoryFilterBar from '@/components/features/dealer/filters/CategoryFilterBar.vue'
@@ -12,6 +9,8 @@ import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Button } from '@/components/ui/button'
 import dealer from '@/routes/dealer'
+import AppLayout from '@/layouts/AppLayout.vue'
+import Heading from '@/components/Heading.vue'
 
 interface Category {
     id: number
@@ -156,123 +155,117 @@ const breadcrumbs = [
 <template>
     <Head title="Market" />
 
-    <AppShell variant="header">
-        <AppHeader :breadcrumbs="breadcrumbs" />
-        
-        <AppContent variant="header" class="p-4 lg:p-6">
-            <div class="mx-auto max-w-[1600px]">
-                <!-- Page Header with Search -->
-                <div class="mb-6 space-y-4">
-                    <div>
-                        <h1 class="text-3xl font-bold tracking-tight">Market</h1>
-                        <p class="mt-1 text-sm text-muted-foreground">
-                            Browse active plantings from approved farmers
-                        </p>
-                    </div>
+    <AppLayout :breadcrumbs="breadcrumbs">
+        <div class="flex h-full flex-col gap-6 p-4 lg:p-6">
+            <!-- Page Header with Search -->
+            <div class="mb-6 space-y-4">
+                <Heading
+                    title="Market"
+                    description="Browse active plantings from approved farmers."
+                />
 
-                    <!-- Search Bar -->
-                    <div class="relative max-w-md">
-                        <Search class="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-                        <Input
-                            v-model="searchQuery"
-                            type="search"
-                            placeholder="Search varieties (e.g., Tomato, Lettuce)..."
-                            class="pl-10"
-                            @input="handleSearch"
-                        />
-                    </div>
-
-                    <!-- Category Filter Bar -->
-                    <CategoryFilterBar
-                        :categories="filters.categories"
-                        :active-category="filters.category"
-                        @select="handleCategoryFilter"
+                <!-- Search Bar -->
+                <div class="relative max-w-md">
+                    <Search class="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                    <Input
+                        v-model="searchQuery"
+                        type="search"
+                        placeholder="Search varieties (e.g., Tomato, Lettuce)..."
+                        class="pl-10"
+                        @input="handleSearch"
                     />
                 </div>
 
-                <!-- Main Grid: Plantings + Insights -->
-                <div class="grid gap-6 lg:grid-cols-[1fr_380px]">
-                    <!-- Left: Plantings Grid -->
-                    <div class="space-y-6">
-                        <!-- Results Header -->
-                        <div class="flex items-center justify-between">
-                            <p class="text-sm text-muted-foreground">
-                                <template v-if="plantings">
-                                    Showing {{ plantings.data.length }} of {{ plantings.total }} plantings
-                                </template>
-                                <template v-else>
-                                    Loading...
-                                </template>
-                            </p>
-                        </div>
+                <!-- Category Filter Bar -->
+                <CategoryFilterBar
+                    :categories="filters.categories"
+                    :active-category="filters.category"
+                    @select="handleCategoryFilter"
+                />
+            </div>
 
-                        <!-- Plantings Grid -->
-                        <div v-if="!isLoadingPlantings && plantings" class="grid gap-4 sm:grid-cols-2">
-                            <PlantingCard
-                                v-for="planting in plantings.data"
-                                :key="planting.id"
-                                :planting="planting"
-                            />
+            <!-- Main Grid: Plantings + Insights -->
+            <div class="grid gap-6 lg:grid-cols-[1fr_380px]">
+                <!-- Left: Plantings Grid -->
+                <div class="space-y-6">
+                    <!-- Results Header -->
+                    <div class="flex items-center justify-between">
+                        <p class="text-sm text-muted-foreground">
+                            <template v-if="plantings">
+                                Showing {{ plantings.data.length }} of {{ plantings.total }} plantings
+                            </template>
+                            <template v-else>
+                                Loading...
+                            </template>
+                        </p>
+                    </div>
 
-                            <!-- Empty State -->
-                            <div
-                                v-if="plantings.data.length === 0"
-                                class="col-span-full flex flex-col items-center justify-center rounded-lg border border-dashed py-16 text-center"
-                            >
-                                <Filter class="mb-4 size-12 text-muted-foreground/50" />
-                                <h3 class="mb-1 font-semibold">No plantings found</h3>
-                                <p class="text-sm text-muted-foreground">
-                                    Try adjusting your search or filters
-                                </p>
-                            </div>
-                        </div>
+                    <!-- Plantings Grid -->
+                    <div v-if="!isLoadingPlantings && plantings" class="grid gap-4 sm:grid-cols-2">
+                        <PlantingCard
+                            v-for="planting in plantings.data"
+                            :key="planting.id"
+                            :planting="planting"
+                        />
 
-                        <!-- Loading Skeletons -->
-                        <div v-else class="grid gap-4 sm:grid-cols-2">
-                            <Skeleton v-for="i in 6" :key="i" class="h-64 rounded-lg" />
-                        </div>
-
-                        <!-- Pagination -->
+                        <!-- Empty State -->
                         <div
-                            v-if="plantings && plantings.last_page > 1"
-                            class="flex items-center justify-between border-t pt-4"
+                            v-if="plantings.data.length === 0"
+                            class="col-span-full flex flex-col items-center justify-center rounded-lg border border-dashed py-16 text-center"
                         >
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                :disabled="plantings.current_page === 1"
-                                @click="handlePageChange(plantings.current_page - 1)"
-                            >
-                                Previous
-                            </Button>
-                            <span class="text-sm text-muted-foreground">
-                                Page {{ plantings.current_page }} of {{ plantings.last_page }}
-                            </span>
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                :disabled="plantings.current_page === plantings.last_page"
-                                @click="handlePageChange(plantings.current_page + 1)"
-                            >
-                                Next
-                            </Button>
+                            <Filter class="mb-4 size-12 text-muted-foreground/50" />
+                            <h3 class="mb-1 font-semibold">No plantings found</h3>
+                            <p class="text-sm text-muted-foreground">
+                                Try adjusting your search or filters
+                            </p>
                         </div>
                     </div>
 
-                    <!-- Right: Market Insights -->
-                    <div class="lg:sticky lg:top-6 lg:h-fit">
-                        <MarketInsightsPanel
-                            v-if="insights"
-                            :insights="insights"
-                        />
-                        <div v-else class="space-y-4">
-                            <Skeleton class="h-64 rounded-lg" />
-                            <Skeleton class="h-48 rounded-lg" />
-                            <Skeleton class="h-56 rounded-lg" />
-                        </div>
+                    <!-- Loading Skeletons -->
+                    <div v-else class="grid gap-4 sm:grid-cols-2">
+                        <Skeleton v-for="i in 6" :key="i" class="h-64 rounded-lg" />
+                    </div>
+
+                    <!-- Pagination -->
+                    <div
+                        v-if="plantings && plantings.last_page > 1"
+                        class="flex items-center justify-between border-t pt-4"
+                    >
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            :disabled="plantings.current_page === 1"
+                            @click="handlePageChange(plantings.current_page - 1)"
+                        >
+                            Previous
+                        </Button>
+                        <span class="text-sm text-muted-foreground">
+                            Page {{ plantings.current_page }} of {{ plantings.last_page }}
+                        </span>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            :disabled="plantings.current_page === plantings.last_page"
+                            @click="handlePageChange(plantings.current_page + 1)"
+                        >
+                            Next
+                        </Button>
+                    </div>
+                </div>
+
+                <!-- Right: Market Insights -->
+                <div class="lg:sticky lg:top-6 lg:h-fit">
+                    <MarketInsightsPanel
+                        v-if="insights"
+                        :insights="insights"
+                    />
+                    <div v-else class="space-y-4">
+                        <Skeleton class="h-64 rounded-lg" />
+                        <Skeleton class="h-48 rounded-lg" />
+                        <Skeleton class="h-56 rounded-lg" />
                     </div>
                 </div>
             </div>
-        </AppContent>
-    </AppShell>
+        </div>
+    </AppLayout>
 </template>

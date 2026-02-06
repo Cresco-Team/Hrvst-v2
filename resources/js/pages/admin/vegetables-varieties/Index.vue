@@ -5,16 +5,14 @@ import { useFlash } from '@/composables/useFlash'
 import AppLayout from '@/layouts/AppLayout.vue'
 import admin from '@/routes/admin'
 import type { BreadcrumbItem } from '@/types'
-
-/* -- feature components -- */
 import VarietySummaryCards from '@/components/features/admin/cards/VarietySummaryCard.vue'
 import VarietyTable from '@/components/features/admin/tables/VarietyTable.vue'
 import VarietyForm from '@/components/features/admin/forms/VarietyForm.vue'
 import VarietyDeleteConfirm from '@/components/features/admin/dialogs/VarietyDeleteConfirm.vue'
 import PriceFreshnessFilter from '@/components/features/admin/filters/PriceFreshnessFilter.vue'
 import { Skeleton } from '@/components/ui/skeleton'
+import Heading from '@/components/Heading.vue'
 
-/* -- types -- */
 interface Variety {
     id: number
     vegetable_id: number
@@ -74,13 +72,11 @@ interface Props {
 
 const props = defineProps<Props>()
 
-/* -- breadcrumbs -- */
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Admin', href: admin.dashboard().url },
     { title: 'Vegetables & Varieties', href: admin.vegetables_varieties.index().url },
 ]
 
-/* -- flash / toast -- */
 const { flash } = useFlash()
 const toastVisible = ref(false)
 let toastTimer: ReturnType<typeof setTimeout> | null = null
@@ -194,28 +190,30 @@ const isLoadingOptions = computed(() => !props.vegetableOptions)
     <Head title="Vegetables & Varieties" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="flex h-full flex-1 flex-col gap-6 p-4 lg:p-6">
+        <div class="flex h-full flex-col gap-6 p-4 lg:p-6">
 
-            <!-- page header with filter -->
+            <!-- Header -->
             <div class="flex items-end justify-between">
-                <div>
-                    <h1 class="text-2xl font-semibold tracking-tight">Vegetables & Varieties</h1>
-                    <p class="text-sm text-muted-foreground mt-0.5">
-                        Manage all vegetable varieties, prices, and harvest times.
-                    </p>
-                </div>
+
+                <!-- Title -->
+                <Heading
+                    title="Vegetables"
+                    description="Manage all vegetable varieties, prices, and harvest times."
+                />
                 
-                <!-- Price Freshness Filter -->
+                <!-- Filter -->
                 <PriceFreshnessFilter
                     v-if="summary"
                     :active-filter="filters.price_filter"
                     :price-stats="summary.price_stats"
                     @filter-change="handleFilterChange"
                 />
-                <Skeleton v-else class="h-9 w-32" />
+                <Skeleton 
+                    v-else class="h-9 w-32" 
+                />
             </div>
 
-            <!-- summary cards -->
+            <!-- Summary Cards -->
             <VarietySummaryCards v-if="summary" :summary="summary" />
             <div v-else class="grid grid-cols-1 gap-4 md:grid-cols-3">
                 <Skeleton class="h-24 rounded-lg" />

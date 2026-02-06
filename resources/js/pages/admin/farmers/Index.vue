@@ -4,9 +4,6 @@ import { Head, router } from '@inertiajs/vue3'
 import { Users, Map, List, Loader2 } from 'lucide-vue-next'
 import axios from 'axios'
 import { toast } from 'vue-sonner'
-import AppShell from '@/components/AppShell.vue'
-import AppHeader from '@/components/AppHeader.vue'
-import AppContent from '@/components/AppContent.vue'
 import Heading from '@/components/Heading.vue'
 import FarmerSummaryCard from '@/components/features/admin/cards/FarmerSummaryCard.vue'
 import FarmerTable from '@/components/features/admin/tables/FarmerTable.vue'
@@ -14,10 +11,10 @@ import FarmerMap from '@/components/features/admin/map/FarmerMap.vue'
 import FarmerMapFilters from '@/components/features/admin/map/FarmerMapFilters.vue'
 import FarmerMapSidebar from '@/components/features/admin/map/FarmerMapSidebar.vue'
 import PendingFarmersSheet from '@/components/features/admin/sheets/PendingFarmersSheet.vue'
-import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import admin from '@/routes/admin'
+import AppLayout from '@/layouts/AppLayout.vue'
 
 /* -- Types -- */
 interface Planting {
@@ -322,194 +319,189 @@ if (storedView && storedView !== props.view) {
 <template>
     <Head title="Farmers" />
 
-    <AppShell variant="header">
-        <AppHeader :breadcrumbs="breadcrumbs" />
-        <AppContent variant="header" class="p-4 lg:p-6">
-            <div class="flex flex-col gap-6">
-                <!-- Page Header with View Toggle & Pending Approvals -->
-                <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                    <div class="flex items-center gap-3">
-                        <div class="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                            <Users class="size-5" />
-                        </div>
-                        <Heading
-                            title="Farmers"
-                            description="Manage approved farmers and their active plantings"
-                        />
-                    </div>
-                    
-                    <div class="flex items-center gap-2">
-                        <!-- Pending Approvals Sheet -->
-                        <PendingFarmersSheet
-                            v-model:open="pendingSheetOpen"
-                            :farmers="pendingFarmers"
-                        />
+    <AppLayout :breadcrumbs="breadcrumbs">
+        <div class="flex flex-col gap-6 p-4 lg:p-6">
+            
+            <!-- Header -->
+            <div class="flex items-end justify-between">
 
-                        <!-- View Toggle -->
-                        <ToggleGroup 
-                            :model-value="currentView" 
-                            type="single"
-                            class="border rounded-lg p-1"
-                        >
-                            <ToggleGroupItem 
-                                value="list" 
-                                aria-label="List view"
-                                @click="switchView('list')"
-                                class="gap-2"
-                            >
-                                <List class="size-4" />
-                                <span class="hidden sm:inline">List</span>
-                            </ToggleGroupItem>
-                            <ToggleGroupItem 
-                                value="map" 
-                                aria-label="Map view"
-                                @click="switchView('map')"
-                                class="gap-2"
-                            >
-                                <Map class="size-4" />
-                                <span class="hidden sm:inline">Map</span>
-                            </ToggleGroupItem>
-                        </ToggleGroup>
-                    </div>
-                </div>
+                <!-- Title -->
+                <Heading
+                    title="Farmers"
+                    description="Manage farmers and their active plantings."
+                />
+                
+                <div class="flex items-center gap-2">
 
-                <!-- Summary Cards (always visible) -->
-                <FarmerSummaryCard v-if="summary" :summary="summary" />
-                <div v-else class="grid grid-cols-1 gap-4 md:grid-cols-4">
-                    <Skeleton class="h-24 rounded-lg" />
-                    <Skeleton class="h-24 rounded-lg" />
-                    <Skeleton class="h-24 rounded-lg" />
-                    <Skeleton class="h-24 rounded-lg" />
-                </div>
-
-                <!-- LIST VIEW -->
-                <div v-if="isListView">
-                    <FarmerTable
-                        v-if="farmers"
-                        :farmers="farmers"
-                        @view-farmer="handleViewFarmer"
-                        @page-change="handlePageChange"
+                    <!-- Pending Approvals Sheet -->
+                    <PendingFarmersSheet
+                        v-model:open="pendingSheetOpen"
+                        :farmers="pendingFarmers"
                     />
-                    <div v-else class="flex flex-col gap-4">
-                        <div class="flex items-center justify-between">
-                            <Skeleton class="h-9 w-64" />
-                        </div>
-                        <div class="rounded-lg border">
-                            <div class="p-4 space-y-3">
-                                <Skeleton class="h-16 w-full" />
-                                <Skeleton class="h-16 w-full" />
-                                <Skeleton class="h-16 w-full" />
-                                <Skeleton class="h-16 w-full" />
-                                <Skeleton class="h-16 w-full" />
-                            </div>
-                        </div>
-                    </div>
-                </div>
 
-                <!-- MAP VIEW -->
-                <div v-if="isMapView" class="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_320px]">
-                    <!-- Map Container -->
-                    <div class="relative h-full min-h-[600px] w-full overflow-hidden rounded-lg border shadow-sm">
-                        <!-- Loading Overlay -->
-                        <Transition
-                            enter-active-class="transition-opacity duration-200"
-                            leave-active-class="transition-opacity duration-200"
-                            enter-from-class="opacity-0"
-                            leave-to-class="opacity-0"
+                    <!-- View Toggle -->
+                    <ToggleGroup 
+                        :model-value="currentView"
+                        variant="outline" 
+                        type="single"
+                    >
+                        <ToggleGroupItem 
+                            value="list" 
+                            aria-label="List view"
+                            @click="switchView('list')"
                         >
-                            <div
-                                v-if="loadingMarkers"
-                                class="absolute inset-0 z-30 flex items-center justify-center bg-background/80 backdrop-blur-sm"
-                            >
-                                <div class="flex items-center gap-2 rounded-lg border bg-card p-4 shadow-lg">
-                                    <Loader2 class="size-4 animate-spin" />
-                                    <span class="text-sm font-medium">Loading farmers...</span>
-                                </div>
-                            </div>
-                        </Transition>
+                            <List class="size-4" />
+                            <span class="hidden sm:inline">List</span>
+                        </ToggleGroupItem>
+                        <ToggleGroupItem 
+                            value="map" 
+                            aria-label="Map view"
+                            @click="switchView('map')"
+                        >
+                            <Map class="size-4" />
+                            <span class="hidden sm:inline">Map</span>
+                        </ToggleGroupItem>
+                    </ToggleGroup>
+                </div>
+            </div>
 
-                        <!-- Map Component -->
-                        <FarmerMap
-                            :markers="markers"
-                            :center="mapConfig.center"
-                            :zoom="mapConfig.defaultZoom"
-                            @marker-click="handleMarkerClick"
-                            @bounds-change="handleBoundsChange"
-                        />
+            <!-- Summary Cards -->
+            <FarmerSummaryCard v-if="summary" :summary="summary" />
+            <div v-else class="grid grid-cols-1 gap-4 md:grid-cols-4">
+                <Skeleton class="h-24 rounded-lg" />
+                <Skeleton class="h-24 rounded-lg" />
+                <Skeleton class="h-24 rounded-lg" />
+                <Skeleton class="h-24 rounded-lg" />
+            </div>
+
+            <!-- LIST VIEW -->
+            <div v-if="isListView">
+                <FarmerTable
+                    v-if="farmers"
+                    :farmers="farmers"
+                    @view-farmer="handleViewFarmer"
+                    @page-change="handlePageChange"
+                />
+                <div v-else class="flex flex-col gap-4">
+                    <div class="flex items-center justify-between">
+                        <Skeleton class="h-9 w-64" />
                     </div>
-
-                    <!-- Right Sidebar: Filters & Legend -->
-                    <div class="flex flex-col gap-4">
-                        <!-- Map Filters -->
-                        <FarmerMapFilters
-                            :municipalities="filters.municipalities"
-                            :plantings="filters.plantings"
-                            :selected-municipality="selectedMunicipality"
-                            :selected-variety="selectedVariety"
-                            @update:selected-municipality="selectedMunicipality = $event"
-                            @update:selected-variety="selectedVariety = $event"
-                            @clear="handleClearFilters"
-                        />
-
-                        <!-- Map Stats -->
-                        <div class="rounded-lg border bg-card p-4">
-                            <p class="mb-3 text-sm font-semibold">Map Statistics</p>
-                            <div class="space-y-2 text-sm">
-                                <div class="flex items-center justify-between">
-                                    <span class="text-muted-foreground">Visible farmers</span>
-                                    <span class="font-mono font-medium">{{ markers.length }}</span>
-                                </div>
-                                <div class="flex items-center justify-between">
-                                    <span class="text-muted-foreground">Total active plantings</span>
-                                    <span class="font-mono font-medium">
-                                        {{ totalVisiblePlantings }}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Map Legend -->
-                        <div class="rounded-lg border bg-card p-4">
-                            <p class="mb-3 text-sm font-semibold">Legend</p>
-                            <div class="space-y-2 text-xs">
-                                <div class="flex items-center gap-2">
-                                    <div class="size-3 shrink-0 rounded-full bg-blue-500" />
-                                    <span>Cluster (multiple farmers)</span>
-                                </div>
-                                <div class="flex items-center gap-2">
-                                    <div class="size-3 shrink-0 rounded-full bg-green-500" />
-                                    <span>Leafy vegetables</span>
-                                </div>
-                                <div class="flex items-center gap-2">
-                                    <div class="size-3 shrink-0 rounded-full bg-orange-500" />
-                                    <span>Root vegetables</span>
-                                </div>
-                                <div class="flex items-center gap-2">
-                                    <div class="size-3 shrink-0 rounded-full bg-red-500" />
-                                    <span>Fruiting vegetables</span>
-                                </div>
-                                <div class="flex items-center gap-2">
-                                    <div class="size-3 shrink-0 rounded-full bg-gray-500" />
-                                    <span>Other varieties</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Instructions -->
-                        <div class="rounded-lg border border-dashed bg-muted/30 p-4">
-                            <p class="mb-2 text-xs font-medium">How to use</p>
-                            <ul class="space-y-1 text-xs text-muted-foreground">
-                                <li>• Click markers to view farmer details</li>
-                                <li>• Use filters to narrow results</li>
-                                <li>• Zoom in to see individual farmers</li>
-                            </ul>
+                    <div class="rounded-lg border">
+                        <div class="p-4 space-y-3">
+                            <Skeleton class="h-16 w-full" />
+                            <Skeleton class="h-16 w-full" />
+                            <Skeleton class="h-16 w-full" />
+                            <Skeleton class="h-16 w-full" />
+                            <Skeleton class="h-16 w-full" />
                         </div>
                     </div>
                 </div>
             </div>
-        </AppContent>
 
-        <!-- Farmer Details Sidebar (Map View Only) -->
+            <!-- MAP VIEW -->
+            <div v-if="isMapView" class="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_320px]">
+                <!-- Map Container -->
+                <div class="relative h-full min-h-[600px] w-full overflow-hidden rounded-lg border shadow-sm">
+                    <!-- Loading Overlay -->
+                    <Transition
+                        enter-active-class="transition-opacity duration-200"
+                        leave-active-class="transition-opacity duration-200"
+                        enter-from-class="opacity-0"
+                        leave-to-class="opacity-0"
+                    >
+                        <div
+                            v-if="loadingMarkers"
+                            class="absolute inset-0 z-30 flex items-center justify-center bg-background/80 backdrop-blur-sm"
+                        >
+                            <div class="flex items-center gap-2 rounded-lg border bg-card p-4 shadow-lg">
+                                <Loader2 class="size-4 animate-spin" />
+                                <span class="text-sm font-medium">Loading farmers...</span>
+                            </div>
+                        </div>
+                    </Transition>
+
+                    <!-- Map Component -->
+                    <FarmerMap
+                        :markers="markers"
+                        :center="mapConfig.center"
+                        :zoom="mapConfig.defaultZoom"
+                        @marker-click="handleMarkerClick"
+                        @bounds-change="handleBoundsChange"
+                    />
+                </div>
+
+                <!-- Right Sidebar: Filters & Legend -->
+                <div class="flex flex-col gap-4">
+                    <!-- Map Filters -->
+                    <FarmerMapFilters
+                        :municipalities="filters.municipalities"
+                        :plantings="filters.plantings"
+                        :selected-municipality="selectedMunicipality"
+                        :selected-variety="selectedVariety"
+                        @update:selected-municipality="selectedMunicipality = $event"
+                        @update:selected-variety="selectedVariety = $event"
+                        @clear="handleClearFilters"
+                    />
+
+                    <!-- Map Stats -->
+                    <div class="rounded-lg border bg-card p-4">
+                        <p class="mb-3 text-sm font-semibold">Map Statistics</p>
+                        <div class="space-y-2 text-sm">
+                            <div class="flex items-center justify-between">
+                                <span class="text-muted-foreground">Visible farmers</span>
+                                <span class="font-mono font-medium">{{ markers.length }}</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-muted-foreground">Total active plantings</span>
+                                <span class="font-mono font-medium">
+                                    {{ totalVisiblePlantings }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Map Legend -->
+                    <div class="rounded-lg border bg-card p-4">
+                        <p class="mb-3 text-sm font-semibold">Legend</p>
+                        <div class="space-y-2 text-xs">
+                            <div class="flex items-center gap-2">
+                                <div class="size-3 shrink-0 rounded-full bg-blue-500" />
+                                <span>Cluster (multiple farmers)</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <div class="size-3 shrink-0 rounded-full bg-green-500" />
+                                <span>Leafy vegetables</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <div class="size-3 shrink-0 rounded-full bg-orange-500" />
+                                <span>Root vegetables</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <div class="size-3 shrink-0 rounded-full bg-red-500" />
+                                <span>Fruiting vegetables</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <div class="size-3 shrink-0 rounded-full bg-gray-500" />
+                                <span>Other varieties</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Instructions -->
+                    <div class="rounded-lg border border-dashed bg-muted/30 p-4">
+                        <p class="mb-2 text-xs font-medium">How to use</p>
+                        <ul class="space-y-1 text-xs text-muted-foreground">
+                            <li>• Click markers to view farmer details</li>
+                            <li>• Use filters to narrow results</li>
+                            <li>• Zoom in to see individual farmers</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </AppLayout>
+
+    <!-- Farmer Details Sidebar (Map View Only) -->
         <FarmerMapSidebar
             v-if="isMapView"
             :open="sidebarOpen"
@@ -517,5 +509,4 @@ if (storedView && storedView !== props.view) {
             :loading="loadingFarmer"
             @close="handleSidebarClose"
         />
-    </AppShell>
 </template>
