@@ -53,7 +53,7 @@ class PlantingService
                         'id' => $planting->variety?->id ?? 0,
                         'name' => ($planting->variety?->vegetable?->name ?? 'Unknown') . ' ' . ($planting->variety?->name ?? ''),
                         'category' => $planting->variety?->vegetable?->category?->name ?? 'Unknown',
-                        'image_path' => $planting->variety?->image_path ?? '',
+                        'image_path' => $planting->variety?->image_url ?? '',
                     ],
                     'weight_kg' => (float) $planting->weight_kg,
                     'date_planted' => $planting->date_planted?->format('M d, Y') ?? 'Unknown',

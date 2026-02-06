@@ -54,6 +54,15 @@ class Variety extends Model
 
     /* ---------- accessors ---------- */
 
+    public function imageUrl(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->image_path 
+                ? asset('storage/' . $this->image_path)
+                : null,
+        );
+    }
+
     public function averagePrice(): Attribute
     {
         return Attribute::make(
