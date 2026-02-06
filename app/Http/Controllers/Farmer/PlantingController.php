@@ -38,7 +38,6 @@ class PlantingController extends Controller
                 'search' => $search,
             ],
             
-            // Deferred (load after page renders)
             'plantings' => Inertia::defer(fn () => PlantingService::paginated(
                 farmerId: $farmer->id,
                 perPage: 20,

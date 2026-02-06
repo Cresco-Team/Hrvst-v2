@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Policies\Planting;
+namespace App\Policies\Product;
 
 use App\Models\Product\Planting;
 use App\Models\User;
@@ -12,7 +12,8 @@ class PlantingPolicy
      */
     public function view(User $user, Planting $planting): bool
     {
-        return $user->id === $planting->farmer->user_id;
+        // Check if user's farmer profile owns this planting
+        return $user->farmerProfile?->id === $planting->farmer_id;
     }
 
     /**
@@ -53,8 +54,11 @@ class PlantingPolicy
             && $planting->status === 'active';
     }
 
+    /**
+     * Determine if the user can destroy the planting (admin override).
+     */
     public function destroy(User $user, Planting $planting): bool
     {
-        return $user->hasRole('admin') || $this->view($user, $planting);
+        return $user->hasRole('admin') || $this->delete($user, $planting);
     }
 }
