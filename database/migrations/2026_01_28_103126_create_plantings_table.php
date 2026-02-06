@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('plantings', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('farmer_id')->constrained('farmer_profile')->cascadeOnDelete();
+            $table->foreignId('farmer_id')->constrained('farmer_profiles')->cascadeOnDelete();
             $table->foreignId('variety_id')->constrained()->cascadeOnDelete();
 
             $table->decimal('weight_kg');
