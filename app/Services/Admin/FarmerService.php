@@ -154,4 +154,78 @@ class FarmerService
             'joined_at_human' => $farmer->created_at->diffForHumans(),
         ];
     }
+
+    /**
+     * Get pending farmers awaiting approval
+     */
+    public static function pending(): array
+    {
+        return FarmerProfile::with([
+            'user',
+            'province',
+            'municipality',
+            'barangay',
+        ])
+            ->where('is_approved', false)
+            ->orderBy('created_at', 'asc')
+            ->get()
+            ->map(fn($farmer) => [
+                'id' => $farmer->id,
+                'user' => [
+                    'id' => $farmer->user->id,
+                    'name' => $farmer->user->name,
+                    'email' => $farmer->user->email,
+                    'phone_number' => $farmer->user->phone_number,
+                    'user_image' => $farmer->user->user_image,
+                ],
+                'location' => [
+                    'province' => $farmer->province->name,
+                    'municipality' => $farmer->municipality->name,
+                    'barangay' => $farmer->barangay->name,
+                    'full_address' => "{$farmer->barangay->name}, {$farmer->municipality->name}, {$farmer->province->name}",
+                    'coordinates' => [
+                        'lat' => (float) $farmer->latitude,
+                        'lng' => (float) $farmer->longitude,
+                    ],
+                ],
+                'farm_image' => $farmer->farm_image,
+                'submitted_at' => $farmer->created_at->format('M d, Y g:i A'),
+                'submitted_at_human' => $farmer->created_at->diffForHumans(),
+            ])
+            ->toArray();
+    }
+
+    /**
+     * Approve a pending farmer
+     */
+    public static function approve(int $farmerId): bool
+    {
+        $farmer = FarmerProfile::where('is_approved', false)->find($farmerId);
+
+        if (!$farmer) {
+            return false;
+        }
+
+        return $farmer->update(['is_approved' => true]);
+    }
+
+    /**
+     * Reject and delete a pending farmer
+     * Cascades to user deletion
+     */
+    public static function reject(int $farmerId): bool
+    {
+        $farmer = FarmerProfile::where('is_approved', false)->find($farmerId);
+
+        if (!$farmer) {
+            return false;
+        }
+
+        // Delete the farmer profile and associated user
+        $user = $farmer->user;
+        $farmer->delete();
+        $user->delete();
+
+        return true;
+    }
 }

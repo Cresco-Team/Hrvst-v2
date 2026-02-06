@@ -13,6 +13,7 @@ import FarmerTable from '@/components/features/admin/tables/FarmerTable.vue'
 import FarmerMap from '@/components/features/admin/map/FarmerMap.vue'
 import FarmerMapFilters from '@/components/features/admin/map/FarmerMapFilters.vue'
 import FarmerMapSidebar from '@/components/features/admin/map/FarmerMapSidebar.vue'
+import PendingFarmersSheet from '@/components/features/admin/sheets/PendingFarmersSheet.vue'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
@@ -57,6 +58,30 @@ interface Farmer {
     active_plantings: Planting[]
     joined_at: string
     joined_at_human: string
+}
+
+interface PendingFarmer {
+    id: number
+    user: {
+        id: number
+        name: string
+        email: string
+        phone_number: string
+        user_image: string | null
+    }
+    location: {
+        province: string
+        municipality: string
+        barangay: string
+        full_address: string
+        coordinates: {
+            lat: number
+            lng: number
+        }
+    }
+    farm_image: string | null
+    submitted_at: string
+    submitted_at_human: string
 }
 
 interface PaginatedData {
@@ -141,6 +166,7 @@ interface Props {
     view: 'list' | 'map'
     farmers?: PaginatedData
     summary?: Summary
+    pendingFarmers: PendingFarmer[]
     filters: {
         municipalities: Municipality[]
         plantings: PlantingsByCategory
@@ -166,6 +192,7 @@ const sidebarOpen = ref(false)
 const selectedFarmer = ref<FarmerDetails | null>(null)
 const loadingFarmer = ref(false)
 const mapBounds = ref<{ north: number; south: number; east: number; west: number } | null>(null)
+const pendingSheetOpen = ref(false)
 
 /* -- Computed -- */
 const isListView = computed(() => currentView.value === 'list')
@@ -295,7 +322,7 @@ if (storedView && storedView !== props.view) {
         <AppHeader :breadcrumbs="breadcrumbs" />
         <AppContent variant="header" class="p-4 lg:p-6">
             <div class="flex flex-col gap-6">
-                <!-- Page Header with View Toggle -->
+                <!-- Page Header with View Toggle & Pending Approvals -->
                 <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div class="flex items-center gap-3">
                         <div class="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
@@ -307,31 +334,39 @@ if (storedView && storedView !== props.view) {
                         />
                     </div>
                     
-                    <!-- View Toggle -->
-                    <ToggleGroup 
-                        :model-value="currentView" 
-                        type="single"
-                        class="border rounded-lg p-1"
-                    >
-                        <ToggleGroupItem 
-                            value="list" 
-                            aria-label="List view"
-                            @click="switchView('list')"
-                            class="gap-2"
+                    <div class="flex items-center gap-2">
+                        <!-- Pending Approvals Sheet -->
+                        <PendingFarmersSheet
+                            v-model:open="pendingSheetOpen"
+                            :farmers="pendingFarmers"
+                        />
+
+                        <!-- View Toggle -->
+                        <ToggleGroup 
+                            :model-value="currentView" 
+                            type="single"
+                            class="border rounded-lg p-1"
                         >
-                            <List class="size-4" />
-                            <span class="hidden sm:inline">List</span>
-                        </ToggleGroupItem>
-                        <ToggleGroupItem 
-                            value="map" 
-                            aria-label="Map view"
-                            @click="switchView('map')"
-                            class="gap-2"
-                        >
-                            <Map class="size-4" />
-                            <span class="hidden sm:inline">Map</span>
-                        </ToggleGroupItem>
-                    </ToggleGroup>
+                            <ToggleGroupItem 
+                                value="list" 
+                                aria-label="List view"
+                                @click="switchView('list')"
+                                class="gap-2"
+                            >
+                                <List class="size-4" />
+                                <span class="hidden sm:inline">List</span>
+                            </ToggleGroupItem>
+                            <ToggleGroupItem 
+                                value="map" 
+                                aria-label="Map view"
+                                @click="switchView('map')"
+                                class="gap-2"
+                            >
+                                <Map class="size-4" />
+                                <span class="hidden sm:inline">Map</span>
+                            </ToggleGroupItem>
+                        </ToggleGroup>
+                    </div>
                 </div>
 
                 <!-- Summary Cards (always visible) -->

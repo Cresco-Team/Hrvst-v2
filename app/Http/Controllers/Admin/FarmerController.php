@@ -7,6 +7,7 @@ use App\Models\Profiles\FarmerProfile;
 use App\Services\Admin\FarmerMapService;
 use App\Services\Admin\FarmerService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -46,6 +47,9 @@ class FarmerController extends Controller
                 : null,
             
             'summary' => Inertia::defer(fn () => FarmerService::summary()),
+            
+            // Pending farmers for approval (always loaded for badge count)
+            'pendingFarmers' => FarmerService::pending(),
         ]);
     }
 
@@ -111,10 +115,71 @@ class FarmerController extends Controller
     }
 
     /**
-     * Delete farmer profile
+     * Approve a pending farmer
      */
-    public function destroy(FarmerProfile $farmerProfile)
+    public function approve(int $id): RedirectResponse
     {
-        // Future implementation if needed
+        $approved = FarmerService::approve($id);
+
+        if (!$approved) {
+            return redirect()->route('admin.farmers.index')
+                ->with('flash', [
+                    'type' => 'error',
+                    'message' => 'Farmer not found or already approved.',
+                ]);
+        }
+
+        return redirect()->route('admin.farmers.index')
+            ->with('flash', [
+                'type' => 'success',
+                'message' => 'Farmer approved successfully.',
+            ]);
+    }
+
+    /**
+     * Reject and delete a pending farmer
+     */
+    public function reject(int $id): RedirectResponse
+    {
+        $rejected = FarmerService::reject($id);
+
+        if (!$rejected) {
+            return redirect()->route('admin.farmers.index')
+                ->with('flash', [
+                    'type' => 'error',
+                    'message' => 'Farmer not found or already processed.',
+                ]);
+        }
+
+        return redirect()->route('admin.farmers.index')
+            ->with('flash', [
+                'type' => 'success',
+                'message' => 'Farmer rejected and account deleted.',
+            ]);
+    }
+
+    /**
+     * Delete farmer profile (for approved farmers)
+     */
+    public function destroy(FarmerProfile $farmerProfile): RedirectResponse
+    {
+        // Check if farmer has active plantings
+        if ($farmerProfile->plantings()->where('status', 'active')->exists()) {
+            return redirect()->route('admin.farmers.index')
+                ->with('flash', [
+                    'type' => 'error',
+                    'message' => 'Cannot delete farmer with active plantings.',
+                ]);
+        }
+
+        $user = $farmerProfile->user;
+        $farmerProfile->delete();
+        $user->delete();
+
+        return redirect()->route('admin.farmers.index')
+            ->with('flash', [
+                'type' => 'success',
+                'message' => 'Farmer deleted successfully.',
+            ]);
     }
 }

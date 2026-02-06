@@ -21,16 +21,25 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     Route::delete('/vegetables-varieties/{variety}', [VarietyController::class, 'destroy'])
         ->name('vegetables_varieties.destroy');
 
+    // Farmer Routes
     Route::get('/farmers', [FarmerController::class, 'index'])
         ->name('farmers.index');
     Route::get('/farmers/{farmer}', [FarmerController::class, 'show'])
         ->name('farmers.show');
     Route::delete('/farmers/{farmer}', [FarmerController::class, 'destroy'])
         ->name('farmers.destroy');
+    
+    // Farmer API Routes (AJAX)
     Route::get('/farmers/api/markers', [FarmerController::class, 'markers'])
         ->name('farmers.api.markers');
     Route::get('/farmers/api/{id}/details', [FarmerController::class, 'details'])
         ->name('farmers.api.details');
+    
+    // Farmer Approval Routes
+    Route::post('/farmers/{id}/approve', [FarmerController::class, 'approve'])
+        ->name('farmers.approve');
+    Route::delete('/farmers/{id}/reject', [FarmerController::class, 'reject'])
+        ->name('farmers.reject');
 
     Route::get('/dealers', [DealerController::class, 'index'])
         ->name('dealers.index');
