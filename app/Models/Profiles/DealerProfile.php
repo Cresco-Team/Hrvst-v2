@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class DealerProfile extends Model
 {
@@ -26,5 +27,10 @@ class DealerProfile extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function requests(): HasMany
+    {
+        return $this->hasMany(\App\Models\Announcement\DealerRequest::class, 'dealer_id');
     }
 }
