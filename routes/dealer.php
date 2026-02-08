@@ -1,20 +1,28 @@
 <?php
 
 use App\Http\Controllers\Dealer\DealerRequestController;
+use App\Http\Controllers\Dealer\FarmerOfferingBrowseController;
 use App\Http\Controllers\Dealer\MarketController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'verified', 'dealer'])->prefix('dealer')->name('dealer.')->group(function () {
     
-    // Market Dashboard
+    // Market Dashboard (deprecated - keeping for backward compatibility)
     Route::get('/market', [MarketController::class, 'index'])
         ->name('market');
 
+    // Dealer Requests (Manage own requests)
     Route::prefix('requests')->name('requests.')->group(function () {
         Route::get('/', [DealerRequestController::class, 'index'])->name('index');
         Route::post('/', [DealerRequestController::class, 'store'])->name('store');
         Route::put('/{dealerRequest}', [DealerRequestController::class, 'update'])->name('update');
         Route::post('/{dealerRequest}/fulfill', [DealerRequestController::class, 'fulfill'])->name('fulfill');
         Route::delete('/{dealerRequest}', [DealerRequestController::class, 'destroy'])->name('destroy');
+    });
+
+    // Marketplace (Browse farmer offerings)
+    Route::prefix('marketplace')->name('marketplace.')->group(function () {
+        Route::get('/', [FarmerOfferingBrowseController::class, 'index'])->name('index');
+        Route::get('/{farmerOffering}', [FarmerOfferingBrowseController::class, 'show'])->name('show');
     });
 });
