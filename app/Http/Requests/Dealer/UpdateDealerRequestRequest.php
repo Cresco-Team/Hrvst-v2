@@ -20,7 +20,7 @@ class UpdateDealerRequestRequest extends FormRequest
             'transaction_date' => [
                 'required',
                 'date',
-                'after:today',
+                'after_or_equal:today',
                 'before_or_equal:' . now()->addMonths(3)->format('Y-m-d'),
             ],
             'items' => ['required', 'array', 'min:1', 'max:10'],
