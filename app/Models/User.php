@@ -74,6 +74,21 @@ class User extends Authenticatable
         return $this->hasMany(Message::class, 'sender_id');
     }
 
+    public function announcementReactions(): HasMany
+    {
+        return $this->hasMany(\App\Models\Announcement\AnnouncementReaction::class);
+    }
+
+    public function announcementComments(): HasMany
+    {
+        return $this->hasMany(\App\Models\Announcement\AnnouncementComment::class);
+    }
+
+    public function announcementFlags(): HasMany
+    {
+        return $this->hasMany(\App\Models\Announcement\AnnouncementFlag::class);
+    }
+
     /* ---------- methods ---------- */
 
     public function hasRole(string $role): bool
