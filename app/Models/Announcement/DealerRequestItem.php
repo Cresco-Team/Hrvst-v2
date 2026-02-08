@@ -57,9 +57,9 @@ class DealerRequestItem extends Model
                 $marketMax = $this->variety->latestPrice->price_max;
 
                 if ($this->price_offered < $marketMin) {
-                    return 'cheap';
+                    return 'low';
                 } elseif ($this->price_offered > $marketMax) {
-                    return 'high';
+                    return 'premium';
                 } else {
                     return 'fair';
                 }
