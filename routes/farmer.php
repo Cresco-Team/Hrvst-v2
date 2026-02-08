@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Farmer\DealerRequestBrowseController;
 use App\Http\Controllers\Farmer\FarmerOfferingController;
 use App\Http\Controllers\Farmer\PlantingController;
 use Illuminate\Support\Facades\Route;
@@ -24,11 +25,18 @@ Route::middleware(['auth', 'verified', 'farmer'])->prefix('farmer')->name('farme
             ->name('cancel');
     });
 
+    // Farmer Offerings (Manage own offerings)
     Route::prefix('offerings')->name('offerings.')->group(function () {
         Route::get('/', [FarmerOfferingController::class, 'index'])->name('index');
         Route::post('/', [FarmerOfferingController::class, 'store'])->name('store');
         Route::put('/{farmerOffering}', [FarmerOfferingController::class, 'update'])->name('update');
         Route::post('/{farmerOffering}/archive', [FarmerOfferingController::class, 'archive'])->name('archive');
         Route::delete('/{farmerOffering}', [FarmerOfferingController::class, 'destroy'])->name('destroy');
+    });
+
+    // Dealer Requests (Browse opportunities)
+    Route::prefix('requests')->name('requests.')->group(function () {
+        Route::get('/', [DealerRequestBrowseController::class, 'index'])->name('index');
+        Route::get('/{dealerRequest}', [DealerRequestBrowseController::class, 'show'])->name('show');
     });
 });
