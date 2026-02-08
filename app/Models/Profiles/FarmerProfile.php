@@ -59,4 +59,9 @@ class FarmerProfile extends Model
     {
         return $this->hasMany(Planting::class, 'farmer_id');
     }
+
+    public function offerings(): HasMany
+    {
+        return $this->hasMany(\App\Models\Announcement\FarmerOffering::class, 'farmer_id');
+    }
 }
