@@ -22,7 +22,7 @@ class DealerRequestController extends Controller
     public function index(Request $request): Response
     {
         $user = $request->user()->load('dealerProfile');
-        $dealerId = $user()->dealerProfile->id;
+        $dealerId = $user->dealerProfile->id;
         $status = $request->query('status', 'all');
 
         return Inertia::render('dealer/Requests', [
