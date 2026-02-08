@@ -107,7 +107,7 @@ class FarmerOfferingService
             Variety::with('vegetable.category')
                 ->orderBy('name')
                 ->get()
-                ->groupBy('vegetable.category.name')
+                ->groupBy(fn($variety) => $variety->vegetable->category->name)
                 ->map(fn($varieties) => $varieties->map(fn($variety) => [
                     'id' => $variety->id,
                     'name' => $variety->vegetable->name . ' ' . $variety->name,
