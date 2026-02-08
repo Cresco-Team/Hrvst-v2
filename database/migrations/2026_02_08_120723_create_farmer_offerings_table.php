@@ -22,7 +22,7 @@ return new class extends Migration
 
             $table->timestamps();
 
-            $table->index(['farmer_id', 'status', 'expiration_date']);
+            $table->index(['status', 'expiration_date', 'variety_id']);
             $table->index(['variety_id', 'status']);
         });
     }
