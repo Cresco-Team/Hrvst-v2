@@ -21,7 +21,8 @@ class DealerRequestController extends Controller
 
     public function index(Request $request): Response
     {
-        $dealerId = $request->user()->dealerProfile->id;
+        $user = $request->user()->load('dealerProfile');
+        $dealerId = $user()->dealerProfile->id;
         $status = $request->query('status', 'all');
 
         return Inertia::render('dealer/Requests', [
@@ -53,6 +54,8 @@ class DealerRequestController extends Controller
 
     public function update(UpdateDealerRequestRequest $request, DealerRequest $dealerRequest): RedirectResponse
     {
+        $request->user->load('dealerProfile');
+        
         Gate::authorize('update', $dealerRequest);
 
         $this->service->update(
