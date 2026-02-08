@@ -1,0 +1,54 @@
+<?php
+
+namespace App\Http\Controllers\Dealer;
+
+use App\Http\Controllers\Controller;
+use App\Models\Announcement\FarmerOffering;
+use App\Services\Dealer\FarmerOfferingBrowseService;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
+use Inertia\Inertia;
+use Inertia\Response;
+
+class FarmerOfferingBrowseController extends Controller
+{
+    /**
+     * Browse farmer offerings marketplace
+     */
+    public function index(Request $request): Response
+    {
+        $validated = $request->validate([
+            'search' => 'nullable|string|max:255',
+            'category_id' => 'nullable|exists:categories,id',
+            'variety_id' => 'nullable|exists:varieties,id',
+            'municipality_id' => 'nullable|exists:municipalities,id',
+        ]);
+
+        return Inertia::render('dealer/marketplace/Index', [
+            // Synchronous (immediate load)
+            'filters' => $validated,
+            
+            // Deferred (load after page renders)
+            'offerings' => Inertia::defer(fn() => 
+                FarmerOfferingBrowseService::paginated($validated)
+            ),
+            
+            'filterOptions' => Inertia::defer(fn() => [
+                'categories' => FarmerOfferingBrowseService::categoryOptions(),
+                'municipalities' => FarmerOfferingBrowseService::municipalityOptions(),
+            ]),
+        ]);
+    }
+
+    /**
+     * View single farmer offering details
+     */
+    public function show(FarmerOffering $farmerOffering): Response
+    {
+        Gate::authorize('view', $farmerOffering);
+
+        return Inertia::render('dealer/marketplace/Show', [
+            'offering' => FarmerOfferingBrowseService::detailed($farmerOffering),
+        ]);
+    }
+}
