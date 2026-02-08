@@ -63,11 +63,17 @@ class DealerRequestService
             ]);
 
             foreach ($items as $item) {
+                $variety = Variety::with('latestPrice')->find($item['variety_id']);
+                
                 DealerRequestItem::create([
                     'dealer_request_id' => $request->id,
                     'variety_id' => $item['variety_id'],
                     'quantity_kg' => $item['quantity_kg'],
                     'price_offered' => $item['price_offered'],
+                    'price_flag' => self::calculatePriceFlag(
+                        $item['price_offered'], 
+                        $variety->latestPrice
+                    ),
                 ]);
             }
 
