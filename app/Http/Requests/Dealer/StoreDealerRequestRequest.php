@@ -14,7 +14,12 @@ class StoreDealerRequestRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'transaction_date' => ['required', 'date', 'after:today'],
+            'transaction_date' => [
+                'required', 
+                'date', 
+                'after:today',
+                'before_or_equal:' . now()->addMonths(3)->format('Y-m-d')
+            ],
             'items' => ['required', 'array', 'min:1', 'max:10'],
             'items.*.variety_id' => ['required', 'exists:varieties,id'],
             'items.*.quantity_kg' => ['required', 'numeric', 'min:0.1', 'max:99999'],
