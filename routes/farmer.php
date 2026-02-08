@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Farmer\FarmerOfferingController;
 use App\Http\Controllers\Farmer\PlantingController;
 use Illuminate\Support\Facades\Route;
 
@@ -21,5 +22,13 @@ Route::middleware(['auth', 'verified', 'farmer'])->prefix('farmer')->name('farme
             ->name('harvest');
         Route::post('/{planting}/cancel', [PlantingController::class, 'cancel'])
             ->name('cancel');
+    });
+
+    Route::prefix('offerings')->name('offerings.')->group(function () {
+        Route::get('/', [FarmerOfferingController::class, 'index'])->name('index');
+        Route::post('/', [FarmerOfferingController::class, 'store'])->name('store');
+        Route::put('/{farmerOffering}', [FarmerOfferingController::class, 'update'])->name('update');
+        Route::post('/{farmerOffering}/archive', [FarmerOfferingController::class, 'archive'])->name('archive');
+        Route::delete('/{farmerOffering}', [FarmerOfferingController::class, 'destroy'])->name('destroy');
     });
 });
