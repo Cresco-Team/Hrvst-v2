@@ -54,7 +54,7 @@ class DealerRequestController extends Controller
 
     public function update(UpdateDealerRequestRequest $request, DealerRequest $dealerRequest): RedirectResponse
     {
-        $request->user->load('dealerProfile');
+        $request->user()->load('dealerProfile');
         
         Gate::authorize('update', $dealerRequest);
 
