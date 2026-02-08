@@ -50,7 +50,7 @@ class FarmerOfferingService
                     'name' => $offering->variety->vegetable->name . ' ' . $offering->variety->name,
                     'category' => $offering->variety->vegetable->category->name,
                 ],
-                'image_url' => $this->imageService->getImageUrl($offering->image_path),
+                'image_url' => $offering->image_url,
                 'quantity_kg' => (float) $offering->quantity_kg,
                 'price_asking' => (float) $offering->price_asking,
                 'expiration_date' => $offering->expiration_date->format('M d, Y'),
