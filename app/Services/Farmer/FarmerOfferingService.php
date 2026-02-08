@@ -97,8 +97,10 @@ class FarmerOfferingService
 
     public function delete(FarmerOffering $offering): bool
     {
-        $this->imageService->deleteVarietyImage($offering->image_path);
-        return $offering->delete();
+        return DB::transaction(function () use ($offering) {
+            $this->imageService->deleteVarietyImage($offering->image_path);
+            return $offering->delete();
+        });
     }
 
     public static function varietyOptions(): array
