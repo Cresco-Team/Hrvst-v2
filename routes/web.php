@@ -22,6 +22,29 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('dashboard');
 });
 
+/* Announcement System - Shared Routes */
+Route::middleware(['auth', 'verified'])->group(function () {
+    // Reactions (toggle)
+    Route::post('/reactions/toggle', [\App\Http\Controllers\Announcement\ReactionController::class, 'toggle'])
+        ->name('reactions.toggle');
+    Route::get('/reactions', [\App\Http\Controllers\Announcement\ReactionController::class, 'show'])
+        ->name('reactions.show');
+
+    // Comments
+    Route::get('/offerings/{farmerOffering}/comments', [\App\Http\Controllers\Announcement\CommentController::class, 'index'])
+        ->name('comments.index');
+    Route::post('/offerings/{farmerOffering}/comments', [\App\Http\Controllers\Announcement\CommentController::class, 'store'])
+        ->name('comments.store');
+    Route::put('/comments/{comment}', [\App\Http\Controllers\Announcement\CommentController::class, 'update'])
+        ->name('comments.update');
+    Route::delete('/comments/{comment}', [\App\Http\Controllers\Announcement\CommentController::class, 'destroy'])
+        ->name('comments.destroy');
+
+    // Flags
+    Route::post('/flags', [\App\Http\Controllers\Announcement\FlagController::class, 'store'])
+        ->name('flags.store');
+});
+
 /* Development only */
 if (app()->environment('local', 'development')) {
     Route::prefix('dev')->name('dev.')->group(function () {
