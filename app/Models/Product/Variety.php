@@ -3,6 +3,7 @@
 namespace App\Models\Product;
 
 use App\Models\Announcement\DealerRequestItem;
+use App\Models\Announcement\FarmerOffering;
 use App\Models\Profiles\FarmerProfile;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -56,6 +57,11 @@ class Variety extends Model
     public function dealerRequestItems(): HasMany
     {
         return $this->hasMany(DealerRequestItem::class);
+    }
+
+    public function offerings(): HasMany
+    {
+        return $this->hasMany(FarmerOffering::class);
     }
 
     /* ---------- accessors ---------- */
