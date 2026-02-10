@@ -7,6 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import type { AnnouncementComment } from '@/types/announcement'
+import axios from 'axios'
 
 interface Props {
   offeringId: number
@@ -44,18 +45,10 @@ async function submitComment() {
 
   isSubmitting.value = true
   try {
-    const response = await fetch(`/offerings/${props.offeringId}/comments`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
-      },
-      body: JSON.stringify({ comment: newComment.value }),
+    const { data } = await axios.post(`/offerings/${props.offeringId}/comments`, {
+      comment: newComment.value,
     })
 
-    if (!response.ok) throw new Error('Failed to post comment')
-
-    const data = await response.json()
     comments.value.unshift(data.comment)
     newComment.value = ''
   } catch (error) {

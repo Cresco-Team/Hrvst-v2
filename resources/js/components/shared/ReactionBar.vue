@@ -3,6 +3,7 @@ import { ref, computed } from 'vue'
 import { ThumbsUp, ThumbsDown } from 'lucide-vue-next'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
+import axios from 'axios'
 
 interface Props {
   reactionableType: 'DealerRequest' | 'FarmerOffering'
@@ -32,26 +33,17 @@ async function toggleReaction(reactionType: string) {
   isSubmitting.value = true
 
   try {
-    const response = await fetch('/reactions/toggle', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
-      },
-      body: JSON.stringify({
-        reactionable_type: props.reactionableType,
-        reactionable_id: props.reactionableId,
-        reaction_type: reactionType,
-      }),
+    const { data } = await axios.post('/reactions/toggle', {
+      reactionable_type: props.reactionableType,
+      reactionable_id: props.reactionableId,
+      reaction_type: reactionType,
     })
 
-    if (!response.ok) throw new Error('Failed to toggle reaction')
-
-    const data = await response.json()
     localCounts.value = data.reaction_counts
     localUserReaction.value = data.user_reaction
   } catch (error) {
     console.error('Error toggling reaction:', error)
+    // Optionally: show a toast notification here
   } finally {
     isSubmitting.value = false
   }

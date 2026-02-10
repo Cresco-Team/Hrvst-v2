@@ -21,6 +21,7 @@ import {
 } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import { toast } from 'vue-sonner'
+import axios from 'axios'
 
 interface Props {
   flaggableType: 'DealerRequest' | 'FarmerOffering' | 'AnnouncementComment'
@@ -48,33 +49,19 @@ async function submitFlag() {
   isSubmitting.value = true
 
   try {
-    const response = await fetch('/flags', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
-      },
-      body: JSON.stringify({
-        flaggable_type: props.flaggableType,
-        flaggable_id: props.flaggableId,
-        reason: reason.value,
-        description: description.value || undefined,
-      }),
+    const { data } = await axios.post('/flags', {
+      flaggable_type: props.flaggableType,
+      flaggable_id: props.flaggableId,
+      reason: reason.value,
+      description: description.value || undefined,
     })
-
-    const data = await response.json()
-
-    if (!response.ok) {
-      toast.error(data.message || 'Failed to submit report')
-      return
-    }
 
     toast.success('Content flagged for review. Thank you for helping keep our community safe.')
     isOpen.value = false
     resetForm()
-  } catch (error) {
-    console.error('Error submitting flag:', error)
-    toast.error('Failed to submit report. Please try again.')
+  } catch (error: any) {
+    const message = error.response?.data?.message || 'Failed to submit report. Please try again.'
+    toast.error(message)
   } finally {
     isSubmitting.value = false
   }
