@@ -24,7 +24,7 @@ class FarmerOfferingController extends Controller
         $farmerId = $request->user()->farmerProfile->id;
         $status = $request->query('status', 'all');
 
-        return Inertia::render('farmer/Offerings', [
+        return Inertia::render('farmer/offerings/Index', [
             'filters' => ['status' => $status],
             
             'offerings' => Inertia::defer(fn() => FarmerOfferingService::paginated(
