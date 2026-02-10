@@ -1,5 +1,9 @@
 <?php
 
+use App\Http\Controllers\Announcement\CommentController;
+use App\Http\Controllers\Announcement\FlagController;
+use App\Http\Controllers\Announcement\ReactionController;
+use App\Http\Controllers\NotificationController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -13,9 +17,7 @@ Route::get('/', function () {
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', function () {
-        /** @var \App\Models\User $user */
         $user = Auth::user();
-
         if ($user->hasRole('admin')) return redirect()->route('admin.dashboard');
 
         return Inertia::render('Dashboard');
@@ -25,24 +27,39 @@ Route::middleware(['auth', 'verified'])->group(function () {
 /* Announcement System - Shared Routes */
 Route::middleware(['auth', 'verified'])->group(function () {
     // Reactions (toggle)
-    Route::post('/reactions/toggle', [\App\Http\Controllers\Announcement\ReactionController::class, 'toggle'])
+    Route::post('/reactions/toggle', [ReactionController::class, 'toggle'])
         ->name('reactions.toggle');
-    Route::get('/reactions', [\App\Http\Controllers\Announcement\ReactionController::class, 'show'])
+    Route::get('/reactions', [ReactionController::class, 'show'])
         ->name('reactions.show');
 
     // Comments
-    Route::get('/offerings/{farmerOffering}/comments', [\App\Http\Controllers\Announcement\CommentController::class, 'index'])
+    Route::get('/offerings/{farmerOffering}/comments', [CommentController::class, 'index'])
         ->name('comments.index');
-    Route::post('/offerings/{farmerOffering}/comments', [\App\Http\Controllers\Announcement\CommentController::class, 'store'])
+    Route::post('/offerings/{farmerOffering}/comments', [CommentController::class, 'store'])
         ->name('comments.store');
-    Route::put('/comments/{comment}', [\App\Http\Controllers\Announcement\CommentController::class, 'update'])
+    Route::put('/comments/{comment}', [CommentController::class, 'update'])
         ->name('comments.update');
-    Route::delete('/comments/{comment}', [\App\Http\Controllers\Announcement\CommentController::class, 'destroy'])
+    Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])
         ->name('comments.destroy');
 
     // Flags
-    Route::post('/flags', [\App\Http\Controllers\Announcement\FlagController::class, 'store'])
+    Route::post('/flags', [FlagController::class, 'store'])
         ->name('flags.store');
+
+    Route::get('/notifications', [NotificationController::class, 'index'])
+        ->name('notifications');
+    Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount'])
+        ->name('notifications.unread_count');
+    Route::post('/notifications/{id}/mark-as-read', [NotificationController::class, 'markAsRead'])
+        ->name('notifications.mark_as_read');
+    Route::post('/notifications/mark-all-as-read', [NotificationController::class, 'markAllAsRead'])
+        ->name('notifications.mark_all_as_read');
+    Route::post('/notifications/mark-multiple-as-read', [NotificationController::class, 'markMultipleAsRead'])
+        ->name('notifications.mark_multiple_as_read');
+    Route::delete('/notifications/{id}', [NotificationController::class, 'destroy'])
+        ->name('notifications.destroy');
+    Route::delete('/notifications/read/all', [NotificationController::class, 'destroyRead'])
+        ->name('notifications.destroy_read');
 });
 
 /* Development only */
