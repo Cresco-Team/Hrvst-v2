@@ -70,7 +70,6 @@ class DashboardService
             ],
             'harvesting_soon' => [
                 'value' => $current['harvesting_soon'],
-                'label' => 'Within 7 days',
             ],
             'average_plantings_per_farmer' => [
                 'value' => $current['average_plantings_per_farmer'],
