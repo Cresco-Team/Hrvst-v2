@@ -40,6 +40,7 @@ import type { BreadcrumbItem, NavItem } from '@/types';
 import admin from '@/routes/admin';
 import dealer from '@/routes/dealer';
 import farmer from '@/routes/farmer';
+import NotificationBell from './NotificationBell.vue';
 
 type Props = {
     breadcrumbs?: BreadcrumbItem[];
@@ -319,6 +320,8 @@ const rightNavItems = computed<NavItem[]>(() => {
                             </template>
                         </div>
                     </div>
+
+                    <NotificationBell />
 
                     <DropdownMenu>
                         <DropdownMenuTrigger :as-child="true">
