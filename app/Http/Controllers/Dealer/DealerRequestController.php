@@ -25,7 +25,7 @@ class DealerRequestController extends Controller
         $dealerId = $user->dealerProfile->id;
         $status = $request->query('status', 'all');
 
-        return Inertia::render('dealer/Requests', [
+        return Inertia::render('dealer/requests/Index', [
             'filters' => ['status' => $status],
             
             'requests' => Inertia::defer(fn() => DealerRequestService::paginated(
