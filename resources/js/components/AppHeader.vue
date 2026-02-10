@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Link, usePage } from '@inertiajs/vue3';
-import { Bell, BookOpen, Folder, Gem, LayoutGrid, Menu, MessagesSquare, Search, Sprout, Store, Wheat } from 'lucide-vue-next';
+import { Bell, BookOpen, Flag, Folder, Gem, LayoutGrid, Menu, MessagesSquare, PackageSearch, Search, Sprout, Store, Truck, Wheat } from 'lucide-vue-next';
 import { computed } from 'vue';
 import AppLogo from '@/components/AppLogo.vue';
 import AppLogoIcon from '@/components/AppLogoIcon.vue';
@@ -57,8 +57,7 @@ const activeItemStyles =
     'text-neutral-900 dark:bg-neutral-800 dark:text-neutral-100';
 
 const mainNavItems = computed<NavItem[]>(() => {
-    const items: NavItem[] = [
-    ];
+    const items: NavItem[] = [];
         
         if (page.props.auth.user.roles.includes('admin')) {
             items.push({
@@ -77,11 +76,23 @@ const mainNavItems = computed<NavItem[]>(() => {
                 title: 'Dealers',
                 href: admin.dealers.index(),
                 icon: Store
+            }, {
+                title: 'Reports',
+                href: admin.flags.index(),
+                icon: Flag
             })
         }
 
         if (page.props.auth.user.roles.includes('dealer')) {
             items.push({
+                title: 'Marketplace',
+                href: dealer.marketplace.index(),
+                icon: Store
+            }, {
+                title: 'My Requests',
+                href: dealer.requests.index(),
+                icon: PackageSearch
+            }, {
                 title: 'Market',
                 href: dealer.market(),
                 icon: Store
@@ -90,6 +101,14 @@ const mainNavItems = computed<NavItem[]>(() => {
 
         if (page.props.auth.user.roles.includes('farmer')) {
             items.push({
+                title: 'Dealer Requests',
+                href: farmer.requests.index(),
+                icon: Truck
+            }, {
+                title: 'My Garden',
+                href: farmer.offerings.index(),
+                icon: Sprout
+            }, {
                 title: 'My Garden',
                 href: farmer.garden.index(),
                 icon: Sprout
