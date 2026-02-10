@@ -1,9 +1,6 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3'
-import { LayoutDashboard, TrendingUp, TrendingDown, Minus } from 'lucide-vue-next'
-import AppShell from '@/components/AppShell.vue'
-import AppHeader from '@/components/AppHeader.vue'
-import AppContent from '@/components/AppContent.vue'
+import { TrendingUp, TrendingDown, Minus } from 'lucide-vue-next'
 import PlantingsChart from '@/components/features/admin/dashboard/PlantingsChart.vue'
 import HarvestForecast from '@/components/features/admin/dashboard/HarvestForecast.vue'
 import ActivityChart from '@/components/features/admin/dashboard/ActivityChart.vue'
@@ -12,6 +9,7 @@ import QuickActions from '@/components/features/admin/dashboard/QuickActions.vue
 import { Skeleton } from '@/components/ui/skeleton'
 import admin from '@/routes/admin'
 import AppLayout from '@/layouts/AppLayout.vue'
+import LargeCard from '@/components/shared/cards/LargeCard.vue'
 
 interface KPIValue {
     value: number
@@ -119,80 +117,36 @@ function formatChange(change?: number): string {
             <!-- Bento Grid Layout -->
             <div class="grid auto-rows-auto gap-4 md:grid-cols-6 lg:grid-cols-12">
                 
-                <!-- Hero KPI - Total Farmers (Large) -->
-                <div class="group relative overflow-hidden rounded-xl border bg-linear-to-br from-blue-500/10 via-purple-500/10 to-pink-500/10 p-6 shadow-sm transition-all hover:shadow-md md:col-span-3 lg:col-span-4">
-                    <div class="absolute -right-8 -top-8 size-32 rounded-full bg-blue-500/20 blur-3xl"></div>
-                    <div class="relative space-y-3">
-                        <div class="flex items-center justify-between">
-                            <span class="text-sm font-medium text-muted-foreground">Total Farmers</span>
-                            <div 
-                                v-if="kpis.farmers.total_farmers.change !== undefined"
-                                class="flex items-center gap-1 rounded-full bg-background/80 px-2 py-1 backdrop-blur-sm"
-                            >
-                                <component 
-                                    :is="getTrendIcon(kpis.farmers.total_farmers.trend)" 
-                                    class="size-3"
-                                    :class="getTrendColor(kpis.farmers.total_farmers.trend)"
-                                />
-                                <span 
-                                    class="text-xs font-medium"
-                                    :class="getTrendColor(kpis.farmers.total_farmers.trend)"
-                                >
-                                    {{ formatChange(kpis.farmers.total_farmers.change) }}
-                                </span>
-                            </div>
-                        </div>
-                        <div class="flex items-baseline gap-2">
-                            <p class="text-5xl font-bold">{{ kpis.farmers.total_farmers.value }}</p>
-                            <span class="text-sm text-muted-foreground">approved</span>
-                        </div>
-                        <p class="text-xs text-muted-foreground">Active on the platform</p>
-                    </div>
-                </div>
+                <!-- Hero KPI -->
+                <LargeCard 
+                    title="Total Farmers"
+                    subtext="active on the platform"
+                    :value="kpis.farmers.total_farmers.value"
+                    :change="formatChange(kpis.farmers.total_farmers.change)"
+                    :icon="getTrendIcon(kpis.farmers.total_farmers.trend)"
+                    :trendColor="getTrendColor(kpis.farmers.total_farmers.trend)"
+                    cardClass="md:col-span-3 lg:col-span-4 bg-linear-to-br from-orange-500/10 via-amber-500/10 to-yellow-500/30"
+                />
 
-                <!-- Hero KPI - Active Plantings (Large) -->
-                <div class="group relative overflow-hidden rounded-xl border bg-linear-to-br from-green-500/10 via-emerald-500/10 to-teal-500/10 p-6 shadow-sm transition-all hover:shadow-md md:col-span-3 lg:col-span-4">
-                    <div class="absolute -left-8 -bottom-8 size-32 rounded-full bg-green-500/20 blur-3xl"></div>
-                    <div class="relative space-y-3">
-                        <div class="flex items-center justify-between">
-                            <span class="text-sm font-medium text-muted-foreground">Active Plantings</span>
-                            <div 
-                                v-if="kpis.farmers.total_active_plantings.change !== undefined"
-                                class="flex items-center gap-1 rounded-full bg-background/80 px-2 py-1 backdrop-blur-sm"
-                            >
-                                <component 
-                                    :is="getTrendIcon(kpis.farmers.total_active_plantings.trend)" 
-                                    class="size-3"
-                                    :class="getTrendColor(kpis.farmers.total_active_plantings.trend)"
-                                />
-                                <span 
-                                    class="text-xs font-medium"
-                                    :class="getTrendColor(kpis.farmers.total_active_plantings.trend)"
-                                >
-                                    {{ formatChange(kpis.farmers.total_active_plantings.change) }}
-                                </span>
-                            </div>
-                        </div>
-                        <div class="flex items-baseline gap-2">
-                            <p class="text-5xl font-bold">{{ kpis.farmers.total_active_plantings.value }}</p>
-                            <span class="text-sm text-muted-foreground">growing</span>
-                        </div>
-                        <p class="text-xs text-muted-foreground">Currently in cultivation</p>
-                    </div>
-                </div>
+                <LargeCard 
+                    title="Active Plantings"
+                    subtext="growing"
+                    :value="kpis.farmers.total_active_plantings.value"
+                    :change="formatChange(kpis.farmers.total_active_plantings.change)"
+                    :icon="getTrendIcon(kpis.farmers.total_active_plantings.trend)"
+                    :trendColor="getTrendColor(kpis.farmers.total_active_plantings.trend)"
+                    cardClass="md:col-span-3 lg:col-span-4 bg-linear-to-br from-lime-500/10 via-emerald-500/10 to-cyan-500/30"
+                />
 
-                <!-- Alert KPI - Harvesting Soon (Medium) -->
-                <div class="relative overflow-hidden rounded-xl border border-orange-200 bg-linear-to-br from-orange-500/10 to-amber-500/10 p-5 shadow-sm transition-all hover:shadow-md dark:border-orange-900/50 md:col-span-3 lg:col-span-4">
-                    <div class="space-y-2">
-                        <span class="text-sm font-medium text-orange-700 dark:text-orange-400">Harvesting Soon</span>
-                        <div class="flex items-baseline gap-2">
-                            <p class="text-4xl font-bold text-orange-600 dark:text-orange-500">
-                                {{ kpis.farmers.harvesting_soon.value }}
-                            </p>
-                        </div>
-                        <p class="text-xs text-muted-foreground">{{ kpis.farmers.harvesting_soon.label }}</p>
-                    </div>
-                </div>
+                <LargeCard 
+                    title="Harvesting Soon"
+                    subtext="this week"
+                    :value="kpis.farmers.total_active_plantings.value"
+                    :change="formatChange(kpis.farmers.total_active_plantings.change)"
+                    :icon="getTrendIcon(kpis.farmers.total_active_plantings.trend)"
+                    :trendColor="getTrendColor(kpis.farmers.total_active_plantings.trend)"
+                    cardClass="md:col-span-3 lg:col-span-4 bg-linear-to-br from-indigo-500/10 via-fuchsia-500/10 to-rose-500/30"
+                />
 
                 <!-- Compact KPIs Row 1 -->
                 <div class="rounded-xl border bg-card p-4 shadow-sm transition-all hover:shadow-md md:col-span-2 lg:col-span-3">
