@@ -2,6 +2,7 @@
 
 namespace App\Models\Product;
 
+use App\Models\Announcement\DealerRequestItem;
 use App\Models\Profiles\FarmerProfile;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -50,6 +51,11 @@ class Variety extends Model
     public function latestPrice(): HasOne
     {
         return $this->hasOne(PriceHistory::class)->latest('recorded_at');
+    }
+
+    public function dealerRequestItems(): HasMany
+    {
+        return $this->hasMany(DealerRequestItem::class);
     }
 
     /* ---------- accessors ---------- */
