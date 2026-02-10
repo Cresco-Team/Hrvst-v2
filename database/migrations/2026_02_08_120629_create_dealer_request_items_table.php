@@ -15,7 +15,7 @@ return new class extends Migration
 
             $table->decimal('quantity_kg', 8, 2);
             $table->decimal('price_offered', 8, 2);
-            $table->enum('price_flag', ['cheap', 'fair', 'high'])->nullable();
+            $table->enum('price_flag', ['low', 'fair', 'premium'])->nullable();
 
             $table->timestamps();
 
