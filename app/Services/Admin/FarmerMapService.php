@@ -121,6 +121,7 @@ class FarmerMapService
     public function getFarmerDetails(int $farmerId): ?array
     {
         $farmer = FarmerProfile::query()
+            ->where('is_approved', true)
             ->with([
                 'user',
                 'province',
@@ -130,7 +131,7 @@ class FarmerMapService
                     ->with(['variety.vegetable.category'])
                     ->orderBy('expected_harvest_date', 'asc'),
             ])
-            ->where('is_approved', true)
+            
             ->find($farmerId);
 
         if (!$farmer) {
