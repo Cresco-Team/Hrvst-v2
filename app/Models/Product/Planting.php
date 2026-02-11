@@ -4,6 +4,7 @@ namespace App\Models\Product;
 
 use App\Models\Messaging\Conversation;
 use App\Models\Profiles\FarmerProfile;
+use App\PlantingStatus;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -18,16 +19,15 @@ class Planting extends Model
         'farmer_id',
         'variety_id',
         'weight_kg',
-        'date_planted',
-        'expected_harvest_date',
-        'date_harvested',
+        'asking_price',
+        'expiration_date',
+        'image_path',
         'status'
     ];
 
     protected $casts = [
-        'date_planted' => 'date',
-        'expected_harvest_date'=> 'date',
-        'date_harvested' => 'date',
+        'expiration_date' => 'date',
+        'status' => PlantingStatus::class,
     ];
 
     /* ---------- relations ---------- */
