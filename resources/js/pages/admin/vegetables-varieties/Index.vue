@@ -65,14 +65,18 @@ interface Props {
         per_page: number
         total: number
     }
-    summary: Summary
+    summary?: Summary
     vegetableOptions?: VegetableOptions
     filters: {
         price_filter: string | null
     }
 }
 
-const props = defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), {
+    varieties: undefined,
+    summary: undefined,
+    vegetableOptions: undefined,
+})
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Admin', href: admin.dashboard().url },
@@ -185,7 +189,6 @@ function handlePageChange(page: number) {
 /* -- loading states -- */
 const isLoadingSummary = computed(() => !props.summary)
 const isLoadingVarieties = computed(() => !props.varieties)
-const isLoadingOptions = computed(() => !props.vegetableOptions)
 </script>
 
 <template>
@@ -196,61 +199,53 @@ const isLoadingOptions = computed(() => !props.vegetableOptions)
 
             <!-- Header -->
             <div class="flex items-end justify-between">
-
-                <!-- Title -->
                 <Heading
                     title="Vegetables"
                     description="Manage all vegetable varieties, prices, and harvest times."
                 />
-                
-                <!-- Filter -->
                 <PriceFreshnessFilter
                     v-if="summary"
                     :active-filter="filters.price_filter"
                     :price-stats="summary.price_stats"
                     @filter-change="handleFilterChange"
                 />
-                <Skeleton 
-                    v-else class="h-9 w-32" 
-                />
+                <Skeleton v-else class="h-9 w-32" />
             </div>
 
             <!-- Summary Cards -->
-             <div class="grid md:grid-cols-3 gap-4">
-                <LargeCard 
+            <div v-if="isLoadingSummary" class="grid md:grid-cols-3 gap-4">
+                <Skeleton class="h-33" />
+                <Skeleton class="h-33" />
+                <Skeleton class="h-33" />
+             </div>
+             <div v-else-if="summary" class="grid md:grid-cols-3 gap-4">
+                <LargeCard
                     title="Total Varieties"
                     subtext="available for planting"
                     :value="summary.total_varieties"
                     :icon="Leaf"
                     cardClass="md:col-span-1 bg-linear-to-br from-lime-500/10 to-green-500/30"
                 />
-                <LargeCard 
+                <LargeCard
                     title="Price Updates"
                     subtext="this week"
                     :value="summary.price_stats.updated_week"
                     :icon="TrendingUp"
                     cardClass="md:col-span-1 bg-linear-to-br from-lime-500/10 to-green-500/30"
                 />
-                <LargeCard 
+                <LargeCard
                     title="Needs Attention"
                     subtext="varieties"
-                    :value="summary.total_varieties"
+                    :value="summary.price_stats.stale"
                     :icon="AlertTriangle"
                     iconColor="text-orange-500"
                     cardClass="md:col-span-1 bg-linear-to-br from-red-500/20 via-green-500/10 to-green-500/30"
                 />
-             </div>
+            </div>
+            
 
             <!-- data table -->
-            <VarietyTable
-                v-if="varieties"
-                :varieties="varieties"
-                @open-create="openCreate"
-                @open-edit="openEdit"
-                @open-delete="openDelete"
-                @page-change="handlePageChange"
-            />
-            <div v-else class="flex flex-col gap-4">
+            <div v-if="isLoadingVarieties" class="flex flex-col gap-4">
                 <div class="flex items-center justify-between">
                     <Skeleton class="h-9 w-64" />
                     <Skeleton class="h-9 w-32" />
@@ -265,6 +260,15 @@ const isLoadingOptions = computed(() => !props.vegetableOptions)
                     </div>
                 </div>
             </div>
+            <VarietyTable
+                v-else-if="varieties"
+                :varieties="varieties"
+                @open-create="openCreate"
+                @open-edit="openEdit"
+                @open-delete="openDelete"
+                @page-change="handlePageChange"
+            />
+            
         </div>
     </AppLayout>
 
