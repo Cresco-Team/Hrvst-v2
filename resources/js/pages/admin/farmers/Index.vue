@@ -5,7 +5,6 @@ import { Users, Map, List, Loader2, Sprout, Clock, TrendingUp } from 'lucide-vue
 import axios from 'axios'
 import { toast } from 'vue-sonner'
 import Heading from '@/components/Heading.vue'
-import FarmerSummaryCard from '@/components/features/admin/cards/FarmerSummaryCard.vue'
 import FarmerTable from '@/components/features/admin/tables/FarmerTable.vue'
 import FarmerMap from '@/components/features/admin/map/FarmerMap.vue'
 import FarmerMapFilters from '@/components/features/admin/map/FarmerMapFilters.vue'
@@ -99,7 +98,7 @@ interface Summary {
 
 interface MarkerData {
     id: number
-    position: {
+    coordinates: {
         lat: number
         lng: number
     }

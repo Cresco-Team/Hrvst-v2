@@ -93,7 +93,7 @@ class FarmerMapService
                 
                 return [
                     'id' => $farmer->id,
-                    'position' => [
+                    'coordinates' => [
                         'lat' => (float) $farmer->latitude,
                         'lng' => (float) $farmer->longitude,
                     ],

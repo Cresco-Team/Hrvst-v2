@@ -8,7 +8,7 @@ import 'leaflet.markercluster'
 
 interface MarkerData {
     id: number
-    position: {
+    coordinates: {
         lat: number
         lng: number
     }
@@ -155,7 +155,7 @@ const updateMarkers = () => {
     if (!markerClusterGroup) return
     markerClusterGroup.clearLayers()
     props.markers.forEach((markerData) => {
-        const marker = L.marker([markerData.position.lat, markerData.position.lng], {
+        const marker = L.marker([markerData.coordinates.lat, markerData.coordinates.lng], {
             icon: createCustomMarker(markerData)
         })
         marker.on('click', () => emit('marker-click', markerData.id))
