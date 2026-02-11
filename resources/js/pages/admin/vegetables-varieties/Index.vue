@@ -12,6 +12,8 @@ import VarietyDeleteConfirm from '@/components/features/admin/dialogs/VarietyDel
 import PriceFreshnessFilter from '@/components/features/admin/filters/PriceFreshnessFilter.vue'
 import { Skeleton } from '@/components/ui/skeleton'
 import Heading from '@/components/Heading.vue'
+import LargeCard from '@/components/shared/cards/LargeCard.vue'
+import { AlertTriangle, Leaf, TrendingUp } from 'lucide-vue-next'
 
 interface Variety {
     id: number
@@ -63,7 +65,7 @@ interface Props {
         per_page: number
         total: number
     }
-    summary?: Summary
+    summary: Summary
     vegetableOptions?: VegetableOptions
     filters: {
         price_filter: string | null
@@ -214,12 +216,30 @@ const isLoadingOptions = computed(() => !props.vegetableOptions)
             </div>
 
             <!-- Summary Cards -->
-            <VarietySummaryCards v-if="summary" :summary="summary" />
-            <div v-else class="grid grid-cols-1 gap-4 md:grid-cols-3">
-                <Skeleton class="h-24 rounded-lg" />
-                <Skeleton class="h-24 rounded-lg" />
-                <Skeleton class="h-24 rounded-lg" />
-            </div>
+             <div class="grid md:grid-cols-3 gap-4">
+                <LargeCard 
+                    title="Total Varieties"
+                    subtext="available for planting"
+                    :value="summary.total_varieties"
+                    :icon="Leaf"
+                    cardClass="md:col-span-1"
+                />
+                <LargeCard 
+                    title="Price Updates"
+                    subtext="this week"
+                    :value="summary.price_stats.updated_week"
+                    :icon="TrendingUp"
+                    cardClass="md:col-span-1"
+                />
+                <LargeCard 
+                    title="Needs Attention"
+                    subtext="varieties"
+                    :value="summary.total_varieties"
+                    :icon="AlertTriangle"
+                    iconColor="text-orange-500"
+                    cardClass="md:col-span-1"
+                />
+             </div>
 
             <!-- data table -->
             <VarietyTable
