@@ -222,14 +222,14 @@ const isLoadingOptions = computed(() => !props.vegetableOptions)
                     subtext="available for planting"
                     :value="summary.total_varieties"
                     :icon="Leaf"
-                    cardClass="md:col-span-1"
+                    cardClass="md:col-span-1 bg-linear-to-br from-lime-500/10 to-green-500/30"
                 />
                 <LargeCard 
                     title="Price Updates"
                     subtext="this week"
                     :value="summary.price_stats.updated_week"
                     :icon="TrendingUp"
-                    cardClass="md:col-span-1"
+                    cardClass="md:col-span-1 bg-linear-to-br from-lime-500/10 to-green-500/30"
                 />
                 <LargeCard 
                     title="Needs Attention"
@@ -237,7 +237,7 @@ const isLoadingOptions = computed(() => !props.vegetableOptions)
                     :value="summary.total_varieties"
                     :icon="AlertTriangle"
                     iconColor="text-orange-500"
-                    cardClass="md:col-span-1"
+                    cardClass="md:col-span-1 bg-linear-to-br from-red-500/20 via-green-500/10 to-green-500/30"
                 />
              </div>
 

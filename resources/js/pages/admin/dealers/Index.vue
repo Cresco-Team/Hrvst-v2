@@ -88,28 +88,28 @@ function handlePageChange(page: number) {
                     :value="summary.total_dealers"
                     subtext="approved dealers"
                     :icon="Users"
-                    card-class="col-span-1"
+                    card-class="col-span-1 bg-linear-to-br from-cyan-500/10 via-sky-500/10 to-blue-500/30"
                 />
                 <LargeCard 
                     title="Active Dealers"
                     :value="summary.active_this_week"
                     subtext="active this week"
                     :icon="UserCheck"
-                    card-class="col-span-1"
+                    card-class="col-span-1 bg-linear-to-br from-cyan-500/10 via-sky-500/10 to-blue-500/30"
                 />
                 <LargeCard 
                     title="Total Conversations"
                     :value="summary.total_conversations"
                     subtext="all time"
                     :icon="MessageSquare"
-                    card-class="col-span-1"
+                    card-class="col-span-1 bg-linear-to-br from-cyan-500/10 via-sky-500/10 to-blue-500/30"
                 />
                 <LargeCard 
                     title="New Dealers"
                     :value="summary.new_this_month"
                     subtext="registered this month"
                     :icon="TrendingUp"
-                    card-class="col-span-1"
+                    card-class="col-span-1 bg-linear-to-br from-cyan-500/10 via-sky-500/10 to-blue-500/30"
                 />
             </div>
 

@@ -256,14 +256,14 @@ if (storedView && storedView !== props.view) {
                     :value="summary.total_farmers"
                     subtext="approved farmers"
                     :icon="Users"
-                    card-class="col-span-1"
+                    card-class="col-span-1 bg-linear-to-br from-orange-500/10 via-amber-500/10 to-yellow-500/30"
                 />
                 <LargeCard 
                     title="Active Plantings"
                     :value="summary.total_active_plantings"
                     subtext="currently growing"
                     :icon="Sprout"
-                    card-class="col-span-1"
+                    card-class="col-span-1 bg-linear-to-br from-orange-500/10 via-amber-500/10 to-yellow-500/30"
                 />
                 <LargeCard 
                     title="Harvesting Soon"
@@ -271,14 +271,14 @@ if (storedView && storedView !== props.view) {
                     subtext="within this week"
                     :icon="Clock"
                     icon-color="text-orange-500"
-                    card-class="col-span-1"
+                    card-class="col-span-1 bg-linear-to-br from-red-500/20 via-amber-500/10 to-yellow-500/30"
                 />
                 <LargeCard 
                     title="Average Plantings"
                     :value="summary.average_plantings_per_farmer"
                     subtext="per farmer"
                     :icon="TrendingUp"
-                    card-class="col-span-1"
+                    card-class="col-span-1 bg-linear-to-br from-orange-500/10 via-amber-500/10 to-yellow-500/30"
                 />
              </div>
              <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-2">
