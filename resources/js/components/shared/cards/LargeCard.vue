@@ -52,7 +52,7 @@ const props = withDefaults(
 
         </CardContent>
         <CardHeader>
-            <CardTitle class="text-5xl">
+            <CardTitle class="text-2xl md:text-3xl lg:text-5xl">
                 {{ value }}
                 <span class="text-muted-foreground font-light text-sm">
                     {{ subtext }}
