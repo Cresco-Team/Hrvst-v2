@@ -27,6 +27,7 @@ import {
 import AppLayout from '@/layouts/AppLayout.vue'
 import Heading from '@/components/Heading.vue'
 import admin from '@/routes/admin'
+import LargeCard from '@/components/shared/cards/LargeCard.vue'
 
 interface FlagSummary {
   pending: number
@@ -124,49 +125,35 @@ const breadcrumbs = [
 
       <!-- Summary cards -->
       <div class="grid gap-4 md:grid-cols-4">
-        <Card>
-          <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle class="text-sm font-medium">Pending</CardTitle>
-            <AlertTriangle class="size-4 text-orange-600" />
-          </CardHeader>
-          <CardContent>
-            <div class="text-2xl font-bold">{{ summary.pending }}</div>
-            <p class="text-xs text-muted-foreground">Awaiting review</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle class="text-sm font-medium">Reviewed</CardTitle>
-            <CheckCircle class="size-4 text-green-600" />
-          </CardHeader>
-          <CardContent>
-            <div class="text-2xl font-bold">{{ summary.reviewed }}</div>
-            <p class="text-xs text-muted-foreground">Action taken</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle class="text-sm font-medium">Dismissed</CardTitle>
-            <XCircle class="size-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div class="text-2xl font-bold">{{ summary.dismissed }}</div>
-            <p class="text-xs text-muted-foreground">No action needed</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle class="text-sm font-medium">Total</CardTitle>
-            <Flag class="size-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div class="text-2xl font-bold">{{ summary.total }}</div>
-            <p class="text-xs text-muted-foreground">All time</p>
-          </CardContent>
-        </Card>
+        <LargeCard 
+          title="Pending"
+          :value="summary.pending"
+          subtext="awaiting review"
+          :icon="AlertTriangle"
+          icon-color="text-orange-600"
+          card-class="col-span-1 bg-linear-to-br from-pink-500/0 via-rose-500/10 to-red-500/30"
+        />
+        <LargeCard 
+          title="Reviewed"
+          :value="summary.reviewed"
+          subtext="action taken"
+          :icon="CheckCircle"
+          card-class="col-span-1 bg-linear-to-br from-pink-500/0 via-rose-500/10 to-red-500/30"
+        />
+        <LargeCard 
+          title="Dismissed"
+          :value="summary.dismissed"
+          subtext="no action needed"
+          :icon="XCircle"
+          card-class="col-span-1 bg-linear-to-br from-pink-500/0 via-rose-500/10 to-red-500/30"
+        />
+        <LargeCard 
+          title="Total"
+          :value="summary.total"
+          subtext="all time"
+          :icon="Flag"
+          card-class="col-span-1 bg-linear-to-br from-pink-500/0 via-rose-500/10 to-red-500/30"
+        />
       </div>
 
       <!-- Pending flags table -->
