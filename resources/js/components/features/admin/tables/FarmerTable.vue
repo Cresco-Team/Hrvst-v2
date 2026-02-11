@@ -18,48 +18,9 @@ import {
     Mail,
     Eye,
 } from 'lucide-vue-next'
+import { Farmer } from '@/types/users/farmer'
 
 /* -- types -- */
-interface Planting {
-    id: number
-    variety: {
-        id: number
-        name: string
-        category: string
-        image_path: string
-    }
-    weight_kg: string
-    date_planted: string
-    expected_harvest_date: string
-    days_until_harvest: number | null
-    status_badge: string
-}
-
-interface Farmer {
-    id: number
-    user: {
-        id: number
-        name: string
-        email: string
-        phone_number: string
-        user_image: string | null
-    }
-    location: {
-        province: string
-        municipality: string
-        barangay: string
-        coordinates: {
-            lat: number
-            lng: number
-        }
-    }
-    farm_image: string | null
-    active_plantings_count: number
-    active_plantings: Planting[]
-    joined_at: string
-    joined_at_human: string
-}
-
 interface PaginatedData {
     data: Farmer[]
     current_page: number
@@ -277,7 +238,7 @@ function getStatusColor(status: string) {
                                             {{ planting.status_badge }}
                                         </Badge>
                                     </div>
-                                    <span class="text-xs text-muted-foreground">{{ planting.variety.category }}</span>
+                                    <span class="text-xs text-muted-foreground">{{ planting.variety.vegetable }}</span>
                                     <div class="flex flex-col gap-0.5 text-xs text-muted-foreground mt-1">
                                         <div>Weight: {{ planting.weight_kg }} kg</div>
                                         <div>Planted: {{ planting.date_planted }}</div>

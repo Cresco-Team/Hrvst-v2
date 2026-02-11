@@ -27,31 +27,7 @@ import {
 import { UserCheck, X, MapPin, Phone, Mail, Calendar, AlertTriangle } from 'lucide-vue-next'
 import { useInitials } from '@/composables/useInitials'
 import { ref } from 'vue'
-import admin from '@/routes/admin'
-
-interface PendingFarmer {
-    id: number
-    user: {
-        id: number
-        name: string
-        email: string
-        phone_number: string
-        user_image: string | null
-    }
-    location: {
-        province: string
-        municipality: string
-        barangay: string
-        full_address: string
-        coordinates: {
-            lat: number
-            lng: number
-        }
-    }
-    farm_image: string | null
-    submitted_at: string
-    submitted_at_human: string
-}
+import { PendingFarmer } from '@/types/users/farmer'
 
 const props = defineProps<{
     farmers: PendingFarmer[]
@@ -196,7 +172,7 @@ function handleReject() {
                                 {{ farmer.location.full_address }}
                             </p>
                             <p class="mt-1 text-xs text-muted-foreground">
-                                Coordinates: {{ farmer.location.coordinates.lat }}, {{ farmer.location.coordinates.lng }}
+                                Coordinates: {{ farmer.location.coordinates?.lat }}, {{ farmer.location.coordinates?.lng }}
                             </p>
                         </div>
 

@@ -15,72 +15,9 @@ import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import admin from '@/routes/admin'
 import AppLayout from '@/layouts/AppLayout.vue'
 import LargeCard from '@/components/shared/cards/LargeCard.vue'
+import { Farmer, FarmerDetails, MarkerData, Municipality, PendingFarmer } from '@/types/users/farmer'
 
 /* -- Types -- */
-interface Planting {
-    id: number
-    variety: {
-        id: number
-        name: string
-        category: string
-        image_path: string
-    }
-    weight_kg: string
-    date_planted: string
-    expected_harvest_date: string
-    days_until_harvest: number | null
-    status_badge: string
-}
-
-interface Farmer {
-    id: number
-    user: {
-        id: number
-        name: string
-        email: string
-        phone_number: string
-        user_image: string | null
-    }
-    location: {
-        province: string
-        municipality: string
-        barangay: string
-        coordinates: {
-            lat: number
-            lng: number
-        }
-    }
-    farm_image: string | null
-    active_plantings_count: number
-    active_plantings: Planting[]
-    joined_at: string
-    joined_at_human: string
-}
-
-interface PendingFarmer {
-    id: number
-    user: {
-        id: number
-        name: string
-        email: string
-        phone_number: string
-        user_image: string | null
-    }
-    location: {
-        province: string
-        municipality: string
-        barangay: string
-        full_address: string
-        coordinates: {
-            lat: number
-            lng: number
-        }
-    }
-    farm_image: string | null
-    submitted_at: string
-    submitted_at_human: string
-}
-
 interface PaginatedData {
     data: Farmer[]
     current_page: number
@@ -96,29 +33,6 @@ interface Summary {
     average_plantings_per_farmer: number
 }
 
-interface MarkerData {
-    id: number
-    coordinates: {
-        lat: number
-        lng: number
-    }
-    farmer_name: string
-    municipality: string
-    active_plantings_count: number
-    plantings_summary: Array<{
-        vegetable: string
-        count: number
-        varieties: string[]
-    }>
-}
-
-interface Municipality {
-    id: number
-    name: string
-    province: string
-    label: string
-}
-
 interface PlantingOption {
     id: number
     name: string
@@ -127,36 +41,6 @@ interface PlantingOption {
 
 interface PlantingsByCategory {
     [category: string]: PlantingOption[]
-}
-
-interface FarmerDetails {
-    id: number
-    user: {
-        id: number
-        name: string
-        email: string
-        phone_number: string
-        user_image: string | null
-    }
-    location: {
-        province: string
-        municipality: string
-        barangay: string
-        full_address: string
-        coordinates: {
-            lat: number
-            lng: number
-        }
-    }
-    farm_image: string | null
-    active_plantings: Array<any>
-    statistics: {
-        total_active_plantings: number
-        total_weight: number
-        harvesting_soon: number
-    }
-    joined_at: string
-    joined_at_human: string
 }
 
 interface Props {

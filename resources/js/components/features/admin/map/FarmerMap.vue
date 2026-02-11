@@ -5,22 +5,7 @@ import 'leaflet/dist/leaflet.css'
 import 'leaflet.markercluster/dist/MarkerCluster.css'
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css'
 import 'leaflet.markercluster'
-
-interface MarkerData {
-    id: number
-    coordinates: {
-        lat: number
-        lng: number
-    }
-    farmer_name: string
-    municipality: string
-    active_plantings_count: number
-    plantings_summary: Array<{
-        vegetable: string
-        count: number
-        varieties: string[]
-    }>
-}
+import { MarkerData } from '@/types/users/farmer'
 
 interface MapCenter {
     lat: number

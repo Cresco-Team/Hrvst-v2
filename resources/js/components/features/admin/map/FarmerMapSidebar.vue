@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { Spinner } from '@/components/ui/spinner'
 import { useInitials } from '@/composables/useInitials'
+import { FarmerDetails } from '@/types/users/farmer'
 
 interface Planting {
     id: number
@@ -21,36 +22,6 @@ interface Planting {
     expected_harvest_date: string
     days_until_harvest: number | null
     status_badge: string
-}
-
-interface FarmerDetails {
-    id: number
-    user: {
-        id: number
-        name: string
-        email: string
-        phone_number: string
-        user_image: string | null
-    }
-    location: {
-        province: string
-        municipality: string
-        barangay: string
-        full_address: string
-        coordinates: {
-            lat: number
-            lng: number
-        }
-    }
-    farm_image: string | null
-    active_plantings: Planting[]
-    statistics: {
-        total_active_plantings: number
-        total_weight: number
-        harvesting_soon: number
-    }
-    joined_at: string
-    joined_at_human: string
 }
 
 const props = defineProps<{
@@ -169,7 +140,7 @@ const getStatusColor = (status: string) => {
                         {{ farmer.location.full_address }}
                     </p>
                     <div class="text-xs text-muted-foreground">
-                        {{ farmer.location.coordinates.lat }}, {{ farmer.location.coordinates.lng }}
+                        {{ farmer.location.coordinates?.lat }}, {{ farmer.location.coordinates?.lng }}
                     </div>
                 </div>
 
