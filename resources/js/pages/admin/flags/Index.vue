@@ -124,7 +124,7 @@ const breadcrumbs = [
       </Heading>
 
       <!-- Summary cards -->
-      <div class="grid gap-4 md:grid-cols-4">
+      <div class="grid gap-4 lg:gap-2 md:grid-cols-4">
         <LargeCard 
           title="Pending"
           :value="summary.pending"
