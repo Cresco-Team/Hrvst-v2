@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { Head, router } from '@inertiajs/vue3'
 import Heading from '@/components/Heading.vue'
-import DealerSummaryCard from '@/components/features/admin/cards/DealerSummaryCard.vue'
 import DealerTable from '@/components/features/admin/tables/DealerTable.vue'
 import admin from '@/routes/admin'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { BreadcrumbItem } from '@/types'
+import LargeCard from '@/components/shared/cards/LargeCard.vue'
+import { MessageSquare, TrendingUp, UserCheck, Users } from 'lucide-vue-next'
 
 interface Dealer {
     id: number
@@ -80,7 +81,37 @@ function handlePageChange(page: number) {
                 />
             </div>
 
-            <DealerSummaryCard :summary="summary" />
+            <!-- Summary Cards -->
+            <div v-if="summary" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-2">
+                <LargeCard 
+                    title="Registered Dealers"
+                    :value="summary.total_dealers"
+                    subtext="approved dealers"
+                    :icon="Users"
+                    card-class="col-span-1"
+                />
+                <LargeCard 
+                    title="Active Dealers"
+                    :value="summary.active_this_week"
+                    subtext="active this week"
+                    :icon="UserCheck"
+                    card-class="col-span-1"
+                />
+                <LargeCard 
+                    title="Total Conversations"
+                    :value="summary.total_conversations"
+                    subtext="all time"
+                    :icon="MessageSquare"
+                    card-class="col-span-1"
+                />
+                <LargeCard 
+                    title="New Dealers"
+                    :value="summary.new_this_month"
+                    subtext="registered this month"
+                    :icon="TrendingUp"
+                    card-class="col-span-1"
+                />
+            </div>
 
             <DealerTable
                 :dealers="dealers"
