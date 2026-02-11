@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, watch, computed } from 'vue'
 import { Head, router } from '@inertiajs/vue3'
-import { Users, Map, List, Loader2 } from 'lucide-vue-next'
+import { Users, Map, List, Loader2, Sprout, Clock, TrendingUp } from 'lucide-vue-next'
 import axios from 'axios'
 import { toast } from 'vue-sonner'
 import Heading from '@/components/Heading.vue'
@@ -15,6 +15,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import admin from '@/routes/admin'
 import AppLayout from '@/layouts/AppLayout.vue'
+import LargeCard from '@/components/shared/cards/LargeCard.vue'
 
 /* -- Types -- */
 interface Planting {
@@ -162,7 +163,7 @@ interface FarmerDetails {
 interface Props {
     view: 'list' | 'map'
     farmers?: PaginatedData
-    summary?: Summary
+    summary: Summary
     pendingFarmers: PendingFarmer[]
     filters: {
         municipalities: Municipality[]
@@ -366,14 +367,44 @@ if (storedView && storedView !== props.view) {
             </div>
 
             <!-- Summary Cards -->
-            <FarmerSummaryCard v-if="summary" :summary="summary" />
-            <div v-else class="grid grid-cols-1 gap-4 md:grid-cols-4">
-                <Skeleton class="h-24 rounded-lg" />
-                <Skeleton class="h-24 rounded-lg" />
-                <Skeleton class="h-24 rounded-lg" />
-                <Skeleton class="h-24 rounded-lg" />
+             <div v-if="summary" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-2">
+                <LargeCard 
+                    title="Registered Farmers"
+                    :value="summary.total_farmers"
+                    subtext="approved farmers"
+                    :icon="Users"
+                    card-class="col-span-1"
+                />
+                <LargeCard 
+                    title="Active Plantings"
+                    :value="summary.total_active_plantings"
+                    subtext="currently growing"
+                    :icon="Sprout"
+                    card-class="col-span-1"
+                />
+                <LargeCard 
+                    title="Harvesting Soon"
+                    :value="summary.harvesting_soon"
+                    subtext="within this week"
+                    :icon="Clock"
+                    icon-color="text-orange-500"
+                    card-class="col-span-1"
+                />
+                <LargeCard 
+                    title="Average Plantings"
+                    :value="summary.average_plantings_per_farmer"
+                    subtext="per farmer"
+                    :icon="TrendingUp"
+                    card-class="col-span-1"
+                />
+             </div>
+             <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-2">
+                <Skeleton class="h-24 md:h-28 lg:h-32 rounded-lg col-span-1"/>
+                <Skeleton class="h-24 md:h-28 lg:h-32 rounded-lg col-span-1" />
+                <Skeleton class="h-24 md:h-28 lg:h-32 rounded-lg col-span-1" />
+                <Skeleton class="h-24 md:h-28 lg:h-32 rounded-lg col-span-1" />
             </div>
-
+            
             <!-- LIST VIEW -->
             <div v-if="isListView">
                 <FarmerTable
