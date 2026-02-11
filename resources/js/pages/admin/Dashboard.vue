@@ -119,6 +119,7 @@ function formatChange(change?: number): string {
                 
                 <!-- Hero KPI -->
                 <LargeCard 
+                    v-if="kpis.farmers.total_farmers"
                     title="Total Farmers"
                     subtext="active on the platform"
                     :value="kpis.farmers.total_farmers.value"
@@ -129,6 +130,7 @@ function formatChange(change?: number): string {
                 />
 
                 <LargeCard 
+                    v-if="kpis.farmers.total_active_plantings"
                     title="Active Plantings"
                     subtext="growing"
                     :value="kpis.farmers.total_active_plantings.value"
@@ -139,12 +141,12 @@ function formatChange(change?: number): string {
                 />
 
                 <LargeCard 
+                    v-if="kpis.farmers.harvesting_soon"
                     title="Harvesting Soon"
                     subtext="this week"
-                    :value="kpis.farmers.total_active_plantings.value"
-                    :change="formatChange(kpis.farmers.total_active_plantings.change)"
-                    :badge="getTrendIcon(kpis.farmers.total_active_plantings.trend)"
-                    :trendColor="getTrendColor(kpis.farmers.total_active_plantings.trend)"
+                    :value="kpis.farmers.harvesting_soon.value"
+                    :change="formatChange(kpis.farmers.harvesting_soon.change)"
+                    :trendColor="getTrendColor(kpis.farmers.harvesting_soon.trend)"
                     cardClass="md:col-span-3 lg:col-span-4 bg-linear-to-br from-indigo-500/10 via-fuchsia-500/10 to-rose-500/30"
                 />
 
