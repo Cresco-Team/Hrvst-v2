@@ -21,9 +21,10 @@ import {
 import { useNotifications } from '@/composables/useNotifications'
 import { getNotificationConfig } from '@/lib/notificationHelpers'
 import { cn } from '@/lib/utils'
-import type { Notification } from '@/types/notification'
+import type { Notification, PaginatedNotifications } from '@/types/notification'
 
 interface Props {
+  notificationsPaginated: PaginatedNotifications
   filters: {
     show: 'all' | 'unread'
     page: number
@@ -54,8 +55,11 @@ const breadcrumbs = [
   { title: 'Notifications', href: '/notifications' },
 ]
 
-// Load notifications on mount
-fetchNotifications(props.filters.page, props.filters.show === 'unread')
+// Initialize with server data
+notifications.value = props.notificationsPaginated.data
+currentPage.value = props.notificationsPaginated.current_page
+lastPage.value = props.notificationsPaginated.last_page
+total.value = props.notificationsPaginated.total
 
 // Watch for filter changes
 watch(() => props.filters, (newFilters) => {

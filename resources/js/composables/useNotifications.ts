@@ -24,7 +24,7 @@ export function useNotifications() {
         params.append('unread_only', 'true')
       }
 
-      const response = await fetch(`/notifications?${params}`)
+      const response = await fetch(`/api/notifications?${params}`)
       if (!response.ok) throw new Error('Failed to fetch notifications')
 
       const data: PaginatedNotifications = await response.json()
@@ -42,7 +42,7 @@ export function useNotifications() {
 
   async function fetchUnreadCount() {
     try {
-      const response = await fetch('/notifications/unread-count')
+      const response = await fetch('/api/notifications/unread-count')
       if (!response.ok) throw new Error('Failed to fetch unread count')
 
       const data = await response.json()
@@ -61,7 +61,7 @@ export function useNotifications() {
     }
 
     try {
-      const response = await fetch(`/notifications/${notificationId}/mark-as-read`, {
+      const response = await fetch(`/api/notifications/${notificationId}/read`, {
         method: 'POST',
         headers: {
           'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
@@ -92,7 +92,7 @@ export function useNotifications() {
     unreadCount.value = 0
 
     try {
-      const response = await fetch('/notifications/mark-all-as-read', {
+      const response = await fetch('/api/notifications/read-all', {
         method: 'POST',
         headers: {
           'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
@@ -119,7 +119,7 @@ export function useNotifications() {
     total.value--
 
     try {
-      const response = await fetch(`/notifications/${notificationId}`, {
+      const response = await fetch(`/api/notifications/${notificationId}`, {
         method: 'DELETE',
         headers: {
           'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
@@ -140,7 +140,7 @@ export function useNotifications() {
 
   async function clearReadNotifications() {
     try {
-      const response = await fetch('/notifications/read/all', {
+      const response = await fetch('/api/notifications/read', {
         method: 'DELETE',
         headers: {
           'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',

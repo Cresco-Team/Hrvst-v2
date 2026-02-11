@@ -47,7 +47,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('flags.store');
 
     Route::get('/notifications', [NotificationController::class, 'index'])
-        ->name('notifications');
+        ->name('notifications.index');
     Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount'])
         ->name('notifications.unread_count');
     Route::post('/notifications/{id}/mark-as-read', [NotificationController::class, 'markAsRead'])
@@ -60,6 +60,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('notifications.destroy');
     Route::delete('/notifications/read/all', [NotificationController::class, 'destroyRead'])
         ->name('notifications.destroy_read');
+
+    // API routes - AJAX calls from frontend
+    Route::prefix('api')->group(function () {
+        Route::get('/notifications', [NotificationController::class, 'list'])->name('api.notifications.list');
+        Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount'])->name('api.notifications.unread-count');
+        Route::post('/notifications/{notificationId}/read', [NotificationController::class, 'markAsRead'])->name('api.notifications.mark-as-read');
+        Route::post('/notifications/read-all', [NotificationController::class, 'markAllAsRead'])->name('api.notifications.mark-all-as-read');
+        Route::post('/notifications/read-multiple', [NotificationController::class, 'markMultipleAsRead'])->name('api.notifications.mark-multiple-as-read');
+        Route::delete('/notifications/{notificationId}', [NotificationController::class, 'destroy'])->name('api.notifications.destroy');
+        Route::delete('/notifications/read', [NotificationController::class, 'destroyRead'])->name('api.notifications.destroy-read');
+    });
 });
 
 /* Development only */

@@ -5,13 +5,50 @@ namespace App\Http\Controllers;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Notifications\DatabaseNotification;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class NotificationController extends Controller
 {
     /**
-     * Get paginated notifications for authenticated user
+     * Display notifications page (Inertia)
      */
-    public function index(Request $request): JsonResponse
+    public function index(Request $request): Response
+    {
+        $perPage = 20;
+        $unreadOnly = $request->input('show') === 'unread';
+
+        $query = $request->user()->notifications();
+
+        if ($unreadOnly) {
+            $query->whereNull('read_at');
+        }
+
+        $notifications = $query
+            ->orderBy('created_at', 'desc')
+            ->paginate($perPage)
+            ->through(fn($notification) => [
+                'id' => $notification->id,
+                'type' => class_basename($notification->type),
+                'data' => $notification->data,
+                'read_at' => $notification->read_at?->toISOString(),
+                'created_at' => $notification->created_at->toISOString(),
+                'created_at_human' => $notification->created_at->diffForHumans(),
+            ]);
+
+        return Inertia::render('notifications/Index', [
+            'notificationsPaginated' => $notifications,
+            'filters' => [
+                'show' => $request->input('show', 'all'),
+                'page' => $request->integer('page', 1),
+            ],
+        ]);
+    }
+
+    /**
+     * Get paginated notifications via API
+     */
+    public function list(Request $request): JsonResponse
     {
         $perPage = $request->integer('per_page', 20);
         $unreadOnly = $request->boolean('unread_only', false);
