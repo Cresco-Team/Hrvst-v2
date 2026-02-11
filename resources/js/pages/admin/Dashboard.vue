@@ -123,7 +123,7 @@ function formatChange(change?: number): string {
                     subtext="active on the platform"
                     :value="kpis.farmers.total_farmers.value"
                     :change="formatChange(kpis.farmers.total_farmers.change)"
-                    :icon="getTrendIcon(kpis.farmers.total_farmers.trend)"
+                    :badge="getTrendIcon(kpis.farmers.total_farmers.trend)"
                     :trendColor="getTrendColor(kpis.farmers.total_farmers.trend)"
                     cardClass="md:col-span-3 lg:col-span-4 bg-linear-to-br from-orange-500/10 via-amber-500/10 to-yellow-500/30"
                 />
@@ -133,7 +133,7 @@ function formatChange(change?: number): string {
                     subtext="growing"
                     :value="kpis.farmers.total_active_plantings.value"
                     :change="formatChange(kpis.farmers.total_active_plantings.change)"
-                    :icon="getTrendIcon(kpis.farmers.total_active_plantings.trend)"
+                    :badge="getTrendIcon(kpis.farmers.total_active_plantings.trend)"
                     :trendColor="getTrendColor(kpis.farmers.total_active_plantings.trend)"
                     cardClass="md:col-span-3 lg:col-span-4 bg-linear-to-br from-lime-500/10 via-emerald-500/10 to-cyan-500/30"
                 />
@@ -143,7 +143,7 @@ function formatChange(change?: number): string {
                     subtext="this week"
                     :value="kpis.farmers.total_active_plantings.value"
                     :change="formatChange(kpis.farmers.total_active_plantings.change)"
-                    :icon="getTrendIcon(kpis.farmers.total_active_plantings.trend)"
+                    :badge="getTrendIcon(kpis.farmers.total_active_plantings.trend)"
                     :trendColor="getTrendColor(kpis.farmers.total_active_plantings.trend)"
                     cardClass="md:col-span-3 lg:col-span-4 bg-linear-to-br from-indigo-500/10 via-fuchsia-500/10 to-rose-500/30"
                 />
