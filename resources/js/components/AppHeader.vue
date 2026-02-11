@@ -122,23 +122,11 @@ const mainNavItems = computed<NavItem[]>(() => {
 const rightNavItems = computed<NavItem[]>(() => {
     const items: NavItem[] = []
 
-    if (page.props.auth.user.roles.includes('admin')) {
-        items.push({
-            title: 'Pending Users',
-            href: '#',
-            icon: Bell
-        });
-    }
-
     if (page.props.auth.user.roles.includes('dealer')) {
         items.push({
             title: 'Conversation',
             href: '#',
             icon: MessagesSquare, 
-        }, {
-            title: 'Notification',
-            href: '#',
-            icon: Bell, 
         })
     }
 
@@ -147,14 +135,15 @@ const rightNavItems = computed<NavItem[]>(() => {
             title: 'Conversation',
             href: '#',
             icon: MessagesSquare, 
-        }, {
-            title: 'Notification',
-            href: '#',
-            icon: Bell, 
         })
     }
 
     return items;
+})
+
+const shouldShowNotifications = computed(() => {
+    return page.props.auth.user.roles.includes('dealer') ||
+            page.props.auth.user.roles.includes('farmer')
 })
 </script>
 
@@ -321,7 +310,7 @@ const rightNavItems = computed<NavItem[]>(() => {
                         </div>
                     </div>
 
-                    <NotificationBell />
+                    <NotificationBell v-if="shouldShowNotifications" />
 
                     <DropdownMenu>
                         <DropdownMenuTrigger :as-child="true">
