@@ -10,6 +10,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import admin from '@/routes/admin'
 import AppLayout from '@/layouts/AppLayout.vue'
 import LargeCard from '@/components/shared/cards/LargeCard.vue'
+import SmallCard from '@/components/shared/cards/SmallCard.vue'
 
 interface KPIValue {
     value: number
@@ -151,103 +152,69 @@ function formatChange(change?: number): string {
                 />
 
                 <!-- Compact KPIs Row 1 -->
-                <div class="rounded-xl border bg-card p-4 shadow-sm transition-all hover:shadow-md md:col-span-2 lg:col-span-3">
-                    <div class="space-y-2">
-                        <span class="text-xs font-medium text-muted-foreground">Total Dealers</span>
-                        <div class="flex items-baseline justify-between">
-                            <p class="text-2xl font-bold">{{ kpis.dealers.total_dealers.value }}</p>
-                            <component 
-                                v-if="kpis.dealers.total_dealers.trend"
-                                :is="getTrendIcon(kpis.dealers.total_dealers.trend)" 
-                                class="size-4"
-                                :class="getTrendColor(kpis.dealers.total_dealers.trend)"
-                            />
-                        </div>
-                    </div>
-                </div>
-
-                <div class="rounded-xl border bg-card p-4 shadow-sm transition-all hover:shadow-md md:col-span-2 lg:col-span-3">
-                    <div class="space-y-2">
-                        <span class="text-xs font-medium text-muted-foreground">Active This Week</span>
-                        <p class="text-2xl font-bold text-green-600 dark:text-green-500">
-                            {{ kpis.dealers.active_this_week.value }}
-                        </p>
-                    </div>
-                </div>
-
-                <div class="rounded-xl border bg-card p-4 shadow-sm transition-all hover:shadow-md md:col-span-2 lg:col-span-3">
-                    <div class="space-y-2">
-                        <span class="text-xs font-medium text-muted-foreground">Conversations</span>
-                        <div class="flex items-baseline justify-between">
-                            <p class="text-2xl font-bold">{{ kpis.dealers.total_conversations.value }}</p>
-                            <component 
-                                v-if="kpis.dealers.total_conversations.trend"
-                                :is="getTrendIcon(kpis.dealers.total_conversations.trend)" 
-                                class="size-4"
-                                :class="getTrendColor(kpis.dealers.total_conversations.trend)"
-                            />
-                        </div>
-                    </div>
-                </div>
-
-                <div class="rounded-xl border bg-card p-4 shadow-sm transition-all hover:shadow-md md:col-span-2 lg:col-span-3">
-                    <div class="space-y-2">
-                        <span class="text-xs font-medium text-muted-foreground">Total Varieties</span>
-                        <p class="text-2xl font-bold">{{ kpis.varieties.total_varieties.value }}</p>
-                    </div>
-                </div>
+                <SmallCard 
+                    v-if="kpis.dealers.total_dealers"
+                    title="Total Dealers"
+                    :value="kpis.dealers.total_dealers.value"
+                    :icon="getTrendIcon(kpis.dealers.total_dealers.trend)"
+                    :iconClass="getTrendColor(kpis.dealers.total_dealers.trend)"
+                    cardClass="md:col-span-2 lg:col-span-3" 
+                />
+                <SmallCard 
+                    v-if="kpis.dealers.active_this_week"
+                    title="Active This Week"
+                    :value="kpis.dealers.active_this_week.value"
+                    valueClass="text-green-600 dark:text-green-500"
+                    cardClass="md:col-span-2 lg:col-span-3"
+                />
+                <SmallCard 
+                    v-if="kpis.dealers.total_conversations"
+                    title="Conversations"
+                    :value="kpis.dealers.total_conversations.value"
+                    :icon="getTrendIcon(kpis.dealers.total_conversations.trend)"
+                    :iconClass="getTrendColor(kpis.dealers.total_conversations.trend)"
+                    cardClass="md:col-span-2 lg:col-span-3"
+                />
+                <SmallCard 
+                    v-if="kpis.varieties.total_varieties"
+                    title="Total Varieties"
+                    :value="kpis.varieties.total_varieties.value"
+                    cardClass="md:col-span-2 lg:col-span-3"
+                />
 
                 <!-- Compact KPIs Row 2 -->
-                <div class="rounded-xl border bg-card p-4 shadow-sm transition-all hover:shadow-md md:col-span-2 lg:col-span-3">
-                    <div class="space-y-2">
-                        <span class="text-xs font-medium text-muted-foreground">Price Updates</span>
-                        <p class="text-2xl font-bold text-blue-600 dark:text-blue-500">
-                            {{ kpis.varieties.price_updates_week.value }}
-                        </p>
-                        <p class="text-xs text-muted-foreground">this week</p>
-                    </div>
-                </div>
-
-                <div class="rounded-xl border border-orange-200 bg-card p-4 shadow-sm transition-all hover:shadow-md dark:border-orange-900/50 md:col-span-2 lg:col-span-3">
-                    <div class="space-y-2">
-                        <span class="text-xs font-medium text-orange-700 dark:text-orange-400">Needs Attention</span>
-                        <p class="text-2xl font-bold text-orange-600 dark:text-orange-500">
-                            {{ kpis.varieties.needs_attention.value }}
-                        </p>
-                        <p class="text-xs text-muted-foreground">stale prices</p>
-                    </div>
-                </div>
-
-                <div class="rounded-xl border bg-card p-4 shadow-sm transition-all hover:shadow-md md:col-span-2 lg:col-span-3">
-                    <div class="space-y-2">
-                        <span class="text-xs font-medium text-muted-foreground">Total Users</span>
-                        <div class="flex items-baseline justify-between">
-                            <p class="text-2xl font-bold">{{ kpis.system.total_users.value }}</p>
-                            <component 
-                                v-if="kpis.system.total_users.trend"
-                                :is="getTrendIcon(kpis.system.total_users.trend)" 
-                                class="size-4"
-                                :class="getTrendColor(kpis.system.total_users.trend)"
-                            />
-                        </div>
-                    </div>
-                </div>
-
-                <div class="rounded-xl border bg-card p-4 shadow-sm transition-all hover:shadow-md md:col-span-2 lg:col-span-3">
-                    <div class="space-y-2">
-                        <span class="text-xs font-medium text-muted-foreground">Messages Sent</span>
-                        <div class="flex items-baseline justify-between">
-                            <p class="text-2xl font-bold">{{ kpis.system.messages_sent.value }}</p>
-                            <component 
-                                v-if="kpis.system.messages_sent.trend"
-                                :is="getTrendIcon(kpis.system.messages_sent.trend)" 
-                                class="size-4"
-                                :class="getTrendColor(kpis.system.messages_sent.trend)"
-                            />
-                        </div>
-                        <p class="text-xs text-muted-foreground">last 30 days</p>
-                    </div>
-                </div>
+                <SmallCard 
+                    v-if="kpis.varieties.total_varieties"
+                    title="Price Updates"
+                    :value="kpis.varieties.total_varieties.value"
+                    subtext="this week"
+                    cardClass="md:col-span-2 lg:col-span-3"
+                />
+                <SmallCard 
+                    v-if="kpis.varieties.needs_attention"
+                    title="Needs Attention"
+                    :value="kpis.varieties.needs_attention.value"
+                    valueClass="text-orange-600 dark:text-orange-500"
+                    subtext="stale prices"
+                    cardClass="md:col-span-2 lg:col-span-3 border border-orange-200 dark:border-orange-900/50"
+                />
+                <SmallCard 
+                    v-if="kpis.system.total_users"
+                    title="Total Users"
+                    :value="kpis.system.total_users.value"
+                    :icon="getTrendIcon(kpis.system.total_users.trend)"
+                    :iconClass="getTrendColor(kpis.system.total_users.trend)"
+                    cardClass="md:col-span-2 lg:col-span-3" 
+                />
+                <SmallCard 
+                    v-if="kpis.system.messages_sent"
+                    title="Messages Sent"
+                    :value="kpis.system.messages_sent.value"
+                    subtext="last 30 days"
+                    :icon="getTrendIcon(kpis.system.messages_sent.trend)"
+                    :iconClass="getTrendColor(kpis.system.messages_sent.trend)"
+                    cardClass="md:col-span-2 lg:col-span-3" 
+                />
 
                 <!-- Charts Section -->
                 <template v-if="charts">
