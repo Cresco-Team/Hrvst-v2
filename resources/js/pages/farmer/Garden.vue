@@ -13,9 +13,12 @@ import DeletePlantingDialog from '@/components/features/farmer/dialogs/DeletePla
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
-import { Plus, Sprout, Leaf } from 'lucide-vue-next'
+import { Plus, Sprout, Leaf, Weight, Clock, CheckCircle } from 'lucide-vue-next'
 import { toast } from 'vue-sonner'
 import farmer from '@/routes/farmer'
+import AppLayout from '@/layouts/AppLayout.vue'
+import Heading from '@/components/Heading.vue'
+import LargeCard from '@/components/shared/cards/LargeCard.vue'
 
 interface Variety {
     id: number
@@ -70,7 +73,7 @@ interface Props {
         search: string | null
     }
     plantings?: PaginatedPlantings
-    summary?: Summary
+    summary: Summary
     varietyOptions?: VarietyOptionsByCategory
 }
 
@@ -91,12 +94,12 @@ const isSubmitting = ref(false)
 
 // Status filter tabs
 const statusTabs = [
-    { value: 'all', label: 'All', icon: Sprout },
-    { value: 'active', label: 'Growing', icon: Leaf },
-    { value: 'harvesting_soon', label: 'Ready Soon', icon: Sprout },
-    { value: 'harvested', label: 'Harvested', icon: Sprout },
-    { value: 'expired', label: 'Expired', icon: Sprout },
-    { value: 'cancelled', label: 'Cancelled', icon: Sprout },
+    { value: 'all', label: 'All', },
+    { value: 'active', label: 'Growing', },
+    { value: 'harvesting_soon', label: 'Ready Soon', },
+    { value: 'harvested', label: 'Harvested', },
+    { value: 'expired', label: 'Expired', },
+    { value: 'cancelled', label: 'Cancelled', },
 ]
 
 const activeTab = computed(() => props.filters.status || 'all')
@@ -242,83 +245,96 @@ function handlePageChange(page: number) {
 <template>
     <Head title="My Garden" />
 
-    <AppShell variant="header">
-        <AppHeader :breadcrumbs="breadcrumbs" />
-        
-        <AppContent variant="header" class="p-4 lg:p-8">
-            <div class="flex flex-col gap-8">
-                <!-- Page Header with Decorative Background -->
-                <div class="relative overflow-hidden rounded-2xl border-2 bg-gradient-to-br from-primary/5 via-primary/10 to-primary/5 p-8">
-                    <!-- Decorative Elements -->
-                    <div class="absolute right-0 top-0 size-64 rounded-full bg-primary/5 blur-3xl" />
-                    <div class="absolute bottom-0 left-0 size-48 rounded-full bg-primary/10 blur-3xl" />
-                    
-                    <div class="relative flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
-                        <div class="flex items-start gap-4">
-                            <div class="flex size-16 shrink-0 items-center justify-center rounded-2xl bg-primary/10 backdrop-blur-sm">
-                                <Sprout class="size-8 text-primary" />
-                            </div>
-                            <div>
-                                <h1 class="text-4xl font-bold tracking-tight">My Garden</h1>
-                                <p class="mt-2 text-lg text-muted-foreground">
-                                    Track and manage all your plantings in one place
-                                </p>
-                            </div>
-                        </div>
+    <AppLayout :breadcrumbs="breadcrumbs">
+        <div class="flex h-full flex-col gap-6 p-4 lg:p-6">
 
-                        <Button @click="openCreate" size="lg" class="gap-2 shadow-lg">
-                            <Plus class="size-5" />
-                            Add Planting
-                        </Button>
-                    </div>
-                </div>
-
-                <!-- Summary Cards -->
-                <PlantingSummaryCard v-if="!isLoadingSummary" :summary="summary!" />
-                <div v-else class="grid grid-cols-1 gap-4 md:grid-cols-4">
-                    <Skeleton class="h-28 rounded-xl" />
-                    <Skeleton class="h-28 rounded-xl" />
-                    <Skeleton class="h-28 rounded-xl" />
-                    <Skeleton class="h-28 rounded-xl" />
-                </div>
-
-                <!-- Status Filter Tabs -->
-                <div class="rounded-xl border-2 bg-card p-1">
-                    <Tabs :model-value="activeTab" @update:model-value="(v) => handleTabChange(String(v))">
-                        <TabsList class="w-full grid-cols-6">
-                            <TabsTrigger
-                                v-for="tab in statusTabs"
-                                :key="tab.value"
-                                :value="tab.value"
-                                class="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-                            >
-                                {{ tab.label }}
-                            </TabsTrigger>
-                        </TabsList>
-                    </Tabs>
-                </div>
-
-                <!-- Plantings Grid -->
-                <PlantingGrid
-                    v-if="!isLoadingPlantings"
-                    :plantings="plantings!"
-                    :search-query="filters.search || ''"
-                    @open-create="openCreate"
-                    @open-edit="openEdit"
-                    @open-harvest="openHarvest"
-                    @open-cancel="openCancel"
-                    @open-delete="openDelete"
-                    @page-change="handlePageChange"
-                    @search="handleSearch"
+            <!-- Header -->
+             <div class="flex items-center justify-between">
+                <!-- Title -->
+                <Heading 
+                    title="My Garden"
+                    description="Track and manage all your plantings in one place"
                 />
-                
-                <!-- Loading Skeleton -->
-                <div v-else class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                    <Skeleton v-for="i in 8" :key="i" class="h-96 rounded-xl" />
-                </div>
+                <Button @click="openCreate" size="lg" class="gap-2 shadow-lg">
+                    <Plus class="size-5" />
+                    Add Planting
+                </Button>
+             </div>
+
+            <!-- Summary Cards -->
+             <div v-if="!isLoadingSummary" class="grid md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-2">
+                <LargeCard 
+                    title="Active Plantings"
+                    subtext="curently growing"
+                    :value="summary.total_active"
+                    :icon="Sprout"
+                    cardClass="md:col-span-1 bg-linear-to-br from-lime-500/10 to-green-500/30"
+                />
+                <LargeCard 
+                    title="Total Weight"
+                    subtext="kg"
+                    :value="summary.total_weight_active"
+                    :icon="Weight"
+                    cardClass="md:col-span-1 bg-linear-to-br from-lime-500/10 to-green-500/30"
+                />
+                <LargeCard 
+                    title="Harvesting Soon"
+                    subtext="within this week"
+                    :value="summary.harvesting_soon"
+                    :icon="Clock"
+                    cardClass="md:col-span-1 bg-linear-to-br from-lime-500/10 to-green-500/30"
+                />
+                <LargeCard 
+                    title="Harvested This Month"
+                    subtext="completed harvests"
+                    :value="summary.harvested_this_month"
+                    :icon="CheckCircle"
+                    cardClass="md:col-span-1 bg-linear-to-br from-lime-500/10 to-green-500/30"
+                />
+             </div>
+            <div v-else class="grid md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-2">
+                <Skeleton class="h-33 rounded-xl" />
+                <Skeleton class="h-33 rounded-xl" />
+                <Skeleton class="h-33 rounded-xl" />
+                <Skeleton class="h-33 rounded-xl" />
             </div>
-        </AppContent>
-    </AppShell>
+
+            <!-- Status Filter Tabs -->
+            <div class="rounded-xl border-2 bg-card p-1">
+                <Tabs :model-value="activeTab" @update:model-value="(v) => handleTabChange(String(v))">
+                    <TabsList class="w-full grid-cols-6">
+                        <TabsTrigger
+                            v-for="tab in statusTabs"
+                            :key="tab.value"
+                            :value="tab.value"
+                            class="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                        >
+                            {{ tab.label }}
+                        </TabsTrigger>
+                    </TabsList>
+                </Tabs>
+            </div>
+
+            <!-- Plantings Grid -->
+            <PlantingGrid
+                v-if="!isLoadingPlantings"
+                :plantings="plantings!"
+                :search-query="filters.search || ''"
+                @open-create="openCreate"
+                @open-edit="openEdit"
+                @open-harvest="openHarvest"
+                @open-cancel="openCancel"
+                @open-delete="openDelete"
+                @page-change="handlePageChange"
+                @search="handleSearch"
+            />
+            
+            <!-- Loading Skeleton -->
+            <div v-else class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                <Skeleton v-for="i in 8" :key="i" class="h-96 rounded-xl" />
+            </div>
+        </div>
+    </AppLayout>
 
     <!-- Modals -->
     <PlantingForm
