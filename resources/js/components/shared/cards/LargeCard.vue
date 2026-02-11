@@ -26,7 +26,7 @@ const props = withDefaults(
         change: '',
         badge: null,
         trendColor: null,
-        cardClass: null,
+        cardClass: "grid-span-1",
         icon: undefined,
         iconColor: 'text-primary',
     }
