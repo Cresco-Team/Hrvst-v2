@@ -10,16 +10,7 @@ import {
     AlertDialogAction,
 } from '@/components/ui/alert-dialog'
 import { Trash2, AlertTriangle } from 'lucide-vue-next'
-
-interface Planting {
-    id: number
-    variety: {
-        name: string
-    }
-    weight_kg: number
-    date_planted: string
-    can_delete: boolean
-}
+import type { Planting } from '@/types/farmer/garden'
 
 defineProps<{
     open: boolean
@@ -54,14 +45,14 @@ function handleCancel() {
                     <p>
                         Are you sure you want to permanently delete the planting for 
                         <strong>{{ planting?.variety.name }}</strong> 
-                        ({{ planting?.weight_kg }} kg) planted on {{ planting?.date_planted }}?
+                        ({{ planting?.weight_kg }} kg)?
                     </p>
                     
                     <div class="flex items-start gap-2 rounded-lg border border-destructive/20 bg-destructive/5 p-3">
                         <AlertTriangle class="size-4 shrink-0 text-destructive mt-0.5" />
                         <div class="text-xs text-destructive">
                             <p class="font-medium">This action cannot be undone</p>
-                            <p class="mt-1">All data related to this planting will be permanently removed from the system.</p>
+                            <p class="mt-1">All data related to this planting will be permanently removed.</p>
                         </div>
                     </div>
                 </AlertDialogDescription>

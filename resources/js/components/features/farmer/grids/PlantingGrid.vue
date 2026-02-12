@@ -4,52 +4,22 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { ChevronLeft, ChevronRight, Search } from 'lucide-vue-next'
 import PlantingCard from '../cards/PlantingCard.vue'
-
-interface Planting {
-    id: number
-    variety: {
-        id: number
-        name: string
-        category: string
-        image_path: string
-    }
-    weight_kg: number
-    date_planted: string
-    date_planted_human: string
-    expected_harvest_date: string
-    days_until_harvest: number | null
-    status: 'active' | 'harvested' | 'expired' | 'cancelled'
-    status_badge: string
-    can_edit: boolean
-    can_delete: boolean
-    can_harvest: boolean
-    can_cancel: boolean
-}
-
-interface PaginatedData {
-    data: Planting[]
-    current_page: number
-    last_page: number
-    per_page: number
-    total: number
-}
+import type { PaginatedPlantings, Planting } from '@/types/farmer/garden'
 
 const props = defineProps<{
-    plantings: PaginatedData
+    plantings: PaginatedPlantings
     searchQuery?: string
 }>()
 
 const emit = defineEmits<{
     'open-create': []
     'open-edit': [planting: Planting]
-    'open-harvest': [planting: Planting]
-    'open-cancel': [planting: Planting]
+    'open-archive': [planting: Planting]
     'open-delete': [planting: Planting]
     'page-change': [page: number]
     'search': [query: string]
 }>()
 
-// ✅ Safe data access with null checks
 const plantingsData = computed(() => props.plantings?.data ?? [])
 const hasPrevPage = computed(() => props.plantings && props.plantings.current_page > 1)
 const hasNextPage = computed(() => props.plantings && props.plantings.current_page < props.plantings.last_page)
@@ -80,20 +50,6 @@ function handleSearchInput(event: Event) {
 
 <template>
     <div class="flex flex-col gap-6">
-        <!-- Search Bar -->
-        <div class="flex items-center gap-3">
-            <div class="relative flex-1">
-                <Search class="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                    :value="searchQuery"
-                    placeholder="Search by variety, category..."
-                    class="pl-10"
-                    @input="handleSearchInput"
-                />
-            </div>
-        </div>
-
-        <!-- Grid of Cards -->
         <div 
             v-if="plantingsData.length > 0"
             class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
@@ -103,8 +59,7 @@ function handleSearchInput(event: Event) {
                 :key="planting.id"
                 :planting="planting"
                 @open-edit="$emit('open-edit', $event)"
-                @open-harvest="$emit('open-harvest', $event)"
-                @open-cancel="$emit('open-cancel', $event)"
+                @open-archive="$emit('open-archive', $event)"
                 @open-delete="$emit('open-delete', $event)"
             />
         </div>
