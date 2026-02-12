@@ -107,10 +107,6 @@ const mainNavItems = computed<NavItem[]>(() => {
                 icon: Truck
             }, {
                 title: 'My Garden',
-                href: farmer.offerings.index(),
-                icon: Sprout
-            }, {
-                title: 'My Garden',
                 href: farmer.garden.index(),
                 icon: Sprout
             })
