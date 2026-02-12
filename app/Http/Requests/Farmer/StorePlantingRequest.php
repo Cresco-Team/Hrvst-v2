@@ -18,8 +18,8 @@ class StorePlantingRequest extends FormRequest
         return [
             'variety_id' => ['required', 'exists:varieties,id'],
             'weight_kg' => ['required', 'numeric', 'min:0.1', 'max:99999'],
-            'price_asking' => ['numeric', 'min:0', 'max:999.99'],
-            'expration_date' => ['required', 'date', 'after:today', 'before:' . now()->addMonths(6)->toDateString()],
+            'asking_price' => ['required', 'numeric', 'min:0', 'max:999.99'],
+            'expiration_date' => ['required', 'date', 'after:today', 'before:' . now()->addMonths(6)->toDateString()],
             'image_path' => ['required', 'image', 'mimes:jpeg,jpg,png,webp', 'max:5120'],
         ];
     }
@@ -33,13 +33,14 @@ class StorePlantingRequest extends FormRequest
             'weight_kg.numeric' => 'Weight must be a number.',
             'weight_kg.min' => 'Weight must be at least 0.1 kg.',
             'weight_kg.max' => 'Weight cannot exceed 99,999 kg.',
-            'price_asking.numeric' => 'Price must be a number.',
-            'price_asking.min' => 'Price must be at least ₱0.00.',
-            'price_asking.max' => 'Price cannot exceed ₱999.99.',
-            'expiration_date.required' => 'Expected harvest date is required.',
-            'expiration_date.date' => 'Expected harvest date must be a valid date.',
-            'expiration_date.after' => 'Expected harvest date must be in the future.',
-            'expiration_date.before' => 'Expected harvest date cannot be more than 6 months away.',
+            'asking_price.required' => 'Asking price is required.',
+            'asking_price.numeric' => 'Price must be a number.',
+            'asking_price.min' => 'Price must be at least ₱0.00.',
+            'asking_price.max' => 'Price cannot exceed ₱999.99.',
+            'expiration_date.required' => 'Expiration date is required.',
+            'expiration_date.date' => 'Expiration date must be a valid date.',
+            'expiration_date.after' => 'Expiration date must be in the future.',
+            'expiration_date.before' => 'Expiration date cannot be more than 6 months away.',
             'image_path.required' => 'An image of the planting is required.',
             'image_path.image' => 'The uploaded file must be an image.',
             'image_path.mimes' => 'The image must be a file of type: jpeg, jpg, png, webp.',
@@ -51,7 +52,7 @@ class StorePlantingRequest extends FormRequest
     {
         $validated = $this->validated();
         
-        // Auto-set status to 'expired' if expected harvest is in the past
+        // Auto-set status to 'archived' if expiration date is in the past
         if (Carbon::parse($validated['expiration_date'])->isPast()) {
             $validated['status'] = PlantingStatus::Archived;
         } else {
