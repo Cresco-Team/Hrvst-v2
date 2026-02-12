@@ -90,7 +90,7 @@ class PlantingController extends Controller
         return redirect()->route('farmer.garden.index')
             ->with('flash', [
                 'type' => 'success', 
-                'message' => 'Planting marked as archived.'
+                'message' => 'Planting archived successfully.'
             ]);
     }
 
