@@ -96,15 +96,6 @@ export interface AnnouncementFlag {
   description?: string
 }
 
-// Paginated response wrapper
-export interface PaginatedResponse<T> {
-  data: T[]
-  current_page: number
-  last_page: number
-  per_page: number
-  total: number
-}
-
 // Filter types
 export interface MarketplaceFilters {
   search?: string | null
