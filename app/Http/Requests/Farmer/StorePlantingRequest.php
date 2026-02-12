@@ -20,7 +20,7 @@ class StorePlantingRequest extends FormRequest
             'weight_kg' => ['required', 'numeric', 'min:0.1', 'max:99999'],
             'asking_price' => ['required', 'numeric', 'min:0', 'max:999.99'],
             'expiration_date' => ['required', 'date', 'after:today', 'before:' . now()->addMonths(6)->toDateString()],
-            'image_path' => ['required', 'image', 'mimes:jpeg,jpg,png,webp', 'max:5120'],
+            'image' => ['required', 'image', 'mimes:jpeg,jpg,png,webp', 'max:5120'],
         ];
     }
 
@@ -41,10 +41,10 @@ class StorePlantingRequest extends FormRequest
             'expiration_date.date' => 'Expiration date must be a valid date.',
             'expiration_date.after' => 'Expiration date must be in the future.',
             'expiration_date.before' => 'Expiration date cannot be more than 6 months away.',
-            'image_path.required' => 'An image of the planting is required.',
-            'image_path.image' => 'The uploaded file must be an image.',
-            'image_path.mimes' => 'The image must be a file of type: jpeg, jpg, png, webp.',
-            'image_path.max' => 'The image cannot exceed 5MB in size.',
+            'image.required' => 'An image of the planting is required.',
+            'image.image' => 'The uploaded file must be an image.',
+            'image.mimes' => 'The image must be a file of type: jpeg, jpg, png, webp.',
+            'image.max' => 'The image cannot exceed 5MB in size.',
         ];
     }
 

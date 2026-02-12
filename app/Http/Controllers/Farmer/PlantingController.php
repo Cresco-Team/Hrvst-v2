@@ -7,6 +7,7 @@ use App\Http\Requests\Farmer\StorePlantingRequest;
 use App\Http\Requests\Farmer\UpdatePlantingRequest;
 use App\Models\Product\Planting;
 use App\Services\Farmer\PlantingService;
+use App\Services\Media\ImageUploadService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -16,7 +17,7 @@ use Inertia\Response;
 class PlantingController extends Controller
 {
     public function __construct(
-        private PlantingService $plantingService
+        private PlantingService $plantingService,
     ) {}
 
     public function index(Request $request): Response
@@ -55,10 +56,16 @@ class PlantingController extends Controller
         Gate::authorize('create', Planting::class);
 
         $farmer = $request->user()->farmerProfile;
+        $validated = $request->validated();
+
+        if ($request->hasFile('image')) {
+            $validated['image_path'] = app(ImageUploadService::class)
+                ->uploadVarietyImage($request->file('image'));
+        }
 
         $this->plantingService->create(
             farmerId: $farmer->id,
-            validated: $request->validatedWithStatus()
+            validated: $validated
         );
 
         return redirect()->route('farmer.garden.index')
@@ -71,6 +78,13 @@ class PlantingController extends Controller
     public function update(UpdatePlantingRequest $request, Planting $planting): RedirectResponse
     {
         Gate::authorize('update', $planting);
+
+        $validated = $request->validated();
+
+        if ($request->hasFile('image')) {
+            $validated['image_path'] = app(ImageUploadService::class)
+                ->uploadVarietyImage($request->file('image'), $planting->image_path);
+        }
 
         $this->plantingService->update($planting, $request->validated());
 

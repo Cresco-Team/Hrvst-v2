@@ -144,7 +144,7 @@ function handleSubmit() {
     formData.append('expiration_date', form.value.expiration_date)
     
     if (form.value.image) {
-        formData.append('image_path', form.value.image)
+        formData.append('image', form.value.image)
     }
     
     if (!isEditMode.value) {
