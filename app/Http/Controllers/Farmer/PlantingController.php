@@ -21,6 +21,8 @@ class PlantingController extends Controller
 
     public function index(Request $request): Response
     {
+        Gate::authorize('viewAny', Planting::class);
+
         $farmer = $request->user()->farmerProfile;
 
         if (!$farmer) {
@@ -40,10 +42,8 @@ class PlantingController extends Controller
             
             'plantings' => Inertia::defer(fn () => PlantingService::paginated(
                 farmerId: $farmer->id,
+                status: $status,
                 perPage: 20,
-                statusFilter: $status,
-                searchQuery: $search,
-                page: $page
             )),
             
             'summary' => Inertia::defer(fn () => PlantingService::summary($farmer->id)),
@@ -54,6 +54,8 @@ class PlantingController extends Controller
 
     public function store(StorePlantingRequest $request): RedirectResponse
     {
+        Gate::authorize('create', Planting::class);
+
         $farmer = $request->user()->farmerProfile;
 
         $this->plantingService->create(
@@ -70,6 +72,8 @@ class PlantingController extends Controller
 
     public function update(UpdatePlantingRequest $request, Planting $planting): RedirectResponse
     {
+        Gate::authorize('update', $planting);
+
         $this->plantingService->update($planting, $request->validated());
 
         return redirect()->route('farmer.garden.index')
@@ -79,36 +83,16 @@ class PlantingController extends Controller
             ]);
     }
 
-    public function harvest(Request $request, Planting $planting): RedirectResponse
+    public function archive(Planting $planting): RedirectResponse
     {
-        Gate::authorize('harvest', $planting);
+        Gate::authorize('update', $planting);
 
-        $validated = $request->validate([
-            'actual_weight' => ['nullable', 'numeric', 'min:0.1', 'max:99999'],
-        ]);
-
-        $this->plantingService->markAsHarvested(
-            $planting, 
-            $validated['actual_weight'] ?? null
-        );
+        $this->plantingService->markAsArchived($planting);
 
         return redirect()->route('farmer.garden.index')
             ->with('flash', [
                 'type' => 'success', 
-                'message' => 'Planting marked as harvested!'
-            ]);
-    }
-
-    public function cancel(Planting $planting): RedirectResponse
-    {
-        Gate::authorize('cancel', $planting);
-
-        $this->plantingService->markAsCancelled($planting);
-
-        return redirect()->route('farmer.garden.index')
-            ->with('flash', [
-                'type' => 'success', 
-                'message' => 'Planting marked as cancelled.'
+                'message' => 'Planting marked as archived.'
             ]);
     }
 
