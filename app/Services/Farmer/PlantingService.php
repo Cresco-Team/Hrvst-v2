@@ -36,14 +36,10 @@ class PlantingService
             ->through(function ($planting) {
                 return [
                     'id' => $planting->id,
-                    'farmer' => [
-                        'id' => $planting->farmer->id,
-                        'name' => $planting->farmer->user->name,
-                    ],
                     'variety' => [
                         'name' => $planting->variety->vegetable->name . ' ' . $planting->variety->name,
                         'category' => $planting->variety->vegetable->category->name,
-                        'image_path' => $planting->variety->image_url,
+                        'image_url' => $planting->variety->image_url,
                     ],
                     'image_url' => $planting->image_url,
                     'weight_kg' => (float) $planting->weight_kg,
@@ -54,7 +50,7 @@ class PlantingService
                     'created_at_human' => $planting->created_at->diffForHumans(),
                     'status_badge' => $planting->status_badge ?? 'Unknown',
                     'can_edit' => $planting->status === PlantingStatus::Available,
-                    'can_delete' => $planting->status === PlantingStatus::Available,
+                    'can_delete' => $planting->status === PlantingStatus::Archived,
                 ];
             });
     }
