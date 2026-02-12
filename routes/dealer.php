@@ -1,8 +1,8 @@
 <?php
 
 use App\Http\Controllers\Dealer\DealerRequestController;
-use App\Http\Controllers\Dealer\FarmerOfferingBrowseController;
 use App\Http\Controllers\Dealer\MarketController;
+use App\Http\Controllers\Dealer\MarketplaceController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'verified', 'dealer'])->prefix('dealer')->name('dealer.')->group(function () {
@@ -22,7 +22,7 @@ Route::middleware(['auth', 'verified', 'dealer'])->prefix('dealer')->name('deale
 
     // Marketplace (Browse farmer offerings)
     Route::prefix('marketplace')->name('marketplace.')->group(function () {
-        Route::get('/', [FarmerOfferingBrowseController::class, 'index'])->name('index');
-        Route::get('/{farmerOffering}', [FarmerOfferingBrowseController::class, 'show'])->name('show');
+        Route::get('/', [MarketplaceController::class, 'index'])->name('index');
+        Route::get('/{planting}', [MarketplaceController::class, 'show'])->name('show');
     });
 });
