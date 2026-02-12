@@ -30,14 +30,12 @@ class PlantingController extends Controller
         }
 
         $page = (int) $request->query('page', 1);
-        $status = $request->query('status', 'all');
-        $search = $request->query('search');
+        $status = $request->query('status', 'available');
 
-        return Inertia::render('farmer/Garden', [
+        return Inertia::render('farmer/garden/Index', [
             'filters' => [
                 'status' => $status,
                 'page' => $page,
-                'search' => $search,
             ],
             
             'plantings' => Inertia::defer(fn () => PlantingService::paginated(
