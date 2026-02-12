@@ -4,29 +4,18 @@ import { Head, router, Link } from '@inertiajs/vue3'
 import { Search, Filter, ShoppingCart } from 'lucide-vue-next'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
 import OfferingCard from '@/components/dealer/OfferingCard.vue'
 import AppLayout from '@/layouts/AppLayout.vue'
 import Heading from '@/components/Heading.vue'
-import type {
-  FarmerOffering,
-  PaginatedResponse,
-  MarketplaceFilters,
-  CategoryOption,
-  MunicipalityOption,
-} from '@/types/announcement'
 import dealer from '@/routes/dealer'
+import { PaginatedResponse } from '@/types/pagination'
+import { CategoryOption, MarketplaceFilters, MunicipalityOption, Planting } from '@/types/marketplace'
 
 interface Props {
   filters: MarketplaceFilters
-  offerings?: PaginatedResponse<FarmerOffering>
+  offerings?: PaginatedResponse<Planting>
   filterOptions?: {
     categories: CategoryOption[]
     municipalities: MunicipalityOption[]
