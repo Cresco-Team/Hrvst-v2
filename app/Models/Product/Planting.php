@@ -94,6 +94,19 @@ class Planting extends Model
         return $query->where('status', PlantingStatus::Archived);
     }
 
+    /* ---------- boolean check ---------- */
+
+    public function isAvailable(): bool
+    {
+        return $this->status === PlantingStatus::Available;
+    }
+
+    public function isArchived(): bool
+    {
+        return $this->status === PlantingStatus::Archived;
+    }
+
+
     /* ---------- accessors ---------- */
     public function imageUrl(): Attribute
     {
