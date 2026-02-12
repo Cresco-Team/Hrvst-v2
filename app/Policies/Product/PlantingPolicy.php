@@ -7,58 +7,45 @@ use App\Models\User;
 
 class PlantingPolicy
 {
-    /**
-     * Determine if the user can view the planting.
-     */
+    public function viewAny(User $user): bool
+    {
+        return ($user->hasRole('farmer') && $user->farmerProfile->is_approved)
+            || ($user->hasRole('dealer') && $user->dealerProfile->is_approved)
+            || $user->hasRole('admin');
+    }
+
     public function view(User $user, Planting $planting): bool
     {
-        return $user->farmerProfile?->id === $planting->farmer_id ||
-        $user->hasRole('dealer') || $user->hasRole('admin');
+        return $planting->isAvailable() 
+            && (($user->hasRole('farmer') && $user->farmerProfile->is_approved && $user->farmerProfile->id === $planting->farmer_id)
+                || ($user->hasRole('dealer') && $user->dealerProfile->is_approved)
+                || $user->hasRole('admin'));
     }
 
-    /**
-     * Determine if the user can update the planting.
-     * Only active plantings can be updated.
-     */
+    public function create(User $user): bool
+    {
+        return $user->hasRole('farmer') 
+            && $user->farmerProfile->is_approved;
+    }
+
     public function update(User $user, Planting $planting): bool
     {
-        return $this->view($user, $planting) 
-            && $planting->status === 'active';
+        return 
+            $user->hasRole('farmer') 
+            && $user->farmerProfile->is_approved
+            && $user->farmerProfile->id === $planting->farmer_id
+            && $planting->isAvailable();
     }
 
-    /**
-     * Determine if the user can delete the planting.
-     * Cannot delete if dealers have inquired about it.
-     */
     public function delete(User $user, Planting $planting): bool
     {
-        return $this->view($user, $planting) 
+        return $this->update($user, $planting) 
             && !$planting->conversations()->exists();
     }
 
-    /**
-     * Determine if the user can mark the planting as harvested.
-     */
-    public function harvest(User $user, Planting $planting): bool
-    {
-        return $this->view($user, $planting) 
-            && $planting->status === 'active';
-    }
-
-    /**
-     * Determine if the user can mark the planting as cancelled.
-     */
-    public function cancel(User $user, Planting $planting): bool
-    {
-        return $this->view($user, $planting) 
-            && $planting->status === 'active';
-    }
-
-    /**
-     * Determine if the user can destroy the planting (admin override).
-     */
     public function destroy(User $user, Planting $planting): bool
     {
-        return $user->hasRole('admin') || $this->delete($user, $planting);
+        return $this->delete($user, $planting)
+            || $user->hasRole('admin');
     }
 }
