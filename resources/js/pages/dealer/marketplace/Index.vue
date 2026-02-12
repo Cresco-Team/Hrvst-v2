@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, toRaw } from 'vue'
 import { Head, router, Link } from '@inertiajs/vue3'
 import { Search, Filter, ShoppingCart } from 'lucide-vue-next'
 import { Input } from '@/components/ui/input'
@@ -11,11 +11,11 @@ import AppLayout from '@/layouts/AppLayout.vue'
 import Heading from '@/components/Heading.vue'
 import dealer from '@/routes/dealer'
 import { PaginatedResponse } from '@/types/pagination'
-import { CategoryOption, MarketplaceFilters, MunicipalityOption, Planting } from '@/types/marketplace'
+import { CategoryOption, MarketplaceFilters, MunicipalityOption, Planting } from '@/types/dealer/marketplace'
 
 interface Props {
   filters: MarketplaceFilters
-  offerings?: PaginatedResponse<Planting>
+  plantings?: PaginatedResponse<Planting>
   filterOptions?: {
     categories: CategoryOption[]
     municipalities: MunicipalityOption[]
@@ -24,10 +24,14 @@ interface Props {
 
 const props = defineProps<Props>()
 
+onMounted(() => console.log(props.plantings))
+
+console.log(toRaw(props))
+
 const searchQuery = ref(props.filters.search || '')
 const searchDebounce = ref<ReturnType<typeof setTimeout> | null>(null)
 
-const isLoadingOfferings = computed(() => !props.offerings)
+const isLoadingOfferings = computed(() => !props.plantings)
 const isLoadingFilters = computed(() => !props.filterOptions)
 
 function handleSearch() {
@@ -165,8 +169,8 @@ const breadcrumbs = [
       <!-- Results count -->
       <div class="flex items-center justify-between">
         <p class="text-sm text-muted-foreground">
-          <template v-if="offerings">
-            Showing {{ offerings.data.length }} of {{ offerings.total }} offerings
+          <template v-if="plantings">
+            Showing {{ plantings.data.length }} of {{ plantings.total }} offerings
           </template>
           <template v-else>
             Loading...
@@ -175,9 +179,9 @@ const breadcrumbs = [
       </div>
 
       <!-- Offerings grid -->
-      <div v-if="!isLoadingOfferings && offerings" class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      <div v-if="!isLoadingOfferings && plantings" class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         <Link
-          v-for="offering in offerings.data"
+          v-for="offering in plantings.data"
           :key="offering.id"
           :href="dealer.marketplace.show(offering.id).url"
           class="block"
@@ -187,7 +191,7 @@ const breadcrumbs = [
 
         <!-- Empty state -->
         <div
-          v-if="offerings.data.length === 0"
+          v-if="plantings.data.length === 0"
           class="col-span-full flex flex-col items-center justify-center rounded-lg border border-dashed py-16 text-center"
         >
           <Filter class="mb-4 size-12 text-muted-foreground/50" />
@@ -205,25 +209,25 @@ const breadcrumbs = [
 
       <!-- Pagination -->
       <div
-        v-if="offerings && offerings.last_page > 1"
+        v-if="plantings && plantings.last_page > 1"
         class="flex items-center justify-between border-t pt-4"
       >
         <Button
           variant="outline"
           size="sm"
-          :disabled="offerings.current_page === 1"
-          @click="handlePageChange(offerings.current_page - 1)"
+          :disabled="plantings.current_page === 1"
+          @click="handlePageChange(plantings.current_page - 1)"
         >
           Previous
         </Button>
         <span class="text-sm text-muted-foreground">
-          Page {{ offerings.current_page }} of {{ offerings.last_page }}
+          Page {{ plantings.current_page }} of {{ plantings.last_page }}
         </span>
         <Button
           variant="outline"
           size="sm"
-          :disabled="offerings.current_page === offerings.last_page"
-          @click="handlePageChange(offerings.current_page + 1)"
+          :disabled="plantings.current_page === plantings.last_page"
+          @click="handlePageChange(plantings.current_page + 1)"
         >
           Next
         </Button>

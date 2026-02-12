@@ -2,7 +2,6 @@
 
 namespace App\Services\Dealer;
 
-use App\Models\Announcement\FarmerOffering;
 use App\Models\Product\Category;
 use App\Models\Address\Municipality;
 use App\Models\Product\Planting;

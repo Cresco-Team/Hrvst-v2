@@ -26,7 +26,7 @@ class MarketplaceController extends Controller
             'filters' => $validated,
             
             // Deferred (load after page renders)
-            'offerings' => Inertia::defer(fn() => 
+            'plantings' => Inertia::defer(fn() => 
                 MarketplaceService::paginated($validated)
             ),
             
