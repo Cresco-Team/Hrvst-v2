@@ -2,6 +2,8 @@
 
 namespace App\Models\Product;
 
+use App\Models\Announcement\AnnouncementComment;
+use App\Models\Announcement\AnnouncementFlag;
 use App\Models\Messaging\Conversation;
 use App\Models\Profiles\FarmerProfile;
 use App\PlantingStatus;
@@ -10,8 +12,8 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class Planting extends Model
 {
@@ -42,6 +44,21 @@ class Planting extends Model
         return $this->belongsTo(Variety::class);
     }
 
+    public function comments(): HasMany
+    {
+        return $this->hasMany(AnnouncementComment::class);
+    }
+
+    public function reactions(): MorphMany
+    {
+        return $this->morphMany(AnnouncementFlag::class, 'reactionable');
+    }
+
+    public function flags(): MorphMany
+    {
+        return $this->morphMany(AnnouncementFlag::class, 'flaggable');
+    }
+
     public function conversations(): HasMany
     {
         return $this->hasMany(Conversation::class);
@@ -51,90 +68,71 @@ class Planting extends Model
 
     public function isExpired(): bool
     {
-        if ($this->status !== 'active' || !$this->expected_harvest_date) {
-            return false;
-        }
-        return Carbon::now()->isAfter($this->expected_harvest_date);
+        return Carbon::parse($this->expiration_date)->isPast();
     }
 
     /* ---------- actions ---------- */
 
-    public function markAsHarvested(?float $actualWeight = null): void
+    public function markAsArchived(?float $actualWeight = null): void
     {
         $this->update([
-            'status' => 'harvested',
-            'date_harvested' => Carbon::now(),
+            'status' => PlantingStatus::Archived,
+            'expiration_date' => Carbon::now(),
             'weight_kg' => $actualWeight ?? $this->weight_kg,
         ]);
     }
 
-    public function markAsExpired(): void
-    {
-        if ($this->status === 'active' && $this->isExpired()) {
-            $this->update(['status' => 'expired']);
-        }
-    }
-
-    public function markAsCancelled(): void
-    {
-        if ($this->status === 'active') {
-            $this->update(['status' => 'cancelled']);
-        }
-    }
-
     /* ---------- scopes ---------- */
 
-    public function scopeActive(Builder $query): Builder
+    public function scopeAvailable(Builder $query): Builder
     {
-        return $query->where('status', 'active');
+        return $query->where('status', PlantingStatus::Available);
     }
 
-    public function scopeHarvested(Builder $query): Builder
+    public function scopeArchived(Builder $query): Builder
     {
-        return $query->where('status', 'harvested');
-    }
-
-    public function scopeExpired(Builder $query): Builder
-    {
-        return $query->where('status', 'expired');
-    }
-
-    public function scopeCancelled(Builder $query): Builder
-    {
-        return $query->where('status', 'cancelled');
-    }
-
-    public function scopeHarvestingSoon(Builder $query, int $days = 7): Builder
-    {
-        return $query->active()
-            ->whereNotNull('expected_harvest_date')
-            ->whereBetween('expected_harvest_date', [now(), now()->addDays($days)]);
+        return $query->where('status', PlantingStatus::Archived);
     }
 
     /* ---------- accessors ---------- */
-
-    public function daysUnillHarvest(): Attribute
-     {
+    public function imageUrl(): Attribute
+    {
         return Attribute::make(
-            get: function (mixed $value, array $attributes): ?int {
-                if (!$attributes['expected_harvest_date'] || $attributes['status'] !== 'active') {
+            get: fn () => $this->image_path
+                ? asset('storage/' . $this->image_path)
+                : null
+        );
+    }
+
+    public function daysUntilExpiration(): Attribute
+    {
+        return Attribute::make(
+            get: function () {
+                if ($this->status !== PlantingStatus::Available) {
                     return null;
                 }
-                return Carbon::now()->diffInDays($attributes['expected_harvest_date'], false);
-            }
-        );
-     }
 
-     public function statusBadge(): Attribute
-     {
-        return Attribute::make(
-            get: fn (mixed $value, array $attributes) => match($attributes['status']) {
-                'active'    => $this->isExpired() ? 'Overdue' : 'Growing',
-                'harvested' => 'Harvested',
-                'expired'   => 'Expired',
-                'cancelled' => 'Cancelled',
-                default     => 'Unknown',
+                return Carbon::now()->diffInDays($this->expiration_date, false);
             }
         );
-     }
+    }
+
+    public function varietyName(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->variety()
+            ? "{$this->variety->vegetable->name} {$this->variety->name}"
+            : 'Unknown'
+        );
+    }
+
+    public function reactionCounts(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->reactions
+                ->groupBy('reaction_type')
+                ->map(fn ($group) => $group->count())
+                ->toArray()
+        );
+    }
 }
