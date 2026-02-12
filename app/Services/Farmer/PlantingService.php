@@ -10,8 +10,11 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class PlantingService
 {
-    public static function paginated(?int $farmerId = null, ?string $status = null, int $perPage = 20): LengthAwarePaginator
-    {
+    public static function paginated(
+        ?int $farmerId = null, 
+        ?string $status = null, 
+        int $perPage = 20
+    ): LengthAwarePaginator {
         $query = Planting::with([
             'farmer.user',
             'farmer.municipality',
@@ -46,11 +49,11 @@ class PlantingService
                     'asking_price' => (float) $planting->asking_price,
                     'expiration_date' => $planting->expiration_date->format('M d, Y'),
                     'days_until_expiration' => $planting->days_until_expiration,
-                    'status' => $planting->status,
+                    'status' => $planting->status->value,
                     'created_at_human' => $planting->created_at->diffForHumans(),
-                    'status_badge' => $planting->status_badge ?? 'Unknown',
                     'can_edit' => $planting->status === PlantingStatus::Available,
-                    'can_delete' => $planting->status === PlantingStatus::Archived,
+                    'can_archive' => $planting->status === PlantingStatus::Available,
+                    'can_delete' => $planting->status === PlantingStatus::Archived && !$planting->conversations()->exists(),
                 ];
             });
     }
@@ -69,7 +72,7 @@ class PlantingService
             ->where('status', PlantingStatus::Available)
             ->sum('weight_kg');
 
-        $expireSoon = Planting::where('farmer_id', $farmerId)
+        $expiringSoon = Planting::where('farmer_id', $farmerId)
             ->where('status', PlantingStatus::Available)
             ->whereBetween('expiration_date', [$today, $sevenDaysFromNow])
             ->count();
@@ -82,7 +85,7 @@ class PlantingService
         return [
             'total_available' => $totalAvailable,
             'total_weight_available' => round($totalWeightAvailable ?? 0, 2),
-            'harvesting_soon' => $expireSoon,
+            'expiring_soon' => $expiringSoon,
             'posted_this_month' => $postedThisMonth,
         ];
     }
@@ -95,7 +98,7 @@ class PlantingService
             ->groupBy('vegetable.category.name')
             ->map(fn($varieties) => $varieties->map(fn($variety) => [
                 'id' => $variety->id,
-                'name' => $variety->vegetable->name . ' ' . $variety->name,
+                'name' => $variety->vegetable->name . ' - ' . $variety->name,
                 'weeks_to_harvest' => $variety->weeks_to_harvest,
             ])->values()->toArray())
             ->toArray();
@@ -128,13 +131,13 @@ class PlantingService
         return $planting->fresh();
     }
 
-    public function markAsArchived(Planting $planting, ?float $actualWeight = null): void
+    public function markAsArchived(Planting $planting): void
     {
         if ($planting->isArchived()) {
             throw new \LogicException('Planting is already archived.');
         }
 
-        $planting->markAsArchived($actualWeight);
+        $planting->update(['status' => PlantingStatus::Archived]);
     }
 
     public function delete(Planting $planting): bool
