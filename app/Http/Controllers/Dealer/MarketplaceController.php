@@ -3,18 +3,15 @@
 namespace App\Http\Controllers\Dealer;
 
 use App\Http\Controllers\Controller;
-use App\Models\Announcement\FarmerOffering;
-use App\Services\Dealer\FarmerOfferingBrowseService;
+use App\Models\Product\Planting;
+use App\Services\Dealer\MarketplaceService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 use Inertia\Response;
 
-class FarmerOfferingBrowseController extends Controller
+class MarketplaceController extends Controller
 {
-    /**
-     * Browse farmer offerings marketplace
-     */
     public function index(Request $request): Response
     {
         $validated = $request->validate([
@@ -30,25 +27,22 @@ class FarmerOfferingBrowseController extends Controller
             
             // Deferred (load after page renders)
             'offerings' => Inertia::defer(fn() => 
-                FarmerOfferingBrowseService::paginated($validated)
+                MarketplaceService::paginated($validated)
             ),
             
             'filterOptions' => Inertia::defer(fn() => [
-                'categories' => FarmerOfferingBrowseService::categoryOptions(),
-                'municipalities' => FarmerOfferingBrowseService::municipalityOptions(),
+                'categories' => MarketplaceService::categoryOptions(),
+                'municipalities' => MarketplaceService::municipalityOptions(),
             ]),
         ]);
     }
 
-    /**
-     * View single farmer offering details
-     */
-    public function show(FarmerOffering $farmerOffering): Response
+    public function show(Planting $planting): Response
     {
-        Gate::authorize('view', $farmerOffering);
+        Gate::authorize('view', $planting);
 
         return Inertia::render('dealer/marketplace/Show', [
-            'offering' => FarmerOfferingBrowseService::detailed($farmerOffering),
+            'offering' => MarketplaceService::detailed($planting),
         ]);
     }
 }
