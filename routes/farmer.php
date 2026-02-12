@@ -17,12 +17,8 @@ Route::middleware(['auth', 'verified', 'farmer'])->prefix('farmer')->name('farme
             ->name('update');
         Route::delete('/{planting}', [PlantingController::class, 'destroy'])
             ->name('destroy');
-        
-        // Custom actions
-        Route::post('/{planting}/harvest', [PlantingController::class, 'harvest'])
-            ->name('harvest');
-        Route::post('/{planting}/cancel', [PlantingController::class, 'cancel'])
-            ->name('cancel');
+        Route::post('/{planting}/archive', [PlantingController::class, 'archive'])
+            ->name('archive');
     });
 
     // Farmer Offerings (Manage own offerings)
