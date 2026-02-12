@@ -12,8 +12,8 @@ class PlantingPolicy
      */
     public function view(User $user, Planting $planting): bool
     {
-        // Check if user's farmer profile owns this planting
-        return $user->farmerProfile?->id === $planting->farmer_id;
+        return $user->farmerProfile?->id === $planting->farmer_id ||
+        $user->hasRole('dealer') || $user->hasRole('admin');
     }
 
     /**
