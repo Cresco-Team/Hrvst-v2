@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { ref, computed } from 'vue'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { ChevronLeft, ChevronRight, Search } from 'lucide-vue-next'
-import PlantingCard from '../cards/PlantingCard.vue'
 import type { PaginatedPlantings, Planting } from '@/types/farmer/garden'
+import PlantingCard from '@/components/farmer/cards/PlantingCard.vue'
 
 const props = defineProps<{
     plantings: PaginatedPlantings
@@ -20,6 +20,7 @@ const emit = defineEmits<{
     'search': [query: string]
 }>()
 
+const localSearchQuery = ref(props.searchQuery ?? '')
 const plantingsData = computed(() => props.plantings?.data ?? [])
 const hasPrevPage = computed(() => props.plantings && props.plantings.current_page > 1)
 const hasNextPage = computed(() => props.plantings && props.plantings.current_page < props.plantings.last_page)
@@ -39,6 +40,7 @@ let searchTimeout: ReturnType<typeof setTimeout> | null = null
 
 function handleSearchInput(event: Event) {
     const query = (event.target as HTMLInputElement).value
+    localSearchQuery.value = query
 
     if (searchTimeout) clearTimeout(searchTimeout)
 
@@ -50,6 +52,20 @@ function handleSearchInput(event: Event) {
 
 <template>
     <div class="flex flex-col gap-6">
+        <!-- Search Bar -->
+        <div class="flex items-center gap-3">
+            <div class="relative flex-1 max-w-sm">
+                <Search class="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                    :value="localSearchQuery"
+                    placeholder="Search plantings..."
+                    class="pl-10"
+                    @input="handleSearchInput"
+                />
+            </div>
+        </div>
+
+        <!-- Plantings Grid -->
         <div 
             v-if="plantingsData.length > 0"
             class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"

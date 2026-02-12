@@ -40,9 +40,10 @@ class PlantingService
                 return [
                     'id' => $planting->id,
                     'variety' => [
+                        'id' => $planting->variety->id,
                         'name' => $planting->variety->vegetable->name . ' ' . $planting->variety->name,
                         'category' => $planting->variety->vegetable->category->name,
-                        'image_url' => $planting->variety->image_url,
+                        'image_path' => $planting->variety->image_url,
                     ],
                     'image_url' => $planting->image_url,
                     'weight_kg' => (float) $planting->weight_kg,

@@ -147,6 +147,18 @@ function handlePageChange(page: number) {
         only: ['plantings', 'filters'],
     })
 }
+
+function handleSearch(query: string) {
+    router.visit(farmer.garden.index().url, {
+        data: {
+            search: query || undefined,
+            status: props.filters.status || undefined,
+            page: 1,
+        },
+        preserveScroll: true,
+        only: ['plantings', 'filters'],
+    })
+}
 </script>
 
 <template>
@@ -207,7 +219,7 @@ function handlePageChange(page: number) {
             <!-- Status Filter Tabs -->
             <div class="rounded-xl border-2 bg-card p-1 md:w-1/3">
                 <Tabs :model-value="activeTab" @update:model-value="(v) => handleTabChange(String(v))">
-                    <TabsList class="w-full grid-cols-3">
+                    <TabsList class="w-full grid-cols-2">
                         <TabsTrigger
                             v-for="tab in statusTabs"
                             :key="tab.value"
@@ -229,6 +241,7 @@ function handlePageChange(page: number) {
                 @open-archive="openArchive"
                 @open-delete="openDelete"
                 @page-change="handlePageChange"
+                @search="handleSearch"
             />
             
             <!-- Loading Skeleton -->
