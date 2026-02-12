@@ -1,10 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { Head, router } from '@inertiajs/vue3'
-import AppShell from '@/components/AppShell.vue'
-import AppHeader from '@/components/AppHeader.vue'
-import AppContent from '@/components/AppContent.vue'
-import PlantingSummaryCard from '@/components/features/farmer/cards/PlantingSummaryCard.vue'
 import PlantingGrid from '@/components/features/farmer/grids/PlantingGrid.vue'
 import PlantingForm from '@/components/features/farmer/forms/PlantingForm.vue'
 import HarvestPlantingDialog from '@/components/features/farmer/dialogs/HarvestPlantingDialog.vue'
