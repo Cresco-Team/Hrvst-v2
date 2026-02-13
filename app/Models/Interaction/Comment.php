@@ -20,11 +20,13 @@ class Comment extends Model
 
     /* ---------- relationships ---------- */
 
+    // User
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
+    // Marketplace
     public function post(): BelongsTo
     {
         return $this->belongsTo(Post::class);
