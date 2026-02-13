@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { computed } from 'vue'
 import type { ColumnDef } from '@tanstack/vue-table'
 import DataTable from '@/components/shared/tables/DataTable.vue'
 import { Badge } from '@/components/ui/badge'
@@ -12,38 +11,7 @@ import {
     TooltipTrigger,
 } from '@/components/ui/tooltip'
 import { Pencil, Trash2, Plus, Clock } from 'lucide-vue-next'
-
-/* -- types -- */
-interface Variety {
-    id: number
-    vegetable_id: number
-    name: string
-    image_path: string
-    weeks_to_harvest: number
-    vegetable: {
-        id: number
-        name: string
-        category: {
-            id: number
-            name: string
-        }
-    }
-    latest_price: {
-        price_min: string
-        price_max: string
-    } | null
-    price_updated_human?: string
-    price_updated_date?: string
-    price_freshness?: 'fresh' | 'recent' | 'okay' | 'aging' | 'stale'
-}
-
-interface PaginatedData {
-    data: Variety[]
-    current_page: number
-    last_page: number
-    per_page: number
-    total: number
-}
+import { PaginatedData, Variety } from '@/types/admin/vegetable-varieties'
 
 /* -- props / emits -- */
 defineProps<{
@@ -107,7 +75,7 @@ const columns: ColumnDef<Variety>[] = [
         <template #cell-image="{ row }">
             <Avatar class="size-12 rounded-md">
                 <AvatarImage 
-                    :src="row.image_path" 
+                    :src="row.image_url" 
                     :alt="row.name"
                     class="object-cover"
                 />
@@ -121,7 +89,7 @@ const columns: ColumnDef<Variety>[] = [
         <template #cell-name="{ row }">
             <div class="flex flex-col gap-0.5">
                 <span class="font-medium">
-                    {{ row.vegetable.name }} {{ row.name }}
+                    {{ row.vegetable.name }}: {{ row.name }}
                 </span>
                 <span class="text-xs text-muted-foreground">
                     {{ row.vegetable.category.name }}
@@ -145,22 +113,20 @@ const columns: ColumnDef<Variety>[] = [
                                 <div 
                                     class="size-2 rounded-full cursor-help"
                                     :class="{
-                                        'bg-green-500': row.price_freshness === 'fresh',
-                                        'bg-blue-500': row.price_freshness === 'recent',
-                                        'bg-yellow-500': row.price_freshness === 'okay',
-                                        'bg-orange-400': row.price_freshness === 'aging',
-                                        'bg-orange-600': row.price_freshness === 'stale',
+                                        'bg-amber-400': row.price_freshness === 'recent',
+                                        'bg-green-400': row.price_freshness === 'stable',
+                                        'bg-sky-500': row.price_freshness === 'very stable',
+                                        'bg-gray-500' : row.price_freshness === 'stale',
                                     }"
                                 />
                             </TooltipTrigger>
                             <TooltipContent>
                                 <p class="text-xs">
                                     {{ 
-                                        row.price_freshness === 'fresh' ? '0-3 days old - Very fresh' :
-                                        row.price_freshness === 'recent' ? '4-7 days old - Fresh' :
-                                        row.price_freshness === 'okay' ? '8-14 days old - Good' :
-                                        row.price_freshness === 'aging' ? '15-30 days old - Getting old' :
-                                        '30+ days old - Needs update'
+                                        row.price_freshness === 'recent' ? '0-7 days old - Recent' :
+                                        row.price_freshness === 'stable' ? '1-4 weeks old - Stable' :
+                                        row.price_freshness === 'very stable' ? '1-3 months old - Very Stable' :
+                                        '90+ days old - Needs updated'
                                     }}
                                 </p>
                             </TooltipContent>

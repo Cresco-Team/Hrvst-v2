@@ -1,11 +1,10 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, computed } from 'vue'
-import { Head, router, usePage } from '@inertiajs/vue3'
+import { Head, router } from '@inertiajs/vue3'
 import { useFlash } from '@/composables/useFlash'
 import AppLayout from '@/layouts/AppLayout.vue'
 import admin from '@/routes/admin'
 import type { BreadcrumbItem } from '@/types'
-import VarietySummaryCards from '@/components/features/admin/cards/VarietySummaryCard.vue'
 import VarietyTable from '@/components/features/admin/tables/VarietyTable.vue'
 import VarietyForm from '@/components/features/admin/forms/VarietyForm.vue'
 import VarietyDeleteConfirm from '@/components/features/admin/dialogs/VarietyDeleteConfirm.vue'
@@ -14,63 +13,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import Heading from '@/components/Heading.vue'
 import LargeCard from '@/components/shared/cards/LargeCard.vue'
 import { AlertTriangle, Leaf, TrendingUp } from 'lucide-vue-next'
-
-interface Variety {
-    id: number
-    vegetable_id: number
-    name: string
-    image_path: string
-    image_url?: string
-    weeks_to_harvest: number
-    vegetable: {
-        id: number
-        name: string
-        category: {
-            id: number
-            name: string
-        }
-    }
-    latest_price: {
-        price_min: string
-        price_max: string
-    } | null
-    price_updated_human?: string
-    price_updated_date?: string
-    price_freshness?: 'fresh' | 'recent' | 'okay' | 'aging' | 'stale'
-}
-
-interface Summary {
-    total_varieties: number
-    total_vegetables: number
-    average_weeks_to_harvest: number
-    price_stats: {
-        updated_week: number
-        updated_month: number
-        stale: number
-        no_price: number
-    }
-}
-
-interface VegetableOptions {
-    [categoryName: string]: {
-        [vegetableId: number]: string
-    }
-}
-
-interface Props {
-    varieties?: {
-        data: Variety[]
-        current_page: number
-        last_page: number
-        per_page: number
-        total: number
-    }
-    summary?: Summary
-    vegetableOptions?: VegetableOptions
-    filters: {
-        price_filter: string | null
-    }
-}
+import { Props, Variety } from '@/types/admin/vegetable-varieties'
 
 const props = withDefaults(defineProps<Props>(), {
     varieties: undefined,
