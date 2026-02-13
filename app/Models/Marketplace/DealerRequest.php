@@ -29,11 +29,9 @@ class DealerRequest extends Model
     ];
 
     protected $casts = [
+        'transaction_date' => 'date',
         'price_flag' => DealerPriceFlag::class,
         'status' => DealerRequestStatus::class,
-        'transaction_date' => 'date',
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
     ];
 
     /* ---------- relationships ---------- */

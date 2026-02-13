@@ -30,8 +30,6 @@ class FarmerOffering extends Model
         'expiration_date' => 'date',
         'price_flag' => FarmerPriceFlag::class,
         'status' => FarmerOfferingStatus::class,
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
     ];
 
     /* ---------- relationships ---------- */
