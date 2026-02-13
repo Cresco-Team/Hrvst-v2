@@ -42,8 +42,8 @@ class Post extends Model
         return $this->hasMany(Comment::class);
     }
 
-    public function flags(): MorphMany
+    public function flags(): HasMany
     {
-        return $this->morphMany(PostFlag::class, 'flaggable');
+        return $this->hasMany(PostFlag::class);
     }
 }
