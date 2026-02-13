@@ -17,13 +17,13 @@ class DealerSeeder extends Seeder
     {
         $dealerRole = Role::firstOrCreate(['name' => 'dealer']);
 
-        $dealer = User::create([
-            'name' => 'Dealer John',
+        $dealer = User::firstOrCreate([
             'email' => 'dealer@hrvst.com',
+            'phone_number' => '09171234567'
+        ], [
+            'name' => 'Dealer John',
             'email_verified_at' => now(),
             'password' => Hash::make('password'),
-            'phone_number' => '09171234567',
-            'user_image' => null,
         ]);
 
         $dealer->roles()->attach($dealerRole);
@@ -31,6 +31,7 @@ class DealerSeeder extends Seeder
         // Create approved dealer profile
         DealerProfile::create([
             'user_id' => $dealer->id,
+        ], [
             'is_approved' => true,
             'document_image' => null,
         ]);
