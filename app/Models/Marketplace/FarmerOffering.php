@@ -1,7 +1,9 @@
 <?php
 
-namespace App\Models\Announcement;
+namespace App\Models\Marketplace;
 
+use App\FarmerOfferingStatus;
+use App\Models\Marketplace\Post;
 use App\Models\Profiles\FarmerProfile;
 use App\Models\Product\Variety;
 use Carbon\Carbon;
@@ -9,25 +11,25 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 
 class FarmerOffering extends Model
 {
     protected $fillable = [
         'farmer_id',
         'variety_id',
-        'image_path',
-        'quantity_kg',
-        'price_asking',
+        'weight_kg',
+        'asking_price',
         'expiration_date',
-        'status',
+        'image_path',
+        'status'
     ];
 
     protected $casts = [
-        'quantity_kg' => 'decimal:2',
-        'price_asking' => 'decimal:2',
         'expiration_date' => 'date',
+        'status' => FarmerOfferingStatus::class,
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
     /* ---------- relationships ---------- */
@@ -42,19 +44,9 @@ class FarmerOffering extends Model
         return $this->belongsTo(Variety::class);
     }
 
-    public function comments(): HasMany
+    public function post(): MorphOne
     {
-        return $this->hasMany(AnnouncementComment::class);
-    }
-
-    public function reactions(): MorphMany
-    {
-        return $this->morphMany(AnnouncementReaction::class, 'reactionable');
-    }
-
-    public function flags(): MorphMany
-    {
-        return $this->morphMany(AnnouncementFlag::class, 'flaggable');
+        return $this->morphOne(Post::class, 'postable');
     }
 
     /* ---------- scopes ---------- */
