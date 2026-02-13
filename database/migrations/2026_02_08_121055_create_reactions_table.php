@@ -8,24 +8,24 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('announcement_reactions', function (Blueprint $table) {
+        Schema::create('reactions', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->morphs('reactionable'); // reactionable_id, reactionable_type
+            $table->morphs('reactable'); // reactionable_id, reactionable_type
 
             // For dealer_requests: 'thumbs_up' or 'thumbs_down'
             // For farmer_offerings: emoji string like '👍', '❤️', '🔥', etc.
-            $table->string('reaction_type', 20);
+            $table->string('type', 20)->default('like');
 
             $table->timestamps();
 
-            $table->unique(['user_id', 'reactionable_id', 'reactionable_type'], 'unique_user_reaction');
-            $table->index(['reactionable_id', 'reactionable_type']);
+            $table->unique(['user_id', 'reactable_id', 'reactionable_type'], 'unique_user_reaction');
+            $table->index(['reactionable_id', 'reactable_type'], 'user_reaction_unique');
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('announcement_reactions');
+        Schema::dropIfExists('reactions');
     }
 };
