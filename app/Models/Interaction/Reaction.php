@@ -2,6 +2,7 @@
 
 namespace App\Models\Interaction;
 
+use App\Models\Marketplace\Post;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -11,21 +12,22 @@ class Reaction extends Model
 {
     protected $fillable = [
         'user_id',
-        'reactable_id',
-        'reactable_type',
+        'post_id',
         'type',
     ];
 
     /* ---------- relationships ---------- */
 
+    // User
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    public function reactable(): MorphTo
-    {   // Link to whatever was reacted to (Post or Comment)
-        return $this->morphTo();
+    // Marketplace
+    public function reactable(): BelongsTo
+    {
+        return $this->belongsTo(Post::class);
     }
 
     /* ---------- accessors ---------- */
