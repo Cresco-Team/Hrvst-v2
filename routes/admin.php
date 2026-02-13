@@ -14,7 +14,7 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
         ->name('dashboard');
 
     // Vegetables Routes
-    Route::prefix('vegetable-varieties')->name('vegetable_varieties.')->group(function () {
+    Route::prefix('vegetables-varieties')->name('vegetables_varieties.')->group(function () {
         Route::get('/', [VarietyController::class, 'index'])->name('index');
         Route::post('/', [VarietyController::class, 'store'])->name('store');
         Route::put('/{variety}', [VarietyController::class, 'update'])->name('update');
