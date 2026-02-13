@@ -27,9 +27,12 @@ class FarmerProfile extends Model
         'farm_image',
     ];
 
-    protected $casts = [
-        'is_approved' => 'boolean',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'is_approved' => 'boolean',
+        ];
+    }
 
     /* ---------- relations ---------- */
 
