@@ -7,7 +7,6 @@ use App\Models\User;
 use App\PostFlagStatus;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class PostFlag extends Model
 {
@@ -28,11 +27,13 @@ class PostFlag extends Model
 
     /* ---------- relationships ---------- */
 
+    // User
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
+    // Marketplace
     public function post(): BelongsTo
     {
         return $this->belongsTo(Post::class);
