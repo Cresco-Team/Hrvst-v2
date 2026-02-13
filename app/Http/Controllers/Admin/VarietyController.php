@@ -22,19 +22,14 @@ class VarietyController extends Controller
     public function index(Request $request)
     {
         return Inertia::render('admin/vegetables-varieties/Index', [
-            // These load immediately (synchronous)
+            'summary' => Inertia::defer(fn () => VarietyService::summary()),
             'filters' => [
                 'price_filter' => $request->query('price_filter', null),
             ],
-            
-            // These load after page renders (deferred/lazy)
             'varieties' => Inertia::defer(fn () => VarietyService::paginated(
                 perPage: 20,
                 priceFilter: $request->query('price_filter', null)
             )),
-            
-            'summary' => Inertia::defer(fn () => VarietyService::summary()),
-            
             'vegetableOptions' => Inertia::defer(fn () => VarietyService::vegetableOptions()),
         ]);
     }
