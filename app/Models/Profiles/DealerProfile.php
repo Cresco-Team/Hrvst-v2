@@ -2,6 +2,7 @@
 
 namespace App\Models\Profiles;
 
+use App\Models\Announcement\DealerRequest;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -36,6 +37,6 @@ class DealerProfile extends Model
     // Marketplace
     public function requests(): HasMany
     {
-        return $this->hasMany(\App\Models\Announcement\DealerRequest::class, 'dealer_id');
+        return $this->hasMany(DealerRequest::class, 'dealer_id');
     }
 }
