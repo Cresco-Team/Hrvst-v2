@@ -30,6 +30,8 @@ class Planting extends Model
     protected $casts = [
         'expiration_date' => 'date',
         'status' => PlantingStatus::class,
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
     /* ---------- relations ---------- */
@@ -44,9 +46,9 @@ class Planting extends Model
         return $this->belongsTo(Variety::class);
     }
 
-    public function comments(): HasMany
+    public function comments(): MorphMany
     {
-        return $this->hasMany(AnnouncementComment::class);
+        return $this->morphMany(AnnouncementComment::class, 'commentable');
     }
 
     public function reactions(): MorphMany
