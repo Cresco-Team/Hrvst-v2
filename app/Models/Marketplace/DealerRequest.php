@@ -2,6 +2,9 @@
 
 namespace App\Models\Announcement;
 
+use App\DealerPriceFlag;
+use App\DealerRequestStatus;
+use App\Models\Marketplace\Post;
 use App\Models\Profiles\DealerProfile;
 use App\Models\Product\Variety;
 use Carbon\Carbon;
@@ -10,18 +13,27 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 
 class DealerRequest extends Model
 {
     protected $fillable = [
         'dealer_id',
-        'transaction_date',
+        'variety_id',
+        'quantity_kg',
+        'price_offered',
+        'price_flag',
         'status',
+        'transaction_date',
+        
     ];
 
     protected $casts = [
+        'price_flag' => DealerPriceFlag::class,
+        'status' => DealerRequestStatus::class,
         'transaction_date' => 'date',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
     /* ---------- relationships ---------- */
@@ -31,19 +43,14 @@ class DealerRequest extends Model
         return $this->belongsTo(DealerProfile::class, 'dealer_id');
     }
 
-    public function items(): HasMany
+    public function variety(): BelongsTo
     {
-        return $this->hasMany(DealerRequestItem::class);
+        return $this->belongsTo(Variety::class);
     }
 
-    public function reactions(): MorphMany
+    public function post(): MorphOne
     {
-        return $this->morphMany(AnnouncementReaction::class, 'reactionable');
-    }
-
-    public function flags(): MorphMany
-    {
-        return $this->morphMany(AnnouncementFlag::class, 'flaggable');
+        return $this->morphOne(Post::class, 'postable');
     }
 
     /* ---------- scopes ---------- */
