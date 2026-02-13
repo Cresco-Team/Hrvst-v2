@@ -2,14 +2,12 @@
 
 namespace App\Models\Product;
 
-use App\Models\Announcement\DealerRequestItem;
-use App\Models\Announcement\FarmerOffering;
-use App\Models\Profiles\FarmerProfile;
+use App\Models\Marketplace\DealerRequest;
+use App\Models\Marketplace\FarmerOffering;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
@@ -24,20 +22,9 @@ class Variety extends Model
         'weeks_to_harvest',
     ];
 
+    protected $appends = ['image_url'];
+
     /* ---------- relations ---------- */
-
-    public function farmers(): BelongsToMany
-    {
-        return $this->belongsTo(FarmerProfile::class, 'plantings')
-            ->using(Planting::class)
-            ->withPivot(['weight_kg', 'date_planted', 'date_harvested'])
-            ->withTimestamps();
-    }
-
-    public function plantings(): HasMany
-    {
-        return $this->hasMany(Planting::class);
-    }
 
     public function vegetable(): BelongsTo
     {
@@ -54,14 +41,14 @@ class Variety extends Model
         return $this->hasOne(PriceHistory::class)->latest('recorded_at');
     }
 
-    public function dealerRequestItems(): HasMany
-    {
-        return $this->hasMany(DealerRequestItem::class);
-    }
-
     public function offerings(): HasMany
     {
         return $this->hasMany(FarmerOffering::class);
+    }
+
+    public function requests(): HasMany
+    {
+        return $this->hasMany(DealerRequest::class);
     }
 
     /* ---------- accessors ---------- */
