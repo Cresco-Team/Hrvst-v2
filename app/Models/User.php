@@ -2,6 +2,10 @@
 
 namespace App\Models;
 
+use App\Models\Interaction\Comment;
+use App\Models\Interaction\PostFlag;
+use App\Models\Interaction\Reaction;
+use App\Models\Marketplace\Post;
 use App\Models\Messaging\Conversation;
 use App\Models\Messaging\ConversationParticipant;
 use App\Models\Messaging\Message;
@@ -74,19 +78,24 @@ class User extends Authenticatable
         return $this->hasMany(Message::class, 'sender_id');
     }
 
-    public function announcementReactions(): HasMany
+    public function posts(): HasMany
     {
-        return $this->hasMany(\App\Models\Announcement\AnnouncementReaction::class);
+        return $this->hasMany(Post::class);
     }
 
-    public function announcementComments(): HasMany
+    public function comments(): HasMany
     {
-        return $this->hasMany(\App\Models\Announcement\AnnouncementComment::class);
+        return $this->hasMany(Comment::class);
     }
 
-    public function announcementFlags(): HasMany
+    public function reactions(): HasMany
     {
-        return $this->hasMany(\App\Models\Announcement\AnnouncementFlag::class);
+        return $this->hasMany(Reaction::class);
+    }
+
+    public function postFlags(): HasMany
+    {
+        return $this->hasMany(PostFlag::class);
     }
 
     /* ---------- methods ---------- */
