@@ -3,6 +3,7 @@
 namespace App\Models\Marketplace;
 
 use App\FarmerOfferingStatus;
+use App\FarmerPriceFlag;
 use App\Models\Marketplace\Post;
 use App\Models\Profiles\FarmerProfile;
 use App\Models\Product\Variety;
@@ -27,6 +28,7 @@ class FarmerOffering extends Model
 
     protected $casts = [
         'expiration_date' => 'date',
+        'price_flag' => FarmerPriceFlag::class,
         'status' => FarmerOfferingStatus::class,
         'created_at' => 'datetime',
         'updated_at' => 'datetime',

@@ -18,6 +18,7 @@ return new class extends Migration
             $table->date('expiration_date')->nullable();
 
             $table->string('image_path')->nullable();
+            $table->enum('price_flag', ['lean', 'fair', 'high']);
             $table->enum('status', ['available', 'archived'])->default('available');
             $table->timestamps();
 
