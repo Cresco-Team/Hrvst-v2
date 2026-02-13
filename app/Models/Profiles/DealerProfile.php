@@ -18,9 +18,12 @@ class DealerProfile extends Model
         'document_image',
     ];
 
-    protected $casts = [
-        'is_approved' => 'boolean',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'is_approved' => 'boolean',
+        ];
+    }
 
     /* ---------- relations ---------- */
 
