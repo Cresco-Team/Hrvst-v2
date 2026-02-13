@@ -29,7 +29,7 @@ class User extends Authenticatable
         'email',
         'password',
         'phone_number',
-        'user_image',
+        'image_path',
     ];
 
     protected $hidden = [
@@ -50,6 +50,7 @@ class User extends Authenticatable
 
     /* ---------- relations ---------- */
 
+    // Profiles
     public function roles(): BelongsToMany
     {
         return $this->belongsToMany(Role::class);
@@ -65,19 +66,7 @@ class User extends Authenticatable
         return $this->hasOne(DealerProfile::class);
     }
 
-    public function conversations(): BelongsToMany
-    {
-        return $this->belongsToMany(Conversation::class, 'conversation_participants')
-            ->using(ConversationParticipant::class)
-            ->withPivot(['last_read_at'])
-            ->withTimestamps();
-    }
-
-    public function messages(): HasMany
-    {
-        return $this->hasMany(Message::class, 'sender_id');
-    }
-
+    // Marketplace
     public function posts(): HasMany
     {
         return $this->hasMany(Post::class);
@@ -96,6 +85,20 @@ class User extends Authenticatable
     public function postFlags(): HasMany
     {
         return $this->hasMany(PostFlag::class);
+    }
+
+    // Conversation
+    public function conversations(): BelongsToMany
+    {
+        return $this->belongsToMany(Conversation::class, 'conversation_participants')
+            ->using(ConversationParticipant::class)
+            ->withPivot(['last_read_at'])
+            ->withTimestamps();
+    }
+
+    public function messages(): HasMany
+    {
+        return $this->hasMany(Message::class, 'sender_id');
     }
 
     /* ---------- methods ---------- */
