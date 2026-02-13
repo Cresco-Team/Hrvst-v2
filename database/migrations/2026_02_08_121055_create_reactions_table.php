@@ -11,16 +11,14 @@ return new class extends Migration
         Schema::create('reactions', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->morphs('reactable'); // reactionable_id, reactionable_type
+            $table->foreignId('post_id')->constrained()->cascadeOnDelete();
 
-            // For dealer_requests: 'thumbs_up' or 'thumbs_down'
-            // For farmer_offerings: emoji string like '👍', '❤️', '🔥', etc.
             $table->string('type', 20)->default('like');
 
             $table->timestamps();
 
-            $table->unique(['user_id', 'reactable_id', 'reactionable_type'], 'unique_user_reaction');
-            $table->index(['reactionable_id', 'reactable_type'], 'user_reaction_unique');
+            $table->index(['psot_id', 'created_at']);
+            $table->index('user_id');
         });
     }
 
