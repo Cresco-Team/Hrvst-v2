@@ -24,7 +24,6 @@ class DealerRequest extends Model
         'price_flag',
         'status',
         'transaction_date',
-        
     ];
 
     protected $casts = [
@@ -111,6 +110,18 @@ class DealerRequest extends Model
                 'thumbs_up' => $this->reactions->where('reaction_type', 'thumbs_up')->count(),
                 'thumbs_down' => $this->reactions->where('reaction_type', 'thumbs_down')->count(),
             ]
+        );
+    }
+
+    public function daysUntilTransaction(): Attribute
+    {
+        return Attribute::make(
+            get: function () {
+                if ($this->status !== DealerRequestStatus::Open) {
+                    return null;
+                }
+                return now()->diffInDays($this->transaction_date, false);
+            }
         );
     }
 }
