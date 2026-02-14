@@ -12,11 +12,7 @@ class DashboardController extends Controller
     public function __invoke(): Response
     {
         return Inertia::render('admin/Dashboard', [
-            // Immediate load - critical KPIs
-            'kpis' => DashboardService::getKPIs(),
-            
-            // Deferred load - chart data (heavy aggregations)
-            'charts' => Inertia::defer(fn () => DashboardService::getChartData()),
+            'kpis' => Inertia::defer(fn () => DashboardService::getKPIs()),
         ]);
     }
 }
