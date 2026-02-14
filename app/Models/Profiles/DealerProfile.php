@@ -2,7 +2,7 @@
 
 namespace App\Models\Profiles;
 
-use App\Models\Announcement\DealerRequest;
+use App\Models\Marketplace\DealerRequest;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
