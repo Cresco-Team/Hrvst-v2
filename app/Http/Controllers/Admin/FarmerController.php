@@ -18,24 +18,19 @@ class FarmerController extends Controller
         private FarmerMapService $farmerMapService
     ) {}
 
-    /**
-     * Display farmers index with view toggle support
-     * Supports both list and map views via ?view={list|map}
-     */
     public function index(Request $request): Response
     {
         $view = $request->query('view', 'list'); // Default to 'list'
 
         return Inertia::render('admin/farmers/Index', [
-            // Always loaded (synchronous)
             'view' => $view,
             'filters' => [
                 'municipalities' => $this->farmerMapService->getMunicipalityOptions(),
-                'plantings' => $this->farmerMapService->getPlantingOptions(),
+                'offerings' => $this->farmerMapService->getOfferingOptions(),
             ],
             'mapConfig' => [
                 'center' => [
-                    'lat' => 16.4137,  // La Trinidad, Benguet
+                    'lat' => 16.4137,
                     'lng' => 120.5896,
                 ],
                 'defaultZoom' => 13,
@@ -48,7 +43,6 @@ class FarmerController extends Controller
             
             'summary' => Inertia::defer(fn () => FarmerService::summary()),
             
-            // Pending farmers for approval (always loaded for badge count)
             'pendingFarmers' => FarmerService::pending(),
         ]);
     }
