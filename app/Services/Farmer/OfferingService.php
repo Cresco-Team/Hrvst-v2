@@ -2,14 +2,14 @@
 
 namespace App\Services\Farmer;
 
-use App\Models\Announcement\FarmerOffering;
+use App\Models\Marketplace\FarmerOffering;
 use App\Models\Product\Variety;
 use App\Services\Media\ImageUploadService;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 
-class FarmerOfferingService
+class OfferingService
 {
     public function __construct(
         private ImageUploadService $imageService
