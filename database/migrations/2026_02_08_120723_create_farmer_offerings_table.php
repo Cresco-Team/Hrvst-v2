@@ -13,17 +13,16 @@ return new class extends Migration
             $table->foreignId('farmer_id')->constrained('farmer_profiles')->cascadeOnDelete();
             $table->foreignId('variety_id')->constrained()->cascadeOnDelete();
 
-            $table->string('image_path');
-            $table->decimal('quantity_kg', 8, 2);
-            $table->decimal('price_asking', 8, 2);
-            $table->date('expiration_date');
+            $table->decimal('weight_kg', 8, 2);
+            $table->decimal('asking_price', 8, 2)->nullable();
+            $table->date('expiration_date')->nullable();
 
-            $table->enum('status', ['active', 'expired', 'archived'])->default('active');
-
+            $table->string('image_path')->nullable();
+            $table->enum('price_flag', ['lean', 'fair', 'high']);
+            $table->enum('status', ['available', 'archived'])->default('available');
             $table->timestamps();
 
-            $table->index(['status', 'expiration_date', 'variety_id']);
-            $table->index(['variety_id', 'status']);
+            $table->index(['farmer_id', 'status', 'expiration_date']);
         });
     }
 

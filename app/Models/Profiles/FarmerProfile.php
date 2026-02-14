@@ -5,7 +5,7 @@ namespace App\Models\Profiles;
 use App\Models\Address\Barangay;
 use App\Models\Address\Municipality;
 use App\Models\Address\Province;
-use App\Models\Product\Planting;
+use App\Models\Marketplace\FarmerOffering;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -21,25 +21,34 @@ class FarmerProfile extends Model
         'province_id',
         'municipality_id',
         'barangay_id',
-
         'is_approved',
-
         'latitude',
         'longitude',
         'farm_image',
     ];
 
-    protected $casts = [
-        'is_approved' => 'boolean',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'is_approved' => 'boolean',
+        ];
+    }
 
     /* ---------- relations ---------- */
 
+    // User
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
+    // Marketplace
+    public function offerings(): HasMany
+    {
+        return $this->hasMany(FarmerOffering::class, 'farmer_id');
+    }
+
+    // Address
     public function province(): BelongsTo
     {
         return $this->belongsTo(Province::class);
@@ -53,15 +62,5 @@ class FarmerProfile extends Model
     public function barangay(): BelongsTo
     {
         return $this->belongsTo(Barangay::class);
-    }
-
-    public function plantings(): HasMany
-    {
-        return $this->hasMany(Planting::class, 'farmer_id');
-    }
-
-    public function offerings(): HasMany
-    {
-        return $this->hasMany(\App\Models\Announcement\FarmerOffering::class, 'farmer_id');
     }
 }

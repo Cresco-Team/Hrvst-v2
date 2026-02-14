@@ -2,6 +2,10 @@
 
 namespace App\Models;
 
+use App\Models\Interaction\Comment;
+use App\Models\Interaction\PostFlag;
+use App\Models\Interaction\Reaction;
+use App\Models\Marketplace\Post;
 use App\Models\Messaging\Conversation;
 use App\Models\Messaging\ConversationParticipant;
 use App\Models\Messaging\Message;
@@ -25,7 +29,7 @@ class User extends Authenticatable
         'email',
         'password',
         'phone_number',
-        'user_image',
+        'image_path',
     ];
 
     protected $hidden = [
@@ -46,6 +50,7 @@ class User extends Authenticatable
 
     /* ---------- relations ---------- */
 
+    // Profiles
     public function roles(): BelongsToMany
     {
         return $this->belongsToMany(Role::class);
@@ -61,6 +66,28 @@ class User extends Authenticatable
         return $this->hasOne(DealerProfile::class);
     }
 
+    // Marketplace
+    public function posts(): HasMany
+    {
+        return $this->hasMany(Post::class);
+    }
+
+    public function comments(): HasMany
+    {
+        return $this->hasMany(Comment::class);
+    }
+
+    public function reactions(): HasMany
+    {
+        return $this->hasMany(Reaction::class);
+    }
+
+    public function postFlags(): HasMany
+    {
+        return $this->hasMany(PostFlag::class);
+    }
+
+    // Conversation
     public function conversations(): BelongsToMany
     {
         return $this->belongsToMany(Conversation::class, 'conversation_participants')
@@ -72,21 +99,6 @@ class User extends Authenticatable
     public function messages(): HasMany
     {
         return $this->hasMany(Message::class, 'sender_id');
-    }
-
-    public function announcementReactions(): HasMany
-    {
-        return $this->hasMany(\App\Models\Announcement\AnnouncementReaction::class);
-    }
-
-    public function announcementComments(): HasMany
-    {
-        return $this->hasMany(\App\Models\Announcement\AnnouncementComment::class);
-    }
-
-    public function announcementFlags(): HasMany
-    {
-        return $this->hasMany(\App\Models\Announcement\AnnouncementFlag::class);
     }
 
     /* ---------- methods ---------- */

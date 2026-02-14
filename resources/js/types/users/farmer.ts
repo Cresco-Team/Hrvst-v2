@@ -33,39 +33,5 @@ export interface Farmer {
     joined_at_human: string
 }
 
-export interface PendingFarmer {
-    id: number
-    user: User
-    location: Location
-    farm_image: string | null
-    submitted_at: string
-    submitted_at_human: string
-}
 
-export interface FarmerDetails {
-    id: number
-    user: User
-    location: Location
-    farm_image: string | null
-    active_plantings: Array<any>
-    statistics: {
-        total_active_plantings: number
-        total_weight: number
-        harvesting_soon: number
-    }
-    joined_at: string
-    joined_at_human: string
-}
 
-export interface MarkerData {
-    id: number
-    coordinates: Coordinates
-    farmer_name: string
-    municipality: string
-    active_plantings_count: number
-    plantings_summary: Array<{
-        vegetable: string
-        count: number
-        varieties: string[]
-    }>
-}

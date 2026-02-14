@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 use Inertia\Response;
 
-class FarmerOfferingController extends Controller
+class OfferingController extends Controller
 {
     public function __construct(
         private FarmerOfferingService $service

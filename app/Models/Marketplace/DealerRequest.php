@@ -1,7 +1,10 @@
 <?php
 
-namespace App\Models\Announcement;
+namespace App\Models\Marketplace;
 
+use App\DealerPriceFlag;
+use App\DealerRequestStatus;
+use App\Models\Marketplace\Post;
 use App\Models\Profiles\DealerProfile;
 use App\Models\Product\Variety;
 use Carbon\Carbon;
@@ -9,19 +12,24 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 
 class DealerRequest extends Model
 {
     protected $fillable = [
         'dealer_id',
-        'transaction_date',
+        'variety_id',
+        'quantity_kg',
+        'price_offered',
+        'price_flag',
         'status',
+        'transaction_date',
     ];
 
     protected $casts = [
         'transaction_date' => 'date',
+        'price_flag' => DealerPriceFlag::class,
+        'status' => DealerRequestStatus::class,
     ];
 
     /* ---------- relationships ---------- */
@@ -31,19 +39,14 @@ class DealerRequest extends Model
         return $this->belongsTo(DealerProfile::class, 'dealer_id');
     }
 
-    public function items(): HasMany
+    public function variety(): BelongsTo
     {
-        return $this->hasMany(DealerRequestItem::class);
+        return $this->belongsTo(Variety::class);
     }
 
-    public function reactions(): MorphMany
+    public function post(): MorphOne
     {
-        return $this->morphMany(AnnouncementReaction::class, 'reactionable');
-    }
-
-    public function flags(): MorphMany
-    {
-        return $this->morphMany(AnnouncementFlag::class, 'flaggable');
+        return $this->morphOne(Post::class, 'postable');
     }
 
     /* ---------- scopes ---------- */
@@ -107,6 +110,18 @@ class DealerRequest extends Model
                 'thumbs_up' => $this->reactions->where('reaction_type', 'thumbs_up')->count(),
                 'thumbs_down' => $this->reactions->where('reaction_type', 'thumbs_down')->count(),
             ]
+        );
+    }
+
+    public function daysUntilTransaction(): Attribute
+    {
+        return Attribute::make(
+            get: function () {
+                if ($this->status !== DealerRequestStatus::Open) {
+                    return null;
+                }
+                return now()->diffInDays($this->transaction_date, false);
+            }
         );
     }
 }

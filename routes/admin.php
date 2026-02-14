@@ -9,44 +9,41 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     
+    // Dashboard Route
     Route::get('/dashboard', DashboardController::class)
         ->name('dashboard');
 
-    Route::get('/vegetables-varieties', [VarietyController::class, 'index'])
-        ->name('vegetables_varieties.index');
-    Route::post('/vegetables-varieties', [VarietyController::class, 'store'])
-        ->name('vegetables_varieties.store');
-    Route::put('/vegetables-varieties/{variety}', [VarietyController::class, 'update'])
-        ->name('vegetables_varieties.update');
-    Route::delete('/vegetables-varieties/{variety}', [VarietyController::class, 'destroy'])
-        ->name('vegetables_varieties.destroy');
+    // Vegetables Routes
+    Route::prefix('vegetables-varieties')->name('vegetables_varieties.')->group(function () {
+        Route::get('/', [VarietyController::class, 'index'])->name('index');
+        Route::post('/', [VarietyController::class, 'store'])->name('store');
+        Route::put('/{variety}', [VarietyController::class, 'update'])->name('update');
+        Route::delete('/{variety}', [VarietyController::class, 'destroy'])->name('destroy');
+    });
 
-    // Farmer Routes
-    Route::get('/farmers', [FarmerController::class, 'index'])
-        ->name('farmers.index');
-    Route::get('/farmers/{farmer}', [FarmerController::class, 'show'])
-        ->name('farmers.show');
-    Route::delete('/farmers/{farmer}', [FarmerController::class, 'destroy'])
-        ->name('farmers.destroy');
-    
-    // Farmer API Routes (AJAX)
-    Route::get('/farmers/api/markers', [FarmerController::class, 'markers'])
-        ->name('farmers.api.markers');
-    Route::get('/farmers/api/{id}/details', [FarmerController::class, 'details'])
-        ->name('farmers.api.details');
-    
-    // Farmer Approval Routes
-    Route::post('/farmers/{id}/approve', [FarmerController::class, 'approve'])
-        ->name('farmers.approve');
-    Route::delete('/farmers/{id}/reject', [FarmerController::class, 'reject'])
-        ->name('farmers.reject');
+    // Farmers Routes
+    Route::prefix('farmers')->name('farmers.')->group(function () {
+        Route::get('/', [FarmerController::class, 'index'])->name('index');
+        Route::get('/{farmer}', [FarmerController::class, 'show'])->name('show');
+        Route::delete('{farmer}', [FarmerController::class, 'destroy'])->name('destroy');
 
-    Route::get('/dealers', [DealerController::class, 'index'])
-        ->name('dealers.index');
-    Route::get('/dealers/{dealer}', [DealerController::class, 'show'])
-        ->name('dealers.show');
-    Route::delete('/dealers/{dealer}', [DealerController::class, 'destroy'])
-        ->name('dealers.destroy');
+        // API Route (AJAX)
+        Route::prefix('api')->name('api.')->group(function() {
+            Route::get('/markers', [FarmerController::class, 'markers'])->name('markers');
+            Route::get('/{farmer}/details', [FarmerController::class, 'details'])->name('details');
+        });
+
+        // Pending Farmers
+        Route::post('/{farmer}/approve', [FarmerController::class, 'approve'])->name('approve');
+        Route::post('/{farmer}/reject', [FarmerController::class, 'approve'])->name('reject');
+    });
+    
+    // Dealers Route
+    Route::prefix('dealers')->name('dealers.')->group(function () {
+        Route::get('/', [DealerController::class, 'index'])->name('index');
+        Route::get('/{dealer}', [DealerController::class, 'show'])->name('show');
+        Route::delete('/{dealer}', [DealerController::class, 'destroy'])->name('destroy');
+    });
 
     // Content Moderation (Flags)
     Route::prefix('flags')->name('flags.')->group(function () {

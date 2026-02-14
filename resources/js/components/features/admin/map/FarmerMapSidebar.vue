@@ -7,22 +7,7 @@ import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { Spinner } from '@/components/ui/spinner'
 import { useInitials } from '@/composables/useInitials'
-import { FarmerDetails } from '@/types/users/farmer'
-
-interface Planting {
-    id: number
-    variety: {
-        id: number
-        name: string
-        category: string
-        image_path: string
-    }
-    weight_kg: string
-    date_planted: string
-    expected_harvest_date: string
-    days_until_harvest: number | null
-    status_badge: string
-}
+import { FarmerDetails } from '@/types/admin/farmers'
 
 const props = defineProps<{
     open: boolean
@@ -36,15 +21,6 @@ const emit = defineEmits<{
 
 const { getInitials } = useInitials()
 
-const getStatusColor = (status: string) => {
-    const colors: Record<string, string> = {
-        Growing: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
-        Overdue: 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400',
-        Harvested: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
-        Expired: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
-    }
-    return colors[status] || 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400'
-}
 </script>
 
 <template>
@@ -101,8 +77,8 @@ const getStatusColor = (status: string) => {
                 <div class="flex items-start gap-4">
                     <Avatar class="size-16 rounded-lg">
                         <AvatarImage 
-                            v-if="farmer.user.user_image"
-                            :src="farmer.user.user_image" 
+                            v-if="farmer.user.image_path"
+                            :src="farmer.user.image_path" 
                             :alt="farmer.user.name"
                         />
                         <AvatarFallback class="rounded-lg bg-primary/10 text-lg font-semibold text-primary">
@@ -151,7 +127,7 @@ const getStatusColor = (status: string) => {
                     <div class="rounded-lg border bg-card p-3 text-center">
                         <div class="flex items-center justify-center gap-1 text-2xl font-bold">
                             <Sprout class="size-5 text-primary" />
-                            {{ farmer.statistics.total_active_plantings }}
+                            {{ farmer.statistics.total_available_offerings }}
                         </div>
                         <p class="mt-1 text-xs text-muted-foreground">Active</p>
                     </div>
@@ -162,13 +138,6 @@ const getStatusColor = (status: string) => {
                         </div>
                         <p class="mt-1 text-xs text-muted-foreground">Total kg</p>
                     </div>
-                    <div class="rounded-lg border bg-card p-3 text-center">
-                        <div class="flex items-center justify-center gap-1 text-2xl font-bold text-orange-600 dark:text-orange-500">
-                            <Clock class="size-5" />
-                            {{ farmer.statistics.harvesting_soon }}
-                        </div>
-                        <p class="mt-1 text-xs text-muted-foreground">Soon</p>
-                    </div>
                 </div>
 
                 <Separator />
@@ -177,57 +146,40 @@ const getStatusColor = (status: string) => {
                 <div class="space-y-3">
                     <div class="flex items-center gap-2 text-sm font-medium">
                         <TrendingUp class="size-4 text-primary" />
-                        Active Plantings ({{ farmer.active_plantings.length }})
+                        Active Plantings ({{ farmer.available_offerings.length }})
                     </div>
 
-                    <div v-if="farmer.active_plantings.length === 0" class="rounded-lg border border-dashed p-6 text-center">
+                    <div v-if="farmer.available_offerings.length === 0" class="rounded-lg border border-dashed p-6 text-center">
                         <p class="text-sm text-muted-foreground">No active plantings</p>
                     </div>
 
                     <div v-else class="space-y-3">
                         <div
-                            v-for="planting in farmer.active_plantings"
-                            :key="planting.id"
+                            v-for="offering in farmer.available_offerings"
+                            :key="offering.id"
                             class="flex gap-3 rounded-lg border bg-card p-3 transition-colors hover:bg-accent"
                         >
                             <Avatar class="size-12 rounded-md shrink-0">
                                 <AvatarImage 
-                                    :src="planting.variety.image_path" 
-                                    :alt="planting.variety.name"
+                                    :src="offering.variety.image_path" 
+                                    :alt="offering.variety.name"
                                     class="object-cover"
                                 />
                                 <AvatarFallback class="rounded-md bg-primary/10 text-xs font-semibold text-primary">
-                                    {{ planting.variety.name.charAt(0) }}
+                                    {{ offering.variety.name.charAt(0) }}
                                 </AvatarFallback>
                             </Avatar>
                             <div class="flex flex-1 flex-col gap-1.5">
                                 <div class="flex items-start justify-between gap-2">
                                     <div>
-                                        <p class="text-sm font-medium">{{ planting.variety.name }}</p>
-                                        <p class="text-xs text-muted-foreground">{{ planting.variety.category }}</p>
+                                        <p class="text-sm font-medium">{{ offering.variety.name }}</p>
+                                        <p class="text-xs text-muted-foreground">{{ offering.variety.category }}</p>
                                     </div>
-                                    <Badge 
-                                        :class="getStatusColor(planting.status_badge)"
-                                        class="shrink-0 text-xs"
-                                    >
-                                        {{ planting.status_badge }}
-                                    </Badge>
                                 </div>
                                 <div class="space-y-0.5 text-xs text-muted-foreground">
-                                    <div>Weight: {{ planting.weight_kg }} kg</div>
-                                    <div>Planted: {{ planting.date_planted }}</div>
-                                    <div>Expected: {{ planting.expected_harvest_date }}</div>
-                                    <div v-if="planting.days_until_harvest !== null">
-                                        <span v-if="planting.days_until_harvest > 0">
-                                            {{ planting.days_until_harvest }} days until harvest
-                                        </span>
-                                        <span v-else-if="planting.days_until_harvest === 0">
-                                            Harvest today
-                                        </span>
-                                        <span v-else class="font-medium text-orange-600 dark:text-orange-400">
-                                            {{ Math.abs(planting.days_until_harvest) }} days overdue
-                                        </span>
-                                    </div>
+                                    <div>Weight: {{ offering.weight_kg }} kg</div>
+                                    <div>Planted: {{ offering.date_planted }}</div>
+                                    <div>Expected: {{ offering.expected_harvest_date }}</div>
                                 </div>
                             </div>
                         </div>

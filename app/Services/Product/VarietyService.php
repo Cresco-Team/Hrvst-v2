@@ -24,7 +24,6 @@ class VarietyService
             'latestPrice'
         ]);
 
-        // Apply price freshness filter
         if ($priceFilter) {
             $query->whereHas('latestPrice', function (Builder $q) use ($priceFilter) {
                 match ($priceFilter) {
@@ -39,22 +38,16 @@ class VarietyService
         return $query->orderBy('name')
             ->paginate($perPage)
             ->through(function ($variety) {
-                // Add image URL
-                $variety->image_url = app(ImageUploadService::class)->getImageUrl($variety->image_path);
+                $variety->price_updated_human = $variety->latestPrice->recorded_at->diffForHumans();
+                $variety->price_updated_date = $variety->latestPrice->recorded_at->format('M d, Y');
                 
-                if ($variety->latestPrice) {
-                    $variety->price_updated_human = $variety->latestPrice->recorded_at->diffForHumans();
-                    $variety->price_updated_date = $variety->latestPrice->recorded_at->format('M d, Y');
-                    
-                    $daysOld = $variety->latestPrice->recorded_at->diffInDays(now());
-                    $variety->price_freshness = match (true) {
-                        $daysOld <= 3 => 'fresh',
-                        $daysOld <= 7 => 'recent',
-                        $daysOld <= 14 => 'okay',
-                        $daysOld <= 30 => 'aging',
-                        default => 'stale',
-                    };
-                }
+                $daysOld = $variety->latestPrice->recorded_at->diffInDays(now());
+                $variety->price_freshness = match (true) {
+                    $daysOld <= 7 => 'recent',
+                    $daysOld <= 30 => 'stable',
+                    $daysOld <= 90 => 'very stable',
+                    default => 'stale',
+                };
                 return $variety;
             });
     }
@@ -159,7 +152,7 @@ class VarietyService
     public function delete(Variety $variety): bool
     {
         // Check for plantings
-        if ($variety->plantings()->exists()) {
+        if ($variety->offerings()->exists() || $variety->requests()->exists()) {
             return false;
         }
 
@@ -167,8 +160,6 @@ class VarietyService
         if ($variety->image_path) {
             $this->imageService->deleteVarietyImage($variety->image_path);
         }
-
-        // Delete variety (price history will cascade delete)
         $variety->delete();
 
         return true;

@@ -17,36 +17,7 @@ import {
     MessageSquare,
     Activity,
 } from 'lucide-vue-next'
-
-/* -- types -- */
-interface Dealer {
-    id: number
-    user: {
-        id: number
-        name: string
-        email: string
-        phone_number: string
-        user_image: string | null
-    }
-    activity: {
-        total_conversations: number
-        active_conversations: number
-        last_activity_at: string | null
-        last_activity_human: string | null
-        status: 'active' | 'moderate' | 'inactive'
-    }
-    document_image: string | null
-    joined_at: string
-    joined_at_human: string
-}
-
-interface PaginatedData {
-    data: Dealer[]
-    current_page: number
-    last_page: number
-    per_page: number
-    total: number
-}
+import { Dealer, PaginatedData } from '@/types/admin/dealers'
 
 /* -- props / emits -- */
 defineProps<{
@@ -67,27 +38,15 @@ const columns: ColumnDef<Dealer>[] = [
         enableSorting: true,
     },
     {
-        id: 'total_conversations',
-        header: 'Total Conversations',
-        accessorFn: (row) => row.activity.total_conversations,
+        id: 'open_requests_count',
+        header: 'Total Open Requests',
+        accessorFn: (row) => row.open_requests_count,
         enableSorting: true,
     },
     {
-        id: 'active_conversations',
-        header: 'Active Conversations',
-        accessorFn: (row) => row.activity.active_conversations,
-        enableSorting: true,
-    },
-    {
-        id: 'last_activity',
-        header: 'Last Activity',
-        accessorFn: (row) => row.activity.last_activity_at,
-        enableSorting: true,
-    },
-    {
-        id: 'status',
-        header: 'Status',
-        accessorFn: (row) => row.activity.status,
+        id: 'joined_at',
+        header: 'Joined',
+        accessorFn: (row) => row.joined_at,
         enableSorting: true,
     },
     {
@@ -96,25 +55,6 @@ const columns: ColumnDef<Dealer>[] = [
         enableSorting: false,
     },
 ]
-
-/* -- status badge helpers -- */
-function getStatusColor(status: string) {
-    const colors: Record<string, string> = {
-        active: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
-        moderate: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
-        inactive: 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400',
-    }
-    return colors[status] || 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400'
-}
-
-function getStatusLabel(status: string) {
-    const labels: Record<string, string> = {
-        active: 'Active',
-        moderate: 'Moderate',
-        inactive: 'Inactive',
-    }
-    return labels[status] || 'Unknown'
-}
 </script>
 
 <template>
@@ -131,8 +71,8 @@ function getStatusLabel(status: string) {
             <div class="flex items-center gap-3">
                 <Avatar class="size-10 rounded-md">
                     <AvatarImage 
-                        v-if="row.user.user_image"
-                        :src="row.user.user_image" 
+                        v-if="row.user.image_path"
+                        :src="row.user.image_path" 
                         :alt="row.user.name"
                         class="object-cover"
                     />
@@ -156,52 +96,30 @@ function getStatusLabel(status: string) {
             </div>
         </template>
 
-        <!-- Custom Cell: Total Conversations -->
-        <template #cell-total_conversations="{ row }">
+        <!-- Custom Cell: Open Requests -->
+        <template #cell-open_requests_count="{ row }">
             <div class="flex items-center gap-2">
                 <MessageSquare class="size-4 text-muted-foreground" />
                 <span class="font-mono font-medium">
-                    {{ row.activity.total_conversations }}
+                    {{ row.open_requests_count }}
                 </span>
             </div>
         </template>
 
-        <!-- Custom Cell: Active Conversations -->
-        <template #cell-active_conversations="{ row }">
-            <div class="flex items-center gap-2">
-                <Activity class="size-4 text-primary" />
-                <span class="font-mono font-medium">
-                    {{ row.activity.active_conversations }}
-                </span>
-                <span class="text-xs text-muted-foreground">(30d)</span>
-            </div>
-        </template>
-
-        <!-- Custom Cell: Last Activity -->
-        <template #cell-last_activity="{ row }">
-            <TooltipProvider v-if="row.activity.last_activity_human" :delay-duration="200">
+        <!-- Custom Cell: Joined -->
+        <template #cell-joined_at="{ row }">
+            <TooltipProvider v-if="row.joined_at" :delay-duration="200">
                 <Tooltip>
                     <TooltipTrigger as-child>
                         <div class="text-sm cursor-help">
-                            {{ row.activity.last_activity_human }}
+                            {{ row.joined_at_human }}
                         </div>
                     </TooltipTrigger>
                     <TooltipContent>
-                        <p class="text-xs">Last active: {{ row.activity.last_activity_at }}</p>
+                        <p class="text-xs">Joined on: {{ row.joined_at }}</p>
                     </TooltipContent>
                 </Tooltip>
             </TooltipProvider>
-            <span v-else class="text-sm text-muted-foreground">Never</span>
-        </template>
-
-        <!-- Custom Cell: Status -->
-        <template #cell-status="{ row }">
-            <Badge 
-                :class="getStatusColor(row.activity.status)"
-                class="text-xs"
-            >
-                {{ getStatusLabel(row.activity.status) }}
-            </Badge>
         </template>
 
         <!-- Custom Cell: Actions -->

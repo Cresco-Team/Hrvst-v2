@@ -18,16 +18,10 @@ import {
     Mail,
     Eye,
 } from 'lucide-vue-next'
-import { Farmer } from '@/types/users/farmer'
+import { Farmer, PaginatedData } from '@/types/admin/farmers'
 
 /* -- types -- */
-interface PaginatedData {
-    data: Farmer[]
-    current_page: number
-    last_page: number
-    per_page: number
-    total: number
-}
+
 
 /* -- props / emits -- */
 defineProps<{
@@ -42,11 +36,6 @@ defineEmits<{
 /* -- column definitions -- */
 const columns: ColumnDef<Farmer>[] = [
     {
-        id: 'expander',
-        header: () => null,
-        enableSorting: false,
-    },
-    {
         id: 'farmer',
         header: 'Farmer',
         accessorFn: (row) => row.user.name,
@@ -59,9 +48,9 @@ const columns: ColumnDef<Farmer>[] = [
         enableSorting: true,
     },
     {
-        id: 'active_plantings',
-        header: 'Active Plantings',
-        accessorFn: (row) => row.active_plantings_count,
+        id: 'available_plantings',
+        header: 'Available Vegetables',
+        accessorFn: (row) => row.available_offerings_count,
         enableSorting: true,
     },
     {
@@ -76,17 +65,6 @@ const columns: ColumnDef<Farmer>[] = [
         enableSorting: false,
     },
 ]
-
-/* -- status badge color helper -- */
-function getStatusColor(status: string) {
-    const colors: Record<string, string> = {
-        Growing: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
-        Overdue: 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400',
-        Harvested: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
-        Expired: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
-    }
-    return colors[status] || 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400'
-}
 </script>
 
 <template>
@@ -102,7 +80,7 @@ function getStatusColor(status: string) {
         <!-- Custom Cell: Expander -->
         <template #cell-expander="{ row, cell }">
             <button
-                v-if="row.active_plantings_count > 0"
+                v-if="row.available_offerings_count > 0"
                 @click="cell.row.getToggleExpandedHandler()()"
                 class="p-1 hover:bg-accent rounded transition-colors"
             >
@@ -122,8 +100,8 @@ function getStatusColor(status: string) {
             <div class="flex items-center gap-3">
                 <Avatar class="size-10 rounded-md">
                     <AvatarImage 
-                        v-if="row.user.user_image"
-                        :src="row.user.user_image" 
+                        v-if="row.user.image_path"
+                        :src="row.user.image_path" 
                         :alt="row.user.name"
                         class="object-cover"
                     />
@@ -163,7 +141,7 @@ function getStatusColor(status: string) {
         <!-- Custom Cell: Active Plantings -->
         <template #cell-active_plantings="{ row }">
             <Badge variant="secondary" class="font-mono">
-                {{ row.active_plantings_count }} active
+                {{ row.available_offerings_count }} active
             </Badge>
         </template>
 
@@ -211,51 +189,23 @@ function getStatusColor(status: string) {
             <tr class="bg-muted/20">
                 <td :colspan="colspan" class="px-4 py-4">
                     <div class="ml-12">
-                        <h4 class="text-sm font-medium mb-3">Active Plantings ({{ row.active_plantings_count }})</h4>
+                        <h4 class="text-sm font-medium mb-3">Available Offerings ({{ row.available_offerings_count }})</h4>
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                             <div
-                                v-for="planting in row.active_plantings"
-                                :key="planting.id"
+                                v-for="offering in row.available_offerings"
+                                :key="offering.id"
                                 class="flex items-start gap-3 p-3 rounded-lg border bg-card hover:shadow-sm transition-shadow"
                             >
                                 <Avatar class="size-12 rounded-md shrink-0">
                                     <AvatarImage 
-                                        :src="planting.variety.image_path" 
-                                        :alt="planting.variety.name"
+                                        :src="offering.variety.image_path" 
+                                        :alt="offering.variety.name"
                                         class="object-cover"
                                     />
                                     <AvatarFallback class="rounded-md bg-primary/10 text-primary font-semibold text-xs">
-                                        {{ planting.variety.name.charAt(0) }}
+                                        {{ offering.variety.name.charAt(0) }}
                                     </AvatarFallback>
                                 </Avatar>
-                                <div class="flex flex-col gap-1 min-w-0">
-                                    <div class="flex items-center gap-2">
-                                        <span class="font-medium text-sm truncate">{{ planting.variety.name }}</span>
-                                        <Badge 
-                                            :class="getStatusColor(planting.status_badge)"
-                                            class="text-xs shrink-0"
-                                        >
-                                            {{ planting.status_badge }}
-                                        </Badge>
-                                    </div>
-                                    <span class="text-xs text-muted-foreground">{{ planting.variety.vegetable }}</span>
-                                    <div class="flex flex-col gap-0.5 text-xs text-muted-foreground mt-1">
-                                        <div>Weight: {{ planting.weight_kg }} kg</div>
-                                        <div>Planted: {{ planting.date_planted }}</div>
-                                        <div>Expected harvest: {{ planting.expected_harvest_date }}</div>
-                                        <div v-if="planting.days_until_harvest !== null">
-                                            <span v-if="planting.days_until_harvest > 0">
-                                                {{ planting.days_until_harvest }} days until harvest
-                                            </span>
-                                            <span v-else-if="planting.days_until_harvest === 0">
-                                                Harvest today
-                                            </span>
-                                            <span v-else class="text-orange-600 dark:text-orange-400 font-medium">
-                                                {{ Math.abs(planting.days_until_harvest) }} days overdue
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
                             </div>
                         </div>
                     </div>

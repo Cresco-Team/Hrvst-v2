@@ -5,7 +5,6 @@ namespace Database\Seeders\Profiles;
 use App\Models\Profiles\FarmerProfile;
 use App\Models\Profiles\Role;
 use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
@@ -22,10 +21,11 @@ class FarmerSeeder extends Seeder
             'phone_number' => '09123456789'
         ], [
             'name' => 'Farmer Jane',
+            'email_verified_at' => now(),
             'password' => Hash::make('password'),
         ]);
 
-        $user->roles()->syncWithoutDetaching([$farmerRole->id]);
+        $user->roles()->attach($farmerRole);
 
         FarmerProfile::firstOrCreate(
             [

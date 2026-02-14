@@ -63,21 +63,6 @@ class ImageUploadService
     }
 
     /**
-     * Get full URL for a variety image path
-     */
-    public function getImageUrl(?string $path): ?string
-        {
-            if (!$path) {
-                return null;
-            }
-
-            /** @var FilesystemAdapter $disk */
-            $disk = Storage::disk('public');
-            
-            return $disk->url($path);
-        }
-
-    /**
      * Validate uploaded image file
      */
     public function validateImage(UploadedFile $file): array

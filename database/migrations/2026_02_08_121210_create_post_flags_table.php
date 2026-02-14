@@ -8,10 +8,10 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('announcement_flags', function (Blueprint $table) {
+        Schema::create('post_flags', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->morphs('flaggable'); // flaggable_id, flaggable_type
+            $table->foreignId('post_id')->constrained()->cascadeOnDelete();
 
             $table->string('reason');
             $table->text('description')->nullable();
@@ -19,13 +19,13 @@ return new class extends Migration
 
             $table->timestamps();
 
-            $table->index(['flaggable_id', 'flaggable_type', 'status']);
-            $table->index(['user_id', 'status']);
+            $table->unique(['user_id', 'post_id']);
+            $table->index(['post_id', 'status', 'created_at']);
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('announcement_flags');
+        Schema::dropIfExists('post_flags');
     }
 };

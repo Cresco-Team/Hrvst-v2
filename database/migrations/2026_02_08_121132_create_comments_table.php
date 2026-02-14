@@ -8,22 +8,22 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('announcement_comments', function (Blueprint $table) {
+        Schema::create('comments', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('farmer_offering_id')->constrained()->cascadeOnDelete();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('post_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('parent_id')->nullable()->constrained('comments')->cascadeOnDelete();
 
-            $table->text('comment');
+            $table->text('body');
 
             $table->timestamps();
-
-            $table->index(['farmer_offering_id', 'created_at']);
+            $table->index(['post_id', 'created_at']);
             $table->index('user_id');
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('announcement_comments');
+        Schema::dropIfExists('comments');
     }
 };

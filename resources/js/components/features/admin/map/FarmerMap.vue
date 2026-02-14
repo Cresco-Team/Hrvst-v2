@@ -5,7 +5,7 @@ import 'leaflet/dist/leaflet.css'
 import 'leaflet.markercluster/dist/MarkerCluster.css'
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css'
 import 'leaflet.markercluster'
-import { MarkerData } from '@/types/users/farmer'
+import { MarkerData } from '@/types/admin/farmers'
 
 interface MapCenter {
     lat: number
@@ -53,16 +53,16 @@ const vegetableColors: Record<string, string> = {
     'Butternut Squash': '#ea580c',
 }
 
-const getMarkerColor = (plantings: MarkerData['plantings_summary']): string => {
-    if (plantings.length === 0) return '#6b7280'
-    const dominant = plantings.reduce((prev, current) => 
+const getMarkerColor = (offerings: MarkerData['offerings_summary']): string => {
+    if (offerings.length === 0) return '#6b7280'
+    const dominant = offerings.reduce((prev, current) => 
         prev.count > current.count ? prev : current
     )
     return vegetableColors[dominant.vegetable] || '#6b7280'
 }
 
-const createCustomMarker = (marker: MarkerData): L.DivIcon => {
-    const color = getMarkerColor(marker.plantings_summary)
+const createCustomMarker = (markers: MarkerData): L.DivIcon => {
+    const color = getMarkerColor(markers.offerings_summary)
     
     return L.divIcon({
         className: 'custom-marker',
@@ -86,7 +86,7 @@ const createCustomMarker = (marker: MarkerData): L.DivIcon => {
             onmouseover="this.style.transform='scale(1.2)'"
             onmouseout="this.style.transform='scale(1)'"
             >
-                ${marker.active_plantings_count}
+                ${markers.available_offerings_count}
             </div>
         `,
         iconSize: [36, 36],

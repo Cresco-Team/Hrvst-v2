@@ -2,7 +2,7 @@
 
 namespace App;
 
-enum PlantingStatus: string
+enum FarmerOfferingStatus: string
 {
     case Available = 'available';
     case Archived = 'archived';
