@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, watch, computed } from 'vue'
-import { Head, router } from '@inertiajs/vue3'
+import { Deferred, Head, router } from '@inertiajs/vue3'
 import { Users, Map, List, Loader2, Sprout, Clock, TrendingUp, PartyPopper, Salad } from 'lucide-vue-next'
 import axios from 'axios'
 import { toast } from 'vue-sonner'
@@ -221,65 +221,64 @@ if (storedView && storedView !== props.view) {
             </div>
 
             <!-- Summary Cards -->
-             <div v-if="summary" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-2">
-                <LargeCard 
-                    title="Registered Farmers"
-                    :value="summary.total_farmers"
-                    subtext="approved farmers"
-                    :icon="Users"
-                    card-class="col-span-1 bg-linear-to-br from-orange-500/10 via-amber-500/10 to-yellow-500/30"
-                />
-                <LargeCard 
-                    title="New Farmers"
-                    :value="summary.new_farmers_this_month"
-                    subtext="registered this month"
-                    :icon="PartyPopper"
-                    card-class="col-span-1 bg-linear-to-br from-orange-500/10 via-amber-500/10 to-yellow-500/30"
-                />
-                <LargeCard 
-                    title="Total Plants Posted"
-                    :value="summary.total_offerings"
-                    subtext="All farmer posts"
-                    :icon="Salad"
-                    card-class="col-span-1 bg-linear-to-br from-orange-500/10 via-amber-500/10 to-yellow-500/30"
-                />
-                <LargeCard 
-                    title="New Posts"
-                    :value="summary.new_offerings_this_month"
-                    subtext="posts this month"
-                    :icon="Sprout"
-                    card-class="col-span-1 bg-linear-to-br from-orange-500/10 via-amber-500/10 to-yellow-500/30"
-                />
-             </div>
-             <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-2">
-                <Skeleton class="h-24 md:h-28 lg:h-32 rounded-lg col-span-1"/>
-                <Skeleton class="h-24 md:h-28 lg:h-32 rounded-lg col-span-1" />
-                <Skeleton class="h-24 md:h-28 lg:h-32 rounded-lg col-span-1" />
-                <Skeleton class="h-24 md:h-28 lg:h-32 rounded-lg col-span-1" />
-            </div>
+             <Deferred data="summary">
+                <template #fallback>
+                    <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-2">
+                        <Skeleton v-for="i in 4" :key="i" class="h-33" />
+                    </div>
+                </template>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-2">
+                    <LargeCard 
+                        title="Registered Farmers"
+                        :value="summary.total_farmers"
+                        subtext="approved farmers"
+                        :icon="Users"
+                        card-class="col-span-1 bg-linear-to-br from-orange-500/10 via-amber-500/10 to-yellow-500/30"
+                    />
+                    <LargeCard 
+                        title="New Farmers"
+                        :value="summary.new_farmers_this_month"
+                        subtext="registered this month"
+                        :icon="PartyPopper"
+                        card-class="col-span-1 bg-linear-to-br from-orange-500/10 via-amber-500/10 to-yellow-500/30"
+                    />
+                    <LargeCard 
+                        title="Total Plants Posted"
+                        :value="summary.total_offerings"
+                        subtext="All farmer posts"
+                        :icon="Salad"
+                        card-class="col-span-1 bg-linear-to-br from-orange-500/10 via-amber-500/10 to-yellow-500/30"
+                    />
+                    <LargeCard 
+                        title="New Posts"
+                        :value="summary.new_offerings_this_month"
+                        subtext="posts this month"
+                        :icon="Sprout"
+                        card-class="col-span-1 bg-linear-to-br from-orange-500/10 via-amber-500/10 to-yellow-500/30"
+                    />
+                </div>
+             </Deferred>
             
             <!-- LIST VIEW -->
             <div v-if="isListView">
-                <FarmerTable
-                    v-if="farmers"
-                    :farmers="farmers"
-                    @view-farmer="handleViewFarmer"
-                    @page-change="handlePageChange"
-                />
-                <div v-else class="flex flex-col gap-4">
-                    <div class="flex items-center justify-between">
-                        <Skeleton class="h-9 w-64" />
-                    </div>
-                    <div class="rounded-lg border">
-                        <div class="p-4 space-y-3">
-                            <Skeleton class="h-16 w-full" />
-                            <Skeleton class="h-16 w-full" />
-                            <Skeleton class="h-16 w-full" />
-                            <Skeleton class="h-16 w-full" />
-                            <Skeleton class="h-16 w-full" />
+                <Deferred data="farmers">
+                    <template #fallback>
+                        <div class="flex flex-col gap-4">
+                            <Skeleton class="h-10 w-80" />
+                            <div class="rounded-lg border p-4 space-y-3">
+                                <Skeleton v-for="i in 5" :key="i" class="h-16 w-full" />
+                            </div>
                         </div>
-                    </div>
-                </div>
+                    </template>
+
+                    <FarmerTable
+                        v-if="farmers"
+                        :farmers="farmers"
+                        @view-farmer="handleViewFarmer"
+                        @page-change="handlePageChange"
+                    />
+                </Deferred>
             </div>
 
             <!-- MAP VIEW -->
