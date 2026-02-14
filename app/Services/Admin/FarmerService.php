@@ -2,9 +2,10 @@
 
 namespace App\Services\Admin;
 
+use App\FarmerOfferingStatus;
+use App\Models\Marketplace\FarmerOffering;
 use App\Models\Profiles\FarmerProfile;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Database\Eloquent\Builder;
 
 class FarmerService
 {
@@ -18,9 +19,9 @@ class FarmerService
         'province',
         'municipality',
         'barangay',
-        'plantings' => fn($query) => $query->where('status', 'active')
+        'offerings' => fn($query) => $query->where('status', FarmerOfferingStatus::Available)
             ->with(['variety.vegetable.category'])
-            ->orderBy('expected_harvest_date', 'asc'),
+            ->orderBy('expiration_date', 'asc'),
     ])
         ->where('is_approved', true)
         ->orderBy('created_at', 'desc')
@@ -33,7 +34,7 @@ class FarmerService
                     'name' => $farmer->user->name,
                     'email' => $farmer->user->email,
                     'phone_number' => $farmer->user->phone_number,
-                    'user_image' => $farmer->user->user_image,
+                    'image_path' => $farmer->user->image_path,
                 ],
                 'location' => [
                     'province' => $farmer->province->name,
@@ -45,20 +46,18 @@ class FarmerService
                     ],
                 ],
                 'farm_image' => $farmer->farm_image,
-                'active_plantings_count' => $farmer->plantings->count(),
-                'active_plantings' => $farmer->plantings->map(fn($planting) => [
-                    'id' => $planting->id,
+                'available_offerings_count' => $farmer->offerings->count(),
+                'available_offerings' => $farmer->offerings->map(fn($offering) => [
+                    'id' => $offering->id,
                     'variety' => [
-                        'id' => $planting->variety->id,
-                        'name' => $planting->variety->vegetable->name . ' ' . $planting->variety->name,
-                        'category' => $planting->variety->vegetable->category->name,
-                        'image_path' => $planting->variety->image_path,
+                        'id' => $offering->variety->id,
+                        'name' => $offering->variety->vegetable->name . ' ' . $offering->variety->name,
+                        'category' => $offering->variety->vegetable->category->name,
+                        'image_path' => $offering->variety->image_path,
                     ],
-                    'weight_kg' => $planting->weight_kg,
-                    'date_planted' => $planting->date_planted->format('M d, Y'),
-                    'expected_harvest_date' => $planting->expected_harvest_date->format('M d, Y'),
-                    'days_until_harvest' => $planting->days_unill_harvest,
-                    'status_badge' => $planting->status_badge,
+                    'weight_kg' => $offering->weight_kg,
+                    'expiration_date' => $offering->expiration_date->format('M d, Y'),
+                    'status_badge' => $offering->status_badge,
                 ]),
                 'joined_at' => $farmer->created_at->format('M d, Y'),
                 'joined_at_human' => $farmer->created_at->diffForHumans(),
@@ -71,26 +70,19 @@ class FarmerService
      */
     public static function summary(): array
     {
-        $totalFarmers = FarmerProfile::where('is_approved', true)->count();
-        $totalPlantings = FarmerProfile::where('is_approved', true)
-            ->withCount(['plantings' => fn($q) => $q->where('status', 'active')])
-            ->get()
-            ->sum('plantings_count');
-
-        $harvestingSoon = FarmerProfile::where('is_approved', true)
-            ->whereHas('plantings', function (Builder $q) {
-                $q->where('status', 'active')
-                    ->whereBetween('expected_harvest_date', [now(), now()->addWeek()]);
-            })
+        $totalFarmers = FarmerProfile::where('is_approved', true)
             ->count();
-
+        $newFarmerThisMonth = FarmerProfile::where('is_approved', true)
+            ->where('created_at', '>=', now()->startOfMonth())
+            ->count();
+        $newOfferingsThisMonth = FarmerOffering::where('created_at', '>=', now()->startOfMonth())
+            ->count();
+        
         return [
             'total_farmers' => $totalFarmers,
-            'total_active_plantings' => $totalPlantings,
-            'harvesting_soon' => $harvestingSoon,
-            'average_plantings_per_farmer' => $totalFarmers > 0 
-                ? round($totalPlantings / $totalFarmers, 1) 
-                : 0,
+            'new_farmers_this_month' => $newFarmerThisMonth,
+            'total_offerings' => FarmerOffering::count(),
+            'new_offerings_this_month' => $newOfferingsThisMonth,
         ];
     }
 
@@ -148,16 +140,12 @@ class FarmerService
                 'date_harvested' => $planting->date_harvested?->format('M d, Y'),
                 'days_until_harvest' => $planting->days_unill_harvest,
                 'status' => $planting->status,
-                'status_badge' => $planting->status_badge,
             ]),
             'joined_at' => $farmer->created_at->format('M d, Y'),
             'joined_at_human' => $farmer->created_at->diffForHumans(),
         ];
     }
 
-    /**
-     * Get pending farmers awaiting approval
-     */
     public static function pending(): array
     {
         return FarmerProfile::with([
@@ -195,9 +183,6 @@ class FarmerService
             ->toArray();
     }
 
-    /**
-     * Approve a pending farmer
-     */
     public static function approve(int $farmerId): bool
     {
         $farmer = FarmerProfile::where('is_approved', false)->find($farmerId);
@@ -209,10 +194,6 @@ class FarmerService
         return $farmer->update(['is_approved' => true]);
     }
 
-    /**
-     * Reject and delete a pending farmer
-     * Cascades to user deletion
-     */
     public static function reject(int $farmerId): bool
     {
         $farmer = FarmerProfile::where('is_approved', false)->find($farmerId);
@@ -221,7 +202,6 @@ class FarmerService
             return false;
         }
 
-        // Delete the farmer profile and associated user
         $user = $farmer->user;
         $farmer->delete();
         $user->delete();
