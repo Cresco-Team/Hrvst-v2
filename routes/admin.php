@@ -30,7 +30,7 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
         // API Route (AJAX)
         Route::prefix('api')->name('api.')->group(function() {
             Route::get('/markers', [FarmerController::class, 'markers'])->name('markers');
-            Route::get('/{id}/details', [FarmerController::class, 'details'])->name('details');
+            Route::get('/{farmer}/details', [FarmerController::class, 'details'])->name('details');
         });
 
         // Pending Farmers
