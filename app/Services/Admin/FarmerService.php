@@ -57,7 +57,6 @@ class FarmerService
                     ],
                     'weight_kg' => $offering->weight_kg,
                     'expiration_date' => $offering->expiration_date->format('M d, Y'),
-                    'status_badge' => $offering->status_badge,
                 ]),
                 'joined_at' => $farmer->created_at->format('M d, Y'),
                 'joined_at_human' => $farmer->created_at->diffForHumans(),
