@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Profiles\DealerProfile;
 use App\Services\Admin\DealerService;
-use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -14,8 +13,8 @@ class DealerController extends Controller
     public function index(): Response
     {
         return Inertia::render('admin/dealers/Index', [
-            'dealers' => DealerService::paginated(),
-            'summary' => DealerService::summary(),
+            'summary' => Inertia::defer(fn () => DealerService::summary()),
+            'dealers' => Inertia::defer(fn () => DealerService::paginated()),
         ]);
     }
 
