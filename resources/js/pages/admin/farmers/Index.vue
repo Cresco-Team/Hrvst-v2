@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, watch, computed } from 'vue'
 import { Head, router } from '@inertiajs/vue3'
-import { Users, Map, List, Loader2, Sprout, Clock, TrendingUp } from 'lucide-vue-next'
+import { Users, Map, List, Loader2, Sprout, Clock, TrendingUp, PartyPopper, Salad } from 'lucide-vue-next'
 import axios from 'axios'
 import { toast } from 'vue-sonner'
 import Heading from '@/components/Heading.vue'
@@ -15,43 +15,11 @@ import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import admin from '@/routes/admin'
 import AppLayout from '@/layouts/AppLayout.vue'
 import LargeCard from '@/components/shared/cards/LargeCard.vue'
-import { Farmer, FarmerDetails, MarkerData, Municipality, PendingFarmer } from '@/types/users/farmer'
-
-/* -- Types -- */
-interface PaginatedData {
-    data: Farmer[]
-    current_page: number
-    last_page: number
-    per_page: number
-    total: number
-}
-
-interface Summary {
-    total_farmers: number
-    total_active_plantings: number
-    harvesting_soon: number
-    average_plantings_per_farmer: number
-}
-
-interface PlantingOption {
-    id: number
-    name: string
-    category: string
-}
-
-interface PlantingsByCategory {
-    [category: string]: PlantingOption[]
-}
+import { Filters, Farmer, Summary, FarmerDetails, MarkerData, PendingFarmer, PaginatedData } from '@/types/admin/farmers'
 
 interface Props {
     view: 'list' | 'map'
-    farmers?: PaginatedData
-    summary: Summary
-    pendingFarmers: PendingFarmer[]
-    filters: {
-        municipalities: Municipality[]
-        plantings: PlantingsByCategory
-    }
+    filters: Filters
     mapConfig: {
         center: {
             lat: number
@@ -59,6 +27,9 @@ interface Props {
         }
         defaultZoom: number
     }
+    farmers: PaginatedData
+    summary: Summary
+    pendingFarmers: PendingFarmer[]
 }
 
 const props = defineProps<Props>()
@@ -80,7 +51,7 @@ const isListView = computed(() => currentView.value === 'list')
 const isMapView = computed(() => currentView.value === 'map')
 
 const totalVisiblePlantings = computed(() => {
-    return markers.value.reduce((sum, m) => sum + m.active_plantings_count, 0)
+    return markers.value.reduce((sum, m) => sum + m.available_offerings_count, 0)
 })
 
 const breadcrumbs = [
@@ -259,25 +230,24 @@ if (storedView && storedView !== props.view) {
                     card-class="col-span-1 bg-linear-to-br from-orange-500/10 via-amber-500/10 to-yellow-500/30"
                 />
                 <LargeCard 
-                    title="Active Plantings"
-                    :value="summary.total_active_plantings"
-                    subtext="currently growing"
-                    :icon="Sprout"
+                    title="New Farmers"
+                    :value="summary.new_farmers_this_month"
+                    subtext="registered this month"
+                    :icon="PartyPopper"
                     card-class="col-span-1 bg-linear-to-br from-orange-500/10 via-amber-500/10 to-yellow-500/30"
                 />
                 <LargeCard 
-                    title="Harvesting Soon"
-                    :value="summary.harvesting_soon"
-                    subtext="within this week"
-                    :icon="Clock"
-                    icon-color="text-orange-500"
-                    card-class="col-span-1 bg-linear-to-br from-red-500/20 via-amber-500/10 to-yellow-500/30"
+                    title="Total Plants Posted"
+                    :value="summary.total_offerings"
+                    subtext="All farmer posts"
+                    :icon="Salad"
+                    card-class="col-span-1 bg-linear-to-br from-orange-500/10 via-amber-500/10 to-yellow-500/30"
                 />
                 <LargeCard 
-                    title="Average Plantings"
-                    :value="summary.average_plantings_per_farmer"
-                    subtext="per farmer"
-                    :icon="TrendingUp"
+                    title="New Posts"
+                    :value="summary.new_offerings_this_month"
+                    subtext="posts this month"
+                    :icon="Sprout"
                     card-class="col-span-1 bg-linear-to-br from-orange-500/10 via-amber-500/10 to-yellow-500/30"
                 />
              </div>
@@ -349,7 +319,7 @@ if (storedView && storedView !== props.view) {
                     <!-- Map Filters -->
                     <FarmerMapFilters
                         :municipalities="filters.municipalities"
-                        :plantings="filters.plantings"
+                        :plantings="filters.offerings"
                         :selected-municipality="selectedMunicipality"
                         :selected-variety="selectedVariety"
                         @update:selected-municipality="selectedMunicipality = $event"
