@@ -88,7 +88,7 @@ class DashboardService
             ],
             'average_harvest_time' => [
                 'value' => $current['average_weeks_to_harvest'],
-                'label' => 'weeks',
+                'label' => 'Average harvest weeks',
             ],
         ];
     }
