@@ -8,9 +8,9 @@ import LargeCard from '@/components/shared/cards/LargeCard.vue'
 import SmallCard from '@/components/shared/cards/SmallCard.vue'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
-import { Item, ItemContent, ItemDescription, ItemMedia, ItemTitle } from '@/components/ui/item'
 import { KPIs } from '@/types/admin/dashboard'
 import Heading from '@/components/Heading.vue'
+import QuickNavItem from '@/components/QuickNavItem.vue'
 
 defineProps<{
     kpis?: KPIs
@@ -48,7 +48,7 @@ function formatChange(change?: number): string {
             <!-- Page Title -->
              <Heading 
                 title="Dashboard"
-                description="A high-level summary of your marketplace operations."
+                description="Overview of "
              />
 
             <Deferred data="kpis">
@@ -133,42 +133,34 @@ function formatChange(change?: number): string {
                     <CardDescription>Navigate to key sections</CardDescription>
                 </CardHeader>
                 <Separator />
-                <CardContent class="grid grid-cols-3 gap-4">
-                    <Link :href="admin.vegetables_varieties.index()">
-                        <Item variant="outline" class="bg-linear-to-br from-green-500/10 to-emerald-500/10">
-                            <ItemMedia variant="icon" class="bg-background/80 p-2 backdrop-blur-sm">
-                                <Wheat class="text-green-600 dark:text-green" />
-                            </ItemMedia>
-                            <ItemContent>
-                                <ItemTitle>Varieties</ItemTitle>
-                                <ItemDescription>Manage Products</ItemDescription>
-                            </ItemContent>
-                        </Item>
-                    </Link>
+                <CardContent class="grid md:grid-cols-3 gap-4">
 
-                    <Link :href="admin.farmers.index()">
-                        <Item variant="outline" class="bg-linear-to-br from-yellow-500/10 to-lime-500/10">
-                            <ItemMedia variant="icon" class="bg-background/80 p-2 backdrop-blur-sm">
-                                <Tractor class="text-yellow-600 dark:text-green" />
-                            </ItemMedia>
-                            <ItemContent>
-                                <ItemTitle>Farmers</ItemTitle>
-                                <ItemDescription>View all farmers</ItemDescription>
-                            </ItemContent>
-                        </Item>
-                    </Link>
+                    <QuickNavItem 
+                        :href="admin.vegetables_varieties.index()"
+                        title="Vegetables"
+                        description="Manage market"
+                        :icon="Tractor"
+                        colorClasses="from-green-500/10 to-emerald-500/10"
+                        iconClasses="text-green-600 dark:text-green-500"
+                    />
 
-                    <Link :href="admin.dealers.index()">
-                        <Item variant="outline" class="bg-linear-to-br from-sky-500/10 to-blue-500/10">
-                            <ItemMedia variant="icon" class="bg-background/80 p-2 backdrop-blur-sm">
-                                <Package class="text-blue-600 dark:text-green" />
-                            </ItemMedia>
-                            <ItemContent>
-                                <ItemTitle>Dealers</ItemTitle>
-                                <ItemDescription>Track Activity</ItemDescription>
-                            </ItemContent>
-                        </Item>
-                    </Link>
+                    <QuickNavItem 
+                        :href="admin.farmers.index()"
+                        title="Farmers"
+                        description="View all farmers"
+                        :icon="Tractor"
+                        colorClasses="from-amber-500/10 to-yellow-500/10"
+                        iconClasses="text-yellow-600 dark:text-yellow-500"
+                    />
+
+                    <QuickNavItem 
+                        :href="admin.dealers.index()"
+                        title="Dealers"
+                        description="Track Activity"
+                        :icon="Package"
+                        colorClasses="from-sky-500/10 to-blue-500/10"
+                        iconClasses="text-blue-600 dark:text-blue-500"
+                    />
                 </CardContent>
             </Card>
         </div>
