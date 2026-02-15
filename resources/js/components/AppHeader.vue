@@ -62,10 +62,6 @@ const mainNavItems = computed<NavItem[]>(() => {
         
         if (page.props.auth.user.roles.includes('admin')) {
             items.push({
-                title: 'Dashboard',
-                href: admin.dashboard(),
-                icon: LayoutGrid
-            }, {
                 title: 'Vegetables',
                 href: admin.vegetables_varieties.index(),
                 icon: Gem
