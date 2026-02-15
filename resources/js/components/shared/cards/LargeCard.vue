@@ -13,7 +13,7 @@ const props = withDefaults(
         value?: number;
         subtext?: string;
         change?: string;
-        badge?: Record<string, any> | null;
+        badge?: Component | Record<string, any> | null;
         trendColor?: string | null;
         cardClass?: string | null;
         icon?: Component;
