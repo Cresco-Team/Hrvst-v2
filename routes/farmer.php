@@ -2,13 +2,16 @@
 
 use App\Http\Controllers\Farmer\DealerRequestBrowseController;
 use App\Http\Controllers\Farmer\FarmerOfferingController;
-use App\Http\Controllers\Farmer\PlantingController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'verified', 'farmer'])->prefix('farmer')->name('farmer.')->group(function () {
     
-    // Garden (Plantings Dashboard)
     Route::prefix('garden')->name('garden.')->group(function () {
+        Route::get('/', [OfferingController::class, 'index'])->name('index');
+    });
+
+    // Garden (Plantings Dashboard)
+    /* Route::prefix('garden')->name('garden.')->group(function () {
         Route::get('/', [PlantingController::class, 'index'])
             ->name('index');
         Route::post('/', [PlantingController::class, 'store'])
@@ -28,7 +31,7 @@ Route::middleware(['auth', 'verified', 'farmer'])->prefix('farmer')->name('farme
         Route::put('/{farmerOffering}', [FarmerOfferingController::class, 'update'])->name('update');
         Route::post('/{farmerOffering}/archive', [FarmerOfferingController::class, 'archive'])->name('archive');
         Route::delete('/{farmerOffering}', [FarmerOfferingController::class, 'destroy'])->name('destroy');
-    });
+    }); */
 
     // Dealer Requests (Browse opportunities)
     Route::prefix('requests')->name('requests.')->group(function () {
