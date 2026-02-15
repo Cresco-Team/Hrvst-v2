@@ -4,8 +4,8 @@ import type { Component } from 'vue';
 
 const props = withDefaults(
     defineProps<{
-        title: string
-        value: number
+        title?: string
+        value?: number
         valueClass?: string
         subtext?: string | null
         icon?: Component

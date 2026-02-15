@@ -9,11 +9,11 @@ import type { Component } from 'vue';
 
 const props = withDefaults(
     defineProps<{
-        title: string;
-        value: number;
+        title?: string;
+        value?: number;
         subtext?: string;
         change?: string;
-        badge?: Record<string, any> | null;
+        badge?: Component | Record<string, any> | null;
         trendColor?: string | null;
         cardClass?: string | null;
         icon?: Component;
