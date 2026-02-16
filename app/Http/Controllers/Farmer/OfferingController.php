@@ -5,8 +5,8 @@ namespace App\Http\Controllers\Farmer;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Farmer\StoreFarmerOfferingRequest;
 use App\Http\Requests\Farmer\UpdateFarmerOfferingRequest;
-use App\Models\Announcement\FarmerOffering;
-use App\Services\Farmer\FarmerOfferingService;
+use App\Models\Marketplace\FarmerOffering;
+use App\Services\Farmer\OfferingService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -16,23 +16,26 @@ use Inertia\Response;
 class OfferingController extends Controller
 {
     public function __construct(
-        private FarmerOfferingService $service
+        private OfferingService $service
     ) {}
 
     public function index(Request $request): Response
     {
         $farmerId = $request->user()->farmerProfile->id;
-        $status = $request->query('status', 'all');
+        $status = $request->query('status', 'available');
 
-        return Inertia::render('farmer/offerings/Index', [
+        return Inertia::render('farmer/garden/Index', [
+            'summary' => Inertia::defer(fn() => OfferingService::summary(
+                farmerId: $farmerId,
+            )),
             'filters' => ['status' => $status],
             
-            'offerings' => Inertia::defer(fn() => FarmerOfferingService::paginated(
+            'offerings' => Inertia::defer(fn() => OfferingService::paginated(
                 farmerId: $farmerId,
                 status: $status
             )),
             
-            'varietyOptions' => Inertia::defer(fn() => FarmerOfferingService::varietyOptions()),
+            'varietyOptions' => Inertia::defer(fn() => OfferingService::varietyOptions()),
         ]);
     }
 
@@ -46,7 +49,7 @@ class OfferingController extends Controller
             image: $request->file('image')
         );
 
-        return redirect()->route('farmer.offerings.index')
+        return redirect()->route('farmer.garden.index')
             ->with('flash', ['type' => 'success', 'message' => 'Offering posted successfully!']);
     }
 
@@ -60,7 +63,7 @@ class OfferingController extends Controller
             image: $request->file('image')
         );
 
-        return redirect()->route('farmer.offerings.index')
+        return redirect()->route('farmer.garden.index')
             ->with('flash', ['type' => 'success', 'message' => 'Offering updated!']);
     }
 
@@ -70,7 +73,7 @@ class OfferingController extends Controller
 
         $this->service->archive($farmerOffering);
 
-        return redirect()->route('farmer.offerings.index')
+        return redirect()->route('farmer.garden.index')
             ->with('flash', ['type' => 'success', 'message' => 'Offering archived.']);
     }
 
@@ -80,7 +83,7 @@ class OfferingController extends Controller
 
         $this->service->delete($farmerOffering);
 
-        return redirect()->route('farmer.offerings.index')
+        return redirect()->route('farmer.garden.index')
             ->with('flash', ['type' => 'success', 'message' => 'Offering deleted.']);
     }
 }
