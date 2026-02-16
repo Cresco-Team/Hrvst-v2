@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { Head, router } from '@inertiajs/vue3'
+import { Deferred, Head, router, useForm } from '@inertiajs/vue3'
 import PlantingGrid from '@/components/features/farmer/grids/PlantingGrid.vue'
 import PlantingForm from '@/components/features/farmer/forms/PlantingForm.vue'
 import ArchivePlantingDialog from '@/components/features/farmer/dialogs/ArchivePlantingDialog.vue'
@@ -8,20 +8,63 @@ import DeletePlantingDialog from '@/components/features/farmer/dialogs/DeletePla
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
-import { Plus, Sprout, Weight, Calendar, Package } from 'lucide-vue-next'
+import { Plus, Sprout, Weight, Calendar, Package, Wheat, Archive, CalendarClock, Search, PhilippinePeso, Pencil, MoreVertical, Trash } from 'lucide-vue-next'
 import farmer from '@/routes/farmer'
 import AppLayout from '@/layouts/AppLayout.vue'
 import Heading from '@/components/Heading.vue'
 import LargeCard from '@/components/shared/cards/LargeCard.vue'
 import type { PaginatedPlantings, Summary, VarietyOptionsByCategory, Planting } from '@/types/farmer/garden'
+import { InputGroup, InputGroupAddon } from '@/components/ui/input-group'
+import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia } from '@/components/ui/empty'
+import EmptyState from '@/components/EmptyState.vue'
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import { Item, ItemContent, ItemDescription, ItemMedia, ItemTitle } from '@/components/ui/item'
+import { Badge } from '@/components/ui/badge'
+import { AspectRatio } from '@/components/ui/aspect-ratio'
+import { Separator } from '@/components/ui/separator'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import GardenCard from '@/components/farmer/cards/GardenCard.vue'
+import DialogForm from '@/components/DialogForm.vue'
+import DialogForm from '@/components/DialogForm.vue'
+
+export interface Offering {
+    id: number
+    farmer: {
+        id: number
+        name: string
+    }
+    variety: {
+        id: number
+        name: string
+        vegetable: string
+    }
+    image_url: string
+    weight_kg: string
+    asking_price: number
+    expiration_date: string
+    days_until_expiration: string
+    status: string
+    created_at_human: string
+}
 
 interface Props {
+    summary?: {
+        total_available: number
+        total_archived: number
+        expiring_this_week: number
+        total_value: number
+    }
     filters: {
         status: string | null
         page: number
     }
-    plantings?: PaginatedPlantings
-    summary?: Summary
+    offerings?: {
+        data: Offering[]
+        current_page:number
+        last_page: number
+        per_page: number
+        total: number
+    }
     varietyOptions?: VarietyOptionsByCategory
 }
 
@@ -29,28 +72,31 @@ const props = defineProps<Props>()
 
 const breadcrumbs = [
     { title: 'Farmer', href: farmer.garden.index().url },
-    { title: 'My Garden', href: farmer.garden.index().url },
+    { title: 'Garden', href: farmer.garden.index().url },
 ]
 
-// Modal state
 const formOpen = ref(false)
 const archiveOpen = ref(false)
 const deleteOpen = ref(false)
-const activePlanting = ref<Planting | null>(null)
-const isSubmitting = ref(false)
-
-// Status filter tabs
-const statusTabs = [
-    { value: 'available', label: 'Available' },
-    { value: 'archived', label: 'Archived' },
-]
+const selectedOffering = ref<Offering | null>(null)
 
 const activeTab = computed(() => props.filters.status || 'available')
-
-// Loading state detection
-const isLoadingPlantings = computed(() => !props.plantings)
-const isLoadingSummary = computed(() => !props.summary)
 const isLoadingVarieties = computed(() => !props.varietyOptions)
+
+// Form for creating/updating offerings
+const offeringForm = useForm({
+    variety_id: '',
+    weight_kg: '',
+    asking_price: '',
+    expiration_date: '',
+    image: null as File | null,
+})
+
+// Form for archive action
+const archiveForm = useForm({})
+
+// Form for delete action  
+const deleteForm = useForm({})
 
 function handleTabChange(value: string) {
     router.visit(farmer.garden.index().url, {
@@ -60,79 +106,80 @@ function handleTabChange(value: string) {
         },
         preserveScroll: true,
         preserveState: true,
-        only: ['plantings', 'filters'],
+        only: ['offerings', 'filters'],
     })
 }
 
 // CRUD handlers
 function openCreate() {
-    activePlanting.value = null
+    createForm.reset()
+    createForm.clearErrors()
+    createDialogOpen.value = true
+}
+
+function openEdit(offering: Offering) {
+    selectedOffering.value = offering
+    // Map offering to form - don't include variety_id for edits
+    offeringForm.weight_kg = offering.weight_kg.toString()
+    offeringForm.asking_price = offering.asking_price.toString()
+    offeringForm.expiration_date = new Date(offering.expiration_date).toISOString().split('T')[0]
+    offeringForm.image = null
+    offeringForm.clearErrors()
     formOpen.value = true
 }
 
-function openEdit(planting: Planting) {
-    activePlanting.value = planting
-    formOpen.value = true
-}
-
-function openArchive(planting: Planting) {
-    activePlanting.value = planting
+function openArchive(offering: Offering) {
+    selectedOffering.value = offering
     archiveOpen.value = true
 }
 
-function openDelete(planting: Planting) {
-    activePlanting.value = planting
+function openDelete(offering: Offering) {
+    selectedOffering.value = offering
     deleteOpen.value = true
 }
 
-function handleSubmit(formData: FormData) {
-    isSubmitting.value = true
+function handleSubmit() {
+    const url = selectedOffering.value
+        ? farmer.garden.update(selectedOffering.value.id).url
+        : farmer.garden.store().url
 
-    if (activePlanting.value) {
-        // UPDATE
-        formData.append('_method', 'PUT')
-        
-        router.post(farmer.garden.update(activePlanting.value.id).url, formData, {
-            onSuccess() {
+    const method = selectedOffering.value ? 'put' : 'post'
+
+    offeringForm
+        .transform((data) => {
+            // Only include variety_id for create, not update
+            if (selectedOffering.value) {
+                const { variety_id, ...rest } = data
+                return rest
+            }
+            return data
+        })
+        [method](url, {
+            onSuccess: () => {
                 formOpen.value = false
-                isSubmitting.value = false
-            },
-            onError() {
-                isSubmitting.value = false
+                offeringForm.reset()
             },
         })
-    } else {
-        // CREATE
-        router.post(farmer.garden.store().url, formData, {
-            onSuccess() {
-                formOpen.value = false
-                isSubmitting.value = false
-            },
-            onError() {
-                isSubmitting.value = false
-            },
-        })
-    }
 }
 
 function handleArchive() {
-    if (!activePlanting.value) return
+    if (!selectedOffering.value) return
 
-    router.post(farmer.garden.archive(activePlanting.value.id).url, {}, {
-        onSuccess() {
+    archiveForm.post(farmer.garden.archive(selectedOffering.value.id).url, {
+        onSuccess: () => {
             archiveOpen.value = false
-            activePlanting.value = null
+            selectedOffering.value = null
         },
     })
 }
 
 function handleDelete() {
-    if (!activePlanting.value) return
+    if (!selectedOffering.value) return
 
-    router.delete(farmer.garden.destroy(activePlanting.value.id).url, {
-        onSuccess() {
+    deleteForm.delete(farmer.garden.destroy(selectedOffering.value.id).url, {
+        onSuccess: () => {
             deleteOpen.value = false
-            activePlanting.value = null
+            selectedOffering.value = null
         },
     })
 }
@@ -144,7 +191,7 @@ function handlePageChange(page: number) {
             status: props.filters.status || undefined,
         },
         preserveScroll: true,
-        only: ['plantings', 'filters'],
+        only: ['offerings', 'filters'],
     })
 }
 
@@ -156,7 +203,7 @@ function handleSearch(query: string) {
             page: 1,
         },
         preserveScroll: true,
-        only: ['plantings', 'filters'],
+        only: ['offerings', 'filters'],
     })
 }
 </script>
@@ -174,104 +221,125 @@ function handleSearch(query: string) {
                 />
                 <Button @click="openCreate" size="lg" class="gap-2 shadow-lg cursor-pointer">
                     <Plus class="size-5" />
-                    Add Planting
+                    Post Offering
                 </Button>
             </div>
 
             <!-- Summary Cards -->
-            <div v-if="isLoadingSummary" class="grid gap-4 lg:gap-2 md:grid-cols-2 lg:grid-cols-4">
-                <Skeleton class="h-33 rounded-xl" />
-                <Skeleton class="h-33 rounded-xl" />
-                <Skeleton class="h-33 rounded-xl" />
-                <Skeleton class="h-33 rounded-xl" />
-            </div>
-            <div v-else class="grid gap-4 lg:gap-2 md:grid-cols-2 lg:grid-cols-4">
-                <LargeCard 
-                    title="Available"
-                    subtext="plantings"
-                    :value="summary!.total_available"
-                    :icon="Sprout"
-                    card-class="bg-gradient-to-br from-emerald-50 to-green-50 dark:from-emerald-950/20 dark:to-green-950/20"
-                />
-                <LargeCard 
-                    title="Total Weight"
-                    :subtext="`${summary!.total_weight_available} kg`"
-                    :value="summary!.total_weight_available"
-                    :icon="Weight"
-                    card-class="bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950/20 dark:to-cyan-950/20"
-                />
-                <LargeCard 
-                    title="Expiring Soon"
-                    subtext="within 7 days"
-                    :value="summary!.expiring_soon"
-                    :icon="Calendar"
-                    card-class="bg-gradient-to-br from-orange-50 to-amber-50 dark:from-orange-950/20 dark:to-amber-950/20"
-                />
-                <LargeCard 
-                    title="Posted This Month"
-                    subtext="new plantings"
-                    :value="summary!.posted_this_month"
-                    :icon="Package"
-                    card-class="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950/20 dark:to-pink-950/20"
-                />
-            </div>
+            <Deferred data="summary">
+                <template #fallback>
+                    <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-2">
+                        <Skeleton v-for="i in 4" :key="i" class="h-34"/>
+                    </div>
+                </template>
+
+                <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-2">
+                    <LargeCard 
+                        title="Available"
+                        :value="summary?.total_available"
+                        subtext="all available offers"
+                        :icon="Wheat"
+                        card-class="from-emerald-50 to-green-50 dark:from-emerald-950/20 dark:to-green-950/20"
+                    />
+
+                    <LargeCard 
+                        title="Archived"
+                        :value="summary?.total_archived"
+                        subtext="all archived offers"
+                        :icon="Archive"
+                        card-class="from-zinc-100 to-zinc-100 dark:from-zinc-950/20 dark:to-zinc-950/20"
+                    />
+
+                    <LargeCard 
+                        title="Expiring"
+                        :value="summary?.expiring_this_week"
+                        subtext="expiring this week"
+                        :icon="CalendarClock"
+                        card-class="from-amber-50 to-orange-50 dark:from-emerald-950/20 dark:to-green-950/20"
+                    />
+
+                    <LargeCard 
+                        title="Total Value"
+                        :value="summary?.total_value"
+                        subtext="all available offers"
+                        :icon="Weight"
+                        card-class="from-emerald-50 to-green-50 dark:from-emerald-950/20 dark:to-green-950/20"
+                    />
+                </div>
+            </Deferred>
 
             <!-- Status Filter Tabs -->
             <div class="rounded-xl border-2 bg-card p-1 md:w-1/3">
                 <Tabs :model-value="activeTab" @update:model-value="(v) => handleTabChange(String(v))">
                     <TabsList class="w-full grid-cols-2">
-                        <TabsTrigger
-                            v-for="tab in statusTabs"
-                            :key="tab.value"
-                            :value="tab.value"
+                        <TabsTrigger 
+                            value="available" 
                             class="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
                         >
-                            {{ tab.label }}
+                            Available
+                        </TabsTrigger>
+                        <TabsTrigger
+                            value="archived"
+                            class="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                        >
+                            Archived
                         </TabsTrigger>
                     </TabsList>
                 </Tabs>
             </div>
 
+            <!-- Search -->
+            <InputGroup>
+                <InputGroupInput placeholder="Search..." />
+                <InputGroupAddon>
+                    <Search />
+                </InputGroupAddon>
+            </InputGroup>
+
             <!-- Plantings Grid -->
-            <PlantingGrid
-                v-if="!isLoadingPlantings"
-                :plantings="plantings!"
-                @open-create="openCreate"
-                @open-edit="openEdit"
-                @open-archive="openArchive"
-                @open-delete="openDelete"
-                @page-change="handlePageChange"
-                @search="handleSearch"
-            />
-            
-            <!-- Loading Skeleton -->
-            <div v-else class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                <Skeleton v-for="i in 8" :key="i" class="h-96 rounded-xl" />
-            </div>
+             <Deferred data="offerings">
+                <template #fallback>
+                    <div>Loading offerings...</div>
+                </template>
+
+                <EmptyState 
+                    v-if="!offerings?.data.length"
+                    title="No Posted Offers Yet"
+                    description="You haven't created a post yet. Get started by creating your first post."
+                    :icon="Sprout"
+                    button="Create Post"
+                />
+
+                <div v-else class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                    <GardenCard 
+                        v-for="offering in offerings.data"
+                        :key="offering.id"
+                        :offering="offering"
+                        @open-edit="$emit('open-edit', $event)"
+                        @open-archive="$emit('open-archive', $event)"
+                        @open-delete="$emit('open-delete', $event)"
+                    />
+                </div>
+             </Deferred>
         </div>
     </AppLayout>
 
+    </DialogForm>
+
     <!-- Modals -->
-    <PlantingForm
-        v-if="!isLoadingVarieties"
-        :open="formOpen"
-        :planting="activePlanting"
-        :variety-options="varietyOptions!"
-        :is-submitting="isSubmitting"
-        @update:open="formOpen = $event"
-        @submit="handleSubmit"
-    />
 
     <ArchivePlantingDialog
         :open="archiveOpen"
-        :planting="activePlanting"
+        :planting="selectedOffering"
+        :is-processing="archiveForm.processing"
         @update:open="archiveOpen = $event"
         @confirm="handleArchive"
     />
 
     <DeletePlantingDialog
         :open="deleteOpen"
-        :planting="activePlanting"
+        :planting="selectedOffering"
+        :is-processing="deleteForm.processing"
         @update:open="deleteOpen = $event"
         @confirm="handleDelete"
     />
