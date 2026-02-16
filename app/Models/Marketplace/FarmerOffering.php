@@ -21,6 +21,7 @@ class FarmerOffering extends Model
         'variety_id',
         'weight_kg',
         'asking_price',
+        'price_flag',
         'expiration_date',
         'image_path',
         'status'
@@ -51,15 +52,10 @@ class FarmerOffering extends Model
 
     /* ---------- scopes ---------- */
 
-    public function scopeActive(Builder $query): Builder
+    public function scopeAvailable(Builder $query): Builder
     {
-        return $query->where('status', 'active')
+        return $query->where('status', FarmerOfferingStatus::Available)
             ->where('expiration_date', '>=', now());
-    }
-
-    public function scopeExpired(Builder $query): Builder
-    {
-        return $query->where('status', 'expired');
     }
 
     public function scopeArchived(Builder $query): Builder
@@ -123,11 +119,11 @@ class FarmerOffering extends Model
     {
         return Attribute::make(
             get: function () {
-                if ($this->status !== 'active') {
+                if ($this->status !== FarmerOfferingStatus::Available) {
                     return null;
                 }
                 
-                return Carbon::now()->diffInDays($this->expiration_date, false);
+                return (int) Carbon::now()->diffInDays($this->expiration_date, false);
             }
         );
     }

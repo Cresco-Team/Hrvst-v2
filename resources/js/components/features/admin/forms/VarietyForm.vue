@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import DialogForm from '@/components/shared/forms/DialogForm.vue'
+import DialogForm from '@/components/DialogForm.vue'
 import ImageUpload from '@/components/shared/media/ImageUpload.vue'
 import {
     Select,

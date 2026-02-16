@@ -8,7 +8,11 @@ class StoreFarmerOfferingRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()->farmerProfile?->is_approved ?? false;
+        $farmerOffering = $this->route('farmerOffering');
+
+        return $this->user()->hasRole('farmer')
+        && $this->user()->farmerProfile?->is_approved
+        && $this->user()->can('create', $farmerOffering);
     }
 
     public function rules(): array
@@ -16,8 +20,8 @@ class StoreFarmerOfferingRequest extends FormRequest
         return [
             'variety_id' => ['required', 'exists:varieties,id'],
             'image' => ['required', 'image', 'mimes:jpeg,jpg,png,webp', 'max:5120'],
-            'quantity_kg' => ['required', 'numeric', 'min:0.1', 'max:99999'],
-            'price_asking' => ['required', 'numeric', 'min:0', 'max:9999.99'],
+            'weight_kg' => ['required', 'numeric', 'min:0.1', 'max:99999'],
+            'asking_price' => ['required', 'numeric', 'min:0', 'max:9999.99'],
             'expiration_date' => ['required', 'date', 'after:today', 'before:' . now()->addMonths(3)->toDateString()],
         ];
     }
@@ -28,8 +32,8 @@ class StoreFarmerOfferingRequest extends FormRequest
             'variety_id.required' => 'Variety is required.',
             'image.required' => 'Image is required.',
             'image.max' => 'Image cannot exceed 5MB.',
-            'quantity_kg.min' => 'Quantity must be at least 0.1 kg.',
-            'price_asking.max' => 'Price cannot exceed ₱9,999.99.',
+            'weight_kg.min' => 'Quantity must be at least 0.1 kg.',
+            'asking_price.max' => 'Price cannot exceed ₱9,999.99.',
             'expiration_date.after' => 'Expiration must be in the future.',
             'expiration_date.before' => 'Expiration cannot be more than 3 months away.',
         ];

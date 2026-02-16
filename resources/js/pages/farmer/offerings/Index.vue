@@ -4,23 +4,15 @@ import { Head, router } from '@inertiajs/vue3'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog'
 import { Plus, Edit, Archive, Trash2, Clock } from 'lucide-vue-next'
 import FarmerOfferingForm from '@/components/farmer/FarmerOfferingForm.vue'
 import { toast } from 'vue-sonner'
 import farmer from '@/routes/farmer'
-import type { FarmerOffering, PaginatedResponse, VarietyOption } from '@/types/announcement'
+import type { FarmerOffering, VarietyOption } from '@/types/announcement'
 import AppLayout from '@/layouts/AppLayout.vue'
 import Heading from '@/components/Heading.vue'
+import { PaginatedResponse } from '@/types/pagination'
 
 interface Summary {
   total_active: number
@@ -63,7 +55,7 @@ const summary = ref<Summary>({
 })
 
 function handleTabChange(value: string | number) {
-  router.visit(farmer.offerings.index().url, {
+  router.visit(farmer.garden.index().url, {
     data: { status: value === 'all' ? undefined : value },
     preserveState: true,
     only: ['offerings', 'filters']
@@ -96,7 +88,7 @@ function handleSubmit(formData: FormData) {
   if (activeOffering.value) {
     formData.append('_method', 'PUT')
     
-    router.post(farmer.offerings.update(activeOffering.value.id).url, formData, {
+    router.post(farmer.garden.update(activeOffering.value.id).url, formData, {
       onSuccess() {
         formOpen.value = false
         isSubmitting.value = false
@@ -107,7 +99,7 @@ function handleSubmit(formData: FormData) {
       }
     })
   } else {
-    router.post(farmer.offerings.store().url, formData, {
+    router.post(farmer.garden.store().url, formData, {
       onSuccess() {
         formOpen.value = false
         isSubmitting.value = false
@@ -123,7 +115,7 @@ function handleSubmit(formData: FormData) {
 function handleArchive() {
   if (!offeringToArchive.value) return
 
-  router.post(farmer.offerings.archive(offeringToArchive.value.id).url, {}, {
+  router.post(farmer.garden.archive(offeringToArchive.value.id).url, {}, {
     onSuccess() {
       archiveDialogOpen.value = false
       offeringToArchive.value = null
@@ -135,7 +127,7 @@ function handleArchive() {
 function handleDelete() {
   if (!offeringToDelete.value) return
 
-  router.delete(farmer.offerings.destroy(offeringToDelete.value.id).url, {
+  router.delete(farmer.garden.destroy(offeringToDelete.value.id).url, {
     onSuccess() {
       deleteDialogOpen.value = false
       offeringToDelete.value = null
@@ -174,8 +166,8 @@ function getUrgencyClass(days: number | null) {
 }
 
 const breadcrumbs = [
-  { title: 'Farmer', href: farmer.offerings.index().url },
-  { title: 'My Offerings', href: farmer.offerings.index().url }
+  { title: 'Farmer', href: farmer.garden.index().url },
+  { title: 'Garden', href: farmer.garden.index().url }
 ]
 </script>
 
