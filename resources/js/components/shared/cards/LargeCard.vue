@@ -34,7 +34,7 @@ const props = withDefaults(
 </script>
 
 <template>
-    <Card class="gap-2 overflow-hidden hover:shadow-md transition-all" :class="cardClass">
+    <Card :class="['gap-2 overflow-hidden hover:shadow-md transition-all bg-linear-to-br', cardClass]">
         <CardContent class="flex items-center justify-between">
             <CardDescription>{{ title }}</CardDescription>
             <Badge v-if="change" variant="outline">
