@@ -8,7 +8,11 @@ class StoreFarmerOfferingRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()->farmerProfile?->is_approved ?? false;
+        $farmerOffering = $this->route('farmerOffering');
+
+        return $this->user()->hasRole('farmer')
+        && $this->user()->farmerProfile?->is_approved
+        && $this->user()->can('create', $farmerOffering);
     }
 
     public function rules(): array
