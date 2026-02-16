@@ -1,16 +1,36 @@
 <script setup lang="ts">
 import { computed, watch } from 'vue'
-import DialogForm from '@/components/shared/forms/DialogForm.vue'
+import type { InertiaForm } from '@inertiajs/vue3'
+import DialogForm from '@/components/DialogForm.vue'
 import ImageUpload from '@/components/shared/media/ImageUpload.vue'
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { Sprout, Weight, Calendar, Info, DollarSign } from 'lucide-vue-next'
-import { useDialogForm } from '@/composables/useDialogForm'
-import type { Planting, VarietyOptionsByCategory, VarietyOption } from '@/types/farmer/garden'
+import type { VarietyOptionsByCategory } from '@/types/farmer/garden'
 
-interface PlantingFormData {
+interface Offering {
+    id: number
+    farmer: {
+        id: number
+        name: string
+    }
+    variety: {
+        id: number
+        name: string
+        category: string
+    }
+    image_url: string
+    weight_kg: string
+    asking_price: number
+    expiration_date: string
+    days_until_expiration: string
+    status: string
+    created_at_human: string
+}
+
+interface OfferingFormData {
     variety_id: string
     weight_kg: string
     asking_price: string
@@ -20,107 +40,23 @@ interface PlantingFormData {
 
 const props = defineProps<{
     open: boolean
-    planting: Planting | null
+    offering: Offering | null
     varietyOptions: VarietyOptionsByCategory
-    isSubmitting: boolean
+    form: InertiaForm<OfferingFormData>
 }>()
 
 const emit = defineEmits<{
     'update:open': [value: boolean]
-    submit: [payload: FormData]
+    submit: []
 }>()
 
-const { form, errors, isEditMode, validateForm } = useDialogForm<Planting, PlantingFormData>({
-    item: () => props.planting,
-    open: () => props.open,
-    mapToForm: (planting) => ({
-        variety_id: planting?.variety?.id?.toString() ?? '',
-        weight_kg: planting?.weight_kg?.toString() ?? '',
-        asking_price: planting?.asking_price?.toString() ?? '',
-        expiration_date: planting?.expiration_date ? new Date(planting.expiration_date).toISOString().split('T')[0] : '',
-        image: null,
-    }),
-    validate: (form) => {
-        const errors: Record<string, string> = {}
-        
-        if (!isEditMode.value && !form.variety_id) {
-            errors.variety_id = 'Please select a variety'
-        }
-        
-        if (!form.weight_kg) {
-            errors.weight_kg = 'Weight is required'
-        } else {
-            const weight = parseFloat(form.weight_kg)
-            if (isNaN(weight) || weight < 0.1) {
-                errors.weight_kg = 'Weight must be at least 0.1 kg'
-            } else if (weight > 99999) {
-                errors.weight_kg = 'Weight cannot exceed 99,999 kg'
-            }
-        }
+const isEditMode = computed(() => !!props.offering)
 
-        if (!form.asking_price) {
-            errors.asking_price = 'Asking price is required'
-        } else {
-            const price = parseFloat(form.asking_price)
-            if (isNaN(price) || price < 0) {
-                errors.asking_price = 'Price must be at least ₱0.00'
-            } else if (price > 999.99) {
-                errors.asking_price = 'Price cannot exceed ₱999.99'
-            }
-        }
-
-        if (!form.expiration_date) {
-            errors.expiration_date = 'Expiration date is required'
-        } else {
-            const expiration = new Date(form.expiration_date)
-            const today = new Date()
-            today.setHours(0, 0, 0, 0)
-            
-            if (expiration <= today) {
-                errors.expiration_date = 'Expiration date must be in the future'
-            }
-        }
-
-        if (!isEditMode.value && !form.image) {
-            errors.image = 'Image is required'
-        }
-        
-        return errors
-    },
-})
-
-const title = computed(() => isEditMode.value ? 'Edit Planting' : 'Add New Planting')
+const title = computed(() => isEditMode.value ? 'Edit Offering' : 'Post New Offering')
 const description = computed(() => 
     isEditMode.value
-        ? 'Update the details of your planting.'
-        : 'Record a new planting in your garden.'
-)
-
-const selectedVariety = computed<VarietyOption | null>(() => {
-    if (!form.value.variety_id) return null
-    
-    for (const [_, varieties] of Object.entries(props.varietyOptions)) {
-        const found = varieties.find(v => v.id === Number(form.value.variety_id))
-        if (found) return found
-    }
-    return null
-})
-
-// Auto-fill expiration date when variety is selected
-watch(
-    () => form.value.variety_id,
-    (varietyId) => {
-        if (isEditMode.value || !varietyId) return
-        
-        const variety = selectedVariety.value
-        if (!variety) return
-        
-        const today = new Date()
-        const expirationDate = new Date(today)
-        expirationDate.setDate(expirationDate.getDate() + (variety.weeks_to_harvest * 7))
-        
-        form.value.expiration_date = expirationDate.toISOString().split('T')[0]
-    },
+        ? 'Update the details of your offering.'
+        : 'Create a new offering for the marketplace.'
 )
 
 const maxDate = computed(() => {
@@ -135,23 +71,70 @@ const minDate = computed(() => {
     return tomorrow.toISOString().split('T')[0]
 })
 
+// Client-side validation - run before submit
+function validateForm(): boolean {
+    // Clear existing errors first
+    props.form.clearErrors()
+    
+    const errors: Partial<Record<keyof OfferingFormData, string>> = {}
+    
+    if (!isEditMode.value && !props.form.variety_id) {
+        errors.variety_id = 'Please select a variety'
+    }
+    
+    if (!props.form.weight_kg) {
+        errors.weight_kg = 'Weight is required'
+    } else {
+        const weight = parseFloat(props.form.weight_kg)
+        if (isNaN(weight) || weight < 0.1) {
+            errors.weight_kg = 'Weight must be at least 0.1 kg'
+        } else if (weight > 99999) {
+            errors.weight_kg = 'Weight cannot exceed 99,999 kg'
+        }
+    }
+
+    if (!props.form.asking_price) {
+        errors.asking_price = 'Asking price is required'
+    } else {
+        const price = parseFloat(props.form.asking_price)
+        if (isNaN(price) || price < 0) {
+            errors.asking_price = 'Price must be at least ₱0.00'
+        } else if (price > 999.99) {
+            errors.asking_price = 'Price cannot exceed ₱999.99'
+        }
+    }
+
+    if (!props.form.expiration_date) {
+        errors.expiration_date = 'Expiration date is required'
+    } else {
+        const expiration = new Date(props.form.expiration_date)
+        const today = new Date()
+        today.setHours(0, 0, 0, 0)
+        
+        if (expiration <= today) {
+            errors.expiration_date = 'Expiration date must be in the future'
+        }
+    }
+
+    if (!isEditMode.value && !props.form.image) {
+        errors.image = 'Image is required'
+    }
+    
+    // Set errors on form if any exist
+    if (Object.keys(errors).length > 0) {
+        props.form.setError(errors)
+        return false
+    }
+    
+    return true
+}
+
 function handleSubmit() {
-    if (!validateForm()) return
-
-    const formData = new FormData()
-    formData.append('weight_kg', form.value.weight_kg)
-    formData.append('asking_price', form.value.asking_price)
-    formData.append('expiration_date', form.value.expiration_date)
-    
-    if (form.value.image) {
-        formData.append('image', form.value.image)
+    if (!validateForm()) {
+        return
     }
     
-    if (!isEditMode.value) {
-        formData.append('variety_id', form.value.variety_id)
-    }
-
-    emit('submit', formData)
+    emit('submit')
 }
 </script>
 
@@ -160,8 +143,8 @@ function handleSubmit() {
         :open="open"
         :title="title"
         :description="description"
-        :is-submitting="isSubmitting"
-        :submit-label="isEditMode ? 'Save Changes' : 'Add Planting'"
+        :is-submitting="form.processing"
+        :submit-label="isEditMode ? 'Save Changes' : 'Post Offering'"
         @update:open="$emit('update:open', $event)"
         @submit="handleSubmit"
     >
@@ -170,6 +153,7 @@ function handleSubmit() {
         </template>
 
         <div class="flex flex-col gap-5">
+
             <!-- Variety Selection (create only) -->
             <div v-if="!isEditMode" class="flex flex-col gap-2">
                 <Label for="variety_id" class="flex items-center gap-1.5">
@@ -179,7 +163,7 @@ function handleSubmit() {
                 <Select v-model="form.variety_id">
                     <SelectTrigger 
                         id="variety_id"
-                        :class="{ 'border-destructive': errors.variety_id }"
+                        :class="{ 'border-destructive': form.errors.variety_id }"
                     >
                         <SelectValue placeholder="Select a variety..." />
                     </SelectTrigger>
@@ -199,11 +183,8 @@ function handleSubmit() {
                         </SelectGroup>
                     </SelectContent>
                 </Select>
-                <p v-if="errors.variety_id" class="text-xs text-destructive">
-                    {{ errors.variety_id }}
-                </p>
-                <p v-else-if="selectedVariety" class="text-xs text-muted-foreground">
-                    Harvest time: {{ selectedVariety.weeks_to_harvest }} weeks
+                <p v-if="form.errors.variety_id" class="text-xs text-destructive">
+                    {{ form.errors.variety_id }}
                 </p>
                 <p v-else class="text-xs text-muted-foreground">
                     Choose the variety you're planting
@@ -225,10 +206,10 @@ function handleSubmit() {
                     min="0.1"
                     max="99999"
                     placeholder="0.0"
-                    :class="{ 'border-destructive': errors.weight_kg }"
+                    :class="{ 'border-destructive': form.errors.weight_kg }"
                 />
-                <p v-if="errors.weight_kg" class="text-xs text-destructive">
-                    {{ errors.weight_kg }}
+                <p v-if="form.errors.weight_kg" class="text-xs text-destructive">
+                    {{ form.errors.weight_kg }}
                 </p>
                 <p v-else class="text-xs text-muted-foreground">
                     Enter the total weight available
@@ -250,10 +231,10 @@ function handleSubmit() {
                     min="0"
                     max="999.99"
                     placeholder="0.00"
-                    :class="{ 'border-destructive': errors.asking_price }"
+                    :class="{ 'border-destructive': form.errors.asking_price }"
                 />
-                <p v-if="errors.asking_price" class="text-xs text-destructive">
-                    {{ errors.asking_price }}
+                <p v-if="form.errors.asking_price" class="text-xs text-destructive">
+                    {{ form.errors.asking_price }}
                 </p>
                 <p v-else class="text-xs text-muted-foreground">
                     Set your asking price per kilogram
@@ -273,13 +254,10 @@ function handleSubmit() {
                     type="date"
                     :min="minDate"
                     :max="maxDate"
-                    :class="{ 'border-destructive': errors.expiration_date }"
+                    :class="{ 'border-destructive': form.errors.expiration_date }"
                 />
-                <p v-if="errors.expiration_date" class="text-xs text-destructive">
-                    {{ errors.expiration_date }}
-                </p>
-                <p v-else-if="!isEditMode && selectedVariety" class="text-xs text-muted-foreground">
-                    Auto-filled based on {{ selectedVariety.weeks_to_harvest }}-week growth period
+                <p v-if="form.errors.expiration_date" class="text-xs text-destructive">
+                    {{ form.errors.expiration_date }}
                 </p>
                 <p v-else class="text-xs text-muted-foreground">
                     When will this planting expire?
@@ -289,8 +267,8 @@ function handleSubmit() {
             <!-- Image Upload -->
             <ImageUpload
                 v-model="form.image"
-                :existing-image-url="planting?.image_url"
-                :error="errors.image"
+                :existing-image-url="offering?.image_url"
+                :error="form.errors.image"
                 :required="!isEditMode"
             />
 
