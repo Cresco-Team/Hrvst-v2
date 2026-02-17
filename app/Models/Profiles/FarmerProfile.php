@@ -7,6 +7,7 @@ use App\Models\Address\Municipality;
 use App\Models\Address\Province;
 use App\Models\Marketplace\FarmerOffering;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -62,5 +63,16 @@ class FarmerProfile extends Model
     public function barangay(): BelongsTo
     {
         return $this->belongsTo(Barangay::class);
+    }
+
+    /* ---------- accessors ---------- */
+
+    public function farmUrl(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->farm_image 
+                ? asset('storage/' . $this->farm_image)
+                : null
+        );
     }
 }
