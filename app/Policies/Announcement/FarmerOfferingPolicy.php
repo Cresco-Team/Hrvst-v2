@@ -2,7 +2,8 @@
 
 namespace App\Policies\Announcement;
 
-use App\Models\Announcement\FarmerOffering;
+use App\FarmerOfferingStatus;
+use App\Models\Marketplace\FarmerOffering;
 use App\Models\User;
 
 class FarmerOfferingPolicy
@@ -40,7 +41,7 @@ class FarmerOfferingPolicy
     public function update(User $user, FarmerOffering $farmerOffering): bool
     {
         return $user->farmerProfile?->id === $farmerOffering->farmer_id
-            && $farmerOffering->status === 'active';
+            && $farmerOffering->status === FarmerOfferingStatus::Available;
     }
 
     /**
