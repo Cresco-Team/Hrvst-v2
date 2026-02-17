@@ -123,12 +123,3 @@ export interface MunicipalityOption {
   province: string
   label: string
 }
-
-export interface VarietyOption {
-  id: number
-  name: string
-  current_price?: {
-    min: number
-    max: number
-  } | null
-}
