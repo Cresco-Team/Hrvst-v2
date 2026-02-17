@@ -7,22 +7,20 @@ export interface MarketplaceFilters {
     municipality_id?: number | null
 }
 
-export interface Planting {
+export interface Offering {
     id: number
     farmer: {
         id: number
         name: string
-        location: string
-        municipality: string
-        province: string
+        farm_url: string
     }
     variety: {
         id: number
         name: string
-        category: string
+        vegetable: string
     }
-    image_url: string | null
-    quantity_kg: number
+    image_url: string
+    weight_kg: number
     asking_price: number
     expiration_date: string
     days_until_expiration: number | null

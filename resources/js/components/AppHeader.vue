@@ -89,16 +89,12 @@ const mainNavItems = computed<NavItem[]>(() => {
                 title: 'My Requests',
                 href: dealer.requests.index(),
                 icon: PackageSearch
-            }, {
-                title: 'Market',
-                href: dealer.market(),
-                icon: Store
             })
         }
 
         if (page.props.auth.user.roles.includes('farmer')) {
             items.push({
-                title: 'Dealer Requests',
+                title: 'Marketplace',
                 href: farmer.requests.index(),
                 icon: Truck
             }, {

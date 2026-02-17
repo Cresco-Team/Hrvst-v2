@@ -17,6 +17,8 @@ return new class extends Migration
             $table->string('document_image')->nullable();
 
             $table->timestamps();
+
+            $table->index('is_approved');
         });
     }
 

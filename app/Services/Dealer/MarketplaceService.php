@@ -2,10 +2,9 @@
 
 namespace App\Services\Dealer;
 
+use App\FarmerOfferingStatus;
 use App\Models\Product\Category;
-use App\Models\Address\Municipality;
-use App\Models\Product\Planting;
-use App\PlantingStatus;
+use App\Models\Marketplace\FarmerOffering;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -13,12 +12,12 @@ class MarketplaceService
 {
     public static function paginated(array $filters = [], int $perPage = 20): LengthAwarePaginator
     {
-        $query = Planting::with([
+        $query = FarmerOffering::with([
             'farmer.user',
             'farmer.municipality.province',
             'farmer.barangay',
             'variety.vegetable.category',
-        ])->where('status', PlantingStatus::Available);
+        ])->where('status', FarmerOfferingStatus::Available);
 
         if (!empty($filters['search'])) {
             $search = $filters['search'];
@@ -40,43 +39,35 @@ class MarketplaceService
             $query->where('variety_id', $filters['variety_id']);
         }
 
-        if (!empty($filters['municipality_id'])) {
-            $query->whereHas('farmer', fn(Builder $q) => 
-                $q->where('municipality_id', $filters['municipality_id'])
-            );
-        }
-
         $query->orderBy('expiration_date', 'asc');
 
         return $query->paginate($perPage)
-            ->through(function ($planting) {
+            ->through(function ($offering) {
                 return [
-                    'id' => $planting->id,
+                    'id' => $offering->id,
                     'farmer' => [
-                        'id' => $planting->farmer->id,
-                        'name' => $planting->farmer->user->name,
-                        'location' => "{$planting->farmer->barangay->name}, {$planting->farmer->municipality->name}, {$planting->farmer->province->name}",
-                        'municipality' => $planting->farmer->municipality->name,
-                        'province' => $planting->farmer->municipality->province->name,
+                        'id' => $offering->farmer->id,
+                        'name' => $offering->farmer->user->name,
+                        'farm_url' => $offering->farmer?->farm_url,
                     ],
                     'variety' => [
-                        'id' => $planting->variety_id,
-                        'name' => $planting->variety->vegetable->name . ' ' . $planting->variety->name,
-                        'category' => $planting->variety->vegetable->category->name,
+                        'id' => $offering->variety_id,
+                        'name' => $offering->variety->name,
+                        'vegetable' => $offering->variety->vegetable->name,
                     ],
-                    'image_url' => $planting->image_url,
-                    'quantity_kg' => (float) $planting->weight_kg,
-                    'asking_price' => (float) $planting->asking_price,
-                    'expiration_date' => $planting->expiration_date->format('M d, Y'),
-                    'days_until_expiration' => $planting->days_until_expiration,
-                    'created_at_human' => $planting->created_at->diffForHumans(),
+                    'image_url' => $offering->image_url,
+                    'weight_kg' => (float) $offering->weight_kg,
+                    'asking_price' => (float) $offering->asking_price,
+                    'expiration_date' => $offering->expiration_date->format('M d, Y'),
+                    'days_until_expiration' => $offering->days_until_expiration,
+                    'created_at_human' => $offering->created_at->diffForHumans(),
                 ];
             });
     }
 
-    public static function detailed(Planting $planting): array
+    public static function detailed(FarmerOffering $offering): array
     {
-        $planting->load([
+        $offering->load([
             'farmer.user',
             'farmer.municipality.province',
             'farmer.barangay',
@@ -86,61 +77,44 @@ class MarketplaceService
         ]);
 
         return [
-            'id' => $planting->id,
+            'id' => $offering->id,
             'farmer' => [
-                'id' => $planting->farmer->id,
-                'name' => $planting->farmer->user->name,
-                'phone_number' => $planting->farmer->user->phone_number,
-                'user_image' => $planting->farmer->user->user_image,
+                'id' => $offering->farmer->id,
+                'name' => $offering->farmer->user->name,
+                'phone_number' => $offering->farmer->user->phone_number,
+                'user_image' => $offering->farmer->user->user_image,
                 'location' => [
-                    'barangay' => $planting->farmer->barangay->name,
-                    'municipality' => $planting->farmer->municipality->name,
-                    'province' => $planting->farmer->municipality->province->name,
-                    'full' => "{$planting->farmer->barangay->name}, {$planting->farmer->municipality->name}, {$planting->farmer->municipality->province->name}",
+                    'barangay' => $offering->farmer->barangay->name,
+                    'municipality' => $offering->farmer->municipality->name,
+                    'province' => $offering->farmer->municipality->province->name,
+                    'full' => "{$offering->farmer->barangay->name}, {$offering->farmer->municipality->name}, {$offering->farmer->municipality->province->name}",
                 ],
             ],
             'variety' => [
-                'id' => $planting->variety_id,
-                'name' => $planting->variety->vegetable->name . ' ' . $planting->variety->name,
-                'category' => $planting->variety->vegetable->category->name,
+                'id' => $offering->variety_id,
+                'name' => $offering->variety->vegetable->name . ' ' . $offering->variety->name,
+                'category' => $offering->variety->vegetable->category->name,
             ],
-            'image_url' => $planting->image_url,
-            'quantity_kg' => (float) $planting->quantity_kg,
-            'price_asking' => (float) $planting->asking_price,
-            'expiration_date' => $planting->expiration_date->format('M d, Y'),
-            'days_until_expiration' => $planting->days_until_expiration,
-            'status' => $planting->status,
-            'created_at' => $planting->created_at->format('M d, Y g:i A'),
-            'created_at_human' => $planting->created_at->diffForHumans(),
-            'reaction_counts' => $planting->reaction_counts,
-            'comment_count' => $planting->comments->count(),
+            'image_url' => $offering->image_url,
+            'quantity_kg' => (float) $offering->quantity_kg,
+            'price_asking' => (float) $offering->asking_price,
+            'expiration_date' => $offering->expiration_date->format('M d, Y'),
+            'days_until_expiration' => $offering->days_until_expiration,
+            'status' => $offering->status,
+            'created_at' => $offering->created_at->format('M d, Y g:i A'),
+            'created_at_human' => $offering->created_at->diffForHumans(),
         ];
     }
 
     public static function categoryOptions(): array
     {
-        return Category::whereHas('vegetables.varieties.plantings', function (Builder $q) {
+        return Category::whereHas('vegetables.varieties.offerings', function (Builder $q) {
             $q->available();
         })->orderBy('name')
         ->get()
         ->map(fn($category) => [
             'id' => $category->id,
             'name' => $category->name,
-        ])->toArray();
-    }
-
-    public static function municipalityOptions(): array
-    {
-        return Municipality::whereHas('farmers.plantings', function (Builder $q) {
-            $q->available();
-        })->with('province')
-        ->orderBy('name')
-        ->get()
-        ->map(fn($municipality) => [
-            'id' => $municipality->id,
-            'name' => $municipality->name,
-            'province' => $municipality->province->name,
-            'label' => "{$municipality->name}, {$municipality->province->name}",
         ])->toArray();
     }
 }

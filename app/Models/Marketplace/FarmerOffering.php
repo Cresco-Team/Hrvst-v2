@@ -105,16 +105,6 @@ class FarmerOffering extends Model
         );
     }
 
-    public function reactionCounts(): Attribute
-    {
-        return Attribute::make(
-            get: fn () => $this->reactions
-                ->groupBy('reaction_type')
-                ->map(fn ($group) => $group->count())
-                ->toArray()
-        );
-    }
-
     public function daysUntilExpiration(): Attribute
     {
         return Attribute::make(

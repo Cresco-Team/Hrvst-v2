@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Dealer;
 
 use App\Http\Controllers\Controller;
-use App\Models\Product\Planting;
+use App\Models\Marketplace\FarmerOffering;
 use App\Services\Dealer\MarketplaceService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -14,6 +14,8 @@ class MarketplaceController extends Controller
 {
     public function index(Request $request): Response
     {
+        Gate::authorize('viewAny', FarmerOffering::class);
+
         $validated = $request->validate([
             'search' => 'nullable|string|max:255',
             'category_id' => 'nullable|exists:categories,id',
@@ -26,23 +28,20 @@ class MarketplaceController extends Controller
             'filters' => $validated,
             
             // Deferred (load after page renders)
-            'plantings' => Inertia::defer(fn() => 
-                MarketplaceService::paginated($validated)
-            ),
+            'offerings' => Inertia::defer(fn() => MarketplaceService::paginated($validated)),
             
             'filterOptions' => Inertia::defer(fn() => [
                 'categories' => MarketplaceService::categoryOptions(),
-                'municipalities' => MarketplaceService::municipalityOptions(),
             ]),
         ]);
     }
 
-    public function show(Planting $planting): Response
+    public function show(FarmerOffering $offering): Response
     {
-        Gate::authorize('view', $planting);
+        Gate::authorize('view', $offering);
 
         return Inertia::render('dealer/marketplace/Show', [
-            'offering' => MarketplaceService::detailed($planting),
+            'offering' => MarketplaceService::detailed($offering),
         ]);
     }
 }
