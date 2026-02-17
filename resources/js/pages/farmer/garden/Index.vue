@@ -1,346 +1,272 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { Deferred, Head, router, useForm } from '@inertiajs/vue3'
-import PlantingGrid from '@/components/features/farmer/grids/PlantingGrid.vue'
-import PlantingForm from '@/components/features/farmer/forms/PlantingForm.vue'
-import ArchivePlantingDialog from '@/components/features/farmer/dialogs/ArchivePlantingDialog.vue'
-import DeletePlantingDialog from '@/components/features/farmer/dialogs/DeletePlantingDialog.vue'
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Button } from '@/components/ui/button'
-import { Skeleton } from '@/components/ui/skeleton'
-import { Plus, Sprout, Weight, Calendar, Package, Wheat, Archive, CalendarClock, Search, PhilippinePeso, Pencil, MoreVertical, Trash } from 'lucide-vue-next'
-import farmer from '@/routes/farmer'
 import AppLayout from '@/layouts/AppLayout.vue'
 import Heading from '@/components/Heading.vue'
-import LargeCard from '@/components/shared/cards/LargeCard.vue'
-import type { PaginatedPlantings, Summary, VarietyOptionsByCategory, Planting } from '@/types/farmer/garden'
-import { InputGroup, InputGroupAddon } from '@/components/ui/input-group'
-import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia } from '@/components/ui/empty'
-import EmptyState from '@/components/EmptyState.vue'
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-import { Item, ItemContent, ItemDescription, ItemMedia, ItemTitle } from '@/components/ui/item'
-import { Badge } from '@/components/ui/badge'
-import { AspectRatio } from '@/components/ui/aspect-ratio'
-import { Separator } from '@/components/ui/separator'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import { Button } from '@/components/ui/button'
+import { Skeleton } from '@/components/ui/skeleton'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Archive, CalendarClock, Plus, Sprout, Weight, Wheat } from 'lucide-vue-next'
+import FarmerOfferingForm from '@/components/farmer/FarmerOfferingForm.vue'
 import GardenCard from '@/components/farmer/cards/GardenCard.vue'
-import DialogForm from '@/components/DialogForm.vue'
-import DialogForm from '@/components/DialogForm.vue'
-
-export interface Offering {
-    id: number
-    farmer: {
-        id: number
-        name: string
-    }
-    variety: {
-        id: number
-        name: string
-        vegetable: string
-    }
-    image_url: string
-    weight_kg: string
-    asking_price: number
-    expiration_date: string
-    days_until_expiration: string
-    status: string
-    created_at_human: string
-}
+import ArchivePlantingDialog from '@/components/features/farmer/dialogs/ArchivePlantingDialog.vue'
+import DeletePlantingDialog from '@/components/features/farmer/dialogs/DeletePlantingDialog.vue'
+import type { PaginatedResponse } from '@/types/pagination'
+import farmer from '@/routes/farmer'
+import { archive, destroy, index, store, update } from '@/actions/App/Http/Controllers/Farmer/OfferingController'
+import EmptyState from '@/components/EmptyState.vue'
+import LargeCard from '@/components/shared/cards/LargeCard.vue'
+import { Offering, Summary, VarietyOption } from '@/types/farmer/garden'
 
 interface Props {
-    summary?: {
-        total_available: number
-        total_archived: number
-        expiring_this_week: number
-        total_value: number
-    }
-    filters: {
-        status: string | null
-        page: number
-    }
-    offerings?: {
-        data: Offering[]
-        current_page:number
-        last_page: number
-        per_page: number
-        total: number
-    }
-    varietyOptions?: VarietyOptionsByCategory
+  filters: { status: string | null }
+  offerings?: PaginatedResponse<Offering>
+  varietyOptions?: Record<string, VarietyOption[]>
+  summary?: Summary
 }
 
 const props = defineProps<Props>()
 
-const breadcrumbs = [
-    { title: 'Farmer', href: farmer.garden.index().url },
-    { title: 'Garden', href: farmer.garden.index().url },
-]
-
+// Dialog states
 const formOpen = ref(false)
-const archiveOpen = ref(false)
-const deleteOpen = ref(false)
-const selectedOffering = ref<Offering | null>(null)
+const deleteDialogOpen = ref(false)
+const archiveDialogOpen = ref(false)
 
-const activeTab = computed(() => props.filters.status || 'available')
-const isLoadingVarieties = computed(() => !props.varietyOptions)
+// Active items
+const activeOffering = ref<Offering | null>(null)
+const offeringToDelete = ref<Offering | null>(null)
+const offeringToArchive = ref<Offering | null>(null)
 
-// Form for creating/updating offerings
-const offeringForm = useForm({
-    variety_id: '',
-    weight_kg: '',
-    asking_price: '',
-    expiration_date: '',
-    image: null as File | null,
+// Form setup using Inertia's useForm
+const form = useForm<{
+  variety_id: number | null
+  image: File | null
+  weight_kg: number
+  asking_price: number
+  expiration_date: string
+}>({
+  variety_id: null,
+  image: null,
+  weight_kg: 0,
+  asking_price: 0,
+  expiration_date: '',
 })
 
-// Form for archive action
-const archiveForm = useForm({})
+// Computed
+const activeTab = computed(() => props.filters.status || 'all')
 
-// Form for delete action  
-const deleteForm = useForm({})
+const breadcrumbs = [
+  { title: 'Farmer', href: farmer.garden.index().url },
+  { title: 'Garden', href: farmer.garden.index().url }
+]
 
-function handleTabChange(value: string) {
-    router.visit(farmer.garden.index().url, {
-        data: { 
-            status: value === 'available' ? undefined : value,
-            page: 1,
-        },
-        preserveScroll: true,
-        preserveState: true,
-        only: ['offerings', 'filters'],
-    })
+// Actions
+function handleTabChange(value: string | number) {
+  const routeTarget = index({
+    query: { status:  value === 'available' ? undefined : value }
+  })
+
+  router.visit(routeTarget.url, {
+    preserveState: true,
+    preserveScroll: true,
+    only: ['offerings', 'filters', 'summary']
+  })
 }
 
-// CRUD handlers
 function openCreate() {
-    createForm.reset()
-    createForm.clearErrors()
-    createDialogOpen.value = true
+  activeOffering.value = null
+  form.reset()
+  form.clearErrors()
+  formOpen.value = true
 }
 
 function openEdit(offering: Offering) {
-    selectedOffering.value = offering
-    // Map offering to form - don't include variety_id for edits
-    offeringForm.weight_kg = offering.weight_kg.toString()
-    offeringForm.asking_price = offering.asking_price.toString()
-    offeringForm.expiration_date = new Date(offering.expiration_date).toISOString().split('T')[0]
-    offeringForm.image = null
-    offeringForm.clearErrors()
-    formOpen.value = true
+  activeOffering.value = offering
+  form.variety_id = offering.variety.id
+  form.weight_kg = offering.weight_kg
+  form.asking_price = offering.asking_price
+  form.expiration_date = offering.expiration_date
+  form.image = null
+  formOpen.value = true
 }
 
 function openArchive(offering: Offering) {
-    selectedOffering.value = offering
-    archiveOpen.value = true
+  offeringToArchive.value = offering
+  archiveDialogOpen.value = true
 }
 
 function openDelete(offering: Offering) {
-    selectedOffering.value = offering
-    deleteOpen.value = true
+  offeringToDelete.value = offering
+  deleteDialogOpen.value = true
 }
 
 function handleSubmit() {
-    const url = selectedOffering.value
-        ? farmer.garden.update(selectedOffering.value.id).url
-        : farmer.garden.store().url
+  const routeData = activeOffering.value
+    ? update(activeOffering.value.id)
+    : store()
 
-    const method = selectedOffering.value ? 'put' : 'post'
-
-    offeringForm
-        .transform((data) => {
-            // Only include variety_id for create, not update
-            if (selectedOffering.value) {
-                const { variety_id, ...rest } = data
-                return rest
-            }
-            return data
-        })
-        [method](url, {
-            onSuccess: () => {
-                formOpen.value = false
-                offeringForm.reset()
-            },
-        })
+    form.transform((data) => ({
+      ...data,
+      _method: activeOffering.value ? 'PUT' : 'POST'
+    })).post(routeData.url,{
+      preserveScroll: true,
+      onSuccess: () => {
+        formOpen.value = false
+        form.reset()
+      }
+    })
 }
 
 function handleArchive() {
-    if (!selectedOffering.value) return
+  if (!offeringToArchive.value) return
 
-    archiveForm.post(farmer.garden.archive(selectedOffering.value.id).url, {
-        onSuccess: () => {
-            archiveOpen.value = false
-            selectedOffering.value = null
-        },
-    })
+  router.post(archive(offeringToArchive.value.id), {}, {
+    preserveScroll: true,
+    onSuccess: () => {
+      archiveDialogOpen.value = false
+      offeringToArchive.value = null
+    }
+  })
 }
 
 function handleDelete() {
-    if (!selectedOffering.value) return
+  if (!offeringToDelete.value) return
 
-    deleteForm.delete(farmer.garden.destroy(selectedOffering.value.id).url, {
-        onSuccess: () => {
-            deleteOpen.value = false
-            selectedOffering.value = null
-        },
-    })
-}
+  const routeTarget = destroy(offeringToDelete.value.id)
 
-function handlePageChange(page: number) {
-    router.visit(farmer.garden.index().url, {
-        data: { 
-            page, 
-            status: props.filters.status || undefined,
-        },
-        preserveScroll: true,
-        only: ['offerings', 'filters'],
-    })
-}
-
-function handleSearch(query: string) {
-    router.visit(farmer.garden.index().url, {
-        data: {
-            search: query || undefined,
-            status: props.filters.status || undefined,
-            page: 1,
-        },
-        preserveScroll: true,
-        only: ['offerings', 'filters'],
-    })
+  router.visit(routeTarget.url, {
+    method: 'delete',
+    preserveScroll: true,
+    onSuccess: () => {
+      deleteDialogOpen.value = false
+      offeringToDelete.value = null
+    }
+  })
 }
 </script>
 
 <template>
-    <Head title="My Garden" />
+  <Head title="My Offerings" />
 
-    <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="flex h-full flex-col gap-6 p-4 lg:p-6">
-            <!-- Header -->
-            <div class="flex items-center justify-between">
-                <Heading 
-                    title="My Garden"
-                    description="Track and manage all your plantings in one place"
-                />
-                <Button @click="openCreate" size="lg" class="gap-2 shadow-lg cursor-pointer">
-                    <Plus class="size-5" />
-                    Post Offering
-                </Button>
-            </div>
+  <AppLayout :breadcrumbs="breadcrumbs">
+    <div class="flex h-full flex-col gap-6 p-4 lg:p-6">
+      <!-- Header -->
+      <div class="flex items-end justify-between">
+        <Heading
+          title="My Offerings"
+          description="Manage your product offerings for dealers."
+        />
+        
+        <Button @click="openCreate" class="gap-2">
+          <Plus class="size-4" />
+          New Offering
+        </Button>
+      </div>
 
-            <!-- Summary Cards -->
-            <Deferred data="summary">
-                <template #fallback>
-                    <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-2">
-                        <Skeleton v-for="i in 4" :key="i" class="h-34"/>
-                    </div>
-                </template>
+      <!-- Summary Cards -->
+       <Deferred data="summary">
+        <template #fallback>
+          <div class="grid grid-cols-1 gap-4 sm:grid-cols-4">
+            <Skeleton v-for="i in 4" :key="i" class="h-24 rounded-lg" />
+          </div>
+        </template>
 
-                <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-2">
-                    <LargeCard 
-                        title="Available"
-                        :value="summary?.total_available"
-                        subtext="all available offers"
-                        :icon="Wheat"
-                        card-class="from-emerald-50 to-green-50 dark:from-emerald-950/20 dark:to-green-950/20"
-                    />
+        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-2">
+          <LargeCard 
+              title="Available"
+              :value="summary?.total_available"
+              subtext="all available offers"
+              :icon="Wheat"
+              card-class="from-emerald-50 to-green-50 dark:from-emerald-950/20 dark:to-green-950/20"
+          />
 
-                    <LargeCard 
-                        title="Archived"
-                        :value="summary?.total_archived"
-                        subtext="all archived offers"
-                        :icon="Archive"
-                        card-class="from-zinc-100 to-zinc-100 dark:from-zinc-950/20 dark:to-zinc-950/20"
-                    />
+          <LargeCard 
+              title="Archived"
+              :value="summary?.total_archived"
+              subtext="all archived offers"
+              :icon="Archive"
+              card-class="from-zinc-100 to-zinc-100 dark:from-zinc-950/20 dark:to-zinc-950/20"
+          />
 
-                    <LargeCard 
-                        title="Expiring"
-                        :value="summary?.expiring_this_week"
-                        subtext="expiring this week"
-                        :icon="CalendarClock"
-                        card-class="from-amber-50 to-orange-50 dark:from-emerald-950/20 dark:to-green-950/20"
-                    />
+          <LargeCard 
+              title="Expiring"
+              :value="summary?.expiring_this_week"
+              subtext="expiring this week"
+              :icon="CalendarClock"
+              card-class="from-amber-50 to-orange-50 dark:from-emerald-950/20 dark:to-green-950/20"
+          />
 
-                    <LargeCard 
-                        title="Total Value"
-                        :value="summary?.total_value"
-                        subtext="all available offers"
-                        :icon="Weight"
-                        card-class="from-emerald-50 to-green-50 dark:from-emerald-950/20 dark:to-green-950/20"
-                    />
-                </div>
-            </Deferred>
+          <LargeCard 
+              title="Total Value"
+              :value="summary?.total_value"
+              subtext="all available offers"
+              :icon="Weight"
+              card-class="from-emerald-50 to-green-50 dark:from-emerald-950/20 dark:to-green-950/20"
+          />
+      </div>
+       </Deferred>
 
-            <!-- Status Filter Tabs -->
-            <div class="rounded-xl border-2 bg-card p-1 md:w-1/3">
-                <Tabs :model-value="activeTab" @update:model-value="(v) => handleTabChange(String(v))">
-                    <TabsList class="w-full grid-cols-2">
-                        <TabsTrigger 
-                            value="available" 
-                            class="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-                        >
-                            Available
-                        </TabsTrigger>
-                        <TabsTrigger
-                            value="archived"
-                            class="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-                        >
-                            Archived
-                        </TabsTrigger>
-                    </TabsList>
-                </Tabs>
-            </div>
+      <!-- Status Tabs -->
+      <Tabs :model-value="activeTab" @update:model-value="handleTabChange">
+        <TabsList>
+          <TabsTrigger value="available">Available</TabsTrigger>
+          <TabsTrigger value="archived">Archived</TabsTrigger>
+        </TabsList>
+      </Tabs>
 
-            <!-- Search -->
-            <InputGroup>
-                <InputGroupInput placeholder="Search..." />
-                <InputGroupAddon>
-                    <Search />
-                </InputGroupAddon>
-            </InputGroup>
+      <!-- Offerings Grid -->
+      <Deferred data="offerings">
+        <template #fallback>
+          <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            <Skeleton v-for="i in 8" :key="i" class="h-96 rounded-lg" />
+          </div>
+        </template>
 
-            <!-- Plantings Grid -->
-             <Deferred data="offerings">
-                <template #fallback>
-                    <div>Loading offerings...</div>
-                </template>
+        <EmptyState 
+          v-if="offerings?.data.length === 0"
+          title="No Posted Offerings Yet."
+          description="Post an offering"
+          :icon="Sprout"
+          button="Add Offering"
+        />
 
-                <EmptyState 
-                    v-if="!offerings?.data.length"
-                    title="No Posted Offers Yet"
-                    description="You haven't created a post yet. Get started by creating your first post."
-                    :icon="Sprout"
-                    button="Create Post"
-                />
-
-                <div v-else class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                    <GardenCard 
-                        v-for="offering in offerings.data"
-                        :key="offering.id"
-                        :offering="offering"
-                        @open-edit="$emit('open-edit', $event)"
-                        @open-archive="$emit('open-archive', $event)"
-                        @open-delete="$emit('open-delete', $event)"
-                    />
-                </div>
-             </Deferred>
+        <div v-else class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <GardenCard
+            v-for="offering in offerings!.data"
+            :key="offering.id"
+            :offering="offering"
+            @edit="openEdit"
+            @archive="openArchive"
+            @delete="openDelete"
+          />
         </div>
-    </AppLayout>
+      </Deferred>
+    </div>
+  </AppLayout>
 
-    </DialogForm>
+  <!-- Offering Form Dialog -->
+  <FarmerOfferingForm
+    :open="formOpen"
+    :offering="activeOffering"
+    :variety-options="varietyOptions!"
+    :form="form"
+    @update:open="formOpen = $event"
+    @submit="handleSubmit"
+  />
 
-    <!-- Modals -->
+  <!-- Archive Confirmation -->
+  <ArchivePlantingDialog
+    :open="archiveDialogOpen"
+    :planting="offeringToArchive"
+    @update:open="archiveDialogOpen = $event"
+    @confirm="handleArchive"
+  />
 
-    <ArchivePlantingDialog
-        :open="archiveOpen"
-        :planting="selectedOffering"
-        :is-processing="archiveForm.processing"
-        @update:open="archiveOpen = $event"
-        @confirm="handleArchive"
-    />
-
-    <DeletePlantingDialog
-        :open="deleteOpen"
-        :planting="selectedOffering"
-        :is-processing="deleteForm.processing"
-        @update:open="deleteOpen = $event"
-        @confirm="handleDelete"
-    />
+  <!-- Delete Confirmation -->
+  <DeletePlantingDialog
+    :open="deleteDialogOpen"
+    :planting="offeringToDelete"
+    @update:open="deleteDialogOpen = $event"
+    @confirm="handleDelete"
+  />
 </template>
