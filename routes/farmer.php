@@ -14,30 +14,6 @@ Route::middleware(['auth', 'verified', 'farmer'])->prefix('farmer')->name('farme
         Route::delete('/{offering}', [OfferingController::class, 'destroy'])->name('destroy');
     });
 
-    // Garden (Plantings Dashboard)
-    /* Route::prefix('garden')->name('garden.')->group(function () {
-        Route::get('/', [PlantingController::class, 'index'])
-            ->name('index');
-        Route::post('/', [PlantingController::class, 'store'])
-            ->name('store');
-        Route::put('/{planting}', [PlantingController::class, 'update'])
-            ->name('update');
-        Route::delete('/{planting}', [PlantingController::class, 'destroy'])
-            ->name('destroy');
-        Route::post('/{planting}/archive', [PlantingController::class, 'archive'])
-            ->name('archive');
-    });
-
-    // Farmer Offerings (Manage own offerings)
-    Route::prefix('offerings')->name('offerings.')->group(function () {
-        Route::get('/', [FarmerOfferingController::class, 'index'])->name('index');
-        Route::post('/', [FarmerOfferingController::class, 'store'])->name('store');
-        Route::put('/{farmerOffering}', [FarmerOfferingController::class, 'update'])->name('update');
-        Route::post('/{farmerOffering}/archive', [FarmerOfferingController::class, 'archive'])->name('archive');
-        Route::delete('/{farmerOffering}', [FarmerOfferingController::class, 'destroy'])->name('destroy');
-    }); */
-
-    // Dealer Requests (Browse opportunities)
     Route::prefix('requests')->name('requests.')->group(function () {
         Route::get('/', [DealerRequestBrowseController::class, 'index'])->name('index');
         Route::get('/{dealerRequest}', [DealerRequestBrowseController::class, 'show'])->name('show');

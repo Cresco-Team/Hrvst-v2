@@ -1,16 +1,11 @@
 <?php
 
 use App\Http\Controllers\Dealer\DealerRequestController;
-use App\Http\Controllers\Dealer\MarketController;
 use App\Http\Controllers\Dealer\MarketplaceController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'verified', 'dealer'])->prefix('dealer')->name('dealer.')->group(function () {
     
-    // Market Dashboard (deprecated - keeping for backward compatibility)
-    Route::get('/market', [MarketController::class, 'index'])
-        ->name('market');
-
     // Dealer Requests (Manage own requests)
     Route::prefix('requests')->name('requests.')->group(function () {
         Route::get('/', [DealerRequestController::class, 'index'])->name('index');
