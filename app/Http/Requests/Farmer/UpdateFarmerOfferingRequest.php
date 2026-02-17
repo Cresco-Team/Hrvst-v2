@@ -8,10 +8,8 @@ class UpdateFarmerOfferingRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        $farmerOffering = $this->route('farmerOffering');
-        
         return $this->user()->hasRole('farmer') 
-            && $this->user()->can('update', $farmerOffering);
+            && $this->user()->farmerProfile->is_approved;
     }
 
     public function rules(): array
