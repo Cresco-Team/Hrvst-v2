@@ -48,10 +48,11 @@ class MarketplaceService
                     'farmer' => [
                         'id' => $offering->farmer->id,
                         'name' => $offering->farmer->user->name,
+                        'farm_url' => $offering->farmer?->farm_url,
                     ],
                     'variety' => [
                         'id' => $offering->variety_id,
-                        'name' => $offering->variety->vegetable->name . ' ' . $offering->variety->name,
+                        'name' => $offering->variety->name,
                         'vegetable' => $offering->variety->vegetable->name,
                     ],
                     'image_url' => $offering->image_url,
