@@ -23,6 +23,7 @@ return new class extends Migration
             $table->string('farm_image')->nullable();
             
             $table->timestamps();
+            $table->index('is_approved');
         });
     }
 
