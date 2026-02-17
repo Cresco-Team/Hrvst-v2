@@ -23,6 +23,7 @@
 ![Static Badge](https://img.shields.io/badge/Inertia-black?style=for-the-badge&logo=inertia)
 ![Static Badge](https://img.shields.io/badge/Leaflet-black?style=for-the-badge&logo=leaflet&logoColor=brightgreen)
 ![Static Badge](https://img.shields.io/badge/Chart%20JS-black?style=for-the-badge&logo=chartdotjs)
+![Static Badge](https://img.shields.io/badge/Wayfinder-black?style=for-the-badge&logo=laravel)
 
 ---
 ### Steps to Run
