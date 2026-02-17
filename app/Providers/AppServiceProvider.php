@@ -2,8 +2,8 @@
 
 namespace App\Providers;
 
-use App\Models\Product\Planting;
-use App\Policies\Product\PlantingPolicy;
+use App\Models\Marketplace\FarmerOffering;
+use App\Policies\Announcement\FarmerOfferingPolicy;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
@@ -28,7 +28,7 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->configureDefaults();
         
-        Gate::policy(Planting::class, PlantingPolicy::class);
+        Gate::policy(FarmerOffering::class, FarmerOfferingPolicy::class);
     }
 
     protected function configureDefaults(): void

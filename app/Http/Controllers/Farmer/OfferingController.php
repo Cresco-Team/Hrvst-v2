@@ -41,6 +41,8 @@ class OfferingController extends Controller
 
     public function store(StoreFarmerOfferingRequest $request): RedirectResponse
     {
+        Gate::authorize('create', FarmerOffering::class);
+
         $farmerId = $request->user()->farmerProfile->id;
 
         $this->service->create(
@@ -53,12 +55,12 @@ class OfferingController extends Controller
             ->with('flash', ['type' => 'success', 'message' => 'Offering posted successfully!']);
     }
 
-    public function update(UpdateFarmerOfferingRequest $request, FarmerOffering $farmerOffering): RedirectResponse
+    public function update(UpdateFarmerOfferingRequest $request, FarmerOffering $offering): RedirectResponse
     {
-        Gate::authorize('update', $farmerOffering);
+        Gate::authorize('update', $offering);
 
         $this->service->update(
-            offering: $farmerOffering,
+            offering: $offering,
             validated: $request->validated(),
             image: $request->file('image')
         );
@@ -67,21 +69,21 @@ class OfferingController extends Controller
             ->with('flash', ['type' => 'success', 'message' => 'Offering updated!']);
     }
 
-    public function archive(FarmerOffering $farmerOffering): RedirectResponse
+    public function archive(FarmerOffering $offering): RedirectResponse
     {
-        Gate::authorize('archive', $farmerOffering);
+        Gate::authorize('archive', $offering);
 
-        $this->service->archive($farmerOffering);
+        $this->service->archive($offering);
 
         return redirect()->route('farmer.garden.index')
             ->with('flash', ['type' => 'success', 'message' => 'Offering archived.']);
     }
 
-    public function destroy(FarmerOffering $farmerOffering): RedirectResponse
+    public function destroy(FarmerOffering $offering): RedirectResponse
     {
-        Gate::authorize('delete', $farmerOffering);
+        Gate::authorize('delete', $offering);
 
-        $this->service->delete($farmerOffering);
+        $this->service->delete($offering);
 
         return redirect()->route('farmer.garden.index')
             ->with('flash', ['type' => 'success', 'message' => 'Offering deleted.']);
