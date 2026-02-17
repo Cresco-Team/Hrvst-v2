@@ -1,71 +1,36 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import { useForm } from '@inertiajs/vue3'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
-import { Button } from '@/components/ui/button'
+import { computed, watch } from 'vue'
+import type { InertiaForm } from '@inertiajs/vue3'
+import DialogForm from '@/components/DialogForm.vue'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Upload } from 'lucide-vue-next'
-import type { FarmerOffering, VarietyOption } from '@/types/announcement'
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Badge } from '@/components/ui/badge'
+import ImageUpload from '@/components/shared/media/ImageUpload.vue'
+import { Sprout } from 'lucide-vue-next'
+import { Offering, VarietyOption } from '@/types/farmer/garden'
 
 interface Props {
   open: boolean
-  offering?: FarmerOffering | null
+  offering?: Offering | null
   varietyOptions: Record<string, VarietyOption[]>
-  isSubmitting?: boolean
+  form: InertiaForm<{
+    variety_id: number | null
+    image: File | null
+    weight_kg: number
+    asking_price: number
+    expiration_date: string
+  }>
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  offering: null,
-  isSubmitting: false
+  offering: null
 })
 
 const emit = defineEmits<{
   'update:open': [value: boolean]
-  'submit': [formData: FormData]
+  submit: []
 }>()
-
-const form = useForm({
-  variety_id: props.offering?.variety.id || 0,
-  quantity_kg: props.offering?.quantity_kg || 0,
-  price_asking: props.offering?.price_asking || 0,
-  expiration_date: props.offering?.expiration_date || '',
-  image: null as File | null
-})
-
-const imagePreview = ref<string | null>(props.offering?.image_url || null)
-const fileInput = ref<HTMLInputElement>()
-
-function handleImageSelect(event: Event) {
-  const target = event.target as HTMLInputElement
-  const file = target.files?.[0]
-  
-  if (file) {
-    form.image = file
-    
-    // Create preview
-    const reader = new FileReader()
-    reader.onload = (e) => {
-      imagePreview.value = e.target?.result as string
-    }
-    reader.readAsDataURL(file)
-  }
-}
-
-function handleSubmit() {
-  const formData = new FormData()
-  formData.append('variety_id', String(form.variety_id))
-  formData.append('quantity_kg', String(form.quantity_kg))
-  formData.append('price_asking', String(form.price_asking))
-  formData.append('expiration_date', form.expiration_date)
-  
-  if (form.image) {
-    formData.append('image', form.image)
-  }
-
-  emit('submit', formData)
-}
 
 const minDate = computed(() => {
   const tomorrow = new Date()
@@ -78,143 +43,154 @@ const maxDate = computed(() => {
   threeMonths.setMonth(threeMonths.getMonth() + 3)
   return threeMonths.toISOString().split('T')[0]
 })
+
+const isEditMode = computed(() => !!props.offering)
+
+// Reset form when dialog closes
+watch(() => props.open, (isOpen) => {
+  if (!isOpen) {
+    props.form.reset()
+    props.form.clearErrors()
+  }
+})
 </script>
 
 <template>
-  <Dialog :open="open" @update:open="(val) => emit('update:open', val)">
-    <DialogContent class="max-h-[90vh] max-w-2xl overflow-y-auto">
-      <DialogHeader>
-        <DialogTitle>
-          {{ offering ? 'Edit Offering' : 'Create Offering' }}
-        </DialogTitle>
-        <DialogDescription>
-          {{ offering ? 'Update your offering details' : 'Post a new offering for dealers' }}
-        </DialogDescription>
-      </DialogHeader>
+  <DialogForm
+    :open="open"
+    :title="isEditMode ? 'Edit Offering' : 'Create Offering'"
+    :description="isEditMode ? 'Update your offering details' : 'Post a new offering for dealers'"
+    :is-submitting="form.processing"
+    :submit-label="isEditMode ? 'Update Offering' : 'Post Offering'"
+    max-width="2xl"
+    @update:open="emit('update:open', $event)"
+    @submit="emit('submit')"
+  >
+    <template #icon>
+      <Sprout class="size-5 text-primary" />
+    </template>
 
-      <form @submit.prevent="handleSubmit" class="space-y-6">
-        <!-- Variety Select -->
-        <div class="space-y-2">
-          <Label for="variety">Variety *</Label>
-          <Select v-model="form.variety_id" :disabled="!!offering">
-            <SelectTrigger id="variety">
-              <SelectValue placeholder="Select variety" />
-            </SelectTrigger>
-            <SelectContent>
-              <template v-for="(varieties, category) in varietyOptions" :key="category">
-                <div class="px-2 py-1.5 text-xs font-semibold text-muted-foreground">
-                  {{ category }}
-                </div>
-                <SelectItem
-                  v-for="variety in varieties"
-                  :key="variety.id"
-                  :value="variety.id"
-                >
-                  {{ variety.name }}
-                </SelectItem>
-              </template>
-            </SelectContent>
-          </Select>
-          <p v-if="offering" class="text-xs text-muted-foreground">
-            Variety cannot be changed after creation
-          </p>
-        </div>
-
-        <!-- Image Upload -->
-        <div class="space-y-2">
-          <Label for="image">Image {{ offering ? '' : '*' }}</Label>
-          <div class="flex items-center gap-4">
-            <Button
-              type="button"
-              variant="outline"
-              @click="fileInput?.click()"
-              class="gap-2"
-            >
-              <Upload class="size-4" />
-              {{ imagePreview ? 'Change Image' : 'Upload Image' }}
-            </Button>
-            <input
-              ref="fileInput"
-              type="file"
-              accept="image/jpeg,image/jpg,image/png,image/webp"
-              class="hidden"
-              @change="handleImageSelect"
-            />
-            <span v-if="form.image" class="text-sm text-muted-foreground">
-              {{ form.image.name }}
-            </span>
-          </div>
-          <div v-if="imagePreview" class="mt-2">
-            <img
-              :src="imagePreview"
-              alt="Preview"
-              class="h-32 w-32 rounded-lg border object-cover"
-            />
-          </div>
-          <p class="text-xs text-muted-foreground">
-            Max 5MB. Formats: JPEG, PNG, WebP
-          </p>
-        </div>
-
-        <!-- Quantity -->
-        <div class="space-y-2">
-          <Label for="quantity">Quantity (kg) *</Label>
-          <Input
-            id="quantity"
-            v-model.number="form.quantity_kg"
-            type="number"
-            step="0.1"
-            min="0.1"
-            max="99999"
-            required
-          />
-        </div>
-
-        <!-- Price Asking -->
-        <div class="space-y-2">
-          <Label for="price">Asking Price (₱/kg) *</Label>
-          <Input
-            id="price"
-            v-model.number="form.price_asking"
-            type="number"
-            step="0.01"
-            min="0"
-            max="9999.99"
-            required
-          />
-        </div>
-
-        <!-- Expiration Date -->
-        <div class="space-y-2">
-          <Label for="expiration">Expiration Date *</Label>
-          <Input
-            id="expiration"
-            v-model="form.expiration_date"
-            type="date"
-            :min="minDate"
-            :max="maxDate"
-            required
-          />
-          <p class="text-xs text-muted-foreground">
-            Offering will auto-expire after this date (max 3 months)
-          </p>
-        </div>
-
-        <!-- Actions -->
-        <div class="flex justify-end gap-3">
-          <Button
-            type="button"
-            variant="outline"
-            @click="emit('update:open', false)"
-            :disabled="isSubmitting"
+    <div class="space-y-6">
+      <!-- Variety Select -->
+      <div class="space-y-2">
+        <Label for="variety" class="flex items-center gap-1.5">
+          Variety
+          <Badge variant="secondary" class="text-xs font-normal">Required</Badge>
+        </Label>
+        <Select 
+          v-model="form.variety_id" 
+          :disabled="isEditMode"
+        >
+          <SelectTrigger 
+            id="variety"
+            :class="{ 'border-destructive': form.errors.variety_id }"
           >
-            Cancel
-          </Button>
-          <Button type="submit" :disabled="isSubmitting">
-            {{ isSubmitting ? 'Saving...' : (offering ? 'Update Offering' : 'Post Offering') }}
-          </Button>
-        </div>
-      </form>
-    </DialogContent>
-  </Dialog>
+            <SelectValue placeholder="Select a variety..." />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup 
+              v-for="(varieties, category) in varietyOptions" 
+              :key="category"
+            >
+              <SelectLabel>{{ category }}</SelectLabel>
+              <SelectItem
+                v-for="variety in varieties"
+                :key="variety.id"
+                :value="variety.id"
+              >
+                {{ variety.name }}
+              </SelectItem>
+            </SelectGroup>
+          </SelectContent>
+        </Select>
+        <p v-if="form.errors.variety_id" class="text-xs text-destructive">
+          {{ form.errors.variety_id }}
+        </p>
+        <p v-else-if="isEditMode" class="text-xs text-muted-foreground">
+          Variety cannot be changed after creation
+        </p>
+        <p v-else class="text-xs text-muted-foreground">
+          Choose the variety you're offering
+        </p>
+      </div>
+
+      <!-- Image Upload -->
+      <ImageUpload
+        v-model="form.image"
+        :existing-image-url="offering?.image_url"
+        :error="form.errors.image"
+        :required="!isEditMode"
+      />
+
+      <!-- Quantity -->
+      <div class="space-y-2">
+        <Label for="quantity" class="flex items-center gap-1.5">
+          Quantity (kg)
+          <Badge variant="secondary" class="text-xs font-normal">Required</Badge>
+        </Label>
+        <Input
+          id="quantity"
+          v-model.number="form.weight_kg"
+          type="number"
+          step="0.1"
+          min="0.1"
+          max="99999"
+          placeholder="0.0"
+          :class="{ 'border-destructive': form.errors.weight_kg }"
+        />
+        <p v-if="form.errors.weight_kg" class="text-xs text-destructive">
+          {{ form.errors.weight_kg }}
+        </p>
+        <p v-else class="text-xs text-muted-foreground">
+          Enter the available quantity in kilograms
+        </p>
+      </div>
+
+      <!-- Asking Price -->
+      <div class="space-y-2">
+        <Label for="price" class="flex items-center gap-1.5">
+          Asking Price (₱/kg)
+          <Badge variant="secondary" class="text-xs font-normal">Required</Badge>
+        </Label>
+        <Input
+          id="price"
+          v-model.number="form.asking_price"
+          type="number"
+          step="0.01"
+          min="0"
+          max="9999.99"
+          placeholder="0.00"
+          :class="{ 'border-destructive': form.errors.asking_price }"
+        />
+        <p v-if="form.errors.asking_price" class="text-xs text-destructive">
+          {{ form.errors.asking_price }}
+        </p>
+        <p v-else class="text-xs text-muted-foreground">
+          Set your asking price per kilogram
+        </p>
+      </div>
+
+      <!-- Expiration Date -->
+      <div class="space-y-2">
+        <Label for="expiration" class="flex items-center gap-1.5">
+          Expiration Date
+          <Badge variant="secondary" class="text-xs font-normal">Required</Badge>
+        </Label>
+        <Input
+          id="expiration"
+          v-model="form.expiration_date"
+          type="date"
+          :min="minDate"
+          :max="maxDate"
+          :class="{ 'border-destructive': form.errors.expiration_date }"
+        />
+        <p v-if="form.errors.expiration_date" class="text-xs text-destructive">
+          {{ form.errors.expiration_date }}
+        </p>
+        <p v-else class="text-xs text-muted-foreground">
+          Offering will auto-expire after this date (max 3 months)
+        </p>
+      </div>
+    </div>
+  </DialogForm>
 </template>
