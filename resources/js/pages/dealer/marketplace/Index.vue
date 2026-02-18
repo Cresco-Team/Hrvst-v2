@@ -5,13 +5,13 @@ import { Search, Filter } from 'lucide-vue-next'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
-import OfferingCard from '@/components/dealer/OfferingCard.vue'
 import AppLayout from '@/layouts/AppLayout.vue'
 import Heading from '@/components/Heading.vue'
 import dealer from '@/routes/dealer'
 import { PaginatedResponse } from '@/types/pagination'
 import { CategoryOption, MarketplaceFilters, Offering } from '@/types/dealer/marketplace'
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group'
+import MarketplaceCard from '@/components/dealer/MarketplaceCard.vue'
 
 interface Props {
   filters: MarketplaceFilters
@@ -86,7 +86,7 @@ function handlePageChange(page: number) {
 }
 
 const breadcrumbs = [
-  { title: 'Dealer', href: dealer.market().url },
+  { title: 'Dealer', href: dealer.marketplace.index().url },
   { title: 'Marketplace', href: dealer.marketplace.index().url },
 ]
 </script>
@@ -156,7 +156,7 @@ const breadcrumbs = [
             :href="dealer.marketplace.show(offering.id).url"
             class="block"
           >
-            <OfferingCard :offering="offering" />
+            <MarketplaceCard :offering="offering" />
           </Link>
         </div>
       </Deferred>
