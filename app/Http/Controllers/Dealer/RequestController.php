@@ -2,39 +2,40 @@
 
 namespace App\Http\Controllers\Dealer;
 
+use App\DealerRequestStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Dealer\StoreDealerRequestRequest;
 use App\Http\Requests\Dealer\UpdateDealerRequestRequest;
-use App\Models\Announcement\DealerRequest;
-use App\Services\Dealer\DealerRequestService;
+use App\Models\Marketplace\DealerRequest;
+use App\Services\Dealer\RequestService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 use Inertia\Response;
 
-class DealerRequestController extends Controller
+class RequestController extends Controller
 {
     public function __construct(
-        private DealerRequestService $service
+        private RequestService $service
     ) {}
 
     public function index(Request $request): Response
     {
         $user = $request->user()->load('dealerProfile');
         $dealerId = $user->dealerProfile->id;
-        $status = $request->query('status', 'all');
+        $status = DealerRequestStatus::tryFrom($request->query('status', DealerRequestStatus::Open->value));
 
         return Inertia::render('dealer/requests/Index', [
+            'summary' => Inertia::defer(fn() => RequestService::summary($dealerId)),
+            'varietyOptions' => Inertia::defer(fn() => RequestService::varietyOptions()),
             'filters' => ['status' => $status],
-            
-            'requests' => Inertia::defer(fn() => DealerRequestService::paginated(
+            'requests' => Inertia::defer(fn() => RequestService::paginated(
                 dealerId: $dealerId,
                 status: $status
             )),
             
-            'summary' => Inertia::defer(fn() => DealerRequestService::summary($dealerId)),
-            'varietyOptions' => Inertia::defer(fn() => DealerRequestService::varietyOptions()),
+            
         ]);
     }
 
@@ -44,8 +45,7 @@ class DealerRequestController extends Controller
         
         $this->service->create(
             dealerId: $dealerId,
-            requestData: $request->only('transaction_date'),
-            items: $request->input('items')
+            validated: $request->validated()
         );
 
         return redirect()->route('dealer.requests.index')
@@ -60,12 +60,21 @@ class DealerRequestController extends Controller
 
         $this->service->update(
             request: $dealerRequest,
-            requestData: $request->only('transaction_date'),
-            items: $request->input('items')
+            validated: $request->validated(),
         );
 
         return redirect()->route('dealer.requests.index')
             ->with('flash', ['type' => 'success', 'message' => 'Request updated successfully!']);
+    }
+
+    public function expire(DealerRequest $request): RedirectResponse
+    {
+        Gate::authorize('expire', $request);
+
+        $this->service->expire($request);
+
+        return redirect()->route('dealer.requests.index')
+            ->with('flash', ['type' => 'success', 'message' => 'Request expired.']);
     }
 
     public function fulfill(DealerRequest $dealerRequest): RedirectResponse
