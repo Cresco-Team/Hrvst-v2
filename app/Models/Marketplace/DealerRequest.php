@@ -63,12 +63,7 @@ class DealerRequest extends Model
 
     public function scopeExpired(Builder $query): Builder
     {
-        return $query->where('status', 'expired');
-    }
-
-    public function scopeActive(Builder $query): Builder
-    {
-        return $query->where('status', 'open')
+        return $query->where('status', 'expired')
             ->where('transaction_date', '>=', now());
     }
 
@@ -96,13 +91,6 @@ class DealerRequest extends Model
 
     /* ---------- accessors ---------- */
 
-    public function totalQuantity(): Attribute
-    {
-        return Attribute::make(
-            get: fn () => $this->items->sum('quantity_kg')
-        );
-    }
-
     public function reactionCounts(): Attribute
     {
         return Attribute::make(
@@ -120,7 +108,8 @@ class DealerRequest extends Model
                 if ($this->status !== DealerRequestStatus::Open) {
                     return null;
                 }
-                return now()->diffInDays($this->transaction_date, false);
+
+                return (int) now()->diffInDays($this->transaction_date, false);
             }
         );
     }

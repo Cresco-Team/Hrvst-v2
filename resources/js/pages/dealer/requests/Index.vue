@@ -1,133 +1,122 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { Head, router } from '@inertiajs/vue3'
+import { Deferred, Head, router, useForm } from '@inertiajs/vue3'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Plus, Edit, Check, Trash2, Calendar } from 'lucide-vue-next'
+import { Plus, PackageSearch, PackageCheck, CalendarX, CalendarClock, Package } from 'lucide-vue-next'
 import DealerRequestForm from '@/components/dealer/DealerRequestForm.vue'
-import { toast } from 'vue-sonner'
 import dealer from '@/routes/dealer'
-import type { DealerRequest, PaginatedResponse, VarietyOption } from '@/types/announcement'
 import AppLayout from '@/layouts/AppLayout.vue'
 import Heading from '@/components/Heading.vue'
-
-interface Summary {
-  total_open: number
-  total_fulfilled: number
-  total_expired: number
-  upcoming_transactions: number
-}
+import { PaginatedResponse } from '@/types/pagination'
+import { Request, Summary, VarietyOption } from '@/types/dealer/requests'
+import { destroy, fulfill, index, store, update } from '@/routes/dealer/requests'
+import LargeCard from '@/components/shared/cards/LargeCard.vue'
+import EmptyState from '@/components/EmptyState.vue'
+import RequestCard from '@/components/dealer/RequestCard.vue'
 
 interface Props {
-  filters: {
-    status: string | null
-  }
-  requests?: PaginatedResponse<DealerRequest>
   summary?: Summary
+  filters: { status: string | null }
+  requests?: PaginatedResponse<Request>
   varietyOptions?: Record<string, VarietyOption[]>
 }
-
 const props = defineProps<Props>()
 
+/* Dialog states */
 const formOpen = ref(false)
-const activeRequest = ref<DealerRequest | null>(null)
-const isSubmitting = ref(false)
-
 const deleteDialogOpen = ref(false)
 const fulfillDialogOpen = ref(false)
-const requestToDelete = ref<DealerRequest | null>(null)
-const requestToFulfill = ref<DealerRequest | null>(null)
 
-const activeTab = computed(() => props.filters.status || 'all')
-const isLoadingRequests = computed(() => !props.requests)
-const isLoadingSummary = computed(() => !props.summary)
-const isLoadingOptions = computed(() => !props.varietyOptions)
+/* Active items */
+const activeRequest = ref<Request | null>(null)
+const requestToDelete = ref<Request | null>(null)
+const requestToFulfill = ref<Request | null>(null)
+
+const form = useForm<{
+  variety_id: number | null
+  quantity_kg: number
+  price_offered: number
+  transaction_date: string
+}>({
+  variety_id: null,
+  quantity_kg: 0,
+  price_offered: 0,
+  transaction_date: '',
+})
+
+const activeTab = computed(() => props.filters.status || 'open')
+
+const breadcrumbs = [
+  { title: 'Dealer', href: dealer.requests.index().url },
+  { title: 'My Requests', href: dealer.requests.index().url }
+]
 
 function handleTabChange(value: string | number) {
-  router.visit(dealer.requests.index().url, {
-    data: { status: value === 'all' ? undefined : value },
+  const routeTarget = index({
+    query: { status: value === 'open' ? undefined : value }
+  })
+
+  router.visit(routeTarget.url, {
     preserveState: true,
-    only: ['requests', 'filters']
+    preserveScroll: true,
+    only: ['requests', 'filters', 'summary']
   })
 }
 
 function openCreate() {
   activeRequest.value = null
+  form.reset()
+  form.clearErrors()
   formOpen.value = true
 }
 
-function openEdit(request: DealerRequest) {
+function openEdit(request: Request) {
   activeRequest.value = request
+  form.variety_id = request.variety.id
+  form.quantity_kg = request.quantity_kg
+  form.price_offered = request.price_offered
+  form.transaction_date = request.transaction_date
   formOpen.value = true
 }
 
-function openFulfill(request: DealerRequest) {
+function openFulfill(request: Request) {
   requestToFulfill.value = request
   fulfillDialogOpen.value = true
 }
 
-function openDelete(request: DealerRequest) {
+function openDelete(request: Request) {
   requestToDelete.value = request
   deleteDialogOpen.value = true
 }
 
-function handleSubmit(formData: FormData) {
-  isSubmitting.value = true
+function handleSubmit() {
+  const routeData = activeRequest.value
+    ? update(activeRequest.value.id)
+    : store()
 
-  if (activeRequest.value) {
-    formData.append('_method', 'PUT')
-    
-    router.post(dealer.requests.update(activeRequest.value.id).url, formData, {
-      onSuccess() {
-        formOpen.value = false
-        isSubmitting.value = false
-        toast.success('Request updated successfully!')
-      },
-      onError() {
-        isSubmitting.value = false
-      }
-    })
-  } else {
-    router.post(dealer.requests.store().url, formData, {
-      onSuccess() {
-        formOpen.value = false
-        isSubmitting.value = false
-        toast.success('Request posted successfully!')
-      },
-      onError() {
-        isSubmitting.value = false
-      }
-    })
-  }
+  form.transform((data) => ({
+    ...data,
+    _method: activeRequest.value ? 'PUT' : 'POST'
+  })).post(routeData.url, {
+    preserveScroll: true,
+    onSuccess: () => {
+      formOpen.value = false
+      form.reset()
+    }
+  })
 }
 
 function handleFulfill() {
   if (!requestToFulfill.value) return
 
-  router.post(dealer.requests.fulfill(requestToFulfill.value.id).url, {}, {
-    onSuccess() {
+  router.post(fulfill(requestToFulfill.value.id), {}, {
+    preserveScroll: true,
+    onSuccess: () => {
       fulfillDialogOpen.value = false
       requestToFulfill.value = null
-      toast.success('Request marked as fulfilled!')
     }
   })
 }
@@ -135,41 +124,17 @@ function handleFulfill() {
 function handleDelete() {
   if (!requestToDelete.value) return
 
-  router.delete(dealer.requests.destroy(requestToDelete.value.id).url, {
-    onSuccess() {
+  const routeTarget = destroy(requestToDelete.value.id)
+
+  router.visit(routeTarget.url, {
+    method: 'delete',
+    preserveScroll: true,
+    onSuccess: () => {
       deleteDialogOpen.value = false
       requestToDelete.value = null
-      toast.success('Request deleted.')
     }
   })
 }
-
-function getStatusBadge(status: string) {
-  const badgeMap: Record<string, { class: string; label: string }> = {
-    open: { 
-      class: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400', 
-      label: 'Open' 
-    },
-    fulfilled: { 
-      class: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400', 
-      label: 'Fulfilled' 
-    },
-    expired: { 
-      class: 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400', 
-      label: 'Expired' 
-    }
-  };
-
-  return badgeMap[status] ?? { 
-    class: 'bg-slate-100 text-slate-800', 
-    label: status
-  };
-}
-
-const breadcrumbs = [
-  { title: 'Dealer', href: dealer.requests.index().url },
-  { title: 'My Requests', href: dealer.requests.index().url }
-]
 </script>
 
 <template>
@@ -191,143 +156,92 @@ const breadcrumbs = [
       </div>
 
       <!-- Summary Cards -->
-      <div v-if="!isLoadingSummary" class="grid grid-cols-1 gap-4 sm:grid-cols-4">
-        <div class="rounded-lg border bg-card p-4">
-          <p class="text-sm text-muted-foreground">Open Requests</p>
-          <p class="text-2xl font-bold">{{ summary!.total_open }}</p>
+       <Deferred data="summary">
+        <template #fallback>
+          <div class="grid grid-cols-1 gap-4 sm:grid-cols-4">
+            <Skeleton v-for="i in 4" :key="i" class="h-34 rounded-lg" />
+          </div>
+        </template>
+
+        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-2">
+          <LargeCard 
+            title="Open Requests"
+            :value="summary?.total_open"
+            subtext="all open requests"
+            :icon="PackageSearch"
+            card-class="from-emerald-50 to-green-50 dark:from-emerald-950/20 dark:to-green-950/20"
+          />
+
+          <LargeCard 
+            title="Fulfilled"
+            :value="summary?.total_fulfilled"
+            subtext="all fulfilled requests"
+            :icon="PackageCheck"
+            card-class="from-emerald-50 to-green-50 dark:from-emerald-950/20 dark:to-green-950/20"
+          />
+
+          <LargeCard 
+            title="Expired Requests"
+            :value="summary?.total_expired"
+            subtext="all expired requests"
+            :icon="CalendarX"
+            card-class="from-emerald-50 to-green-50 dark:from-emerald-950/20 dark:to-green-950/20"
+          />
+
+          <LargeCard 
+            title="Upcoming"
+            :value="summary?.upcomming_transactions"
+            subtext="all upcoming transactions"
+            :icon="CalendarClock"
+            card-class="from-emerald-50 to-green-50 dark:from-emerald-950/20 dark:to-green-950/20"
+          />
         </div>
-        <div class="rounded-lg border bg-card p-4">
-          <p class="text-sm text-muted-foreground">Fulfilled</p>
-          <p class="text-2xl font-bold text-blue-600 dark:text-blue-500">
-            {{ summary!.total_fulfilled }}
-          </p>
-        </div>
-        <div class="rounded-lg border bg-card p-4">
-          <p class="text-sm text-muted-foreground">Expired</p>
-          <p class="text-2xl font-bold">{{ summary!.total_expired }}</p>
-        </div>
-        <div class="rounded-lg border bg-card p-4">
-          <p class="text-sm text-muted-foreground">Upcoming</p>
-          <p class="text-2xl font-bold text-orange-600 dark:text-orange-500">
-            {{ summary!.upcoming_transactions }}
-          </p>
-        </div>
-      </div>
-      <div v-else class="grid grid-cols-1 gap-4 sm:grid-cols-4">
-        <Skeleton v-for="i in 4" :key="i" class="h-24 rounded-lg" />
-      </div>
+       </Deferred>
 
       <!-- Status Tabs -->
       <Tabs :model-value="activeTab" @update:model-value="handleTabChange">
         <TabsList>
-          <TabsTrigger value="all">All</TabsTrigger>
           <TabsTrigger value="open">Open</TabsTrigger>
-          <TabsTrigger value="fulfilled">Fulfilled</TabsTrigger>
           <TabsTrigger value="expired">Expired</TabsTrigger>
         </TabsList>
       </Tabs>
 
-      <!-- Requests Table -->
-      <div v-if="!isLoadingRequests" class="rounded-lg border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Transaction Date</TableHead>
-              <TableHead>Items</TableHead>
-              <TableHead>Total Quantity</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead class="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            <TableRow v-for="request in requests!.data" :key="request.id">
-              <TableCell>
-                <div class="flex items-center gap-2">
-                  <Calendar class="size-4 text-muted-foreground" />
-                  <span class="font-medium">{{ request.transaction_date }}</span>
-                </div>
-              </TableCell>
-              <TableCell>
-                <div class="max-w-xs space-y-1">
-                  <div
-                    v-for="item in request.items.slice(0, 3)"
-                    :key="item.variety.id"
-                    class="text-sm"
-                  >
-                    {{ item.variety.name }}
-                    <span class="text-muted-foreground">
-                      ({{ item.quantity_kg }}kg @ ₱{{ item.price_offered }})
-                    </span>
-                  </div>
-                  <div
-                    v-if="request.items.length > 3"
-                    class="text-xs text-muted-foreground"
-                  >
-                    +{{ request.items.length - 3 }} more varieties
-                  </div>
-                </div>
-              </TableCell>
-              <TableCell>
-                <span class="font-medium">{{ request.total_quantity }}kg</span>
-              </TableCell>
-              <TableCell>
-                <span
-                  :class="getStatusBadge(request.status).class"
-                  class="inline-flex rounded-full px-2 py-1 text-xs font-medium"
-                >
-                  {{ getStatusBadge(request.status).label }}
-                </span>
-              </TableCell>
-              <TableCell class="text-right">
-                <div class="flex justify-end gap-2">
-                  <Button
-                    v-if="request.status === 'open'"
-                    variant="outline"
-                    size="sm"
-                    @click="openEdit(request)"
-                  >
-                    <Edit class="size-4" />
-                  </Button>
-                  <Button
-                    v-if="request.status === 'open'"
-                    variant="outline"
-                    size="sm"
-                    @click="openFulfill(request)"
-                    class="gap-2"
-                  >
-                    <Check class="size-4" />
-                    Fulfill
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    @click="openDelete(request)"
-                  >
-                    <Trash2 class="size-4" />
-                  </Button>
-                </div>
-              </TableCell>
-            </TableRow>
+      <!-- Requests Grid -->
+       <Deferred data="requests">
+        <template #fallback>
+          <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            <Skeleton v-for="i in 8" :key="i" class="h-96 rounded-lg" />
+          </div>
+        </template>
 
-            <TableRow v-if="requests!.data.length === 0">
-              <TableCell colspan="5" class="text-center text-muted-foreground">
-                No requests found. Create your first request!
-              </TableCell>
-            </TableRow>
-          </TableBody>
-        </Table>
-      </div>
-      <Skeleton v-else class="h-96 rounded-lg" />
+        <EmptyState 
+          v-if="requests?.data.length === 0"
+          title="No Posted Requests Yet."
+          description="Post a request"
+          :icon="Package"
+          button="Add Request"
+        />
+
+        <div v-else class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <RequestCard 
+            v-for="request in requests!.data"
+            :key="request.id"
+            :request="request"
+            @edit="openEdit"
+            @fulfill="openFulfill"
+            @delete="openDelete"
+          />
+        </div>
+       </Deferred>
     </div>
   </AppLayout>
 
   <!-- Request Form Dialog -->
   <DealerRequestForm
-    v-if="!isLoadingOptions"
     :open="formOpen"
     :request="activeRequest"
     :variety-options="varietyOptions!"
-    :is-submitting="isSubmitting"
+    :form="form"
     @update:open="formOpen = $event"
     @submit="handleSubmit"
   />
