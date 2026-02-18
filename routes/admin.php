@@ -28,14 +28,17 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
         Route::delete('{farmer}', [FarmerController::class, 'destroy'])->name('destroy');
 
         // API Route (AJAX)
-        Route::prefix('api')->name('api.')->group(function() {
+        Route::prefix('api')->name('api.')->group(function () {
+            // Map
             Route::get('/markers', [FarmerController::class, 'markers'])->name('markers');
             Route::get('/{farmer}/details', [FarmerController::class, 'details'])->name('details');
+            // Pending
+            Route::get('/pending', [FarmerController::class, 'pending'])->name('pending');
         });
 
         // Pending Farmers
         Route::post('/{farmer}/approve', [FarmerController::class, 'approve'])->name('approve');
-        Route::post('/{farmer}/reject', [FarmerController::class, 'approve'])->name('reject');
+        Route::post('/{farmer}/reject', [FarmerController::class, 'reject'])->name('reject');
     });
     
     // Dealers Route
@@ -43,6 +46,14 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
         Route::get('/', [DealerController::class, 'index'])->name('index');
         Route::get('/{dealer}', [DealerController::class, 'show'])->name('show');
         Route::delete('/{dealer}', [DealerController::class, 'destroy'])->name('destroy');
+
+        Route::prefix('api')->name('api.')->group(function () {
+            Route::get('/pending', [DealerController::class, 'pending'])->name('pending');
+        });
+        
+        // Pending Dealers
+        Route::post('/{dealer}/approve', [DealerController::class, 'approve'])->name('approve');
+        Route::post('/{dealer}/reject', [DealerController::class, 'reject'])->name('reject');
     });
 
     // Content Moderation (Flags)
