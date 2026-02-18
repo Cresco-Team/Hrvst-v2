@@ -1,36 +1,16 @@
 <script setup lang="ts">
 import { Link, usePage } from '@inertiajs/vue3';
-import { Bell, BookOpen, Flag, Folder, Gem, LayoutGrid, Menu, MessagesSquare, PackageSearch, Search, Sprout, Store, Truck, Wheat } from 'lucide-vue-next';
+import { Flag, Gem, Menu, MessagesSquare, PackageSearch, Search, Sprout, Store, Truck, Wheat } from 'lucide-vue-next';
 import { computed } from 'vue';
 import AppLogo from '@/components/AppLogo.vue';
 import AppLogoIcon from '@/components/AppLogoIcon.vue';
 import Breadcrumbs from '@/components/Breadcrumbs.vue';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import {
-    NavigationMenu,
-    NavigationMenuItem,
-    NavigationMenuList,
-    navigationMenuTriggerStyle,
-} from '@/components/ui/navigation-menu';
-import {
-    Sheet,
-    SheetContent,
-    SheetHeader,
-    SheetTitle,
-    SheetTrigger,
-} from '@/components/ui/sheet';
-import {
-    Tooltip,
-    TooltipContent,
-    TooltipProvider,
-    TooltipTrigger,
-} from '@/components/ui/tooltip';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { NavigationMenu, NavigationMenuItem, NavigationMenuList, navigationMenuTriggerStyle } from '@/components/ui/navigation-menu';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import UserMenuContent from '@/components/UserMenuContent.vue';
 import { useCurrentUrl } from '@/composables/useCurrentUrl';
 import { getInitials } from '@/composables/useInitials';
@@ -41,6 +21,7 @@ import admin from '@/routes/admin';
 import dealer from '@/routes/dealer';
 import farmer from '@/routes/farmer';
 import NotificationBell from './NotificationBell.vue';
+import PendingApprovalSheet from './admin/PendingApprovalSheet.vue';
 
 type Props = {
     breadcrumbs?: BreadcrumbItem[];
@@ -56,6 +37,8 @@ const { isCurrentUrl, whenCurrentUrl } = useCurrentUrl();
 
 const activeItemStyles =
     'text-neutral-900 dark:bg-neutral-800 dark:text-neutral-100';
+
+const isAdmin = computed(() => page.props.auth.user.roles.includes('admin'))
 
 const mainNavItems = computed<NavItem[]>(() => {
     const items: NavItem[] = [];
@@ -297,6 +280,8 @@ const shouldShowNotifications = computed(() => {
                             </template>
                         </div>
                     </div>
+
+                    <PendingApprovalSheet v-if="isAdmin" />
 
                     <NotificationBell v-if="shouldShowNotifications" />
 
