@@ -116,16 +116,16 @@ class DealerService
             'user'
         ])
             ->where('is_approved', false)
-            ->order_by('created_at', 'asc')
+            ->orderBy('created_at', 'asc')
             ->get()
             ->map(fn($dealer) => [
-                'id' => $dealer->idate,
+                'id' => $dealer->id,
                 'user' => [
                     'id' => $dealer->user->id,
                     'name' => $dealer->user->name,
                     'email' => $dealer->user->email,
                     'phone_number' => $dealer->user->phone_number,
-                    'user_image' => $dealer->user->user_image,
+                    'image_path' => $dealer->user->image_path,
                 ],
                 'document_image' => $dealer->document_image,
                 'submitted_at' => $dealer->created_at->format('M d, Y g:i A'),
