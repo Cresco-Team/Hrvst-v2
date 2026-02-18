@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\Services\Dealer\DealerRequestService;
-use App\Services\Farmer\FarmerOfferingService;
+use App\Services\Dealer\RequestService;
+use App\Services\Farmer\OfferingService;
 use Illuminate\Console\Command;
 
 class ExpireAnnouncementsCommand extends Command
@@ -13,8 +13,8 @@ class ExpireAnnouncementsCommand extends Command
 
     public function handle(): int
     {
-        $requestsExpired = DealerRequestService::expireOldRequests();
-        $offeringsExpired = FarmerOfferingService::expireOldOfferings();
+        $requestsExpired = RequestService::expireOldRequests();
+        $offeringsExpired = OfferingService::expireOldOfferings();
 
         $this->info("Expired {$requestsExpired} dealer requests and {$offeringsExpired} farmer offerings.");
 
