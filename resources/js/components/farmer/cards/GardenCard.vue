@@ -31,7 +31,7 @@ const isArchived = computed(() => props.offering.status === 'archived')
             <img 
                 :src="offering.image_url" 
                 :alt="offering.variety.name.charAt(0)" 
-                class="size-full object-cover transition-transform"
+                class="size-full object-cover bg-gray-200"
             />
             <div class="absolute bottom-0 right-0 rounded-tl-lg bg-black/60 px-3 py-1 text-xs font-medium text-white backdrop-blur-sm">
                 {{ offering.created_at_human }}
