@@ -112,13 +112,11 @@ class DealerService
 
     public static function pending(): array
     {
-        return DealerProfile::with([
-            'user'
-        ])
+        return DealerProfile::with(['user'])
             ->where('is_approved', false)
             ->orderBy('created_at', 'asc')
             ->get()
-            ->map(fn($dealer) => [
+            ->map(fn ($dealer) => [
                 'id' => $dealer->id,
                 'user' => [
                     'id' => $dealer->user->id,
