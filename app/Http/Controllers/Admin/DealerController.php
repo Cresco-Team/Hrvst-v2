@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Profiles\DealerProfile;
 use App\Services\Admin\DealerService;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -31,8 +33,32 @@ class DealerController extends Controller
         ]);
     }
 
-    public function destroy(DealerProfile $dealerProfile)
+    public function pending(): JsonResponse
     {
-        // For future implementation if needed
+        return response()->json(DealerService::pending());
+    }
+
+    public function approve(int $dealer): RedirectResponse
+    {
+        abort_if(! DealerService::approve($dealer), 404);
+
+        return back();
+    }
+
+    public function reject(int $dealer): RedirectResponse
+    {
+        abort_if(! DealerService::reject($dealer), 404);
+
+        return back();
+    }
+
+    public function destroy(int $dealer): RedirectResponse
+    {
+        $profile = \App\Models\Profiles\DealerProfile::where('is_approved', true)->findOrFail($dealer);
+        $user = $profile->user;
+        $profile->delete();
+        $user->delete();
+
+        return back();
     }
 }
