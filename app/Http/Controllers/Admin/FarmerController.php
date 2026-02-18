@@ -96,42 +96,23 @@ class FarmerController extends Controller
         ]);
     }
 
-    public function approve(int $id): RedirectResponse
+    public function pending(): JsonResponse
     {
-        $approved = FarmerService::approve($id);
-
-        if (!$approved) {
-            return redirect()->route('admin.farmers.index')
-                ->with('flash', [
-                    'type' => 'error',
-                    'message' => 'Farmer not found or already approved.',
-                ]);
-        }
-
-        return redirect()->route('admin.farmers.index')
-            ->with('flash', [
-                'type' => 'success',
-                'message' => 'Farmer approved successfully.',
-            ]);
+        return response()->json(FarmerService::pending());
     }
 
-    public function reject(int $id): RedirectResponse
+    public function approve(int $farmer): RedirectResponse
     {
-        $rejected = FarmerService::reject($id);
+        abort_if(! FarmerService::approve($farmer), 404);
 
-        if (!$rejected) {
-            return redirect()->route('admin.farmers.index')
-                ->with('flash', [
-                    'type' => 'error',
-                    'message' => 'Farmer not found or already processed.',
-                ]);
-        }
+        return back();
+    }
 
-        return redirect()->route('admin.farmers.index')
-            ->with('flash', [
-                'type' => 'success',
-                'message' => 'Farmer rejected and account deleted.',
-            ]);
+    public function reject(int $farmer): RedirectResponse
+    {
+        abort_if(! FarmerService::reject($farmer), 404);
+
+        return back();
     }
 
     public function destroy(FarmerProfile $farmerProfile): RedirectResponse
