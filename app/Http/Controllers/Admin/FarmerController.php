@@ -41,8 +41,6 @@ class FarmerController extends Controller
                 : null,
             
             'summary' => Inertia::defer(fn () => FarmerService::summary()),
-            
-            'pendingFarmers' => FarmerService::pending(),
         ]);
     }
 
