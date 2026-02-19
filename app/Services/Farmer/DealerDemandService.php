@@ -2,6 +2,8 @@
 
 namespace App\Services\Farmer;
 
+use App\DealerPriceFlag;
+use App\Enums\DealerDemandStatus;
 use App\Models\Marketplace\DealerDemand;
 use App\Models\Product\Category;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -15,25 +17,19 @@ class DealerDemandService
             'dealer.user',
             'items.variety.vegetable.category',
             'items.variety.latestPrice',
-        ])
-            ->where('status', 'open')
-            ->where('transaction_date', '>=', now());
+        ])->where('status', DealerDemandStatus::Open)
+        ->where('transaction_date', '>=', now());
 
-        // Category filter
         if (!empty($filters['category_id'])) {
-            $query->whereHas('items.variety.vegetable', fn(Builder $q) => 
+            $query->whereHas('variety.vegetable', fn(Builder $q) => 
                 $q->where('category_id', $filters['category_id'])
             );
         }
 
-        // Variety filter
         if (!empty($filters['variety_id'])) {
-            $query->whereHas('items', fn(Builder $q) => 
-                $q->where('variety_id', $filters['variety_id'])
-            );
+            $query->where('variety_id', $filters['variety_id']);
         }
 
-        // Date range filter
         if (!empty($filters['date_from'])) {
             $query->where('transaction_date', '>=', $filters['date_from']);
         }
@@ -42,124 +38,93 @@ class DealerDemandService
             $query->where('transaction_date', '<=', $filters['date_to']);
         }
 
-        // Sort by transaction date (soonest first)
         $query->orderBy('transaction_date', 'asc');
 
         return $query->paginate($perPage)
-            ->through(function ($request) {
+            ->through(function ($demand) {
                 return [
-                    'id' => $request->id,
+                    'id' => $demand->id,
                     'dealer' => [
-                        'id' => $request->dealer->id,
-                        'name' => $request->dealer->user->name,
-                        'user_image' => $request->dealer->user->user_image,
+                        'id' => $demand->dealer->id,
+                        'name' => $demand->dealer->user->name,
+                        'image_path' => $demand->dealer->user->image_path,
                     ],
-                    'transaction_date' => $request->transaction_date->format('M d, Y'),
-                    'days_until_transaction' => now()->diffInDays($request->transaction_date, false),
-                    'status' => $request->status,
-                    'items' => $request->items->map(fn($item) => [
-                        'variety' => [
-                            'id' => $item->variety_id,
-                            'name' => $item->variety->vegetable->name . ' ' . $item->variety->name,
-                            'category' => $item->variety->vegetable->category->name,
-                        ],
-                        'quantity_kg' => (float) $item->quantity_kg,
-                        'price_offered' => (float) $item->price_offered,
-                        'price_flag' => self::calculatePriceFlag($item->price_offered, $item->variety->latestPrice),
-                    ])->toArray(),
-                    'total_quantity' => (float) $request->items->sum('quantity_kg'),
-                    'created_at_human' => $request->created_at->diffForHumans(),
+                    'transaction_date' => $demand->transaction_date->format('M d, Y'),
+                    'days_until_transaction' => now()->diffInDays($demand->transaction_date, false),
+                    'status' => $demand->status,
+                    'variety' => [
+                        'id' => $demand->variety->id,
+                        'name' => $demand->variety->name,
+                        'vegetable' => $demand->variety->vegetable->name,
+                    ],
+                    'quantity_kg' => (float) $demand->quantity_kg,
+                    'price_offered' => (float) $demand->price_offered,
+                    'price_flag' => self::calculatePriceFlag($demand->price_offered, $demand->variety->latest_price),
+                    'created_at_human' => $demand->created_at->diffForHumans(),
                 ];
             });
     }
 
-    /**
-     * Get detailed request with all items and reactions
-     */
-    public static function detailed(DealerDemand $request): array
+    public static function detailed(DealerDemand $demand): array
     {
-        $request->load([
+        $demand->load([
             'dealer.user',
-            'items.variety.vegetable.category',
-            'items.variety.latestPrice',
+            'variety.vegetable.category',
+            'variety.latestPrice',
             'reactions.user',
         ]);
 
         return [
-            'id' => $request->id,
+            'id' => $demand->id,
             'dealer' => [
-                'id' => $request->dealer->id,
-                'name' => $request->dealer->user->name,
-                'phone_number' => $request->dealer->user->phone_number,
-                'user_image' => $request->dealer->user->user_image,
+                'id' => $demand->dealer->id,
+                'name' => $demand->dealer->user->name,
+                'phone_number' => $demand->dealer->user->phone_number,
+                'image_path' => $demand->dealer->user->image_path,
             ],
-            'transaction_date' => $request->transaction_date->format('M d, Y'),
-            'days_until_transaction' => now()->diffInDays($request->transaction_date, false),
-            'status' => $request->status,
-            'items' => $request->items->map(fn($item) => [
-                'id' => $item->id,
-                'variety' => [
-                    'id' => $item->variety_id,
-                    'name' => $item->variety->vegetable->name . ' ' . $item->variety->name,
-                    'category' => $item->variety->vegetable->category->name,
-                    'image_url' => $item->variety->image_url,
-                ],
-                'quantity_kg' => (float) $item->quantity_kg,
-                'price_offered' => (float) $item->price_offered,
-                'price_flag' => self::calculatePriceFlag($item->price_offered, $item->variety->latestPrice),
-                'market_price' => $item->variety->latestPrice ? [
-                    'min' => (float) $item->variety->latestPrice->price_min,
-                    'max' => (float) $item->variety->latestPrice->price_max,
-                ] : null,
-            ])->toArray(),
-            'total_quantity' => (float) $request->items->sum('quantity_kg'),
-            'created_at' => $request->created_at->format('M d, Y g:i A'),
-            'created_at_human' => $request->created_at->diffForHumans(),
-            'reaction_counts' => [
-                'thumbs_up' => $request->reactions->where('reaction_type', 'thumbs_up')->count(),
-                'thumbs_down' => $request->reactions->where('reaction_type', 'thumbs_down')->count(),
+            'transaction_date' => $demand->transaction_date->format('M d, Y'),
+            'days_until_transaction' => now()->diffInDays($demand->transaction_date, false),
+            'status' => $demand->status,
+            'variety' => [
+                'id' => $demand->variety_id,
+                'name' => $demand->variety->name,
+                'vegetable' => $demand->variety->vegetable->name,
+                'image_url' => $demand->variety->image_url,
             ],
+            'quantity_kg' => (float) $demand->quantity_kg,
+            'price_offered' => (float) $demand->price_offered,
+            'price_flag' => self::calculatePriceFlag($demand->price_offered, $demand->variety->latestPrice),
+            'market_price' => [
+                'min' => (float) $demand->variety->latestPrice->price_min,
+                'max' => (float) $demand->variety->latestPrice->price_max,
+            ],
+            'created_at' => $demand->created_at->format('M d, Y g:i A'),
+            'created_at_human' => $demand->created_at->diffForHumans(),
         ];
     }
 
-    /**
-     * Get category options that have open requests
-     */
     public static function categoryOptions(): array
     {
-        return Category::whereHas('vegetables.varieties.dealerRequestItems.dealerRequest', function (Builder $q) {
-            $q->where('status', 'open')
+        return Category::whereHas('vegetables.varieties.dealerDemand', function (Builder $q) {
+            $q->where('status', DealerDemandStatus::Open)
                 ->where('transaction_date', '>=', now());
-        })
-            ->orderBy('name')
+        })->orderBy('name')
             ->get()
             ->map(fn($category) => [
                 'id' => $category->id,
                 'name' => $category->name,
-            ])
-            ->toArray();
+            ])->toArray();
     }
 
-    /**
-     * Calculate price flag
-     */
-    private static function calculatePriceFlag(float $priceOffered, ?object $marketPrice): string
+    private static function calculatePriceFlag(float $priceOffered, ?object $marketPrice): DealerPriceFlag
     {
-        if (!$marketPrice) {
-            return 'unknown';
-        }
-
         $marketMin = (float) $marketPrice->price_min;
         $marketMax = (float) $marketPrice->price_max;
 
-        if ($priceOffered < $marketMin) {
-            return 'cheap';
-        }
+        if ($priceOffered < $marketMin) return DealerPriceFlag::Low;
 
-        if ($priceOffered > $marketMax) {
-            return 'high';
-        }
+        if ($priceOffered > $marketMax) return DealerPriceFlag::Premium;
 
-        return 'fair';
+        return DealerPriceFlag::Fair;
     }
 }
