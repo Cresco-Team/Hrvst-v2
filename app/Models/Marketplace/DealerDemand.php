@@ -2,7 +2,7 @@
 
 namespace App\Models\Marketplace;
 
-use App\DealerDemandStatus;
+use App\Enums\DealerDemandStatus;
 use App\DealerPriceFlag;
 use App\Models\Marketplace\Post;
 use App\Models\Profiles\DealerProfile;
