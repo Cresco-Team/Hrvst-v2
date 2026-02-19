@@ -7,7 +7,7 @@ const props = defineProps<{
         title: string
         description: string
         icon: Component
-        button: string
+        button?: string
 }>()
 </script>
 
@@ -23,7 +23,7 @@ const props = defineProps<{
             </EmptyDescription>
         </EmptyHeader>
         <EmptyContent>
-            <Button size="sm" >
+            <Button v-if="button" size="sm" >
                 {{ button }}
             </Button>
         </EmptyContent>
