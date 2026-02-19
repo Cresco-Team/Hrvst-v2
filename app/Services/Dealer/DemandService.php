@@ -115,7 +115,7 @@ class DemandService
     public function update(DealerDemand $request, array $validated): DealerDemand
     {
         if ($request->status !== DealerDemandStatus::Open) {
-            throw new \LogicException('Only open requests can be updated.');
+            throw new \LogicException('Only open demands can be updated.');
         }
 
         $request->update($validated);
@@ -137,7 +137,7 @@ class DemandService
         return $request->delete();
     }
 
-    public static function expireOldRequests(): int
+    public static function expireOldDemands(): int
     {
         return DealerDemand::where('status', DealerDemandStatus::Open)
             ->update(['status' => DealerDemandStatus::Expired]);
