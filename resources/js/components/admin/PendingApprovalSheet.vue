@@ -50,31 +50,26 @@ const totalPending = () => farmers.value.length + dealers.value.length
 
 <template>
   <Sheet v-model:open="sheetOpen">
-    <SheetTrigger as-child>
-      <TooltipProvider :delay-duration="0">
-        <Tooltip>
-          <TooltipTrigger as-child>
-            <Button
-              variant="ghost"
-              size="icon"
-              class="group relative h-9 w-9 cursor-pointer"
-            >
+    <TooltipProvider :delay-duration="0">
+      <Tooltip>
+        <TooltipTrigger as-child>
+          <SheetTrigger as-child>
+            <Button variant="ghost" size="icon" class="group relative h-9 w-9 cursor-pointer">
               <ClipboardList class="size-5 opacity-80 group-hover:opacity-100" />
               <!-- Pending count badge -->
-              <span
-                v-if="totalPending() > 0"
-                class="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-bold text-destructive-foreground"
-              >
+              <span v-if="totalPending() > 0"
+                class="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-bold text-destructive-foreground">
                 {{ totalPending() }}
               </span>
             </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Pending Approvals</p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
-    </SheetTrigger>
+          </SheetTrigger>
+        </TooltipTrigger>
+
+        <TooltipContent>
+          <p>Pending Approvals</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
 
     <SheetContent class="flex w-full flex-col gap-0 p-0 sm:max-w-md">
       <SheetHeader class="border-b px-6 py-4">
@@ -110,55 +105,42 @@ const totalPending = () => farmers.value.length + dealers.value.length
 
         <!-- Farmers tab -->
         <TabsContent value="farmers" class="mt-0 flex-1 overflow-y-auto">
-          <div v-if="farmers.length === 0" class="flex h-full items-center justify-center p-6 text-sm text-muted-foreground">
+          <div v-if="farmers.length === 0"
+            class="flex h-full items-center justify-center p-6 text-sm text-muted-foreground">
             No pending farmer applications.
           </div>
 
           <ul v-else class="divide-y">
-            <li
-              v-for="farmer in farmers"
-              :key="farmer.id"
-              class="flex items-center gap-3 px-6 py-4 transition-colors hover:bg-accent/50"
-            >
+            <li v-for="farmer in farmers" :key="farmer.id"
+              class="flex items-center gap-3 px-6 py-4 transition-colors hover:bg-accent/50">
               <!-- Avatar -->
               <Avatar class="size-10 shrink-0">
-                <AvatarImage
-                  v-if="farmer.user.image_path"
-                  :src="farmer.user.image_path"
-                  :alt="farmer.user.name"
-                />
-                <AvatarFallback class="bg-neutral-200 text-xs font-semibold text-black dark:bg-neutral-700 dark:text-white">
+                <AvatarImage v-if="farmer.user.image_path" :src="farmer.user.image_path" :alt="farmer.user.name" />
+                <AvatarFallback
+                  class="bg-neutral-200 text-xs font-semibold text-black dark:bg-neutral-700 dark:text-white">
                   {{ getInitials(farmer.user.name) }}
                 </AvatarFallback>
               </Avatar>
 
               <!-- Info — clicking opens the detail Dialog -->
-              <button
-                class="flex min-w-0 flex-1 flex-col gap-0.5 text-left"
-                @click="openDialog(farmer, 'farmer')"
-              >
+              <button class="flex min-w-0 flex-1 flex-col gap-0.5 text-left" @click="openDialog(farmer, 'farmer')">
                 <p class="truncate text-sm font-medium">{{ farmer.user.name }}</p>
-                <p class="truncate text-xs text-muted-foreground">{{ farmer.location.municipality }}, {{ farmer.location.province }}</p>
+                <p class="truncate text-xs text-muted-foreground">{{ farmer.location.municipality }}, {{
+                  farmer.location.province }}</p>
                 <p class="text-xs text-muted-foreground">{{ farmer.submitted_at_human }}</p>
               </button>
 
               <!-- Quick action buttons -->
               <div class="flex shrink-0 gap-1">
-                <Button
-                  variant="ghost"
-                  size="icon"
+                <Button variant="ghost" size="icon"
                   class="size-8 text-destructive hover:bg-destructive/10 hover:text-destructive"
-                  @click.stop="rejectFarmer(farmer.id)"
-                >
+                  @click.stop="rejectFarmer(farmer.id)">
                   <X class="size-4" />
                   <span class="sr-only">Reject</span>
                 </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
+                <Button variant="ghost" size="icon"
                   class="size-8 text-green-600 hover:bg-green-50 hover:text-green-700 dark:hover:bg-green-950"
-                  @click.stop="approveFarmer(farmer.id)"
-                >
+                  @click.stop="approveFarmer(farmer.id)">
                   <Check class="size-4" />
                   <span class="sr-only">Accept</span>
                 </Button>
@@ -169,52 +151,38 @@ const totalPending = () => farmers.value.length + dealers.value.length
 
         <!-- Dealers tab -->
         <TabsContent value="dealers" class="mt-0 flex-1 overflow-y-auto">
-          <div v-if="dealers.length === 0" class="flex h-full items-center justify-center p-6 text-sm text-muted-foreground">
+          <div v-if="dealers.length === 0"
+            class="flex h-full items-center justify-center p-6 text-sm text-muted-foreground">
             No pending dealer applications.
           </div>
 
           <ul v-else class="divide-y">
-            <li
-              v-for="dealer in dealers"
-              :key="dealer.id"
-              class="flex items-center gap-3 px-6 py-4 transition-colors hover:bg-accent/50"
-            >
+            <li v-for="dealer in dealers" :key="dealer.id"
+              class="flex items-center gap-3 px-6 py-4 transition-colors hover:bg-accent/50">
               <Avatar class="size-10 shrink-0">
-                <AvatarImage
-                  v-if="dealer.user.image_path"
-                  :src="dealer.user.image_path"
-                  :alt="dealer.user.name"
-                />
-                <AvatarFallback class="bg-neutral-200 text-xs font-semibold text-black dark:bg-neutral-700 dark:text-white">
+                <AvatarImage v-if="dealer.user.image_path" :src="dealer.user.image_path" :alt="dealer.user.name" />
+                <AvatarFallback
+                  class="bg-neutral-200 text-xs font-semibold text-black dark:bg-neutral-700 dark:text-white">
                   {{ getInitials(dealer.user.name) }}
                 </AvatarFallback>
               </Avatar>
 
-              <button
-                class="flex min-w-0 flex-1 flex-col gap-0.5 text-left"
-                @click="openDialog(dealer, 'dealer')"
-              >
+              <button class="flex min-w-0 flex-1 flex-col gap-0.5 text-left" @click="openDialog(dealer, 'dealer')">
                 <p class="truncate text-sm font-medium">{{ dealer.user.name }}</p>
                 <p class="truncate text-xs text-muted-foreground">{{ dealer.user.email }}</p>
                 <p class="text-xs text-muted-foreground">{{ dealer.submitted_at_human }}</p>
               </button>
 
               <div class="flex shrink-0 gap-1">
-                <Button
-                  variant="ghost"
-                  size="icon"
+                <Button variant="ghost" size="icon"
                   class="size-8 text-destructive hover:bg-destructive/10 hover:text-destructive"
-                  @click.stop="rejectDealer(dealer.id)"
-                >
+                  @click.stop="rejectDealer(dealer.id)">
                   <X class="size-4" />
                   <span class="sr-only">Reject</span>
                 </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
+                <Button variant="ghost" size="icon"
                   class="size-8 text-green-600 hover:bg-green-50 hover:text-green-700 dark:hover:bg-green-950"
-                  @click.stop="approveDealer(dealer.id)"
-                >
+                  @click.stop="approveDealer(dealer.id)">
                   <Check class="size-4" />
                   <span class="sr-only">Accept</span>
                 </Button>
@@ -227,11 +195,7 @@ const totalPending = () => farmers.value.length + dealers.value.length
   </Sheet>
 
   <!-- Detail Dialog (rendered outside Sheet to avoid stacking context issues) -->
-  <PendingApprovalDialog
-    v-model:open="dialogOpen"
-    :item="dialogItem"
-    :type="dialogType"
+  <PendingApprovalDialog v-model:open="dialogOpen" :item="dialogItem" :type="dialogType"
     @approve="dialogType === 'farmer' ? approveFarmer($event) : approveDealer($event)"
-    @reject="dialogType === 'farmer' ? rejectFarmer($event) : rejectDealer($event)"
-  />
+    @reject="dialogType === 'farmer' ? rejectFarmer($event) : rejectDealer($event)" />
 </template>
