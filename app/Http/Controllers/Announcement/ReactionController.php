@@ -19,7 +19,7 @@ class ReactionController extends Controller
     public function toggle(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'reactionable_type' => ['required', 'in:DealerRequest,FarmerOffering'],
+            'reactionable_type' => ['required', 'in:DealerDemand,FarmerOffering'],
             'reactionable_id' => ['required', 'integer'],
             'reaction_type' => ['required', 'string', 'max:20'],
         ]);
@@ -50,7 +50,7 @@ class ReactionController extends Controller
     public function show(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'reactionable_type' => ['required', 'in:DealerRequest,FarmerOffering'],
+            'reactionable_type' => ['required', 'in:DealerDemand,FarmerOffering'],
             'reactionable_id' => ['required', 'integer'],
         ]);
 
