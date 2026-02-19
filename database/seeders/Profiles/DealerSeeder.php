@@ -32,7 +32,7 @@ class DealerSeeder extends Seeder
         DealerProfile::create([
             'user_id' => $dealer->id,
         ], [
-            'is_approved' => true,
+            'is_approved' => false,
             'document_image' => null,
         ]);
 

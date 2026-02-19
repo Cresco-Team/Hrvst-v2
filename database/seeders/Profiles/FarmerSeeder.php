@@ -32,7 +32,7 @@ class FarmerSeeder extends Seeder
                 'user_id' => $user->id,
             ],
             [
-                'is_approved' => true,
+                'is_approved' => false,
                 'province_id' => 1,
                 'municipality_id' => 1,
                 'barangay_id' => 1,
