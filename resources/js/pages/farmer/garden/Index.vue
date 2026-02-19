@@ -13,10 +13,10 @@ import ArchivePlantingDialog from '@/components/features/farmer/dialogs/ArchiveP
 import DeletePlantingDialog from '@/components/features/farmer/dialogs/DeletePlantingDialog.vue'
 import type { PaginatedResponse } from '@/types/pagination'
 import farmer from '@/routes/farmer'
-import { archive, destroy, index, store, update } from '@/actions/App/Http/Controllers/Farmer/OfferingController'
 import EmptyState from '@/components/EmptyState.vue'
 import LargeCard from '@/components/shared/cards/LargeCard.vue'
 import { Offering, Summary, VarietyOption } from '@/types/farmer/garden'
+import { archive, destroy, index, store, update } from '@/routes/farmer/garden'
 
 interface Props {
   filters: { status: string | null }
@@ -146,20 +146,20 @@ function handleDelete() {
 </script>
 
 <template>
-  <Head title="My Offerings" />
+  <Head title="My Garden" />
 
   <AppLayout :breadcrumbs="breadcrumbs">
     <div class="flex h-full flex-col gap-6 p-4 lg:p-6">
       <!-- Header -->
       <div class="flex items-end justify-between">
         <Heading
-          title="My Offerings"
-          description="Manage your product offerings for dealers."
+          title="My Garden"
+          description="Manage your vegetable posts for dealers."
         />
         
         <Button @click="openCreate" class="gap-2">
           <Plus class="size-4" />
-          New Offering
+          New Post
         </Button>
       </div>
 
