@@ -2,7 +2,7 @@
 
 namespace App\Notifications\Announcement;
 
-use App\Models\Announcement\FarmerOffering;
+use App\Models\Marketplace\FarmerOffering;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 
@@ -28,8 +28,8 @@ class MatchingOfferingAvailable extends Notification
             'farmer_name' => $this->offering->farmer->user->name,
             'variety_name' => $this->offering->variety->vegetable->name . ' ' . $this->offering->variety->name,
             'variety_id' => $this->offering->variety_id,
-            'quantity_kg' => (float) $this->offering->quantity_kg,
-            'price_asking' => (float) $this->offering->price_asking,
+            'weight_kg' => (float) $this->offering->weight_kg,
+            'asking_price' => (float) $this->offering->asking_price,
             'expiration_date' => $this->offering->expiration_date->toDateString(),
             'days_until_expiration' => $this->offering->days_until_expiration,
             'image_url' => $this->offering->image_url,
