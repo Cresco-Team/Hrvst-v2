@@ -6,8 +6,8 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'verified', 'dealer'])->prefix('dealer')->name('dealer.')->group(function () {
     
-    // Dealer Requests (Manage own requests)
-    Route::prefix('requests')->name('requests.')->group(function () {
+    // Dealer Requests (Manage own demands)
+    Route::prefix('demands')->name('demands.')->group(function () {
         Route::get('/', [DemandController::class, 'index'])->name('index');
         Route::post('/', [DemandController::class, 'store'])->name('store');
         Route::put('/{dealerRequest}', [DemandController::class, 'update'])->name('update');
