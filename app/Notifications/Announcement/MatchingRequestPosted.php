@@ -2,7 +2,7 @@
 
 namespace App\Notifications\Announcement;
 
-use App\Models\Announcement\DealerRequest;
+use App\Models\Marketplace\DealerDemand;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 
@@ -11,7 +11,7 @@ class MatchingRequestPosted extends Notification
     use Queueable;
 
     public function __construct(
-        public DealerRequest $request
+        public DealerDemand $request
     ) {}
 
     /**
