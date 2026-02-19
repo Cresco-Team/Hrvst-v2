@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('dealer_requests', function (Blueprint $table) {
+        Schema::create('dealer_demands', function (Blueprint $table) {
             $table->id();
             $table->foreignId('dealer_id')->constrained('dealer_profiles')->cascadeOnDelete();
             $table->foreignId('variety_id')->constrained()->cascadeOnDelete();
