@@ -2,7 +2,7 @@
 
 namespace App;
 
-enum DealerRequestStatus: string
+enum DealerDemandStatus: string
 {
     case Open = 'open';
     case Fulfilled = 'fulfilled';
