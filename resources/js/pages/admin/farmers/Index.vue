@@ -9,13 +9,12 @@ import FarmerTable from '@/components/features/admin/tables/FarmerTable.vue'
 import FarmerMap from '@/components/features/admin/map/FarmerMap.vue'
 import FarmerMapFilters from '@/components/features/admin/map/FarmerMapFilters.vue'
 import FarmerMapSidebar from '@/components/features/admin/map/FarmerMapSidebar.vue'
-import PendingFarmersSheet from '@/components/features/admin/sheets/PendingFarmersSheet.vue'
 import { Skeleton } from '@/components/ui/skeleton'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import admin from '@/routes/admin'
 import AppLayout from '@/layouts/AppLayout.vue'
 import LargeCard from '@/components/shared/cards/LargeCard.vue'
-import { Filters, Farmer, Summary, FarmerDetails, MarkerData, PendingFarmer, PaginatedData } from '@/types/admin/farmers'
+import { Filters, Farmer, Summary, FarmerDetails, MarkerData, PaginatedData } from '@/types/admin/farmers'
 
 interface Props {
     view: 'list' | 'map'
@@ -29,7 +28,6 @@ interface Props {
     }
     farmers: PaginatedData
     summary: Summary
-    pendingFarmers: PendingFarmer[]
 }
 
 const props = defineProps<Props>()
@@ -44,7 +42,6 @@ const sidebarOpen = ref(false)
 const selectedFarmer = ref<FarmerDetails | null>(null)
 const loadingFarmer = ref(false)
 const mapBounds = ref<{ north: number; south: number; east: number; west: number } | null>(null)
-const pendingSheetOpen = ref(false)
 
 /* -- Computed -- */
 const isListView = computed(() => currentView.value === 'list')
@@ -187,12 +184,6 @@ if (storedView && storedView !== props.view) {
                 />
                 
                 <div class="flex items-center gap-2">
-
-                    <!-- Pending Approvals Sheet -->
-                    <PendingFarmersSheet
-                        v-model:open="pendingSheetOpen"
-                        :farmers="pendingFarmers"
-                    />
 
                     <!-- View Toggle -->
                     <ToggleGroup 

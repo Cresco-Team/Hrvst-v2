@@ -117,12 +117,3 @@ export interface PaginatedData {
     per_page: number
     total: number
 }
-
-export interface PendingFarmer {
-    id: number
-    user: User
-    location: Location
-    farm_image: string | null
-    submitted_at: string
-    submitted_at_human: string
-}
