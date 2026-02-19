@@ -12,6 +12,7 @@ import { PaginatedResponse } from '@/types/pagination'
 import { CategoryOption, MarketplaceFilters, Offering } from '@/types/dealer/marketplace'
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group'
 import MarketplaceCard from '@/components/dealer/MarketplaceCard.vue'
+import EmptyState from '@/components/EmptyState.vue'
 
 interface Props {
   filters: MarketplaceFilters
@@ -149,6 +150,13 @@ const breadcrumbs = [
         
         <p class="text-sm text-muted-foreground">Showing {{ offerings?.data.length }} of {{ offerings?.total }} offerings</p>
 
+        <EmptyState 
+        v-if="offerings?.data.length === 0"
+          title="No Offerings Found"
+          description="Try adjusting your search filters"
+          :icon="Search"
+        />
+
         <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           <Link
             v-for="offering in offerings?.data"
@@ -160,23 +168,6 @@ const breadcrumbs = [
           </Link>
         </div>
       </Deferred>
-
-      <!-- Offerings grid -->
-      <div v-if="!isLoadingOfferings && offerings" class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        
-
-        <!-- Empty state -->
-        <div
-          v-if="offerings.data.length === 0"
-          class="col-span-full flex flex-col items-center justify-center rounded-lg border border-dashed py-16 text-center"
-        >
-          <Filter class="mb-4 size-12 text-muted-foreground/50" />
-          <h3 class="mb-1 font-semibold">No offerings found</h3>
-          <p class="text-sm text-muted-foreground">
-            Try adjusting your search or filters
-          </p>
-        </div>
-      </div>
 
       <!-- Pagination -->
       <div
