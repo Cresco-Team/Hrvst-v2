@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { Deferred, Head, Link } from '@inertiajs/vue3'
-import { TrendingUp, TrendingDown, Minus, Wheat, Tractor, Package } from 'lucide-vue-next'
+import { Deferred, Head } from '@inertiajs/vue3'
+import { TrendingUp, TrendingDown, Minus, Tractor, Package } from 'lucide-vue-next'
 import { Skeleton } from '@/components/ui/skeleton'
 import admin from '@/routes/admin'
 import AppLayout from '@/layouts/AppLayout.vue'
@@ -48,7 +48,7 @@ function formatChange(change?: number): string {
             <!-- Page Title -->
              <Heading 
                 title="Dashboard"
-                description="Overview of "
+                description="Overview of the platform"
              />
 
             <Deferred data="kpis">
@@ -103,7 +103,7 @@ function formatChange(change?: number): string {
                     />
                     <SmallCard 
                         title="Total Dealer Requests"
-                        :value="kpis?.dealers.total_requests.value"
+                        :value="kpis?.dealers.total_demands.value"
                         cardClass="col-span-5 lg:col-span-2"
                     />
 
