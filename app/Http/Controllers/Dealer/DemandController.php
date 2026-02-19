@@ -2,35 +2,35 @@
 
 namespace App\Http\Controllers\Dealer;
 
-use App\DealerRequestStatus;
+use App\Enums\DealerDemandStatus;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Dealer\StoreDealerRequestRequest;
-use App\Http\Requests\Dealer\UpdateDealerRequestRequest;
-use App\Models\Marketplace\DealerRequest;
-use App\Services\Dealer\RequestService;
+use App\Http\Requests\Dealer\StoreDemandRequest;
+use App\Http\Requests\Dealer\UpdateDemandRequest;
+use App\Models\Marketplace\DealerDemand;
+use App\Services\Dealer\DemandService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 use Inertia\Response;
 
-class RequestController extends Controller
+class DemandController extends Controller
 {
     public function __construct(
-        private RequestService $service
+        private DemandService $service
     ) {}
 
     public function index(Request $request): Response
     {
         $user = $request->user()->load('dealerProfile');
         $dealerId = $user->dealerProfile->id;
-        $status = DealerRequestStatus::tryFrom($request->query('status', DealerRequestStatus::Open->value));
+        $status = DealerDemandStatus::tryFrom($request->query('status', DealerDemandStatus::Open->value));
 
         return Inertia::render('dealer/requests/Index', [
-            'summary' => Inertia::defer(fn() => RequestService::summary($dealerId)),
-            'varietyOptions' => Inertia::defer(fn() => RequestService::varietyOptions()),
+            'summary' => Inertia::defer(fn() => DemandService::summary($dealerId)),
+            'varietyOptions' => Inertia::defer(fn() => DemandService::varietyOptions()),
             'filters' => ['status' => $status],
-            'requests' => Inertia::defer(fn() => RequestService::paginated(
+            'requests' => Inertia::defer(fn() => DemandService::paginated(
                 dealerId: $dealerId,
                 status: $status
             )),
@@ -39,7 +39,7 @@ class RequestController extends Controller
         ]);
     }
 
-    public function store(StoreDealerRequestRequest $request): RedirectResponse
+    public function store(StoreDemandRequest $request): RedirectResponse
     {
         $dealerId = $request->user()->dealerProfile->id;
         
@@ -52,14 +52,14 @@ class RequestController extends Controller
             ->with('flash', ['type' => 'success', 'message' => 'Request posted successfully!']);
     }
 
-    public function update(UpdateDealerRequestRequest $request, DealerRequest $dealerRequest): RedirectResponse
+    public function update(UpdateDemandRequest $request, DealerDemand $dealerDemand): RedirectResponse
     {
         $request->user()->load('dealerProfile');
         
-        Gate::authorize('update', $dealerRequest);
+        Gate::authorize('update', $dealerDemand);
 
         $this->service->update(
-            request: $dealerRequest,
+            request: $dealerDemand,
             validated: $request->validated(),
         );
 
@@ -67,7 +67,7 @@ class RequestController extends Controller
             ->with('flash', ['type' => 'success', 'message' => 'Request updated successfully!']);
     }
 
-    public function expire(DealerRequest $request): RedirectResponse
+    public function expire(DealerDemand $request): RedirectResponse
     {
         Gate::authorize('expire', $request);
 
@@ -77,21 +77,21 @@ class RequestController extends Controller
             ->with('flash', ['type' => 'success', 'message' => 'Request expired.']);
     }
 
-    public function fulfill(DealerRequest $dealerRequest): RedirectResponse
+    public function fulfill(DealerDemand $dealerDemand): RedirectResponse
     {
-        Gate::authorize('markAsFulfilled', $dealerRequest);
+        Gate::authorize('markAsFulfilled', $dealerDemand);
 
-        $this->service->markAsFulfilled($dealerRequest);
+        $this->service->markAsFulfilled($dealerDemand);
 
         return redirect()->route('dealer.requests.index')
             ->with('flash', ['type' => 'success', 'message' => 'Request marked as fulfilled!']);
     }
 
-    public function destroy(DealerRequest $dealerRequest): RedirectResponse
+    public function destroy(DealerDemand $dealerDemand): RedirectResponse
     {
-        Gate::authorize('delete', $dealerRequest);
+        Gate::authorize('delete', $dealerDemand);
 
-        $this->service->delete($dealerRequest);
+        $this->service->delete($dealerDemand);
 
         return redirect()->route('dealer.requests.index')
             ->with('flash', ['type' => 'success', 'message' => 'Request deleted.']);
