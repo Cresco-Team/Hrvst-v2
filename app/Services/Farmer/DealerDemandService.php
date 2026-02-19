@@ -2,20 +2,16 @@
 
 namespace App\Services\Farmer;
 
-use App\Models\Announcement\DealerRequest;
+use App\Models\Marketplace\DealerDemand;
 use App\Models\Product\Category;
-use App\Models\Address\Municipality;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 
-class DealerRequestBrowseService
+class DealerDemandService
 {
-    /**
-     * Browse all open dealer requests with filters
-     */
     public static function paginated(array $filters = [], int $perPage = 20): LengthAwarePaginator
     {
-        $query = DealerRequest::with([
+        $query = DealerDemand::with([
             'dealer.user',
             'items.variety.vegetable.category',
             'items.variety.latestPrice',
@@ -80,7 +76,7 @@ class DealerRequestBrowseService
     /**
      * Get detailed request with all items and reactions
      */
-    public static function detailed(DealerRequest $request): array
+    public static function detailed(DealerDemand $request): array
     {
         $request->load([
             'dealer.user',
