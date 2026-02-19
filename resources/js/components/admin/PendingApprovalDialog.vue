@@ -12,6 +12,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { getInitials } from '@/composables/useInitials'
+import LeafletMap from '@/components/LeafletMap.vue'
 import type { PendingFarmer, PendingDealer } from '@/types/admin/pending-approvals'
 
 type Props = {
@@ -101,6 +102,12 @@ function onReject() {
               <span>{{ item.location.full_address }}</span>
             </div>
 
+            <LeafletMap
+              :lat="item.location.coordinates.lat"
+              :lng="item.location.coordinates.lng"
+              :markers="[{ lat: item.location.coordinates.lat, lng: item.location.coordinates.lng, popup: item.location.full_address }]"
+            />
+
             <div v-if="item.farm_image" class="overflow-hidden rounded-md border">
               <img
                 :src="item.farm_image"
@@ -138,18 +145,11 @@ function onReject() {
 
         <!-- Actions -->
         <div class="flex justify-end gap-2 pt-1">
-          <Button
-            variant="destructive"
-            class="gap-1.5"
-            @click="onReject"
-          >
+          <Button variant="destructive" class="gap-1.5" @click="onReject">
             <X class="size-4" />
             Reject
           </Button>
-          <Button
-            class="gap-1.5"
-            @click="onApprove"
-          >
+          <Button class="gap-1.5" @click="onApprove">
             <Check class="size-4" />
             Accept
           </Button>
