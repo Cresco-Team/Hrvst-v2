@@ -78,7 +78,7 @@ const mainNavItems = computed<NavItem[]>(() => {
         if (page.props.auth.user.roles.includes('farmer')) {
             items.push({
                 title: 'Marketplace',
-                href: farmer.requests.index(),
+                href: farmer.marketplace.index(),
                 icon: Truck
             }, {
                 title: 'My Garden',
