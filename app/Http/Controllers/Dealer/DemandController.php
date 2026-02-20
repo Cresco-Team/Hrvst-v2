@@ -85,11 +85,11 @@ class DemandController extends Controller
             ->with('flash', ['type' => 'success', 'message' => 'Request marked as fulfilled!']);
     }
 
-    public function destroy(DealerDemand $dealerDemand): RedirectResponse
+    public function destroy(Request $request, DealerDemand $demand): RedirectResponse
     {
-        Gate::authorize('delete', $dealerDemand);
+        Gate::authorize('delete', $demand);
 
-        $this->service->delete($dealerDemand);
+        $this->service->delete($demand);
 
         return redirect()->route('dealer.demands.index')
             ->with('flash', ['type' => 'success', 'message' => 'Request deleted.']);
