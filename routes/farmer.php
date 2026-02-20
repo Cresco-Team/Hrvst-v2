@@ -14,8 +14,8 @@ Route::middleware(['auth', 'verified', 'farmer'])->prefix('farmer')->name('farme
         Route::delete('/{offering}', [OfferingController::class, 'destroy'])->name('destroy');
     });
 
-    Route::prefix('requests')->name('requests.')->group(function () {
+    Route::prefix('marketplace')->name('marketplace.')->group(function () {
         Route::get('/', [DealerDemandController::class, 'index'])->name('index');
-        Route::get('/{dealerRequest}', [DealerDemandController::class, 'show'])->name('show');
+        Route::get('/{demand}', [DealerDemandController::class, 'show'])->name('show');
     });
 });
