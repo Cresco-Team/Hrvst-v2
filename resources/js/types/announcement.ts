@@ -23,7 +23,7 @@ export interface DealerRequest {
     id: number
     name: string
     phone_number?: string
-    user_image: string | null
+    image_path: string | null
   }
   transaction_date: string
   days_until_transaction: number
