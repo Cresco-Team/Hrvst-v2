@@ -15,7 +15,7 @@ export interface VarietyOption {
     }
 }
 
-export interface Request {
+export interface Demand {
     id: number
     dealer: {
         id: number
