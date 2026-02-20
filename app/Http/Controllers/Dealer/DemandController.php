@@ -50,14 +50,14 @@ class DemandController extends Controller
             ->with('flash', ['type' => 'success', 'message' => 'Request posted successfully!']);
     }
 
-    public function update(UpdateDemandRequest $request, DealerDemand $dealerDemand): RedirectResponse
+    public function update(UpdateDemandRequest $request, DealerDemand $demand): RedirectResponse
     {
         $request->user()->load('dealerProfile');
         
-        Gate::authorize('update', $dealerDemand);
+        Gate::authorize('update', $demand);
 
         $this->service->update(
-            request: $dealerDemand,
+            request: $demand,
             validated: $request->validated(),
         );
 
@@ -75,17 +75,17 @@ class DemandController extends Controller
             ->with('flash', ['type' => 'success', 'message' => 'Request expired.']);
     }
 
-    public function fulfill(DealerDemand $dealerDemand): RedirectResponse
+    public function fulfill(DealerDemand $demand): RedirectResponse
     {
-        Gate::authorize('markAsFulfilled', $dealerDemand);
+        Gate::authorize('markAsFulfilled', $demand);
 
-        $this->service->markAsFulfilled($dealerDemand);
+        $this->service->markAsFulfilled($demand);
 
         return redirect()->route('dealer.demands.index')
             ->with('flash', ['type' => 'success', 'message' => 'Request marked as fulfilled!']);
     }
 
-    public function destroy(Request $request, DealerDemand $demand): RedirectResponse
+    public function destroy(DealerDemand $demand): RedirectResponse
     {
         Gate::authorize('delete', $demand);
 
