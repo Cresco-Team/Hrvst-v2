@@ -26,16 +26,14 @@ class DemandController extends Controller
         $dealerId = $user->dealerProfile->id;
         $status = DealerDemandStatus::tryFrom($request->query('status', DealerDemandStatus::Open->value));
 
-        return Inertia::render('dealer/requests/Index', [
+        return Inertia::render('dealer/demands/Index', [
             'summary' => Inertia::defer(fn() => DemandService::summary($dealerId)),
             'varietyOptions' => Inertia::defer(fn() => DemandService::varietyOptions()),
             'filters' => ['status' => $status],
-            'requests' => Inertia::defer(fn() => DemandService::paginated(
+            'demands' => Inertia::defer(fn() => DemandService::paginated(
                 dealerId: $dealerId,
                 status: $status
             )),
-            
-            
         ]);
     }
 
@@ -48,7 +46,7 @@ class DemandController extends Controller
             validated: $request->validated()
         );
 
-        return redirect()->route('dealer.requests.index')
+        return redirect()->route('dealer.demands.index')
             ->with('flash', ['type' => 'success', 'message' => 'Request posted successfully!']);
     }
 
@@ -63,7 +61,7 @@ class DemandController extends Controller
             validated: $request->validated(),
         );
 
-        return redirect()->route('dealer.requests.index')
+        return redirect()->route('dealer.demands.index')
             ->with('flash', ['type' => 'success', 'message' => 'Request updated successfully!']);
     }
 
@@ -73,7 +71,7 @@ class DemandController extends Controller
 
         $this->service->expire($request);
 
-        return redirect()->route('dealer.requests.index')
+        return redirect()->route('dealer.demands.index')
             ->with('flash', ['type' => 'success', 'message' => 'Request expired.']);
     }
 
@@ -83,7 +81,7 @@ class DemandController extends Controller
 
         $this->service->markAsFulfilled($dealerDemand);
 
-        return redirect()->route('dealer.requests.index')
+        return redirect()->route('dealer.demands.index')
             ->with('flash', ['type' => 'success', 'message' => 'Request marked as fulfilled!']);
     }
 
@@ -93,7 +91,7 @@ class DemandController extends Controller
 
         $this->service->delete($dealerDemand);
 
-        return redirect()->route('dealer.requests.index')
+        return redirect()->route('dealer.demands.index')
             ->with('flash', ['type' => 'success', 'message' => 'Request deleted.']);
     }
 }
