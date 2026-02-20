@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Archive, PhilippinePeso, Weight, CalendarClock, Pencil, MoreVertical, Trash } from 'lucide-vue-next'
+import { Archive, PhilippinePeso, Weight, CalendarClock, Pencil, MoreVertical, Trash, CircleCheckBig } from 'lucide-vue-next'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { AspectRatio } from '@/components/ui/aspect-ratio'
 import { Separator } from '@/components/ui/separator'
@@ -17,12 +17,13 @@ const props = defineProps<Props>()
 
 const emit = defineEmits<{
   edit: [demand: Demand]
-  archive: [demand: Demand]
+  fulfill: [demand: Demand]
   delete: [demand: Demand]
 }>()
 
-const isAvailable = computed(() => props.demand.status === 'available')
-const isArchived = computed(() => props.demand.status === 'archived')
+const isOpen = computed(() => props.demand.status === 'open')
+const isFulfilled = computed(() => props.demand.status === 'fulfilled')
+const isExpired = computed(() => props.demand.status === 'expired')
 </script>
 
 <template>
@@ -44,9 +45,9 @@ const isArchived = computed(() => props.demand.status === 'archived')
                     </Button>
                 </DropdownMenuTrigger>
 
-                <DropdownMenuContent v-if="isAvailable" align="end">
-                    <DropdownMenuItem
-                        v-if="isAvailable"
+                <DropdownMenuContent align="end">
+                    <DropdownMenuItem 
+                        v-if="isOpen"
                         @click="emit('edit', demand)"
                     >
                         <Pencil class="mr-2 size-4" />
@@ -54,20 +55,17 @@ const isArchived = computed(() => props.demand.status === 'archived')
                     </DropdownMenuItem>
 
                     <DropdownMenuSeparator />
-                    
-                    <DropdownMenuItem
-                        v-if="isAvailable"
-                        @click="emit('archive', demand)"
-                        class="text-orange-600 dark:text-orange-400"
-                    >
-                        <Archive class="mr-2 size-4" />
-                        Archive
-                    </DropdownMenuItem>
-                </DropdownMenuContent>
 
-                <DropdownMenuContent v-if="isArchived" align="end">
                     <DropdownMenuItem
-                        v-if="isArchived"
+                        v-if="isExpired"
+                        @click="emit('fulfill', demand)"
+                        class="text-green-500"
+                    >
+                        <CircleCheckBig class="mr-2 size-4" />
+                        Fulfill
+                    </DropdownMenuItem>
+
+                    <DropdownMenuItem
                         @click="emit('delete', demand)"
                         class="text-destructive"
                     >
