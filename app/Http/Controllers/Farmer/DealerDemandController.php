@@ -3,14 +3,14 @@
 namespace App\Http\Controllers\Farmer;
 
 use App\Http\Controllers\Controller;
-use App\Models\Announcement\DealerRequest;
-use App\Services\Farmer\DealerRequestBrowseService;
+use App\Models\Marketplace\DealerDemand;
+use App\Services\Farmer\DealerDemandService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 use Inertia\Response;
 
-class DealerRequestBrowseController extends Controller
+class DealerDemandController extends Controller
 {
     /**
      * Browse dealer requests (opportunities)
@@ -30,11 +30,11 @@ class DealerRequestBrowseController extends Controller
             
             // Deferred (load after page renders)
             'requests' => Inertia::defer(fn() => 
-                DealerRequestBrowseService::paginated($validated)
+                DealerDemandService::paginated($validated)
             ),
             
             'filterOptions' => Inertia::defer(fn() => [
-                'categories' => DealerRequestBrowseService::categoryOptions(),
+                'categories' => DealerDemandService::categoryOptions(),
             ]),
         ]);
     }
@@ -42,12 +42,12 @@ class DealerRequestBrowseController extends Controller
     /**
      * View single dealer request details
      */
-    public function show(DealerRequest $dealerRequest): Response
+    public function show(DealerDemand $dealerDemand): Response
     {
-        Gate::authorize('view', $dealerRequest);
+        Gate::authorize('view', $dealerDemand);
 
         return Inertia::render('farmer/requests/Show', [
-            'request' => DealerRequestBrowseService::detailed($dealerRequest),
+            'request' => DealerDemandService::detailed($dealerDemand),
         ]);
     }
 }

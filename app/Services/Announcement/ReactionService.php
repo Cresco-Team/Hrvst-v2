@@ -2,9 +2,9 @@
 
 namespace App\Services\Announcement;
 
-use App\Models\Announcement\AnnouncementReaction;
-use App\Models\Announcement\DealerRequest;
-use App\Models\Announcement\FarmerOffering;
+use App\Models\Marketplace\FarmerOffering;
+use App\Models\Interaction\Reaction;
+use App\Models\Marketplace\DealerDemand;
 use App\Models\User;
 use Illuminate\Support\Facades\Gate;
 
@@ -13,7 +13,7 @@ class ReactionService
     /**
      * Toggle reaction (create, update, or delete)
      * 
-     * @return array ['action' => 'created'|'updated'|'deleted', 'reaction' => AnnouncementReaction|null]
+     * @return array ['action' => 'created'|'updated'|'deleted', 'reaction' => Reaction|null]
      */
     public function toggle(
         User $user,
@@ -25,14 +25,14 @@ class ReactionService
         $reactionable = $this->getReactionable($reactionableType, $reactionableId);
 
         // Authorize based on type
-        if ($reactionableType === 'DealerRequest') {
+        if ($reactionableType === 'DealerDemand') {
             Gate::authorize('react', $reactionable);
         } elseif ($reactionableType === 'FarmerOffering') {
             Gate::authorize('react', $reactionable);
         }
 
         // Find existing reaction
-        $existing = AnnouncementReaction::where('user_id', $user->id)
+        $existing = Reaction::where('user_id', $user->id)
             ->where('reactionable_type', "App\\Models\\Announcement\\{$reactionableType}")
             ->where('reactionable_id', $reactionableId)
             ->first();
@@ -50,7 +50,7 @@ class ReactionService
         }
 
         // If user hasn't reacted -> Create
-        $reaction = AnnouncementReaction::create([
+        $reaction = Reaction::create([
             'user_id' => $user->id,
             'reactionable_type' => "App\\Models\\Announcement\\{$reactionableType}",
             'reactionable_id' => $reactionableId,
@@ -65,7 +65,7 @@ class ReactionService
      */
     public function getCounts(string $reactionableType, int $reactionableId): array
     {
-        $reactions = AnnouncementReaction::where('reactionable_type', "App\\Models\\Announcement\\{$reactionableType}")
+        $reactions = Reaction::where('reactionable_type', "App\\Models\\Announcement\\{$reactionableType}")
             ->where('reactionable_id', $reactionableId)
             ->get()
             ->groupBy('reaction_type')
@@ -80,7 +80,7 @@ class ReactionService
      */
     public function getUserReaction(User $user, string $reactionableType, int $reactionableId): ?string
     {
-        $reaction = AnnouncementReaction::where('user_id', $user->id)
+        $reaction = Reaction::where('user_id', $user->id)
             ->where('reactionable_type', "App\\Models\\Announcement\\{$reactionableType}")
             ->where('reactionable_id', $reactionableId)
             ->first();
@@ -91,10 +91,10 @@ class ReactionService
     /**
      * Get the reactionable model instance
      */
-    private function getReactionable(string $type, int $id): DealerRequest|FarmerOffering
+    private function getReactionable(string $type, int $id): DealerDemand|FarmerOffering
     {
         return match ($type) {
-            'DealerRequest' => DealerRequest::findOrFail($id),
+            'DealerDemand' => DealerDemand::findOrFail($id),
             'FarmerOffering' => FarmerOffering::findOrFail($id),
             default => throw new \InvalidArgumentException("Invalid reactionable type: {$type}"),
         };

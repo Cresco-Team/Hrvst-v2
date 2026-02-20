@@ -2,9 +2,10 @@
 
 namespace App\Services\Announcement;
 
-use App\Models\Announcement\DealerRequest;
-use App\Models\Announcement\FarmerOffering;
-use App\Models\Product\Planting;
+use App\Enums\DealerDemandStatus;
+use App\FarmerOfferingStatus;
+use App\Models\Marketplace\DealerDemand;
+use App\Models\Marketplace\FarmerOffering;
 use App\Models\User;
 use App\Notifications\Announcement\MatchingOfferingAvailable;
 use App\Notifications\Announcement\MatchingRequestPosted;
@@ -20,12 +21,9 @@ class NotificationService
     {
         $dealers = $this->findDealersNeedingVariety(
             varietyId: $offering->variety_id,
-            quantityAvailable: (float) $offering->quantity_kg
         );
 
-        if ($dealers->isEmpty()) {
-            return 0;
-        }
+        if ($dealers->isEmpty()) return 0;
 
         Notification::send($dealers, new MatchingOfferingAvailable($offering));
 
@@ -33,96 +31,60 @@ class NotificationService
     }
 
     /**
-     * Notify farmers when a dealer posts a request that matches their crops
+     * Notify farmers when a dealer posts a demand that matches their crops
      */
-    public function notifyMatchingFarmers(DealerRequest $request): int
+    public function notifyMatchingFarmers(DealerDemand $demand): int
     {
-        $varietyIds = $request->items->pluck('variety_id')->unique();
+        $varietyIds = $demand->pluck('variety_id')->unique();
 
         $farmers = $this->findFarmersWithVarieties(
             varietyIds: $varietyIds,
-            transactionDate: $request->transaction_date
         );
 
-        if ($farmers->isEmpty()) {
-            return 0;
-        }
+        if ($farmers->isEmpty()) return 0;
 
-        Notification::send($farmers, new MatchingRequestPosted($request));
+        Notification::send($farmers, new MatchingRequestPosted($demand));
 
         return $farmers->count();
     }
 
-    /**
-     * Find dealers who have open requests for this variety
-     * 
-     * Matching Criteria:
-     * - Dealer has open request with this variety
-     * - Transaction date is in the future
-     * - Requested quantity <= available quantity (optional filter)
-     */
-    private function findDealersNeedingVariety(int $varietyId, float $quantityAvailable): Collection
+    private function findDealersNeedingVariety(int $varietyId): Collection
     {
         return User::whereHas('dealerProfile', function ($query) {
             $query->where('is_approved', true);
-        })
-        ->whereHas('dealerProfile.requests', function ($query) use ($varietyId, $quantityAvailable) {
-            $query->where('status', 'open')
-                ->where('transaction_date', '>=', now())
-                ->whereHas('items', function ($itemQuery) use ($varietyId, $quantityAvailable) {
-                    $itemQuery->where('variety_id', $varietyId)
-                        // Optional: Only notify if farmer has enough quantity
-                        ->where('quantity_kg', '<=', $quantityAvailable);
-                });
-        })
-        ->get();
+        })->whereHas('dealerProfile.demands', function ($query) use ($varietyId) {
+            $query->where('status', DealerDemandStatus::Open)
+                ->whereIn('variety_id', $varietyId)
+                ->where('transaction_date', '>=', now());
+        })->get();
     }
 
-    /**
-     * Find farmers who have active plantings for these varieties
-     * 
-     * Matching Criteria:
-     * - Farmer has active planting with matching variety
-     * - Planting is ready (harvesting soon or harvestable)
-     * - Expected harvest date is before or near transaction date
-     */
-    private function findFarmersWithVarieties(Collection $varietyIds, $transactionDate): Collection
+    private function findFarmersWithVarieties(Collection $varietyIds): Collection
     {
         return User::whereHas('farmerProfile', function ($query) {
             $query->where('is_approved', true);
-        })
-        ->whereHas('farmerProfile.plantings', function ($query) use ($varietyIds, $transactionDate) {
-            $query->where('status', 'active')
+        })->whereHas('farmerProfile.offerings', function ($query) use ($varietyIds) {
+            $query->where('status', FarmerOfferingStatus::Available)
                 ->whereIn('variety_id', $varietyIds)
-                // Harvest date must be before transaction date (farmer can fulfill)
-                ->where('expected_harvest_date', '<=', $transactionDate)
-                // Harvest date shouldn't be too far in the past (still fresh)
-                ->where('expected_harvest_date', '>=', now()->subDays(7));
-        })
-        ->get();
+                ->where('expiration_date', '>=', now());
+        })->get();
     }
 
-    public function getMatchingPlantings(DealerRequest $request): Collection
+    public function getMatchingOfferings(DealerDemand $demand): Collection
     {
-        $varietyIds = $request->items->pluck('variety_id')->unique();
-
-        return Planting::with(['variety.vegetable', 'farmer.user', 'farmer.municipality'])
-            ->where('status', 'active')
-            ->whereIn('variety_id', $varietyIds)
-            ->where('expected_harvest_date', '<=', $request->transaction_date)
-            ->where('expected_harvest_date', '>=', now()->subDays(7))
+        return FarmerOffering::with(['variety.vegetable', 'farmer.user', 'farmer.municipality'])
+            ->where('variety_id', $demand->variety_id)
+            ->where('status', FarmerOfferingStatus::Available)
+            ->where('expiration_date', '>=', $demand->transaction_date)
             ->get();
     }
 
-    public function getMatchingRequests(FarmerOffering $offering): Collection
+    public function getMatchingDemands(FarmerOffering $offering): Collection
     {
-        return DealerRequest::with(['dealer.user', 'items.variety'])
-            ->where('status', 'open')
+        return DealerDemand::with(['dealer.user', 'items.variety'])
+            ->where('variey_id', $offering->variety_id)
+            ->where('status', DealerDemandStatus::Open)
             ->where('transaction_date', '>=', now())
-            ->whereHas('items', function ($query) use ($offering) {
-                $query->where('variety_id', $offering->variety_id)
-                    ->where('quantity_kg', '<=', $offering->quantity_kg);
-            })
             ->get();
     }
 }

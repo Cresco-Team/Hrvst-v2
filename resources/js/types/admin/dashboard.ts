@@ -13,7 +13,7 @@ export interface KPIs {
     }
     dealers: {
         total_dealers: KPIValue
-        total_requests: KPIValue
+        total_demands: KPIValue
     }
     varieties: {
         total_varieties: KPIValue

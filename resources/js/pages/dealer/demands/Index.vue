@@ -3,26 +3,27 @@ import { ref, computed } from 'vue'
 import { Deferred, Head, router, useForm } from '@inertiajs/vue3'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Plus, PackageSearch, PackageCheck, CalendarX, CalendarClock, Package } from 'lucide-vue-next'
-import DealerRequestForm from '@/components/dealer/DealerRequestForm.vue'
+import DemandForm from '@/components/dealer/DemandForm.vue'
 import dealer from '@/routes/dealer'
 import AppLayout from '@/layouts/AppLayout.vue'
 import Heading from '@/components/Heading.vue'
 import { PaginatedResponse } from '@/types/pagination'
-import { Request, Summary, VarietyOption } from '@/types/dealer/requests'
-import { destroy, fulfill, index, store, update } from '@/routes/dealer/requests'
+import { Demand, Summary, VarietyOption } from '@/types/dealer/demands'
+import { destroy, fulfill, index, store, update } from '@/routes/dealer/demands'
 import LargeCard from '@/components/shared/cards/LargeCard.vue'
 import EmptyState from '@/components/EmptyState.vue'
-import RequestCard from '@/components/dealer/RequestCard.vue'
+import DemandCard from '@/components/dealer/DemandCard.vue'
+import ConfirmationDialog from '@/components/ConfirmationDialog.vue'
 
 interface Props {
   summary?: Summary
   filters: { status: string | null }
-  requests?: PaginatedResponse<Request>
+  demands?: PaginatedResponse<Demand>
   varietyOptions?: Record<string, VarietyOption[]>
 }
+
 const props = defineProps<Props>()
 
 /* Dialog states */
@@ -31,9 +32,9 @@ const deleteDialogOpen = ref(false)
 const fulfillDialogOpen = ref(false)
 
 /* Active items */
-const activeRequest = ref<Request | null>(null)
-const requestToDelete = ref<Request | null>(null)
-const requestToFulfill = ref<Request | null>(null)
+const activeDemand = ref<Demand | null>(null)
+const demandToFulfill = ref<Demand | null>(null)
+const demandToDelete = ref<Demand | null>(null)
 
 const form = useForm<{
   variety_id: number | null
@@ -50,8 +51,8 @@ const form = useForm<{
 const activeTab = computed(() => props.filters.status || 'open')
 
 const breadcrumbs = [
-  { title: 'Dealer', href: dealer.requests.index().url },
-  { title: 'My Requests', href: dealer.requests.index().url }
+  { title: 'Dealer', href: dealer.demands.index().url },
+  { title: 'My Posts', href: dealer.demands.index().url }
 ]
 
 function handleTabChange(value: string | number) {
@@ -62,44 +63,44 @@ function handleTabChange(value: string | number) {
   router.visit(routeTarget.url, {
     preserveState: true,
     preserveScroll: true,
-    only: ['requests', 'filters', 'summary']
+    only: ['demands', 'filters', 'summary']
   })
 }
 
 function openCreate() {
-  activeRequest.value = null
+  activeDemand.value = null
   form.reset()
   form.clearErrors()
   formOpen.value = true
 }
 
-function openEdit(request: Request) {
-  activeRequest.value = request
-  form.variety_id = request.variety.id
-  form.quantity_kg = request.quantity_kg
-  form.price_offered = request.price_offered
-  form.transaction_date = request.transaction_date
+function openEdit(demand: Demand) {
+  activeDemand.value = demand
+  form.variety_id = demand.variety.id
+  form.quantity_kg = demand.quantity_kg
+  form.price_offered = demand.price_offered
+  form.transaction_date = demand.transaction_date
   formOpen.value = true
 }
 
-function openFulfill(request: Request) {
-  requestToFulfill.value = request
+function openFulfill(demand: Demand) {
+  demandToFulfill.value = demand
   fulfillDialogOpen.value = true
 }
 
-function openDelete(request: Request) {
-  requestToDelete.value = request
+function openDelete(demand: Demand) {
+  demandToDelete.value = demand
   deleteDialogOpen.value = true
 }
 
 function handleSubmit() {
-  const routeData = activeRequest.value
-    ? update(activeRequest.value.id)
+  const routeData = activeDemand.value
+    ? update(activeDemand.value.id)
     : store()
 
   form.transform((data) => ({
     ...data,
-    _method: activeRequest.value ? 'PUT' : 'POST'
+    _method: activeDemand.value ? 'PUT' : 'POST'
   })).post(routeData.url, {
     preserveScroll: true,
     onSuccess: () => {
@@ -110,48 +111,48 @@ function handleSubmit() {
 }
 
 function handleFulfill() {
-  if (!requestToFulfill.value) return
+  if (!demandToFulfill.value) return
 
-  router.post(fulfill(requestToFulfill.value.id), {}, {
+  router.post(fulfill(demandToFulfill.value.id), {}, {
     preserveScroll: true,
     onSuccess: () => {
       fulfillDialogOpen.value = false
-      requestToFulfill.value = null
+      demandToFulfill.value = null
     }
   })
 }
 
 function handleDelete() {
-  if (!requestToDelete.value) return
+  if (!demandToDelete.value) return
 
-  const routeTarget = destroy(requestToDelete.value.id)
+  const routeTarget = destroy(demandToDelete.value.id)
 
   router.visit(routeTarget.url, {
     method: 'delete',
     preserveScroll: true,
     onSuccess: () => {
       deleteDialogOpen.value = false
-      requestToDelete.value = null
+      demandToDelete.value = null
     }
   })
 }
 </script>
 
 <template>
-  <Head title="My Requests" />
+  <Head title="My Posts" />
 
   <AppLayout :breadcrumbs="breadcrumbs">
     <div class="flex h-full flex-col gap-6 p-4 lg:p-6">
       <!-- Header -->
       <div class="flex items-end justify-between">
         <Heading
-          title="My Requests"
-          description="Manage your purchase requests for farmers."
+          title="My Posts"
+          description="Manage your vegetable requests."
         />
         
         <Button @click="openCreate" class="gap-2">
           <Plus class="size-4" />
-          New Request
+          New Post
         </Button>
       </div>
 
@@ -203,11 +204,12 @@ function handleDelete() {
         <TabsList>
           <TabsTrigger value="open">Open</TabsTrigger>
           <TabsTrigger value="expired">Expired</TabsTrigger>
+          <TabsTrigger value="fulfilled">Fulfilled</TabsTrigger>
         </TabsList>
       </Tabs>
 
-      <!-- Requests Grid -->
-       <Deferred data="requests">
+      <!-- Demands Grid -->
+      <Deferred data="demands">
         <template #fallback>
           <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             <Skeleton v-for="i in 8" :key="i" class="h-96 rounded-lg" />
@@ -215,31 +217,31 @@ function handleDelete() {
         </template>
 
         <EmptyState 
-          v-if="requests?.data.length === 0"
-          title="No Posted Requests Yet."
-          description="Post a request"
+          v-if="demands?.data.length === 0"
+          title="No Posted Demands Yet."
+          description="Post a demand"
           :icon="Package"
-          button="Add Request"
+          button="Create Post"
         />
 
-        <div v-else class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          <RequestCard 
-            v-for="request in requests!.data"
-            :key="request.id"
-            :request="request"
+        <div v-else class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <DemandCard 
+            v-for="demand in demands!.data"
+            :key="demand.id"
+            :demand="demand"
             @edit="openEdit"
             @fulfill="openFulfill"
             @delete="openDelete"
           />
         </div>
-       </Deferred>
+      </Deferred>
     </div>
   </AppLayout>
 
-  <!-- Request Form Dialog -->
-  <DealerRequestForm
+  <!-- Demand Form Dialog -->
+  <DemandForm
     :open="formOpen"
-    :request="activeRequest"
+    :demand="activeDemand"
     :variety-options="varietyOptions!"
     :form="form"
     @update:open="formOpen = $event"
@@ -247,38 +249,19 @@ function handleDelete() {
   />
 
   <!-- Fulfill Confirmation -->
-  <AlertDialog :open="fulfillDialogOpen" @update:open="fulfillDialogOpen = $event">
-    <AlertDialogContent>
-      <AlertDialogHeader>
-        <AlertDialogTitle>Mark as Fulfilled?</AlertDialogTitle>
-        <AlertDialogDescription>
-          This will mark the request as fulfilled. You won't be able to edit it after this.
-        </AlertDialogDescription>
-      </AlertDialogHeader>
-      <AlertDialogFooter>
-        <AlertDialogCancel>Cancel</AlertDialogCancel>
-        <AlertDialogAction @click="handleFulfill">
-          Confirm
-        </AlertDialogAction>
-      </AlertDialogFooter>
-    </AlertDialogContent>
-  </AlertDialog>
+  <ConfirmationDialog
+    v-model:open="fulfillDialogOpen"
+    title="Mark as Fulfilled?"
+    description="This will mark the demand as fulfilled. You won't be able to edit it after this."
+    @action="handleFulfill"
+  />
 
   <!-- Delete Confirmation -->
-  <AlertDialog :open="deleteDialogOpen" @update:open="deleteDialogOpen = $event">
-    <AlertDialogContent>
-      <AlertDialogHeader>
-        <AlertDialogTitle>Delete Request?</AlertDialogTitle>
-        <AlertDialogDescription>
-          This action cannot be undone. The request will be permanently deleted.
-        </AlertDialogDescription>
-      </AlertDialogHeader>
-      <AlertDialogFooter>
-        <AlertDialogCancel>Cancel</AlertDialogCancel>
-        <AlertDialogAction @click="handleDelete" class="bg-destructive text-destructive-foreground">
-          Delete
-        </AlertDialogAction>
-      </AlertDialogFooter>
-    </AlertDialogContent>
-  </AlertDialog>
+  <ConfirmationDialog
+    v-model:open="deleteDialogOpen"
+    title="Delete Post?"
+    description="This action cannot be undone. The post will be permanently deleted."
+    @action="handleDelete"
+    variant="destructive"
+  />
 </template>

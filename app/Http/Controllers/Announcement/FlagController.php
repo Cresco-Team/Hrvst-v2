@@ -19,7 +19,7 @@ class FlagController extends Controller
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'flaggable_type' => ['required', 'in:DealerRequest,FarmerOffering,AnnouncementComment'],
+            'flaggable_type' => ['required', 'in:DealerDemand,FarmerOffering,AnnouncementComment'],
             'flaggable_id' => ['required', 'integer'],
             'reason' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string', 'max:1000'],

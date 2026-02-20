@@ -8,7 +8,6 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class Post extends Model
@@ -33,7 +32,7 @@ class Post extends Model
     }
 
     public function postable(): MorphTo
-    {   // Magic link to FarmerOffering and DealerRequest
+    {   // Magic link to FarmerOffering and DealerDemand
         return $this->morphTo();
     }
 

@@ -1,8 +1,8 @@
 <?php
 
-namespace App;
+namespace App\Enums;
 
-enum DealerRequestStatus: string
+enum DealerDemandStatus: string
 {
     case Open = 'open';
     case Fulfilled = 'fulfilled';

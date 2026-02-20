@@ -5,13 +5,13 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Sprout } from 'lucide-vue-next'
-import { Request, VarietyOption } from '@/types/dealer/requests'
+import { Demand, VarietyOption } from '@/types/dealer/demands'
 import DialogForm from '../DialogForm.vue'
 import { Badge } from '../ui/badge'
 
 interface Props {
   open: boolean
-  request?: Request | null
+  demand?: Demand | null
   varietyOptions: Record<string, VarietyOption[]>
   form: InertiaForm<{
     variety_id: number | null
@@ -22,7 +22,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  request: null,
+  demand: null,
 })
 
 const emit = defineEmits<{
@@ -42,7 +42,7 @@ const maxDate = computed(() => {
   return threeMonths.toISOString().split('T')[0]
 })
 
-const isEditMode = computed(() => !!props.request)
+const isEditMode = computed(() => !!props.demand)
 
 watch(() => props.open, (isOpen) => {
   if (!isOpen) {
@@ -55,10 +55,10 @@ watch(() => props.open, (isOpen) => {
 <template>
   <DialogForm
     :open="open"
-    :title="isEditMode ? 'Edit Request' : 'Create Request'"
-    :description="isEditMode ? 'Update your requesting details' : 'Post a new requested vegetable'"
+    :title="isEditMode ? 'Edit Post' : 'Create Post'"
+    :description="isEditMode ? 'Update your post details' : 'Post a new requested vegetable'"
     :is-submitting="form.processing"
-    :submit-label="isEditMode ? 'Update Request' : 'Post Request'"
+    :submit-label="isEditMode ? 'Update Post' : 'Post Vegetable Request'"
     max-width="2xl"
     @update:open="emit('update:open', $event)"
     @submit="emit('submit')"

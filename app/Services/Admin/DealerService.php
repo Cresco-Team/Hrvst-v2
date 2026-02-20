@@ -2,10 +2,9 @@
 
 namespace App\Services\Admin;
 
-use App\DealerRequestStatus;
-use App\Models\Marketplace\DealerRequest;
+use App\Enums\DealerDemandStatus;
+use App\Models\Marketplace\DealerDemand;
 use App\Models\Profiles\DealerProfile;
-use Carbon\Carbon;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class DealerService
@@ -17,14 +16,14 @@ class DealerService
         $newDealersThisMonth = DealerProfile::where('is_approved', true)
             ->where('created_at', '>=', now()->startOfMonth())
             ->count();
-        $newRequestsThisMonth = DealerRequest::where('created_at', now()->startOfMonth())
+        $newDemandsThisMonth = DealerDemand::where('created_at', now()->startOfMonth())
             ->count();
 
         return [
             'total_dealers' => $totalDealers,
             'new_dealers_this_month' => $newDealersThisMonth,
-            'total_requests' => DealerRequest::count(),
-            'new_requests_this_month' => $newRequestsThisMonth,
+            'total_demands' => DealerDemand::count(),
+            'new_demands_this_month' => $newDemandsThisMonth,
         ];
     }
 
@@ -32,7 +31,7 @@ class DealerService
     {
         return DealerProfile::with([
             'user',
-            'requests' => fn($query) => $query->where('status', DealerRequestStatus::Open)
+            'demands' => fn($query) => $query->where('status', DealerDemandStatus::Open)
                 ->with(['variety.vegetable.category'])
                 ->orderBy('transaction_date', 'asc')
             ])
@@ -50,17 +49,17 @@ class DealerService
                         'image_path' => $dealer->user->image_path,
                     ],
                     'document_image' => $dealer->document_image,
-                    'open_requests_count' => $dealer->requests->count(),
-                    'open_requests' => $dealer->requests->map(fn($request) => [
-                        'id' => $request->id,
+                    'open_demands_count' => $dealer->demands->count(),
+                    'open_demands' => $dealer->demands->map(fn($demand) => [
+                        'id' => $demand->id,
                         'variety' => [
-                            'id' => $request->variety->id,
-                            'name' => $request->variety->name,
-                            'category' => $request->variety->vegetable->category->name,
-                            'image_url' => $request->variety->image_url,
+                            'id' => $demand->variety->id,
+                            'name' => $demand->variety->name,
+                            'category' => $demand->variety->vegetable->category->name,
+                            'image_url' => $demand->variety->image_url,
                         ],
-                        'quantity_kg' => $request->quantity_kg,
-                        'transaction_date' => $request->transaction_date->format('M d, Y'),
+                        'quantity_kg' => $demand->quantity_kg,
+                        'transaction_date' => $demand->transaction_date->format('M d, Y'),
                     ]),
                     'joined_at' => $dealer->created_at->format('M d, Y'),
                     'joined_at_human' => $dealer->created_at->diffForHumans(),
@@ -72,7 +71,7 @@ class DealerService
     {
         $dealer = DealerProfile::with([
             'user',
-            'requests' => fn($query) => $query->with(['variety.vegetable.category'])
+            'demands' => fn($query) => $query->with(['variety.vegetable.category'])
                 ->orderBy('created_at', 'desc'),
         ])
             ->where('is_approved', true)
@@ -92,18 +91,18 @@ class DealerService
                 'image_path' => $dealer->user->image_path,
             ],
             'document_image' => $dealer->document_image,
-            'requests' => $dealer->requests->map(fn($request) => [
-                'id' => $request->id,
+            'demands' => $dealer->demands->map(fn($demand) => [
+                'id' => $demand->id,
                 'variety' => [
-                    'id' => $request->variety->id,
-                    'name' => $request->variety->vegetable->name . ' ' . $request->variety->name,
-                    'category' => $request->variety->vegetable->category->name,
-                    'image_path' => $request->variety->image_path,
+                    'id' => $demand->variety->id,
+                    'name' => $demand->variety->vegetable->name . ' ' . $demand->variety->name,
+                    'category' => $demand->variety->vegetable->category->name,
+                    'image_path' => $demand->variety->image_path,
                 ],
-                'quantity_kg' => $request->quantity_kg,
-                'created_at' => $request->created_at->format('M d, Y'),
-                'transaction_date' => $request->transaction_date->format('M d, Y'),
-                'status' => $request->status,
+                'quantity_kg' => $demand->quantity_kg,
+                'created_at' => $demand->created_at->format('M d, Y'),
+                'transaction_date' => $demand->transaction_date->format('M d, Y'),
+                'status' => $demand->status,
             ]),
             'joined_at' => $dealer->created_at->format('M d, Y'),
             'joined_at_human' => $dealer->created_at->diffForHumans(),

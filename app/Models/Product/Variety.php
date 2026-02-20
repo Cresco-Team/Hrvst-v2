@@ -2,7 +2,7 @@
 
 namespace App\Models\Product;
 
-use App\Models\Marketplace\DealerRequest;
+use App\Models\Marketplace\DealerDemand;
 use App\Models\Marketplace\FarmerOffering;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -46,9 +46,9 @@ class Variety extends Model
         return $this->hasMany(FarmerOffering::class);
     }
 
-    public function requests(): HasMany
+    public function demands(): HasMany
     {
-        return $this->hasMany(DealerRequest::class);
+        return $this->hasMany(DealerDemand::class);
     }
 
     /* ---------- accessors ---------- */

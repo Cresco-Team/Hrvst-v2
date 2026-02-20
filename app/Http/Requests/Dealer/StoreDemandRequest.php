@@ -4,7 +4,7 @@ namespace App\Http\Requests\Dealer;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreDealerRequestRequest extends FormRequest
+class StoreDemandRequest extends FormRequest
 {
     public function authorize(): bool
     {

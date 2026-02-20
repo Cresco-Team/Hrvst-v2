@@ -2,8 +2,8 @@
 
 namespace App\Models\Marketplace;
 
+use App\Enums\DealerDemandStatus;
 use App\DealerPriceFlag;
-use App\DealerRequestStatus;
 use App\Models\Marketplace\Post;
 use App\Models\Profiles\DealerProfile;
 use App\Models\Product\Variety;
@@ -14,7 +14,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 
-class DealerRequest extends Model
+class DealerDemand extends Model
 {
     protected $fillable = [
         'dealer_id',
@@ -29,7 +29,7 @@ class DealerRequest extends Model
     protected $casts = [
         'transaction_date' => 'date',
         'price_flag' => DealerPriceFlag::class,
-        'status' => DealerRequestStatus::class,
+        'status' => DealerDemandStatus::class,
     ];
 
     /* ---------- relationships ---------- */
@@ -105,7 +105,7 @@ class DealerRequest extends Model
     {
         return Attribute::make(
             get: function () {
-                if ($this->status !== DealerRequestStatus::Open) {
+                if ($this->status !== DealerDemandStatus::Open) {
                     return null;
                 }
 

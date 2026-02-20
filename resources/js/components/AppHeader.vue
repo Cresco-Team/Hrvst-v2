@@ -70,7 +70,7 @@ const mainNavItems = computed<NavItem[]>(() => {
                 icon: Store
             }, {
                 title: 'My Requests',
-                href: dealer.requests.index(),
+                href: dealer.demands.index(),
                 icon: PackageSearch
             })
         }

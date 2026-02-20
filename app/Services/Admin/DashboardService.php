@@ -2,7 +2,7 @@
 
 namespace App\Services\Admin;
 
-use App\Models\Marketplace\DealerRequest;
+use App\Models\Marketplace\DealerDemand;
 use App\Models\Marketplace\FarmerOffering;
 use App\Models\Profiles\DealerProfile;
 use App\Models\Profiles\FarmerProfile;
@@ -53,7 +53,7 @@ class DashboardService
             ->where('created_at', '<', now()->subDays(30))
             ->count();
 
-        $previousRequests = DealerRequest::where('created_at', '<', now()->subDays(30))
+        $previousDemands = DealerDemand::where('created_at', '<', now()->subDays(30))
             ->count();
 
         return [
@@ -62,10 +62,10 @@ class DashboardService
                 'change' => self::calculatePercentageChange($previousTotal, $current['total_dealers']),
                 'trend' => self::getTrend($previousTotal, $current['total_dealers']),
             ],
-            'total_requests' => [
-                'value' => $current['total_requests'],
-                'change' => self::calculatePercentageChange($previousRequests, $current['total_requests']),
-                'trend' => self::getTrend($previousRequests, $current['total_requests']),
+            'total_demands' => [
+                'value' => $current['total_demands'],
+                'change' => self::calculatePercentageChange($previousDemands, $current['total_demands']),
+                'trend' => self::getTrend($previousDemands, $current['total_demands']),
             ],
         ];
     }

@@ -3,27 +3,27 @@
 namespace App\Services\Dealer;
 
 use App\DealerPriceFlag;
-use App\DealerRequestStatus;
-use App\Models\Marketplace\DealerRequest;
+use App\Enums\DealerDemandStatus;
+use App\Models\Marketplace\DealerDemand;
 use App\Models\Product\Variety;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
-class RequestService
+class DemandService
 {
     public static function summary(?int $dealerId = null): array
     {
-        $query = DealerRequest::query();
+        $query = DealerDemand::query();
         
         if ($dealerId) {
             $query->where('dealer_id', $dealerId);
         }
 
-        $totalOpen = (clone $query)->where('status', DealerRequestStatus::Open)->count();
-        $totalFulfilled = (clone $query)->where('status', DealerRequestStatus::Fulfilled)->count();
-        $totalExpired = (clone $query)->where('status', DealerRequestStatus::Expired)->count();
+        $totalOpen = (clone $query)->where('status', DealerDemandStatus::Open)->count();
+        $totalFulfilled = (clone $query)->where('status', DealerDemandStatus::Fulfilled)->count();
+        $totalExpired = (clone $query)->where('status', DealerDemandStatus::Expired)->count();
         
         $upcomingTransactions = (clone $query)
-            ->where('status', DealerRequestStatus::Open)
+            ->where('status', DealerDemandStatus::Open)
             ->whereBetween('transaction_date', [now(), now()->addWeek()])
             ->count();
 
@@ -35,9 +35,9 @@ class RequestService
         ];
     }
 
-    public static function paginated(?int $dealerId = null, DealerRequestStatus $status, int $perPage = 20): LengthAwarePaginator
+    public static function paginated(?int $dealerId = null, DealerDemandStatus $status, int $perPage = 20): LengthAwarePaginator
     {
-        $query = DealerRequest::with([
+        $query = DealerDemand::with([
             'dealer.user',
             'variety.vegetable.category',
             'variety.latestPrice',
@@ -48,7 +48,7 @@ class RequestService
         }
 
         if ($status) {
-            $status === DealerRequestStatus::Open 
+            $status === DealerDemandStatus::Open 
                 ? $query->open()
                 : $query->where('status', $status->value);
         }
@@ -99,7 +99,7 @@ class RequestService
     {
         $variety = Variety::with('latestPrice')->find($validated['variety_id']);
 
-        return DealerRequest::create([
+        return DealerDemand::create([
             'dealer_id' => $dealerId,
             'variety_id' => $validated['variety_id'],
             'quantity_kg' => $validated['quantity_kg'],
@@ -112,35 +112,35 @@ class RequestService
         ]);
     }
 
-    public function update(DealerRequest $request, array $validated): DealerRequest
+    public function update(DealerDemand $request, array $validated): DealerDemand
     {
-        if ($request->status !== DealerRequestStatus::Open) {
-            throw new \LogicException('Only open requests can be updated.');
+        if ($request->status !== DealerDemandStatus::Open) {
+            throw new \LogicException('Only open demands can be updated.');
         }
 
         $request->update($validated);
         return $request->fresh();
     }
 
-    public function expire(DealerRequest $request): bool
+    public function expire(DealerDemand $request): bool
     {
-        return $request->update(['status' => DealerRequestStatus::Expired]);
+        return $request->update(['status' => DealerDemandStatus::Expired]);
     }
 
-    public function markAsFulfilled(DealerRequest $request): bool
+    public function markAsFulfilled(DealerDemand $request): bool
     {
-        return $request->update(['status' => DealerRequestStatus::Fulfilled]);
+        return $request->update(['status' => DealerDemandStatus::Fulfilled]);
     }
 
-    public function delete(DealerRequest $request): bool
+    public function delete(DealerDemand $request): bool
     {
         return $request->delete();
     }
 
-    public static function expireOldRequests(): int
+    public static function expireOldDemands(): int
     {
-        return DealerRequest::where('status', DealerRequestStatus::Open)
-            ->update(['status' => DealerRequestStatus::Expired]);
+        return DealerDemand::where('status', DealerDemandStatus::Open)
+            ->update(['status' => DealerDemandStatus::Expired]);
     }
 
     private static function calculatePriceFlag(float $priceOffered, ?object $marketPrice): DealerPriceFlag

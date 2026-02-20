@@ -2,39 +2,40 @@
 import { computed } from 'vue'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Archive, PhilippinePeso, Weight, CalendarClock, Pencil, MoreVertical, Trash } from 'lucide-vue-next'
+import { Archive, PhilippinePeso, Weight, CalendarClock, Pencil, MoreVertical, Trash, CircleCheckBig } from 'lucide-vue-next'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { AspectRatio } from '@/components/ui/aspect-ratio'
 import { Separator } from '@/components/ui/separator'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { Request } from '@/types/dealer/requests'
+import { Demand } from '@/types/dealer/demands'
 
 interface Props {
-  request: Request
+  demand: Demand
 }
 
 const props = defineProps<Props>()
 
 const emit = defineEmits<{
-  edit: [request: Request]
-  archive: [request: Request]
-  delete: [request: Request]
+  edit: [demand: Demand]
+  fulfill: [demand: Demand]
+  delete: [demand: Demand]
 }>()
 
-const isAvailable = computed(() => props.request.status === 'available')
-const isArchived = computed(() => props.request.status === 'archived')
+const isOpen = computed(() => props.demand.status === 'open')
+const isFulfilled = computed(() => props.demand.status === 'fulfilled')
+const isExpired = computed(() => props.demand.status === 'expired')
 </script>
 
 <template>
     <Card class="py-0 gap-2 overflow-hidden transition-all hover:shadow-lg ">
         <AspectRatio :ratio="16/9" class="relative overflow-hidden">
             <img 
-                :src="request.variety.image_url" 
-                :alt="request.variety.name" 
+                :src="demand.variety.image_url" 
+                :alt="demand.variety.name" 
                 class="size-full object-cover bg-gray-200"
             />
             <div class="absolute bottom-0 right-0 rounded-tl-lg bg-black/60 px-3 py-1 text-xs font-medium text-white backdrop-blur-sm">
-                {{ request.created_at_human }}
+                {{ demand.created_at_human }}
             </div>
 
             <DropdownMenu>
@@ -44,31 +45,28 @@ const isArchived = computed(() => props.request.status === 'archived')
                     </Button>
                 </DropdownMenuTrigger>
 
-                <DropdownMenuContent v-if="isAvailable" align="end">
-                    <DropdownMenuItem
-                        v-if="isAvailable"
-                        @click="emit('edit', request)"
+                <DropdownMenuContent align="end">
+                    <DropdownMenuItem 
+                        v-if="isOpen"
+                        @click="emit('edit', demand)"
                     >
                         <Pencil class="mr-2 size-4" />
                         Edit Details
                     </DropdownMenuItem>
 
                     <DropdownMenuSeparator />
-                    
-                    <DropdownMenuItem
-                        v-if="isAvailable"
-                        @click="emit('archive', request)"
-                        class="text-orange-600 dark:text-orange-400"
-                    >
-                        <Archive class="mr-2 size-4" />
-                        Archive
-                    </DropdownMenuItem>
-                </DropdownMenuContent>
 
-                <DropdownMenuContent v-if="isArchived" align="end">
                     <DropdownMenuItem
-                        v-if="isArchived"
-                        @click="emit('delete', request)"
+                        v-if="isExpired"
+                        @click="emit('fulfill', demand)"
+                        class="text-green-500"
+                    >
+                        <CircleCheckBig class="mr-2 size-4" />
+                        Fulfill
+                    </DropdownMenuItem>
+
+                    <DropdownMenuItem
+                        @click="emit('delete', demand)"
                         class="text-destructive"
                     >
                         <Trash class="mr-2 size-4" />
@@ -80,12 +78,12 @@ const isArchived = computed(() => props.request.status === 'archived')
 
         <CardHeader class="p-5 py-2">
             <CardTitle>
-                {{ request.variety.name }}
+                {{ demand.variety.name }}
             </CardTitle>
             <CardDescription class="flex justify-between">
-                <p>{{ request.variety.vegetable }}</p>
+                <p>{{ demand.variety.vegetable }}</p>
                 <Badge>
-                    {{ request.quantity_kg }} kg
+                    {{ demand.quantity_kg }} kg
                 </Badge>
             </CardDescription>
             <Separator />
@@ -97,7 +95,7 @@ const isArchived = computed(() => props.request.status === 'archived')
                     <PhilippinePeso :size="15" />
                     Price:
                 </div>
-                <span>{{ request.price_offered.toFixed(2) }}</span>
+                <span>{{ demand.price_offered.toFixed(2) }}</span>
             </div>
 
             <div class="flex justify-between text-sm">
@@ -105,7 +103,7 @@ const isArchived = computed(() => props.request.status === 'archived')
                     <Weight :size="15" />
                     Kg:
                 </div>
-                <span>{{ request.quantity_kg }}</span>
+                <span>{{ demand.quantity_kg }}</span>
             </div>
 
             <div class="flex justify-between text-sm">
@@ -114,9 +112,9 @@ const isArchived = computed(() => props.request.status === 'archived')
                     Transact:
                 </div>
                 <p>
-                    {{ request.transaction_date }}
+                    {{ demand.transaction_date }}
                     <span class="text-xs text-muted-foreground">
-                        ({{ request.days_until_transaction }} days)
+                        ({{ demand.days_until_transaction }} days)
                     </span>
                 </p>
             </div>

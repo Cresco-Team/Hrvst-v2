@@ -152,7 +152,7 @@ class VarietyService
     public function delete(Variety $variety): bool
     {
         // Check for plantings
-        if ($variety->offerings()->exists() || $variety->requests()->exists()) {
+        if ($variety->offerings()->exists() || $variety->demands()->exists()) {
             return false;
         }
 
