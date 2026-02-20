@@ -23,10 +23,8 @@ class DealerDemandController extends Controller
 
         return Inertia::render('farmer/marketplace/Index', [
             'filters' => $validated,
-            'categoryOptions' => Inertia::defer(fn() => DealerDemandService::categoryOptions()),
-            'requests' => Inertia::defer(fn() => 
-                DealerDemandService::paginated($validated)
-            ),
+            'categoryOptions' => Inertia::defer(fn () => DealerDemandService::categoryOptions()),
+            'demands' => Inertia::defer(fn () => DealerDemandService::paginated($validated)),
         ]);
     }
 
