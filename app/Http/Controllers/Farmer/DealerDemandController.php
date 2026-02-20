@@ -12,9 +12,6 @@ use Inertia\Response;
 
 class DealerDemandController extends Controller
 {
-    /**
-     * Browse dealer requests (opportunities)
-     */
     public function index(Request $request): Response
     {
         $validated = $request->validate([
@@ -24,30 +21,21 @@ class DealerDemandController extends Controller
             'date_to' => 'nullable|date|after_or_equal:date_from',
         ]);
 
-        return Inertia::render('farmer/requests/Index', [
-            // Synchronous (immediate load)
+        return Inertia::render('farmer/marketplace/Index', [
             'filters' => $validated,
-            
-            // Deferred (load after page renders)
+            'categoryOptions' => Inertia::defer(fn() => DealerDemandService::categoryOptions()),
             'requests' => Inertia::defer(fn() => 
                 DealerDemandService::paginated($validated)
             ),
-            
-            'filterOptions' => Inertia::defer(fn() => [
-                'categories' => DealerDemandService::categoryOptions(),
-            ]),
         ]);
     }
 
-    /**
-     * View single dealer request details
-     */
-    public function show(DealerDemand $dealerDemand): Response
+    public function show(DealerDemand $demand): Response
     {
-        Gate::authorize('view', $dealerDemand);
+        Gate::authorize('view', $demand);
 
-        return Inertia::render('farmer/requests/Show', [
-            'request' => DealerDemandService::detailed($dealerDemand),
+        return Inertia::render('farmer/marketplace/Show', [
+            'request' => DealerDemandService::detailed($demand),
         ]);
     }
 }
