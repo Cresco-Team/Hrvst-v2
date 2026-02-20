@@ -10,9 +10,9 @@ Route::middleware(['auth', 'verified', 'dealer'])->prefix('dealer')->name('deale
     Route::prefix('demands')->name('demands.')->group(function () {
         Route::get('/', [DemandController::class, 'index'])->name('index');
         Route::post('/', [DemandController::class, 'store'])->name('store');
-        Route::put('/{dealerRequest}', [DemandController::class, 'update'])->name('update');
-        Route::post('/{dealerRequest}/fulfill', [DemandController::class, 'fulfill'])->name('fulfill');
-        Route::delete('/{dealerRequest}', [DemandController::class, 'destroy'])->name('destroy');
+        Route::put('/{demand}', [DemandController::class, 'update'])->name('update');
+        Route::post('/{demand}/fulfill', [DemandController::class, 'fulfill'])->name('fulfill');
+        Route::delete('/{demand}', [DemandController::class, 'destroy'])->name('destroy');
     });
 
     // Marketplace (Browse farmer offerings)
