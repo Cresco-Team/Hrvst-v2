@@ -3,7 +3,6 @@ import { ref, computed } from 'vue'
 import { Deferred, Head, router, useForm } from '@inertiajs/vue3'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Plus, PackageSearch, PackageCheck, CalendarX, CalendarClock, Package } from 'lucide-vue-next'
 import DemandForm from '@/components/dealer/DemandForm.vue'
@@ -16,6 +15,7 @@ import { destroy, fulfill, index, store, update } from '@/routes/dealer/demands'
 import LargeCard from '@/components/shared/cards/LargeCard.vue'
 import EmptyState from '@/components/EmptyState.vue'
 import DemandCard from '@/components/dealer/DemandCard.vue'
+import ConfirmationDialog from '@/components/ConfirmationDialog.vue'
 
 interface Props {
   summary?: Summary
@@ -33,8 +33,8 @@ const fulfillDialogOpen = ref(false)
 
 /* Active items */
 const activeDemand = ref<Demand | null>(null)
-const demandToDelete = ref<Demand | null>(null)
 const demandToFulfill = ref<Demand | null>(null)
+const demandToDelete = ref<Demand | null>(null)
 
 const form = useForm<{
   variety_id: number | null
@@ -204,11 +204,12 @@ function handleDelete() {
         <TabsList>
           <TabsTrigger value="open">Open</TabsTrigger>
           <TabsTrigger value="expired">Expired</TabsTrigger>
+          <TabsTrigger value="fulfilled">Fulfilled</TabsTrigger>
         </TabsList>
       </Tabs>
 
       <!-- Demands Grid -->
-       <Deferred data="demands">
+      <Deferred data="demands">
         <template #fallback>
           <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             <Skeleton v-for="i in 8" :key="i" class="h-96 rounded-lg" />
@@ -223,7 +224,7 @@ function handleDelete() {
           button="Create Post"
         />
 
-        <div v-else class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div v-else class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <DemandCard 
             v-for="demand in demands!.data"
             :key="demand.id"
@@ -233,7 +234,7 @@ function handleDelete() {
             @delete="openDelete"
           />
         </div>
-       </Deferred>
+      </Deferred>
     </div>
   </AppLayout>
 
@@ -248,38 +249,19 @@ function handleDelete() {
   />
 
   <!-- Fulfill Confirmation -->
-  <AlertDialog :open="fulfillDialogOpen" @update:open="fulfillDialogOpen = $event">
-    <AlertDialogContent>
-      <AlertDialogHeader>
-        <AlertDialogTitle>Mark as Fulfilled?</AlertDialogTitle>
-        <AlertDialogDescription>
-          This will mark the demand as fulfilled. You won't be able to edit it after this.
-        </AlertDialogDescription>
-      </AlertDialogHeader>
-      <AlertDialogFooter>
-        <AlertDialogCancel>Cancel</AlertDialogCancel>
-        <AlertDialogAction @click="handleFulfill">
-          Confirm
-        </AlertDialogAction>
-      </AlertDialogFooter>
-    </AlertDialogContent>
-  </AlertDialog>
+  <ConfirmationDialog
+    v-model:open="fulfillDialogOpen"
+    title="Mark as Fulfilled?"
+    description="This will mark the demand as fulfilled. You won't be able to edit it after this."
+    @action="handleFulfill"
+  />
 
   <!-- Delete Confirmation -->
-  <AlertDialog :open="deleteDialogOpen" @update:open="deleteDialogOpen = $event">
-    <AlertDialogContent>
-      <AlertDialogHeader>
-        <AlertDialogTitle>Delete Post?</AlertDialogTitle>
-        <AlertDialogDescription>
-          This action cannot be undone. The post will be permanently deleted.
-        </AlertDialogDescription>
-      </AlertDialogHeader>
-      <AlertDialogFooter>
-        <AlertDialogCancel>Cancel</AlertDialogCancel>
-        <AlertDialogAction @click="handleDelete" class="bg-destructive text-destructive-foreground">
-          Delete
-        </AlertDialogAction>
-      </AlertDialogFooter>
-    </AlertDialogContent>
-  </AlertDialog>
+  <ConfirmationDialog
+    v-model:open="deleteDialogOpen"
+    title="Delete Post?"
+    description="This action cannot be undone. The post will be permanently deleted."
+    @action="handleDelete"
+    variant="destructive"
+  />
 </template>
