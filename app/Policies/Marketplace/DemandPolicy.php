@@ -6,7 +6,7 @@ use App\Enums\DealerDemandStatus;
 use App\Models\Marketplace\DealerDemand;
 use App\Models\User;
 
-class DealerDemandPolicy
+class DemandPolicy
 {
     public function viewAny(User $user): bool
     {
