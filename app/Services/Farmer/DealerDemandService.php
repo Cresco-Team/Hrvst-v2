@@ -47,6 +47,7 @@ class DealerDemandService
                     'dealer' => [
                         'id' => $demand->dealer->id,
                         'name' => $demand->dealer->user->name,
+                        'phone_number' => $demand->dealer->user->phone_number,
                         'image_path' => $demand->dealer->user->image_path,
                     ],
                     'transaction_date' => $demand->transaction_date->format('M d, Y'),
@@ -56,6 +57,7 @@ class DealerDemandService
                         'id' => $demand->variety->id,
                         'name' => $demand->variety->name,
                         'vegetable' => $demand->variety->vegetable->name,
+                        'image_url' => $demand->variety->image_url,
                     ],
                     'quantity_kg' => (float) $demand->quantity_kg,
                     'price_offered' => (float) $demand->price_offered,
