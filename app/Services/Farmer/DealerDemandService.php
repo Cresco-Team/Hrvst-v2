@@ -15,8 +15,8 @@ class DealerDemandService
     {
         $query = DealerDemand::with([
             'dealer.user',
-            'items.variety.vegetable.category',
-            'items.variety.latestPrice',
+            'variety.vegetable.category',
+            'variety.latestPrice',
         ])->where('status', DealerDemandStatus::Open)
         ->where('transaction_date', '>=', now());
 
@@ -105,7 +105,7 @@ class DealerDemandService
 
     public static function categoryOptions(): array
     {
-        return Category::whereHas('vegetables.varieties.dealerDemand', function (Builder $q) {
+        return Category::whereHas('vegetables.varieties.demands', function (Builder $q) {
             $q->where('status', DealerDemandStatus::Open)
                 ->where('transaction_date', '>=', now());
         })->orderBy('name')
@@ -116,10 +116,11 @@ class DealerDemandService
             ])->toArray();
     }
 
-    private static function calculatePriceFlag(float $priceOffered, ?object $marketPrice): DealerPriceFlag
+    private static function calculatePriceFlag(float $priceOffered, ?object $latestPrice): DealerPriceFlag
     {
-        $marketMin = (float) $marketPrice->price_min;
-        $marketMax = (float) $marketPrice->price_max;
+
+        $marketMin = (float) $latestPrice?->price_min;
+        $marketMax = (float) $latestPrice?->price_max;
 
         if ($priceOffered < $marketMin) return DealerPriceFlag::Low;
 
