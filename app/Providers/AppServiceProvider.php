@@ -5,7 +5,7 @@ namespace App\Providers;
 use App\Models\Marketplace\DealerDemand;
 use App\Models\Marketplace\FarmerOffering;
 use App\Policies\Announcement\FarmerOfferingPolicy;
-use App\Policies\Marketplace\DealerDemandPolicy;
+use App\Policies\Marketplace\DemandPolicy;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
@@ -31,7 +31,8 @@ class AppServiceProvider extends ServiceProvider
         $this->configureDefaults();
         
         Gate::policy(FarmerOffering::class, FarmerOfferingPolicy::class);
-        Gate::policy(DealerDemand::class, DealerDemandPolicy::class);
+        Gate::policy(DealerDemand::class, 
+    DemandPolicy::class);
     }
 
     protected function configureDefaults(): void
