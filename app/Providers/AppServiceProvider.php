@@ -4,6 +4,8 @@ namespace App\Providers;
 
 use App\Models\Marketplace\DealerDemand;
 use App\Models\Marketplace\FarmerOffering;
+use App\Models\Product\Variety;
+use App\Observers\VarietyObserver;
 use App\Policies\Announcement\FarmerOfferingPolicy;
 use App\Policies\Marketplace\DemandPolicy;
 use Carbon\CarbonImmutable;
@@ -33,6 +35,7 @@ class AppServiceProvider extends ServiceProvider
         Model::automaticallyEagerLoadRelationships();
         Gate::policy(FarmerOffering::class, FarmerOfferingPolicy::class);
         Gate::policy(DealerDemand::class, DemandPolicy::class);
+        Variety::observe(VarietyObserver::class);
     }
 
     protected function configureDefaults(): void
