@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\Farmer\DealerDemandController;
+use App\Http\Controllers\Farmer\MarketplaceController;
 use App\Http\Controllers\Farmer\OfferingController;
 use Illuminate\Support\Facades\Route;
 
@@ -15,7 +15,7 @@ Route::middleware(['auth', 'verified', 'farmer'])->prefix('farmer')->name('farme
     });
 
     Route::prefix('marketplace')->name('marketplace.')->group(function () {
-        Route::get('/', [DealerDemandController::class, 'index'])->name('index');
-        Route::get('/{demand}', [DealerDemandController::class, 'show'])->name('show');
+        Route::get('/', [MarketplaceController::class, 'index'])->name('index');
+        Route::get('/{demand}', [MarketplaceController::class, 'show'])->name('show');
     });
 });
