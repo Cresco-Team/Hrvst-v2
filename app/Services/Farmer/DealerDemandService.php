@@ -73,7 +73,7 @@ class DealerDemandService
             'dealer.user',
             'variety.vegetable.category',
             'variety.latestPrice',
-            'reactions.user',
+            'post.reactions.user',
         ]);
 
         return [
