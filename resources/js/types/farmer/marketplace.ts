@@ -29,6 +29,34 @@ export interface DealerDemand {
       created_at_human: string
 }
 
+export interface DemandDetails {
+  id: number
+  dealer: {
+    id: number
+    name: string
+    phone_number: string
+    image_path: string
+  }
+  transaction_date: string
+  days_until_transaction: number
+  status: 'open' | 'fulfilled' | 'expired'
+  variety: {
+    id: number
+    name: string
+    vegetable: string
+    image_url: string
+  }
+  quantity_kg: number
+  price_offered: number
+  price_flag: 'low' | 'fair' | 'premium'
+  market_price: {
+    min: number
+    max: number
+  }
+  created_at: string
+  created_at_human: string
+}
+
 export interface CategoryOption {
     id: number
     name: string
