@@ -9,7 +9,7 @@ use App\Models\Product\Category;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 
-class DealerDemandService
+class MarketplaceService
 {
     public static function paginated(array $filters = [], int $perPage = 20): LengthAwarePaginator
     {
