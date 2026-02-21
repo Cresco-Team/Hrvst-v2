@@ -22,6 +22,8 @@ class PriceHistory extends Model
         'recorded_at' => 'date',
     ];
 
+    protected $touches = ['variety'];
+
     /* ---------- relations ---------- */
 
     public function variety()
