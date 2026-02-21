@@ -26,11 +26,11 @@ const props = defineProps<Props>()
       <AspectRatio :ratio="16 / 9" class="relative overflow-hidden">
         <img :src="demand.variety.image_url" class="size-full object-cover bg-green-100">
 
-        <Badge class="absolute top-3 right-3" variant="secondary">
+        <Badge class="absolute top-3 right-3">
           {{ demand.transaction_date }}
         </Badge>
 
-        <div class="absolute bottom-0 right-0 rounded-tl-lg bg-black/60 px-3 py-1 text-xs font-medium text-white backdrop-blur-sm">
+        <div class="absolute bottom-0 right-0 rounded-tl-lg bg-black/60 px-3 py-1 text-xs font-medium text-white">
           {{ demand.quantity_kg }}kg needed
         </div>
       </AspectRatio>
