@@ -1,27 +1,21 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3'
-import { ArrowLeft, Calendar, Package, DollarSign, Phone, User, TrendingUp, TrendingDown, Minus } from 'lucide-vue-next'
+import { ArrowLeft, Calendar, Package, Phone } from 'lucide-vue-next'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Separator } from '@/components/ui/separator'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import ReactionBar from '@/components/shared/ReactionBar.vue'
 import FlagDialog from '@/components/shared/FlagDialog.vue'
 import AppLayout from '@/layouts/AppLayout.vue'
-import type { DealerRequest } from '@/types/announcement'
 import farmer from '@/routes/farmer'
+import { DemandDetails } from '@/types/farmer/marketplace'
+import { defaultClientMainFields } from 'vite'
 
 interface Props {
-  request: DealerRequest
+  details: DemandDetails
 }
 
 const props = defineProps<Props>()
@@ -45,19 +39,19 @@ function getPriceFlagLabel(flag: string) {
 
 const breadcrumbs = [
   { title: 'Farmer', href: farmer.garden.index().url },
-  { title: 'Dealer Requests', href: farmer.requests.index().url },
-  { title: `Request #${props.request.id}`, href: farmer.requests.show(props.request.id).url },
+  { title: 'Dealer Requests', href: farmer.marketplace.index().url },
+  { title: `${props.details.variety.name}`, href: farmer.marketplace.show(props.details.id).url },
 ]
 </script>
 
 <template>
-  <Head :title="`Request #${request.id}`" />
+  <Head :title="`${details.variety.name} | ${details.dealer.name}`" />
 
   <AppLayout :breadcrumbs="breadcrumbs">
     <div class="flex h-full flex-col gap-6 p-4 lg:p-6">
       <!-- Back button -->
       <div>
-        <Link :href="farmer.requests.index().url">
+        <Link :href="farmer.marketplace.index().url">
           <Button variant="ghost" size="sm" class="gap-2">
             <ArrowLeft class="size-4" />
             Back to Requests
@@ -70,9 +64,9 @@ const breadcrumbs = [
         <div class="space-y-6 lg:col-span-2">
           <!-- Header -->
           <div>
-            <h1 class="text-3xl font-bold">Purchase Request #{{ request.id }}</h1>
+            <h1 class="text-3xl font-bold">{{ details.variety.name }}</h1>
             <p class="mt-1 text-sm text-muted-foreground">
-              Posted {{ request.created_at_human }}
+              Posted {{ details.dealer.name }}
             </p>
           </div>
 
@@ -85,9 +79,9 @@ const breadcrumbs = [
                 </div>
                 <div>
                   <p class="text-sm text-muted-foreground">Transaction Date</p>
-                  <p class="text-xl font-bold">{{ request.transaction_date }}</p>
+                  <p class="text-xl font-bold">{{ details.transaction_date }}</p>
                   <p class="text-xs text-muted-foreground">
-                    {{ request.days_until_transaction === 0 ? 'Today' : `In ${request.days_until_transaction} days` }}
+                    {{ details.days_until_transaction === 0 ? 'Today' : `In ${details.days_until_transaction} days` }}
                   </p>
                 </div>
               </CardContent>
@@ -100,63 +94,25 @@ const breadcrumbs = [
                 </div>
                 <div>
                   <p class="text-sm text-muted-foreground">Total Quantity</p>
-                  <p class="text-xl font-bold">{{ request.total_quantity }} kg</p>
+                  <p class="text-xl font-bold">{{ details.quantity_kg }} kg</p>
                   <p class="text-xs text-muted-foreground">
-                    {{ request.items.length }} varieties
+                    varieties
                   </p>
                 </div>
               </CardContent>
             </Card>
           </div>
 
-          <!-- Items table -->
-          <Card>
-            <CardHeader>
-              <CardTitle>Requested Varieties</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Variety</TableHead>
-                    <TableHead>Category</TableHead>
-                    <TableHead class="text-right">Quantity</TableHead>
-                    <TableHead class="text-right">Price Offered</TableHead>
-                    <TableHead>Price Flag</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  <TableRow v-for="item in request.items" :key="item.variety.id">
-                    <TableCell class="font-medium">{{ item.variety.name }}</TableCell>
-                    <TableCell>
-                      <Badge variant="outline">{{ item.variety.category }}</Badge>
-                    </TableCell>
-                    <TableCell class="text-right">{{ item.quantity_kg }} kg</TableCell>
-                    <TableCell class="text-right font-semibold">₱{{ item.price_offered }}/kg</TableCell>
-                    <TableCell>
-                      <Badge :variant="getPriceFlagVariant(item.price_flag || 'unknown')">
-                        {{ getPriceFlagLabel(item.price_flag || 'unknown') }}
-                      </Badge>
-                      <div v-if="item.market_price" class="mt-1 text-xs text-muted-foreground">
-                        Market: ₱{{ item.market_price.min }}-{{ item.market_price.max }}
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-
           <!-- Reactions -->
-          <div class="space-y-2">
+          <!-- <div class="space-y-2">
             <p class="text-sm font-medium">React to this request</p>
             <ReactionBar
               reactionable-type="DealerRequest"
-              :reactionable-id="request.id"
-              :counts="request.reaction_counts || {}"
+              :reactionable-id="details.id"
+              :counts="details.reaction_counts || {}"
               variant="thumbs"
             />
-          </div>
+          </div> -->
         </div>
 
         <!-- Right column: Dealer info -->
@@ -169,11 +125,11 @@ const breadcrumbs = [
               <!-- Dealer profile -->
               <div class="flex items-center gap-3">
                 <Avatar class="size-12">
-                  <AvatarImage v-if="request.dealer.user_image" :src="request.dealer.user_image" />
-                  <AvatarFallback>{{ getInitials(request.dealer.name) }}</AvatarFallback>
+                  <AvatarImage v-if="details.dealer.image_path" :src="details.dealer.image_path" />
+                  <AvatarFallback>{{ getInitials(details.dealer.name) }}</AvatarFallback>
                 </Avatar>
                 <div>
-                  <p class="font-semibold">{{ request.dealer.name }}</p>
+                  <p class="font-semibold">{{ details.dealer.name }}</p>
                   <p class="text-sm text-muted-foreground">Dealer</p>
                 </div>
               </div>
@@ -182,11 +138,11 @@ const breadcrumbs = [
 
               <!-- Contact info -->
               <div class="space-y-3">
-                <div v-if="request.dealer.phone_number" class="flex items-center gap-3">
+                <div v-if="details.dealer.phone_number" class="flex items-center gap-3">
                   <Phone class="size-4 text-muted-foreground" />
                   <div>
                     <p class="text-xs text-muted-foreground">Phone</p>
-                    <p class="font-medium">{{ request.dealer.phone_number }}</p>
+                    <p class="font-medium">{{ details.dealer.phone_number }}</p>
                   </div>
                 </div>
               </div>
@@ -201,7 +157,7 @@ const breadcrumbs = [
                 </Button>
                 <FlagDialog
                   flaggable-type="DealerRequest"
-                  :flaggable-id="request.id"
+                  :flaggable-id="details.id"
                 />
               </div>
             </CardContent>
