@@ -7,6 +7,7 @@ use App\Models\Marketplace\FarmerOffering;
 use App\Policies\Announcement\FarmerOfferingPolicy;
 use App\Policies\Marketplace\DemandPolicy;
 use Carbon\CarbonImmutable;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
@@ -29,10 +30,9 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->configureDefaults();
-        
+        Model::automaticallyEagerLoadRelationships();
         Gate::policy(FarmerOffering::class, FarmerOfferingPolicy::class);
-        Gate::policy(DealerDemand::class, 
-    DemandPolicy::class);
+        Gate::policy(DealerDemand::class, DemandPolicy::class);
     }
 
     protected function configureDefaults(): void
