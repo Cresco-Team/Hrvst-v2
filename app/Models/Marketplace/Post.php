@@ -4,6 +4,7 @@ namespace App\Models\Marketplace;
 
 use App\Models\Interaction\Comment;
 use App\Models\Interaction\PostFlag;
+use App\Models\Interaction\Reaction;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -34,6 +35,11 @@ class Post extends Model
     public function postable(): MorphTo
     {   // Magic link to FarmerOffering and DealerDemand
         return $this->morphTo();
+    }
+
+    public function reactions(): HasMany
+    {
+        return $this->hasMany(Reaction::class);
     }
 
     public function comments(): HasMany

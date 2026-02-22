@@ -9,14 +9,14 @@ use App\Models\Product\Category;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 
-class DealerDemandService
+class MarketplaceService
 {
     public static function paginated(array $filters = [], int $perPage = 20): LengthAwarePaginator
     {
         $query = DealerDemand::with([
             'dealer.user',
-            'items.variety.vegetable.category',
-            'items.variety.latestPrice',
+            'variety.vegetable.category',
+            'variety.latestPrice',
         ])->where('status', DealerDemandStatus::Open)
         ->where('transaction_date', '>=', now());
 
@@ -47,6 +47,7 @@ class DealerDemandService
                     'dealer' => [
                         'id' => $demand->dealer->id,
                         'name' => $demand->dealer->user->name,
+                        'phone_number' => $demand->dealer->user->phone_number,
                         'image_path' => $demand->dealer->user->image_path,
                     ],
                     'transaction_date' => $demand->transaction_date->format('M d, Y'),
@@ -56,6 +57,7 @@ class DealerDemandService
                         'id' => $demand->variety->id,
                         'name' => $demand->variety->name,
                         'vegetable' => $demand->variety->vegetable->name,
+                        'image_url' => $demand->variety->image_url,
                     ],
                     'quantity_kg' => (float) $demand->quantity_kg,
                     'price_offered' => (float) $demand->price_offered,
@@ -71,7 +73,7 @@ class DealerDemandService
             'dealer.user',
             'variety.vegetable.category',
             'variety.latestPrice',
-            'reactions.user',
+            'post.reactions.user',
         ]);
 
         return [
@@ -105,7 +107,7 @@ class DealerDemandService
 
     public static function categoryOptions(): array
     {
-        return Category::whereHas('vegetables.varieties.dealerDemand', function (Builder $q) {
+        return Category::whereHas('vegetables.varieties.demands', function (Builder $q) {
             $q->where('status', DealerDemandStatus::Open)
                 ->where('transaction_date', '>=', now());
         })->orderBy('name')
@@ -116,10 +118,11 @@ class DealerDemandService
             ])->toArray();
     }
 
-    private static function calculatePriceFlag(float $priceOffered, ?object $marketPrice): DealerPriceFlag
+    private static function calculatePriceFlag(float $priceOffered, ?object $latestPrice): DealerPriceFlag
     {
-        $marketMin = (float) $marketPrice->price_min;
-        $marketMax = (float) $marketPrice->price_max;
+
+        $marketMin = (float) $latestPrice?->price_min;
+        $marketMax = (float) $latestPrice?->price_max;
 
         if ($priceOffered < $marketMin) return DealerPriceFlag::Low;
 

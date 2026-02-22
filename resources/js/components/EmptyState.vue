@@ -2,13 +2,18 @@
 import type { Component } from 'vue';
 import { Button } from './ui/button';
 import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from './ui/empty';
+import { Search } from 'lucide-vue-next';
 
-const props = defineProps<{
-        title: string
-        description: string
-        icon: Component
-        button?: string
-}>()
+type Props = {
+    title: string
+    description: string
+    icon?: Component
+    button?: string
+}
+
+const props = withDefaults(defineProps<Props>(), {
+    icon: Search
+});
 </script>
 
 <template>
