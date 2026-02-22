@@ -36,18 +36,17 @@ const props = defineProps<Props>()
       </AspectRatio>
 
       <CardHeader class="p-5 py-2">
-        <CardTitle class="flex justify-between">
-          <p>{{ demand.variety.name }}</p>
-          <Badge>₱ {{ demand.price_offered.toFixed(2) }}</Badge>
+        <CardTitle>
+          <p>{{ demand.variety.vegetable }} {{ demand.variety.name }}</p>
         </CardTitle>
         <CardDescription class="flex justify-between">
-          <p>{{ demand.variety.vegetable }}</p>
-          <Badge variant="outline">{{ demand.price_flag }}</Badge>
+          <p>₱ {{ demand.price_offered.toFixed(2) }}<span class="text-xs">/kg</span></p>
+          <Badge>{{ demand.price_flag }}</Badge>
         </CardDescription>
         <Separator />
       </CardHeader>
 
-      <CardContent class="space-y-4 p-4">
+      <CardContent class="space-y-4 p-4 pt-0">
         <Item class="p-0">
           <ItemMedia>
             <Avatar class="size-10">
