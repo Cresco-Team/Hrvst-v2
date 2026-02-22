@@ -1,18 +1,17 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3'
-import { ArrowLeft, Calendar, Package, Phone } from 'lucide-vue-next'
+import { Calendar, Package, Phone } from 'lucide-vue-next'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Separator } from '@/components/ui/separator'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import ReactionBar from '@/components/shared/ReactionBar.vue'
 import FlagDialog from '@/components/shared/FlagDialog.vue'
 import AppLayout from '@/layouts/AppLayout.vue'
 import farmer from '@/routes/farmer'
 import { DemandDetails } from '@/types/farmer/marketplace'
-import { defaultClientMainFields } from 'vite'
+import { getInitials } from '@/composables/useInitials'
+import Heading from '@/components/Heading.vue'
 
 interface Props {
   details: DemandDetails
@@ -20,55 +19,27 @@ interface Props {
 
 const props = defineProps<Props>()
 
-function getInitials(name: string) {
-  return name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()
-}
-
-function getPriceFlagVariant(flag: string) {
-  if (flag === 'cheap') return 'destructive'
-  if (flag === 'high') return 'default'
-  return 'secondary'
-}
-
-function getPriceFlagLabel(flag: string) {
-  if (flag === 'cheap') return 'Below Market'
-  if (flag === 'high') return 'Above Market'
-  if (flag === 'fair') return 'Fair Price'
-  return 'No Data'
-}
-
 const breadcrumbs = [
   { title: 'Farmer', href: farmer.garden.index().url },
-  { title: 'Dealer Requests', href: farmer.marketplace.index().url },
-  { title: `${props.details.variety.name}`, href: farmer.marketplace.show(props.details.id).url },
+  { title: 'Marketplace', href: farmer.marketplace.index().url },
+  { title: `${props.details.variety.vegetable} ${props.details.variety.name}`, href: farmer.marketplace.show(props.details.id).url },
 ]
 </script>
 
 <template>
-  <Head :title="`${details.variety.name} | ${details.dealer.name}`" />
+  <Head :title="`${details.variety.vegetable} ${details.variety.name} | ${details.dealer.name}`" />
 
   <AppLayout :breadcrumbs="breadcrumbs">
     <div class="flex h-full flex-col gap-6 p-4 lg:p-6">
-      <!-- Back button -->
-      <div>
-        <Link :href="farmer.marketplace.index().url">
-          <Button variant="ghost" size="sm" class="gap-2">
-            <ArrowLeft class="size-4" />
-            Back to Requests
-          </Button>
-        </Link>
-      </div>
+      <!-- Header -->
+       <Heading 
+        :title="`${details.variety.vegetable} ${details.variety.name}`"
+        :description="`Posted by ${details.dealer.name}`"
+       />
 
       <div class="grid gap-6 lg:grid-cols-3">
         <!-- Left column: Request details -->
         <div class="space-y-6 lg:col-span-2">
-          <!-- Header -->
-          <div>
-            <h1 class="text-3xl font-bold">{{ details.variety.name }}</h1>
-            <p class="mt-1 text-sm text-muted-foreground">
-              Posted {{ details.dealer.name }}
-            </p>
-          </div>
 
           <!-- Stats cards -->
           <div class="grid gap-4 sm:grid-cols-2">
