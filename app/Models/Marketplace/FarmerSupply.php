@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 
-class FarmerOffering extends Model
+class FarmerSupply extends Model
 {
     protected $fillable = [
         'farmer_id',
