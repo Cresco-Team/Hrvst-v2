@@ -6,7 +6,6 @@ use App\Models\Marketplace\Post;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class Reaction extends Model
 {
@@ -18,14 +17,12 @@ class Reaction extends Model
 
     /* ---------- relationships ---------- */
 
-    // User
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    // Marketplace
-    public function reactable(): BelongsTo
+    public function post(): BelongsTo
     {
         return $this->belongsTo(Post::class);
     }
