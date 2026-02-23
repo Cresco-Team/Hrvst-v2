@@ -11,18 +11,12 @@ return new class extends Migration
         Schema::create('farmer_offerings', function (Blueprint $table) {
             $table->id();
             $table->foreignId('farmer_id')->constrained('farmer_profiles')->cascadeOnDelete();
-            $table->foreignId('variety_id')->constrained()->cascadeOnDelete();
 
-            $table->decimal('weight_kg', 8, 2);
-            $table->decimal('asking_price', 8, 2)->nullable();
-            $table->date('expiration_date')->nullable();
-
+            $table->date('expiration_date');
             $table->string('image_path')->nullable();
-            $table->enum('price_flag', ['lean', 'fair', 'high']);
-            $table->enum('status', ['available', 'archived'])->default('available');
             $table->timestamps();
 
-            $table->index(['farmer_id', 'status', 'expiration_date']);
+            $table->index(['farmer_id', 'expiration_date']);
         });
     }
 
