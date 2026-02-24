@@ -6,7 +6,7 @@ use App\Enums\PostPriceFlag;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class StorePostRequest extends FormRequest
+class StoreSupplyRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -37,13 +37,14 @@ class StorePostRequest extends FormRequest
             'quantity_kg.required'  => 'Quantity is required',
             'quantity_kg.numeric'   => 'Quantity must be a number',
             'quantity_kg.min'       => 'Quantity is too low',
-            'quantity_kg.min'       => 'Quantity is too high',
+            'quantity_kg.max'       => 'Quantity is too high',
 
             'offered_price.numeric' => 'Price must be a number',
             'offered_price.min'     => 'Price is too low',
             'offered_price.max'     => 'Price is too high',
 
             'expiration_date.required'  => 'Expiration date is required',
+            'expiration_date.date'      => 'Expiration date must be a vald date',
             'expiration_date.after'     => 'Expiration date must be in the future',
             'expiration_date.before'    => 'Expiration date cannot be more than 3 months away',
 
