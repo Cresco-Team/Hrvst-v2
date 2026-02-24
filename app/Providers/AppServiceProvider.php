@@ -3,11 +3,11 @@
 namespace App\Providers;
 
 use App\Models\Marketplace\DealerDemand;
-use App\Models\Marketplace\FarmerOffering;
+use App\Models\Marketplace\FarmerSupply;
 use App\Models\Product\Variety;
 use App\Observers\VarietyObserver;
-use App\Policies\Announcement\FarmerOfferingPolicy;
 use App\Policies\Marketplace\DemandPolicy;
+use App\Policies\Marketplace\SupplyPolicy;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Date;
@@ -33,7 +33,7 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->configureDefaults();
         Model::automaticallyEagerLoadRelationships();
-        Gate::policy(FarmerOffering::class, FarmerOfferingPolicy::class);
+        Gate::policy(FarmerSupply::class, SupplyPolicy::class);
         Gate::policy(DealerDemand::class, DemandPolicy::class);
         Variety::observe(VarietyObserver::class);
     }
