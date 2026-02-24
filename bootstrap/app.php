@@ -33,9 +33,6 @@ return Application::configure(basePath: dirname(__DIR__))
             AddLinkHeadersForPreloadedAssets::class,
         ]);
     })
-    ->withSchedule(function (Schedule $schedule) {
-        $schedule->command(ArchiveOldPostsCommand::class)->daily();
-    })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
     })->create();
