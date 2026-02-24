@@ -6,7 +6,7 @@ use App\Enums\PostPriceFlag;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class StorePostRequest extends FormRequest
+class StoreDemandRequest extends FormRequest
 {
     public function authorize(): bool
     {
