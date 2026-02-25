@@ -2,39 +2,41 @@
 import { computed } from 'vue'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Archive, PhilippinePeso, Weight, CalendarClock, Pencil, MoreVertical, Trash } from 'lucide-vue-next'
+import { Archive, PhilippinePeso, Weight, CalendarClock, Pencil, MoreVertical, Trash, PackageCheck } from 'lucide-vue-next'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { AspectRatio } from '@/components/ui/aspect-ratio'
 import { Separator } from '@/components/ui/separator'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { Offering } from '@/types/farmer/garden'
+import { Supply } from '@/types/farmer/garden'
 
 interface Props {
-  offering: Offering
+  supply: Supply
 }
 
 const props = defineProps<Props>()
 
 const emit = defineEmits<{
-  edit: [offering: Offering]
-  archive: [offering: Offering]
-  delete: [offering: Offering]
+  edit: [supply: Supply]
+  archive: [supply: Supply]
+  fulfill: [supply: Supply]
+  delete: [supply: Supply]
 }>()
 
-const isAvailable = computed(() => props.offering.status === 'available')
-const isArchived = computed(() => props.offering.status === 'archived')
+const isOngoing = computed(() => props.supply.status === 'Ongoing')
+const isArchived = computed(() => props.supply.status === 'Archived')
+const isFulfilled = computed(() => props.supply.status === 'Fulfilled')
 </script>
 
 <template>
     <Card class="py-0 gap-2 overflow-hidden transition-all hover:shadow-lg ">
         <AspectRatio :ratio="16/9" class="relative overflow-hidden">
             <img 
-                :src="offering.image_url" 
-                :alt="offering.variety.name.charAt(0)" 
+                :src="supply.image_url" 
+                :alt="supply.variety.name.charAt(0)" 
                 class="size-full object-cover bg-gray-200"
             />
             <div class="absolute bottom-0 right-0 rounded-tl-lg bg-black/60 px-3 py-1 text-xs font-medium text-white backdrop-blur-sm">
-                {{ offering.created_at_human }}
+                {{ supply.created_at_human }}
             </div>
 
             <DropdownMenu>
@@ -44,10 +46,10 @@ const isArchived = computed(() => props.offering.status === 'archived')
                     </Button>
                 </DropdownMenuTrigger>
 
-                <DropdownMenuContent v-if="isAvailable" align="end">
+                <DropdownMenuContent align="end">
                     <DropdownMenuItem
-                        v-if="isAvailable"
-                        @click="emit('edit', offering)"
+                        v-if="isOngoing"
+                        @click="emit('edit', supply)"
                     >
                         <Pencil class="mr-2 size-4" />
                         Edit Details
@@ -56,19 +58,27 @@ const isArchived = computed(() => props.offering.status === 'archived')
                     <DropdownMenuSeparator />
                     
                     <DropdownMenuItem
-                        v-if="isAvailable"
-                        @click="emit('archive', offering)"
+                        v-if="isOngoing"
+                        @click="emit('archive', supply)"
                         class="text-orange-600 dark:text-orange-400"
                     >
                         <Archive class="mr-2 size-4" />
                         Archive
+                    </DropdownMenuItem>
+
+                    <DropdownMenuItem
+                        v-if="isOngoing"
+                        @click="emit('fulfill', supply)"
+                    >
+                        <PackageCheck class="mr-2 size-4" />
+                        Fulfill
                     </DropdownMenuItem>
                 </DropdownMenuContent>
 
                 <DropdownMenuContent v-if="isArchived" align="end">
                     <DropdownMenuItem
                         v-if="isArchived"
-                        @click="emit('delete', offering)"
+                        @click="emit('delete', supply)"
                         class="text-destructive"
                     >
                         <Trash class="mr-2 size-4" />
@@ -80,12 +90,12 @@ const isArchived = computed(() => props.offering.status === 'archived')
 
         <CardHeader class="p-5 py-2">
             <CardTitle>
-                {{ offering.variety.name }}
+                {{ supply.variety.name }}
             </CardTitle>
             <CardDescription class="flex justify-between">
-                <p>{{ offering.variety.vegetable }}</p>
+                <p>{{ supply.variety.vegetable }}</p>
                 <Badge>
-                    {{ offering.weight_kg }} kg
+                    {{ supply.quantity_kg }} kg
                 </Badge>
             </CardDescription>
             <Separator />
@@ -97,7 +107,7 @@ const isArchived = computed(() => props.offering.status === 'archived')
                     <PhilippinePeso :size="15" />
                     Price:
                 </div>
-                <span>{{ offering.asking_price.toFixed(2) }}</span>
+                <span>{{ supply.offered_price.toFixed(2) }}</span>
             </div>
 
             <div class="flex justify-between text-sm">
@@ -105,7 +115,7 @@ const isArchived = computed(() => props.offering.status === 'archived')
                     <Weight :size="15" />
                     Kg:
                 </div>
-                <span>{{ offering.weight_kg }}</span>
+                <span>{{ supply.quantity_kg }}</span>
             </div>
 
             <div class="flex justify-between text-sm">
@@ -114,9 +124,9 @@ const isArchived = computed(() => props.offering.status === 'archived')
                     Expiry:
                 </div>
                 <p>
-                    {{ offering.expiration_date }}
+                    {{ supply.expiration_date }}
                     <span class="text-xs text-muted-foreground">
-                        ({{ offering.days_until_expiration }} days)
+                        ({{ supply.days_until_expiration }} days)
                     </span>
                 </p>
             </div>
