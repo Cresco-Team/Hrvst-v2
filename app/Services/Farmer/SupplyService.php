@@ -3,7 +3,6 @@
 namespace App\Services\Farmer;
 
 use App\Enums\PostStatus;
-use App\Models\Marketplace\FarmerOffering;
 use App\Models\Marketplace\FarmerSupply;
 use App\Models\Product\Variety;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -12,7 +11,7 @@ class SupplyService
 {
     public static function summary(int $farmerId): array
     {
-        $query = FarmerOffering::query()->where('farmer_id', $farmerId);
+        $query = FarmerSupply::query()->where('farmer_id', $farmerId);
 
         $totalOngoing = (clone $query)
             ->whereHas('post', fn ($q) => $q->where('status', PostStatus::Ongoing))
@@ -41,16 +40,16 @@ class SupplyService
 
     public static function paginated(int $farmerId, PostStatus $status, int $perPage = 20): LengthAwarePaginator
     {
-        $query = FarmerOffering::with([
+        $query = FarmerSupply::with([
             'farmer.user',
             'post.variety.vegetable.category',
             'post.variety.latestPrice',
         ])->where('farmer_id', $farmerId);
 
         match($status) {
-            PostStatus::Ongoing => $query->ongoing(),
-            PostStatus::Archived => $query->archived(),
-            PostStatus::Fulfilled => $query->fulfilled(),
+            PostStatus::Ongoing => $query->whereHas('post', fn ($q) => $q->ongoing()),
+            PostStatus::Archived => $query->whereHas('post', fn ($q) => $q->archived()),
+            PostStatus::Fulfilled => $query->whereHas('post', fn ($q) => $q->fulfilled()),
         };
 
         return $query
