@@ -2,7 +2,6 @@
 
 namespace App\Policies\Marketplace;
 
-use App\Enums\DealerDemandStatus;
 use App\Enums\PostStatus;
 use App\Models\Marketplace\DealerDemand;
 use App\Models\User;
@@ -30,16 +29,19 @@ class DemandPolicy
 
     public function archive(User $user, DealerDemand $demand): bool
     {
-        return $this->update($user, $demand);
+        return $user->dealerProfile?->id === $demand->dealer_id
+            && $demand->post->status !== PostStatus::Archived;
     }
 
     public function fulfill(User $user, DealerDemand $demand): bool
     {
-        return $this->update($user, $demand);
+        return $user->dealerProfile?->id === $demand->dealer_id
+            && $demand->post->status !== PostStatus::Fulfilled;
     }
 
     public function delete(User $user, DealerDemand $demand): bool
     {
-        return $this->update($user, $demand);
+        return $user->dealerProfile?->id === $demand->dealer_id
+            && $demand->post->status !== PostStatus::Ongoing;
     }
 }
