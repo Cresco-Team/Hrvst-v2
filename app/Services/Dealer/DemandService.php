@@ -47,9 +47,9 @@ class DemandService
         ])->where('dealer_id', $dealerId);
 
         match($status) {
-            PostStatus::Ongoing => $query->ongoing(),
-            PostStatus::Archived => $query->archived(),
-            PostStatus::Fulfilled => $query->fulfilled(),
+            PostStatus::Ongoing => $query->whereHas('post', fn ($q) => $q->ongoing()),
+            PostStatus::Archived => $query->whereHas('post', fn ($q) => $q->archived()),
+            PostStatus::Fulfilled => $query->whereHas('post', fn ($q) => $q->fulfilled()),
         };
 
         return $query
