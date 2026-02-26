@@ -11,6 +11,7 @@ Route::middleware(['auth', 'verified', 'dealer'])->prefix('dealer')->name('deale
         Route::get('/', [DemandController::class, 'index'])->name('index');
         Route::post('/', [DemandController::class, 'store'])->name('store');
         Route::put('/{demand}', [DemandController::class, 'update'])->name('update');
+        Route::post('/{demand}/archive', [DemandController::class, 'archive'])->name('archive');
         Route::post('/{demand}/fulfill', [DemandController::class, 'fulfill'])->name('fulfill');
         Route::delete('/{demand}', [DemandController::class, 'destroy'])->name('destroy');
     });
