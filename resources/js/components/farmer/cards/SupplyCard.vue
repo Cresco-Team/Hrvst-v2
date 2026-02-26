@@ -76,7 +76,6 @@ const isFulfilled = computed(() => props.supply.status === 'Fulfilled')
                     </DropdownMenuItem>
 
                     <DropdownMenuItem
-                        v-if="isArchived || isFulfilled"
                         @click="emit('delete', supply)"
                         class="text-destructive"
                     >
