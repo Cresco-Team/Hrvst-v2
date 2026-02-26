@@ -55,10 +55,10 @@ const isFulfilled = computed(() => props.supply.status === 'Fulfilled')
                         Edit Details
                     </DropdownMenuItem>
 
-                    <DropdownMenuSeparator />
+                    <DropdownMenuSeparator v-if="isOngoing"/>
                     
                     <DropdownMenuItem
-                        v-if="isOngoing"
+                        v-if="isOngoing || isFulfilled"
                         @click="emit('archive', supply)"
                         class="text-orange-600 dark:text-orange-400"
                     >
@@ -67,17 +67,16 @@ const isFulfilled = computed(() => props.supply.status === 'Fulfilled')
                     </DropdownMenuItem>
 
                     <DropdownMenuItem
-                        v-if="isOngoing"
+                        v-if="isOngoing || isArchived"
                         @click="emit('fulfill', supply)"
+                        class="text-green-500 dark:text-green-400"
                     >
                         <PackageCheck class="mr-2 size-4" />
                         Fulfill
                     </DropdownMenuItem>
-                </DropdownMenuContent>
 
-                <DropdownMenuContent v-if="isArchived" align="end">
                     <DropdownMenuItem
-                        v-if="isArchived"
+                        v-if="isArchived || isFulfilled"
                         @click="emit('delete', supply)"
                         class="text-destructive"
                     >
