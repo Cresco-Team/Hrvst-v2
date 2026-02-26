@@ -2,9 +2,8 @@
 
 namespace App\Services\Dealer;
 
-use App\FarmerOfferingStatus;
 use App\Models\Product\Category;
-use App\Models\Marketplace\FarmerOffering;
+use App\Models\Marketplace\FarmerSupply;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -12,16 +11,15 @@ class MarketplaceService
 {
     public static function paginated(array $filters = [], int $perPage = 20): LengthAwarePaginator
     {
-        $query = FarmerOffering::with([
+        $query = FarmerSupply::with([
             'farmer.user',
-            'farmer.municipality.province',
-            'farmer.barangay',
-            'variety.vegetable.category',
-        ])->where('status', FarmerOfferingStatus::Available);
+            'post.variety.vegetable.category',
+            'post.variety.latestPrice',
+        ])->whereHas('post', fn ($q) => $q->ongoing());
 
         if (!empty($filters['search'])) {
             $search = $filters['search'];
-            $query->whereHas('variety', function (Builder $q) use ($search) {
+            $query->whereHas('post.variety', function (Builder $q) use ($search) {
                 $q->where('name', 'LIKE', "%{$search}%")
                     ->orWhereHas('vegetable', fn(Builder $vq) => 
                         $vq->where('name', 'LIKE', "%{$search}%")
@@ -30,44 +28,50 @@ class MarketplaceService
         }
 
         if (!empty($filters['category_id'])) {
-            $query->whereHas('variety.vegetable', fn(Builder $q) => 
+            $query->whereHas('post.variety.vegetable', fn(Builder $q) => 
                 $q->where('category_id', $filters['category_id'])
             );
         }
 
         if (!empty($filters['variety_id'])) {
-            $query->where('variety_id', $filters['variety_id']);
+            $query->whereHas('post', fn ($q) => $q
+                ->where('variety_id', $filters['variety_id']));
         }
 
         $query->orderBy('expiration_date', 'asc');
 
-        return $query->paginate($perPage)
-            ->through(function ($offering) {
+        return $query->orderBy('expiration_date')
+            ->paginate($perPage)
+            ->through(function (FarmerSupply $supply) {
                 return [
-                    'id' => $offering->id,
+                    'id' => $supply->id,
                     'farmer' => [
-                        'id' => $offering->farmer->id,
-                        'name' => $offering->farmer->user->name,
-                        'farm_url' => $offering->farmer?->farm_url,
+                        'id' => $supply->farmer->id,
+                        'name' => $supply->farmer->user->name,
+                        'image_url' => $supply->farmer?->image_url,
                     ],
                     'variety' => [
-                        'id' => $offering->variety_id,
-                        'name' => $offering->variety->name,
-                        'vegetable' => $offering->variety->vegetable->name,
+                        'id' => $supply->post->variety_id,
+                        'name' => $supply->post->variety->name,
+                        'vegetable' => $supply->post->variety->vegetable->name,
+                        'image_url' => $supply->post->variety->image_url,
                     ],
-                    'image_url' => $offering->image_url,
-                    'weight_kg' => (float) $offering->weight_kg,
-                    'asking_price' => (float) $offering->asking_price,
-                    'expiration_date' => $offering->expiration_date->format('M d, Y'),
-                    'days_until_expiration' => $offering->days_until_expiration,
-                    'created_at_human' => $offering->created_at->diffForHumans(),
+                    'title' => $supply->post->title,
+                    'image_url' => $supply->image_url,
+                    'quantity_kg' => (float) $supply->post->quantity_kg,
+                    'offered_price' => (float) $supply->post->offered_price,
+                    'price_flag' => $supply->post->price_flag,
+                    'expiration_date' => $supply->expiration_date->format('M d, Y'),
+                    'days_until_expiration' => $supply->days_until_expiration,
+                    'status' => $supply->post->status,
+                    'created_at_human' => $supply->created_at->diffForHumans(),
                 ];
             });
     }
 
-    public static function detailed(FarmerOffering $offering): array
+    public static function detailed(FarmerSupply $supply): array
     {
-        $offering->load([
+        $supply->load([
             'farmer.user',
             'farmer.municipality.province',
             'farmer.barangay',
@@ -77,40 +81,43 @@ class MarketplaceService
         ]);
 
         return [
-            'id' => $offering->id,
+            'id' => $supply->id,
             'farmer' => [
-                'id' => $offering->farmer->id,
-                'name' => $offering->farmer->user->name,
-                'phone_number' => $offering->farmer->user->phone_number,
-                'user_image' => $offering->farmer->user->user_image,
+                'id' => $supply->farmer->id,
+                'name' => $supply->farmer->user->name,
+                'phone_number' => $supply->farmer->user->phone_number,
+                'user_image' => $supply->farmer->user->user_image,
                 'location' => [
-                    'barangay' => $offering->farmer->barangay->name,
-                    'municipality' => $offering->farmer->municipality->name,
-                    'province' => $offering->farmer->municipality->province->name,
-                    'full' => "{$offering->farmer->barangay->name}, {$offering->farmer->municipality->name}, {$offering->farmer->municipality->province->name}",
+                    'barangay' => $supply->farmer->barangay->name,
+                    'municipality' => $supply->farmer->municipality->name,
+                    'province' => $supply->farmer->municipality->province->name,
+                    'full' => "{$supply->farmer->barangay->name}, {$supply->farmer->municipality->name}, {$supply->farmer->municipality->province->name}",
                 ],
             ],
             'variety' => [
-                'id' => $offering->variety_id,
-                'name' => $offering->variety->vegetable->name . ' ' . $offering->variety->name,
-                'category' => $offering->variety->vegetable->category->name,
+                'id' => $supply->variety_id,
+                'name' => $supply->variety->vegetable->name . ' ' . $supply->variety->name,
+                'category' => $supply->variety->vegetable->category->name,
             ],
-            'image_url' => $offering->image_url,
-            'quantity_kg' => (float) $offering->quantity_kg,
-            'price_asking' => (float) $offering->asking_price,
-            'expiration_date' => $offering->expiration_date->format('M d, Y'),
-            'days_until_expiration' => $offering->days_until_expiration,
-            'status' => $offering->status,
-            'created_at' => $offering->created_at->format('M d, Y g:i A'),
-            'created_at_human' => $offering->created_at->diffForHumans(),
+            'image_url' => $supply->image_url,
+            'quantity_kg' => (float) $supply->quantity_kg,
+            'price_asking' => (float) $supply->asking_price,
+            'expiration_date' => $supply->expiration_date->format('M d, Y'),
+            'days_until_expiration' => $supply->days_until_expiration,
+            'status' => $supply->status,
+            'created_at' => $supply->created_at->format('M d, Y g:i A'),
+            'created_at_human' => $supply->created_at->diffForHumans(),
         ];
     }
 
     public static function categoryOptions(): array
     {
-        return Category::whereHas('vegetables.varieties.offerings', function (Builder $q) {
-            $q->available();
-        })->orderBy('name')
+        return Category::whereHas('vegetables.varieties.posts', fn (Builder $q) => $q
+            ->ongoing()
+            ->whereHasMorph('postable', FarmerSupply::class, fn ($q) => $q
+                ->where('expiration_date', '<', now())
+            )
+        )->orderBy('name')
         ->get()
         ->map(fn($category) => [
             'id' => $category->id,
