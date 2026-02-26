@@ -29,12 +29,13 @@ class SupplyPolicy
 
     public function archive(User $user, FarmerSupply $supply): bool
     {
+        dd($this->update($user, $supply));
         return $this->update($user, $supply);
     }
 
     public function fulfill(User $user, FarmerSupply $supply): bool
     {
-        return $this->update($user, $supply);
+        return $user->farmerProfile?->id === $supply->farmer_id;
     }
 
     public function delete(User $user, FarmerSupply $supply): bool
