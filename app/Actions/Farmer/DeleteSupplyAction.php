@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Storage;
 
 final class DeleteSupplyAction
 {
-    public function execute(FarmerSupply $supply): void
+    public function __invoke(FarmerSupply $supply): void
     {
         DB::transaction(function () use ($supply) {
             if ($supply->image_path) {
