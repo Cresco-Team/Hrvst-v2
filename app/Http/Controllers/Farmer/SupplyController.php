@@ -32,7 +32,7 @@ class SupplyController extends Controller
             'filters'           => ['status' => $status],
             'summary'           => Inertia::defer(fn() => SupplyService::summary($farmerId)),
             'varietyOptions'    => Inertia::defer(fn() => SupplyService::varietyOptions()),
-            'supply'            => Inertia::defer(fn() => SupplyService::paginated(farmerId: $farmerId, status: $status)),
+            'supplies'            => Inertia::defer(fn() => SupplyService::paginated(farmerId: $farmerId, status: $status)),
         ]);
     }
 
@@ -64,14 +64,14 @@ class SupplyController extends Controller
             ->with('flash', ['type' => 'success', 'message' => 'Post updated successfully!']);
     }
 
-    public function archive(FarmerSupply $offering, ArchiveSupplyAction $archiveSupply): RedirectResponse
+    public function archive(FarmerSupply $supply, ArchiveSupplyAction $archiveSupply): RedirectResponse
     {
-        Gate::authorize('archive', $offering);
+        Gate::authorize('archive', $supply);
 
-        $archiveSupply($offering);
+        $archiveSupply($supply);
 
         return redirect()->route('farmer.garden.index')
-            ->with('flash', ['type' => 'success', 'message' => 'Offering archived.']);
+            ->with('flash', ['type' => 'success', 'message' => 'Post archived.']);
     }
 
     public function fulfill(FarmerSupply $supply, FulfillSupplyAction $fulfillSupply): RedirectResponse
