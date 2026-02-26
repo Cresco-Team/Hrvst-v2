@@ -29,7 +29,6 @@ class SupplyPolicy
 
     public function archive(User $user, FarmerSupply $supply): bool
     {
-        dd($this->update($user, $supply));
         return $this->update($user, $supply);
     }
 
