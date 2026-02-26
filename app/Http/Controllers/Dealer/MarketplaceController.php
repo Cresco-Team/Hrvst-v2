@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Dealer;
 
 use App\Http\Controllers\Controller;
-use App\Models\Marketplace\FarmerOffering;
+use App\Models\Marketplace\FarmerSupply;
 use App\Services\Dealer\MarketplaceService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -14,7 +14,7 @@ class MarketplaceController extends Controller
 {
     public function index(Request $request): Response
     {
-        Gate::authorize('viewAny', FarmerOffering::class);
+        Gate::authorize('viewAny', FarmerSupply::class);
 
         $validated = $request->validate([
             'search' => 'nullable|string|max:255',
@@ -24,24 +24,18 @@ class MarketplaceController extends Controller
         ]);
 
         return Inertia::render('dealer/marketplace/Index', [
-            // Synchronous (immediate load)
             'filters' => $validated,
-            
-            // Deferred (load after page renders)
-            'offerings' => Inertia::defer(fn() => MarketplaceService::paginated($validated)),
-            
-            'filterOptions' => Inertia::defer(fn() => [
-                'categories' => MarketplaceService::categoryOptions(),
-            ]),
+            'supplies' => Inertia::defer(fn() => MarketplaceService::paginated($validated)),
+            'categoryOptions' => Inertia::defer(fn() => MarketplaceService::categoryOptions()),
         ]);
     }
 
-    public function show(FarmerOffering $offering): Response
+    public function show(FarmerSupply $supply): Response
     {
-        Gate::authorize('view', $offering);
+        Gate::authorize('view', $supply);
 
         return Inertia::render('dealer/marketplace/Show', [
-            'offering' => MarketplaceService::detailed($offering),
+            'supply' => MarketplaceService::detailed($supply),
         ]);
     }
 }
