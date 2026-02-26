@@ -18,6 +18,6 @@ Route::middleware(['auth', 'verified', 'dealer'])->prefix('dealer')->name('deale
     // Marketplace (Browse farmer offerings)
     Route::prefix('marketplace')->name('marketplace.')->group(function () {
         Route::get('/', [MarketplaceController::class, 'index'])->name('index');
-        Route::get('/{planting}', [MarketplaceController::class, 'show'])->name('show');
+        Route::get('/{supply}', [MarketplaceController::class, 'show'])->name('show');
     });
 });
