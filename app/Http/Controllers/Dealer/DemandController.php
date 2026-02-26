@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Dealer;
 
-use App\Actions\Dealer\ArchiveDealerDemandAction;
+use App\Actions\Dealer\ArchiveDemandAction;
 use App\Actions\Dealer\CreateDemandAction;
 use App\Actions\Dealer\DeleteDemandAction;
 use App\Actions\Dealer\FulfillDemandAction;
@@ -62,7 +62,7 @@ class DemandController extends Controller
             ->with('flash', ['type' => 'success', 'message' => 'Post updated successfully!']);
     }
 
-    public function archive(DealerDemand $demand, ArchiveDealerDemandAction $archiveDemand): RedirectResponse
+    public function archive(DealerDemand $demand, ArchiveDemandAction $archiveDemand): RedirectResponse
     {
         Gate::authorize('archive', $demand);
 
