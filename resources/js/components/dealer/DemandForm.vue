@@ -16,7 +16,7 @@ interface Props {
   form: InertiaForm<{
     variety_id: number | null
     quantity_kg: number
-    price_offered: number
+    offered_price: number
     transaction_date: string
   }>
 }
@@ -143,16 +143,16 @@ watch(() => props.open, (isOpen) => {
         </Label>
         <Input
           id="price"
-          v-model.number="form.price_offered"
+          v-model.number="form.offered_price"
           type="number"
           step="0.01"
           min="0"
           max="9999.99"
           placeholder="0.00"
-          :class="{ 'border-destructive': form.errors.price_offered }"
+          :class="{ 'border-destructive': form.errors.offered_price }"
         />
-        <p v-if="form.errors.price_offered" class="text-xs text-destructive">
-          {{ form.errors.price_offered }}
+        <p v-if="form.errors.offered_price" class="text-xs text-destructive">
+          {{ form.errors.offered_price }}
         </p>
         <p v-else class="text-xs text-muted-foreground">
           Set your offered price per kilogram
