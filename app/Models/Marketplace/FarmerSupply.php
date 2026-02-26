@@ -44,7 +44,7 @@ class FarmerSupply extends Model
     {
         return Attribute::make(
             get: fn () => $this->image_path 
-                ? asset('storage/supply-image/' . $this->image_path)
+                ? asset('storage/supply/' . $this->image_path)
                 : null
         );
     }
