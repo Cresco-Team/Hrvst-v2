@@ -92,12 +92,14 @@ class Post extends Model
 
     public function markAsArchived(): void
     {
-        $this->update(['status' => PostStatus::Archived]);
+        $this->status = PostStatus::Archived;
+        $this->save();
     }
 
     public function markAsFulfilled(): void
     {
-        $this->update(['status' => PostStatus::Fulfilled]);
+        $this->status = PostStatus::Fulfilled;
+        $this->save();
     }
 
     /* ---------- accessors ---------- */
