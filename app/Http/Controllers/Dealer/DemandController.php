@@ -54,7 +54,7 @@ class DemandController extends Controller
         Gate::authorize('update', $demand);
 
         $updateDemand(
-            request: $demand,
+            demand: $demand,
             validated: $request->validated(),
         );
 
