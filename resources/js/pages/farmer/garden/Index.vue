@@ -113,8 +113,6 @@ function handleSubmit() {
     ? update(activeSupply.value.id)
     : store()
 
-    console.log('routeData:', routeData)
-
     form.transform((data) => ({
       ...data,
       ...(activeSupply.value ? { _method: 'PUT' } : {})
