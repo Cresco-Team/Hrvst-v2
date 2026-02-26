@@ -11,7 +11,7 @@ import AppLayout from '@/layouts/AppLayout.vue'
 import Heading from '@/components/Heading.vue'
 import { PaginatedResponse } from '@/types/pagination'
 import { Demand, Summary, VarietyOption } from '@/types/dealer/demands'
-import { destroy, fulfill, index, store, update } from '@/routes/dealer/demands'
+import { archive, destroy, fulfill, index, store, update } from '@/routes/dealer/demands'
 import LargeCard from '@/components/shared/cards/LargeCard.vue'
 import EmptyState from '@/components/EmptyState.vue'
 import DemandCard from '@/components/dealer/DemandCard.vue'
@@ -29,10 +29,12 @@ const props = defineProps<Props>()
 /* Dialog states */
 const formOpen = ref(false)
 const deleteDialogOpen = ref(false)
+const archiveDialogOpen = ref(false)
 const fulfillDialogOpen = ref(false)
 
 /* Active items */
 const activeDemand = ref<Demand | null>(null)
+const demandToArchive = ref<Demand | null>(null)
 const demandToFulfill = ref<Demand | null>(null)
 const demandToDelete = ref<Demand | null>(null)
 
@@ -83,6 +85,11 @@ function openEdit(demand: Demand) {
   formOpen.value = true
 }
 
+function openToArchive(demand: Demand) {
+  demandToArchive.value = demand
+  archiveDialogOpen.value = true
+}
+
 function openFulfill(demand: Demand) {
   demandToFulfill.value = demand
   fulfillDialogOpen.value = true
@@ -106,6 +113,18 @@ function handleSubmit() {
     onSuccess: () => {
       formOpen.value = false
       form.reset()
+    }
+  })
+}
+
+function handleArchive() {
+  if (!demandToArchive.value) return
+
+  router.post(archive(demandToArchive.value.id), {}, {
+    preserveScroll: true,
+    onSuccess: () => {
+      archiveDialogOpen.value = false
+      demandToArchive.value = null
     }
   })
 }
@@ -230,6 +249,7 @@ function handleDelete() {
             :key="demand.id"
             :demand="demand"
             @edit="openEdit"
+            @archive="openToArchive"
             @fulfill="openFulfill"
             @delete="openDelete"
           />
@@ -246,6 +266,13 @@ function handleDelete() {
     :form="form"
     @update:open="formOpen = $event"
     @submit="handleSubmit"
+  />
+
+  <ConfirmationDialog 
+    v-model:open="archiveDialogOpen"
+    title="Archive Post"
+    :description="`Are you sure you want to archvie ${demandToArchive?.variety.vegetable} ${demandToArchive?.variety.name}?`"
+    @action="handleArchive"
   />
 
   <!-- Fulfill Confirmation -->
