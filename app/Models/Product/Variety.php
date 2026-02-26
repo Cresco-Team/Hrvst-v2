@@ -4,6 +4,7 @@ namespace App\Models\Product;
 
 use App\Models\Marketplace\DealerDemand;
 use App\Models\Marketplace\FarmerSupply;
+use App\Models\Marketplace\Post;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -41,14 +42,9 @@ class Variety extends Model
         return $this->hasOne(PriceHistory::class)->latest('recorded_at');
     }
 
-    public function supplies(): HasMany
+    public function posts(): HasMany
     {
-        return $this->hasMany(FarmerSupply::class);
-    }
-
-    public function demands(): HasMany
-    {
-        return $this->hasMany(DealerDemand::class);
+        return $this->hasMany(Post::class);
     }
 
     /* ---------- accessors ---------- */
