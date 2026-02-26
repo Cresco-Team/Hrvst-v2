@@ -1,8 +1,6 @@
 <?php
 
 namespace App\Http\Controllers\Admin;
-
-use App\FarmerOfferingStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Profiles\FarmerProfile;
 use App\Services\Admin\FarmerMapService;
@@ -21,7 +19,7 @@ class FarmerController extends Controller
 
     public function index(Request $request): Response
     {
-        $view = $request->query('view', 'list'); // Default to 'list'
+        $view = $request->query('view', 'list');
 
         return Inertia::render('admin/farmers/Index', [
             'view' => $view,
@@ -115,15 +113,6 @@ class FarmerController extends Controller
 
     public function destroy(FarmerProfile $farmerProfile): RedirectResponse
     {
-        // Check if farmer has active plantings
-        if ($farmerProfile->offerings()->where('status', FarmerOfferingStatus::Available)->exists()) {
-            return redirect()->route('admin.farmers.index')
-                ->with('flash', [
-                    'type' => 'error',
-                    'message' => 'Cannot delete farmer with offering posts.',
-                ]);
-        }
-
         $user = $farmerProfile->user;
         $farmerProfile->delete();
         $user->delete();
