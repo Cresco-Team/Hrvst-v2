@@ -21,9 +21,9 @@ const emit = defineEmits<{
   delete: [demand: Demand]
 }>()
 
-const isOpen = computed(() => props.demand.status === 'open')
-const isFulfilled = computed(() => props.demand.status === 'fulfilled')
-const isExpired = computed(() => props.demand.status === 'expired')
+const isOpen = computed(() => props.demand.status === 'Ongoing')
+const isFulfilled = computed(() => props.demand.status === 'Fulfilled')
+const isArchived = computed(() => props.demand.status === 'Archived')
 </script>
 
 <template>
@@ -57,7 +57,7 @@ const isExpired = computed(() => props.demand.status === 'expired')
                     <DropdownMenuSeparator />
 
                     <DropdownMenuItem
-                        v-if="isExpired"
+                        v-if="isArchived"
                         @click="emit('fulfill', demand)"
                         class="text-green-500"
                     >
@@ -95,7 +95,7 @@ const isExpired = computed(() => props.demand.status === 'expired')
                     <PhilippinePeso :size="15" />
                     Price:
                 </div>
-                <span>{{ demand.price_offered.toFixed(2) }}</span>
+                <span>{{ demand.offered_price.toFixed(2) }}</span>
             </div>
 
             <div class="flex justify-between text-sm">
