@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Storage;
 
 final class UpdateSupplyAction
 {
-    public function execute(FarmerSupply $supply, array $validated, ?UploadedFile $image = null): FarmerSupply
+    public function __invoke(FarmerSupply $supply, array $validated, ?UploadedFile $image = null): FarmerSupply
     {
         $post = $supply->post;
 

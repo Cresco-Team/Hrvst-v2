@@ -2,13 +2,12 @@
 
 namespace App\Actions\Dealer;
 
-use App\Enums\PostStatus;
 use App\Models\Marketplace\DealerDemand;
 
-final class ArchiveDealerDemandAction
+final class ArchiveDemandAction
 {
-    public function execute(DealerDemand $demand): void
+    public function __invoke(DealerDemand $demand): void
     {
-        $demand->post->update(['status' => PostStatus::Archived]);
+        $demand->post->markAsArchived();
     }
 }
