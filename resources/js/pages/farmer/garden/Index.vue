@@ -5,7 +5,6 @@ import { ref, computed } from 'vue'
 import ConfirmationDialog from '@/components/ConfirmationDialog.vue'
 import EmptyState from '@/components/EmptyState.vue'
 import SupplyCard from '@/components/farmer/cards/SupplyCard.vue'
-import FarmerOfferingForm from '@/components/farmer/FarmerOfferingForm.vue'
 import Heading from '@/components/Heading.vue'
 import LargeCard from '@/components/shared/cards/LargeCard.vue'
 import { Button } from '@/components/ui/button'
@@ -16,6 +15,7 @@ import farmer from '@/routes/farmer'
 import { archive, destroy, fulfill, index, store, update } from '@/routes/farmer/garden'
 import type { Supply, Summary, VarietyOption } from '@/types/farmer/garden'
 import type { PaginatedResponse } from '@/types/pagination'
+import FarmerSupplyForm from '@/components/farmer/FarmerSupplyForm.vue'
 
 interface Props {
   filters: { status: string | null }
@@ -267,7 +267,7 @@ function handleDelete() {
   </AppLayout>
 
   <!-- Offering Form Dialog -->
-  <FarmerOfferingForm
+  <FarmerSupplyForm
     :open="formOpen"
     :offering="activeSupply"
     :variety-options="varietyOptions!"

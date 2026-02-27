@@ -1,26 +1,28 @@
 <script setup lang="ts">
-import { computed, watch } from 'vue'
+
 import type { InertiaForm } from '@inertiajs/vue3'
+import { Sprout } from 'lucide-vue-next'
+import { computed, watch } from 'vue'
 import DialogForm from '@/components/DialogForm.vue'
+import ImageUpload from '@/components/shared/media/ImageUpload.vue'
+import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Badge } from '@/components/ui/badge'
-import ImageUpload from '@/components/shared/media/ImageUpload.vue'
-import { Sprout } from 'lucide-vue-next'
-import { Supply, VarietyOption } from '@/types/farmer/garden'
+import type { Supply, VarietyOption } from '@/types/farmer/garden'
+
+const form = defineModel<InertiaForm<{
+  variety_id: number | null
+  image: File | null
+  quantity_kg: number
+  offered_price: number
+  expiration_date: string
+}>>('form', { required: true })
 
 interface Props {
   open: boolean
   supply?: Supply | null
   varietyOptions: Record<string, VarietyOption[]>
-  form: InertiaForm<{
-    variety_id: number | null
-    image: File | null
-    quantity_kg: number
-    offered_price: number
-    expiration_date: string
-  }>
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -49,8 +51,8 @@ const isEditMode = computed(() => !!props.supply)
 // Reset form when dialog closes
 watch(() => props.open, (isOpen) => {
   if (!isOpen) {
-    props.form.reset()
-    props.form.clearErrors()
+    form.value.reset()
+    form.value.clearErrors()
   }
 })
 </script>
