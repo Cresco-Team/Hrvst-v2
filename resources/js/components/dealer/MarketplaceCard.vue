@@ -1,9 +1,10 @@
 <script setup lang="ts">
+
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Supply } from '@/types/dealer/marketplace'
 import { getInitials } from '@/composables/useInitials'
+import type { Supply } from '@/types/dealer/marketplace'
 import { AspectRatio } from '../ui/aspect-ratio'
 import { Item, ItemContent, ItemDescription, ItemMedia, ItemTitle } from '../ui/item'
 import { Separator } from '../ui/separator'
@@ -12,7 +13,7 @@ interface Props {
   supply: Supply
 }
 
-const props = defineProps<Props>()
+const { supply } = defineProps<Props>()
 
 </script>
 
