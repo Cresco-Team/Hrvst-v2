@@ -1,5 +1,6 @@
 
 export interface DemandFilters {
+    search?: string | null
     category_id?: number | null
     variety_id?: number | null
     date_from?: string | null
@@ -12,20 +13,21 @@ export interface DealerDemand {
         id: number
         name: string
         phone_number: string
-        image_path: string | null
+        image_url: string | null
       }
-      transaction_date: string
-      days_until_transaction: number
-      status: 'open' | 'fulfilled' | 'expired'
       variety: {
         id: number
         name: string
         vegetable: string
         image_url: string
       }
+      title: string
       quantity_kg: number
-      price_offered: number
-      price_flag: 'low' | 'fair' | 'premium'
+      offered_price: number
+      price_flag: 'Low' | 'Fair' | 'High'
+      transaction_date: string
+      days_until_transaction: number
+      status: 'Ongoing' | 'Archived' | 'Fulfilled'
       created_at_human: string
 }
 
