@@ -38,9 +38,7 @@ class MarketplaceService
                 ->where('variety_id', $filters['variety_id']));
         }
 
-        $query->orderBy('expiration_date', 'asc');
-
-        return $query->orderBy('expiration_date')
+        return $query->orderBy('expiration_date', 'asc')
             ->paginate($perPage)
             ->through(function (FarmerSupply $supply) {
                 return [
@@ -73,7 +71,6 @@ class MarketplaceService
     {
         $supply->load([
             'farmer.user',
-            'farmer.municipality.province',
             'farmer.barangay',
             'variety.vegetable.category',
             'reactions.user',
@@ -87,12 +84,6 @@ class MarketplaceService
                 'name' => $supply->farmer->user->name,
                 'phone_number' => $supply->farmer->user->phone_number,
                 'user_image' => $supply->farmer->user->user_image,
-                'location' => [
-                    'barangay' => $supply->farmer->barangay->name,
-                    'municipality' => $supply->farmer->municipality->name,
-                    'province' => $supply->farmer->municipality->province->name,
-                    'full' => "{$supply->farmer->barangay->name}, {$supply->farmer->municipality->name}, {$supply->farmer->municipality->province->name}",
-                ],
             ],
             'variety' => [
                 'id' => $supply->variety_id,
@@ -115,7 +106,7 @@ class MarketplaceService
         return Category::whereHas('vegetables.varieties.posts', fn (Builder $q) => $q
             ->ongoing()
             ->whereHasMorph('postable', FarmerSupply::class, fn ($q) => $q
-                ->where('expiration_date', '<', now())
+                ->where('expiration_date', '>=', now())
             )
         )->orderBy('name')
         ->get()
