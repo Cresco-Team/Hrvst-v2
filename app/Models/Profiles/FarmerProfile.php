@@ -5,7 +5,7 @@ namespace App\Models\Profiles;
 use App\Models\Address\Barangay;
 use App\Models\Address\Municipality;
 use App\Models\Address\Province;
-use App\Models\Marketplace\FarmerOffering;
+use App\Models\Marketplace\FarmerSupply;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -44,9 +44,9 @@ class FarmerProfile extends Model
     }
 
     // Marketplace
-    public function offerings(): HasMany
+    public function supplies(): HasMany
     {
-        return $this->hasMany(FarmerOffering::class, 'farmer_id');
+        return $this->hasMany(FarmerSupply::class, 'farmer_id');
     }
 
     // Address
