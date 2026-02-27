@@ -1,18 +1,18 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, toRaw } from 'vue'
 import { Head, router, Link, Deferred } from '@inertiajs/vue3'
-import { Search, Filter } from 'lucide-vue-next'
+import { Search } from 'lucide-vue-next'
+import { ref, computed } from 'vue'
+import MarketplaceCard from '@/components/dealer/MarketplaceCard.vue'
+import EmptyState from '@/components/EmptyState.vue'
+import Heading from '@/components/Heading.vue'
 import { Button } from '@/components/ui/button'
+import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
 import AppLayout from '@/layouts/AppLayout.vue'
-import Heading from '@/components/Heading.vue'
 import dealer from '@/routes/dealer'
-import { PaginatedResponse } from '@/types/pagination'
-import { CategoryOption, MarketplaceFilters, Supply } from '@/types/dealer/marketplace'
-import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group'
-import MarketplaceCard from '@/components/dealer/MarketplaceCard.vue'
-import EmptyState from '@/components/EmptyState.vue'
+import type { CategoryOption, MarketplaceFilters, Supply } from '@/types/dealer/marketplace'
+import type { PaginatedResponse } from '@/types/pagination'
 
 interface Props {
   filters: MarketplaceFilters
@@ -35,7 +35,6 @@ function handleSearch() {
       data: {
         search: searchQuery.value || undefined,
         category_id: props.filters.category_id || undefined,
-        municipality_id: props.filters.municipality_id || undefined,
       },
       preserveState: true,
       preserveScroll: true,
@@ -141,13 +140,13 @@ const breadcrumbs = [
         <p class="text-sm text-muted-foreground">Showing {{ supplies?.data.length }} of {{ supplies?.total }} offerings</p>
 
         <EmptyState 
-        v-if="supplies?.data.length === 0"
+          v-if="supplies?.data.length === 0"
           title="No Offerings Found"
           description="Try adjusting your search filters"
           :icon="Search"
         />
 
-        <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div v-else class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           <Link
             v-for="supply in supplies?.data"
             :key="supply.id"
