@@ -1,18 +1,19 @@
 <script setup lang="ts">
+
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Offering } from '@/types/dealer/marketplace'
 import { getInitials } from '@/composables/useInitials'
+import type { Supply } from '@/types/dealer/marketplace'
 import { AspectRatio } from '../ui/aspect-ratio'
 import { Item, ItemContent, ItemDescription, ItemMedia, ItemTitle } from '../ui/item'
 import { Separator } from '../ui/separator'
 
 interface Props {
-  offering: Offering
+  supply: Supply
 }
 
-const props = defineProps<Props>()
+const { supply } = defineProps<Props>()
 
 </script>
 
@@ -20,24 +21,24 @@ const props = defineProps<Props>()
   <Card class=" py-0 gap-2 overflow-hidden transition-all hover:shadow-lg">
     <AspectRatio :ratio="16/9" class="relative overflow-hidden">
       <img
-        :src="offering.image_url"
-        :alt="offering.variety.name"
+        :src="supply.image_url"
+        :alt="supply.variety.name"
         class="size-full object-cover transition-transform"
       />
 
       <div class="absolute bottom-0 right-0 rounded-tl-lg bg-black/60 px-3 py-1 text-xs font-medium text-white backdrop-blur-sm">
-          {{ offering.weight_kg }} kg
+          {{ supply.quantity_kg }} kg
       </div>
     </AspectRatio>
 
     <CardHeader class="p-5 py-2">
       <CardTitle>
-          {{ offering.variety.name }}
+          {{ supply.variety.name }}
       </CardTitle>
       <CardDescription class="flex justify-between">
-        <p>{{ offering.variety.vegetable }}</p>
+        <p>{{ supply.variety.vegetable }}</p>
           <Badge>
-            ₱ {{ offering.asking_price.toFixed(2) }}
+            ₱ {{ supply.offered_price.toFixed(2) }}
           </Badge>
       </CardDescription>
       <Separator />
@@ -47,14 +48,14 @@ const props = defineProps<Props>()
       <Item class="p-0">
         <ItemMedia>
           <Avatar class="size-10">
-            <AvatarImage v-if="offering.farmer.farm_url" :src="offering.farmer.farm_url" />
-            <AvatarFallback>{{ getInitials(offering.farmer.name) }}</AvatarFallback>
+            <AvatarImage v-if="supply.farmer.image_url" :src="supply.farmer.image_url" />
+            <AvatarFallback>{{ getInitials(supply.farmer.name) }}</AvatarFallback>
           </Avatar>
         </ItemMedia>
         <ItemContent>
-          <ItemTitle>{{ offering.farmer.name }}</ItemTitle>
+          <ItemTitle>{{ supply.farmer.name }}</ItemTitle>
           <ItemDescription class="text-xs">
-            Exp: {{ offering.expiration_date }} ({{ offering.days_until_expiration }} days)
+            Exp: {{ supply.expiration_date }} ({{ supply.days_until_expiration }} days)
           </ItemDescription>
         </ItemContent>
       </Item>

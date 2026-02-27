@@ -2,7 +2,7 @@
 
 namespace App\Policies\Marketplace;
 
-use App\Enums\DealerDemandStatus;
+use App\Enums\PostStatus;
 use App\Models\Marketplace\DealerDemand;
 use App\Models\User;
 
@@ -10,48 +10,38 @@ class DemandPolicy
 {
     public function viewAny(User $user): bool
     {
-        // All approved users can view dealer demands
-        return ($user->farmerProfile && $user->farmerProfile->is_approved)
-            || ($user->dealerProfile && $user->dealerProfile->is_approved)
+        return $user->farmerProfile?->is_approved
+            || $user->dealerProfile?->is_approved
             || $user->hasRole('admin');
-    }
-
-    public function view(User $user): bool
-    {
-        return $this->viewAny($user);
     }
 
     public function create(User $user): bool
     {
-        return $user->dealerProfile && $user->dealerProfile->is_approved;
+        return $user->hasRole('dealer') 
+            && $user->dealerProfile?->is_approved;
     }
 
     public function update(User $user, DealerDemand $demand): bool
     {
         return $user->dealerProfile?->id === $demand->dealer_id
-            && $demand->status === DealerDemandStatus::Open;
+            && $demand->post->status === PostStatus::Ongoing;
     }
 
-    public function delete(User $user, DealerDemand $dealerDemand): bool
-    {
-        return $user->dealerProfile?->id === $dealerDemand->dealer_id
-            || $user->hasRole('admin');
-    }
-
-    public function react(User $user): bool
-    {
-        return $user->farmerProfile && $user->farmerProfile->is_approved;
-    }
-
-    public function markAsFulfilled(User $user, DealerDemand $demand): bool
+    public function archive(User $user, DealerDemand $demand): bool
     {
         return $user->dealerProfile?->id === $demand->dealer_id
-            && $demand->status === DealerDemandStatus::Open;
+            && $demand->post->status !== PostStatus::Archived;
     }
 
-    public function flag(User $user): bool
+    public function fulfill(User $user, DealerDemand $demand): bool
     {
-        return ($user->farmerProfile && $user->farmerProfile->is_approved)
-            || ($user->dealerProfile && $user->dealerProfile->is_approved);
+        return $user->dealerProfile?->id === $demand->dealer_id
+            && $demand->post->status !== PostStatus::Fulfilled;
+    }
+
+    public function delete(User $user, DealerDemand $demand): bool
+    {
+        return $user->dealerProfile?->id === $demand->dealer_id
+            && $demand->post->status !== PostStatus::Ongoing;
     }
 }

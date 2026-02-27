@@ -1,6 +1,6 @@
 <?php
 
-use App\Console\Commands\ExpireAnnouncementsCommand;
+use App\Console\Commands\ArchiveOldPostsCommand;
 use App\Http\Middleware\EnsureUserIsAdmin;
 use App\Http\Middleware\EnsureUserIsDealer;
 use App\Http\Middleware\EnsureUserIsFarmer;
@@ -32,9 +32,6 @@ return Application::configure(basePath: dirname(__DIR__))
             HandleInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
         ]);
-    })
-    ->withSchedule(function (Schedule $schedule) {
-        $schedule->command(ExpireAnnouncementsCommand::class)->daily();
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

@@ -11,7 +11,7 @@ import AppLayout from '@/layouts/AppLayout.vue'
 import Heading from '@/components/Heading.vue'
 import { PaginatedResponse } from '@/types/pagination'
 import { Demand, Summary, VarietyOption } from '@/types/dealer/demands'
-import { destroy, fulfill, index, store, update } from '@/routes/dealer/demands'
+import { archive, destroy, fulfill, index, store, update } from '@/routes/dealer/demands'
 import LargeCard from '@/components/shared/cards/LargeCard.vue'
 import EmptyState from '@/components/EmptyState.vue'
 import DemandCard from '@/components/dealer/DemandCard.vue'
@@ -29,26 +29,28 @@ const props = defineProps<Props>()
 /* Dialog states */
 const formOpen = ref(false)
 const deleteDialogOpen = ref(false)
+const archiveDialogOpen = ref(false)
 const fulfillDialogOpen = ref(false)
 
 /* Active items */
 const activeDemand = ref<Demand | null>(null)
+const demandToArchive = ref<Demand | null>(null)
 const demandToFulfill = ref<Demand | null>(null)
 const demandToDelete = ref<Demand | null>(null)
 
 const form = useForm<{
   variety_id: number | null
   quantity_kg: number
-  price_offered: number
+  offered_price: number
   transaction_date: string
 }>({
   variety_id: null,
   quantity_kg: 0,
-  price_offered: 0,
+  offered_price: 0,
   transaction_date: '',
 })
 
-const activeTab = computed(() => props.filters.status || 'open')
+const activeTab = computed(() => props.filters.status || 'Ongoing')
 
 const breadcrumbs = [
   { title: 'Dealer', href: dealer.demands.index().url },
@@ -78,9 +80,14 @@ function openEdit(demand: Demand) {
   activeDemand.value = demand
   form.variety_id = demand.variety.id
   form.quantity_kg = demand.quantity_kg
-  form.price_offered = demand.price_offered
+  form.offered_price = demand.offered_price
   form.transaction_date = demand.transaction_date
   formOpen.value = true
+}
+
+function openToArchive(demand: Demand) {
+  demandToArchive.value = demand
+  archiveDialogOpen.value = true
 }
 
 function openFulfill(demand: Demand) {
@@ -100,12 +107,24 @@ function handleSubmit() {
 
   form.transform((data) => ({
     ...data,
-    _method: activeDemand.value ? 'PUT' : 'POST'
+    ...(activeDemand.value ? { __method: 'PUT' } : {})
   })).post(routeData.url, {
     preserveScroll: true,
     onSuccess: () => {
       formOpen.value = false
       form.reset()
+    }
+  })
+}
+
+function handleArchive() {
+  if (!demandToArchive.value) return
+
+  router.post(archive(demandToArchive.value.id), {}, {
+    preserveScroll: true,
+    onSuccess: () => {
+      archiveDialogOpen.value = false
+      demandToArchive.value = null
     }
   })
 }
@@ -167,24 +186,24 @@ function handleDelete() {
         <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-2">
           <LargeCard 
             title="Open Requests"
-            :value="summary?.total_open"
+            :value="summary?.total_ongoing"
             subtext="all open requests"
             :icon="PackageSearch"
             card-class="from-emerald-50 to-green-50 dark:from-emerald-950/20 dark:to-green-950/20"
           />
 
           <LargeCard 
-            title="Fulfilled"
-            :value="summary?.total_fulfilled"
-            subtext="all fulfilled requests"
+            title="Archived"
+            :value="summary?.total_archived"
+            subtext="all archived requests"
             :icon="PackageCheck"
             card-class="from-emerald-50 to-green-50 dark:from-emerald-950/20 dark:to-green-950/20"
           />
 
           <LargeCard 
-            title="Expired Requests"
-            :value="summary?.total_expired"
-            subtext="all expired requests"
+            title="Fulfilled Requests"
+            :value="summary?.total_fulfilled"
+            subtext="all fulfilled requests"
             :icon="CalendarX"
             card-class="from-emerald-50 to-green-50 dark:from-emerald-950/20 dark:to-green-950/20"
           />
@@ -202,9 +221,9 @@ function handleDelete() {
       <!-- Status Tabs -->
       <Tabs :model-value="activeTab" @update:model-value="handleTabChange">
         <TabsList>
-          <TabsTrigger value="open">Open</TabsTrigger>
-          <TabsTrigger value="expired">Expired</TabsTrigger>
-          <TabsTrigger value="fulfilled">Fulfilled</TabsTrigger>
+          <TabsTrigger value="Ongoing">Ongoing</TabsTrigger>
+          <TabsTrigger value="Archived">Archived</TabsTrigger>
+          <TabsTrigger value="Fulfilled">Fulfilled</TabsTrigger>
         </TabsList>
       </Tabs>
 
@@ -230,6 +249,7 @@ function handleDelete() {
             :key="demand.id"
             :demand="demand"
             @edit="openEdit"
+            @archive="openToArchive"
             @fulfill="openFulfill"
             @delete="openDelete"
           />
@@ -246,6 +266,13 @@ function handleDelete() {
     :form="form"
     @update:open="formOpen = $event"
     @submit="handleSubmit"
+  />
+
+  <ConfirmationDialog 
+    v-model:open="archiveDialogOpen"
+    title="Archive Post"
+    :description="`Are you sure you want to archvie ${demandToArchive?.variety.vegetable} ${demandToArchive?.variety.name}?`"
+    @action="handleArchive"
   />
 
   <!-- Fulfill Confirmation -->

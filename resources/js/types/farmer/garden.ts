@@ -1,5 +1,5 @@
 
-export interface Offering {
+export interface Supply {
   id: number
   farmer: {
     id: number
@@ -9,21 +9,23 @@ export interface Offering {
     id: number
     name: string
     vegetable: string
+    image_url: string
   }
+  title: string
   image_url: string
-  weight_kg: number
-  asking_price: number
+  quantity_kg: number
+  offered_price: number
   expiration_date: string
   days_until_expiration: number
-  status: string
+  status: 'Ongoing' | 'Archived' | 'Fulfilled'
   created_at_human: string
 }
 
 export interface Summary {
-  total_available: number
+  total_ongoing: number
+  total_fulfilled: number
   total_archived: number
   expiring_this_week: number
-  total_value: number
 }
 
 export interface VarietyOption {

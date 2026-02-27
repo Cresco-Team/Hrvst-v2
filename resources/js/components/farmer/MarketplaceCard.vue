@@ -1,14 +1,13 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-import { Calendar, Package, ThumbsUp } from 'lucide-vue-next'
+
+import { Link } from '@inertiajs/vue3'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { DealerDemand } from '@/types/farmer/marketplace'
-import { Link } from '@inertiajs/vue3'
+import { getInitials } from '@/composables/useInitials'
+import type { DealerDemand } from '@/types/farmer/marketplace'
 import { AspectRatio } from '../ui/aspect-ratio'
 import { Item, ItemContent, ItemDescription, ItemMedia, ItemTitle } from '../ui/item'
-import { getInitials } from '@/composables/useInitials'
 import { Separator } from '../ui/separator'
 
 interface Props {
@@ -16,7 +15,7 @@ interface Props {
   href: string
 }
 
-const props = defineProps<Props>()
+const { demand } = defineProps<Props>()
 
 </script>
 
@@ -40,7 +39,7 @@ const props = defineProps<Props>()
           <p>{{ demand.variety.vegetable }} {{ demand.variety.name }}</p>
         </CardTitle>
         <CardDescription class="flex justify-between">
-          <p>₱ {{ demand.price_offered.toFixed(2) }}<span class="text-xs">/kg</span></p>
+          <p>₱ {{ demand.offered_price.toFixed(2) }}<span class="text-xs">/kg</span></p>
           <Badge>{{ demand.price_flag }}</Badge>
         </CardDescription>
         <Separator />
@@ -50,7 +49,7 @@ const props = defineProps<Props>()
         <Item class="p-0">
           <ItemMedia>
             <Avatar class="size-10">
-              <AvatarImage v-if="demand.dealer.image_path" :src="demand.dealer.image_path" />
+              <AvatarImage v-if="demand.dealer.image_url" :src="demand.dealer.image_url" />
               <AvatarFallback>{{ getInitials(demand.dealer.name) }}</AvatarFallback>
             </Avatar>
           </ItemMedia>

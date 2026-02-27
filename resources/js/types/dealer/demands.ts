@@ -1,8 +1,8 @@
 
 export interface Summary {
-    total_open: number
+    total_ongoing: number
+    total_archived: number
     total_fulfilled: number
-    total_expired: number
     upcomming_transactions: number
 }
 
@@ -27,11 +27,13 @@ export interface Demand {
         vegetable: string
         image_url: string
     }
+    title: string | null
     quantity_kg: number
-    price_offered: number
+    offered_price: number
+    price_flag: 'Low' | 'Fair' | 'High'
     transaction_date: string
     days_until_transaction: number
-    status: string
+    status: 'Ongoing' | 'Archived' | 'Fulfilled'
     created_at_human: string
 }
 

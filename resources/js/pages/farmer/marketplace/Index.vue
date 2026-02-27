@@ -1,17 +1,18 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-import { Head, router, Link, Deferred } from '@inertiajs/vue3'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Button } from '@/components/ui/button'
-import { Skeleton } from '@/components/ui/skeleton'
-import MarketplaceCard from '@/components/farmer/MarketplaceCard.vue'
-import AppLayout from '@/layouts/AppLayout.vue'
+
+import { Head, router, Deferred } from '@inertiajs/vue3'
+import { Search } from 'lucide-vue-next'
+import { ref } from 'vue'
 import Heading from '@/components/Heading.vue'
-import type { CategoryOption } from '@/types/announcement'
+import { Button } from '@/components/ui/button'
+import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Skeleton } from '@/components/ui/skeleton'
+import AppLayout from '@/layouts/AppLayout.vue'
 import farmer from '@/routes/farmer'
-import { PaginatedResponse } from '@/types/pagination'
-import EmptyState from '@/components/EmptyState.vue'
-import { DealerDemand, DemandFilters } from '@/types/farmer/marketplace'
+import type { CategoryOption } from '@/types/announcement'
+import type { DealerDemand, DemandFilters } from '@/types/farmer/marketplace'
+import type { PaginatedResponse } from '@/types/pagination'
 
 interface Props {
   filters: DemandFilters
@@ -20,6 +21,25 @@ interface Props {
 }
 
 const props = defineProps<Props>()
+
+const searchQuery = ref(props.filters.search || '')
+const searchDebounce = ref<ReturnType<typeof setTimeout> | null>(null)
+
+function handleSearch() {
+  if (searchDebounce.value) clearTimeout(searchDebounce.value)
+
+  searchDebounce.value = setTimeout(() => {
+    router.visit(farmer.marketplace.index().url, {
+      data: {
+        search: searchQuery.value || undefined,
+        category_id: props.filters.category_id || undefined,
+      },
+      preserveState: true,
+      preserveScroll: true,
+      only: ['demands'],
+    })
+  }, 300)
+}
 
 function handleFilter(type: 'category', value: string) {
   const filters: Record<string, string | undefined> = {
@@ -60,16 +80,29 @@ const breadcrumbs = [
   <AppLayout :breadcrumbs="breadcrumbs">
     <div class="flex h-full flex-col gap-6 p-4 lg:p-6">
       <!-- Header -->
-      <div class="flex items-start justify-between">
         <Heading
           title="Dealer Posts"
           description="Browse active purchase requests from dealers and find opportunities."
         />
 
-        <Deferred data="filters">
-          <template #fallback>
-            <Skeleton />
-          </template>
+      <!-- Filters -->
+       <Deferred data="filters">
+        <template #fallback>
+          <Skeleton />
+        </template>
+
+        <div class="md:flex justify-between">
+          <InputGroup class="md:w-2/3 lg:w-1/2 xl:w-2/5">
+            <InputGroupInput 
+              v-model="searchQuery"
+              type="search"
+              @input="handleSearch"
+              placeholder="Search vegetables (e.g., Cabbage, Lettuce)..." 
+            />
+            <InputGroupAddon>
+              <Search />
+            </InputGroupAddon>
+          </InputGroup>
 
           <Select
             :model-value="filters.category_id?.toString() || 'all'"
@@ -89,8 +122,8 @@ const breadcrumbs = [
               </SelectItem>
             </SelectContent>
           </Select>
-        </Deferred>
-      </div>
+        </div>
+       </Deferred>
 
       <!-- Results count -->
       <div class="flex items-center justify-between">
@@ -112,7 +145,7 @@ const breadcrumbs = [
 
         <EmptyState 
           v-if="demands?.data.length === 0"
-          title="No posts found"
+          title="No Posts Found"
           description="Try adjusting your filters or check back later"
         />
 

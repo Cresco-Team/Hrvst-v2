@@ -2,8 +2,6 @@
 
 namespace App\Services\Farmer;
 
-use App\DealerPriceFlag;
-use App\Enums\DealerDemandStatus;
 use App\Models\Marketplace\DealerDemand;
 use App\Models\Product\Category;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -15,19 +13,30 @@ class MarketplaceService
     {
         $query = DealerDemand::with([
             'dealer.user',
-            'variety.vegetable.category',
-            'variety.latestPrice',
-        ])->where('status', DealerDemandStatus::Open)
-        ->where('transaction_date', '>=', now());
+            'post.variety.vegetable.category',
+            'post.variety.latestPrice',
+        ])->whereHas('post', fn ($q) => $q->ongoing());
+
+        if (!empty($filters['search'])) {
+            $search = $filters['search'];
+            $query->whereHas('post.variety', function (Builder $q) use ($search) {
+                $q->where('name', 'LIKE', "%{$search}%")
+                    ->orWhereHas('vegetable', fn(Builder $vq) => 
+                        $vq->where('name', 'LIKE', "%{$search}%")
+                    );
+            });
+        }
 
         if (!empty($filters['category_id'])) {
-            $query->whereHas('variety.vegetable', fn(Builder $q) => 
+            $query->whereHas('post.variety.vegetable', fn(Builder $q) => 
                 $q->where('category_id', $filters['category_id'])
             );
         }
 
         if (!empty($filters['variety_id'])) {
-            $query->where('variety_id', $filters['variety_id']);
+            $query->whereHas('post', fn ($q) => $q
+                ->where('variety_id', $filters['variety_id'])
+            );
         }
 
         if (!empty($filters['date_from'])) {
@@ -38,9 +47,8 @@ class MarketplaceService
             $query->where('transaction_date', '<=', $filters['date_to']);
         }
 
-        $query->orderBy('transaction_date', 'asc');
-
-        return $query->paginate($perPage)
+        return $query->orderBy('transaction_date', 'asc')
+            ->paginate($perPage)
             ->through(function ($demand) {
                 return [
                     'id' => $demand->id,
@@ -48,20 +56,21 @@ class MarketplaceService
                         'id' => $demand->dealer->id,
                         'name' => $demand->dealer->user->name,
                         'phone_number' => $demand->dealer->user->phone_number,
-                        'image_path' => $demand->dealer->user->image_path,
+                        'image_url' => $demand->dealer->user->image_url,
                     ],
+                    'variety' => [
+                        'id' => $demand->post->variety_id,
+                        'name' => $demand->post->variety->name,
+                        'vegetable' => $demand->post->variety->vegetable->name,
+                        'image_url' => $demand->post->variety->image_url,
+                    ],
+                    'title' => $demand->post->title,
+                    'quantity_kg' => (float) $demand->post->quantity_kg,
+                    'offered_price' => (float) $demand->post->offered_price,
+                    'price_flag' => $demand->post->price_flag,
                     'transaction_date' => $demand->transaction_date->format('M d, Y'),
                     'days_until_transaction' => now()->diffInDays($demand->transaction_date, false),
-                    'status' => $demand->status,
-                    'variety' => [
-                        'id' => $demand->variety->id,
-                        'name' => $demand->variety->name,
-                        'vegetable' => $demand->variety->vegetable->name,
-                        'image_url' => $demand->variety->image_url,
-                    ],
-                    'quantity_kg' => (float) $demand->quantity_kg,
-                    'price_offered' => (float) $demand->price_offered,
-                    'price_flag' => self::calculatePriceFlag($demand->price_offered, $demand->variety->latest_price),
+                    'status' => $demand->post->status,
                     'created_at_human' => $demand->created_at->diffForHumans(),
                 ];
             });
@@ -95,7 +104,7 @@ class MarketplaceService
             ],
             'quantity_kg' => (float) $demand->quantity_kg,
             'price_offered' => (float) $demand->price_offered,
-            'price_flag' => self::calculatePriceFlag($demand->price_offered, $demand->variety->latestPrice),
+            'price_flag' => $demand->post->price_flag,
             'market_price' => [
                 'min' => (float) $demand->variety->latestPrice->price_min,
                 'max' => (float) $demand->variety->latestPrice->price_max,
@@ -107,27 +116,16 @@ class MarketplaceService
 
     public static function categoryOptions(): array
     {
-        return Category::whereHas('vegetables.varieties.demands', function (Builder $q) {
-            $q->where('status', DealerDemandStatus::Open)
-                ->where('transaction_date', '>=', now());
-        })->orderBy('name')
+        return Category::whereHas('vegetables.varieties.posts', fn (Builder $q) => $q
+            ->ongoing()
+            ->whereHasMorph('postable', DealerDemand::class, fn ($q) => $q
+                ->where('transaction_date', '>=', now())
+            )
+        )->orderBy('name')
             ->get()
             ->map(fn($category) => [
                 'id' => $category->id,
                 'name' => $category->name,
             ])->toArray();
-    }
-
-    private static function calculatePriceFlag(float $priceOffered, ?object $latestPrice): DealerPriceFlag
-    {
-
-        $marketMin = (float) $latestPrice?->price_min;
-        $marketMax = (float) $latestPrice?->price_max;
-
-        if ($priceOffered < $marketMin) return DealerPriceFlag::Low;
-
-        if ($priceOffered > $marketMax) return DealerPriceFlag::Premium;
-
-        return DealerPriceFlag::Fair;
     }
 }

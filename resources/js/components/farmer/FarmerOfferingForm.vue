@@ -8,23 +8,23 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrig
 import { Badge } from '@/components/ui/badge'
 import ImageUpload from '@/components/shared/media/ImageUpload.vue'
 import { Sprout } from 'lucide-vue-next'
-import { Offering, VarietyOption } from '@/types/farmer/garden'
+import { Supply, VarietyOption } from '@/types/farmer/garden'
 
 interface Props {
   open: boolean
-  offering?: Offering | null
+  supply?: Supply | null
   varietyOptions: Record<string, VarietyOption[]>
   form: InertiaForm<{
     variety_id: number | null
     image: File | null
-    weight_kg: number
-    asking_price: number
+    quantity_kg: number
+    offered_price: number
     expiration_date: string
   }>
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  offering: null
+  supply: null
 })
 
 const emit = defineEmits<{
@@ -44,7 +44,7 @@ const maxDate = computed(() => {
   return threeMonths.toISOString().split('T')[0]
 })
 
-const isEditMode = computed(() => !!props.offering)
+const isEditMode = computed(() => !!props.supply)
 
 // Reset form when dialog closes
 watch(() => props.open, (isOpen) => {
@@ -117,7 +117,7 @@ watch(() => props.open, (isOpen) => {
       <!-- Image Upload -->
       <ImageUpload
         v-model="form.image"
-        :existing-image-url="offering?.image_url"
+        :existing-image-url="supply?.image_url"
         :error="form.errors.image"
         :required="!isEditMode"
       />
@@ -130,16 +130,16 @@ watch(() => props.open, (isOpen) => {
         </Label>
         <Input
           id="quantity"
-          v-model.number="form.weight_kg"
+          v-model.number="form.quantity_kg"
           type="number"
           step="0.1"
           min="0.1"
           max="99999"
           placeholder="0.0"
-          :class="{ 'border-destructive': form.errors.weight_kg }"
+          :class="{ 'border-destructive': form.errors.quantity_kg }"
         />
-        <p v-if="form.errors.weight_kg" class="text-xs text-destructive">
-          {{ form.errors.weight_kg }}
+        <p v-if="form.errors.quantity_kg" class="text-xs text-destructive">
+          {{ form.errors.quantity_kg }}
         </p>
         <p v-else class="text-xs text-muted-foreground">
           Enter the available quantity in kilograms
@@ -154,16 +154,16 @@ watch(() => props.open, (isOpen) => {
         </Label>
         <Input
           id="price"
-          v-model.number="form.asking_price"
+          v-model.number="form.offered_price"
           type="number"
           step="0.01"
           min="0"
           max="9999.99"
           placeholder="0.00"
-          :class="{ 'border-destructive': form.errors.asking_price }"
+          :class="{ 'border-destructive': form.errors.offered_price }"
         />
-        <p v-if="form.errors.asking_price" class="text-xs text-destructive">
-          {{ form.errors.asking_price }}
+        <p v-if="form.errors.offered_price" class="text-xs text-destructive">
+          {{ form.errors.offered_price }}
         </p>
         <p v-else class="text-xs text-muted-foreground">
           Set your asking price per kilogram

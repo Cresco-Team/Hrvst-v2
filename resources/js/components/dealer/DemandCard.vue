@@ -17,13 +17,14 @@ const props = defineProps<Props>()
 
 const emit = defineEmits<{
   edit: [demand: Demand]
+  archive: [demand: Demand]
   fulfill: [demand: Demand]
   delete: [demand: Demand]
 }>()
 
-const isOpen = computed(() => props.demand.status === 'open')
-const isFulfilled = computed(() => props.demand.status === 'fulfilled')
-const isExpired = computed(() => props.demand.status === 'expired')
+const isOngoing = computed(() => props.demand.status === 'Ongoing')
+const isFulfilled = computed(() => props.demand.status === 'Fulfilled')
+const isArchived = computed(() => props.demand.status === 'Archived')
 </script>
 
 <template>
@@ -47,17 +48,26 @@ const isExpired = computed(() => props.demand.status === 'expired')
 
                 <DropdownMenuContent align="end">
                     <DropdownMenuItem 
-                        v-if="isOpen"
+                        v-if="isOngoing"
                         @click="emit('edit', demand)"
                     >
                         <Pencil class="mr-2 size-4" />
                         Edit Details
                     </DropdownMenuItem>
 
-                    <DropdownMenuSeparator />
+                    <DropdownMenuSeparator v-if="isOngoing" />
 
                     <DropdownMenuItem
-                        v-if="isExpired"
+                        v-if="isOngoing || isFulfilled"
+                        @click="emit('archive', demand)"
+                        class="text-orange-500"
+                    >
+                        <Archive class="mr-2 size-4" />
+                        Archive
+                    </DropdownMenuItem>
+
+                    <DropdownMenuItem
+                        v-if="isOngoing || isArchived"
                         @click="emit('fulfill', demand)"
                         class="text-green-500"
                     >
@@ -95,7 +105,7 @@ const isExpired = computed(() => props.demand.status === 'expired')
                     <PhilippinePeso :size="15" />
                     Price:
                 </div>
-                <span>{{ demand.price_offered.toFixed(2) }}</span>
+                <span>{{ demand.offered_price.toFixed(2) }}</span>
             </div>
 
             <div class="flex justify-between text-sm">
