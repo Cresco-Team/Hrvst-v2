@@ -3,6 +3,8 @@
 import { Head, router, Deferred } from '@inertiajs/vue3'
 import { Search } from 'lucide-vue-next'
 import { ref } from 'vue'
+import EmptyState from '@/components/EmptyState.vue'
+import MarketplaceCard from '@/components/farmer/MarketplaceCard.vue'
 import Heading from '@/components/Heading.vue'
 import { Button } from '@/components/ui/button'
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group'
