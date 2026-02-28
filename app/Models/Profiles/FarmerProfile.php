@@ -6,12 +6,15 @@ use App\Models\Address\Barangay;
 use App\Models\Address\Municipality;
 use App\Models\Address\Province;
 use App\Models\Marketplace\FarmerSupply;
+use App\Models\Marketplace\Post;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 class FarmerProfile extends Model
 {
@@ -63,6 +66,33 @@ class FarmerProfile extends Model
     public function barangay(): BelongsTo
     {
         return $this->belongsTo(Barangay::class);
+    }
+
+    /* ---------- scopes ---------- */
+
+    public function scopeApproved(Builder $query): Builder
+    {
+        return $query->where('is_approved', true);
+    }
+
+    public function scopePending(Builder $query): Builder
+    {
+        return $query->where('is_approved', false);
+    }
+
+    /* ---------- actions ---------- */
+
+    public function approveAccount(): void
+    {
+        $this->is_approved = true;
+        $this->save();
+    }
+
+    public function rejectAccount(): void
+    {
+        $user = $this->user;
+        $this->delete();
+        $user->delete();
     }
 
     /* ---------- accessors ---------- */
