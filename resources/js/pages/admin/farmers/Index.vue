@@ -1,20 +1,21 @@
 <script setup lang="ts">
-import { ref, watch, computed } from 'vue'
 import { Deferred, Head, router } from '@inertiajs/vue3'
-import { Users, Map, List, Loader2, Sprout, Clock, TrendingUp, PartyPopper, Salad } from 'lucide-vue-next'
 import axios from 'axios'
+import { Users, Map, List, Loader2, Sprout, PartyPopper, Salad } from 'lucide-vue-next'
+import { ref, watch, computed } from 'vue'
 import { toast } from 'vue-sonner'
-import Heading from '@/components/Heading.vue'
-import FarmerTable from '@/components/features/admin/tables/FarmerTable.vue'
 import FarmerMap from '@/components/features/admin/map/FarmerMap.vue'
 import FarmerMapFilters from '@/components/features/admin/map/FarmerMapFilters.vue'
 import FarmerMapSidebar from '@/components/features/admin/map/FarmerMapSidebar.vue'
+import FarmerTable from '@/components/features/admin/tables/FarmerTable.vue'
+import Heading from '@/components/Heading.vue'
+import LargeCard from '@/components/shared/cards/LargeCard.vue'
 import { Skeleton } from '@/components/ui/skeleton'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
-import admin from '@/routes/admin'
 import AppLayout from '@/layouts/AppLayout.vue'
-import LargeCard from '@/components/shared/cards/LargeCard.vue'
-import { Filters, Farmer, Summary, FarmerDetails, MarkerData, PaginatedData } from '@/types/admin/farmers'
+import admin from '@/routes/admin'
+import type { Filters, Farmer, Summary, FarmerDetails, MarkerData } from '@/types/admin/farmers'
+import type { PaginatedResponse } from '@/types/pagination'
 
 interface Props {
     view: 'list' | 'map'
@@ -26,7 +27,7 @@ interface Props {
         }
         defaultZoom: number
     }
-    farmers: PaginatedData
+    farmers: PaginatedResponse<Farmer>
     summary: Summary
 }
 
@@ -48,7 +49,7 @@ const isListView = computed(() => currentView.value === 'list')
 const isMapView = computed(() => currentView.value === 'map')
 
 const totalVisiblePlantings = computed(() => {
-    return markers.value.reduce((sum, m) => sum + m.available_offerings_count, 0)
+    return markers.value.reduce((sum, m) => sum + m.ongoing_supplies_count, 0)
 })
 
 const breadcrumbs = [

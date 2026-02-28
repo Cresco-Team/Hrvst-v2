@@ -1,15 +1,14 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-import { X, MapPin, Phone, Mail, Calendar, Sprout, Weight, Clock, TrendingUp } from 'lucide-vue-next'
-import { Button } from '@/components/ui/button'
+
+import { X, MapPin, Phone, Mail, Calendar, Sprout, Weight, TrendingUp } from 'lucide-vue-next'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { Spinner } from '@/components/ui/spinner'
 import { useInitials } from '@/composables/useInitials'
-import { FarmerDetails } from '@/types/admin/farmers'
+import type { FarmerDetails } from '@/types/admin/farmers'
 
-const props = defineProps<{
+defineProps<{
     open: boolean
     farmer: FarmerDetails | null
     loading: boolean
@@ -77,8 +76,8 @@ const { getInitials } = useInitials()
                 <div class="flex items-start gap-4">
                     <Avatar class="size-16 rounded-lg">
                         <AvatarImage 
-                            v-if="farmer.user.image_path"
-                            :src="farmer.user.image_path" 
+                            v-if="farmer.user.image_url"
+                            :src="farmer.user.image_url" 
                             :alt="farmer.user.name"
                         />
                         <AvatarFallback class="rounded-lg bg-primary/10 text-lg font-semibold text-primary">
@@ -127,14 +126,14 @@ const { getInitials } = useInitials()
                     <div class="rounded-lg border bg-card p-3 text-center">
                         <div class="flex items-center justify-center gap-1 text-2xl font-bold">
                             <Sprout class="size-5 text-primary" />
-                            {{ farmer.statistics.total_available_offerings }}
+                            {{ farmer.statistics.total_ongoing_supplies }}
                         </div>
                         <p class="mt-1 text-xs text-muted-foreground">Active</p>
                     </div>
                     <div class="rounded-lg border bg-card p-3 text-center">
                         <div class="flex items-center justify-center gap-1 text-2xl font-bold">
                             <Weight class="size-5 text-primary" />
-                            {{ farmer.statistics.total_weight }}
+                            {{ farmer.statistics.total_quantity }}
                         </div>
                         <p class="mt-1 text-xs text-muted-foreground">Total kg</p>
                     </div>
@@ -146,22 +145,22 @@ const { getInitials } = useInitials()
                 <div class="space-y-3">
                     <div class="flex items-center gap-2 text-sm font-medium">
                         <TrendingUp class="size-4 text-primary" />
-                        Active Plantings ({{ farmer.available_offerings.length }})
+                        Active Plantings ({{ farmer.ongoing_supplies.length }})
                     </div>
 
-                    <div v-if="farmer.available_offerings.length === 0" class="rounded-lg border border-dashed p-6 text-center">
+                    <div v-if="farmer.ongoing_supplies.length === 0" class="rounded-lg border border-dashed p-6 text-center">
                         <p class="text-sm text-muted-foreground">No active plantings</p>
                     </div>
 
                     <div v-else class="space-y-3">
                         <div
-                            v-for="offering in farmer.available_offerings"
+                            v-for="offering in farmer.ongoing_supplies"
                             :key="offering.id"
                             class="flex gap-3 rounded-lg border bg-card p-3 transition-colors hover:bg-accent"
                         >
                             <Avatar class="size-12 rounded-md shrink-0">
                                 <AvatarImage 
-                                    :src="offering.variety.image_path" 
+                                    :src="offering.variety.image_url" 
                                     :alt="offering.variety.name"
                                     class="object-cover"
                                 />
@@ -177,9 +176,9 @@ const { getInitials } = useInitials()
                                     </div>
                                 </div>
                                 <div class="space-y-0.5 text-xs text-muted-foreground">
-                                    <div>Weight: {{ offering.weight_kg }} kg</div>
-                                    <div>Planted: {{ offering.date_planted }}</div>
-                                    <div>Expected: {{ offering.expected_harvest_date }}</div>
+                                    <div>Quantity kg: {{ offering.quantity_kg }} kg</div>
+                                    <div>Posted: {{ offering.created_at }}</div>
+                                    <div>Expiration: {{ offering.expiration_date }}</div>
                                 </div>
                             </div>
                         </div>
