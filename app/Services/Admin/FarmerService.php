@@ -2,92 +2,84 @@
 
 namespace App\Services\Admin;
 
-use App\FarmerOfferingStatus;
-use App\Models\Marketplace\FarmerOffering;
+use App\Models\Marketplace\FarmerSupply;
 use App\Models\Profiles\FarmerProfile;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class FarmerService
 {
-    /**
-     * Get paginated list of approved farmers with their active plantings
-     */
-    public static function paginated(int $perPage = 20, ?int $page = null): LengthAwarePaginator
-{
-    return FarmerProfile::with([
-        'user',
-        'province',
-        'municipality',
-        'barangay',
-        'offerings' => fn($query) => $query->where('status', FarmerOfferingStatus::Available)
-            ->with(['variety.vegetable.category'])
-            ->orderBy('expiration_date', 'asc'),
-    ])
-        ->where('is_approved', true)
-        ->orderBy('created_at', 'desc')
-        ->paginate($perPage, ['*'], 'page', $page)
-        ->through(function ($farmer) {
-            return [
-                'id' => $farmer->id,
-                'user' => [
-                    'id' => $farmer->user->id,
-                    'name' => $farmer->user->name,
-                    'email' => $farmer->user->email,
-                    'phone_number' => $farmer->user->phone_number,
-                    'image_path' => $farmer->user->image_path,
-                ],
-                'location' => [
-                    'province' => $farmer->province->name,
-                    'municipality' => $farmer->municipality->name,
-                    'barangay' => $farmer->barangay->name,
-                    'coordinates' => [
-                        'lat' => $farmer->latitude,
-                        'lng' => $farmer->longitude,
-                    ],
-                ],
-                'farm_image' => $farmer->farm_image,
-                'available_offerings_count' => $farmer->offerings->count(),
-                'available_offerings' => $farmer->offerings->map(fn($offering) => [
-                    'id' => $offering->id,
-                    'variety' => [
-                        'id' => $offering->variety->id,
-                        'name' => $offering->variety->vegetable->name . ' ' . $offering->variety->name,
-                        'category' => $offering->variety->vegetable->category->name,
-                        'image_path' => $offering->variety->image_path,
-                    ],
-                    'weight_kg' => $offering->weight_kg,
-                    'expiration_date' => $offering->expiration_date->format('M d, Y'),
-                ]),
-                'joined_at' => $farmer->created_at->format('M d, Y'),
-                'joined_at_human' => $farmer->created_at->diffForHumans(),
-            ];
-        });
-}
-
-    /**
-     * Get summary statistics for farmers
-     */
     public static function summary(): array
     {
-        $totalFarmers = FarmerProfile::where('is_approved', true)
-            ->count();
-        $newFarmerThisMonth = FarmerProfile::where('is_approved', true)
+        $newFarmerThisMonth = FarmerProfile::approved()
             ->where('created_at', '>=', now()->startOfMonth())
             ->count();
-        $newOfferingsThisMonth = FarmerOffering::where('created_at', '>=', now()->startOfMonth())
+        $newSuppliesThisMonth = FarmerSupply::where('created_at', '>=', now()->startOfMonth())
             ->count();
-        
+
         return [
-            'total_farmers' => $totalFarmers,
+            'total_farmers' => FarmerProfile::approved()->count(),
             'new_farmers_this_month' => $newFarmerThisMonth,
-            'total_offerings' => FarmerOffering::count(),
-            'new_offerings_this_month' => $newOfferingsThisMonth,
+            'total_supplies' => FarmerSupply::count(),
+            'new_supplies_this_month' => $newSuppliesThisMonth,
         ];
     }
 
-    /**
-     * Get detailed farmer information
-     */
+    public static function paginated(int $perPage = 20, ?int $page = null): LengthAwarePaginator
+    {
+        return FarmerProfile::with([
+            'user',
+            'province',
+            'municipality',
+            'barangay',
+            'supplies' => fn ($query) => $query
+                ->whereHas('post', fn ($q) => $q->ongoing())
+                ->with(['post.variety.vegetable.category'])
+                ->orderBy('expiration_date', 'asc'),
+        ])
+            ->approved()
+            ->orderBy('created_at', 'desc')
+            ->paginate($perPage, ['*'], 'page', $page)
+            ->through(function ($farmer) {
+
+                $ongoingSupplies = $farmer->supplies;
+
+                return [
+                    'id' => $farmer->id,
+                    'user' => [
+                        'id' => $farmer->user->id,
+                        'name' => $farmer->user->name,
+                        'email' => $farmer->user->email,
+                        'phone_number' => $farmer->user->phone_number,
+                        'image_url' => $farmer->user->image_url,
+                    ],
+                    'location' => [
+                        'province' => $farmer->province->name,
+                        'municipality' => $farmer->municipality->name,
+                        'barangay' => $farmer->barangay->name,
+                        'coordinates' => [
+                            'lat' => $farmer->latitude,
+                            'lng' => $farmer->longitude,
+                        ],
+                    ],
+                    'farm_url' => $farmer->farm_url,
+                    'ongoing_supplies_count' => $ongoingSupplies->count(),
+                    'ongoing_supplies' => $ongoingSupplies->map(fn ($supply) => [
+                        'id' => $supply->id,
+                        'variety' => [
+                            'id' => $supply->post->variety->id,
+                            'name' => $supply->post->variety->vegetable->name.' '.$supply->post->variety->name,
+                            'category' => $supply->post->variety->vegetable->category->name,
+                            'image_url' => $supply->post->variety->image_url,
+                        ],
+                        'quantity_kg' => $supply->post->quantity_kg,
+                        'expiration_date' => $supply->expiration_date->format('M d, Y'),
+                    ]),
+                    'joined_at' => $farmer->created_at->format('M d, Y'),
+                    'joined_at_human' => $farmer->created_at->diffForHumans(),
+                ];
+            });
+    }
+
     public static function find(int $farmerId): ?array
     {
         $farmer = FarmerProfile::with([
@@ -95,13 +87,13 @@ class FarmerService
             'province',
             'municipality',
             'barangay',
-            'plantings' => fn($query) => $query->with(['variety.vegetable.category'])
+            'plantings' => fn ($query) => $query->with(['variety.vegetable.category'])
                 ->orderBy('date_planted', 'desc'),
         ])
             ->where('is_approved', true)
             ->find($farmerId);
 
-        if (!$farmer) {
+        if (! $farmer) {
             return null;
         }
 
@@ -125,11 +117,11 @@ class FarmerService
                 ],
             ],
             'farm_image' => $farmer->farm_image,
-            'plantings' => $farmer->plantings->map(fn($planting) => [
+            'plantings' => $farmer->plantings->map(fn ($planting) => [
                 'id' => $planting->id,
                 'variety' => [
                     'id' => $planting->variety->id,
-                    'name' => $planting->variety->vegetable->name . ' ' . $planting->variety->name,
+                    'name' => $planting->variety->vegetable->name.' '.$planting->variety->name,
                     'category' => $planting->variety->vegetable->category->name,
                     'image_path' => $planting->variety->image_path,
                 ],
@@ -153,58 +145,31 @@ class FarmerService
             'municipality',
             'barangay',
         ])
-            ->where('is_approved', false)
+            ->pending()
             ->orderBy('created_at', 'asc')
             ->get()
-            ->map(fn($farmer) => [
-                'id' => $farmer->id,
-                'user' => [
-                    'id' => $farmer->user->id,
-                    'name' => $farmer->user->name,
-                    'email' => $farmer->user->email,
-                    'phone_number' => $farmer->user->phone_number,
-                    'user_image' => $farmer->user->user_image,
+            ->map(fn ($farmer) => [
+                'id'    => $farmer->id,
+                'user'  => [
+                    'id'            => $farmer->user->id,
+                    'name'          => $farmer->user->name,
+                    'email'         => $farmer->user->email,
+                    'phone_number'  => $farmer->user->phone_number,
+                    'image_path'    => $farmer->user->image_path,
                 ],
                 'location' => [
-                    'province' => $farmer->province->name,
-                    'municipality' => $farmer->municipality->name,
-                    'barangay' => $farmer->barangay->name,
-                    'full_address' => "{$farmer->barangay->name}, {$farmer->municipality->name}, {$farmer->province->name}",
-                    'coordinates' => [
+                    'province'      => $farmer->province->name,
+                    'municipality'  => $farmer->municipality->name,
+                    'barangay'      => $farmer->barangay->name,
+                    'coordinates'   => [
                         'lat' => (float) $farmer->latitude,
                         'lng' => (float) $farmer->longitude,
                     ],
                 ],
-                'farm_image' => $farmer->farm_image,
-                'submitted_at' => $farmer->created_at->format('M d, Y g:i A'),
-                'submitted_at_human' => $farmer->created_at->diffForHumans(),
+                'farm_url'              => $farmer->farm_url,
+                'submitted_at'          => $farmer->created_at->format('M d, Y g:i A'),
+                'submitted_at_human'    => $farmer->created_at->diffForHumans(),
             ])
             ->toArray();
-    }
-
-    public static function approve(int $farmerId): bool
-    {
-        $farmer = FarmerProfile::where('is_approved', false)->find($farmerId);
-
-        if (!$farmer) {
-            return false;
-        }
-
-        return $farmer->update(['is_approved' => true]);
-    }
-
-    public static function reject(int $farmerId): bool
-    {
-        $farmer = FarmerProfile::where('is_approved', false)->find($farmerId);
-
-        if (!$farmer) {
-            return false;
-        }
-
-        $user = $farmer->user;
-        $farmer->delete();
-        $user->delete();
-
-        return true;
     }
 }
