@@ -154,31 +154,31 @@ const { getInitials } = useInitials()
 
                     <div v-else class="space-y-3">
                         <div
-                            v-for="offering in farmer.ongoing_supplies"
-                            :key="offering.id"
+                            v-for="supply in farmer.ongoing_supplies"
+                            :key="supply.id"
                             class="flex gap-3 rounded-lg border bg-card p-3 transition-colors hover:bg-accent"
                         >
                             <Avatar class="size-12 rounded-md shrink-0">
                                 <AvatarImage 
-                                    :src="offering.variety.image_url" 
-                                    :alt="offering.variety.name"
+                                    :src="supply.variety.image_url" 
+                                    :alt="supply.variety.name"
                                     class="object-cover"
                                 />
                                 <AvatarFallback class="rounded-md bg-primary/10 text-xs font-semibold text-primary">
-                                    {{ offering.variety.name.charAt(0) }}
+                                    {{ supply.variety.name.charAt(0) }}
                                 </AvatarFallback>
                             </Avatar>
                             <div class="flex flex-1 flex-col gap-1.5">
                                 <div class="flex items-start justify-between gap-2">
                                     <div>
-                                        <p class="text-sm font-medium">{{ offering.variety.name }}</p>
-                                        <p class="text-xs text-muted-foreground">{{ offering.variety.category }}</p>
+                                        <p class="text-sm font-medium">{{ supply.variety.name }}</p>
+                                        <p class="text-xs text-muted-foreground">{{ supply.variety.category }}</p>
                                     </div>
                                 </div>
                                 <div class="space-y-0.5 text-xs text-muted-foreground">
-                                    <div>Quantity kg: {{ offering.quantity_kg }} kg</div>
-                                    <div>Posted: {{ offering.created_at }}</div>
-                                    <div>Expiration: {{ offering.expiration_date }}</div>
+                                    <div>Quantity kg: {{ supply.quantity_kg }} kg</div>
+                                    <div>Posted: {{ supply.created_at }}</div>
+                                    <div>Expiration: {{ supply.expiration_date }}</div>
                                 </div>
                             </div>
                         </div>
