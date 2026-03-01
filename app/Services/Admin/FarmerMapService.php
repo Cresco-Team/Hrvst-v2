@@ -147,7 +147,7 @@ class FarmerMapService
                     'id' => $supply->post->variety->id,
                     'name' => $supply->post->variety->vegetable->name . ' ' . $supply->post->variety->name,
                     'category' => $supply->post->variety->vegetable->category->name,
-                    'image_path' => $supply->post->variety->image_path,
+                    'image_url' => $supply->post->variety->image_url,
                 ],
                 'quantity_kg' => $supply->post->quantity_kg,
                 'created_at' => $supply->created_at->format('M d, Y'),
