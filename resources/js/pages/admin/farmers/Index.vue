@@ -63,10 +63,8 @@ const breadcrumbs = [
 function switchView(newView: 'list' | 'map') {
     if (newView === currentView.value) return
 
-    // Persist view preference to localStorage
     localStorage.setItem('farmers_view', newView)
 
-    // Update URL with query param
     router.visit(admin.farmers.index().url, {
         data: { view: newView },
         preserveState: true,
@@ -78,16 +76,14 @@ function switchView(newView: 'list' | 'map') {
     })
 }
 
-/* -- Map Data Fetching -- */
+/* -- Data Fetching -- */
 async function fetchMarkers() {
     loadingMarkers.value = true
     try {
         const params: any = {}
 
         if (selectedMunicipality.value) params.municipality_id = selectedMunicipality.value
-
         if (selectedVariety.value) params.variety_id = selectedVariety.value
-
         if (mapBounds.value) params.bounds = mapBounds.value
 
         const response = await axios.get('/admin/farmers/api/markers', { params })
@@ -101,7 +97,7 @@ async function fetchMarkers() {
     }
 }
 
-async function fetchFarmerDetails(farmerId: number) {
+async function loadFarmerDetails(farmerId: number) {
     loadingFarmer.value = true
     sidebarOpen.value = true
     selectedFarmer.value = null
@@ -120,8 +116,13 @@ async function fetchFarmerDetails(farmerId: number) {
 }
 
 /* -- Event Handlers -- */
-function handleViewFarmer(farmer: Farmer) {
-    fetchFarmerDetails(farmer.id)
+function openFarmerSidebar(farmerId: number) {
+    loadFarmerDetails(farmerId)
+}
+
+function closeSidebar() {
+    sidebarOpen.value = false
+    selectedFarmer.value = null
 }
 
 function handlePageChange(page: number) {
@@ -130,10 +131,6 @@ function handlePageChange(page: number) {
         preserveState: true,
         preserveScroll: true,
     })
-}
-
-function openFarmerSidebar(farmerId: number) {
-    fetchFarmerDetails(farmerId)
 }
 
 function handleBoundsChange(bounds: { north: number; south: number; east: number; west: number }) {
@@ -145,20 +142,13 @@ function handleClearFilters() {
     selectedVariety.value = null
 }
 
-function handleSidebarClose() {
-    sidebarOpen.value = false
-    selectedFarmer.value = null
-}
-
 /* -- Watchers -- */
-// Fetch markers when switching to map view or filters change
 watch([currentView, selectedMunicipality, selectedVariety, mapBounds], () => {
     if (currentView.value === 'map') {
         fetchMarkers()
     }
 }, { immediate: true })
 
-// Restore view preference on mount
 const storedView = localStorage.getItem('farmers_view') as 'list' | 'map' | null
 if (storedView && storedView !== props.view) {
     switchView(storedView)
@@ -174,22 +164,19 @@ if (storedView && storedView !== props.view) {
 
             <!-- Header -->
             <div class="flex items-end justify-between">
-
-                <!-- Title -->
                 <Heading title="Farmers" description="Manage farmers and their active plantings." />
 
-
-                    <!-- View Toggle -->
-                    <ToggleGroup :model-value="currentView" variant="outline" type="single">
-                        <ToggleGroupItem value="list" aria-label="List view" @click="switchView('list')">
-                            <List class="size-4" />
-                            <span class="hidden sm:inline">List</span>
-                        </ToggleGroupItem>
-                        <ToggleGroupItem value="map" aria-label="Map view" @click="switchView('map')">
-                            <Map class="size-4" />
-                            <span class="hidden sm:inline">Map</span>
-                        </ToggleGroupItem>
-                    </ToggleGroup>
+                <!-- View Toggle -->
+                <ToggleGroup :model-value="currentView" variant="outline" type="single">
+                    <ToggleGroupItem value="list" aria-label="List view" @click="switchView('list')">
+                        <List class="size-4" />
+                        <span class="hidden sm:inline">List</span>
+                    </ToggleGroupItem>
+                    <ToggleGroupItem value="map" aria-label="Map view" @click="switchView('map')">
+                        <Map class="size-4" />
+                        <span class="hidden sm:inline">Map</span>
+                    </ToggleGroupItem>
+                </ToggleGroup>
             </div>
 
             <!-- Summary Cards -->
@@ -228,14 +215,15 @@ if (storedView && storedView !== props.view) {
                         </div>
                     </template>
 
-                    <EmptyState 
+                    <EmptyState
                         v-if="farmers.data.length === 0"
                         title="No Farmers Yet"
                         description="Please wait for farmers to register or check for pending farmers."
                         :icon="SearchX"
                     />
 
-                    <FarmerTable v-else :farmers="farmers" @view-farmer="handleViewFarmer"
+                    <FarmerTable v-else :farmers="farmers"
+                        @view-farmer="openFarmerSidebar($event.id)"
                         @page-change="handlePageChange" />
                 </Deferred>
             </div>
@@ -259,12 +247,12 @@ if (storedView && storedView !== props.view) {
 
                     <!-- Map Component -->
                     <FarmerMap :markers="markers" :center="mapConfig.center" :zoom="mapConfig.defaultZoom"
-                        @marker-click="openFarmerSidebar" @bounds-change="handleBoundsChange" />
+                        @marker-click="openFarmerSidebar"
+                        @bounds-change="handleBoundsChange" />
                 </div>
 
                 <!-- Right Sidebar: Filters & Legend -->
                 <div class="flex flex-col gap-4">
-                    <!-- Map Filters -->
                     <FarmerMapFilters :municipalities="filters.municipalities" :plantings="filters.offerings"
                         :selected-municipality="selectedMunicipality" :selected-variety="selectedVariety"
                         @update:selected-municipality="selectedMunicipality = $event"
@@ -280,9 +268,7 @@ if (storedView && storedView !== props.view) {
                             </div>
                             <div class="flex items-center justify-between">
                                 <span class="text-muted-foreground">Total active plantings</span>
-                                <span class="font-mono font-medium">
-                                    {{ totalVisiblePlantings }}
-                                </span>
+                                <span class="font-mono font-medium">{{ totalVisiblePlantings }}</span>
                             </div>
                         </div>
                     </div>
@@ -328,7 +314,7 @@ if (storedView && storedView !== props.view) {
         </div>
     </AppLayout>
 
-    <!-- Farmer Details Sidebar (Map View Only) -->
+    <!-- Farmer Details Sidebar -->
     <FarmerMapSidebar :open="sidebarOpen" :farmer="selectedFarmer" :loading="loadingFarmer"
-        @close="handleSidebarClose" />
+        @close="closeSidebar" />
 </template>
