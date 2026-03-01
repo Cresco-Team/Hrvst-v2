@@ -1,9 +1,11 @@
 <script setup lang="ts">
+
 import { Deferred, Head, router } from '@inertiajs/vue3'
 import axios from 'axios'
-import { Users, Map, List, Loader2, Sprout, PartyPopper, Salad } from 'lucide-vue-next'
+import { Users, Map, List, Loader2, SearchX, UserPlus, PackagePlus, Package } from 'lucide-vue-next'
 import { ref, watch, computed } from 'vue'
 import { toast } from 'vue-sonner'
+import EmptyState from '@/components/EmptyState.vue'
 import FarmerMap from '@/components/features/admin/map/FarmerMap.vue'
 import FarmerMapFilters from '@/components/features/admin/map/FarmerMapFilters.vue'
 import FarmerMapSidebar from '@/components/features/admin/map/FarmerMapSidebar.vue'
@@ -60,10 +62,10 @@ const breadcrumbs = [
 /* -- View Toggle -- */
 function switchView(newView: 'list' | 'map') {
     if (newView === currentView.value) return
-    
+
     // Persist view preference to localStorage
     localStorage.setItem('farmers_view', newView)
-    
+
     // Update URL with query param
     router.visit(admin.farmers.index().url, {
         data: { view: newView },
@@ -81,18 +83,12 @@ async function fetchMarkers() {
     loadingMarkers.value = true
     try {
         const params: any = {}
-        
-        if (selectedMunicipality.value) {
-            params.municipality_id = selectedMunicipality.value
-        }
-        
-        if (selectedVariety.value) {
-            params.variety_id = selectedVariety.value
-        }
-        
-        if (mapBounds.value) {
-            params.bounds = mapBounds.value
-        }
+
+        if (selectedMunicipality.value) params.municipality_id = selectedMunicipality.value
+
+        if (selectedVariety.value) params.variety_id = selectedVariety.value
+
+        if (mapBounds.value) params.bounds = mapBounds.value
 
         const response = await axios.get('/admin/farmers/api/markers', { params })
         markers.value = response.data.markers
@@ -125,7 +121,7 @@ async function fetchFarmerDetails(farmerId: number) {
 
 /* -- Event Handlers -- */
 function handleViewFarmer(farmer: Farmer) {
-    router.visit(admin.farmers.show(farmer.id))
+    fetchFarmerDetails(farmer.id)
 }
 
 function handlePageChange(page: number) {
@@ -136,7 +132,7 @@ function handlePageChange(page: number) {
     })
 }
 
-function handleMarkerClick(farmerId: number) {
+function openFarmerSidebar(farmerId: number) {
     fetchFarmerDetails(farmerId)
 }
 
@@ -170,50 +166,34 @@ if (storedView && storedView !== props.view) {
 </script>
 
 <template>
+
     <Head title="Farmers" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex flex-col gap-6 p-4 lg:p-6">
-            
+
             <!-- Header -->
             <div class="flex items-end justify-between">
 
                 <!-- Title -->
-                <Heading
-                    title="Farmers"
-                    description="Manage farmers and their active plantings."
-                />
-                
-                <div class="flex items-center gap-2">
+                <Heading title="Farmers" description="Manage farmers and their active plantings." />
+
 
                     <!-- View Toggle -->
-                    <ToggleGroup 
-                        :model-value="currentView"
-                        variant="outline" 
-                        type="single"
-                    >
-                        <ToggleGroupItem 
-                            value="list" 
-                            aria-label="List view"
-                            @click="switchView('list')"
-                        >
+                    <ToggleGroup :model-value="currentView" variant="outline" type="single">
+                        <ToggleGroupItem value="list" aria-label="List view" @click="switchView('list')">
                             <List class="size-4" />
                             <span class="hidden sm:inline">List</span>
                         </ToggleGroupItem>
-                        <ToggleGroupItem 
-                            value="map" 
-                            aria-label="Map view"
-                            @click="switchView('map')"
-                        >
+                        <ToggleGroupItem value="map" aria-label="Map view" @click="switchView('map')">
                             <Map class="size-4" />
                             <span class="hidden sm:inline">Map</span>
                         </ToggleGroupItem>
                     </ToggleGroup>
-                </div>
             </div>
 
             <!-- Summary Cards -->
-             <Deferred data="summary">
+            <Deferred data="summary">
                 <template #fallback>
                     <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-2">
                         <Skeleton v-for="i in 4" :key="i" class="h-33" />
@@ -221,37 +201,21 @@ if (storedView && storedView !== props.view) {
                 </template>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-2">
-                    <LargeCard 
-                        title="Registered Farmers"
-                        :value="summary.total_farmers"
-                        subtext="approved farmers"
+                    <LargeCard title="Total Farmers" :value="summary.total_farmers" subtext="all approved farmers"
                         :icon="Users"
-                        card-class="col-span-1 bg-linear-to-br from-orange-500/10 via-amber-500/10 to-yellow-500/30"
-                    />
-                    <LargeCard 
-                        title="New Farmers"
-                        :value="summary.new_farmers_this_month"
-                        subtext="registered this month"
-                        :icon="PartyPopper"
-                        card-class="col-span-1 bg-linear-to-br from-orange-500/10 via-amber-500/10 to-yellow-500/30"
-                    />
-                    <LargeCard 
-                        title="Total Plants Posted"
-                        :value="summary.total_offerings"
-                        subtext="All farmer posts"
-                        :icon="Salad"
-                        card-class="col-span-1 bg-linear-to-br from-orange-500/10 via-amber-500/10 to-yellow-500/30"
-                    />
-                    <LargeCard 
-                        title="New Posts"
-                        :value="summary.new_offerings_this_month"
-                        subtext="posts this month"
-                        :icon="Sprout"
-                        card-class="col-span-1 bg-linear-to-br from-orange-500/10 via-amber-500/10 to-yellow-500/30"
-                    />
+                        card-class="col-span-1 bg-linear-to-br from-orange-500/10 via-amber-500/10 to-yellow-500/30" />
+                    <LargeCard title="New Farmers" :value="summary.new_farmers_this_month"
+                        subtext="registered farmers this month" :icon="UserPlus"
+                        card-class="col-span-1 bg-linear-to-br from-orange-500/10 via-amber-500/10 to-yellow-500/30" />
+                    <LargeCard title="Total Supplies" :value="summary.total_supplies" subtext="all supplies posted"
+                        :icon="Package"
+                        card-class="col-span-1 bg-linear-to-br from-orange-500/10 via-amber-500/10 to-yellow-500/30" />
+                    <LargeCard title="New Supplies" :value="summary.new_supplies_this_month" subtext="posted supplies this month"
+                        :icon="PackagePlus"
+                        card-class="col-span-1 bg-linear-to-br from-orange-500/10 via-amber-500/10 to-yellow-500/30" />
                 </div>
-             </Deferred>
-            
+            </Deferred>
+
             <!-- LIST VIEW -->
             <div v-if="isListView">
                 <Deferred data="farmers">
@@ -264,12 +228,15 @@ if (storedView && storedView !== props.view) {
                         </div>
                     </template>
 
-                    <FarmerTable
-                        v-if="farmers"
-                        :farmers="farmers"
-                        @view-farmer="handleViewFarmer"
-                        @page-change="handlePageChange"
+                    <EmptyState 
+                        v-if="farmers.data.length === 0"
+                        title="No Farmers Yet"
+                        description="Please wait for farmers to register or check for pending farmers."
+                        :icon="SearchX"
                     />
+
+                    <FarmerTable v-else :farmers="farmers" @view-farmer="handleViewFarmer"
+                        @page-change="handlePageChange" />
                 </Deferred>
             </div>
 
@@ -278,16 +245,11 @@ if (storedView && storedView !== props.view) {
                 <!-- Map Container -->
                 <div class="relative h-full min-h-[600px] w-full overflow-hidden rounded-lg border shadow-sm">
                     <!-- Loading Overlay -->
-                    <Transition
-                        enter-active-class="transition-opacity duration-200"
-                        leave-active-class="transition-opacity duration-200"
-                        enter-from-class="opacity-0"
-                        leave-to-class="opacity-0"
-                    >
-                        <div
-                            v-if="loadingMarkers"
-                            class="absolute inset-0 z-30 flex items-center justify-center bg-background/80 backdrop-blur-sm"
-                        >
+                    <Transition enter-active-class="transition-opacity duration-200"
+                        leave-active-class="transition-opacity duration-200" enter-from-class="opacity-0"
+                        leave-to-class="opacity-0">
+                        <div v-if="loadingMarkers"
+                            class="absolute inset-0 z-30 flex items-center justify-center bg-background/80 backdrop-blur-sm">
                             <div class="flex items-center gap-2 rounded-lg border bg-card p-4 shadow-lg">
                                 <Loader2 class="size-4 animate-spin" />
                                 <span class="text-sm font-medium">Loading farmers...</span>
@@ -296,27 +258,17 @@ if (storedView && storedView !== props.view) {
                     </Transition>
 
                     <!-- Map Component -->
-                    <FarmerMap
-                        :markers="markers"
-                        :center="mapConfig.center"
-                        :zoom="mapConfig.defaultZoom"
-                        @marker-click="handleMarkerClick"
-                        @bounds-change="handleBoundsChange"
-                    />
+                    <FarmerMap :markers="markers" :center="mapConfig.center" :zoom="mapConfig.defaultZoom"
+                        @marker-click="openFarmerSidebar" @bounds-change="handleBoundsChange" />
                 </div>
 
                 <!-- Right Sidebar: Filters & Legend -->
                 <div class="flex flex-col gap-4">
                     <!-- Map Filters -->
-                    <FarmerMapFilters
-                        :municipalities="filters.municipalities"
-                        :plantings="filters.offerings"
-                        :selected-municipality="selectedMunicipality"
-                        :selected-variety="selectedVariety"
+                    <FarmerMapFilters :municipalities="filters.municipalities" :plantings="filters.offerings"
+                        :selected-municipality="selectedMunicipality" :selected-variety="selectedVariety"
                         @update:selected-municipality="selectedMunicipality = $event"
-                        @update:selected-variety="selectedVariety = $event"
-                        @clear="handleClearFilters"
-                    />
+                        @update:selected-variety="selectedVariety = $event" @clear="handleClearFilters" />
 
                     <!-- Map Stats -->
                     <div class="rounded-lg border bg-card p-4">
@@ -377,11 +329,6 @@ if (storedView && storedView !== props.view) {
     </AppLayout>
 
     <!-- Farmer Details Sidebar (Map View Only) -->
-        <FarmerMapSidebar
-            v-if="isMapView"
-            :open="sidebarOpen"
-            :farmer="selectedFarmer"
-            :loading="loadingFarmer"
-            @close="handleSidebarClose"
-        />
+    <FarmerMapSidebar :open="sidebarOpen" :farmer="selectedFarmer" :loading="loadingFarmer"
+        @close="handleSidebarClose" />
 </template>
