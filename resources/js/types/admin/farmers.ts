@@ -72,8 +72,8 @@ export interface Supply {
 export interface Summary {
     total_farmers: number
     new_farmers_this_month: number
-    total_offerings: number
-    new_offerings_this_month: number
+    total_supplies: number
+    new_supplies_this_month: number
 }
 
 export interface MarkerData {
