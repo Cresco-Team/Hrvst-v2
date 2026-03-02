@@ -5,10 +5,10 @@ import axios from 'axios'
 import { Users, Map, List, Loader2, SearchX, UserPlus, PackagePlus, Package } from 'lucide-vue-next'
 import { ref, watch, computed } from 'vue'
 import { toast } from 'vue-sonner'
+import FarmerDetailSidebar from '@/components/admin/FarmerDetailSidebar.vue'
 import EmptyState from '@/components/EmptyState.vue'
 import FarmerMap from '@/components/features/admin/map/FarmerMap.vue'
 import FarmerMapFilters from '@/components/features/admin/map/FarmerMapFilters.vue'
-import FarmerMapSidebar from '@/components/features/admin/map/FarmerMapSidebar.vue'
 import FarmerTable from '@/components/features/admin/tables/FarmerTable.vue'
 import Heading from '@/components/Heading.vue'
 import LargeCard from '@/components/shared/cards/LargeCard.vue'
@@ -315,6 +315,6 @@ if (storedView && storedView !== props.view) {
     </AppLayout>
 
     <!-- Farmer Details Sidebar -->
-    <FarmerMapSidebar :open="sidebarOpen" :farmer="selectedFarmer" :loading="loadingFarmer"
+    <FarmerDetailSidebar :open="sidebarOpen" :farmer="selectedFarmer" :loading="loadingFarmer"
         @close="closeSidebar" />
 </template>
