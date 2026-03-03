@@ -2,7 +2,6 @@
 
 namespace App\Services\Admin;
 
-use App\Enums\DealerDemandStatus;
 use App\Enums\PostStatus;
 use App\Models\Marketplace\DealerDemand;
 use App\Models\Profiles\DealerProfile;
@@ -54,6 +53,7 @@ class DealerService
                         'image_url' => $dealer->user->image_url,
                     ],
                     'document_image' => $dealer->document_image,
+                    'ongoing_demands_count' => $ongoingDemands->count(),
                     'ongoing_demands' => $ongoingDemands->map(fn($demand) => [
                         'id' => $demand->id,
                         'variety' => [
@@ -72,7 +72,7 @@ class DealerService
         );
     }
 
-    public static function sidebar(int $dealerId): ?array
+    public static function details(int $dealerId): ?array
     {
         $dealer = DealerProfile::query()
             ->where('is_approved', true)
@@ -112,7 +112,7 @@ class DealerService
                 'transaction_date' => $demand->transaction_date->format('M d, Y'),
             ])->toArray(),
             'statistics' => [
-                'total_ongoing_supplies' => $ongoingDemands->count(),
+                'total_ongoing_demands' => $ongoingDemands->count(),
                 'total_quantity' => $ongoingDemands->sum('quantity_kg'),
             ],
             'joined_at' => $dealer->created_at->format('M d, Y'),
