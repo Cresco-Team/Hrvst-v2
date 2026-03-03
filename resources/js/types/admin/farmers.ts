@@ -1,3 +1,5 @@
+import type { Supply } from "../marketplace"
+import type { User } from "../users/user"
 
 /* filters */
 export interface Filters {
@@ -22,14 +24,6 @@ interface OfferingOption {
     category: string
 }
 
-interface User {
-    id: number
-    name: string
-    email: string
-    phone_number: string
-    image_url: string | null
-}
-
 interface Coordinates {
     lat: number
     lng: number
@@ -52,28 +46,6 @@ export interface Farmer {
     ongoing_supplies: Supply[]
     joined_at: string
     joined_at_human: string
-}
-
-interface Variety {
-    id: number
-    name: string
-    category: string
-    image_url: string
-}
-
-export interface Supply {
-    id: number
-    variety: Variety
-    title?: string
-    image_url?: string
-    quantity_kg: number
-    offered_price: number
-    price_flag?: 'Low' | 'Fair' | 'High'
-    status?: 'Ongoing' | 'Archived' | 'Fulfilled'
-    expiration_date: string
-    days_until_expiration?: number
-    created_at?: string
-    created_at_human?: string
 }
 
 /* summary */
