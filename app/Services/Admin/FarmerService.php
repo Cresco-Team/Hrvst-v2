@@ -114,7 +114,6 @@ class FarmerService
             'offered_price' => (float) $supply->post->offered_price,
             'price_flag' => $supply->post->price_flag,
             'expiration_date' => $supply->expiration_date->format('M d, Y'),
-            'days_until_expiration' => $supply->days_until_expiration,
             'status' => $supply->post->status,
             'created_at' => $supply->created_at->format('M d, Y'),
             'created_at_haman' => $supply->created_at->diffForHumans(),
