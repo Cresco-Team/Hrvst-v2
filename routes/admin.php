@@ -48,6 +48,7 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
         Route::delete('/{dealer}', [DealerController::class, 'destroy'])->name('destroy');
 
         Route::prefix('api')->name('api.')->group(function () {
+            Route::get('/{dealer}/details', [DealerController::class, 'details'])->name('details');
             Route::get('/pending', [DealerController::class, 'pending'])->name('pending');
         });
         
