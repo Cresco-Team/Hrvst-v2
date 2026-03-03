@@ -54,18 +54,26 @@ export interface Farmer {
     joined_at_human: string
 }
 
+interface Variety {
+    id: number
+    name: string
+    category: string
+    image_url: string
+}
+
 export interface Supply {
     id: number
-    variety: {
-        id: number
-        name: string
-        category: string
-        image_url: string
-    }
+    variety: Variety
+    title?: string
+    image_url?: string
     quantity_kg: number
-    created_at?: string
-    days_until_expiration?: number
+    offered_price: number
+    price_flag?: 'Low' | 'Fair' | 'High'
+    status?: 'Ongoing' | 'Archived' | 'Fulfilled'
     expiration_date: string
+    days_until_expiration?: number
+    created_at?: string
+    created_at_human?: string
 }
 
 /* summary */
@@ -102,6 +110,24 @@ export interface FarmerDetails {
         total_ongoing_supplies: number
         total_quantity: number
     }
+    joined_at: string
+    joined_at_human: string
+}
+
+export interface ShowFarmer {
+    id: number
+    user: User
+    location: Location
+    farm_url: string
+    supplies: {
+        ongoing: Supply[]
+        archived: Supply[]
+        fulfilled: Supply[]
+    }
+    total_supplies: number
+    total_quantity: number
+    total_ongoing_supplies: number
+    total_ongoing_supplies_quantity: number
     joined_at: string
     joined_at_human: string
 }
