@@ -13,9 +13,10 @@ export interface Vegetable {
 export interface Variety {
     id: number
     name: string
-    image_path: string
-    weeks_to_harvest: number
-    vegetable: Vegetable
+    vegetable?: string
+    category?: string
+    image_url: string
+    weeks_to_harvest?: number
 }
 
 export interface Planting {
