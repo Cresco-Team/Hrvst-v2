@@ -9,7 +9,7 @@ export interface KPIValue {
 export interface KPIs {
     farmers: {
         total_farmers: KPIValue
-        total_offerings: KPIValue
+        total_supplies: KPIValue
     }
     dealers: {
         total_dealers: KPIValue

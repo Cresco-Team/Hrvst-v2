@@ -1,8 +1,8 @@
 <script setup lang="ts">
+import { Search } from 'lucide-vue-next';
 import type { Component } from 'vue';
 import { Button } from './ui/button';
 import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from './ui/empty';
-import { Search } from 'lucide-vue-next';
 
 type Props = {
     title: string
@@ -11,7 +11,7 @@ type Props = {
     button?: string
 }
 
-const props = withDefaults(defineProps<Props>(), {
+withDefaults(defineProps<Props>(), {
     icon: Search
 });
 </script>

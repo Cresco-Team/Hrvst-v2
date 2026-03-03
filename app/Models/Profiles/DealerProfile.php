@@ -4,6 +4,7 @@ namespace App\Models\Profiles;
 
 use App\Models\Marketplace\DealerDemand;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -38,5 +39,32 @@ class DealerProfile extends Model
     public function demands(): HasMany
     {
         return $this->hasMany(DealerDemand::class, 'dealer_id');
+    }
+
+    /* ---------- scopes ---------- */
+
+    public function scopeApproved(Builder $query): Builder
+    {
+        return $query->where('is_approved', true);
+    }
+
+    public function scopePending(Builder $query): Builder
+    {
+        return $query->where('is_approved', false);
+    }
+
+    /* ---------- actions ---------- */
+
+    public function approveAcocunt(): void
+    {
+        $this->is_approved = true;
+        $this->save();
+    }
+
+    public function rejectAccount(): void
+    {
+        $user = $this->user;
+        $this->delete();
+        $user->delete();
     }
 }

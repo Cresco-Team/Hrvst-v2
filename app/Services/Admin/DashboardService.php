@@ -3,7 +3,7 @@
 namespace App\Services\Admin;
 
 use App\Models\Marketplace\DealerDemand;
-use App\Models\Marketplace\FarmerOffering;
+use App\Models\Marketplace\FarmerSupply;
 use App\Models\Profiles\DealerProfile;
 use App\Models\Profiles\FarmerProfile;
 use App\Services\Product\VarietyService;
@@ -24,11 +24,11 @@ class DashboardService
         $current = FarmerService::summary();
         
         // Get previous period data (30 days ago)
-        $previousTotal = FarmerProfile::where('is_approved', true)
+        $previousTotal = FarmerProfile::approved()
             ->where('created_at', '<', now()->subDays(30))
             ->count();
         
-        $previousOfferings = FarmerOffering::where('created_at', '<', now()->subDays(30))
+        $previousSupplies = FarmerSupply::where('created_at', '<', now()->subDays(30))
             ->count();
 
         return [
@@ -37,10 +37,10 @@ class DashboardService
                 'change' => self::calculatePercentageChange($previousTotal, $current['total_farmers']),
                 'trend' => self::getTrend($previousTotal, $current['total_farmers']),
             ],
-            'total_offerings' => [
-                'value' => $current['total_offerings'],
-                'change' => self::calculatePercentageChange($previousOfferings, $current['total_offerings']),
-                'trend' => self::getTrend($previousOfferings, $current['total_offerings']),
+            'total_supplies' => [
+                'value' => $current['total_supplies'],
+                'change' => self::calculatePercentageChange($previousSupplies, $current['total_supplies']),
+                'trend' => self::getTrend($previousSupplies, $current['total_supplies']),
             ],
         ];
     }
@@ -49,7 +49,7 @@ class DashboardService
     {
         $current = DealerService::summary();
         
-        $previousTotal = DealerProfile::where('is_approved', true)
+        $previousTotal = DealerProfile::approved()
             ->where('created_at', '<', now()->subDays(30))
             ->count();
 

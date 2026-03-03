@@ -1,3 +1,5 @@
+import type { Supply } from "../marketplace"
+import type { User } from "../users/user"
 
 /* filters */
 export interface Filters {
@@ -22,15 +24,6 @@ interface OfferingOption {
     category: string
 }
 
-/* farmers */
-interface User {
-    email: string
-    id: number
-    image_path: string | null
-    name: string
-    phone_number: string
-}
-
 interface Coordinates {
     lat: number
     lng: number
@@ -38,37 +31,29 @@ interface Coordinates {
 
 export interface Location {
     barangay: string
-    coordinates: Coordinates
     municipality: string
     province: string
+    full_address?: string
+    coordinates: Coordinates
 }
 
 export interface Farmer {
-    available_offerings: Offering[]
-    available_offerings_count: number
-    farm_image: string | null
     id: number
+    user: User
+    location: Location
+    farm_url: string | null
+    ongoing_supplies_count: number
+    ongoing_supplies: Supply[]
     joined_at: string
     joined_at_human: string
-    location: Location
-    user: User
-}
-
-export interface Offering {
-    id: number
-    variety: {
-        name: string
-        category: string
-        image_path: string
-    }
 }
 
 /* summary */
 export interface Summary {
     total_farmers: number
     new_farmers_this_month: number
-    total_offerings: number
-    new_offerings_this_month: number
+    total_supplies: number
+    new_supplies_this_month: number
 }
 
 export interface MarkerData {
@@ -79,8 +64,8 @@ export interface MarkerData {
     }
     farmer_name: string
     municipality: string
-    available_offerings_count: number
-    offerings_summary: Array<{
+    ongoing_supplies_count: number
+    supplies_summary: Array<{
         vegetable: string
         count: number
         varieties: string[]
@@ -90,30 +75,31 @@ export interface MarkerData {
 export interface FarmerDetails {
     id: number
     user: User
-    location: {
-        province: string
-        municipality: string
-        barangay: string
-        full_address: string
-        coordinates: {
-            lat: number
-            lng: number
-        }
-    }
-    farm_image: string | null
-    available_offerings: Array<any>
+    location: Location
+    farm_url: string | null
+    ongoing_supplies: Supply[]
     statistics: {
-        total_available_offerings: number
-        total_weight: number
+        total_ongoing_supplies: number
+        total_quantity: number
     }
     joined_at: string
     joined_at_human: string
 }
 
-export interface PaginatedData {
-    data: Farmer[]
-    current_page: number
-    last_page: number
-    per_page: number
-    total: number
+export interface ShowFarmer {
+    id: number
+    user: User
+    location: Location
+    farm_url: string
+    supplies: {
+        ongoing: Supply[]
+        archived: Supply[]
+        fulfilled: Supply[]
+    }
+    total_supplies: number
+    total_quantity: number
+    total_ongoing_supplies: number
+    total_ongoing_supplies_quantity: number
+    joined_at: string
+    joined_at_human: string
 }

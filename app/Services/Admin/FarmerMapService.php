@@ -2,8 +2,8 @@
 
 namespace App\Services\Admin;
 
-use App\FarmerOfferingStatus;
 use App\Models\Address\Municipality;
+use App\Models\Marketplace\FarmerSupply;
 use App\Models\Profiles\FarmerProfile;
 use App\Models\Product\Variety;
 use Illuminate\Database\Eloquent\Builder;
@@ -26,12 +26,12 @@ class FarmerMapService
             ->toArray();
     }
 
-    public function getOfferingOptions(): array
+    public function getSupplyOptions(): array
     {
         return Variety::query()
-            ->whereHas('offerings', function ($q) {
-                $q->where('status', FarmerOfferingStatus::Available)
-                    ->whereHas('farmer', fn($fq) => $fq->where('is_approved', true));
+            ->whereHas('posts', function ($q) {
+                $q->ongoing()
+                    ->whereHasMorph('postable', FarmerSupply::class);
             })
             ->with('vegetable.category')
             ->orderBy('name')
@@ -45,17 +45,14 @@ class FarmerMapService
             ->toArray();
     }
 
-    public function getFarmersForMap(
-        ?int $municipalityId = null,
-        ?int $varietyId = null,
-        ?array $bounds = null
-    ): array {
+    public function getFarmersForMap(?int $municipalityId = null, ?int $varietyId = null, ?array $bounds = null): array 
+    {
         $query = FarmerProfile::query()
             ->with([
                 'user',
                 'municipality',
-                'offerings' => fn($q) => $q->where('status', FarmerOfferingStatus::Available)
-                    ->with('variety.vegetable'),
+                'supplies' => fn($q) => $q->whereHas('post', fn ($q) => $q->ongoing())
+                    ->with('post.variety.vegetable'),
             ])
             ->where('is_approved', true);
 
@@ -64,8 +61,8 @@ class FarmerMapService
         }
 
         if ($varietyId) {
-            $query->whereHas('offerings', function (Builder $q) use ($varietyId) {
-                $q->where('status', FarmerOfferingStatus::Available)
+            $query->whereHas('supplies.post', function (Builder $q) use ($varietyId) {
+                $q->ongoing()
                     ->where('variety_id', $varietyId);
             });
         }
@@ -78,7 +75,7 @@ class FarmerMapService
 
         return $query->get()
             ->map(function ($farmer) {
-                $availableOfferings = $farmer->offerings;
+                $ongoingSupplies = $farmer->supplies;
                 
                 return [
                     'id' => $farmer->id,
@@ -88,13 +85,13 @@ class FarmerMapService
                     ],
                     'farmer_name' => $farmer->user->name,
                     'municipality' => $farmer->municipality->name,
-                    'available_offerings_count' => $availableOfferings->count(),
-                    'offerings_summary' => $availableOfferings
-                        ->groupBy('variety.vegetable.name')
-                        ->map(fn($group) => [
-                            'vegetable' => $group->first()->variety->vegetable->name,
-                            'count' => $group->count(),
-                            'varieties' => $group->pluck('variety.name')->unique()->values()->toArray(),
+                    'ongoing_supplies_count' => $ongoingSupplies->count(),
+                    'supplies_summary' => $ongoingSupplies
+                        ->groupBy(fn($supply) => $supply->post->variety->vegetable->name)
+                        ->map(fn($supplies, $vegetableName) => [
+                            'vegetable' => $vegetableName,
+                            'count' => $supplies->count(),
+                            'varieties' => $supplies->pluck('post.variety.name')->unique()->values()->toArray(),
                         ])
                         ->values()
                         ->toArray(),
@@ -113,8 +110,8 @@ class FarmerMapService
                 'province',
                 'municipality',
                 'barangay',
-                'offerings' => fn($q) => $q->where('status', FarmerOfferingStatus::Available)
-                    ->with(['variety.vegetable.category'])
+                'supplies' => fn($q) => $q->whereHas('post', fn ($q) => $q->ongoing())
+                    ->with(['post.variety.vegetable.category'])
                     ->orderBy('expiration_date', 'asc'),
             ])
             
@@ -131,7 +128,7 @@ class FarmerMapService
                 'name' => $farmer->user->name,
                 'email' => $farmer->user->email,
                 'phone_number' => $farmer->user->phone_number,
-                'user_image' => $farmer->user->user_image,
+                'image_url' => $farmer->user->image_url,
             ],
             'location' => [
                 'province' => $farmer->province->name,
@@ -143,23 +140,23 @@ class FarmerMapService
                     'lng' => (float) $farmer->longitude,
                 ],
             ],
-            'farm_image' => $farmer->farm_image,
-            'available_offerings' => $farmer->offerings->map(fn($offering) => [
-                'id' => $offering->id,
+            'farm_url' => $farmer->farm_url,
+            'ongoing_supplies' => $farmer->supplies->map(fn($supply) => [
+                'id' => $supply->id,
                 'variety' => [
-                    'id' => $offering->variety->id,
-                    'name' => $offering->variety->vegetable->name . ' ' . $offering->variety->name,
-                    'category' => $offering->variety->vegetable->category->name,
-                    'image_path' => $offering->variety->image_path,
+                    'id' => $supply->post->variety->id,
+                    'name' => $supply->post->variety->vegetable->name . ' ' . $supply->post->variety->name,
+                    'category' => $supply->post->variety->vegetable->category->name,
+                    'image_url' => $supply->post->variety->image_url,
                 ],
-                'weight_kg' => $offering->weight_kg,
-                'created_at' => $offering->created_at->format('M d, Y'),
-                'expiration_date' => $offering->expiration_date->format('M d, Y'),
-                'days_until_expiration' => $offering->days_unill_expiration,
+                'quantity_kg' => $supply->post->quantity_kg,
+                'created_at' => $supply->created_at->format('M d, Y'),
+                'expiration_date' => $supply->expiration_date->format('M d, Y'),
+                'days_until_expiration' => $supply->days_unill_expiration,
             ])->toArray(),
             'statistics' => [
-                'total_available_offerings' => $farmer->offerings->count(),
-                'total_weight' => $farmer->offerings->sum('weight_kg'),
+                'total_ongoing_supplies' => $farmer->supplies->count(),
+                'total_quantity' => $farmer->supplies->sum('quantity_kg'),
             ],
             'joined_at' => $farmer->created_at->format('M d, Y'),
             'joined_at_human' => $farmer->created_at->diffForHumans(),

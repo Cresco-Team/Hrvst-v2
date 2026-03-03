@@ -5,7 +5,11 @@ namespace App\Providers;
 use App\Models\Marketplace\DealerDemand;
 use App\Models\Marketplace\FarmerSupply;
 use App\Models\Product\Variety;
+use App\Models\Profiles\DealerProfile;
+use App\Models\Profiles\FarmerProfile;
 use App\Observers\VarietyObserver;
+use App\Policies\DealerPolicy;
+use App\Policies\FarmerPolicy;
 use App\Policies\Marketplace\DemandPolicy;
 use App\Policies\Marketplace\SupplyPolicy;
 use Carbon\CarbonImmutable;
@@ -33,6 +37,8 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->configureDefaults();
         Model::automaticallyEagerLoadRelationships();
+        Gate::policy(FarmerProfile::class, FarmerPolicy::class);
+        Gate::policy(DealerProfile::class, DealerPolicy::class);
         Gate::policy(FarmerSupply::class, SupplyPolicy::class);
         Gate::policy(DealerDemand::class, DemandPolicy::class);
         Variety::observe(VarietyObserver::class);

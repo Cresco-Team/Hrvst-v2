@@ -52,7 +52,7 @@ class Post extends Model
     }
 
     public function postable(): MorphTo
-    {   // Magic link to FarmerOffering and DealerDemand
+    {   // Magic link to FarmerSupply and DealerDemand
         return $this->morphTo();
     }
 

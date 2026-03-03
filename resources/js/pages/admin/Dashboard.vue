@@ -1,16 +1,16 @@
 <script setup lang="ts">
 import { Deferred, Head } from '@inertiajs/vue3'
 import { TrendingUp, TrendingDown, Minus, Tractor, Package } from 'lucide-vue-next'
-import { Skeleton } from '@/components/ui/skeleton'
-import admin from '@/routes/admin'
-import AppLayout from '@/layouts/AppLayout.vue'
+import Heading from '@/components/Heading.vue'
+import QuickNavItem from '@/components/QuickNavItem.vue'
 import LargeCard from '@/components/shared/cards/LargeCard.vue'
 import SmallCard from '@/components/shared/cards/SmallCard.vue'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
-import { KPIs } from '@/types/admin/dashboard'
-import Heading from '@/components/Heading.vue'
-import QuickNavItem from '@/components/QuickNavItem.vue'
+import { Skeleton } from '@/components/ui/skeleton'
+import AppLayout from '@/layouts/AppLayout.vue'
+import admin from '@/routes/admin'
+import type { KPIs } from '@/types/admin/dashboard'
 
 defineProps<{
     kpis?: KPIs
@@ -97,12 +97,12 @@ function formatChange(change?: number): string {
                 
                 <div class="grid md:grid-cols-10 gap-4">
                     <SmallCard 
-                        title="Total Farmer Offerings"
-                        :value="kpis?.farmers.total_offerings.value"
+                        title="Total Farmer Supplies"
+                        :value="kpis?.farmers.total_supplies.value"
                         cardClass="col-span-5 lg:col-span-2"
                     />
                     <SmallCard 
-                        title="Total Dealer Requests"
+                        title="Total Dealer Demands"
                         :value="kpis?.dealers.total_demands.value"
                         cardClass="col-span-5 lg:col-span-2"
                     />

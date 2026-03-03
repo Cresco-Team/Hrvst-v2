@@ -1,6 +1,9 @@
 <?php
 
 namespace App\Http\Controllers\Admin;
+
+use App\Actions\Admin\ApproveFarmerAction;
+use App\Actions\Admin\RejectFarmerAction;
 use App\Http\Controllers\Controller;
 use App\Models\Profiles\FarmerProfile;
 use App\Services\Admin\FarmerMapService;
@@ -8,6 +11,7 @@ use App\Services\Admin\FarmerService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -19,13 +23,15 @@ class FarmerController extends Controller
 
     public function index(Request $request): Response
     {
+        Gate::authorize('viewAny', FarmerProfile::class);
+
         $view = $request->query('view', 'list');
 
         return Inertia::render('admin/farmers/Index', [
-            'view' => $view,
-            'filters' => [
-                'municipalities' => $this->farmerMapService->getMunicipalityOptions(),
-                'offerings' => $this->farmerMapService->getOfferingOptions(),
+            'view'      => $view,
+            'filters'   => [
+                'municipalities'    => $this->farmerMapService->getMunicipalityOptions(),
+                'supplies'          => $this->farmerMapService->getSupplyOptions(),
             ],
             'mapConfig' => [
                 'center' => [
@@ -37,13 +43,14 @@ class FarmerController extends Controller
             'farmers' => $view === 'list' 
                 ? Inertia::defer(fn () => FarmerService::paginated())
                 : null,
-            
             'summary' => Inertia::defer(fn () => FarmerService::summary()),
         ]);
     }
 
     public function markers(Request $request): JsonResponse
     {
+        Gate::authorize('viewAny', FarmerProfile::class);
+
         $validated = $request->validate([
             'municipality_id' => 'nullable|exists:municipalities,id',
             'variety_id' => 'nullable|exists:varieties,id',
@@ -71,21 +78,24 @@ class FarmerController extends Controller
         $farmer = $this->farmerMapService->getFarmerDetails($id);
 
         if (!$farmer) {
-            return response()->json([
-                'error' => 'Farmer not found',
-            ], 404);
+            return response()->json(['error' => 'Farmer not found'], 404);
         }
+
+        $farmerProfile = FarmerProfile::findOrFail($id);
+        Gate::authorize('view', $farmerProfile);
 
         return response()->json($farmer);
     }
 
     public function show(int $id): Response
     {
-        $farmer = FarmerService::find($id);
+        $farmerProfile = FarmerProfile::findOrFail($id);
+        Gate::authorize('view', $farmerProfile);
 
-        if (!$farmer) {
-            abort(404, 'Farmer not found');
-        }
+        $farmer = FarmerService::show($id);
+
+        if (!$farmer) abort(404, 'Farmer not found');
+
 
         return Inertia::render('admin/farmers/Show', [
             'farmer' => $farmer,
@@ -94,25 +104,41 @@ class FarmerController extends Controller
 
     public function pending(): JsonResponse
     {
+        Gate::authorize('viewAny', FarmerProfile::class);
+
         return response()->json(FarmerService::pending());
     }
 
-    public function approve(int $farmer): RedirectResponse
+    public function approve(int $farmer, ApproveFarmerAction $approveFarmer): RedirectResponse
     {
-        abort_if(! FarmerService::approve($farmer), 404);
+        Gate::authorize('approve', FarmerProfile::class);
 
-        return back();
+        $approveFarmer($farmer);
+
+        return back()
+            ->with('flash', [
+                'type' => 'success', 
+                'message' => 'Farmer Approved.'
+            ]);
     }
 
-    public function reject(int $farmer): RedirectResponse
+    public function reject(int $farmer, RejectFarmerAction $rejectFarmer): RedirectResponse
     {
-        abort_if(! FarmerService::reject($farmer), 404);
+        Gate::authorize('reject', FarmerProfile::class);
 
-        return back();
+        $rejectFarmer($farmer);
+
+        return back()
+            ->with('flash', [
+                'type' => 'success', 
+                'message' => 'Farmer Rejected and Deleted.'
+            ]);
     }
 
     public function destroy(FarmerProfile $farmerProfile): RedirectResponse
     {
+        Gate::authorize('delete', $farmerProfile);
+
         $user = $farmerProfile->user;
         $farmerProfile->delete();
         $user->delete();

@@ -1,0 +1,210 @@
+<script setup lang="ts">
+
+import { Head } from '@inertiajs/vue3';
+import { Archive, CalendarDays, Mail, Package, PackageCheck, Phone } from 'lucide-vue-next';
+import { computed } from 'vue';
+import Heading from '@/components/Heading.vue';
+import SmallCard from '@/components/shared/cards/SmallCard.vue';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
+import { Item, ItemContent, ItemDescription, ItemGroup, ItemMedia, ItemTitle } from '@/components/ui/item';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { getInitials } from '@/composables/useInitials';
+import AppLayout from '@/layouts/AppLayout.vue';
+import admin from '@/routes/admin';
+import type { DealerShow } from '@/types/admin/dealers';
+
+interface Props {
+    dealer: DealerShow
+}
+
+const props = defineProps<Props>()
+
+const breadcrumbs = computed(() => [
+    { title: 'Admin', href: admin.dashboard().url },
+    { title: 'Dealers', href: admin.dealers.index().url },
+    { title: props.dealer.user.name, href: admin.dealers.show(props.dealer.id).url },
+])
+
+function priceFlagVariant(flag: 'Low' | 'Fair' | 'High' | undefined) {
+    if (flag === 'Low') return 'secondary';
+    if (flag === 'High') return 'destructive';
+    return 'outline';
+}
+
+</script>
+
+<template>
+    <Head :title="dealer.user.name" />
+
+    <AppLayout :breadcrumbs="breadcrumbs">
+        <div class="flex flex-col gap-6 p-4 lg:p-6">
+            <Heading :title="dealer.user.name" description="Dealer profile and demand history" />
+
+            <div class="grid grid-cols-12 gap-5">
+                <div class="col-span-12 lg:col-span-3">
+                    <Card class="p-5 space-y-5">
+                        <div class="flex flex-col items-start gap-3">
+                            <Avatar class="size-16">
+                                <AvatarImage 
+                                    v-if="dealer.user.image_url"
+                                    :src="dealer.user.image_url"
+                                    :alt="dealer.user.name"
+                                />
+                                <AvatarFallback class="bg-primary/10 text-base font-semibold text-primary">
+                                    {{ getInitials(dealer.user.name) }}
+                                </AvatarFallback>
+                            </Avatar>
+
+                            <div>
+                                <p class="text-sm font-semibold leading-snug">{{ dealer.user.name }}</p>
+                            </div>
+                        </div>
+
+                        <div class="space-y-2.5 text-sm text-muted-foreground">
+                            <div class="flex items-center gap-2">
+                                <Mail class="size-4 shrink-0" />
+                                <span class="truncate">{{ dealer.user.email }}</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <Phone class="size-4 shrink-0" />
+                                <span>{{ dealer.user.phone_number }}</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <CalendarDays class="size-4 shrink-0" />
+                                <span>Joined {{ dealer.joined_at_human }}</span>
+                            </div>
+                        </div>
+                    </Card>
+                </div>
+
+                <!-- Main Content -->
+                <div class="col-span-12 lg:col-span-9 space-y-4">
+                    <!-- Stats -->
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        <SmallCard
+                            title="Total demands"
+                            :value="dealer.total_demands"
+                        />
+                        <SmallCard
+                            title="Total Quantity"
+                            :value="dealer.total_quantity"
+                            subtext="kg"
+                        />
+                        <SmallCard
+                            title="Ongoing demands"
+                            :value="dealer.total_ongoing_demands"
+                        />
+                        <SmallCard
+                            title="Ongoing Quantity"
+                            :value="dealer.total_ongoing_demands_quantity"
+                            subtext="kg"
+                        />
+                    </div>
+
+                    <!-- Demands (Tabbed) -->
+                    <Card>
+                        <CardContent class="pt-4">
+                            <Tabs default-value="ongoing">
+                                <TabsList class="mb-4">
+                                    <TabsTrigger value="ongoing" class="gap-1.5">
+                                        <Package class="size-4" />
+                                        Ongoing
+                                        <Badge variant="secondary" class="ml-1 px-1.5 py-0 text-xs">
+                                            {{ dealer.demands.ongoing.length }}
+                                        </Badge>
+                                    </TabsTrigger>
+                                    <TabsTrigger value="archived" class="gap-1.5">
+                                        <Archive class="size-4" />
+                                        Archived
+                                        <Badge variant="secondary" class="ml-1 px-1.5 py-0 text-xs">
+                                            {{ dealer.demands.archived.length }}
+                                        </Badge>
+                                    </TabsTrigger>
+                                    <TabsTrigger value="fulfilled" class="gap-1.5">
+                                        <PackageCheck class="size-4" />
+                                        Fulfilled
+                                        <Badge variant="secondary" class="ml-1 px-1.5 py-0 text-xs">
+                                            {{ dealer.demands.fulfilled.length }}
+                                        </Badge>
+                                    </TabsTrigger>
+                                </TabsList>
+
+                                <!-- Ongoing -->
+                                <TabsContent value="ongoing">
+                                    <div v-if="dealer.demands.ongoing.length === 0" class="flex items-center justify-center h-24 text-sm text-muted-foreground">
+                                        No ongoing demands
+                                    </div>
+                                    <ItemGroup v-else class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                        <Item v-for="demand in dealer.demands.ongoing" :key="demand.id" variant="outline">
+                                            <ItemMedia variant="image">
+                                                <img :src="demand.variety.image_url || demand.variety.image_url" :alt="demand.variety.name" />
+                                            </ItemMedia>
+                                            <ItemContent class="min-w-0">
+                                                <ItemTitle class="line-clamp-1 text-sm">{{ demand.variety.name }} — {{ demand.variety.category }}</ItemTitle>
+                                                <ItemDescription class="flex items-center gap-1.5 mt-0.5">
+                                                    <span class="text-sm font-medium text-foreground">₱{{ demand.offered_price.toFixed(2) }}</span>
+                                                    <Badge :variant="priceFlagVariant(demand.price_flag)" class="text-xs px-1.5 py-0">
+                                                        {{ demand.price_flag }}
+                                                    </Badge>
+                                                </ItemDescription>
+                                            </ItemContent>
+                                        </Item>
+                                    </ItemGroup>
+                                </TabsContent>
+
+                                <!-- Archived -->
+                                <TabsContent value="archived">
+                                    <div v-if="dealer.demands.archived.length === 0" class="flex items-center justify-center h-24 text-sm text-muted-foreground">
+                                        No archived demands
+                                    </div>
+                                    <ItemGroup v-else class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                        <Item v-for="demand in dealer.demands.archived" :key="demand.id" variant="outline">
+                                            <ItemMedia variant="image">
+                                                <img :src="demand.variety.image_url || demand.variety.image_url" :alt="demand.variety.name" />
+                                            </ItemMedia>
+                                            <ItemContent class="min-w-0">
+                                                <ItemTitle class="line-clamp-1 text-sm">{{ demand.variety.name }} — {{ demand.variety.category }}</ItemTitle>
+                                                <ItemDescription class="flex items-center gap-1.5 mt-0.5">
+                                                    <span class="text-sm font-medium text-foreground">₱{{ demand.offered_price.toFixed(2) }}</span>
+                                                    <Badge :variant="priceFlagVariant(demand.price_flag)" class="text-xs px-1.5 py-0">
+                                                        {{ demand.price_flag }}
+                                                    </Badge>
+                                                </ItemDescription>
+                                            </ItemContent>
+                                        </Item>
+                                    </ItemGroup>
+                                </TabsContent>
+
+                                <!-- Fulfilled -->
+                                <TabsContent value="fulfilled">
+                                    <div v-if="dealer.demands.fulfilled.length === 0" class="flex items-center justify-center h-24 text-sm text-muted-foreground">
+                                        No fulfilled demands
+                                    </div>
+                                    <ItemGroup v-else class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                        <Item v-for="demand in dealer.demands.fulfilled" :key="demand.id" variant="outline">
+                                            <ItemMedia variant="image">
+                                                <img :src="demand.variety.image_url || demand.variety.image_url" :alt="demand.variety.name" />
+                                            </ItemMedia>
+                                            <ItemContent class="min-w-0">
+                                                <ItemTitle class="line-clamp-1 text-sm">{{ demand.variety.name }} — {{ demand.variety.category }}</ItemTitle>
+                                                <ItemDescription class="flex items-center gap-1.5 mt-0.5">
+                                                    <span class="text-sm font-medium text-foreground">₱{{ demand.offered_price.toFixed(2) }}</span>
+                                                    <Badge :variant="priceFlagVariant(demand.price_flag)" class="text-xs px-1.5 py-0">
+                                                        {{ demand.price_flag }}
+                                                    </Badge>
+                                                </ItemDescription>
+                                            </ItemContent>
+                                        </Item>
+                                    </ItemGroup>
+                                </TabsContent>
+
+                            </Tabs>
+                        </CardContent>
+                    </Card>
+                </div>
+            </div>
+        </div>
+    </AppLayout>
+</template>

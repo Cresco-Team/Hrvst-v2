@@ -39,5 +39,5 @@ defineExpose({ destroy })
 </script>
 
 <template>
-  <div ref="container" :class="['h-48 w-full overflow-hidden rounded-md border', props.class]" />
+  <div ref="container" :class="['h-48 w-full overflow-hidden', props.class]" />
 </template>

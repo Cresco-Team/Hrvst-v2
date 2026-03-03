@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { ref, watch, onMounted, onUnmounted } from 'vue'
+
 import L from 'leaflet'
+import { ref, watch, onMounted, onUnmounted } from 'vue'
 import 'leaflet/dist/leaflet.css'
 import 'leaflet.markercluster/dist/MarkerCluster.css'
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css'
 import 'leaflet.markercluster'
-import { MarkerData } from '@/types/admin/farmers'
+import type { MarkerData } from '@/types/admin/farmers'
 
 interface MapCenter {
     lat: number
@@ -53,7 +54,7 @@ const vegetableColors: Record<string, string> = {
     'Butternut Squash': '#ea580c',
 }
 
-const getMarkerColor = (offerings: MarkerData['offerings_summary']): string => {
+const getMarkerColor = (offerings: MarkerData['supplies_summary']): string => {
     if (offerings.length === 0) return '#6b7280'
     const dominant = offerings.reduce((prev, current) => 
         prev.count > current.count ? prev : current
@@ -62,7 +63,7 @@ const getMarkerColor = (offerings: MarkerData['offerings_summary']): string => {
 }
 
 const createCustomMarker = (markers: MarkerData): L.DivIcon => {
-    const color = getMarkerColor(markers.offerings_summary)
+    const color = getMarkerColor(markers.supplies_summary)
     
     return L.divIcon({
         className: 'custom-marker',
@@ -86,7 +87,7 @@ const createCustomMarker = (markers: MarkerData): L.DivIcon => {
             onmouseover="this.style.transform='scale(1.2)'"
             onmouseout="this.style.transform='scale(1)'"
             >
-                ${markers.available_offerings_count}
+                ${markers.ongoing_supplies_count}
             </div>
         `,
         iconSize: [36, 36],

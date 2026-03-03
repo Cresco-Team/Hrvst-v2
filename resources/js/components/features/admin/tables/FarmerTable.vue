@@ -1,31 +1,17 @@
 <script setup lang="ts">
+
 import type { ColumnDef } from '@tanstack/vue-table'
+import { ChevronDownIcon, ChevronRightIcon, MapPin, Phone, Mail, Eye, Package } from 'lucide-vue-next'
 import DataTable from '@/components/shared/tables/DataTable.vue'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import {
-    Tooltip,
-    TooltipContent,
-    TooltipProvider,
-    TooltipTrigger,
-} from '@/components/ui/tooltip'
-import {
-    ChevronDownIcon,
-    ChevronRightIcon,
-    MapPin,
-    Phone,
-    Mail,
-    Eye,
-} from 'lucide-vue-next'
-import { Farmer, PaginatedData } from '@/types/admin/farmers'
+import { Button } from '@/components/ui/button'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+import { getInitials } from '@/composables/useInitials'
+import type { Farmer } from '@/types/admin/farmers'
+import type { PaginatedResponse } from '@/types/pagination'
 
-/* -- types -- */
-
-
-/* -- props / emits -- */
 defineProps<{
-    farmers: PaginatedData
+    farmers: PaginatedResponse<Farmer>
 }>()
 
 defineEmits<{
@@ -36,21 +22,22 @@ defineEmits<{
 /* -- column definitions -- */
 const columns: ColumnDef<Farmer>[] = [
     {
+        id: 'expander',
+        header: () => null,
+        cell: () => null,
+    }, {
         id: 'farmer',
         header: 'Farmer',
         accessorFn: (row) => row.user.name,
         enableSorting: true,
-    },
-    {
+    }, {
+        id: 'ongoing_supplies_count',
+        header: '# Supplies',
+        accessorFn: (row) => row.ongoing_supplies_count
+    }, {
         id: 'location',
-        header: 'Location',
+        header: 'Address',
         accessorFn: (row) => `${row.location.barangay}, ${row.location.municipality}`,
-        enableSorting: true,
-    },
-    {
-        id: 'available_plantings',
-        header: 'Available Vegetables',
-        accessorFn: (row) => row.available_offerings_count,
         enableSorting: true,
     },
     {
@@ -68,30 +55,15 @@ const columns: ColumnDef<Farmer>[] = [
 </script>
 
 <template>
-    <DataTable
-        :data="farmers"
-        :columns="columns"
-        search-placeholder="Search farmers..."
-        empty-message="No farmers found."
-        entity-name="farmers"
-        enable-expand
-        @page-change="$emit('page-change', $event)"
-    >
+    <DataTable :data="farmers" :columns="columns" search-placeholder="Search farmers..."
+        empty-message="No farmers found." entity-name="farmers" enable-expand
+        @page-change="$emit('page-change', $event)">
         <!-- Custom Cell: Expander -->
         <template #cell-expander="{ row, cell }">
-            <button
-                v-if="row.available_offerings_count > 0"
-                @click="cell.row.getToggleExpandedHandler()()"
-                class="p-1 hover:bg-accent rounded transition-colors"
-            >
-                <ChevronDownIcon 
-                    v-if="cell.row.getIsExpanded()" 
-                    class="size-4" 
-                />
-                <ChevronRightIcon 
-                    v-else 
-                    class="size-4" 
-                />
+            <button v-if="row.ongoing_supplies.length > 0" @click="cell.row.toggleExpanded()"
+                class="p-1 hover:bg-accent rounded transition-colors">
+                <ChevronDownIcon v-if="cell.row.getIsExpanded()" class="size-4" />
+                <ChevronRightIcon v-else class="size-4" />
             </button>
         </template>
 
@@ -99,14 +71,10 @@ const columns: ColumnDef<Farmer>[] = [
         <template #cell-farmer="{ row }">
             <div class="flex items-center gap-3">
                 <Avatar class="size-10 rounded-md">
-                    <AvatarImage 
-                        v-if="row.user.image_path"
-                        :src="row.user.image_path" 
-                        :alt="row.user.name"
-                        class="object-cover"
-                    />
+                    <AvatarImage v-if="row.user.image_url" :src="row.user.image_url" :alt="row.user.name"
+                        class="object-cover" />
                     <AvatarFallback class="rounded-md bg-primary/10 text-primary font-semibold">
-                        {{ row.user.name.charAt(0) }}
+                        {{ getInitials(row.user.name) }}
                     </AvatarFallback>
                 </Avatar>
                 <div class="flex flex-col gap-0.5">
@@ -125,6 +93,15 @@ const columns: ColumnDef<Farmer>[] = [
             </div>
         </template>
 
+        <template #cell-ongoing_supplies_count="{ row }">
+            <div class="flex items-center gap-2">
+                <Package class="size-4 text-muted-foreground" />
+                <span class="font-mono font-medium">
+                    {{ row.ongoing_supplies_count }}
+                </span>
+            </div>
+        </template>
+
         <!-- Custom Cell: Location -->
         <template #cell-location="{ row }">
             <div class="flex items-start gap-2">
@@ -136,13 +113,6 @@ const columns: ColumnDef<Farmer>[] = [
                     </span>
                 </div>
             </div>
-        </template>
-
-        <!-- Custom Cell: Active Plantings -->
-        <template #cell-active_plantings="{ row }">
-            <Badge variant="secondary" class="font-mono">
-                {{ row.available_offerings_count }} active
-            </Badge>
         </template>
 
         <!-- Custom Cell: Joined -->
@@ -167,12 +137,8 @@ const columns: ColumnDef<Farmer>[] = [
                 <TooltipProvider :delay-duration="200">
                     <Tooltip>
                         <TooltipTrigger as-child>
-                            <Button
-                                variant="ghost"
-                                size="icon-sm"
-                                class="text-muted-foreground hover:text-foreground"
-                                @click="$emit('view-farmer', row)"
-                            >
+                            <Button variant="ghost" size="icon-sm" class="text-muted-foreground hover:text-foreground"
+                                @click="$emit('view-farmer', row)">
                                 <Eye class="size-4" />
                             </Button>
                         </TooltipTrigger>
@@ -184,26 +150,21 @@ const columns: ColumnDef<Farmer>[] = [
             </div>
         </template>
 
-        <!-- Expanded Row: Plantings -->
+        <!-- Expanded Row: Supplies -->
         <template #expanded-row="{ row, colspan }">
             <tr class="bg-muted/20">
                 <td :colspan="colspan" class="px-4 py-4">
                     <div class="ml-12">
-                        <h4 class="text-sm font-medium mb-3">Available Offerings ({{ row.available_offerings_count }})</h4>
+                        <h4 class="text-sm font-medium mb-3">Available Supplies ({{ row.ongoing_supplies_count }})
+                        </h4>
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                            <div
-                                v-for="offering in row.available_offerings"
-                                :key="offering.id"
-                                class="flex items-start gap-3 p-3 rounded-lg border bg-card hover:shadow-sm transition-shadow"
-                            >
+                            <div v-for="supply in row.ongoing_supplies" :key="supply.id"
+                                class="flex items-start gap-3 p-3 rounded-lg border bg-card hover:shadow-sm transition-shadow">
                                 <Avatar class="size-12 rounded-md shrink-0">
-                                    <AvatarImage 
-                                        :src="offering.variety.image_path" 
-                                        :alt="offering.variety.name"
-                                        class="object-cover"
-                                    />
+                                    <AvatarImage :src="supply.variety.image_url" :alt="supply.variety.name"
+                                        class="object-cover" />
                                     <AvatarFallback class="rounded-md bg-primary/10 text-primary font-semibold text-xs">
-                                        {{ offering.variety.name.charAt(0) }}
+                                        {{ supply.variety.name.charAt(0) }}
                                     </AvatarFallback>
                                 </Avatar>
                             </div>
