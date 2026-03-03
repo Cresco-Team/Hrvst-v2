@@ -1,3 +1,4 @@
+import type { Variety } from "./product"
 
 /* ---------------Dealer Marketplace--------------- */
 export interface MarketplaceFilters {
@@ -5,37 +6,6 @@ export interface MarketplaceFilters {
     category_id?: number | null
     variety_id?: number | null
     municipality_id?: number | null
-}
-
-export interface Planting {
-    id: number
-    farmer: {
-        id: number
-        name: string
-        phone_number?: string
-        user_image: string | null
-        location: string | {
-            barangay: string
-            municipality: string
-            province: string
-            full: string
-        }
-    }
-    variety: {
-        id: number
-        name: string
-        category: string
-    }
-    image_url: string | null
-    quantity_kg: number
-    price_asking: number
-    expiration_date: string
-    days_until_expiration: number | null
-    status: 'active' | 'expired' | 'archived'
-    created_at?: string
-    created_at_human: string
-    reaction_counts?: Record<string, number>
-    comment_count?: number
 }
 
 export interface CategoryOption {
@@ -49,3 +19,31 @@ export interface CategoryOption {
     province: string
     label: string
   }
+
+export interface Supply {
+    id: number
+    variety: Variety
+    title?: string
+    image_url?: string
+    quantity_kg: number
+    offered_price: number
+    price_flag?: 'Low' | 'Fair' | 'High'
+    status?: 'Ongoing' | 'Archived' | 'Fulfilled'
+    expiration_date: string
+    days_until_expiration?: number
+    created_at?: string
+    created_at_human?: string
+}
+
+export interface Demand {
+    id: number
+    variety: Variety
+    title?: string
+    quantity_kg: number
+    offered_price: number
+    price_flag?: 'Low' | 'Fair' | 'High'
+    status?: 'Ongoing' | 'Archived' | 'Fulfilled'
+    transaction_date: string
+    created_at?: string
+    created_at_human?: string
+}
