@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import type { Component } from 'vue';
 
-const props = withDefaults(
+import type { Component } from 'vue';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+
+withDefaults(
     defineProps<{
         title?: string
         value?: number
@@ -13,7 +14,6 @@ const props = withDefaults(
         cardClass?: string | null
     }>(),
     {
-        title: 'Card Title',
         value: 0,
         subtext: null,
         icon: undefined,
@@ -26,12 +26,12 @@ const props = withDefaults(
 <template>
     <Card class="gap-0 py-4 overflow-hidden justify-center hover:shadow-md transition-all" :class="cardClass">
         <CardContent class="px-4">
-            <CardDescription class="text-xs">{{ title }}</CardDescription>
+            <CardDescription class="text-xs line-clamp-1">{{ title }}</CardDescription>
         </CardContent>
         <CardHeader class="px-6 flex items-end justify-between">
             <CardTitle :class="valueClass" class="text-2xl">
                 {{ value }}
-                <span class="text-muted-foreground font-light text-xs">
+                <span class="text-muted-foreground font-light text-xs truncate">
                     {{ subtext }}
                 </span>
             </CardTitle>
