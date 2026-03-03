@@ -1,23 +1,10 @@
 <script setup lang="ts" generic="TData">
+
+import { useVueTable, getCoreRowModel, getSortedRowModel, getExpandedRowModel, FlexRender, type ColumnDef, type ExpandedState } from '@tanstack/vue-table'
+import { ChevronLeft, ChevronRight, ChevronsUpDown, ChevronUp, ChevronDown } from 'lucide-vue-next'
 import { ref, computed } from 'vue'
-import {
-    useVueTable,
-    getCoreRowModel,
-    getSortedRowModel,
-    getExpandedRowModel,
-    FlexRender,
-    type ColumnDef,
-    type ExpandedState,
-} from '@tanstack/vue-table'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import {
-    ChevronLeft,
-    ChevronRight,
-    ChevronsUpDown,
-    ChevronUp,
-    ChevronDown,
-} from 'lucide-vue-next'
 
 interface PaginatedData<T> {
     data: T[]
@@ -71,6 +58,12 @@ const table = useVueTable({
             expanded.value = value
         },
     },
+    onExpandedChange: (updaterOrValue) => {
+        expanded.value = typeof updaterOrValue === 'function'
+            ? updaterOrValue(expanded.value)
+            : updaterOrValue
+    },
+    getExpandedRowModel: getExpandedRowModel(),
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     // ❌ REMOVED: getFilteredRowModel() - This was causing client-side filtering on server-paginated data
