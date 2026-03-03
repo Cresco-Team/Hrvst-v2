@@ -89,12 +89,13 @@ class FarmerController extends Controller
 
     public function show(int $id): Response
     {
-        $farmer = FarmerService::find($id);
+        $farmerProfile = FarmerProfile::findOrFail($id);
+        Gate::authorize('view', $farmerProfile);
+
+        $farmer = FarmerService::show($id);
 
         if (!$farmer) abort(404, 'Farmer not found');
 
-        $farmerProfile = FarmerProfile::findOrFail($id);
-        Gate::authorize('view', $farmerProfile);
 
         return Inertia::render('admin/farmers/Show', [
             'farmer' => $farmer,

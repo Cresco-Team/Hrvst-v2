@@ -2,6 +2,7 @@
 
 namespace App\Services\Admin;
 
+use App\Enums\PostStatus;
 use App\Models\Marketplace\FarmerSupply;
 use App\Models\Profiles\FarmerProfile;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -41,7 +42,9 @@ class FarmerService
             ->paginate($perPage, ['*'], 'page', $page)
             ->through(function ($farmer) {
 
-                $ongoingSupplies = $farmer->supplies;
+                $ongoingSupplies = $farmer->supplies->filter(
+                    fn ($supply) => $supply->post->status === PostStatus::Ongoing
+                );
 
                 return [
                     'id' => $farmer->id,
@@ -80,15 +83,15 @@ class FarmerService
             });
     }
 
-    public static function find(int $farmerId): ?array
+    public static function show(int $farmerId): ?array
     {
         $farmer = FarmerProfile::with([
             'user',
             'province',
             'municipality',
             'barangay',
-            'plantings' => fn ($query) => $query->with(['variety.vegetable.category'])
-                ->orderBy('date_planted', 'desc'),
+            'supplies' => fn ($query) => $query->whereHas('post')->with(['post.variety.vegetable.category'])
+                ->orderBy('expiration_date', 'desc'),
         ])
             ->where('is_approved', true)
             ->find($farmerId);
@@ -97,6 +100,38 @@ class FarmerService
             return null;
         }
 
+        $formatSupply = fn ($supply) => [
+            'id' => $supply->id,
+            'variety' => [
+                'id' => $supply->post->variety->id,
+                'name' => $supply->post->variety->vegetable->name.' '.$supply->post->variety->name,
+                'category' => $supply->post->variety->vegetable->category->name,
+                'image_url' => $supply->post->variety->image_url,
+            ],
+            'title' => $supply->post->title,
+            'image_url' => $supply->image_url,
+            'quantity_kg' => (float) $supply->quantity_kg,
+            'offered_price' => (float) $supply->post->offered_price,
+            'price_flag' => $supply->post->price_flag,
+            'expiration_date' => $supply->expiration_date->format('M d, Y'),
+            'days_until_expiration' => $supply->days_until_expiration,
+            'status' => $supply->post->status,
+            'created_at' => $supply->created_at->format('M d, Y'),
+            'created_at_haman' => $supply->created_at->diffForHumans(),
+        ];
+
+        $ongoingSupplies = $farmer->supplies
+            ->filter(fn ($supply) => $supply->post->status === PostStatus::Ongoing)
+            ->values();
+
+        $archivedSupplies = $farmer->supplies
+            ->filter(fn ($supply) => $supply->post->status === PostStatus::Archived)
+            ->values();
+
+        $fulfilledSupplies = $farmer->supplies
+            ->filter(fn ($supply) => $supply->post->status === PostStatus::Fulfilled)
+            ->values();
+
         return [
             'id' => $farmer->id,
             'user' => [
@@ -104,7 +139,7 @@ class FarmerService
                 'name' => $farmer->user->name,
                 'email' => $farmer->user->email,
                 'phone_number' => $farmer->user->phone_number,
-                'user_image' => $farmer->user->user_image,
+                'image_url' => $farmer->user->image_url,
             ],
             'location' => [
                 'province' => $farmer->province->name,
@@ -116,22 +151,16 @@ class FarmerService
                     'lng' => $farmer->longitude,
                 ],
             ],
-            'farm_image' => $farmer->farm_image,
-            'plantings' => $farmer->plantings->map(fn ($planting) => [
-                'id' => $planting->id,
-                'variety' => [
-                    'id' => $planting->variety->id,
-                    'name' => $planting->variety->vegetable->name.' '.$planting->variety->name,
-                    'category' => $planting->variety->vegetable->category->name,
-                    'image_path' => $planting->variety->image_path,
-                ],
-                'weight_kg' => $planting->weight_kg,
-                'date_planted' => $planting->date_planted->format('M d, Y'),
-                'expected_harvest_date' => $planting->expected_harvest_date->format('M d, Y'),
-                'date_harvested' => $planting->date_harvested?->format('M d, Y'),
-                'days_until_harvest' => $planting->days_unill_harvest,
-                'status' => $planting->status,
-            ]),
+            'farm_url' => $farmer->farm_url,
+            'supplies' => [
+                'ongoing' => $ongoingSupplies->map($formatSupply),
+                'archived' => $archivedSupplies->map($formatSupply),
+                'fulfilled' => $fulfilledSupplies->map($formatSupply),
+            ],
+            'total_supplies' => $farmer->supplies->count(),
+            'total_quantity' => $farmer->supplies->sum(fn ($supply) => $supply->post->quantity_kg),
+            'total_ongoing_supplies' => $ongoingSupplies->count(),
+            'total_ongoing_supplies_quantity' => $ongoingSupplies->sum(fn($supply) => $supply->post->quantity_kg),
             'joined_at' => $farmer->created_at->format('M d, Y'),
             'joined_at_human' => $farmer->created_at->diffForHumans(),
         ];
