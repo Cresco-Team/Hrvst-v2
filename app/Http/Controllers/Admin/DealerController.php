@@ -2,10 +2,14 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Actions\Admin\ApproveDealerAction;
+use App\Actions\Admin\RejectDealerAction;
 use App\Http\Controllers\Controller;
+use App\Models\Profiles\DealerProfile;
 use App\Services\Admin\DealerService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -13,15 +17,34 @@ class DealerController extends Controller
 {
     public function index(): Response
     {
+        Gate::authorize('viewAny', DealerProfile::class);
+
         return Inertia::render('admin/dealers/Index', [
             'summary' => Inertia::defer(fn () => DealerService::summary()),
             'dealers' => Inertia::defer(fn () => DealerService::paginated()),
         ]);
     }
 
+    public function sidebar(int $id, ): JsonResponse
+    {
+        $dealer = DealerService::sidebar($id);
+
+        if (! $dealer) {
+            return response()->json(['error' => 'Dealer not found']);
+        }
+
+        $dealerProfile = DealerProfile::findOrFail($id);
+        Gate::authorize('view', $dealerProfile);
+
+        return response()->json($dealer);
+    }
+
     public function show(int $id): Response
     {
-        $dealer = DealerService::find($id);
+        $dealerProfile = DealerProfile::findOrFail($id);
+        Gate::authorize('view', $dealerProfile);
+
+        $dealer = DealerService::show($id);
 
         if (!$dealer) {
             abort(404, 'Dealer not found');
@@ -34,30 +57,49 @@ class DealerController extends Controller
 
     public function pending(): JsonResponse
     {
+        Gate::authorize('viewAny', DealerProfile::class);
+
         return response()->json(DealerService::pending());
     }
 
-    public function approve(int $dealer): RedirectResponse
+    public function approve(int $dealer, ApproveDealerAction $approveDealer): RedirectResponse
     {
-        abort_if(! DealerService::approve($dealer), 404);
+        Gate::authorize('approve', DealerProfile::class);
 
-        return back();
+        $approveDealer($dealer);
+
+        return back()
+            ->with('flash', [
+                'type' => 'success',
+                'message' => 'Dealer Approved.'
+            ]);
     }
 
-    public function reject(int $dealer): RedirectResponse
+    public function reject(int $dealer, RejectDealerAction $rejectDealer): RedirectResponse
     {
-        abort_if(! DealerService::reject($dealer), 404);
+        Gate::authorize('reject', DealerProfile::class);
 
-        return back();
+        $rejectDealer($dealer);
+
+        return back()
+            ->with('flash', [
+                'type' => 'success',
+                'message' => 'Dealer Rejected and Deleted.'
+            ]);
     }
 
-    public function destroy(int $dealer): RedirectResponse
+    public function destroy(DealerProfile $dealerProfile): RedirectResponse
     {
-        $profile = \App\Models\Profiles\DealerProfile::where('is_approved', true)->findOrFail($dealer);
-        $user = $profile->user;
-        $profile->delete();
+        Gate::authorize('delete', $dealerProfile);
+
+        $user = $dealerProfile->user;
+        $dealerProfile->delete();
         $user->delete();
 
-        return back();
+        return redirect()->route('admin.dealers.index')
+            ->with('flash', [
+                'type' => 'success',
+                'message' => 'Dealer deleted successfully.',
+            ]);
     }
 }

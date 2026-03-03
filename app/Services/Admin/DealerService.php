@@ -3,6 +3,7 @@
 namespace App\Services\Admin;
 
 use App\Enums\DealerDemandStatus;
+use App\Enums\PostStatus;
 use App\Models\Marketplace\DealerDemand;
 use App\Models\Profiles\DealerProfile;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -11,16 +12,14 @@ class DealerService
 {
     public static function summary(): array
     {
-        $totalDealers = DealerProfile::where('is_approved', true)
-            ->count();
-        $newDealersThisMonth = DealerProfile::where('is_approved', true)
+        $newDealersThisMonth = DealerProfile::approved()
             ->where('created_at', '>=', now()->startOfMonth())
             ->count();
         $newDemandsThisMonth = DealerDemand::where('created_at', now()->startOfMonth())
             ->count();
 
         return [
-            'total_dealers' => $totalDealers,
+            'total_dealers' => DealerProfile::approved()->count(),
             'new_dealers_this_month' => $newDealersThisMonth,
             'total_demands' => DealerDemand::count(),
             'new_demands_this_month' => $newDemandsThisMonth,
@@ -31,14 +30,20 @@ class DealerService
     {
         return DealerProfile::with([
             'user',
-            'demands' => fn($query) => $query->where('status', DealerDemandStatus::Open)
-                ->with(['variety.vegetable.category'])
+            'demands' => fn($query) => $query
+                ->whereHas('post', fn ($q) => $q->ongoing())
+                ->with(['post.variety.vegetable.category'])
                 ->orderBy('transaction_date', 'asc')
             ])
-            ->where('is_approved', true)
+            ->approved()
             ->orderBy('created_at', 'desc')
-            ->paginate($perPage, ['*'], $page)
+            ->paginate($perPage, ['*'], 'page', $page)
             ->through(function ($dealer) {
+
+                $ongoingDemands = $dealer->demands->filter(
+                    fn ($demand) => $demand->post->status === PostStatus::Ongoing
+                );
+
                 return [
                     'id' => $dealer->id,
                     'user' => [
@@ -46,40 +51,43 @@ class DealerService
                         'name' => $dealer->user->name,
                         'email' => $dealer->user->email,
                         'phone_number' => $dealer->user->phone_number,
-                        'image_path' => $dealer->user->image_path,
+                        'image_url' => $dealer->user->image_url,
                     ],
                     'document_image' => $dealer->document_image,
-                    'open_demands_count' => $dealer->demands->count(),
-                    'open_demands' => $dealer->demands->map(fn($demand) => [
+                    'ongoing_demands' => $ongoingDemands->map(fn($demand) => [
                         'id' => $demand->id,
                         'variety' => [
-                            'id' => $demand->variety->id,
-                            'name' => $demand->variety->name,
-                            'category' => $demand->variety->vegetable->category->name,
-                            'image_url' => $demand->variety->image_url,
+                            'id' => $demand->post->variety->id,
+                            'name' => $demand->post->variety->name,
+                            'category' => $demand->post->variety->vegetable->category->name,
+                            'image_url' => $demand->post->variety->image_url,
                         ],
-                        'quantity_kg' => $demand->quantity_kg,
+                        'quantity_kg' => $demand->post->quantity_kg,
                         'transaction_date' => $demand->transaction_date->format('M d, Y'),
                     ]),
                     'joined_at' => $dealer->created_at->format('M d, Y'),
                     'joined_at_human' => $dealer->created_at->diffForHumans(),
                 ];
-            });
+            }
+        );
     }
 
-    public static function find(int $dealerId): ?array
+    public static function sidebar(int $dealerId): ?array
     {
-        $dealer = DealerProfile::with([
-            'user',
-            'demands' => fn($query) => $query->with(['variety.vegetable.category'])
-                ->orderBy('created_at', 'desc'),
-        ])
+        $dealer = DealerProfile::query()
             ->where('is_approved', true)
-            ->find($dealerId);
+            ->with([
+                'user',
+                'demands' => fn($q) => $q->whereHas('post', fn ($q) => $q->ongoing())
+                    ->with(['post.variety.vegetable.category'])
+                    ->orderBy('transaction_date', 'asc'),
+            ])->find($dealerId);
 
-        if (!$dealer) {
-            return null;
-        }
+        if (! $dealer) return null;
+
+        $ongoingDemands = $dealer->demands->filter(
+            fn ($demand) => $demand->post->status === PostStatus::Ongoing
+        );
 
         return [
             'id' => $dealer->id,
@@ -88,22 +96,93 @@ class DealerService
                 'name' => $dealer->user->name,
                 'email' => $dealer->user->email,
                 'phone_number' => $dealer->user->phone_number,
-                'image_path' => $dealer->user->image_path,
+                'image_url' => $dealer->user->image_url,
             ],
-            'document_image' => $dealer->document_image,
-            'demands' => $dealer->demands->map(fn($demand) => [
+            'documentation_image' => $dealer->documentation_image,
+            'ongoing_demands' => $dealer->demands->map(fn($demand) => [
                 'id' => $demand->id,
                 'variety' => [
-                    'id' => $demand->variety->id,
-                    'name' => $demand->variety->vegetable->name . ' ' . $demand->variety->name,
-                    'category' => $demand->variety->vegetable->category->name,
-                    'image_path' => $demand->variety->image_path,
+                    'id' => $demand->post->variety->id,
+                    'name' => $demand->post->variety->vegetable->name . ' ' . $demand->post->variety->name,
+                    'category' => $demand->post->variety->vegetable->category->name,
+                    'image_url' => $demand->post->variety->image_url,
                 ],
-                'quantity_kg' => $demand->quantity_kg,
+                'quantity_kg' => $demand->post->quantity_kg,
                 'created_at' => $demand->created_at->format('M d, Y'),
                 'transaction_date' => $demand->transaction_date->format('M d, Y'),
-                'status' => $demand->status,
-            ]),
+            ])->toArray(),
+            'statistics' => [
+                'total_ongoing_supplies' => $ongoingDemands->count(),
+                'total_quantity' => $ongoingDemands->sum('quantity_kg'),
+            ],
+            'joined_at' => $dealer->created_at->format('M d, Y'),
+            'joined_at_human' => $dealer->created_at->diffForHumans(),
+        ];
+    }
+
+    public static function show(int $dealerId): ?array
+    {
+        $dealer = DealerProfile::with([
+            'user',
+            'demands' => fn($query) => $query->whereHas('post')->with(['post.variety.vegetable.category'])
+                ->orderBy('transaction_date', 'desc'),
+        ])
+            ->where('is_approved', true)
+            ->find($dealerId);
+
+        if (!$dealer) {
+            return null;
+        }
+
+        $formatDemand = fn ($demand) => [
+            'id' => $demand->id,
+            'variety' => [
+                'id' => $demand->post->variety->id,
+                'name' => $demand->post->variety->vegetable->name.' '.$demand->post->variety->name,
+                'category' => $demand->post->variety->vegetable->category->name,
+                'image_url' => $demand->post->variety->image_url,
+            ],
+            'title' => $demand->post->title,
+            'quantity_kg' => (float) $demand->quantity_kg,
+            'offered_price' => (float) $demand->post->offered_price,
+            'price_flag' => $demand->post->price_flag,
+            'transaction_date' => $demand->transaction_date->format('M d, Y'),
+            'status' => $demand->post->status,
+            'created_at' => $demand->created_at->format('M d, Y'),
+            'created_at_haman' => $demand->created_at->diffForHumans(),
+        ];
+
+        $ongoingDemands = $dealer->demands
+            ->filter(fn ($demand) => $demand->post->status === PostStatus::Ongoing)
+            ->values();
+
+        $archivedDemands = $dealer->demands
+            ->filter(fn ($demand) => $demand->post->status === PostStatus::Archived)
+            ->values();
+
+        $fulfilledDemands = $dealer->demands
+            ->filter(fn ($demand) => $demand->post->status === PostStatus::Fulfilled)
+            ->values();
+
+        return [
+            'id' => $dealer->id,
+            'user' => [
+                'id' => $dealer->user->id,
+                'name' => $dealer->user->name,
+                'email' => $dealer->user->email,
+                'phone_number' => $dealer->user->phone_number,
+                'image_url' => $dealer->user->image_url,
+            ],
+            'document_image' => $dealer->document_image,
+            'demands' => [
+                'ongoing' => $ongoingDemands->map($formatDemand),
+                'archived' => $archivedDemands->map($formatDemand),
+                'fulfilled' => $fulfilledDemands->map($formatDemand),
+            ],
+            'total_demands' => $dealer->demands->count(),
+            'total_quantity' => $dealer->demands->sum(fn ($demand) => $demand->post->quantity_kg),
+            'total_ongoing_demands' => $ongoingDemands->count(),
+            'total_ongoing_demands_quantity' => $ongoingDemands->sum(fn($demand) => $demand->post->quantity_kg),
             'joined_at' => $dealer->created_at->format('M d, Y'),
             'joined_at_human' => $dealer->created_at->diffForHumans(),
         ];
@@ -129,27 +208,5 @@ class DealerService
                 'submitted_at_human' => $dealer->created_at->diffForHumans(),
             ])
             ->toArray();
-    }
-
-    public static function approve(int $dealerId): bool
-    {
-        $dealer = DealerProfile::where('is_approved', false)->find($dealerId);
-
-        if (!$dealer) return false;
-
-        return $dealer->update(['is_approved' => true]);
-    }
-
-    public static function reject(int $dealerId): bool
-    {
-        $dealer = DealerProfile::where('is_approved', false)->find($dealerId);
-
-        if (!$dealer) return false;
-
-        $user = $dealer->user;
-        $dealer->delete();
-        $user->delete();
-
-        return true;
     }
 }
