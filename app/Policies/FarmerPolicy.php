@@ -11,7 +11,6 @@ class FarmerPolicy
     {
         return $user->hasRole('admin')
             || $user->farmerProfile?->is_approved
-            || $user->dealerProfile?->is_approved
         ;
     }
 
