@@ -4,48 +4,40 @@ namespace App\Policies;
 
 use App\Models\Profiles\DealerProfile;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
 
-class DealerProfilePolicy
+class DealerPolicy
 {
-    /**
-     * Determine whether the user can view any models.
-     */
     public function viewAny(User $user): bool
     {
-        return false;
+        return $user->hasRole('admin')
+            || $user->dealerProfile?->is_approved
+        ;
     }
 
-    /**
-     * Determine whether the user can view the model.
-     */
     public function view(User $user, DealerProfile $dealerProfile): bool
     {
-        return false;
+        return $this->viewAny($user);
     }
 
-    /**
-     * Determine whether the user can create models.
-     */
-    public function create(User $user): bool
-    {
-        return false;
-    }
-
-    /**
-     * Determine whether the user can update the model.
-     */
     public function update(User $user, DealerProfile $dealerProfile): bool
     {
-        return false;
+        return $user->hasRole('admin')
+            || $user->dealerProfile?->id === $dealerProfile->id;
     }
 
-    /**
-     * Determine whether the user can delete the model.
-     */
+    public function approve(User $user): bool
+    {
+        return $user->hasRole('admin');
+    }
+
+    public function reject(User $user): bool
+    {
+        return $user->hasRole('admin');
+    }
+
     public function delete(User $user, DealerProfile $dealerProfile): bool
     {
-        return false;
+        return $this->update($user, $dealerProfile);
     }
 
     /**
@@ -53,7 +45,7 @@ class DealerProfilePolicy
      */
     public function restore(User $user, DealerProfile $dealerProfile): bool
     {
-        return false;
+        return $user->hasRole('admin');
     }
 
     /**
@@ -61,6 +53,6 @@ class DealerProfilePolicy
      */
     public function forceDelete(User $user, DealerProfile $dealerProfile): bool
     {
-        return false;
+        return $this->update($user, $dealerProfile);
     }
 }
