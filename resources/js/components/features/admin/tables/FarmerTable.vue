@@ -1,7 +1,7 @@
 <script setup lang="ts">
 
 import type { ColumnDef } from '@tanstack/vue-table'
-import { ChevronDownIcon, ChevronRightIcon, MapPin, Phone, Mail, Eye } from 'lucide-vue-next'
+import { ChevronDownIcon, ChevronRightIcon, MapPin, Phone, Mail, Eye, Package } from 'lucide-vue-next'
 import DataTable from '@/components/shared/tables/DataTable.vue'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
@@ -22,12 +22,19 @@ defineEmits<{
 /* -- column definitions -- */
 const columns: ColumnDef<Farmer>[] = [
     {
+        id: 'expander',
+        header: () => null,
+        cell: () => null,
+    }, {
         id: 'farmer',
         header: 'Farmer',
         accessorFn: (row) => row.user.name,
         enableSorting: true,
-    },
-    {
+    }, {
+        id: 'ongoing_supplies_count',
+        header: '# Supplies',
+        accessorFn: (row) => row.ongoing_supplies_count
+    }, {
         id: 'location',
         header: 'Address',
         accessorFn: (row) => `${row.location.barangay}, ${row.location.municipality}`,
@@ -53,7 +60,7 @@ const columns: ColumnDef<Farmer>[] = [
         @page-change="$emit('page-change', $event)">
         <!-- Custom Cell: Expander -->
         <template #cell-expander="{ row, cell }">
-            <button v-if="row.ongoing_supplies_count > 0" @click="cell.row.getToggleExpandedHandler()()"
+            <button v-if="row.ongoing_supplies.length > 0" @click="cell.row.toggleExpanded()"
                 class="p-1 hover:bg-accent rounded transition-colors">
                 <ChevronDownIcon v-if="cell.row.getIsExpanded()" class="size-4" />
                 <ChevronRightIcon v-else class="size-4" />
@@ -83,6 +90,15 @@ const columns: ColumnDef<Farmer>[] = [
                         </div>
                     </div>
                 </div>
+            </div>
+        </template>
+
+        <template #cell-ongoing_supplies_count="{ row }">
+            <div class="flex items-center gap-2">
+                <Package class="size-4 text-muted-foreground" />
+                <span class="font-mono font-medium">
+                    {{ row.ongoing_supplies_count }}
+                </span>
             </div>
         </template>
 
@@ -134,21 +150,21 @@ const columns: ColumnDef<Farmer>[] = [
             </div>
         </template>
 
-        <!-- Expanded Row: Plantings -->
+        <!-- Expanded Row: Supplies -->
         <template #expanded-row="{ row, colspan }">
             <tr class="bg-muted/20">
                 <td :colspan="colspan" class="px-4 py-4">
                     <div class="ml-12">
-                        <h4 class="text-sm font-medium mb-3">Available Offerings ({{ row.ongoing_supplies_count }})
+                        <h4 class="text-sm font-medium mb-3">Available Supplies ({{ row.ongoing_supplies_count }})
                         </h4>
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                            <div v-for="offering in row.ongoing_supplies" :key="offering.id"
+                            <div v-for="supply in row.ongoing_supplies" :key="supply.id"
                                 class="flex items-start gap-3 p-3 rounded-lg border bg-card hover:shadow-sm transition-shadow">
                                 <Avatar class="size-12 rounded-md shrink-0">
-                                    <AvatarImage :src="offering.variety.image_url" :alt="offering.variety.name"
+                                    <AvatarImage :src="supply.variety.image_url" :alt="supply.variety.name"
                                         class="object-cover" />
                                     <AvatarFallback class="rounded-md bg-primary/10 text-primary font-semibold text-xs">
-                                        {{ offering.variety.name.charAt(0) }}
+                                        {{ supply.variety.name.charAt(0) }}
                                     </AvatarFallback>
                                 </Avatar>
                             </div>
