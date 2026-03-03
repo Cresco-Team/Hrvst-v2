@@ -24,11 +24,11 @@ class DashboardService
         $current = FarmerService::summary();
         
         // Get previous period data (30 days ago)
-        $previousTotal = FarmerProfile::where('is_approved', true)
+        $previousTotal = FarmerProfile::approved()
             ->where('created_at', '<', now()->subDays(30))
             ->count();
         
-        $previousOfferings = FarmerSupply::where('created_at', '<', now()->subDays(30))
+        $previousSupplies = FarmerSupply::where('created_at', '<', now()->subDays(30))
             ->count();
 
         return [
@@ -39,8 +39,8 @@ class DashboardService
             ],
             'total_supplies' => [
                 'value' => $current['total_supplies'],
-                'change' => self::calculatePercentageChange($previousOfferings, $current['total_supplies']),
-                'trend' => self::getTrend($previousOfferings, $current['total_supplies']),
+                'change' => self::calculatePercentageChange($previousSupplies, $current['total_supplies']),
+                'trend' => self::getTrend($previousSupplies, $current['total_supplies']),
             ],
         ];
     }
@@ -49,7 +49,7 @@ class DashboardService
     {
         $current = DealerService::summary();
         
-        $previousTotal = DealerProfile::where('is_approved', true)
+        $previousTotal = DealerProfile::approved()
             ->where('created_at', '<', now()->subDays(30))
             ->count();
 
