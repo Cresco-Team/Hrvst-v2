@@ -25,9 +25,9 @@ class DealerController extends Controller
         ]);
     }
 
-    public function sidebar(int $id, ): JsonResponse
+    public function details(int $id, ): JsonResponse
     {
-        $dealer = DealerService::sidebar($id);
+        $dealer = DealerService::details($id);
 
         if (! $dealer) {
             return response()->json(['error' => 'Dealer not found']);
