@@ -1,27 +1,53 @@
 <script setup lang="ts">
+
 import { Deferred, Head, router } from '@inertiajs/vue3'
-import Heading from '@/components/Heading.vue'
-import DealerTable from '@/components/features/admin/tables/DealerTable.vue'
-import admin from '@/routes/admin'
-import AppLayout from '@/layouts/AppLayout.vue'
-import { BreadcrumbItem } from '@/types'
-import LargeCard from '@/components/shared/cards/LargeCard.vue'
+import axios from 'axios'
 import { Package, PackagePlus, PartyPopper, Users } from 'lucide-vue-next'
+import { ref } from 'vue'
+import { toast } from 'vue-sonner'
+import DealerDetailSidebar from '@/components/admin/DealerDetailSidebar.vue'
+import DealerTable from '@/components/features/admin/tables/DealerTable.vue'
+import Heading from '@/components/Heading.vue'
+import LargeCard from '@/components/shared/cards/LargeCard.vue'
 import { Skeleton } from '@/components/ui/skeleton'
-import { Dealer, PaginatedData, Summary } from '@/types/admin/dealers'
+import AppLayout from '@/layouts/AppLayout.vue'
+import admin from '@/routes/admin'
+import type { BreadcrumbItem } from '@/types'
+import type { Dealer, PaginatedData, Summary } from '@/types/admin/dealers'
 
 defineProps<{
     summary: Summary
     dealers: PaginatedData
 }>()
 
+const selectedDealer = ref<Dealer | null>(null)
+const sidebarOpen = ref(false)
+const loadingDealer = ref(false)
+
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Admin', href: admin.dashboard().url },
     { title: 'Dealers', href: admin.dealers.index().url },
 ]
 
-function handleViewDealer(dealer: Dealer) {
-    router.visit(admin.dealers.show(dealer.id))
+async function loadDealerDetails(dealerId: number) {
+    loadingDealer.value = true
+    selectedDealer.value = null
+    sidebarOpen.value = true
+    try {
+        const response = await axios.get(`/admin/dealers/api/${dealerId}/details`)
+        selectedDealer.value = response.data
+    } catch (error: any) {
+        toast.error('Error loading dealer details', {
+            description: error.response?.data?.error || 'Failed to load dealer information'
+        })
+        sidebarOpen.value = false
+    } finally {
+        loadingDealer.value = false
+    }
+}
+
+function openDealerSidebar(dealerId: number) {
+    loadDealerDetails(dealerId)
 }
 
 function handlePageChange(page: number) {
@@ -34,6 +60,7 @@ function handlePageChange(page: number) {
 </script>
 
 <template>
+
     <Head title="Dealers" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
@@ -41,14 +68,11 @@ function handlePageChange(page: number) {
 
             <!-- Header -->
             <div class="flex items-end justify-between">
-                <Heading
-                    title="Dealers"
-                    description="Manage approved dealers and their activity metrics"
-                />
+                <Heading title="Dealers" description="Manage approved dealers and their activity metrics" />
             </div>
 
             <!-- Summary Cards -->
-             <Deferred data="summary">
+            <Deferred data="summary">
                 <template #fallback>
                     <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-2">
                         <Skeleton v-for="i in 4" :key="i" class="h-33" />
@@ -56,37 +80,21 @@ function handlePageChange(page: number) {
                 </template>
 
                 <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-2">
-                    <LargeCard 
-                        title="Registered Dealers"
-                        :value="summary.total_dealers"
-                        subtext="approved dealers"
+                    <LargeCard title="Registered Dealers" :value="summary.total_dealers" subtext="approved dealers"
                         :icon="Users"
-                        card-class="col-span-1 bg-linear-to-br from-cyan-500/10 via-sky-500/10 to-blue-500/30"
-                    />
-                    <LargeCard 
-                        title="New Dealers"
-                        :value="summary.new_dealers_this_month"
-                        subtext="registered this month"
-                        :icon="PartyPopper"
-                        card-class="col-span-1 bg-linear-to-br from-cyan-500/10 via-sky-500/10 to-blue-500/30"
-                    />
-                    <LargeCard 
-                        title="Total Request Posted"
-                        :value="summary.total_requests"
-                        subtext="all request posts"
+                        card-class="col-span-1 bg-linear-to-br from-cyan-500/10 via-sky-500/10 to-blue-500/30" />
+                    <LargeCard title="New Dealers" :value="summary.new_dealers_this_month"
+                        subtext="registered this month" :icon="PartyPopper"
+                        card-class="col-span-1 bg-linear-to-br from-cyan-500/10 via-sky-500/10 to-blue-500/30" />
+                    <LargeCard title="Total Request Posted" :value="summary.total_demands" subtext="all request posts"
                         :icon="Package"
-                        card-class="col-span-1 bg-linear-to-br from-cyan-500/10 via-sky-500/10 to-blue-500/30"
-                    />
-                    <LargeCard 
-                        title="New Posts"
-                        :value="summary.new_requests_this_month"
-                        subtext="posts this month"
+                        card-class="col-span-1 bg-linear-to-br from-cyan-500/10 via-sky-500/10 to-blue-500/30" />
+                    <LargeCard title="New Posts" :value="summary.new_demands_this_month" subtext="posts this month"
                         :icon="PackagePlus"
-                        card-class="col-span-1 bg-linear-to-br from-cyan-500/10 via-sky-500/10 to-blue-500/30"
-                    />
+                        card-class="col-span-1 bg-linear-to-br from-cyan-500/10 via-sky-500/10 to-blue-500/30" />
                 </div>
-             </Deferred>
-            
+            </Deferred>
+
 
             <Deferred data="dealers">
                 <template #fallback>
@@ -98,12 +106,11 @@ function handlePageChange(page: number) {
                     </div>
                 </template>
 
-                <DealerTable
-                :dealers="dealers"
-                @view-dealer="handleViewDealer"
-                @page-change="handlePageChange"
-            />
+                <DealerTable :dealers="dealers" @view-dealer="openDealerSidebar($event.id)" @page-change="handlePageChange" />
             </Deferred>
         </div>
     </AppLayout>
+
+    <!-- Dealer Details Sidebar -->
+     <DealerDetailSidebar :open="sidebarOpen" :dealer="selectedDealer" :loading="loadingDealer"/>
 </template>
