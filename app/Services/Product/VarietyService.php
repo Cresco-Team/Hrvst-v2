@@ -104,6 +104,76 @@ class VarietyService
         });
     }
 
+    public static function catalogueIndex(): array
+    {
+        return Variety::with(['vegetable.category', 'latestPrice'])
+            ->orderBy('name')
+            ->get()
+            ->groupBy(fn (Variety $variety): string => $variety->vegetable->category->name)
+            ->map(fn ($varieties) => $varieties->map(fn (Variety $variety): array=> [
+                'id'               => $variety->id,
+                'name'             => $variety->name,
+                'image_url'        => $variety->image_url,
+                'weeks_to_harvest' => $variety->weeks_to_harvest,
+                'vegetable'        => [
+                    'id'       => $variety->vegetable->id,
+                    'name'     => $variety->vegetable->name,
+                    'category' => [
+                        'id'   => $variety->vegetable->category->id,
+                        'name' => $variety->vegetable->category->name,
+                    ],
+                ],
+                'latest_price' => $variety->latestPrice
+                    ? [
+                        'price_min'   => (float) $variety->latestPrice->price_min,
+                        'price_max'   => (float) $variety->latestPrice->price_max,
+                        'recorded_at' => $variety->latestPrice->recorded_at->format('M d, Y'),
+                    ]
+                    : null,
+            ])->values()->toArray())
+            ->toArray();
+    }
+
+    public static function catalogueDetail(Variety $variety): array
+    {
+        $variety->load([
+            'vegetable.category',
+            'latestPrice',
+            'prices' => fn ($query) => $query
+                ->orderByDesc('recorded_at')
+                ->limit(30),
+        ]);
+
+        return [
+            'id'               => $variety->id,
+            'name'             => $variety->name,
+            'image_url'        => $variety->image_url,
+            'weeks_to_harvest' => $variety->weeks_to_harvest,
+            'vegetable'        => [
+                'id'       => $variety->vegetable->id,
+                'name'     => $variety->vegetable->name,
+                'category' => [
+                    'id'   => $variety->vegetable->category->id,
+                    'name' => $variety->vegetable->category->name,
+                ],
+            ],
+            'latest_price' => $variety->latestPrice
+                ? [
+                    'price_min'   => (float) $variety->latestPrice->price_min,
+                    'price_max'   => (float) $variety->latestPrice->price_max,
+                    'recorded_at' => $variety->latestPrice->recorded_at->format('M d, Y'),
+                ]
+                : null,
+            'price_history' => $variety->prices
+                ->map(fn (PriceHistory $entry): array => [
+                    'price_min'   => (float) $entry->price_min,
+                    'price_max'   => (float) $entry->price_max,
+                    'recorded_at' => $entry->recorded_at->format('M d, Y'),
+                ])
+                ->toArray(),
+        ];
+    }
+
     public function create(array $validated, ?UploadedFile $image = null): Variety
     {
         // Handle image upload
