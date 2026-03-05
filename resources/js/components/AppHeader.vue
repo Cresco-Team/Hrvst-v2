@@ -1,7 +1,7 @@
 <script setup lang="ts">
 
 import { Link, usePage } from '@inertiajs/vue3';
-import { Gem, Menu, MessagesSquare, PackageSearch, Search, Sprout, Store, Truck } from 'lucide-vue-next';
+import { Gem, Menu, MessagesSquare, Package, PackageSearch, Search, Sprout, Store, Truck } from 'lucide-vue-next';
 import { computed } from 'vue';
 import AppLogo from '@/components/AppLogo.vue';
 import AppLogoIcon from '@/components/AppLogoIcon.vue';
@@ -62,11 +62,15 @@ const mainNavItems = computed<NavItem[]>(() => {
 
         if (page.props.auth.user.roles.includes('dealer')) {
             items.push({
+                title: 'Vegetables',
+                href: dealer.vegetables.index(),
+                icon: Sprout
+            }, {
                 title: 'Marketplace',
                 href: dealer.marketplace.index(),
                 icon: Store
             }, {
-                title: 'My Requests',
+                title: 'My Posts',
                 href: dealer.demands.index(),
                 icon: PackageSearch
             })
@@ -74,13 +78,17 @@ const mainNavItems = computed<NavItem[]>(() => {
 
         if (page.props.auth.user.roles.includes('farmer')) {
             items.push({
+                title: 'Vegetables',
+                href: farmer.vegetables.index(),
+                icon: Sprout
+            }, {
                 title: 'Marketplace',
                 href: farmer.marketplace.index(),
                 icon: Truck
             }, {
                 title: 'My Garden',
                 href: farmer.garden.index(),
-                icon: Sprout
+                icon: Package
             })
         }
     
