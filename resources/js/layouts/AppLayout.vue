@@ -1,24 +1,36 @@
 <script setup lang="ts">
 
+import { watch } from 'vue'
+import { toast } from 'vue-sonner'
 import { Toaster } from '@/components/ui/sonner'
 import { useFlash } from '@/composables/useFlash'
-import AppHeaderLayout from '@/layouts/app/AppHeaderLayout.vue'
+import AppLayout from '@/layouts/app/AppHeaderLayout.vue'
 import type { BreadcrumbItem } from '@/types'
 
 type Props = {
-  breadcrumbs?: BreadcrumbItem[]
+    breadcrumbs?: BreadcrumbItem[]
 }
 
 withDefaults(defineProps<Props>(), {
-  breadcrumbs: () => [],
+    breadcrumbs: () => [],
 })
 
-useFlash()
+const { flash } = useFlash()
+
+watch(() => flash.value, (newFlash) => {
+    if (newFlash?.message) {
+        if (newFlash.type === 'error') {
+            toast.error(newFlash.message)
+        } else {
+            toast.success(newFlash.message)
+        }
+    }
+}, { deep: true, immediate: true })
 </script>
 
 <template>
-  <AppHeaderLayout :breadcrumbs="breadcrumbs">
-    <slot />
-    <Toaster richColors position="top-right" />
-  </AppHeaderLayout>
+    <AppLayout :breadcrumbs="breadcrumbs">
+        <slot />
+        <Toaster richColors position="top-right" />
+    </AppLayout>
 </template>
