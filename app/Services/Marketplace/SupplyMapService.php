@@ -3,7 +3,6 @@
 namespace App\Services\Marketplace;
 
 use App\Models\Marketplace\FarmerSupply;
-use App\Models\Profiles\FarmerProfile;
 use App\Models\Product\Category;
 use App\Models\Product\Variety;
 use Illuminate\Database\Eloquent\Builder;
@@ -21,53 +20,59 @@ class SupplyMapService
         ];
     }
 
+    /**
+     * Returns one marker per barangay that has at least one active supply.
+     *
+     * Querying from FarmerSupply avoids a constrained eager-load conflict with
+     * FarmerSupply::$with = ['post']. Post is always loaded by the model; we
+     * only need to extend the chain to variety.vegetable.category and bring in
+     * the farmer's address relationships at the top level.
+     *
+     * Coordinates = arithmetic mean of all unique approved farmer positions in
+     * the barangay. Zero farmer PII is exposed — no IDs, names, or contacts.
+     */
     public static function markers(?int $categoryId = null, ?int $varietyId = null): array
     {
-        $query = FarmerProfile::query()
-            ->approved()
-            ->whereHas('supplies', fn (Builder $q) =>
-                $q->whereHas('post', fn (Builder $p) => $p->ongoing())
-            )
+        $query = FarmerSupply::query()
+            ->whereHas('post', fn (Builder $q) => $q->ongoing())
+            ->whereHas('farmer', fn (Builder $q) => $q->approved())
             ->with([
-                'municipality',
-                'barangay',
-                'supplies' => fn (Builder $q) => $q
-                    ->whereHas('post', fn (Builder $p) => $p->ongoing())
-                    ->with('post.variety.vegetable.category'),
+                'farmer.municipality',
+                'farmer.barangay',
+                'post.variety.vegetable.category',
             ]);
 
         if ($categoryId) {
-            $query->whereHas('supplies.post.variety.vegetable', fn (Builder $q) =>
+            $query->whereHas('post.variety.vegetable', fn (Builder $q) =>
                 $q->where('category_id', $categoryId)
             );
         }
 
         if ($varietyId) {
-            $query->whereHas('supplies.post', fn (Builder $q) =>
+            $query->whereHas('post', fn (Builder $q) =>
                 $q->ongoing()->where('variety_id', $varietyId)
             );
         }
 
         return $query
             ->get()
-            ->groupBy('barangay_id')
-            ->map(function ($farmers) {
-                /** @var \App\Models\Profiles\FarmerProfile $first */
-                $first = $farmers->first();
+            ->groupBy(fn (FarmerSupply $supply) => $supply->farmer->barangay_id)
+            ->map(function ($supplies) {
+                /** @var \App\Models\Marketplace\FarmerSupply $first */
+                $first    = $supplies->first();
+                $farmers  = $supplies->pluck('farmer')->unique('id');
 
-                $allSupplies = $farmers->flatMap(fn ($farmer) => $farmer->supplies);
-
-                $breakdown = $allSupplies
+                $breakdown = $supplies
                     ->groupBy(fn ($supply) => $supply->post->variety->vegetable->name)
-                    ->map(fn ($supplies, string $vegetable) => [
+                    ->map(fn ($grouped, string $vegetable) => [
                         'vegetable'         => $vegetable,
-                        'category'          => $supplies->first()->post->variety->vegetable->category->name,
-                        'count'             => $supplies->count(),
+                        'category'          => $grouped->first()->post->variety->vegetable->category->name,
+                        'count'             => $grouped->count(),
                         'total_quantity_kg' => round(
-                            $supplies->sum(fn ($s) => $s->post->quantity_kg),
+                            $grouped->sum(fn ($s) => $s->post->quantity_kg),
                             2
                         ),
-                        'varieties' => $supplies
+                        'varieties' => $grouped
                             ->pluck('post.variety.name')
                             ->unique()
                             ->values()
@@ -77,17 +82,17 @@ class SupplyMapService
                     ->toArray();
 
                 return [
-                    'barangay_id'       => $first->barangay_id,
-                    'barangay'          => $first->barangay->name,
-                    'municipality_id'   => $first->municipality_id,
-                    'municipality'      => $first->municipality->name,
+                    'barangay_id'       => $first->farmer->barangay_id,
+                    'barangay'          => $first->farmer->barangay->name,
+                    'municipality_id'   => $first->farmer->municipality_id,
+                    'municipality'      => $first->farmer->municipality->name,
                     'coordinates'       => [
                         'lat' => round((float) $farmers->avg('latitude'), 6),
                         'lng' => round((float) $farmers->avg('longitude'), 6),
                     ],
-                    'supply_count'      => $allSupplies->count(),
+                    'supply_count'      => $supplies->count(),
                     'total_quantity_kg' => round(
-                        $allSupplies->sum(fn ($s) => $s->post->quantity_kg),
+                        $supplies->sum(fn ($s) => $s->post->quantity_kg),
                         2
                     ),
                     'supply_breakdown'  => $breakdown,
@@ -97,6 +102,10 @@ class SupplyMapService
             ->toArray();
     }
 
+    /**
+     * Filter options for the map sidebar.
+     * Only returns categories/varieties that have active, non-expired supplies.
+     */
     public static function filterOptions(): array
     {
         $categories = Category::whereHas(
