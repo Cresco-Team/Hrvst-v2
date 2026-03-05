@@ -21,11 +21,11 @@ Route::middleware(['auth', 'verified', 'dealer'])->prefix('dealer')->name('deale
 
     Route::prefix('supply-map')->name('supply-map.')->group(function () {
         Route::get('/', [SupplyMapController::class, 'index'])->name('index');
-        Route::get('/{supply}', [SupplyMapController::class, 'show'])->name('show');
+        Route::get('/api/markers', [SupplyMapController::class, 'markers'])->name('markers');
     });
 
     Route::prefix('marketplace')->name('marketplace.')->group(function () {
         Route::get('/', [MarketplaceController::class, 'index'])->name('index');
-        Route::get('/api/markers', [MarketplaceController::class, 'markers'])->name('markers');
+        Route::get('/{supply}', [MarketplaceController::class, 'show'])->name('show');
     });
 });
