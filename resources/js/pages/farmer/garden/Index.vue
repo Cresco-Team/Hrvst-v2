@@ -5,6 +5,7 @@ import { ref, computed } from 'vue'
 import ConfirmationDialog from '@/components/ConfirmationDialog.vue'
 import EmptyState from '@/components/EmptyState.vue'
 import SupplyCard from '@/components/farmer/cards/SupplyCard.vue'
+import FarmerSupplyForm from '@/components/farmer/FarmerSupplyForm.vue'
 import Heading from '@/components/Heading.vue'
 import LargeCard from '@/components/shared/cards/LargeCard.vue'
 import { Button } from '@/components/ui/button'
@@ -15,7 +16,6 @@ import farmer from '@/routes/farmer'
 import { archive, destroy, fulfill, index, store, update } from '@/routes/farmer/garden'
 import type { Supply, Summary, VarietyOption } from '@/types/farmer/garden'
 import type { PaginatedResponse } from '@/types/pagination'
-import FarmerSupplyForm from '@/components/farmer/FarmerSupplyForm.vue'
 
 interface Props {
   filters: { status: string | null }
@@ -41,12 +41,14 @@ const supplyToFulfill = ref<Supply | null>(null)
 /* Form setup using Inertia's useForm */
 const form = useForm<{
   variety_id: number | null
+  title: string
   image: File | null
   quantity_kg: number
   offered_price: number
   expiration_date: string
 }>({
   variety_id: null,
+  title: '',
   image: null,
   quantity_kg: 0,
   offered_price: 0,
