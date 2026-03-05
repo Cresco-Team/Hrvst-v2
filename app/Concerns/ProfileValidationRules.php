@@ -47,4 +47,21 @@ trait ProfileValidationRules
                 : Rule::unique(User::class)->ignore($userId),
         ];
     }
+
+    /**
+     * Get the validation rules used to validate phone numbers.
+     *
+     * @return array<int, \Illuminate\Contracts\Validation\Rule|array<mixed>|string>
+     */
+    protected function phoneNumberRules(?int $userId = null): array
+    {
+        return [
+            'required',
+            'string',
+            'regex:/^(09|\+639)\d{9}$/',
+            $userId === null
+                ? Rule::unique(User::class, 'phone_number')
+                : Rule::unique(User::class, 'phone_number')->ignore($userId),
+        ];
+    }
 }
