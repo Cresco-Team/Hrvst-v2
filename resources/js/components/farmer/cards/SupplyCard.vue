@@ -1,13 +1,14 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
+
 import { Archive, PhilippinePeso, Weight, CalendarClock, Pencil, MoreVertical, Trash, PackageCheck } from 'lucide-vue-next'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { computed } from 'vue'
 import { AspectRatio } from '@/components/ui/aspect-ratio'
-import { Separator } from '@/components/ui/separator'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { Supply } from '@/types/farmer/garden'
+import { Separator } from '@/components/ui/separator'
+import type { Supply } from '@/types/farmer/garden'
 
 interface Props {
   supply: Supply
@@ -105,7 +106,7 @@ const isFulfilled = computed(() => props.supply.status === 'Fulfilled')
                     <PhilippinePeso :size="15" />
                     Price:
                 </div>
-                <span>{{ supply.offered_price.toFixed(2) }}</span>
+                <span>₱{{ supply.offered_price.toFixed(2) }}</span>
             </div>
 
             <div class="flex justify-between text-sm">
@@ -113,7 +114,7 @@ const isFulfilled = computed(() => props.supply.status === 'Fulfilled')
                     <Weight :size="15" />
                     Kg:
                 </div>
-                <span>{{ supply.quantity_kg }}</span>
+                <span>{{ supply.quantity_kg.toFixed(2) }}</span>
             </div>
 
             <div class="flex justify-between text-sm">
@@ -123,10 +124,13 @@ const isFulfilled = computed(() => props.supply.status === 'Fulfilled')
                 </div>
                 <p>
                     {{ supply.expiration_date }}
-                    <span class="text-xs text-muted-foreground">
-                        ({{ supply.days_until_expiration }} days)
-                    </span>
                 </p>
+            </div>
+
+            <Separator />
+
+            <div class="text-xs italic truncate text-muted-foreground">
+                {{ supply.title ? supply.title : "No desctiption provided..." }}
             </div>
         </CardContent>
     </Card>
