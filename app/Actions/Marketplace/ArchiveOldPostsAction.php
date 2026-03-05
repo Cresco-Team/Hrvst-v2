@@ -11,7 +11,7 @@ final class ArchiveOldPostsAction
 {
     public function __invoke(): int
     {
-        $offerings = Post::where('postable_type', FarmerSupply::class)
+        $supplies = Post::where('postable_type', FarmerSupply::class)
             ->where('status', PostStatus::Ongoing)
             ->whereHasMorph('postable', FarmerSupply::class, fn ($q) =>
                 $q->whereNotNull('expiration_date')->where('expiration_date', '<', now())
@@ -25,6 +25,6 @@ final class ArchiveOldPostsAction
             )
             ->update(['status' => PostStatus::Archived]);
 
-        return $offerings + $demands;
+        return $supplies + $demands;
     }
 }

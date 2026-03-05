@@ -8,7 +8,7 @@ use Illuminate\Console\Command;
 class ArchiveOldPostsCommand extends Command
 {
     protected $signature = 'posts:archive';
-    protected $description = 'Expire old dealer demands and farmer offerings';
+    protected $description = 'Expire old dealer demands and farmer supplies';
 
     public function handle(ArchiveOldPostsAction $archiveOldPost): int
     {
