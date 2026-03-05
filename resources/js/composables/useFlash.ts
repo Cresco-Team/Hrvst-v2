@@ -1,13 +1,32 @@
-import { computed } from 'vue'
 import { usePage } from '@inertiajs/vue3'
+import { watch } from 'vue'
+import { toast } from 'vue-sonner'
+import type { AppPageProps, FlashType } from '@/types'
 
-export function useFlash() {
-    const page = usePage()
+const handlers: Record<FlashType, (message: string) => void> = {
+  success: (message) => toast.success(message),
+  error:   (message) => toast.error(message),
+  warning: (message) => toast.warning(message),
+  info:    (message) => toast.info(message),
+}
 
-    const flash = computed(() => {
-        const shared = page.props as Record<string, unknown>
-        return shared.flash as { type?: 'success' | 'error', message?: string } | undefined
-    })
+export function useFlash(): void {
+  const page = usePage<AppPageProps>()
 
-    return { flash }
+  watch(
+    () => page.props.flash,
+    (flash) => {
+      if (!flash) return
+
+      const types = Object.keys(handlers) as FlashType[]
+
+      for (const type of types) {
+        const message = flash[type]
+        if (message) {
+          handlers[type](message)
+        }
+      }
+    },
+    { deep: true },
+  )
 }
