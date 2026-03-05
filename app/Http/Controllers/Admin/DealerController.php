@@ -62,7 +62,7 @@ class DealerController extends Controller
         return response()->json(DealerService::pending());
     }
 
-    public function approve(int $dealer, ApproveDealerAction $approveDealer): RedirectResponse
+    public function approve(DealerProfile $dealer, ApproveDealerAction $approveDealer): RedirectResponse
     {
         Gate::authorize('approve', DealerProfile::class);
 
@@ -75,7 +75,7 @@ class DealerController extends Controller
             ]);
     }
 
-    public function reject(int $dealer, RejectDealerAction $rejectDealer): RedirectResponse
+    public function reject(DealerProfile $dealer, RejectDealerAction $rejectDealer): RedirectResponse
     {
         Gate::authorize('reject', DealerProfile::class);
 

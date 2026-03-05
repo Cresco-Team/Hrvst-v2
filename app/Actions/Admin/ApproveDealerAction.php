@@ -10,6 +10,6 @@ final class ApproveDealerAction
     {
         abort_if(! $dealer->pending(), 422, "Only pending dealers can be approved.");
 
-        $dealer->approveAcocunt();
+        $dealer->approveAccount();
     }
 }

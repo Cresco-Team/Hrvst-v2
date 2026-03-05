@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AddressController;
 use App\Http\Controllers\Announcement\CommentController;
 use App\Http\Controllers\Announcement\FlagController;
 use App\Http\Controllers\Announcement\ReactionController;
@@ -14,6 +15,8 @@ Route::get('/', function () {
         'canRegister' => Features::enabled(Features::registration()),
     ]);
 })->name('home');
+
+Route::get('/address/barangays', [AddressController::class, 'barangays'])->name('address.barangays');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', function () {
