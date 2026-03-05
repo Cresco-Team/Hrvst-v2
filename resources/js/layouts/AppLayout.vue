@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import AppLayout from '@/layouts/app/AppHeaderLayout.vue'
-import { Toaster } from '@/components/ui/sonner'
-import { toast } from 'vue-sonner' // Import the trigger function
-import { useFlash } from '@/composables/useFlash' // Your existing composable
+
 import { watch } from 'vue'
+import { toast } from 'vue-sonner'
+import { Toaster } from '@/components/ui/sonner'
+import { useFlash } from '@/composables/useFlash'
+import AppLayout from '@/layouts/app/AppHeaderLayout.vue'
 import type { BreadcrumbItem } from '@/types'
 
 type Props = {

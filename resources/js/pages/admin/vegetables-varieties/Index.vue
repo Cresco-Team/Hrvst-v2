@@ -1,19 +1,19 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, computed } from 'vue'
+
 import { Head, router } from '@inertiajs/vue3'
-import { useFlash } from '@/composables/useFlash'
+import { AlertTriangle, Leaf, TrendingUp } from 'lucide-vue-next'
+import { ref, computed } from 'vue'
+import VarietyDeleteConfirm from '@/components/features/admin/dialogs/VarietyDeleteConfirm.vue'
+import PriceFreshnessFilter from '@/components/features/admin/filters/PriceFreshnessFilter.vue'
+import VarietyForm from '@/components/features/admin/forms/VarietyForm.vue'
+import VarietyTable from '@/components/features/admin/tables/VarietyTable.vue'
+import Heading from '@/components/Heading.vue'
+import LargeCard from '@/components/shared/cards/LargeCard.vue'
+import { Skeleton } from '@/components/ui/skeleton'
 import AppLayout from '@/layouts/AppLayout.vue'
 import admin from '@/routes/admin'
 import type { BreadcrumbItem } from '@/types'
-import VarietyTable from '@/components/features/admin/tables/VarietyTable.vue'
-import VarietyForm from '@/components/features/admin/forms/VarietyForm.vue'
-import VarietyDeleteConfirm from '@/components/features/admin/dialogs/VarietyDeleteConfirm.vue'
-import PriceFreshnessFilter from '@/components/features/admin/filters/PriceFreshnessFilter.vue'
-import { Skeleton } from '@/components/ui/skeleton'
-import Heading from '@/components/Heading.vue'
-import LargeCard from '@/components/shared/cards/LargeCard.vue'
-import { AlertTriangle, Leaf, TrendingUp } from 'lucide-vue-next'
-import { Props, Variety } from '@/types/admin/vegetable-varieties'
+import type { Props, Variety } from '@/types/admin/vegetable-varieties'
 
 const props = withDefaults(defineProps<Props>(), {
     varieties: undefined,
@@ -25,28 +25,6 @@ const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Admin', href: admin.dashboard().url },
     { title: 'Vegetables & Varieties', href: admin.vegetables_varieties.index().url },
 ]
-
-const { flash } = useFlash()
-const toastVisible = ref(false)
-let toastTimer: ReturnType<typeof setTimeout> | null = null
-
-function showToast() {
-    toastVisible.value = true
-    if (toastTimer) clearTimeout(toastTimer)
-    toastTimer = setTimeout(() => { toastVisible.value = false }, 4000)
-}
-
-router.on('success', () => {
-    if (flash.value?.message) showToast()
-})
-
-onMounted(() => {
-    if (flash.value?.message) showToast()
-})
-
-onUnmounted(() => {
-    if (toastTimer) clearTimeout(toastTimer)
-})
 
 /* -- modal state -- */
 const formOpen = ref(false)
@@ -83,9 +61,8 @@ function handleSubmit(formData: FormData) {
     isSubmitting.value = true
 
     if (activeVariety.value) {
-        // UPDATE - Laravel needs _method: PUT for updates with FormData
         formData.append('_method', 'PUT')
-        
+
         router.post(`/admin/vegetables-varieties/${activeVariety.value.id}`, formData, {
             onSuccess() {
                 formOpen.value = false
@@ -96,7 +73,6 @@ function handleSubmit(formData: FormData) {
             },
         })
     } else {
-        // CREATE
         router.post('/admin/vegetables-varieties', formData, {
             onSuccess() {
                 formOpen.value = false
@@ -160,8 +136,8 @@ const isLoadingVarieties = computed(() => !props.varieties)
                 <Skeleton class="h-33" />
                 <Skeleton class="h-33" />
                 <Skeleton class="h-33" />
-             </div>
-             <div v-else-if="summary" class="grid md:grid-cols-3 gap-4">
+            </div>
+            <div v-else-if="summary" class="grid md:grid-cols-3 gap-4">
                 <LargeCard
                     title="Total Varieties"
                     subtext="available for planting"
@@ -185,9 +161,8 @@ const isLoadingVarieties = computed(() => !props.varieties)
                     cardClass="md:col-span-1 bg-linear-to-br from-red-500/20 via-green-500/10 to-green-500/30"
                 />
             </div>
-            
 
-            <!-- data table -->
+            <!-- Data table -->
             <div v-if="isLoadingVarieties" class="flex flex-col gap-4">
                 <div class="flex items-center justify-between">
                     <Skeleton class="h-9 w-64" />
@@ -211,11 +186,11 @@ const isLoadingVarieties = computed(() => !props.varieties)
                 @open-delete="openDelete"
                 @page-change="handlePageChange"
             />
-            
+
         </div>
     </AppLayout>
 
-    <!-- -- modals -- -->
+    <!-- Modals -->
     <VarietyForm
         v-if="vegetableOptions"
         :open="formOpen"
@@ -232,19 +207,4 @@ const isLoadingVarieties = computed(() => !props.varieties)
         @update:open="deleteOpen = $event"
         @confirm="handleDelete"
     />
-
-    <!-- -- toast -- -->
-    <div
-        v-if="toastVisible && flash?.message"
-        class="fixed bottom-6 left-1/2 z-100 -translate-x-1/2 flex items-center gap-3 rounded-lg border bg-background px-4 py-3 shadow-lg transition-all"
-        :class="flash.type === 'error' ? 'border-destructive' : 'border-primary'"
-    >
-        <span
-            class="inline-flex size-5 items-center justify-center rounded-full text-xs font-bold text-white"
-            :class="flash.type === 'error' ? 'bg-destructive' : 'bg-primary'"
-        >
-            {{ flash.type === 'error' ? '!' : '✓' }}
-        </span>
-        <span class="text-sm font-medium">{{ flash.message }}</span>
-    </div>
 </template>

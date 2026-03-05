@@ -7,8 +7,10 @@ import { initializeTheme } from './composables/useAppearance';
 import 'leaflet/dist/leaflet.css'
 import 'leaflet.markercluster/dist/MarkerCluster.css'
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css'
+import 'vue-sonner/style.css'
+import 'vue-sonner/style.css'
 
-const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
+const appName = import.meta.env.VITE_APP_NAME || 'Hrvst';
 
 createInertiaApp({
     title: (title) => (title ? `${title} - ${appName}` : appName),

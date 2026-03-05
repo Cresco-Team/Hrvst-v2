@@ -107,7 +107,7 @@ const steps = [
                 <div class="hero-badge mb-8 inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-xs font-bold uppercase tracking-widest"
                     style="border-color: oklch(0.7920 0.2090 151.7110 / 0.3); background: oklch(0.7920 0.2090 151.7110 / 0.08); color: oklch(0.5000 0.2090 151.7110);">
                     <Sprout class="size-3.5 shrink-0" />
-                    Trading Post · eam Cresco
+                    Trading Post · Team Cresco
                 </div>
 
                 <!-- Headline — uses Aleo as declared in --font-serif -->
