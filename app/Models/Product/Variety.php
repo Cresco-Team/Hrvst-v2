@@ -42,6 +42,13 @@ class Variety extends Model
         return $this->hasOne(PriceHistory::class)->latest('recorded_at');
     }
 
+    public function recentPrices(): HasMany
+    {
+        return $this->hasMany(PriceHistory::class)
+            ->latest('recorded_at')
+            ->limit(12);
+    }
+
     public function posts(): HasMany
     {
         return $this->hasMany(Post::class);
@@ -55,20 +62,6 @@ class Variety extends Model
             get: fn () => $this->image_path 
                 ? asset('storage/' . $this->image_path)
                 : null,
-        );
-    }
-
-    public function averagePrice(): Attribute
-    {
-        return Attribute::make(
-            get: fn () => ($this->price_min + $this->price_max) / 2,
-        );
-    }
-
-    public function priceRange(): Attribute
-    {
-        return Attribute::make(
-            get: fn () => "₱{$this->price_min} - ₱{$this->price_max}",
         );
     }
 }

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Farmer\MarketplaceController;
 use App\Http\Controllers\Farmer\SupplyController;
+use App\Http\Controllers\Farmer\VegetablesController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/farmer/garden-test', function () {
@@ -10,6 +11,8 @@ Route::post('/farmer/garden-test', function () {
 
 Route::middleware(['auth', 'verified', 'farmer'])->prefix('farmer')->name('farmer.')->group(function () {
     
+    Route::get('/vegetables', [VegetablesController::class, 'index'])->name('vegetables.index');
+
     Route::prefix('garden')->name('garden.')->group(function () {
         Route::get('/', [SupplyController::class, 'index'])->name('index');
         Route::post('/', [SupplyController::class, 'store'])->name('store');

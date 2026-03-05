@@ -15,6 +15,12 @@ class SupplyPolicy
             || $user->hasRole('admin');
     }
 
+    public function view(User $user, FarmerSupply $supply): bool
+    {
+        return $user->hasRole('admin')
+            || $user->dealerProfile?->is_approved;
+    }
+
     public function create(User $user): bool
     {
         return $user->hasRole('farmer')

@@ -1,6 +1,7 @@
 <script setup lang="ts">
+
 import { Link, usePage } from '@inertiajs/vue3';
-import { Flag, Gem, Menu, MessagesSquare, PackageSearch, Search, Sprout, Store, Truck, Wheat } from 'lucide-vue-next';
+import { Gem, Menu, MessagesSquare, Package, PackageSearch, Search, Sprout, Store, Truck } from 'lucide-vue-next';
 import { computed } from 'vue';
 import AppLogo from '@/components/AppLogo.vue';
 import AppLogoIcon from '@/components/AppLogoIcon.vue';
@@ -16,12 +17,12 @@ import { useCurrentUrl } from '@/composables/useCurrentUrl';
 import { getInitials } from '@/composables/useInitials';
 import { toUrl } from '@/lib/utils';
 import { dashboard } from '@/routes';
-import type { BreadcrumbItem, NavItem } from '@/types';
 import admin from '@/routes/admin';
 import dealer from '@/routes/dealer';
 import farmer from '@/routes/farmer';
-import NotificationBell from './NotificationBell.vue';
+import type { BreadcrumbItem, NavItem } from '@/types';
 import PendingApprovalSheet from './admin/PendingApprovalSheet.vue';
+import NotificationBell from './NotificationBell.vue';
 
 type Props = {
     breadcrumbs?: BreadcrumbItem[];
@@ -56,20 +57,20 @@ const mainNavItems = computed<NavItem[]>(() => {
                 title: 'Dealers',
                 href: admin.dealers.index(),
                 icon: Store
-            }, {
-                title: 'Reports',
-                href: admin.flags.index(),
-                icon: Flag
             })
         }
 
         if (page.props.auth.user.roles.includes('dealer')) {
             items.push({
+                title: 'Vegetables',
+                href: dealer.vegetables.index(),
+                icon: Sprout
+            }, {
                 title: 'Marketplace',
                 href: dealer.marketplace.index(),
                 icon: Store
             }, {
-                title: 'My Requests',
+                title: 'My Posts',
                 href: dealer.demands.index(),
                 icon: PackageSearch
             })
@@ -77,13 +78,17 @@ const mainNavItems = computed<NavItem[]>(() => {
 
         if (page.props.auth.user.roles.includes('farmer')) {
             items.push({
+                title: 'Vegetables',
+                href: farmer.vegetables.index(),
+                icon: Sprout
+            }, {
                 title: 'Marketplace',
                 href: farmer.marketplace.index(),
                 icon: Truck
             }, {
                 title: 'My Garden',
                 href: farmer.garden.index(),
-                icon: Sprout
+                icon: Package
             })
         }
     

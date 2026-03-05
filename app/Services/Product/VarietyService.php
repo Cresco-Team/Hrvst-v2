@@ -2,10 +2,12 @@
 
 namespace App\Services\Product;
 
+use App\Models\Product\Category;
 use App\Models\Product\PriceHistory;
 use App\Models\Product\Variety;
 use App\Models\Product\Vegetable;
 use App\Services\Media\ImageUploadService;
+use Carbon\CarbonInterface;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\UploadedFile;
@@ -21,7 +23,7 @@ class VarietyService
     {
         $query = Variety::with([
             'vegetable.category',
-            'latestPrice'
+            'latestPrice',
         ]);
 
         if ($priceFilter) {
@@ -40,7 +42,7 @@ class VarietyService
             ->through(function ($variety) {
                 $variety->price_updated_human = $variety->latestPrice->recorded_at->diffForHumans();
                 $variety->price_updated_date = $variety->latestPrice->recorded_at->format('M d, Y');
-                
+
                 $daysOld = $variety->latestPrice->recorded_at->diffInDays(now());
                 $variety->price_freshness = match (true) {
                     $daysOld <= 7 => 'recent',
@@ -48,20 +50,72 @@ class VarietyService
                     $daysOld <= 90 => 'very stable',
                     default => 'stale',
                 };
+
                 return $variety;
             });
     }
 
-    /**
-     * OPTIMIZED: Single query to get all summary stats
-     */
+    public static function forCatalog(int $perPage = 20, ?string $search = null, ?int $categoryId = null): LengthAwarePaginator
+    {
+        return Variety::with([
+            'vegetable.category',
+            'latestPrice',
+            'recentPrices',
+        ])
+            ->when($search, fn (Builder $q) => $q
+                ->where('name', 'like', "%{$search}%")
+                ->orWhereHas('vegetable', fn (Builder $q) => $q->where('name', 'like', "%{$search}%"))
+            )
+            ->when($categoryId, fn (Builder $q) => $q
+                ->whereHas('vegetable.category', fn (Builder $q) => $q->where('id', $categoryId))
+            )
+            ->orderBy('name')
+            ->paginate($perPage)
+            ->through(function ($variety) {
+                return [
+                    'id' => $variety->id,
+                    'name' => $variety->name,
+                    'image_url' => $variety->image_url,
+                    'weeks_to_harvest' => $variety->weeks_to_harvest,
+                    'vegetable' => [
+                        'id' => $variety->vegetable->id,
+                        'name' => $variety->vegetable->name,
+                        'category' => [
+                            'id' => $variety->vegetable->category->id,
+                            'name' => $variety->vegetable->category->name,
+                        ],
+                    ],
+                    'latest_price' => $variety->latestPrice ? [
+                        'price_min' => (float) $variety->latestPrice->price_min,
+                        'price_max' => (float) $variety->latestPrice->price_max,
+                        'recorded_at' => $variety->latestPrice->recorded_at->format('M d, Y'),
+                        'freshness' => self::computePriceFreshness($variety->latestPrice->recorded_at),
+                    ] : null,
+                    'recent_prices' => $variety->recentPrices
+                        ->sortBy('recorded_at')
+                        ->map(fn ($p) => [
+                            'price_min' => (float) $p->price_min,
+                            'price_max' => (float) $p->price_max,
+                            'recorded_at' => $p->recorded_at->format('M d, Y'),
+                        ])
+                        ->values(),
+                ];
+            });
+    }
+
+    public static function categoryOptions(): array
+    {
+        return Category::orderBy('name')
+            ->get(['id', 'name'])
+            ->toArray();
+    }
+
     public static function summary(): array
     {
         $now = now();
         $oneWeekAgo = $now->copy()->subWeek();
         $oneMonthAgo = $now->copy()->subMonth();
 
-        // Single optimized query to get all price stats at once
         $priceStats = DB::table('varieties as v')
             ->leftJoin('price_histories as ph', function ($join) {
                 $join->on('v.id', '=', 'ph.variety_id')
@@ -79,7 +133,7 @@ class VarietyService
 
         return [
             'total_varieties' => (int) $priceStats->total_varieties,
-            'total_vegetables' => Vegetable::count(), // Cached or add to query if needed
+            'total_vegetables' => Vegetable::count(),
             'average_weeks_to_harvest' => round($priceStats->avg_weeks ?? 0, 1),
             'price_stats' => [
                 'updated_week' => (int) $priceStats->updated_week,
@@ -92,7 +146,6 @@ class VarietyService
 
     public static function vegetableOptions(): array
     {
-        // Cache for 1 hour since vegetables rarely change
         return cache()->remember('vegetable_options', 3600, function () {
             return Vegetable::with('category')
                 ->get()
@@ -106,20 +159,16 @@ class VarietyService
 
     public function create(array $validated, ?UploadedFile $image = null): Variety
     {
-        // Handle image upload
         if ($image) {
             $validated['image_path'] = $this->imageService->uploadVarietyImage($image);
         }
 
-        // Extract price data before creating variety
         $priceMin = $validated['price_min'];
         $priceMax = $validated['price_max'];
         unset($validated['price_min'], $validated['price_max']);
 
-        // Create the variety
         $variety = Variety::create($validated);
 
-        // Create initial price history
         $this->createPriceHistory($variety, $priceMin, $priceMax);
 
         return $variety->load('latestPrice');
@@ -127,23 +176,19 @@ class VarietyService
 
     public function update(Variety $variety, array $validated, ?UploadedFile $image = null): Variety
     {
-        // Handle image upload and replace old one
         if ($image) {
             $validated['image_path'] = $this->imageService->uploadVarietyImage(
-                $image, 
+                $image,
                 $variety->image_path
             );
         }
 
-        // Extract price data
         $priceMin = $validated['price_min'];
         $priceMax = $validated['price_max'];
         unset($validated['price_min'], $validated['price_max']);
 
-        // Update variety
         $variety->update($validated);
 
-        // Update price history (create new entry for today)
         $this->updatePriceHistory($variety, $priceMin, $priceMax);
 
         return $variety->load('latestPrice');
@@ -151,23 +196,19 @@ class VarietyService
 
     public function delete(Variety $variety): bool
     {
-        // Check for plantings
         if ($variety->offerings()->exists() || $variety->demands()->exists()) {
             return false;
         }
 
-        // Delete image file
         if ($variety->image_path) {
             $this->imageService->deleteVarietyImage($variety->image_path);
         }
+
         $variety->delete();
 
         return true;
     }
 
-    /**
-     * Create a new price history entry for today
-     */
     private function createPriceHistory(Variety $variety, float $priceMin, float $priceMax): void
     {
         PriceHistory::create([
@@ -178,9 +219,6 @@ class VarietyService
         ]);
     }
 
-    /**
-     * Update price history - create new entry for today or update existing
-     */
     private function updatePriceHistory(Variety $variety, float $priceMin, float $priceMax): void
     {
         PriceHistory::updateOrCreate(
@@ -193,5 +231,17 @@ class VarietyService
                 'price_max' => $priceMax,
             ]
         );
+    }
+
+    private static function computePriceFreshness(CarbonInterface $date): string
+    {
+        $daysOld = $date->diffInDays(now());
+
+        return match (true) {
+            $daysOld <= 7 => 'recent',
+            $daysOld <= 30 => 'stable',
+            $daysOld <= 90 => 'very stable',
+            default => 'stale',
+        };
     }
 }
