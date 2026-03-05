@@ -4,8 +4,14 @@ namespace App\Actions\Fortify;
 
 use App\Concerns\PasswordValidationRules;
 use App\Concerns\ProfileValidationRules;
+use App\Models\Profiles\DealerProfile;
+use App\Models\Profiles\FarmerProfile;
+use App\Models\Profiles\Role;
 use App\Models\User;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 use Laravel\Fortify\Contracts\CreatesNewUsers;
 
 class CreateNewUser implements CreatesNewUsers
@@ -19,15 +25,102 @@ class CreateNewUser implements CreatesNewUsers
      */
     public function create(array $input): User
     {
-        Validator::make($input, [
+        $this->validateInput($input);
+
+        return DB::transaction(function () use ($input): User {
+            $user = $this->createUser($input);
+
+            $this->assignRole($user, $input['role']);
+
+            match ($input['role']) {
+                'farmer' => $this->createFarmerProfile($user, $input),
+                'dealer' => $this->createDealerProfile($user, $input),
+            };
+
+            return $user;
+        });
+    }
+
+    private function validateInput(array $input): void
+    {
+        $role = $input['role'] ?? null;
+
+        $rules = [
+            'role'          => ['required', 'string', Rule::in(['farmer', 'dealer'])],
             ...$this->profileRules(),
-            'password' => $this->passwordRules(),
+            'phone_number'  => $this->phoneNumberRules(),
+            'password'      => $this->passwordRules(),
+            'profile_image' => ['nullable', 'image', 'mimes:jpeg,jpg,png,webp', 'max:5120'],
+        ];
+
+        if ($role === 'farmer') {
+            $rules += [
+                'province_id'     => ['required', 'integer', Rule::exists('provinces', 'id')],
+                'municipality_id' => ['required', 'integer', Rule::exists('municipalities', 'id')],
+                'barangay_id'     => ['required', 'integer', Rule::exists('barangays', 'id')],
+                'latitude'        => ['required', 'numeric', 'between:-90,90'],
+                'longitude'       => ['required', 'numeric', 'between:-180,180'],
+                'farm_image'      => ['required', 'image', 'mimes:jpeg,jpg,png,webp', 'max:5120'],
+            ];
+        }
+
+        if ($role === 'dealer') {
+            $rules['document_image'] = ['required', 'image', 'mimes:jpeg,jpg,png,webp', 'max:5120'];
+        }
+
+        Validator::make($input, $rules, [
+            'phone_number.regex'   => 'Phone number must be a valid PH mobile number (e.g. 09171234567).',
+            'phone_number.unique'  => 'This phone number is already registered.',
+            'farm_image.required'  => 'A farm photo is required as proof of your farm.',
+            'document_image.required' => 'A document photo is required for dealer verification.',
         ])->validate();
+    }
+
+    private function createUser(array $input): User
+    {
+        $imagePath = isset($input['profile_image']) && $input['profile_image'] instanceof UploadedFile
+            ? $input['profile_image']->store('users', 'public')
+            : null;
 
         return User::create([
-            'name' => $input['name'],
-            'email' => $input['email'],
-            'password' => $input['password'],
+            'name'         => $input['name'],
+            'email'        => $input['email'],
+            'password'     => $input['password'],
+            'phone_number' => $input['phone_number'],
+            'image_path'   => $imagePath,
+        ]);
+    }
+
+    private function assignRole(User $user, string $roleName): void
+    {
+        $role = Role::where('name', $roleName)->firstOrFail();
+        $user->roles()->attach($role);
+    }
+
+    private function createFarmerProfile(User $user, array $input): void
+    {
+        /** @var UploadedFile $farmImage */
+        $farmImage = $input['farm_image'];
+
+        FarmerProfile::create([
+            'user_id'         => $user->id,
+            'province_id'     => $input['province_id'],
+            'municipality_id' => $input['municipality_id'],
+            'barangay_id'     => $input['barangay_id'],
+            'latitude'        => $input['latitude'],
+            'longitude'       => $input['longitude'],
+            'farm_image'      => $farmImage->store('farm-images', 'public'),
+        ]);
+    }
+
+    private function createDealerProfile(User $user, array $input): void
+    {
+        /** @var UploadedFile $documentImage */
+        $documentImage = $input['document_image'];
+
+        DealerProfile::create([
+            'user_id'        => $user->id,
+            'document_image' => $documentImage->store('dealer-documents', 'public'),
         ]);
     }
 }
