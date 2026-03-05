@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Farmer\MarketplaceController;
 use App\Http\Controllers\Farmer\SupplyController;
+use App\Http\Controllers\Farmer\SupplyMapController;
 use App\Http\Controllers\Farmer\VegetablesController;
 use Illuminate\Support\Facades\Route;
 
@@ -20,6 +21,10 @@ Route::middleware(['auth', 'verified', 'farmer'])->prefix('farmer')->name('farme
         Route::post('/{supply}/archive', [SupplyController::class, 'archive'])->name('archive');
         Route::post('/{supply}/fulfill', [SupplyController::class, 'fulfill'])->name('fulfill');
         Route::delete('/{supply}', [SupplyController::class, 'destroy'])->name('destroy');
+    });
+    Route::prefix('supply-map')->name('supply-map.')->group(function () {
+        Route::get('/', [SupplyMapController::class, 'index'])->name('index');
+        Route::get('/api/markers', [SupplyMapController::class, 'markers'])->name('markers');        
     });
 
     Route::prefix('marketplace')->name('marketplace.')->group(function () {

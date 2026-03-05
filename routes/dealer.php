@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Dealer\DemandController;
 use App\Http\Controllers\Dealer\MarketplaceController;
+use App\Http\Controllers\Dealer\SupplyMapController;
 use App\Http\Controllers\Dealer\VegetablesController;
 use Illuminate\Support\Facades\Route;
 
@@ -18,8 +19,13 @@ Route::middleware(['auth', 'verified', 'dealer'])->prefix('dealer')->name('deale
         Route::delete('/{demand}', [DemandController::class, 'destroy'])->name('destroy');
     });
 
+    Route::prefix('supply-map')->name('supply-map.')->group(function () {
+        Route::get('/', [SupplyMapController::class, 'index'])->name('index');
+        Route::get('/{supply}', [SupplyMapController::class, 'show'])->name('show');
+    });
+
     Route::prefix('marketplace')->name('marketplace.')->group(function () {
         Route::get('/', [MarketplaceController::class, 'index'])->name('index');
-        Route::get('/{supply}', [MarketplaceController::class, 'show'])->name('show');
+        Route::get('/api/markers', [MarketplaceController::class, 'markers'])->name('markers');
     });
 });
