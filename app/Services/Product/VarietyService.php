@@ -7,10 +7,10 @@ use App\Models\Product\PriceHistory;
 use App\Models\Product\Variety;
 use App\Models\Product\Vegetable;
 use App\Services\Media\ImageUploadService;
+use Carbon\CarbonInterface;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class VarietyService
@@ -233,7 +233,7 @@ class VarietyService
         );
     }
 
-    private static function computePriceFreshness(Carbon $date): string
+    private static function computePriceFreshness(CarbonInterface $date): string
     {
         $daysOld = $date->diffInDays(now());
 
