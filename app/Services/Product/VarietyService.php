@@ -196,10 +196,6 @@ class VarietyService
 
     public function delete(Variety $variety): bool
     {
-        if ($variety->offerings()->exists() || $variety->demands()->exists()) {
-            return false;
-        }
-
         if ($variety->image_path) {
             $this->imageService->deleteVarietyImage($variety->image_path);
         }
