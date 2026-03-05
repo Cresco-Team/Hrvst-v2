@@ -55,7 +55,7 @@ class DealerProfile extends Model
 
     /* ---------- actions ---------- */
 
-    public function approveAcocunt(): void
+    public function approveAccount(): void
     {
         $this->is_approved = true;
         $this->save();

@@ -75,14 +75,15 @@ class FarmerController extends Controller
 
     public function details(int $id): JsonResponse
     {
+        $farmerProfile = FarmerProfile::findOrFail($id);
+        Gate::authorize('view', $farmerProfile);
+        
         $farmer = $this->farmerMapService->getFarmerDetails($id);
 
         if (!$farmer) {
             return response()->json(['error' => 'Farmer not found'], 404);
         }
 
-        $farmerProfile = FarmerProfile::findOrFail($id);
-        Gate::authorize('view', $farmerProfile);
 
         return response()->json($farmer);
     }
@@ -109,7 +110,7 @@ class FarmerController extends Controller
         return response()->json(FarmerService::pending());
     }
 
-    public function approve(int $farmer, ApproveFarmerAction $approveFarmer): RedirectResponse
+    public function approve(FarmerProfile $farmer, ApproveFarmerAction $approveFarmer): RedirectResponse
     {
         Gate::authorize('approve', FarmerProfile::class);
 
@@ -122,7 +123,7 @@ class FarmerController extends Controller
             ]);
     }
 
-    public function reject(int $farmer, RejectFarmerAction $rejectFarmer): RedirectResponse
+    public function reject(FarmerProfile $farmer, RejectFarmerAction $rejectFarmer): RedirectResponse
     {
         Gate::authorize('reject', FarmerProfile::class);
 

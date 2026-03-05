@@ -10,6 +10,6 @@ final class ApproveFarmerAction
     {
         abort_if(! $farmer->pending(), 422, "Only pending farmers can be approved.");
 
-        $farmer->approveAcocunt();
+        $farmer->approveAccount();
     }
 }
