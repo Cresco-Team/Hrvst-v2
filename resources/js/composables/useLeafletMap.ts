@@ -1,5 +1,7 @@
-import { ref, onBeforeUnmount } from 'vue'
+import * as L from 'leaflet';
 import type { Map as LeafletMap, Marker } from 'leaflet'
+import { ref, onBeforeUnmount } from 'vue'
+
 
 export interface MapMarker {
   lat: number
@@ -9,10 +11,16 @@ export interface MapMarker {
 
 export interface UseLeafletMapOptions {
   zoom?: number
+  /**
+   * When true (default), a pin is placed at the center coordinate if no
+   * markers are passed to init(). Set to false for maps that manage their
+   * own marker layers (e.g. cluster groups).
+   */
+  placeFallbackMarker?: boolean
 }
 
 export function useLeafletMap(options: UseLeafletMapOptions = {}) {
-  const { zoom = 14 } = options
+  const { zoom = 14, placeFallbackMarker = true } = options
 
   const container = ref<HTMLElement | null>(null)
 
@@ -36,7 +44,9 @@ export function useLeafletMap(options: UseLeafletMapOptions = {}) {
       maxZoom: 19,
     }).addTo(map)
 
-    const targets = mapMarkers.length > 0 ? mapMarkers : [{ lat, lng }]
+    const targets = mapMarkers.length > 0
+      ? mapMarkers
+      : placeFallbackMarker ? [{ lat, lng }] : []
 
     for (const m of targets) {
       const marker = L.marker([m.lat, m.lng])
@@ -57,16 +67,20 @@ export function useLeafletMap(options: UseLeafletMapOptions = {}) {
     map?.invalidateSize()
   }
 
+  function getMap(): LeafletMap | null {
+    return map
+  }
+
   onBeforeUnmount(destroy)
 
-  return { container, init, destroy, invalidateSize }
+  return { container, init, destroy, invalidateSize, getMap }
 }
 
 // Vite breaks Leaflet's default marker asset resolution — this is required
-function fixMarkerIcons(L: typeof import('leaflet')) {
+function fixMarkerIcons(leaflet: typeof L) {
   delete (L.Icon.Default.prototype as unknown as Record<string, unknown>)._getIconUrl
 
-  L.Icon.Default.mergeOptions({
+  leaflet.Icon.Default.mergeOptions({
     iconUrl: new URL('leaflet/dist/images/marker-icon.png', import.meta.url).href,
     iconRetinaUrl: new URL('leaflet/dist/images/marker-icon-2x.png', import.meta.url).href,
     shadowUrl: new URL('leaflet/dist/images/marker-shadow.png', import.meta.url).href,
