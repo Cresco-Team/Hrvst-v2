@@ -64,7 +64,7 @@ class MunicipalitySeeder extends Seeder
                 'longitude' => 120.5622
             ], [
                 'name' => 'Tublay',
-                'latitude' => 120.5622,
+                'latitude' => 16.4431,
                 'longitude' => 120.6329
             ],
         ];
