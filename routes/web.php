@@ -23,7 +23,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         $user = Auth::user();
         if ($user->hasRole('admin')) return redirect()->route('admin.dashboard');
 
-        return Inertia::render('Dashboard');
+        if ($user->hasRole('dealer') && $user->dealerProfile?->is_approved === true) return redirect()->route('dealer.marketplace.index');
+
+        if ($user->hasRole('farmer') && $user->farmerProfile?->is_approved === true) return redirect()->route('farmer.marketplace.index');
+
+        return Inertia::render('Welcome');
     })->name('dashboard');
 });
 
