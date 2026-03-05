@@ -49,6 +49,11 @@ class Variety extends Model
             ->limit(12);
     }
 
+    public function posts(): HasMany
+    {
+        return $this->hasMany(Post::class);
+    }
+
     /* ---------- accessors ---------- */
 
     public function imageUrl(): Attribute
