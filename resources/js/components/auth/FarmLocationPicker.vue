@@ -1,13 +1,14 @@
 <script setup lang="ts">
-// npm install leaflet @types/leaflet
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
-import markerIconUrl from 'leaflet/dist/images/marker-icon.png'
-import markerShadowUrl from 'leaflet/dist/images/marker-shadow.png'
 import { onMounted, onUnmounted, watch } from 'vue'
 import InputError from '@/components/InputError.vue'
 
-const DefaultIcon = L.icon({
+// Fix Leaflet's broken default icon paths under Vite
+import markerIconUrl from 'leaflet/dist/images/marker-icon.png'
+import markerShadowUrl from 'leaflet/dist/images/marker-shadow.png'
+
+L.Marker.prototype.options.icon = L.icon({
     iconUrl: markerIconUrl,
     shadowUrl: markerShadowUrl,
     iconSize: [25, 41],
@@ -15,8 +16,6 @@ const DefaultIcon = L.icon({
     popupAnchor: [1, -34],
     shadowSize: [41, 41],
 })
-
-L.Marker.prototype.options.icon = DefaultIcon
 
 interface Coordinates {
     lat: number | null
@@ -60,7 +59,6 @@ function initMap(): void {
         maxZoom: 19,
     }).addTo(map)
 
-    // Restore existing marker if coordinates are already set
     if (props.modelValue.lat !== null && props.modelValue.lng !== null) {
         placeMarker(props.modelValue.lat, props.modelValue.lng)
     }
@@ -80,18 +78,15 @@ function placeMarker(lat: number, lng: number): void {
     }
 
     marker = L.marker([lat, lng], { draggable: true }).addTo(map)
-
     marker.on('dragend', () => {
-        const position = marker!.getLatLng()
-        emit('update:modelValue', { lat: position.lat, lng: position.lng })
+        const pos = marker!.getLatLng()
+        emit('update:modelValue', { lat: pos.lat, lng: pos.lng })
     })
 }
 
-// Re-center map when municipality selection changes
 watch(() => props.municipalityCoords, (coords) => {
     if (!map || !coords) return
     map.setView([coords.lat, coords.lng], DEFAULT_ZOOM)
-    // Clear previous marker since location changes with municipality
     if (marker) {
         marker.remove()
         marker = null
@@ -99,10 +94,7 @@ watch(() => props.municipalityCoords, (coords) => {
     }
 })
 
-onMounted(() => {
-    initMap()
-})
-
+onMounted(() => { initMap() })
 onUnmounted(() => {
     map?.remove()
     map = null
@@ -112,21 +104,28 @@ onUnmounted(() => {
 
 <template>
     <div class="grid gap-2">
-        <div
-            id="farm-location-map"
-            class="h-64 w-full rounded-md border"
-            :class="{ 'border-destructive': latError || lngError }"
-        />
+        <!--
+            isolation: isolate creates a new stacking context, trapping
+            Leaflet's hardcoded z-indices inside this container so they
+            don't bleed into the rest of the page layout.
+        -->
+        <div style="isolation: isolate;">
+            <div
+                id="farm-location-map"
+                class="h-64 w-full rounded-md border"
+                :class="{ 'border-destructive': latError || lngError }"
+            />
+        </div>
         <p class="text-xs text-muted-foreground">
-            Click on the map to place your farm's location. You can drag the marker to adjust.
+            Click on the map to pin your farm's location. Drag the marker to adjust.
         </p>
         <InputError v-if="latError" :message="latError" />
         <InputError v-if="lngError" :message="lngError" />
-        <div
+        <p
             v-if="modelValue.lat !== null && modelValue.lng !== null"
             class="text-xs text-muted-foreground"
         >
-            Coordinates: {{ modelValue.lat.toFixed(6) }}, {{ modelValue.lng.toFixed(6) }}
-        </div>
+            Pinned at: {{ modelValue.lat.toFixed(6) }}, {{ modelValue.lng.toFixed(6) }}
+        </p>
     </div>
 </template>

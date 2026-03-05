@@ -1,8 +1,6 @@
 <script setup lang="ts">
-
-import { useForm } from '@inertiajs/vue3'
-import { Head } from '@inertiajs/vue3'
-import { ref, computed, watch } from 'vue'
+import { Head, useForm } from '@inertiajs/vue3'
+import { computed, reactive, ref, watch } from 'vue'
 import FarmLocationPicker from '@/components/auth/FarmLocationPicker.vue'
 import InputError from '@/components/InputError.vue'
 import TextLink from '@/components/TextLink.vue'
@@ -44,7 +42,7 @@ const form = useForm({
     password_confirmation: '',
     profile_image: null as File | null,
     // Farmer-specific
-    province_id: 1, // Fixed: Benguet
+    province_id: 1,
     municipality_id: null as number | null,
     barangay_id: null as number | null,
     latitude: null as number | null,
@@ -55,14 +53,47 @@ const form = useForm({
 })
 
 // ---------------------------------------------------------------------------
-// Cascading address state (presentation only — no logic)
+// Image previews
+// Using a single reactive object instead of individual refs passed as args.
+// Vue 3 auto-unwraps refs in templates — passing a ref as an argument gives
+// you the VALUE (null), not the ref itself, making .value throw on null.
+// ---------------------------------------------------------------------------
+
+const previews = reactive<Record<'profile_image' | 'farm_image' | 'document_image', string | null>>({
+    profile_image: null,
+    farm_image: null,
+    document_image: null,
+})
+
+function handleFileSelect(
+    event: Event,
+    field: 'profile_image' | 'farm_image' | 'document_image',
+): void {
+    const input = event.target as HTMLInputElement
+    const file = input.files?.[0] ?? null
+    form[field] = file
+    if (file) {
+        const reader = new FileReader()
+        reader.onload = (e) => {
+            previews[field] = e.target?.result as string
+        }
+        reader.readAsDataURL(file)
+    } else {
+        previews[field] = null
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Cascading address state
 // ---------------------------------------------------------------------------
 
 const barangays = ref<Barangay[]>([])
 const loadingBarangays = ref(false)
+
 const selectedMunicipality = computed<Municipality | null>(
     () => props.municipalities.find(m => m.id === form.municipality_id) ?? null
 )
+
 const mapCenter = computed(() =>
     selectedMunicipality.value
         ? { lat: selectedMunicipality.value.latitude, lng: selectedMunicipality.value.longitude }
@@ -80,13 +111,16 @@ async function onMunicipalityChange(value: string): Promise<void> {
     loadingBarangays.value = true
     try {
         const res = await fetch(`/address/barangays?municipality_id=${id}`)
+        if (!res.ok) throw new Error(`Server returned ${res.status}`)
         barangays.value = await res.json()
+    } catch (e) {
+        console.error('Failed to load barangays:', e)
     } finally {
         loadingBarangays.value = false
     }
 }
 
-// Reset farmer/dealer fields when role changes to avoid stale data in submission
+// Reset profile-specific fields on role switch to avoid stale data in submission
 watch(() => form.role, () => {
     form.municipality_id = null
     form.barangay_id = null
@@ -94,33 +128,10 @@ watch(() => form.role, () => {
     form.longitude = null
     form.farm_image = null
     form.document_image = null
+    previews.farm_image = null
+    previews.document_image = null
     barangays.value = []
 })
-
-// ---------------------------------------------------------------------------
-// File preview helpers
-// ---------------------------------------------------------------------------
-
-const profileImagePreview = ref<string | null>(null)
-const farmImagePreview = ref<string | null>(null)
-const documentImagePreview = ref<string | null>(null)
-
-function handleFileSelect(
-    event: Event,
-    field: 'profile_image' | 'farm_image' | 'document_image',
-    preview: typeof profileImagePreview
-): void {
-    const input = event.target as HTMLInputElement
-    const file = input.files?.[0] ?? null
-    form[field] = file
-    if (file) {
-        const reader = new FileReader()
-        reader.onload = (e) => { preview.value = e.target?.result as string }
-        reader.readAsDataURL(file)
-    } else {
-        preview.value = null
-    }
-}
 
 // ---------------------------------------------------------------------------
 // Submission
@@ -143,9 +154,7 @@ function submit(): void {
 
         <form class="flex flex-col gap-6" @submit.prevent="submit">
 
-            <!-- ----------------------------------------------------------------
-                 Role selection
-            ---------------------------------------------------------------- -->
+            <!-- Role selection -->
             <div class="grid gap-2">
                 <Label>I am registering as</Label>
                 <div class="grid grid-cols-2 gap-3">
@@ -173,9 +182,7 @@ function submit(): void {
                 <InputError :message="form.errors.role" />
             </div>
 
-            <!-- ----------------------------------------------------------------
-                 Common fields
-            ---------------------------------------------------------------- -->
+            <!-- Common fields -->
             <div class="grid gap-4">
 
                 <div class="grid gap-2">
@@ -184,7 +191,6 @@ function submit(): void {
                         id="name"
                         v-model="form.name"
                         type="text"
-                        name="name"
                         required
                         autofocus
                         :tabindex="1"
@@ -200,7 +206,6 @@ function submit(): void {
                         id="email"
                         v-model="form.email"
                         type="email"
-                        name="email"
                         required
                         :tabindex="2"
                         autocomplete="email"
@@ -215,7 +220,6 @@ function submit(): void {
                         id="phone_number"
                         v-model="form.phone_number"
                         type="tel"
-                        name="phone_number"
                         required
                         :tabindex="3"
                         autocomplete="tel"
@@ -230,7 +234,6 @@ function submit(): void {
                         id="password"
                         v-model="form.password"
                         type="password"
-                        name="password"
                         required
                         :tabindex="4"
                         autocomplete="new-password"
@@ -245,7 +248,6 @@ function submit(): void {
                         id="password_confirmation"
                         v-model="form.password_confirmation"
                         type="password"
-                        name="password_confirmation"
                         required
                         :tabindex="5"
                         autocomplete="new-password"
@@ -262,8 +264,8 @@ function submit(): void {
                     </Label>
                     <div class="flex items-center gap-3">
                         <img
-                            v-if="profileImagePreview"
-                            :src="profileImagePreview"
+                            v-if="previews.profile_image"
+                            :src="previews.profile_image"
                             alt="Profile preview"
                             class="size-12 rounded-full border object-cover"
                         />
@@ -273,7 +275,7 @@ function submit(): void {
                             accept="image/jpeg,image/jpg,image/png,image/webp"
                             :tabindex="6"
                             class="cursor-pointer"
-                            @change="handleFileSelect($event, 'profile_image', profileImagePreview)"
+                            @change="handleFileSelect($event, 'profile_image')"
                         />
                     </div>
                     <InputError :message="form.errors.profile_image" />
@@ -281,9 +283,7 @@ function submit(): void {
 
             </div>
 
-            <!-- ----------------------------------------------------------------
-                 Farmer-specific fields
-            ---------------------------------------------------------------- -->
+            <!-- Farmer-specific fields -->
             <template v-if="form.role === 'farmer'">
                 <div class="grid gap-4 rounded-md border p-4">
                     <p class="text-sm font-medium">Farm details</p>
@@ -318,7 +318,9 @@ function submit(): void {
                             @update:model-value="v => form.barangay_id = parseInt(v, 10)"
                         >
                             <SelectTrigger id="barangay_id">
-                                <SelectValue :placeholder="loadingBarangays ? 'Loading...' : 'Select barangay'" />
+                                <SelectValue
+                                    :placeholder="loadingBarangays ? 'Loading...' : 'Select barangay'"
+                                />
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectItem
@@ -333,7 +335,6 @@ function submit(): void {
                         <InputError :message="form.errors.barangay_id" />
                     </div>
 
-                    <!-- Leaflet map — only rendered when role is farmer -->
                     <div class="grid gap-2">
                         <Label>Farm location</Label>
                         <FarmLocationPicker
@@ -345,7 +346,6 @@ function submit(): void {
                         />
                     </div>
 
-                    <!-- Farm image (required for farmers) -->
                     <div class="grid gap-2">
                         <Label for="farm_image">
                             Farm photo
@@ -353,8 +353,8 @@ function submit(): void {
                         </Label>
                         <div class="grid gap-2">
                             <img
-                                v-if="farmImagePreview"
-                                :src="farmImagePreview"
+                                v-if="previews.farm_image"
+                                :src="previews.farm_image"
                                 alt="Farm preview"
                                 class="h-32 w-full rounded-md border object-cover"
                             />
@@ -363,7 +363,7 @@ function submit(): void {
                                 type="file"
                                 accept="image/jpeg,image/jpg,image/png,image/webp"
                                 class="cursor-pointer"
-                                @change="handleFileSelect($event, 'farm_image', farmImagePreview)"
+                                @change="handleFileSelect($event, 'farm_image')"
                             />
                         </div>
                         <p class="text-xs text-muted-foreground">
@@ -375,9 +375,7 @@ function submit(): void {
                 </div>
             </template>
 
-            <!-- ----------------------------------------------------------------
-                 Dealer-specific fields
-            ---------------------------------------------------------------- -->
+            <!-- Dealer-specific fields -->
             <template v-if="form.role === 'dealer'">
                 <div class="grid gap-4 rounded-md border p-4">
                     <p class="text-sm font-medium">Dealer verification</p>
@@ -389,8 +387,8 @@ function submit(): void {
                         </Label>
                         <div class="grid gap-2">
                             <img
-                                v-if="documentImagePreview"
-                                :src="documentImagePreview"
+                                v-if="previews.document_image"
+                                :src="previews.document_image"
                                 alt="Document preview"
                                 class="h-32 w-full rounded-md border object-cover"
                             />
@@ -399,7 +397,7 @@ function submit(): void {
                                 type="file"
                                 accept="image/jpeg,image/jpg,image/png,image/webp"
                                 class="cursor-pointer"
-                                @change="handleFileSelect($event, 'document_image', documentImagePreview)"
+                                @change="handleFileSelect($event, 'document_image')"
                             />
                         </div>
                         <p class="text-xs text-muted-foreground">
@@ -411,9 +409,7 @@ function submit(): void {
                 </div>
             </template>
 
-            <!-- ----------------------------------------------------------------
-                 Submit
-            ---------------------------------------------------------------- -->
+            <!-- Submit -->
             <Button
                 type="submit"
                 class="w-full"
