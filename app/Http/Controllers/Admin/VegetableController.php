@@ -44,7 +44,7 @@ class VegetableController extends Controller
             $request->file('image')
         );
 
-        return redirect()->route('admin.vegetables_varieties.index')
+        return redirect()->route('admin.vegetables.index')
             ->with('flash', ['type' => 'success', 'message' => 'Variety created successfully.']);
     }
 
@@ -56,7 +56,7 @@ class VegetableController extends Controller
             $request->file('image')
         );
 
-        return redirect()->route('admin.vegetables_varieties.index')
+        return redirect()->route('admin.vegetables.index')
             ->with('flash', ['type' => 'success', 'message' => 'Variety updated successfully.']);
     }
 
@@ -65,11 +65,11 @@ class VegetableController extends Controller
         $deleted = $this->varietyService->delete($variety);
 
         if (! $deleted) {
-            return redirect()->route('admin.vegetables_varieties.index')
+            return redirect()->route('admin.vegetables.index')
                 ->with('flash', ['type' => 'error', 'message' => 'Cannot delete variety with existing plantings.']);
         }
 
-        return redirect()->route('admin.vegetables_varieties.index')
+        return redirect()->route('admin.vegetables.index')
             ->with('flash', ['type' => 'success', 'message' => 'Variety deleted successfully.']);
     }
 }
