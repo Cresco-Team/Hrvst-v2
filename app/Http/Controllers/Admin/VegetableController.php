@@ -19,7 +19,7 @@ class VegetableController extends Controller
 
     public function index(Request $request)
     {
-        return Inertia::render('admin/vegetables-varieties/Index', [
+        return Inertia::render('admin/vegetables/Index', [
             'summary' => Inertia::defer(fn () => VarietyService::summary()),
             'filters' => [
                 'price_filter' => $request->query('price_filter', null),
