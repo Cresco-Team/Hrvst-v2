@@ -120,7 +120,7 @@ const isLoadingVarieties = computed(() => !props.varieties)
 </script>
 
 <template>
-    <Head title="Vegetables & Varieties" />
+    <Head title="Vegetables" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex h-full flex-col gap-6 p-4 lg:p-6">
