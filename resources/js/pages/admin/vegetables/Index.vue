@@ -27,7 +27,7 @@ const props = withDefaults(defineProps<Props>(), {
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Admin', href: dashboard().url },
-    { title: 'Vegetables & Varieties', href: index().url },
+    { title: 'Vegetables', href: index().url },
 ]
 
 /* -- CRUD modal state -- */
@@ -128,7 +128,7 @@ const isLoadingVarieties = computed(() => !props.varieties)
             <div class="flex items-end justify-between">
                 <Heading
                     title="Vegetables"
-                    description="Manage all vegetable varieties, prices, and harvest times."
+                    description="Manage all vegetable varieties and prices."
                 />
                 <PriceFreshnessFilter
                     v-if="summary"
