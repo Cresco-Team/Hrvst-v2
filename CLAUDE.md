@@ -9,21 +9,23 @@ The Laravel Boost guidelines are specifically curated by Laravel maintainers for
 
 This application is a Laravel application and its main Laravel ecosystems package & versions are below. You are an expert with them all. Ensure you abide by these specific packages & versions.
 
-- php - 8.4.16
-- inertiajs/inertia-laravel (INERTIA) - v2
+- php - 8.5.1
+- inertiajs/inertia-laravel (INERTIA_LARAVEL) - v2
 - laravel/fortify (FORTIFY) - v1
 - laravel/framework (LARAVEL) - v12
 - laravel/prompts (PROMPTS) - v0
 - laravel/wayfinder (WAYFINDER) - v0
+- laravel/boost (BOOST) - v2
 - laravel/mcp (MCP) - v0
+- laravel/pail (PAIL) - v1
 - laravel/pint (PINT) - v1
 - laravel/sail (SAIL) - v1
 - pestphp/pest (PEST) - v4
 - phpunit/phpunit (PHPUNIT) - v12
-- @inertiajs/vue3 (INERTIA) - v2
+- @inertiajs/vue3 (INERTIA_VUE) - v2
 - tailwindcss (TAILWINDCSS) - v4
 - vue (VUE) - v3
-- @laravel/vite-plugin-wayfinder (WAYFINDER) - v0
+- @laravel/vite-plugin-wayfinder (WAYFINDER_VITE) - v0
 - eslint (ESLINT) - v9
 - prettier (PRETTIER) - v3
 
@@ -35,6 +37,7 @@ This project has domain-specific skills available. You MUST activate the relevan
 - `pest-testing` — Tests applications using the Pest 4 PHP framework. Activates when writing tests, creating unit or feature tests, adding assertions, testing Livewire components, browser testing, debugging test failures, working with datasets or mocking; or when the user mentions test, spec, TDD, expects, assertion, coverage, or needs to verify functionality works.
 - `inertia-vue-development` — Develops Inertia.js v2 Vue client-side applications. Activates when creating Vue pages, forms, or navigation; using &lt;Link&gt;, &lt;Form&gt;, useForm, or router; working with deferred props, prefetching, or polling; or when user mentions Vue with Inertia, Vue pages, Vue forms, or Vue navigation.
 - `tailwindcss-development` — Styles applications using Tailwind CSS v4 utilities. Activates when adding styles, restyling components, working with gradients, spacing, layout, flex, grid, responsive design, dark mode, colors, typography, or borders; or when the user mentions CSS, styling, classes, Tailwind, restyle, hero section, cards, buttons, or any visual/UI changes.
+- `developing-with-fortify` — Laravel Fortify headless authentication backend development. Activate when implementing authentication features including login, registration, password reset, email verification, two-factor authentication (2FA/TOTP), profile updates, headless auth, authentication scaffolding, or auth guards in Laravel applications.
 
 ## Conventions
 
@@ -81,6 +84,7 @@ This project has domain-specific skills available. You MUST activate the relevan
 
 - You should use the `tinker` tool when you need to execute PHP to debug code or query Eloquent models directly.
 - Use the `database-query` tool when you only need to read from the database.
+- Use the `database-schema` tool to inspect table structure before writing migrations or models.
 
 ## Reading Browser Logs With the `browser-logs` Tool
 
@@ -111,7 +115,7 @@ This project has domain-specific skills available. You MUST activate the relevan
 ## Constructors
 
 - Use PHP 8 constructor property promotion in `__construct()`.
-    - <code-snippet>public function __construct(public GitHub $github) { }</code-snippet>
+    - `public function __construct(public GitHub $github) { }`
 - Do not allow empty `__construct()` methods with zero parameters unless the constructor is private.
 
 ## Type Declarations
@@ -119,12 +123,13 @@ This project has domain-specific skills available. You MUST activate the relevan
 - Always use explicit return type declarations for methods and functions.
 - Use appropriate PHP type hints for method parameters.
 
-<code-snippet name="Explicit Return Types and Method Params" lang="php">
+<!-- Explicit Return Types and Method Params -->
+```php
 protected function isAccessible(User $user, ?string $path = null): bool
 {
     ...
 }
-</code-snippet>
+```
 
 ## Enums
 
@@ -157,16 +162,14 @@ protected function isAccessible(User $user, ?string $path = null): bool
 # Inertia
 
 - Inertia creates fully client-side rendered SPAs without modern SPA complexity, leveraging existing server-side patterns.
-- Components live in `resources/js/Pages` (unless specified in `vite.config.js`). Use `Inertia::render()` for server-side routing instead of Blade views.
+- Components live in `resources/js/pages` (unless specified in `vite.config.js`). Use `Inertia::render()` for server-side routing instead of Blade views.
 - ALWAYS use `search-docs` tool for version-specific Inertia documentation and updated code examples.
 - IMPORTANT: Activate `inertia-vue-development` when working with Inertia Vue client-side patterns.
-
-=== inertia-laravel/v2 rules ===
 
 # Inertia v2
 
 - Use all Inertia features from v1 and v2. Check the documentation before making changes to ensure the correct approach.
-- New features: deferred props, infinite scrolling (merging props + `WhenVisible`), lazy loading on scroll, polling, prefetching.
+- New features: deferred props, infinite scroll, merging props, polling, prefetching, once props, flash data.
 - When using deferred props, add an empty state with a pulsing or animated skeleton.
 
 === laravel/core rules ===
@@ -265,8 +268,8 @@ Wayfinder generates TypeScript functions for Laravel routes. Import from `@/acti
 
 # Laravel Pint Code Formatter
 
-- You must run `vendor/bin/pint --dirty` before finalizing changes to ensure your code matches the project's expected style.
-- Do not run `vendor/bin/pint --test`, simply run `vendor/bin/pint` to fix any formatting issues.
+- If you have modified any PHP files, you must run `vendor/bin/pint --dirty --format agent` before finalizing changes to ensure your code matches the project's expected style.
+- Do not run `vendor/bin/pint --test --format agent`, simply run `vendor/bin/pint --format agent` to fix any formatting issues.
 
 === pest/core rules ===
 
@@ -295,32 +298,10 @@ Vue components must have a single root element.
 
 === laravel/fortify rules ===
 
-## Laravel Fortify
+# Laravel Fortify
 
-Fortify is a headless authentication backend that provides authentication routes and controllers for Laravel applications.
+- Fortify is a headless authentication backend that provides authentication routes and controllers for Laravel applications.
+- IMPORTANT: Always use the `search-docs` tool for detailed Laravel Fortify patterns and documentation.
+- IMPORTANT: Activate `developing-with-fortify` skill when working with Fortify authentication features.
 
-**Before implementing any authentication features, use the `search-docs` tool to get the latest docs for that specific feature.**
-
-### Configuration & Setup
-
-- Check `config/fortify.php` to see what's enabled. Use `search-docs` for detailed information on specific features.
-- Enable features by adding them to the `'features' => []` array: `Features::registration()`, `Features::resetPasswords()`, etc.
-- To see the all Fortify registered routes, use the `list-routes` tool with the `only_vendor: true` and `action: "Fortify"` parameters.
-- Fortify includes view routes by default (login, register). Set `'views' => false` in the configuration file to disable them if you're handling views yourself.
-
-### Customization
-
-- Views can be customized in `FortifyServiceProvider`'s `boot()` method using `Fortify::loginView()`, `Fortify::registerView()`, etc.
-- Customize authentication logic with `Fortify::authenticateUsing()` for custom user retrieval / validation.
-- Actions in `app/Actions/Fortify/` handle business logic (user creation, password reset, etc.). They're fully customizable, so you can modify them to change feature behavior.
-
-## Available Features
-
-- `Features::registration()` for user registration.
-- `Features::emailVerification()` to verify new user emails.
-- `Features::twoFactorAuthentication()` for 2FA with QR codes and recovery codes.
-  - Add options: `['confirmPassword' => true, 'confirm' => true]` to require password confirmation and OTP confirmation before enabling 2FA.
-- `Features::updateProfileInformation()` to let users update their profile.
-- `Features::updatePasswords()` to let users change their passwords.
-- `Features::resetPasswords()` for password reset via email.
 </laravel-boost-guidelines>
