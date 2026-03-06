@@ -2,6 +2,7 @@
 
 namespace App\Services\Product;
 
+use App\Models\Product\Category;
 use App\Models\Product\Variety;
 use App\Models\Product\Vegetable;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -137,13 +138,11 @@ class VarietyService
         ];
     }
 
-    public static function vegetableOptions(): array
+    public static function categoryOptions(): array
     {
-        return cache()->remember('vegetable_options', 3600, function () {
-            return Vegetable::with('category')
-                ->get()
-                ->groupBy('category.name')
-                ->map(fn ($vegetables) => $vegetables->pluck('name', 'id')->toArray())
+        return cache()->remember('category_options', 3600, function () {
+            return Category::orderBy('name')
+                ->get(['id', 'name'])
                 ->toArray();
         });
     }
