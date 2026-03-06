@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Actions\Dealer;
+namespace App\Actions\Demand;
 
 use App\Models\Marketplace\DealerDemand;
 
-final class ArchiveDemandAction
+final class FulfillDemandAction
 {
     public function __invoke(DealerDemand $demand): void
     {
-        $demand->post->markAsArchived();
+        $demand->post->markAsFulfilled();
     }
 }
