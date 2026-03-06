@@ -8,12 +8,6 @@ use Illuminate\Database\Seeder;
 
 class VarietySeeder extends Seeder
 {
-    /**
-     * Placeholder used for image_path on seeded records.
-     * Replace with real assets via the admin panel or a dedicated import command.
-     */
-    private const IMAGE_PLACEHOLDER = 'images/varieties/placeholder.jpg';
-
     public function run(): void
     {
         /**
@@ -21,6 +15,9 @@ class VarietySeeder extends Seeder
          *
          * weeks_to_harvest reflects typical growing periods under Benguet
          * highland conditions (~1,500–2,500 masl, cool semi-temperate climate).
+         *
+         * Images are managed via laravel-medialibrary (spatie/laravel-medialibrary).
+         * Upload variety images through the admin panel after seeding.
          *
          * Sources: BSU Extension publications, DA-CAR Regional Crop Production
          * Guide, BAPTC commodity records, PCARRD variety registry.
@@ -49,27 +46,27 @@ class VarietySeeder extends Seeder
                 ['name' => 'Hybrid F1 Pechay',    'weeks_to_harvest' => 3],
             ],
             'Celery' => [
-                ['name' => 'Utah 52-70',              'weeks_to_harvest' => 17],
-                ['name' => 'Tall Utah',               'weeks_to_harvest' => 18],
-                ['name' => 'Golden Self-Blanching',   'weeks_to_harvest' => 16],
+                ['name' => 'Utah 52-70',            'weeks_to_harvest' => 17],
+                ['name' => 'Tall Utah',             'weeks_to_harvest' => 18],
+                ['name' => 'Golden Self-Blanching', 'weeks_to_harvest' => 16],
             ],
             'Broccoli' => [
-                ['name' => 'Green Magic',    'weeks_to_harvest' => 11],
-                ['name' => 'Waltham 29',     'weeks_to_harvest' => 12],
-                ['name' => 'Premium Crop',   'weeks_to_harvest' => 11],
-                ['name' => 'Marathon',       'weeks_to_harvest' => 12],
+                ['name' => 'Green Magic',  'weeks_to_harvest' => 11],
+                ['name' => 'Waltham 29',   'weeks_to_harvest' => 12],
+                ['name' => 'Premium Crop', 'weeks_to_harvest' => 11],
+                ['name' => 'Marathon',     'weeks_to_harvest' => 12],
             ],
             'Cauliflower' => [
-                ['name' => 'Snowball Y',     'weeks_to_harvest' => 12],
-                ['name' => 'Igloo',          'weeks_to_harvest' => 11],
-                ['name' => 'Benguet White',  'weeks_to_harvest' => 12],
-                ['name' => 'Amazing',        'weeks_to_harvest' => 10],
+                ['name' => 'Snowball Y',    'weeks_to_harvest' => 12],
+                ['name' => 'Igloo',         'weeks_to_harvest' => 11],
+                ['name' => 'Benguet White', 'weeks_to_harvest' => 12],
+                ['name' => 'Amazing',       'weeks_to_harvest' => 10],
             ],
             'Chinese Cabbage' => [
-                ['name' => 'Wong Bok',      'weeks_to_harvest' => 8],
-                ['name' => 'Napa Valley',   'weeks_to_harvest' => 8],
-                ['name' => 'Green Rocket',  'weeks_to_harvest' => 7],
-                ['name' => 'Jade Pagoda',   'weeks_to_harvest' => 7],
+                ['name' => 'Wong Bok',     'weeks_to_harvest' => 8],
+                ['name' => 'Napa Valley',  'weeks_to_harvest' => 8],
+                ['name' => 'Green Rocket', 'weeks_to_harvest' => 7],
+                ['name' => 'Jade Pagoda',  'weeks_to_harvest' => 7],
             ],
             'Spinach' => [
                 ['name' => 'Bloomsdale', 'weeks_to_harvest' => 7],
@@ -130,10 +127,10 @@ class VarietySeeder extends Seeder
                 ['name' => 'Sinabawanon',    'weeks_to_harvest' => 11],
             ],
             'Bitter Melon' => [
-                ['name' => 'Galaxy',     'weeks_to_harvest' => 14],
-                ['name' => 'Jade Star',  'weeks_to_harvest' => 13],
-                ['name' => 'Sta. Rita',  'weeks_to_harvest' => 14],
-                ['name' => 'Tiyan Baboy','weeks_to_harvest' => 15],
+                ['name' => 'Galaxy',        'weeks_to_harvest' => 14],
+                ['name' => 'Jade Star',     'weeks_to_harvest' => 13],
+                ['name' => 'Sta. Rita',     'weeks_to_harvest' => 14],
+                ['name' => 'Tiyan Baboy',   'weeks_to_harvest' => 15],
             ],
             'Bell Pepper' => [
                 ['name' => 'California Wonder', 'weeks_to_harvest' => 11],
@@ -142,9 +139,9 @@ class VarietySeeder extends Seeder
                 ['name' => 'Sweet Chocolate',   'weeks_to_harvest' => 12],
             ],
             'Squash' => [
-                ['name' => 'Honey Bear',       'weeks_to_harvest' => 9],
-                ['name' => 'Waltham Butternut','weeks_to_harvest' => 11],
-                ['name' => 'Buttercup',        'weeks_to_harvest' => 10],
+                ['name' => 'Honey Bear',        'weeks_to_harvest' => 9],
+                ['name' => 'Waltham Butternut', 'weeks_to_harvest' => 11],
+                ['name' => 'Buttercup',         'weeks_to_harvest' => 10],
             ],
             'Chayote' => [
                 ['name' => 'Smooth White',  'weeks_to_harvest' => 18],
@@ -154,15 +151,15 @@ class VarietySeeder extends Seeder
 
             // ── Bean Vegetables ───────────────────────────────────────────────
             'Snow Peas' => [
-                ['name' => 'Oregon Sugar Pod',       'weeks_to_harvest' => 9],
-                ['name' => 'Mammoth Melting Sugar',  'weeks_to_harvest' => 10],
-                ['name' => 'Benguet Snow Pea',       'weeks_to_harvest' => 9],
+                ['name' => 'Oregon Sugar Pod',      'weeks_to_harvest' => 9],
+                ['name' => 'Mammoth Melting Sugar', 'weeks_to_harvest' => 10],
+                ['name' => 'Benguet Snow Pea',      'weeks_to_harvest' => 9],
             ],
             'String Beans' => [
-                ['name' => 'Contender', 'weeks_to_harvest' => 7],
-                ['name' => 'Blue Lake', 'weeks_to_harvest' => 8],
-                ['name' => 'Jade',      'weeks_to_harvest' => 7],
-                ['name' => 'Sitaw Pula','weeks_to_harvest' => 8],
+                ['name' => 'Contender',  'weeks_to_harvest' => 7],
+                ['name' => 'Blue Lake',  'weeks_to_harvest' => 8],
+                ['name' => 'Jade',       'weeks_to_harvest' => 7],
+                ['name' => 'Sitaw Pula', 'weeks_to_harvest' => 8],
             ],
             'Green Beans' => [
                 ['name' => 'Kentucky Wonder', 'weeks_to_harvest' => 8],
@@ -175,7 +172,7 @@ class VarietySeeder extends Seeder
                 ['name' => 'Sugar Ann',        'weeks_to_harvest' => 8],
             ],
             'Chicharo' => [
-                ['name' => 'Benguet Chicharo Local', 'weeks_to_harvest' => 9],
+                ['name' => 'Benguet Chicharo Local', 'weeks_to_harvest' => 10],
                 ['name' => 'Wando',                  'weeks_to_harvest' => 10],
             ],
             'Broad Beans' => [
@@ -189,16 +186,8 @@ class VarietySeeder extends Seeder
 
             foreach ($varieties as $variety) {
                 Variety::firstOrCreate(
-                    // Search keys — must match the unique index: (vegetable_id, name)
-                    [
-                        'vegetable_id' => $vegetable->id,
-                        'name'         => $variety['name'],
-                    ],
-                    // Attributes set only on CREATE — never overwrite on re-seed
-                    [
-                        'image_path'       => self::IMAGE_PLACEHOLDER,
-                        'weeks_to_harvest' => $variety['weeks_to_harvest'],
-                    ]
+                    ['vegetable_id' => $vegetable->id, 'name' => $variety['name']],
+                    ['weeks_to_harvest' => $variety['weeks_to_harvest']]
                 );
             }
         }
