@@ -1,19 +1,23 @@
 <script setup lang="ts">
-
 import { Head, router } from '@inertiajs/vue3'
+import axios from 'axios'
 import { AlertTriangle, Leaf, TrendingUp } from 'lucide-vue-next'
 import { ref, computed } from 'vue'
+import { toast } from 'vue-sonner'
 import VarietyDeleteConfirm from '@/components/features/admin/dialogs/VarietyDeleteConfirm.vue'
 import PriceFreshnessFilter from '@/components/features/admin/filters/PriceFreshnessFilter.vue'
 import VarietyForm from '@/components/features/admin/forms/VarietyForm.vue'
 import VarietyTable from '@/components/features/admin/tables/VarietyTable.vue'
 import Heading from '@/components/Heading.vue'
 import LargeCard from '@/components/shared/cards/LargeCard.vue'
+import VegetableDetailDialog from '@/components/shared/VegetableDetailDialog.vue'
 import { Skeleton } from '@/components/ui/skeleton'
 import AppLayout from '@/layouts/AppLayout.vue'
-import admin from '@/routes/admin'
+import admin, { dashboard } from '@/routes/admin'
+import { index, details as varietyDetails } from '@/routes/admin/vegetables_varieties'
 import type { BreadcrumbItem } from '@/types'
 import type { Props, Variety } from '@/types/admin/vegetable-varieties'
+import type { CatalogVariety } from '@/types/shared/vegetables'
 
 const props = withDefaults(defineProps<Props>(), {
     varieties: undefined,
@@ -22,15 +26,20 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const breadcrumbs: BreadcrumbItem[] = [
-    { title: 'Admin', href: admin.dashboard().url },
-    { title: 'Vegetables & Varieties', href: admin.vegetables_varieties.index().url },
+    { title: 'Admin', href: dashboard().url },
+    { title: 'Vegetables & Varieties', href: index().url },
 ]
 
-/* -- modal state -- */
+/* -- CRUD modal state -- */
 const formOpen = ref(false)
 const deleteOpen = ref(false)
 const activeVariety = ref<Variety | null>(null)
 const isSubmitting = ref(false)
+
+/* -- detail dialog state -- */
+const detailOpen = ref(false)
+const detailVariety = ref<CatalogVariety | null>(null)
+const loadingDetail = ref(false)
 
 function openCreate() {
     activeVariety.value = null
@@ -47,10 +56,27 @@ function openDelete(variety: Variety) {
     deleteOpen.value = true
 }
 
+async function openView(variety: Variety) {
+    loadingDetail.value = true
+    detailVariety.value = null
+    detailOpen.value = true
+
+    try {
+        const { data } = await axios.get(varietyDetails(variety.id).url)
+        detailVariety.value = data
+    } catch (error) {
+        console.error('openView failed:', error)
+        toast.error('Failed to load variety details')
+        detailOpen.value = false
+    } finally {
+        loadingDetail.value = false
+    }
+}
+
 /* -- filtering -- */
 function handleFilterChange(filter: string | null) {
     router.get(
-        '/admin/vegetables-varieties',
+        index().url,
         { price_filter: filter },
         { preserveScroll: true, preserveState: true }
     )
@@ -62,50 +88,33 @@ function handleSubmit(formData: FormData) {
 
     if (activeVariety.value) {
         formData.append('_method', 'PUT')
-
         router.post(`/admin/vegetables-varieties/${activeVariety.value.id}`, formData, {
-            onSuccess() {
-                formOpen.value = false
-                isSubmitting.value = false
-            },
-            onError() {
-                isSubmitting.value = false
-            },
+            onSuccess() { formOpen.value = false; isSubmitting.value = false },
+            onError() { isSubmitting.value = false },
         })
     } else {
         router.post('/admin/vegetables-varieties', formData, {
-            onSuccess() {
-                formOpen.value = false
-                isSubmitting.value = false
-            },
-            onError() {
-                isSubmitting.value = false
-            },
+            onSuccess() { formOpen.value = false; isSubmitting.value = false },
+            onError() { isSubmitting.value = false },
         })
     }
 }
 
 function handleDelete() {
     if (!activeVariety.value) return
-
     router.delete(`/admin/vegetables-varieties/${activeVariety.value.id}`, {
-        onSuccess() {
-            deleteOpen.value = false
-            activeVariety.value = null
-        },
+        onSuccess() { deleteOpen.value = false; activeVariety.value = null },
     })
 }
 
-/* -- server-side pagination -- */
 function handlePageChange(page: number) {
     router.get(
-        '/admin/vegetables-varieties',
+        admin.vegetables_varieties.index().url,
         { page, price_filter: props.filters.price_filter },
         { preserveScroll: true }
     )
 }
 
-/* -- loading states -- */
 const isLoadingSummary = computed(() => !props.summary)
 const isLoadingVarieties = computed(() => !props.varieties)
 </script>
@@ -116,7 +125,6 @@ const isLoadingVarieties = computed(() => !props.varieties)
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex h-full flex-col gap-6 p-4 lg:p-6">
 
-            <!-- Header -->
             <div class="flex items-end justify-between">
                 <Heading
                     title="Vegetables"
@@ -131,7 +139,6 @@ const isLoadingVarieties = computed(() => !props.varieties)
                 <Skeleton v-else class="h-9 w-32" />
             </div>
 
-            <!-- Summary Cards -->
             <div v-if="isLoadingSummary" class="grid md:grid-cols-3 gap-4">
                 <Skeleton class="h-33" />
                 <Skeleton class="h-33" />
@@ -162,7 +169,6 @@ const isLoadingVarieties = computed(() => !props.varieties)
                 />
             </div>
 
-            <!-- Data table -->
             <div v-if="isLoadingVarieties" class="flex flex-col gap-4">
                 <div class="flex items-center justify-between">
                     <Skeleton class="h-9 w-64" />
@@ -170,11 +176,7 @@ const isLoadingVarieties = computed(() => !props.varieties)
                 </div>
                 <div class="rounded-lg border">
                     <div class="p-4 space-y-3">
-                        <Skeleton class="h-12 w-full" />
-                        <Skeleton class="h-12 w-full" />
-                        <Skeleton class="h-12 w-full" />
-                        <Skeleton class="h-12 w-full" />
-                        <Skeleton class="h-12 w-full" />
+                        <Skeleton v-for="n in 5" :key="n" class="h-12 w-full" />
                     </div>
                 </div>
             </div>
@@ -182,6 +184,7 @@ const isLoadingVarieties = computed(() => !props.varieties)
                 v-else-if="varieties"
                 :varieties="varieties"
                 @open-create="openCreate"
+                @open-view="openView"
                 @open-edit="openEdit"
                 @open-delete="openDelete"
                 @page-change="handlePageChange"
@@ -190,7 +193,6 @@ const isLoadingVarieties = computed(() => !props.varieties)
         </div>
     </AppLayout>
 
-    <!-- Modals -->
     <VarietyForm
         v-if="vegetableOptions"
         :open="formOpen"
@@ -206,5 +208,11 @@ const isLoadingVarieties = computed(() => !props.varieties)
         :variety="activeVariety"
         @update:open="deleteOpen = $event"
         @confirm="handleDelete"
+    />
+
+    <VegetableDetailDialog
+        :open="detailOpen"
+        :variety="detailVariety"
+        @update:open="detailOpen = $event"
     />
 </template>
