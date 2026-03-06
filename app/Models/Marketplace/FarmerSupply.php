@@ -2,19 +2,21 @@
 
 namespace App\Models\Marketplace;
 
-use App\Models\Marketplace\Post;
 use App\Models\Profiles\FarmerProfile;
-use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
-class FarmerSupply extends Model
+class FarmerSupply extends Model implements HasMedia
 {
+    use InteractsWithMedia;
+
     protected $fillable = [
         'farmer_id',
         'expiration_date',
-        'image_path',
     ];
 
     protected function casts(): array
@@ -38,14 +40,20 @@ class FarmerSupply extends Model
         return $this->morphOne(Post::class, 'postable');
     }
 
-    /* ---------- accessors ---------- */
+    /* ---------- media ---------- */
 
-    public function imageUrl(): Attribute
+    public function registerMediaCollections(): void
     {
-        return Attribute::make(
-            get: fn () => $this->image_path 
-                ? asset('storage/' . $this->image_path)
-                : null
-        );
+        $this->addMediaCollection('supply_image')
+            ->singleFile()
+            ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/webp']);
+    }
+
+    public function registerMediaConversions(?Media $media = null): void
+    {
+        $this->addMediaConversion('thumb')
+            ->width(400)
+            ->height(400)
+            ->nonQueued();
     }
 }
