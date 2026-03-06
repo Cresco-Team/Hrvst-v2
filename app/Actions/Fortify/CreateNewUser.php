@@ -18,11 +18,6 @@ class CreateNewUser implements CreatesNewUsers
 {
     use PasswordValidationRules, ProfileValidationRules;
 
-    /**
-     * Validate and create a newly registered user.
-     *
-     * @param  array<string, string>  $input
-     */
     public function create(array $input): User
     {
         $this->validateInput($input);
@@ -69,26 +64,27 @@ class CreateNewUser implements CreatesNewUsers
         }
 
         Validator::make($input, $rules, [
-            'phone_number.regex'   => 'Phone number must be a valid PH mobile number (e.g. 09171234567).',
-            'phone_number.unique'  => 'This phone number is already registered.',
-            'farm_image.required'  => 'A farm photo is required as proof of your farm.',
-            'document_image.required' => 'A document photo is required for dealer verification.',
+            'phone_number.regex'          => 'Phone number must be a valid PH mobile number (e.g. 09171234567).',
+            'phone_number.unique'         => 'This phone number is already registered.',
+            'farm_image.required'         => 'A farm photo is required as proof of your farm.',
+            'document_image.required'     => 'A document photo is required for dealer verification.',
         ])->validate();
     }
 
     private function createUser(array $input): User
     {
-        $imagePath = isset($input['profile_image']) && $input['profile_image'] instanceof UploadedFile
-            ? $input['profile_image']->store('users', 'public')
-            : null;
-
-        return User::create([
+        $user = User::create([
             'name'         => $input['name'],
             'email'        => $input['email'],
             'password'     => $input['password'],
             'phone_number' => $input['phone_number'],
-            'image_path'   => $imagePath,
         ]);
+
+        if (isset($input['profile_image']) && $input['profile_image'] instanceof UploadedFile) {
+            $user->addMedia($input['profile_image'])->toMediaCollection('avatar');
+        }
+
+        return $user;
     }
 
     private function assignRole(User $user, string $roleName): void
@@ -99,28 +95,30 @@ class CreateNewUser implements CreatesNewUsers
 
     private function createFarmerProfile(User $user, array $input): void
     {
-        /** @var UploadedFile $farmImage */
-        $farmImage = $input['farm_image'];
-
-        FarmerProfile::create([
+        $farmer = FarmerProfile::create([
             'user_id'         => $user->id,
             'province_id'     => $input['province_id'],
             'municipality_id' => $input['municipality_id'],
             'barangay_id'     => $input['barangay_id'],
             'latitude'        => $input['latitude'],
             'longitude'       => $input['longitude'],
-            'farm_image'      => $farmImage->store('farm-images', 'public'),
         ]);
+
+        /** @var UploadedFile $farmImage */
+        $farmImage = $input['farm_image'];
+        $farmer->addMedia($farmImage)->toMediaCollection('farm_photo');
     }
 
     private function createDealerProfile(User $user, array $input): void
     {
+        $dealer = DealerProfile::create(['user_id' => $user->id]);
+
         /** @var UploadedFile $documentImage */
         $documentImage = $input['document_image'];
 
-        DealerProfile::create([
-            'user_id'        => $user->id,
-            'document_image' => $documentImage->store('dealer-documents', 'public'),
-        ]);
+        // Stored on the private 'documents' disk — never served by a public URL.
+        // Add GET /admin/dealers/{dealer}/document guarded by 'admin' middleware
+        // that calls $dealer->getFirstMedia('document')->toResponse($request)
+        $dealer->addMedia($documentImage)->toMediaCollection('document');
     }
 }
