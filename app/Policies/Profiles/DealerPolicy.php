@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Policies;
+namespace App\Policies\Profiles;
 
 use App\Models\Profiles\DealerProfile;
 use App\Models\User;
