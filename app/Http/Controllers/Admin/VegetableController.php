@@ -11,7 +11,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
-class VarietyController extends Controller
+class VegetableController extends Controller
 {
     public function __construct(
         private VarietyService $varietyService
