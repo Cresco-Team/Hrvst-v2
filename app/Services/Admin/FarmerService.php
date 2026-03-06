@@ -28,7 +28,8 @@ class FarmerService
     public static function paginated(int $perPage = 20, ?int $page = null): LengthAwarePaginator
     {
         return FarmerProfile::with([
-            'user',
+            'user.media',
+            'media',
             'province',
             'municipality',
             'barangay',
@@ -53,7 +54,7 @@ class FarmerService
                         'name' => $farmer->user->name,
                         'email' => $farmer->user->email,
                         'phone_number' => $farmer->user->phone_number,
-                        'image_url' => $farmer->user->image_url,
+                        'avatar_url' => $farmer->user->getFirstMediaUrl('avatar'),
                     ],
                     'location' => [
                         'province' => $farmer->province->name,
@@ -64,7 +65,7 @@ class FarmerService
                             'lng' => $farmer->longitude,
                         ],
                     ],
-                    'farm_url' => $farmer->farm_url,
+                    'farm_url' => $farmer->getFirstMediaUrl('farm_photo'),
                     'ongoing_supplies_count' => $ongoingSupplies->count(),
                     'ongoing_supplies' => $ongoingSupplies->map(fn ($supply) => [
                         'id' => $supply->id,
@@ -86,7 +87,8 @@ class FarmerService
     public static function show(int $farmerId): ?array
     {
         $farmer = FarmerProfile::with([
-            'user',
+            'user.media',
+            'media',
             'province',
             'municipality',
             'barangay',
@@ -168,7 +170,8 @@ class FarmerService
     public static function pending(): array
     {
         return FarmerProfile::with([
-            'user',
+            'user.media',
+            'media',
             'province',
             'municipality',
             'barangay',
@@ -194,7 +197,7 @@ class FarmerService
                         'lng' => (float) $farmer->longitude,
                     ],
                 ],
-                'farm_url'              => $farmer->farm_url,
+                'farm_url'              => $farmer->getFirstMediaUrl('farm_photo'),
                 'submitted_at'          => $farmer->created_at->format('M d, Y g:i A'),
                 'submitted_at_human'    => $farmer->created_at->diffForHumans(),
             ])
