@@ -7,6 +7,7 @@ use App\Http\Requests\Admin\Product\StoreVarietyRequest;
 use App\Http\Requests\Admin\Product\UpdateVarietyRequest;
 use App\Models\Product\Variety;
 use App\Services\Product\VarietyService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -16,9 +17,6 @@ class VarietyController extends Controller
         private VarietyService $varietyService
     ) {}
 
-    /**
-     * OPTIMIZED: Uses deferred props for instant navigation
-     */
     public function index(Request $request)
     {
         return Inertia::render('admin/vegetables-varieties/Index', [
@@ -32,6 +30,11 @@ class VarietyController extends Controller
             )),
             'vegetableOptions' => Inertia::defer(fn () => VarietyService::vegetableOptions()),
         ]);
+    }
+
+    public function details(Variety $variety): JsonResponse
+    {
+        return response()->json(VarietyService::detailed($variety));
     }
 
     public function store(StoreVarietyRequest $request)

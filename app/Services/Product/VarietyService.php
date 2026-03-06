@@ -55,6 +55,40 @@ class VarietyService
             });
     }
 
+    public static function detailed(Variety $variety): array
+    {
+        $variety->load(['vegetable.category', 'latestPrice', 'recentPrices']);
+
+        return [
+            'id'               => $variety->id,
+            'name'             => $variety->name,
+            'image_url'        => $variety->image_url,
+            'weeks_to_harvest' => $variety->weeks_to_harvest,
+            'vegetable'        => [
+                'id'       => $variety->vegetable->id,
+                'name'     => $variety->vegetable->name,
+                'category' => [
+                    'id'   => $variety->vegetable->category->id,
+                    'name' => $variety->vegetable->category->name,
+                ],
+            ],
+            'latest_price'  => $variety->latestPrice ? [
+                'price_min'  => (float) $variety->latestPrice->price_min,
+                'price_max'  => (float) $variety->latestPrice->price_max,
+                'recorded_at'=> $variety->latestPrice->recorded_at->format('M d, Y'),
+                'freshness'  => self::computePriceFreshness($variety->latestPrice->recorded_at),
+            ] : null,
+            'recent_prices' => $variety->recentPrices
+                ->sortBy('recorded_at')
+                ->map(fn ($p) => [
+                    'price_min'   => (float) $p->price_min,
+                    'price_max'   => (float) $p->price_max,
+                    'recorded_at' => $p->recorded_at->format('M d, Y'),
+                ])
+                ->values(),
+            ];
+    }
+
     public static function forCatalog(int $perPage = 20, ?string $search = null, ?int $categoryId = null): LengthAwarePaginator
     {
         return Variety::with([

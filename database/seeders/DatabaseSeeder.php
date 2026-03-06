@@ -2,16 +2,16 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
 use Database\Seeders\Address\BarangaySeeder;
 use Database\Seeders\Address\MunicipalitySeeder;
 use Database\Seeders\Address\ProvinceSeeder;
+use Database\Seeders\Product\CategorySeeder;
 use Database\Seeders\Product\PriceHistorySeeder;
 use Database\Seeders\Product\VarietySeeder;
+use Database\Seeders\Product\VegetableSeeder;
 use Database\Seeders\Profiles\AdminSeeder;
 use Database\Seeders\Profiles\DealerSeeder;
 use Database\Seeders\Profiles\FarmerSeeder;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -23,6 +23,8 @@ class DatabaseSeeder extends Seeder
             MunicipalitySeeder::class,
             BarangaySeeder::class,
 
+            CategorySeeder::class,
+            VegetableSeeder::class,
             VarietySeeder::class,
             PriceHistorySeeder::class,
             

@@ -16,6 +16,7 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     // Vegetables Routes
     Route::prefix('vegetables-varieties')->name('vegetables_varieties.')->group(function () {
         Route::get('/', [VarietyController::class, 'index'])->name('index');
+        Route::get('/{variety}/details', [VarietyController::class, 'details'])->name('details');
         Route::post('/', [VarietyController::class, 'store'])->name('store');
         Route::put('/{variety}', [VarietyController::class, 'update'])->name('update');
         Route::delete('/{variety}', [VarietyController::class, 'destroy'])->name('destroy');

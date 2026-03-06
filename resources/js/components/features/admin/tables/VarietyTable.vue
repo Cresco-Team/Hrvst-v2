@@ -1,31 +1,30 @@
 <script setup lang="ts">
 import type { ColumnDef } from '@tanstack/vue-table'
+import { Pencil, Trash2, Plus, Clock, Eye } from 'lucide-vue-next'
 import DataTable from '@/components/shared/tables/DataTable.vue'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
     Tooltip,
     TooltipContent,
     TooltipProvider,
     TooltipTrigger,
 } from '@/components/ui/tooltip'
-import { Pencil, Trash2, Plus, Clock } from 'lucide-vue-next'
-import { PaginatedData, Variety } from '@/types/admin/vegetable-varieties'
+import type { PaginatedData, Variety } from '@/types/admin/vegetable-varieties'
 
-/* -- props / emits -- */
 defineProps<{
     varieties: PaginatedData
 }>()
 
 defineEmits<{
     'open-create': []
+    'open-view': [variety: Variety]
     'open-edit': [variety: Variety]
     'open-delete': [variety: Variety]
     'page-change': [page: number]
 }>()
 
-/* -- column definitions -- */
 const columns: ColumnDef<Variety>[] = [
     {
         id: 'image',
@@ -41,7 +40,7 @@ const columns: ColumnDef<Variety>[] = [
     {
         id: 'price_range',
         header: 'Price Range',
-        accessorFn: (row) => row.latest_price 
+        accessorFn: (row) => row.latest_price
             ? `₱${row.latest_price.price_min} - ₱${row.latest_price.price_max}`
             : 'No price data',
         enableSorting: false,
@@ -63,7 +62,6 @@ const columns: ColumnDef<Variety>[] = [
         entity-name="varieties"
         @page-change="$emit('page-change', $event)"
     >
-        <!-- Toolbar Actions -->
         <template #toolbar-actions>
             <Button @click="$emit('open-create')" class="gap-1.5">
                 <Plus class="size-4" />
@@ -71,11 +69,10 @@ const columns: ColumnDef<Variety>[] = [
             </Button>
         </template>
 
-        <!-- Custom Cell: Image -->
         <template #cell-image="{ row }">
             <Avatar class="size-12 rounded-md">
-                <AvatarImage 
-                    :src="row.image_url" 
+                <AvatarImage
+                    :src="row.image_url"
                     :alt="row.name"
                     class="object-cover"
                 />
@@ -85,80 +82,66 @@ const columns: ColumnDef<Variety>[] = [
             </Avatar>
         </template>
 
-        <!-- Custom Cell: Name -->
         <template #cell-name="{ row }">
             <div class="flex flex-col gap-0.5">
-                <span class="font-medium">
-                    {{ row.vegetable.name }}: {{ row.name }}
-                </span>
-                <span class="text-xs text-muted-foreground">
-                    {{ row.vegetable.category.name }}
-                </span>
+                <span class="font-medium">{{ row.vegetable.name }}: {{ row.name }}</span>
+                <span class="text-xs text-muted-foreground">{{ row.vegetable.category.name }}</span>
             </div>
         </template>
 
-        <!-- Custom Cell: Price Range -->
         <template #cell-price_range="{ row }">
             <div v-if="row.latest_price" class="flex flex-col gap-1.5">
-                <!-- Price Badge with freshness indicator -->
                 <div class="flex items-center gap-2">
                     <Badge variant="secondary" class="w-fit font-mono">
-                        ₱{{ row.latest_price.price_min }} - ₱{{ row.latest_price.price_max }}
+                        ₱{{ row.latest_price.price_min }} – ₱{{ row.latest_price.price_max }}
                     </Badge>
-                    
-                    <!-- Freshness dot indicator -->
                     <TooltipProvider v-if="row.price_freshness" :delay-duration="200">
                         <Tooltip>
                             <TooltipTrigger as-child>
-                                <div 
+                                <div
                                     class="size-2 rounded-full cursor-help"
                                     :class="{
                                         'bg-amber-400': row.price_freshness === 'recent',
                                         'bg-green-400': row.price_freshness === 'stable',
-                                        'bg-sky-500': row.price_freshness === 'very stable',
-                                        'bg-gray-500' : row.price_freshness === 'stale',
+                                        'bg-sky-500':   row.price_freshness === 'very stable',
+                                        'bg-gray-500':  row.price_freshness === 'stale',
                                     }"
                                 />
                             </TooltipTrigger>
                             <TooltipContent>
-                                <p class="text-xs">
-                                    {{ 
-                                        row.price_freshness === 'recent' ? '0-7 days old - Recent' :
-                                        row.price_freshness === 'stable' ? '1-4 weeks old - Stable' :
-                                        row.price_freshness === 'very stable' ? '1-3 months old - Very Stable' :
-                                        '90+ days old - Needs updated'
-                                    }}
-                                </p>
+                                <p class="text-xs capitalize">{{ row.price_freshness }}</p>
                             </TooltipContent>
                         </Tooltip>
                     </TooltipProvider>
                 </div>
-                
-                <!-- Updated timestamp with tooltip -->
-                <TooltipProvider v-if="row.price_updated_human" :delay-duration="200">
+                <div v-if="row.price_updated_human" class="flex items-center gap-1 text-xs text-muted-foreground">
+                    <Clock class="size-3" />
+                    {{ row.price_updated_human }}
+                </div>
+            </div>
+            <span v-else class="text-xs text-muted-foreground">No price data</span>
+        </template>
+
+        <template #cell-actions="{ row }">
+            <div class="flex items-center gap-1">
+                <TooltipProvider :delay-duration="200">
                     <Tooltip>
                         <TooltipTrigger as-child>
-                            <div class="flex items-center gap-1.5 text-xs text-muted-foreground cursor-help w-fit">
-                                <Clock class="size-3" />
-                                <span>{{ row.price_updated_human }}</span>
-                            </div>
+                            <Button
+                                variant="ghost"
+                                size="icon-sm"
+                                class="text-muted-foreground hover:text-foreground"
+                                @click="$emit('open-view', row)"
+                            >
+                                <Eye class="size-4" />
+                            </Button>
                         </TooltipTrigger>
                         <TooltipContent>
-                            <p class="text-xs">Updated on {{ row.price_updated_date }}</p>
+                            <p class="text-xs">View details</p>
                         </TooltipContent>
                     </Tooltip>
                 </TooltipProvider>
-            </div>
-            
-            <div v-else class="flex items-center gap-1.5 text-xs text-muted-foreground">
-                <div class="size-2 rounded-full bg-red-500" />
-                <span>No price data</span>
-            </div>
-        </template>
 
-        <!-- Custom Cell: Actions -->
-        <template #cell-actions="{ row }">
-            <div class="flex items-center gap-1.5">
                 <TooltipProvider :delay-duration="200">
                     <Tooltip>
                         <TooltipTrigger as-child>

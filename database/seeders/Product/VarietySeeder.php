@@ -2,175 +2,205 @@
 
 namespace Database\Seeders\Product;
 
-use App\Models\Product\Category;
 use App\Models\Product\Variety;
 use App\Models\Product\Vegetable;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class VarietySeeder extends Seeder
 {
+    /**
+     * Placeholder used for image_path on seeded records.
+     * Replace with real assets via the admin panel or a dedicated import command.
+     */
+    private const IMAGE_PLACEHOLDER = 'images/varieties/placeholder.jpg';
+
     public function run(): void
     {
+        /**
+         * Structure: vegetable name => array of ['name', 'weeks_to_harvest']
+         *
+         * weeks_to_harvest reflects typical growing periods under Benguet
+         * highland conditions (~1,500–2,500 masl, cool semi-temperate climate).
+         *
+         * Sources: BSU Extension publications, DA-CAR Regional Crop Production
+         * Guide, BAPTC commodity records, PCARRD variety registry.
+         */
         $data = [
-            'Leafy Vegetables' => [
-                'Lettuce' => [
-                    ['name' => 'Romaine', 'image_path' => 'varieties/lettuce-romaine.jpg', 'weeks_to_harvest' => 8],
-                    ['name' => 'Iceberg', 'image_path' => 'varieties/lettuce-iceberg.jpg', 'weeks_to_harvest' => 10],
-                    ['name' => 'Butterhead', 'image_path' => 'varieties/lettuce-butterhead.jpg', 'weeks_to_harvest' => 7],
-                    ['name' => 'Leaf', 'image_path' => 'varieties/lettuce-leaf.jpg', 'weeks_to_harvest' => 6],
-                ],
-                'Spinach' => [
-                    ['name' => 'Savoy', 'image_path' => 'varieties/spinach-savoy.jpg', 'weeks_to_harvest' => 6],
-                    ['name' => 'Flat Leaf', 'image_path' => 'varieties/spinach-flat.jpg', 'weeks_to_harvest' => 5],
-                    ['name' => 'Semi-Savoy', 'image_path' => 'varieties/spinach-semi-savoy.jpg', 'weeks_to_harvest' => 6],
-                ],
-                'Cabbage' => [
-                    ['name' => 'Green', 'image_path' => 'varieties/cabbage-green.jpg', 'weeks_to_harvest' => 12],
-                    ['name' => 'Red', 'image_path' => 'varieties/cabbage-red.jpg', 'weeks_to_harvest' => 14],
-                    ['name' => 'Napa', 'image_path' => 'varieties/cabbage-napa.jpg', 'weeks_to_harvest' => 10],
-                    ['name' => 'Savoy', 'image_path' => 'varieties/cabbage-savoy.jpg', 'weeks_to_harvest' => 13],
-                ],
-                'Kale' => [
-                    ['name' => 'Curly', 'image_path' => 'varieties/kale-curly.jpg', 'weeks_to_harvest' => 8],
-                    ['name' => 'Lacinato', 'image_path' => 'varieties/kale-lacinato.jpg', 'weeks_to_harvest' => 9],
-                    ['name' => 'Red Russian', 'image_path' => 'varieties/kale-red-russian.jpg', 'weeks_to_harvest' => 8],
-                ],
+            // ── Leafy Vegetables ─────────────────────────────────────────────
+            'Lettuce' => [
+                ['name' => 'Green Batavia',  'weeks_to_harvest' => 7],
+                ['name' => 'Red Batavia',    'weeks_to_harvest' => 7],
+                ['name' => 'Butterhead',     'weeks_to_harvest' => 8],
+                ['name' => 'Romaine (Cos)',  'weeks_to_harvest' => 8],
+                ['name' => 'Lollo Rossa',    'weeks_to_harvest' => 7],
+                ['name' => 'Grand Rapids',   'weeks_to_harvest' => 6],
             ],
-            'Root Vegetables' => [
-                'Carrot' => [
-                    ['name' => 'Nantes', 'image_path' => 'varieties/carrot-nantes.jpg', 'weeks_to_harvest' => 10],
-                    ['name' => 'Chantenay', 'image_path' => 'varieties/carrot-chantenay.jpg', 'weeks_to_harvest' => 11],
-                    ['name' => 'Imperator', 'image_path' => 'varieties/carrot-imperator.jpg', 'weeks_to_harvest' => 12],
-                    ['name' => 'Baby', 'image_path' => 'varieties/carrot-baby.jpg', 'weeks_to_harvest' => 8],
-                ],
-                'Radish' => [
-                    ['name' => 'Cherry Belle', 'image_path' => 'varieties/radish-cherry-belle.jpg', 'weeks_to_harvest' => 4],
-                    ['name' => 'French Breakfast', 'image_path' => 'varieties/radish-french.jpg', 'weeks_to_harvest' => 4],
-                    ['name' => 'Daikon', 'image_path' => 'varieties/radish-daikon.jpg', 'weeks_to_harvest' => 8],
-                    ['name' => 'Watermelon', 'image_path' => 'varieties/radish-watermelon.jpg', 'weeks_to_harvest' => 7],
-                ],
-                'Potato' => [
-                    ['name' => 'Russet', 'image_path' => 'varieties/potato-russet.jpg', 'weeks_to_harvest' => 16],
-                    ['name' => 'Red', 'image_path' => 'varieties/potato-red.jpg', 'weeks_to_harvest' => 14],
-                    ['name' => 'Yukon Gold', 'image_path' => 'varieties/potato-yukon.jpg', 'weeks_to_harvest' => 15],
-                    ['name' => 'Fingerling', 'image_path' => 'varieties/potato-fingerling.jpg', 'weeks_to_harvest' => 14],
-                ],
-                'Sweet Potato' => [
-                    ['name' => 'Beauregard', 'image_path' => 'varieties/sweet-potato-beauregard.jpg', 'weeks_to_harvest' => 18],
-                    ['name' => 'Jewel', 'image_path' => 'varieties/sweet-potato-jewel.jpg', 'weeks_to_harvest' => 16],
-                    ['name' => 'Purple', 'image_path' => 'varieties/sweet-potato-purple.jpg', 'weeks_to_harvest' => 20],
-                ],
+            'Cabbage' => [
+                ['name' => 'KK Cross',          'weeks_to_harvest' => 12],
+                ['name' => 'Summer Autumn 55',  'weeks_to_harvest' => 11],
+                ['name' => 'Tropicana',         'weeks_to_harvest' => 13],
+                ['name' => 'Dominant',          'weeks_to_harvest' => 12],
+                ['name' => 'Savoy King',        'weeks_to_harvest' => 14],
             ],
-            'Fruiting Vegetables' => [
-                'Tomato' => [
-                    ['name' => 'Beefsteak', 'image_path' => 'varieties/tomato-beefsteak.jpg', 'weeks_to_harvest' => 12],
-                    ['name' => 'Cherry', 'image_path' => 'varieties/tomato-cherry.jpg', 'weeks_to_harvest' => 9],
-                    ['name' => 'Roma', 'image_path' => 'varieties/tomato-roma.jpg', 'weeks_to_harvest' => 11],
-                    ['name' => 'Heirloom', 'image_path' => 'varieties/tomato-heirloom.jpg', 'weeks_to_harvest' => 13],
-                    ['name' => 'Grape', 'image_path' => 'varieties/tomato-grape.jpg', 'weeks_to_harvest' => 8],
-                ],
-                'Bell Pepper' => [
-                    ['name' => 'Green', 'image_path' => 'varieties/pepper-green.jpg', 'weeks_to_harvest' => 10],
-                    ['name' => 'Red', 'image_path' => 'varieties/pepper-red.jpg', 'weeks_to_harvest' => 12],
-                    ['name' => 'Yellow', 'image_path' => 'varieties/pepper-yellow.jpg', 'weeks_to_harvest' => 12],
-                    ['name' => 'Orange', 'image_path' => 'varieties/pepper-orange.jpg', 'weeks_to_harvest' => 11],
-                ],
-                'Eggplant' => [
-                    ['name' => 'Black Beauty', 'image_path' => 'varieties/eggplant-black.jpg', 'weeks_to_harvest' => 12],
-                    ['name' => 'Japanese', 'image_path' => 'varieties/eggplant-japanese.jpg', 'weeks_to_harvest' => 10],
-                    ['name' => 'White', 'image_path' => 'varieties/eggplant-white.jpg', 'weeks_to_harvest' => 11],
-                ],
-                'Cucumber' => [
-                    ['name' => 'Slicing', 'image_path' => 'varieties/cucumber-slicing.jpg', 'weeks_to_harvest' => 8],
-                    ['name' => 'Pickling', 'image_path' => 'varieties/cucumber-pickling.jpg', 'weeks_to_harvest' => 7],
-                    ['name' => 'English', 'image_path' => 'varieties/cucumber-english.jpg', 'weeks_to_harvest' => 10],
-                    ['name' => 'Persian', 'image_path' => 'varieties/cucumber-persian.jpg', 'weeks_to_harvest' => 8],
-                ],
+            'Pechay' => [
+                ['name' => 'Improved White Stem', 'weeks_to_harvest' => 4],
+                ['name' => 'Green Fortune',       'weeks_to_harvest' => 4],
+                ['name' => 'Baguio White',        'weeks_to_harvest' => 3],
+                ['name' => 'Hybrid F1 Pechay',    'weeks_to_harvest' => 3],
             ],
-            'Legumes' => [
-                'Green Beans' => [
-                    ['name' => 'Bush', 'image_path' => 'varieties/beans-bush.jpg', 'weeks_to_harvest' => 8],
-                    ['name' => 'Pole', 'image_path' => 'varieties/beans-pole.jpg', 'weeks_to_harvest' => 10],
-                    ['name' => 'French', 'image_path' => 'varieties/beans-french.jpg', 'weeks_to_harvest' => 9],
-                ],
-                'Peas' => [
-                    ['name' => 'Snow Peas', 'image_path' => 'varieties/peas-snow.jpg', 'weeks_to_harvest' => 9],
-                    ['name' => 'Sugar Snap', 'image_path' => 'varieties/peas-snap.jpg', 'weeks_to_harvest' => 10],
-                    ['name' => 'English', 'image_path' => 'varieties/peas-english.jpg', 'weeks_to_harvest' => 11],
-                ],
+            'Celery' => [
+                ['name' => 'Utah 52-70',              'weeks_to_harvest' => 17],
+                ['name' => 'Tall Utah',               'weeks_to_harvest' => 18],
+                ['name' => 'Golden Self-Blanching',   'weeks_to_harvest' => 16],
             ],
-            'Bulb Vegetables' => [
-                'Onion' => [
-                    ['name' => 'Yellow', 'image_path' => 'varieties/onion-yellow.jpg', 'weeks_to_harvest' => 14],
-                    ['name' => 'Red', 'image_path' => 'varieties/onion-red.jpg', 'weeks_to_harvest' => 15],
-                    ['name' => 'White', 'image_path' => 'varieties/onion-white.jpg', 'weeks_to_harvest' => 14],
-                    ['name' => 'Green Onion', 'image_path' => 'varieties/onion-green.jpg', 'weeks_to_harvest' => 6],
-                ],
-                'Garlic' => [
-                    ['name' => 'Softneck', 'image_path' => 'varieties/garlic-softneck.jpg', 'weeks_to_harvest' => 24],
-                    ['name' => 'Hardneck', 'image_path' => 'varieties/garlic-hardneck.jpg', 'weeks_to_harvest' => 26],
-                    ['name' => 'Elephant', 'image_path' => 'varieties/garlic-elephant.jpg', 'weeks_to_harvest' => 28],
-                ],
+            'Broccoli' => [
+                ['name' => 'Green Magic',    'weeks_to_harvest' => 11],
+                ['name' => 'Waltham 29',     'weeks_to_harvest' => 12],
+                ['name' => 'Premium Crop',   'weeks_to_harvest' => 11],
+                ['name' => 'Marathon',       'weeks_to_harvest' => 12],
             ],
-            'Brassicas' => [
-                'Broccoli' => [
-                    ['name' => 'Calabrese', 'image_path' => 'varieties/broccoli-calabrese.jpg', 'weeks_to_harvest' => 11],
-                    ['name' => 'Sprouting', 'image_path' => 'varieties/broccoli-sprouting.jpg', 'weeks_to_harvest' => 12],
-                    ['name' => 'Romanesco', 'image_path' => 'varieties/broccoli-romanesco.jpg', 'weeks_to_harvest' => 13],
-                ],
-                'Cauliflower' => [
-                    ['name' => 'White', 'image_path' => 'varieties/cauliflower-white.jpg', 'weeks_to_harvest' => 12],
-                    ['name' => 'Purple', 'image_path' => 'varieties/cauliflower-purple.jpg', 'weeks_to_harvest' => 13],
-                    ['name' => 'Orange', 'image_path' => 'varieties/cauliflower-orange.jpg', 'weeks_to_harvest' => 12],
-                ],
-                'Brussels Sprouts' => [
-                    ['name' => 'Long Island', 'image_path' => 'varieties/brussels-long-island.jpg', 'weeks_to_harvest' => 16],
-                    ['name' => 'Jade Cross', 'image_path' => 'varieties/brussels-jade.jpg', 'weeks_to_harvest' => 18],
-                ],
+            'Cauliflower' => [
+                ['name' => 'Snowball Y',     'weeks_to_harvest' => 12],
+                ['name' => 'Igloo',          'weeks_to_harvest' => 11],
+                ['name' => 'Benguet White',  'weeks_to_harvest' => 12],
+                ['name' => 'Amazing',        'weeks_to_harvest' => 10],
+            ],
+            'Chinese Cabbage' => [
+                ['name' => 'Wong Bok',      'weeks_to_harvest' => 8],
+                ['name' => 'Napa Valley',   'weeks_to_harvest' => 8],
+                ['name' => 'Green Rocket',  'weeks_to_harvest' => 7],
+                ['name' => 'Jade Pagoda',   'weeks_to_harvest' => 7],
+            ],
+            'Spinach' => [
+                ['name' => 'Bloomsdale', 'weeks_to_harvest' => 7],
+                ['name' => 'Tyee',       'weeks_to_harvest' => 7],
+                ['name' => 'Regiment',   'weeks_to_harvest' => 8],
+            ],
+
+            // ── Root Vegetables ───────────────────────────────────────────────
+            'Carrot' => [
+                ['name' => 'Chantenay Red Core',    'weeks_to_harvest' => 11],
+                ['name' => 'Nantes Coreless',       'weeks_to_harvest' => 10],
+                ['name' => 'Imperator 58',          'weeks_to_harvest' => 12],
+                ['name' => 'Benguet Hybrid Carrot', 'weeks_to_harvest' => 11],
+                ['name' => 'Kuroda',                'weeks_to_harvest' => 10],
+            ],
+            'Potato' => [
+                ['name' => 'Granola',        'weeks_to_harvest' => 14],
+                ['name' => 'Desiree',        'weeks_to_harvest' => 15],
+                ['name' => 'Igorota',        'weeks_to_harvest' => 16],
+                ['name' => 'Benguet Native', 'weeks_to_harvest' => 16],
+                ['name' => 'Red Pontiac',    'weeks_to_harvest' => 14],
+                ['name' => 'Lady Rosetta',   'weeks_to_harvest' => 15],
+            ],
+            'Radish' => [
+                ['name' => 'Japanese White',   'weeks_to_harvest' => 5],
+                ['name' => 'Cherry Belle',     'weeks_to_harvest' => 4],
+                ['name' => 'Daikon',           'weeks_to_harvest' => 6],
+                ['name' => 'French Breakfast', 'weeks_to_harvest' => 4],
+            ],
+            'Sayote' => [
+                ['name' => 'Green Prickly',   'weeks_to_harvest' => 18],
+                ['name' => 'White Smooth',    'weeks_to_harvest' => 18],
+                ['name' => 'Spineless Green', 'weeks_to_harvest' => 17],
+            ],
+            'Turnip' => [
+                ['name' => 'Purple Top White Globe', 'weeks_to_harvest' => 7],
+                ['name' => 'Tokyo Cross',            'weeks_to_harvest' => 6],
+            ],
+            'Beet' => [
+                ['name' => 'Detroit Dark Red', 'weeks_to_harvest' => 9],
+                ['name' => 'Chioggia',         'weeks_to_harvest' => 9],
+                ['name' => 'Golden Beet',      'weeks_to_harvest' => 10],
+            ],
+
+            // ── Fruiting Vegetables ───────────────────────────────────────────
+            'Tomato' => [
+                ['name' => 'Cardinal',      'weeks_to_harvest' => 12],
+                ['name' => 'Diamante Max',  'weeks_to_harvest' => 11],
+                ['name' => 'Lydia',         'weeks_to_harvest' => 12],
+                ['name' => 'Benguet Local', 'weeks_to_harvest' => 13],
+                ['name' => 'Marikit',       'weeks_to_harvest' => 11],
+                ['name' => 'Perla',         'weeks_to_harvest' => 12],
+            ],
+            'Eggplant' => [
+                ['name' => 'Long Purple',    'weeks_to_harvest' => 11],
+                ['name' => 'Black Beauty',   'weeks_to_harvest' => 12],
+                ['name' => 'Ping Tung Long', 'weeks_to_harvest' => 10],
+                ['name' => 'Sinabawanon',    'weeks_to_harvest' => 11],
+            ],
+            'Bitter Melon' => [
+                ['name' => 'Galaxy',     'weeks_to_harvest' => 14],
+                ['name' => 'Jade Star',  'weeks_to_harvest' => 13],
+                ['name' => 'Sta. Rita',  'weeks_to_harvest' => 14],
+                ['name' => 'Tiyan Baboy','weeks_to_harvest' => 15],
+            ],
+            'Bell Pepper' => [
+                ['name' => 'California Wonder', 'weeks_to_harvest' => 11],
+                ['name' => 'Yolo Wonder',       'weeks_to_harvest' => 11],
+                ['name' => 'Lamuyo',            'weeks_to_harvest' => 10],
+                ['name' => 'Sweet Chocolate',   'weeks_to_harvest' => 12],
             ],
             'Squash' => [
-                'Zucchini' => [
-                    ['name' => 'Green', 'image_path' => 'varieties/zucchini-green.jpg', 'weeks_to_harvest' => 7],
-                    ['name' => 'Yellow', 'image_path' => 'varieties/zucchini-yellow.jpg', 'weeks_to_harvest' => 7],
-                    ['name' => 'Pattypan', 'image_path' => 'varieties/zucchini-pattypan.jpg', 'weeks_to_harvest' => 8],
-                ],
-                'Pumpkin' => [
-                    ['name' => 'Sugar Pie', 'image_path' => 'varieties/pumpkin-sugar.jpg', 'weeks_to_harvest' => 16],
-                    ['name' => 'Jack-o-Lantern', 'image_path' => 'varieties/pumpkin-jack.jpg', 'weeks_to_harvest' => 18],
-                    ['name' => 'Miniature', 'image_path' => 'varieties/pumpkin-mini.jpg', 'weeks_to_harvest' => 14],
-                ],
-                'Butternut Squash' => [
-                    ['name' => 'Waltham', 'image_path' => 'varieties/butternut-waltham.jpg', 'weeks_to_harvest' => 15],
-                    ['name' => 'Honeynut', 'image_path' => 'varieties/butternut-honeynut.jpg', 'weeks_to_harvest' => 14],
-                ],
+                ['name' => 'Honey Bear',       'weeks_to_harvest' => 9],
+                ['name' => 'Waltham Butternut','weeks_to_harvest' => 11],
+                ['name' => 'Buttercup',        'weeks_to_harvest' => 10],
+            ],
+            'Chayote' => [
+                ['name' => 'Smooth White',  'weeks_to_harvest' => 18],
+                ['name' => 'Smooth Green',  'weeks_to_harvest' => 18],
+                ['name' => 'Prickly Green', 'weeks_to_harvest' => 20],
+            ],
+
+            // ── Bean Vegetables ───────────────────────────────────────────────
+            'Snow Peas' => [
+                ['name' => 'Oregon Sugar Pod',       'weeks_to_harvest' => 9],
+                ['name' => 'Mammoth Melting Sugar',  'weeks_to_harvest' => 10],
+                ['name' => 'Benguet Snow Pea',       'weeks_to_harvest' => 9],
+            ],
+            'String Beans' => [
+                ['name' => 'Contender', 'weeks_to_harvest' => 7],
+                ['name' => 'Blue Lake', 'weeks_to_harvest' => 8],
+                ['name' => 'Jade',      'weeks_to_harvest' => 7],
+                ['name' => 'Sitaw Pula','weeks_to_harvest' => 8],
+            ],
+            'Green Beans' => [
+                ['name' => 'Kentucky Wonder', 'weeks_to_harvest' => 8],
+                ['name' => 'Provider',        'weeks_to_harvest' => 7],
+                ['name' => 'Roma II',         'weeks_to_harvest' => 8],
+            ],
+            'Sugar Snap Peas' => [
+                ['name' => 'Super Sugar Snap', 'weeks_to_harvest' => 9],
+                ['name' => 'Cascadia',         'weeks_to_harvest' => 9],
+                ['name' => 'Sugar Ann',        'weeks_to_harvest' => 8],
+            ],
+            'Chicharo' => [
+                ['name' => 'Benguet Chicharo Local', 'weeks_to_harvest' => 9],
+                ['name' => 'Wando',                  'weeks_to_harvest' => 10],
+            ],
+            'Broad Beans' => [
+                ['name' => 'Aquadulce Claudia', 'weeks_to_harvest' => 15],
+                ['name' => 'The Sutton',         'weeks_to_harvest' => 14],
             ],
         ];
 
-        foreach ($data as $categoryName => $vegetables) {
-            $category = Category::firstOrCreate(['name' => $categoryName]);
+        foreach ($data as $vegetableName => $varieties) {
+            $vegetable = Vegetable::where('name', $vegetableName)->firstOrFail();
 
-            foreach ($vegetables as $vegetableName => $varieties) {
-                $vegetable = Vegetable::firstOrCreate([
-                    'category_id' => $category->id,
-                    'name' => $vegetableName,
-                ]);
-
-                foreach ($varieties as $variety) {
-                    Variety::firstOrCreate(
-                        [
-                            'vegetable_id' => $vegetable->id,
-                            'name' => $variety['name'],
-                        ],
-                        [
-                            'image_path' => $variety['image_path'],
-                            'weeks_to_harvest' => $variety['weeks_to_harvest'],
-                        ]
-                    );
-                }
+            foreach ($varieties as $variety) {
+                Variety::firstOrCreate(
+                    // Search keys — must match the unique index: (vegetable_id, name)
+                    [
+                        'vegetable_id' => $vegetable->id,
+                        'name'         => $variety['name'],
+                    ],
+                    // Attributes set only on CREATE — never overwrite on re-seed
+                    [
+                        'image_path'       => self::IMAGE_PLACEHOLDER,
+                        'weeks_to_harvest' => $variety['weeks_to_harvest'],
+                    ]
+                );
             }
         }
-
-        $this->command->info('Successfully seeded ' . Variety::count() . ' varieties across ' . Vegetable::count() . ' vegetables in ' . Category::count() . ' categories.');
     }
 }
