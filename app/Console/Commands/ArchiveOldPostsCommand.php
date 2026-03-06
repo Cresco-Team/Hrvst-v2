@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Actions\Marketplace\ArchiveOldPostsAction;
+use App\Actions\Post\ArchiveOldPostsAction;
 use Illuminate\Console\Command;
 
 class ArchiveOldPostsCommand extends Command
