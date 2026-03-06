@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Actions\Farmer;
+namespace App\Actions\Supply;
 
 use App\Enums\PostPriceFlag;
 use App\Enums\PostStatus;

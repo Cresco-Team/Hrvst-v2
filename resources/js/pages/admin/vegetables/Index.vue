@@ -13,11 +13,11 @@ import LargeCard from '@/components/shared/cards/LargeCard.vue'
 import VegetableDetailDialog from '@/components/shared/VegetableDetailDialog.vue'
 import { Skeleton } from '@/components/ui/skeleton'
 import AppLayout from '@/layouts/AppLayout.vue'
-import admin, { dashboard } from '@/routes/admin'
-import { index, details as varietyDetails } from '@/routes/admin/vegetables_varieties'
+import { dashboard } from '@/routes/admin'
 import type { BreadcrumbItem } from '@/types'
 import type { Props, Variety } from '@/types/admin/vegetable-varieties'
 import type { CatalogVariety } from '@/types/shared/vegetables'
+import { index, details as varietyDetails } from '@/routes/admin/vegetables'
 
 const props = withDefaults(defineProps<Props>(), {
     varieties: undefined,
@@ -27,7 +27,7 @@ const props = withDefaults(defineProps<Props>(), {
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Admin', href: dashboard().url },
-    { title: 'Vegetables & Varieties', href: index().url },
+    { title: 'Vegetables', href: index().url },
 ]
 
 /* -- CRUD modal state -- */
@@ -88,12 +88,12 @@ function handleSubmit(formData: FormData) {
 
     if (activeVariety.value) {
         formData.append('_method', 'PUT')
-        router.post(`/admin/vegetables-varieties/${activeVariety.value.id}`, formData, {
+        router.post(`/admin/vegetables/${activeVariety.value.id}`, formData, {
             onSuccess() { formOpen.value = false; isSubmitting.value = false },
             onError() { isSubmitting.value = false },
         })
     } else {
-        router.post('/admin/vegetables-varieties', formData, {
+        router.post('/admin/vegetables', formData, {
             onSuccess() { formOpen.value = false; isSubmitting.value = false },
             onError() { isSubmitting.value = false },
         })
@@ -102,14 +102,14 @@ function handleSubmit(formData: FormData) {
 
 function handleDelete() {
     if (!activeVariety.value) return
-    router.delete(`/admin/vegetables-varieties/${activeVariety.value.id}`, {
+    router.delete(`/admin/vegetables/${activeVariety.value.id}`, {
         onSuccess() { deleteOpen.value = false; activeVariety.value = null },
     })
 }
 
 function handlePageChange(page: number) {
     router.get(
-        admin.vegetables_varieties.index().url,
+        index().url,
         { page, price_filter: props.filters.price_filter },
         { preserveScroll: true }
     )
@@ -120,7 +120,7 @@ const isLoadingVarieties = computed(() => !props.varieties)
 </script>
 
 <template>
-    <Head title="Vegetables & Varieties" />
+    <Head title="Vegetables" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex h-full flex-col gap-6 p-4 lg:p-6">
@@ -128,7 +128,7 @@ const isLoadingVarieties = computed(() => !props.varieties)
             <div class="flex items-end justify-between">
                 <Heading
                     title="Vegetables"
-                    description="Manage all vegetable varieties, prices, and harvest times."
+                    description="Manage all vegetable varieties and prices."
                 />
                 <PriceFreshnessFilter
                     v-if="summary"

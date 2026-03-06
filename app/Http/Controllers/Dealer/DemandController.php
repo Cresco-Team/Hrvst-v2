@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers\Dealer;
 
-use App\Actions\Dealer\ArchiveDemandAction;
-use App\Actions\Dealer\CreateDemandAction;
-use App\Actions\Dealer\DeleteDemandAction;
-use App\Actions\Dealer\FulfillDemandAction;
-use App\Actions\Dealer\UpdateDemandAction;
+use App\Actions\Demand\ArchiveDemandAction;
+use App\Actions\Demand\CreateDemandAction;
+use App\Actions\Demand\DeleteDemandAction;
+use App\Actions\Demand\FulfillDemandAction;
+use App\Actions\Demand\UpdateDemandAction;
 use App\Enums\PostStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Dealer\StoreDemandRequest;

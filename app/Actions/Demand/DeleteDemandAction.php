@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Actions\Dealer;
+namespace App\Actions\Demand;
 
 use App\Models\Marketplace\DealerDemand;
 use Illuminate\Support\Facades\DB;

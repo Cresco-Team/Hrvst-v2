@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Actions\Marketplace;
+namespace App\Actions\Post;
 
 use App\Enums\PostStatus;
 use App\Models\Marketplace\DealerDemand;

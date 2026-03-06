@@ -1,4 +1,5 @@
 <script setup lang="ts">
+
 import { Deferred, Head } from '@inertiajs/vue3'
 import { TrendingUp, TrendingDown, Minus, Tractor, Package } from 'lucide-vue-next'
 import Heading from '@/components/Heading.vue'
@@ -9,7 +10,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Separator } from '@/components/ui/separator'
 import { Skeleton } from '@/components/ui/skeleton'
 import AppLayout from '@/layouts/AppLayout.vue'
-import admin from '@/routes/admin'
+import admin, { dashboard } from '@/routes/admin'
+import dealers from '@/routes/admin/dealers'
+import farmers from '@/routes/admin/farmers'
 import type { KPIs } from '@/types/admin/dashboard'
 
 defineProps<{
@@ -17,8 +20,8 @@ defineProps<{
 }>()
 
 const breadcrumbs = [
-    { title: 'Admin', href: admin.dashboard().url },
-    { title: 'Dashboard', href: admin.dashboard().url },
+    { title: 'Admin', href: dashboard().url },
+    { title: 'Dashboard', href: dashboard().url },
 ]
 
 function getTrendIcon(trend?: string) {
@@ -136,7 +139,7 @@ function formatChange(change?: number): string {
                 <CardContent class="grid md:grid-cols-3 gap-4">
 
                     <QuickNavItem 
-                        :href="admin.vegetables_varieties.index()"
+                        :href="admin.vegetables.index()"
                         title="Vegetables"
                         description="Manage market"
                         :icon="Tractor"
@@ -145,7 +148,7 @@ function formatChange(change?: number): string {
                     />
 
                     <QuickNavItem 
-                        :href="admin.farmers.index()"
+                        :href="farmers.index()"
                         title="Farmers"
                         description="View all farmers"
                         :icon="Tractor"
@@ -154,7 +157,7 @@ function formatChange(change?: number): string {
                     />
 
                     <QuickNavItem 
-                        :href="admin.dealers.index()"
+                        :href="dealers.index()"
                         title="Dealers"
                         description="Track Activity"
                         :icon="Package"

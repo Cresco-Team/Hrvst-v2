@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers\Farmer;
 
-use App\Actions\Farmer\ArchiveSupplyAction;
-use App\Actions\Farmer\CreateSupplyAction;
-use App\Actions\Farmer\DeleteSupplyAction;
-use App\Actions\Farmer\FulfillSupplyAction;
-use App\Actions\Farmer\UpdateSupplyAction;
+use App\Actions\Supply\ArchiveSupplyAction;
+use App\Actions\Supply\CreateSupplyAction;
+use App\Actions\Supply\DeleteSupplyAction;
+use App\Actions\Supply\FulfillSupplyAction;
+use App\Actions\Supply\UpdateSupplyAction;
 use App\Enums\PostStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Farmer\StoreSupplyRequest;

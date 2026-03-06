@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Policies;
+namespace App\Policies\Profiles;
 
 use App\Models\Profiles\FarmerProfile;
 use App\Models\User;

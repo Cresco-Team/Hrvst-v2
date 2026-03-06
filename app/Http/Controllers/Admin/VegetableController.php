@@ -11,7 +11,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
-class VarietyController extends Controller
+class VegetableController extends Controller
 {
     public function __construct(
         private VarietyService $varietyService
@@ -19,7 +19,7 @@ class VarietyController extends Controller
 
     public function index(Request $request)
     {
-        return Inertia::render('admin/vegetables-varieties/Index', [
+        return Inertia::render('admin/vegetables/Index', [
             'summary' => Inertia::defer(fn () => VarietyService::summary()),
             'filters' => [
                 'price_filter' => $request->query('price_filter', null),
@@ -44,7 +44,7 @@ class VarietyController extends Controller
             $request->file('image')
         );
 
-        return redirect()->route('admin.vegetables_varieties.index')
+        return redirect()->route('admin.vegetables.index')
             ->with('flash', ['type' => 'success', 'message' => 'Variety created successfully.']);
     }
 
@@ -56,7 +56,7 @@ class VarietyController extends Controller
             $request->file('image')
         );
 
-        return redirect()->route('admin.vegetables_varieties.index')
+        return redirect()->route('admin.vegetables.index')
             ->with('flash', ['type' => 'success', 'message' => 'Variety updated successfully.']);
     }
 
@@ -65,11 +65,11 @@ class VarietyController extends Controller
         $deleted = $this->varietyService->delete($variety);
 
         if (! $deleted) {
-            return redirect()->route('admin.vegetables_varieties.index')
+            return redirect()->route('admin.vegetables.index')
                 ->with('flash', ['type' => 'error', 'message' => 'Cannot delete variety with existing plantings.']);
         }
 
-        return redirect()->route('admin.vegetables_varieties.index')
+        return redirect()->route('admin.vegetables.index')
             ->with('flash', ['type' => 'success', 'message' => 'Variety deleted successfully.']);
     }
 }

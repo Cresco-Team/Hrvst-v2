@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Actions\Farmer;
+namespace App\Actions\Supply;
 
 use App\Models\Marketplace\FarmerSupply;
 

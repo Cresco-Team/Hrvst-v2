@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Actions\Admin\ApproveDealerAction;
-use App\Actions\Admin\RejectDealerAction;
+use App\Actions\Dealer\ApproveDealerAction;
+use App\Actions\Dealer\RejectDealerAction;
 use App\Http\Controllers\Controller;
 use App\Models\Profiles\DealerProfile;
 use App\Services\Admin\DealerService;

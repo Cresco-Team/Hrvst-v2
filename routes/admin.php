@@ -4,25 +4,22 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DealerController;
 use App\Http\Controllers\Admin\FarmerController;
 use App\Http\Controllers\Admin\FlagController;
-use App\Http\Controllers\Admin\VarietyController;
+use App\Http\Controllers\Admin\VegetableController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     
-    // Dashboard Route
     Route::get('/dashboard', DashboardController::class)
         ->name('dashboard');
 
-    // Vegetables Routes
-    Route::prefix('vegetables-varieties')->name('vegetables_varieties.')->group(function () {
-        Route::get('/', [VarietyController::class, 'index'])->name('index');
-        Route::get('/{variety}/details', [VarietyController::class, 'details'])->name('details');
-        Route::post('/', [VarietyController::class, 'store'])->name('store');
-        Route::put('/{variety}', [VarietyController::class, 'update'])->name('update');
-        Route::delete('/{variety}', [VarietyController::class, 'destroy'])->name('destroy');
+    Route::prefix('vegetables')->name('vegetables.')->group(function () {
+        Route::get('/', [VegetableController::class, 'index'])->name('index');
+        Route::get('/{vegetable}/details', [VegetableController::class, 'details'])->name('details');
+        Route::post('/', [VegetableController::class, 'store'])->name('store');
+        Route::put('/{vegetable}', [VegetableController::class, 'update'])->name('update');
+        Route::delete('/{vegetable}', [VegetableController::class, 'destroy'])->name('destroy');
     });
 
-    // Farmers Routes
     Route::prefix('farmers')->name('farmers.')->group(function () {
         Route::get('/', [FarmerController::class, 'index'])->name('index');
         Route::get('/{farmer}', [FarmerController::class, 'show'])->name('show');
@@ -42,7 +39,6 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
         Route::post('/{farmer}/reject', [FarmerController::class, 'reject'])->name('reject');
     });
     
-    // Dealers Route
     Route::prefix('dealers')->name('dealers.')->group(function () {
         Route::get('/', [DealerController::class, 'index'])->name('index');
         Route::get('/{dealer}', [DealerController::class, 'show'])->name('show');

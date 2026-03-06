@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Actions\Admin\ApproveFarmerAction;
-use App\Actions\Admin\RejectFarmerAction;
+use App\Actions\Farmer\ApproveFarmerAction;
+use App\Actions\Farmer\RejectFarmerAction;
 use App\Http\Controllers\Controller;
 use App\Models\Profiles\FarmerProfile;
 use App\Services\Admin\FarmerMapService;
