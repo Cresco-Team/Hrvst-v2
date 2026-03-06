@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Actions\Admin;
+namespace App\Actions\Dealer;
 
 use App\Models\Profiles\DealerProfile;
 
