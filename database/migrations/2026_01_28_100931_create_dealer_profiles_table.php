@@ -14,8 +14,6 @@ return new class extends Migration
 
             $table->boolean('is_approved')->default(false);
 
-            $table->string('document_image')->nullable();
-
             $table->timestamps();
 
             $table->index('is_approved');
