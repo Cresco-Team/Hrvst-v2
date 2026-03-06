@@ -10,32 +10,27 @@ use Illuminate\Support\Facades\Hash;
 
 class DealerSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
         $dealerRole = Role::firstOrCreate(['name' => 'dealer']);
 
-        $dealer = User::firstOrCreate([
-            'email' => 'dealer@hrvst.com',
-            'phone_number' => '09171234567'
-        ], [
-            'name' => 'Dealer John',
-            'email_verified_at' => now(),
-            'password' => Hash::make('password'),
-        ]);
+        $user = User::firstOrCreate(
+            ['email' => 'dealer@hrvst.com'],
+            [
+                'name'              => 'Dealer John',
+                'phone_number'      => '09171234567',
+                'email_verified_at' => now(),
+                'password'          => Hash::make('password'),
+            ]
+        );
 
-        $dealer->roles()->attach($dealerRole);
+        $user->roles()->syncWithoutDetaching([$dealerRole->id]);
 
-        // Create approved dealer profile
-        DealerProfile::create([
-            'user_id' => $dealer->id,
-        ], [
-            'is_approved' => false,
-            'document_image' => null,
-        ]);
+        DealerProfile::firstOrCreate(
+            ['user_id' => $user->id],
+            ['is_approved' => true]
+        );
 
-        $this->command->info('✓ Test dealer created: dealer@test.com / password');
+        $this->command->info('✓ Dealer seeded: dealer@hrvst.com / password');
     }
 }
