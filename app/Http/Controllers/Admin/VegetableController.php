@@ -28,7 +28,7 @@ class VegetableController extends Controller
                 perPage: 20,
                 priceFilter: $request->query('price_filter', null)
             )),
-            'vegetableOptions' => Inertia::defer(fn () => VarietyService::vegetableOptions()),
+            'categoryOptions' => Inertia::defer(fn () => VarietyService::categoryOptions()),
         ]);
     }
 
