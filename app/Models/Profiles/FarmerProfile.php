@@ -6,19 +6,18 @@ use App\Models\Address\Barangay;
 use App\Models\Address\Municipality;
 use App\Models\Address\Province;
 use App\Models\Marketplace\FarmerSupply;
-use App\Models\Marketplace\Post;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 
-class FarmerProfile extends Model
+class FarmerProfile extends Model implements HasMedia
 {
-    use HasFactory;
+    use HasFactory, InteractsWithMedia;
 
     protected $fillable = [
         'user_id',
@@ -28,7 +27,6 @@ class FarmerProfile extends Model
         'is_approved',
         'latitude',
         'longitude',
-        'farm_image',
     ];
 
     protected function casts(): array
@@ -40,19 +38,16 @@ class FarmerProfile extends Model
 
     /* ---------- relations ---------- */
 
-    // User
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    // Marketplace
     public function supplies(): HasMany
     {
         return $this->hasMany(FarmerSupply::class, 'farmer_id');
     }
 
-    // Address
     public function province(): BelongsTo
     {
         return $this->belongsTo(Province::class);
@@ -95,14 +90,12 @@ class FarmerProfile extends Model
         $user->delete();
     }
 
-    /* ---------- accessors ---------- */
+    /* ---------- media ---------- */
 
-    public function farmUrl(): Attribute
+    public function registerMediaCollections(): void
     {
-        return Attribute::make(
-            get: fn () => $this->farm_image 
-                ? asset('storage/' . $this->farm_image)
-                : null
-        );
+        $this->addMediaCollection('farm_photo')
+            ->singleFile()
+            ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/webp']);
     }
 }
