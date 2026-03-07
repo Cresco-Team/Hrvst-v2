@@ -14,10 +14,10 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
 
     Route::prefix('vegetables')->name('vegetables.')->group(function () {
         Route::get('/', [VegetableController::class, 'index'])->name('index');
-        Route::get('/{vegetable}/details', [VegetableController::class, 'details'])->name('details');
+        Route::get('/{variety}/details', [VegetableController::class, 'details'])->name('details');
         Route::post('/', [VegetableController::class, 'store'])->name('store');
-        Route::put('/{vegetable}', [VegetableController::class, 'update'])->name('update');
-        Route::delete('/{vegetable}', [VegetableController::class, 'destroy'])->name('destroy');
+        Route::put('/{variety}', [VegetableController::class, 'update'])->name('update');
+        Route::delete('/{variety}', [VegetableController::class, 'destroy'])->name('destroy');
     });
 
     Route::prefix('farmers')->name('farmers.')->group(function () {

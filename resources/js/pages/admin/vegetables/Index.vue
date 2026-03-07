@@ -14,10 +14,10 @@ import VegetableDetailDialog from '@/components/shared/VegetableDetailDialog.vue
 import { Skeleton } from '@/components/ui/skeleton'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { dashboard } from '@/routes/admin'
+import { destroy, index, store, update, details as varietyDetails } from '@/routes/admin/vegetables'
 import type { BreadcrumbItem } from '@/types'
 import type { Props, Variety } from '@/types/admin/vegetable-varieties'
 import type { CatalogVariety } from '@/types/shared/vegetables'
-import { index, details as varietyDetails } from '@/routes/admin/vegetables'
 
 const props = withDefaults(defineProps<Props>(), {
     varieties: undefined,
@@ -88,12 +88,12 @@ function handleSubmit(formData: FormData) {
 
     if (activeVariety.value) {
         formData.append('_method', 'PUT')
-        router.post(`/admin/vegetables/${activeVariety.value.id}`, formData, {
+        router.post(update({ variety: activeVariety.value.id }).url, formData, {
             onSuccess() { formOpen.value = false; isSubmitting.value = false },
             onError() { isSubmitting.value = false },
         })
     } else {
-        router.post('/admin/vegetables', formData, {
+        router.post(store().url, formData, {
             onSuccess() { formOpen.value = false; isSubmitting.value = false },
             onError() { isSubmitting.value = false },
         })
@@ -102,7 +102,7 @@ function handleSubmit(formData: FormData) {
 
 function handleDelete() {
     if (!activeVariety.value) return
-    router.delete(`/admin/vegetables/${activeVariety.value.id}`, {
+    router.delete(destroy({ variety: activeVariety.value.id }).url, {
         onSuccess() { deleteOpen.value = false; activeVariety.value = null },
     })
 }
