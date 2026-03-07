@@ -156,6 +156,19 @@ class VarietyService
         });
     }
 
+    public static function vegetableOptions(): array
+    {
+        return cache()->remember('vegetable_options', 3600, function () {
+            return Vegetable::with('category')
+                ->get()
+                ->groupBy('category.name')
+                ->map(function ($vegetables) {
+                    return $vegetables->pluck('name', 'id')->toArray();
+                })
+                ->toArray();
+        });
+    }
+
     public function create(array $validated, ?UploadedFile $image = null): Variety
     {
         $priceMin = $validated['price_min'];
