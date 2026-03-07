@@ -5,6 +5,7 @@ namespace App\Services\Product;
 use App\Models\Product\Category;
 use App\Models\Product\Variety;
 use App\Models\Product\Vegetable;
+use Carbon\CarbonInterface;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\UploadedFile;
@@ -71,8 +72,16 @@ class VarietyService
                     'price_min'   => (float) $variety->latestPrice->price_min,
                     'price_max'   => (float) $variety->latestPrice->price_max,
                     'recorded_at' => $variety->latestPrice->recorded_at->format('M d, Y'),
-                ]
-                : null,
+                    'freshness'   => self::computePriceFreshness($variety->latestPrice->recorded_at),
+                ] : null,
+            'recent_prices' => $variety->recentPrices
+                ->sortBy('recorded_at')
+                ->map(fn ($p) => [
+                    'price_min' => (float) $p->price_min,
+                    'price_max' => (float) $p->price_max,
+                    'recorded_at'=> $p->recorded_at->format('M d, Y'),
+                ])
+                ->values(),
         ];
     }
 
@@ -208,5 +217,17 @@ class VarietyService
             'price_max'   => $priceMax,
             'recorded_at' => now(),
         ]);
+    }
+
+    private static function computePriceFreshness(CarbonInterface $date): string
+    {
+        $daysOld = $date->diffInDays(now());
+
+        return match (true) {
+            $daysOld <= 7 => 'recent',
+            $daysOld <= 30 => 'stable',
+            $daysOld <= 90 => 'very stable',
+            default => 'stale',
+        };
     }
 }
