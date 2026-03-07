@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { Head, router } from '@inertiajs/vue3'
+import { Deferred, Head, router } from '@inertiajs/vue3'
 import axios from 'axios'
 import { AlertTriangle, Leaf, TrendingUp } from 'lucide-vue-next'
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import { toast } from 'vue-sonner'
 import VarietyDeleteConfirm from '@/components/features/admin/dialogs/VarietyDeleteConfirm.vue'
 import PriceFreshnessFilter from '@/components/features/admin/filters/PriceFreshnessFilter.vue'
@@ -29,6 +29,8 @@ const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Admin', href: dashboard().url },
     { title: 'Vegetables', href: index().url },
 ]
+
+const searchQuery = ref(props.filters?.search ?? '')
 
 /* -- CRUD modal state -- */
 const formOpen = ref(false)
@@ -75,11 +77,23 @@ async function openView(variety: Variety) {
 
 /* -- filtering -- */
 function handleFilterChange(filter: string | null) {
-    router.get(
-        index().url,
-        { price_filter: filter },
-        { preserveScroll: true, preserveState: true }
-    )
+    router.visit(index().url, {
+        data: { price_filter: filter || undefined, search: searchQuery.value || undefined },
+        preserveState: true,
+        preserveScroll: true,
+        only: ['varieties'],
+    })
+}
+
+/* -- search -- */
+function handleSearch(query: string) {
+    searchQuery.value = query
+    router.visit(index().url, {
+        data: { search: query || undefined, price_filter: props.filters.price_filter || undefined },
+        preserveState: true,
+        preserveScroll: true,
+        only: ['varieties'],
+    })
 }
 
 /* -- CRUD via Inertia with FormData -- */
@@ -108,15 +122,12 @@ function handleDelete() {
 }
 
 function handlePageChange(page: number) {
-    router.get(
-        index().url,
-        { page, price_filter: props.filters.price_filter },
-        { preserveScroll: true }
-    )
+    router.visit(index().url, {
+        data: { page, search: searchQuery.value || undefined, price_filter: props.filters.price_filter || undefined },
+        preserveScroll: true,
+        only: ['varieties'],
+    })
 }
-
-const isLoadingSummary = computed(() => !props.summary)
-const isLoadingVarieties = computed(() => !props.varieties)
 </script>
 
 <template>
@@ -139,56 +150,68 @@ const isLoadingVarieties = computed(() => !props.varieties)
                 <Skeleton v-else class="h-9 w-32" />
             </div>
 
-            <div v-if="isLoadingSummary" class="grid md:grid-cols-3 gap-4">
-                <Skeleton class="h-33" />
-                <Skeleton class="h-33" />
-                <Skeleton class="h-33" />
-            </div>
-            <div v-else-if="summary" class="grid md:grid-cols-3 gap-4">
-                <LargeCard
-                    title="Total Varieties"
-                    subtext="available for planting"
-                    :value="summary.total_varieties"
-                    :icon="Leaf"
-                    cardClass="md:col-span-1 bg-linear-to-br from-lime-500/10 to-green-500/30"
-                />
-                <LargeCard
-                    title="Price Updates"
-                    subtext="this week"
-                    :value="summary.price_stats.updated_week"
-                    :icon="TrendingUp"
-                    cardClass="md:col-span-1 bg-linear-to-br from-lime-500/10 to-green-500/30"
-                />
-                <LargeCard
-                    title="Needs Attention"
-                    subtext="varieties"
-                    :value="summary.price_stats.stale"
-                    :icon="AlertTriangle"
-                    iconColor="text-orange-500"
-                    cardClass="md:col-span-1 bg-linear-to-br from-red-500/20 via-green-500/10 to-green-500/30"
-                />
-            </div>
-
-            <div v-if="isLoadingVarieties" class="flex flex-col gap-4">
-                <div class="flex items-center justify-between">
-                    <Skeleton class="h-9 w-64" />
-                    <Skeleton class="h-9 w-32" />
-                </div>
-                <div class="rounded-lg border">
-                    <div class="p-4 space-y-3">
-                        <Skeleton v-for="n in 5" :key="n" class="h-12 w-full" />
+            <Deferred data="summary">
+                <template #fallback>
+                    <div class="grid md:grid-cols-3 gap-4">
+                        <Skeleton class="h-33" />
+                        <Skeleton class="h-33" />
+                        <Skeleton class="h-33" />
                     </div>
+                </template>
+
+                <div class="grid md:grid-cols-3 gap-4">
+                    <LargeCard
+                        title="Total Varieties"
+                        subtext="available for planting"
+                        :value="summary?.total_varieties"
+                        :icon="Leaf"
+                        cardClass="md:col-span-1 bg-linear-to-br from-lime-500/10 to-green-500/30"
+                    />
+                    <LargeCard
+                        title="Price Updates"
+                        subtext="this week"
+                        :value="summary?.price_stats.updated_week"
+                        :icon="TrendingUp"
+                        cardClass="md:col-span-1 bg-linear-to-br from-lime-500/10 to-green-500/30"
+                    />
+                    <LargeCard
+                        title="Needs Attention"
+                        subtext="varieties"
+                        :value="summary?.price_stats.stale"
+                        :icon="AlertTriangle"
+                        iconColor="text-orange-500"
+                        cardClass="md:col-span-1 bg-linear-to-br from-red-500/20 via-green-500/10 to-green-500/30"
+                    />
                 </div>
-            </div>
-            <VarietyTable
-                v-else-if="varieties"
-                :varieties="varieties"
-                @open-create="openCreate"
-                @open-view="openView"
-                @open-edit="openEdit"
-                @open-delete="openDelete"
-                @page-change="handlePageChange"
-            />
+            </Deferred>
+
+            <Deferred data="varieties">
+                <template #fallback>
+                    <div class="flex flex-col gap-4">
+                        <div class="flex items-center justify-between">
+                            <Skeleton class="h-9 w-64" />
+                            <Skeleton class="h-9 w-32" />
+                        </div>
+                        <div class="rounded-lg border">
+                            <div class="p-4 space-y-3">
+                                <Skeleton v-for="n in 5" :key="n" class="h-12 w-full" />
+                            </div>
+                        </div>
+                    </div>
+                </template>
+
+                <VarietyTable
+                    v-if="varieties"
+                    :varieties="varieties"
+                    :search-query="searchQuery"
+                    @open-create="openCreate"
+                    @open-view="openView"
+                    @open-edit="openEdit"
+                    @open-delete="openDelete"
+                    @page-change="handlePageChange"
+                    @search="handleSearch"
+                />
+            </Deferred>
 
         </div>
     </AppLayout>

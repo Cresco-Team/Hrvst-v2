@@ -23,10 +23,12 @@ class VegetableController extends Controller
             'summary' => Inertia::defer(fn () => VarietyService::summary()),
             'filters' => [
                 'price_filter' => $request->query('price_filter', null),
+                'search'       => $request->query('search', null),
             ],
             'varieties' => Inertia::defer(fn () => VarietyService::paginated(
                 perPage: 20,
-                priceFilter: $request->query('price_filter', null)
+                priceFilter: $request->query('price_filter', null),
+                search: $request->query('search', null),
             )),
             'vegetableOptions' => Inertia::defer(fn () => VarietyService::vegetableOptions()),
         ]);

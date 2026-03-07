@@ -5,16 +5,12 @@ import DataTable from '@/components/shared/tables/DataTable.vue'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import {
-    Tooltip,
-    TooltipContent,
-    TooltipProvider,
-    TooltipTrigger,
-} from '@/components/ui/tooltip'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import type { PaginatedData, Variety } from '@/types/admin/vegetable-varieties'
 
 defineProps<{
     varieties: PaginatedData
+    searchQuery?: string
 }>()
 
 defineEmits<{
@@ -23,6 +19,7 @@ defineEmits<{
     'open-edit': [variety: Variety]
     'open-delete': [variety: Variety]
     'page-change': [page: number]
+    'search': [query: string]
 }>()
 
 const columns: ColumnDef<Variety>[] = [
@@ -57,10 +54,12 @@ const columns: ColumnDef<Variety>[] = [
     <DataTable
         :data="varieties"
         :columns="columns"
+        :search-query="searchQuery"
         search-placeholder="Search varieties…"
         empty-message="No varieties found."
         entity-name="varieties"
         @page-change="$emit('page-change', $event)"
+        @search="$emit('search', $event)"
     >
         <template #toolbar-actions>
             <Button @click="$emit('open-create')" class="gap-1.5">

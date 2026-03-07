@@ -60,5 +60,6 @@ export interface Props {
     vegetableOptions?: VegetableOptions
     filters: {
         price_filter: string | null
+        search?: string | null
     }
 }

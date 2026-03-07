@@ -13,13 +13,20 @@ use Illuminate\Support\Facades\DB;
 
 class VarietyService
 {
-    public static function paginated(int $perPage = 20, ?string $priceFilter = null): LengthAwarePaginator
+    public static function paginated(int $perPage = 20, ?string $priceFilter = null, ?string $search = null): LengthAwarePaginator
     {
         $query = Variety::with([
             'vegetable.category',
             'latestPrice',
             'media',
         ]);
+
+        if ($search) {
+            $query->where(function (Builder $q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                ->orWhereHas('vegetable', fn (Builder $vq) => $vq->where('name', 'like', "%{$search}%"));
+            });
+        }
 
         if ($priceFilter) {
             $query->whereHas('latestPrice', function (Builder $q) use ($priceFilter) {
