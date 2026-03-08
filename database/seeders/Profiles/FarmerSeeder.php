@@ -12,36 +12,32 @@ class FarmerSeeder extends Seeder
 {
     public function run(): void
     {
-        $farmerRole = Role::firstOrCreate([
-            'name' => 'farmer'
-        ]);
+        $farmerRole = Role::firstOrCreate(['name' => 'farmer']);
 
-        $user = User::firstOrCreate([
-            'email' => 'farmer@hrvst.com',
-            'phone_number' => '09123456789'
-        ], [
-            'name' => 'Farmer Jane',
-            'email_verified_at' => now(),
-            'password' => Hash::make('password'),
-        ]);
-
-        $user->roles()->attach($farmerRole);
-
-        FarmerProfile::firstOrCreate(
+        $user = User::firstOrCreate(
+            ['email' => 'farmer@hrvst.com'],
             [
-                'user_id' => $user->id,
-            ],
-            [
-                'is_approved' => true,
-                'province_id' => 1,
-                'municipality_id' => 1,
-                'barangay_id' => 1,
-                'latitude' => 16.4023,
-                'longitude' => 120.5960,
-                'farm_image' => null,
+                'name'              => 'Farmer Jane',
+                'phone_number'      => '09123456789',
+                'email_verified_at' => now(),
+                'password'          => Hash::make('password'),
             ]
         );
 
-        $this->command->info('✓ Test farmer created: farmer@hrvst.com / password');
+        $user->roles()->syncWithoutDetaching([$farmerRole->id]);
+
+        FarmerProfile::firstOrCreate(
+            ['user_id' => $user->id],
+            [
+                'is_approved'     => true,
+                'province_id'     => 1,
+                'municipality_id' => 1,
+                'barangay_id'     => 1,
+                'latitude'        => 16.4023,
+                'longitude'       => 120.5960,
+            ]
+        );
+
+        $this->command->info('✓ Farmer seeded: farmer@hrvst.com / password');
     }
 }

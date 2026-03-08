@@ -1,0 +1,24 @@
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Actions\Product\AddVarietyPriceAction;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\Product\StorePriceHistoryRequest;
+use App\Models\Product\Variety;
+use Illuminate\Http\RedirectResponse;
+
+class VarietyPriceController extends Controller
+{
+    public function store(StorePriceHistoryRequest $request, Variety $variety, AddVarietyPriceAction $addPrice): RedirectResponse
+    {
+        $addPrice->handle(
+            variety:  $variety,
+            priceMin: (float) $request->validated('price_min'),
+            priceMax: (float) $request->validated('price_max'),
+        );
+
+        return redirect()->route('admin.vegetables.index')
+            ->with('flash', ['type' => 'success', 'message' => 'Price updated successfully.']);
+    }
+}

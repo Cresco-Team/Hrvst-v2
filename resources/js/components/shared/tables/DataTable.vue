@@ -91,16 +91,13 @@ function sortIcon(state: string | false) {
 /* -- search handler with debounce -- */
 let searchTimeout: ReturnType<typeof setTimeout> | null = null
 
-function handleSearchInput(event: Event) {
-    const query = (event.target as HTMLInputElement).value
-    localSearchQuery.value = query
-
+function handleSearchInput() {
     // Clear existing timeout
     if (searchTimeout) clearTimeout(searchTimeout)
 
     // Debounce search (wait 300ms after user stops typing)
     searchTimeout = setTimeout(() => {
-        emit('search', query)
+        emit('search', localSearchQuery.value)
     }, 300)
 }
 </script>
@@ -111,7 +108,7 @@ function handleSearchInput(event: Event) {
         <div class="flex items-center justify-between">
             <Input
                 v-if="enableSearch"
-                :value="localSearchQuery"
+                v-model="localSearchQuery"
                 :placeholder="searchPlaceholder"
                 class="max-w-xs"
                 @input="handleSearchInput"

@@ -15,7 +15,7 @@ class UpdateSupplyRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title'           => ['sometimes', 'string', 'max:255'],
+            'title'           => ['nullable', 'string', 'max:255'],
             'variety_id'      => ['sometimes', 'integer', 'exists:varieties,id'],
             'quantity_kg'     => ['sometimes', 'numeric', 'min:0.01'],
             'offered_price'   => ['sometimes', 'numeric', 'min:0'],

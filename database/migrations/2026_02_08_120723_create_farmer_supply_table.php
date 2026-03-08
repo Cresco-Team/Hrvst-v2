@@ -13,7 +13,6 @@ return new class extends Migration
             $table->foreignId('farmer_id')->constrained('farmer_profiles')->cascadeOnDelete();
 
             $table->date('expiration_date');
-            $table->string('image_path')->nullable();
             $table->timestamps();
 
             $table->index(['farmer_id', 'expiration_date']);

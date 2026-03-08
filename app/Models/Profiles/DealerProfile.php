@@ -9,15 +9,17 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 
-class DealerProfile extends Model
+class DealerProfile extends Model implements HasMedia
 {
-    use HasFactory;
+    use HasFactory, InteractsWithMedia;
 
     protected $fillable = [
         'user_id',
         'is_approved',
-        'document_image',
+        // document_image removed — stored as media on private disk
     ];
 
     protected function casts(): array
@@ -29,13 +31,11 @@ class DealerProfile extends Model
 
     /* ---------- relations ---------- */
 
-    // User
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    // Marketplace
     public function demands(): HasMany
     {
         return $this->hasMany(DealerDemand::class, 'dealer_id');
@@ -66,5 +66,19 @@ class DealerProfile extends Model
         $user = $this->user;
         $this->delete();
         $user->delete();
+    }
+
+    /* ---------- media ---------- */
+
+    public function registerMediaCollections(): void
+    {
+        // 'documents' disk is private (storage/app/private/documents).
+        // Never expose these URLs directly in API responses.
+        // Serve through: GET /admin/dealers/{dealer}/document
+        // guarded by the 'admin' middleware and a temporary signed URL.
+        $this->addMediaCollection('document')
+            ->singleFile()
+            ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/webp'])
+            ->useDisk('documents');
     }
 }

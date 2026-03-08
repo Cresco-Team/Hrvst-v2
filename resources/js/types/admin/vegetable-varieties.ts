@@ -1,3 +1,7 @@
+export interface MunicipalitySupply {
+    name: string
+    total_kg: number
+}
 
 export interface Variety {
     id: number
@@ -20,6 +24,9 @@ export interface Variety {
     price_updated_human?: string
     price_updated_date?: string
     price_freshness?: 'recent' | 'stable' | 'very stable' | 'stale'
+    supply_count: number
+    demand_count: number
+    supply_municipalities: MunicipalitySupply[]
 }
 
 export interface Summary {
@@ -60,5 +67,6 @@ export interface Props {
     vegetableOptions?: VegetableOptions
     filters: {
         price_filter: string | null
+        search?: string | null
     }
 }

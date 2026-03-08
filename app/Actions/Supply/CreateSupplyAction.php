@@ -14,12 +14,15 @@ final class CreateSupplyAction
     public function __invoke(FarmerProfile $farmer, array $validated, ?UploadedFile $image = null): FarmerSupply
     {
         $variety = Variety::with('latestPrice')->findOrFail($validated['variety_id']);
-        $imagePath = $image?->store('supply', 'public');
+
         $supply = FarmerSupply::create([
             'farmer_id'       => $farmer->id,
             'expiration_date' => $validated['expiration_date'],
-            'image_path'      => $imagePath,
         ]);
+
+        if ($image !== null) {
+            $supply->addMedia($image)->toMediaCollection('supply_image');
+        }
 
         $supply->post()->create([
             'user_id'       => $farmer->user_id,
