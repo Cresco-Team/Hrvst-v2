@@ -18,7 +18,7 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
         Route::get('/{variety}/details', [VegetableController::class, 'details'])->name('details');
         Route::post('/', [VegetableController::class, 'store'])->name('store');
         Route::put('/{variety}', [VegetableController::class, 'update'])->name('update');
-        Route::post('/{variety}/prices', VarietyPriceController::class, 'store')->name('prices.store');
+        Route::post('/{variety}/prices', [VarietyPriceController::class, 'store'])->name('prices.store');
         Route::delete('/{variety}', [VegetableController::class, 'destroy'])->name('destroy');
     });
 
