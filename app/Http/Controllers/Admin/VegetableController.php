@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Actions\Product\CreateVarietyAction;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Product\StoreVarietyRequest;
 use App\Http\Requests\Admin\Product\UpdateVarietyRequest;
@@ -39,9 +40,9 @@ class VegetableController extends Controller
         return response()->json(VarietyService::detailed($variety));
     }
 
-    public function store(StoreVarietyRequest $request)
+    public function store(StoreVarietyRequest $request, CreateVarietyAction $createVariety)
     {
-        $this->varietyService->create(
+        $createVariety->handle(
             $request->safe()->except('image'),
             $request->file('image')
         );

@@ -5,7 +5,7 @@ namespace App\Actions\Product;
 use App\Models\Product\Variety;
 use Illuminate\Http\UploadedFile;
 
-class CreateVegetableAction
+class CreateVarietyAction
 {
     public function handle(array $validated, ?UploadedFile $image = null): Variety
     {
