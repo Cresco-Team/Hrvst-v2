@@ -68,6 +68,7 @@ class FarmerService
                     'ongoing_supplies_count' => $ongoingSupplies->count(),
                     'ongoing_supplies'       => $ongoingSupplies->map(fn ($supply) => [
                         'id'      => $supply->id,
+                        'image_url' => $supply->getFirstMediaUrl('supply_image'),
                         'variety' => [
                             'id'        => $supply->post->variety->id,
                             'name'      => $supply->post->variety->vegetable->name.' '.$supply->post->variety->name,

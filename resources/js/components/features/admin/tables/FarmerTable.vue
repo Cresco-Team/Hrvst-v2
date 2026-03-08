@@ -5,6 +5,7 @@ import { ChevronDownIcon, ChevronRightIcon, MapPin, Phone, Mail, Eye, Package } 
 import DataTable from '@/components/shared/tables/DataTable.vue'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
+import { Item, ItemContent, ItemDescription, ItemMedia, ItemTitle } from '@/components/ui/item'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { getInitials } from '@/composables/useInitials'
 import type { Farmer } from '@/types/admin/farmers'
@@ -32,7 +33,7 @@ const columns: ColumnDef<Farmer>[] = [
         enableSorting: true,
     }, {
         id: 'ongoing_supplies_count',
-        header: '# Supplies',
+        header: 'Supplies',
         accessorFn: (row) => row.ongoing_supplies_count
     }, {
         id: 'location',
@@ -157,17 +158,22 @@ const columns: ColumnDef<Farmer>[] = [
                     <div class="ml-12">
                         <h4 class="text-sm font-medium mb-3">Available Supplies ({{ row.ongoing_supplies_count }})
                         </h4>
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                            <div v-for="supply in row.ongoing_supplies" :key="supply.id"
-                                class="flex items-start gap-3 p-3 rounded-lg border bg-card hover:shadow-sm transition-shadow">
-                                <Avatar class="size-12 rounded-md shrink-0">
-                                    <AvatarImage :src="supply.variety.image_url" :alt="supply.variety.name"
-                                        class="object-cover" />
-                                    <AvatarFallback class="rounded-md bg-primary/10 text-primary font-semibold text-xs">
-                                        {{ supply.variety.name.charAt(0) }}
-                                    </AvatarFallback>
-                                </Avatar>
-                            </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+                            <Item v-for="supply in row.ongoing_supplies" :key="supply.id" variant="outline">
+                                <ItemMedia variant="image">
+                                    <img
+                                        v-if="supply.image_url"
+                                        :src="supply.image_url"
+                                        :alt="supply.variety.name">
+                                </ItemMedia>
+
+                                <ItemContent>
+                                    <ItemTitle class="line-clamp-1">
+                                        {{ supply.variety.name }} - <span class="text-muted-foreground">{{ supply.variety.category }}</span>
+                                    </ItemTitle>
+                                    <ItemDescription>{{ supply.quantity_kg.toFixed(2) }} kg</ItemDescription>
+                                </ItemContent>
+                            </Item>
                         </div>
                     </div>
                 </td>
