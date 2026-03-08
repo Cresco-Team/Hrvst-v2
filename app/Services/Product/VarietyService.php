@@ -2,6 +2,9 @@
 
 namespace App\Services\Product;
 
+use App\Enums\PostStatus;
+use App\Models\Marketplace\DealerDemand;
+use App\Models\Marketplace\FarmerSupply;
 use App\Models\Product\Category;
 use App\Models\Product\Variety;
 use App\Models\Product\Vegetable;
@@ -55,14 +58,14 @@ class VarietyService
             'vegetable.category',
             'latestPrice',
             'media',
+        ])->withCount([
+            'posts as supply_count' => fn (Builder $q) => $q
+                ->where('postable_type', FarmerSupply::class)
+                ->ongoing(),
+            'posts as demand_count' => fn (Builder $q) => $q
+                ->where('postable_type', DealerDemand::class)
+                ->ongoing(),
         ]);
-
-        if ($search) {
-            $query->where(function (Builder $q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                ->orWhereHas('vegetable', fn (Builder $vq) => $vq->where('name', 'like', "%{$search}%"));
-            });
-        }
 
         if ($priceFilter) {
             $query->whereHas('latestPrice', function (Builder $q) use ($priceFilter) {
@@ -75,9 +78,34 @@ class VarietyService
             });
         }
 
+        if ($search) {
+            $query->where(function (Builder $q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                ->orWhereHas('vegetable', fn (Builder $vq) => $vq->where('name', 'like', "%{$search}%"));
+            });
+        }
+
+        $municipalitySupplies = DB::table('posts')
+            ->join('farmer_supplies', function ($join) {
+                $join->on('posts.postable_id', '=', 'farmer_supplies.id')
+                    ->where('posts.postable_type', FarmerSupply::class);
+            })
+            ->join('farmer_profiles', 'farmer_supplies.farmer_id', '=', 'farmer_profiles.id')
+            ->join('municipalities', 'farmer_profiles.municipality_id', '=', 'municipalities.id')
+            ->whereIn('posts.variety_id', $query->pluck('id'))
+            ->where('posts.status', PostStatus::Ongoing->value)
+            ->groupBy('posts.variety_id', 'municipalities.id', 'municipalities.name')
+            ->select(
+                'posts.variety_id',
+                'municipalities.name as municipality_name',
+                DB::raw('SUM(posts.quantity_kg) as total_kg'),
+            )
+            ->get()
+            ->groupBy('variety_id');
+
         return $query->orderBy('name')
             ->paginate($perPage)
-            ->through(function ($variety) {
+            ->through(function ($variety) use ($municipalitySupplies) {
                 $variety->price_updated_human = $variety->latestPrice->recorded_at->diffForHumans();
                 $variety->price_updated_date  = $variety->latestPrice->recorded_at->format('M d, Y');
 
@@ -88,6 +116,16 @@ class VarietyService
                     $daysOld <= 90  => 'very stable',
                     default         => 'stale',
                 };
+
+                $variety->supply_municipalities = $municipalitySupplies
+                    ->get($variety->id, collect())
+                    ->map(fn ($row) => [
+                        'name'     => $row->municipality_name,
+                        'total_kg' => (float) $row->total_kg,
+                    ])
+                    ->sortByDesc('total_kg')
+                    ->values()
+                    ->toArray();
 
                 return $variety;
             });
