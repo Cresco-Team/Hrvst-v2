@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Actions\Product\CreateVarietyAction;
+use App\Actions\Product\DeleteVarietyAction;
 use App\Actions\Product\UpdateVarietyAction;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Product\StoreVarietyRequest;
@@ -64,14 +65,9 @@ class VegetableController extends Controller
             ->with('flash', ['type' => 'success', 'message' => 'Variety updated successfully.']);
     }
 
-    public function destroy(Variety $variety)
+    public function destroy(Variety $variety, DeleteVarietyAction $deleteVariety)
     {
-        $deleted = $this->varietyService->delete($variety);
-
-        if (! $deleted) {
-            return redirect()->route('admin.vegetables.index')
-                ->with('flash', ['type' => 'error', 'message' => 'Cannot delete variety with existing plantings.']);
-        }
+        $deleteVariety->handle($variety);
 
         return redirect()->route('admin.vegetables.index')
             ->with('flash', ['type' => 'success', 'message' => 'Variety deleted successfully.']);
