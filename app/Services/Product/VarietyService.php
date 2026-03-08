@@ -8,12 +8,48 @@ use App\Models\Product\Vegetable;
 use Carbon\CarbonInterface;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 
 class VarietyService
 {
-    public static function paginated(int $perPage = 20, ?string $priceFilter = null, ?string $search = null): LengthAwarePaginator
+    public function summary(): array
+    {
+        $oneWeekAgo  = now()->subWeek();
+        $oneMonthAgo = now()->subMonth();
+
+        $priceStats = DB::table('varieties')
+            ->leftJoin(
+                DB::raw('(SELECT variety_id, MAX(recorded_at) as latest FROM price_histories GROUP BY variety_id) as ph_max'),
+                'varieties.id', '=', 'ph_max.variety_id'
+            )
+            ->leftJoin('price_histories as ph', function ($join) {
+                $join->on('ph.variety_id', '=', 'varieties.id')
+                    ->on('ph.recorded_at', '=', 'ph_max.latest');
+            })
+            ->selectRaw('
+                COUNT(varieties.id) as total_varieties,
+                AVG(varieties.weeks_to_harvest) as avg_weeks,
+                SUM(CASE WHEN ph.recorded_at >= ? THEN 1 ELSE 0 END) as updated_week,
+                SUM(CASE WHEN ph.recorded_at >= ? AND ph.recorded_at < ? THEN 1 ELSE 0 END) as updated_month,
+                SUM(CASE WHEN ph.recorded_at < ? AND ph.recorded_at IS NOT NULL THEN 1 ELSE 0 END) as stale,
+                SUM(CASE WHEN ph.id IS NULL THEN 1 ELSE 0 END) as no_price
+            ', [$oneWeekAgo, $oneMonthAgo, $oneMonthAgo, $oneMonthAgo])
+            ->first();
+
+        return [
+            'total_varieties'          => (int) $priceStats->total_varieties,
+            'total_vegetables'         => Vegetable::count(),
+            'average_weeks_to_harvest' => round($priceStats->avg_weeks ?? 0, 1),
+            'price_stats'              => [
+                'updated_week'  => (int) $priceStats->updated_week,
+                'updated_month' => (int) $priceStats->updated_month,
+                'stale'         => (int) $priceStats->stale,
+                'no_price'      => (int) $priceStats->no_price,
+            ],
+        ];
+    }
+
+    public function paginated(int $perPage = 20, ?string $priceFilter = null, ?string $search = null): LengthAwarePaginator
     {
         $query = Variety::with([
             'vegetable.category',
@@ -57,7 +93,30 @@ class VarietyService
             });
     }
 
-    public static function detailed(Variety $variety): array
+    /* Admin Options for creating variety */
+    public function vegetableOptions(): array
+    {
+        return cache()->remember('vegetable_options', 3600, function () {
+            return Vegetable::with('category')
+                ->get()
+                ->groupBy('category.name')
+                ->map(function ($vegetables) {
+                    return $vegetables->pluck('name', 'id')->toArray();
+                })
+                ->toArray();
+        });
+    }
+
+    public function categoryOptions(): array
+    {
+        return cache()->remember('category_options', 3600, function () {
+            return Category::orderBy('name')
+                ->get(['id', 'name'])
+                ->toArray();
+        });
+    }
+
+    public function detailed(Variety $variety): array
     {
         $variety->load(['vegetable.category', 'latestPrice', 'recentPrices', 'media']);
 
@@ -115,128 +174,6 @@ class VarietyService
                     ]
                     : null,
             ]);
-    }
-
-    public static function summary(): array
-    {
-        $oneWeekAgo  = now()->subWeek();
-        $oneMonthAgo = now()->subMonth();
-
-        $priceStats = DB::table('varieties')
-            ->leftJoin(
-                DB::raw('(SELECT variety_id, MAX(recorded_at) as latest FROM price_histories GROUP BY variety_id) as ph_max'),
-                'varieties.id', '=', 'ph_max.variety_id'
-            )
-            ->leftJoin('price_histories as ph', function ($join) {
-                $join->on('ph.variety_id', '=', 'varieties.id')
-                    ->on('ph.recorded_at', '=', 'ph_max.latest');
-            })
-            ->selectRaw('
-                COUNT(varieties.id) as total_varieties,
-                AVG(varieties.weeks_to_harvest) as avg_weeks,
-                SUM(CASE WHEN ph.recorded_at >= ? THEN 1 ELSE 0 END) as updated_week,
-                SUM(CASE WHEN ph.recorded_at >= ? AND ph.recorded_at < ? THEN 1 ELSE 0 END) as updated_month,
-                SUM(CASE WHEN ph.recorded_at < ? AND ph.recorded_at IS NOT NULL THEN 1 ELSE 0 END) as stale,
-                SUM(CASE WHEN ph.id IS NULL THEN 1 ELSE 0 END) as no_price
-            ', [$oneWeekAgo, $oneMonthAgo, $oneMonthAgo, $oneMonthAgo])
-            ->first();
-
-        return [
-            'total_varieties'          => (int) $priceStats->total_varieties,
-            'total_vegetables'         => Vegetable::count(),
-            'average_weeks_to_harvest' => round($priceStats->avg_weeks ?? 0, 1),
-            'price_stats'              => [
-                'updated_week'  => (int) $priceStats->updated_week,
-                'updated_month' => (int) $priceStats->updated_month,
-                'stale'         => (int) $priceStats->stale,
-                'no_price'      => (int) $priceStats->no_price,
-            ],
-        ];
-    }
-
-    public static function categoryOptions(): array
-    {
-        return cache()->remember('category_options', 3600, function () {
-            return Category::orderBy('name')
-                ->get(['id', 'name'])
-                ->toArray();
-        });
-    }
-
-    public static function vegetableOptions(): array
-    {
-        return cache()->remember('vegetable_options', 3600, function () {
-            return Vegetable::with('category')
-                ->get()
-                ->groupBy('category.name')
-                ->map(function ($vegetables) {
-                    return $vegetables->pluck('name', 'id')->toArray();
-                })
-                ->toArray();
-        });
-    }
-
-    public function create(array $validated, ?UploadedFile $image = null): Variety
-    {
-        $priceMin = $validated['price_min'];
-        $priceMax = $validated['price_max'];
-        unset($validated['price_min'], $validated['price_max']);
-
-        $variety = Variety::create($validated);
-
-        if ($image !== null) {
-            $variety->addMedia($image)->toMediaCollection('variety_image');
-        }
-
-        $this->createPriceHistory($variety, $priceMin, $priceMax);
-
-        return $variety->load('latestPrice');
-    }
-
-    public function update(Variety $variety, array $validated, ?UploadedFile $image = null): Variety
-    {
-        $priceMin = $validated['price_min'];
-        $priceMax = $validated['price_max'];
-        unset($validated['price_min'], $validated['price_max']);
-
-        $variety->update($validated);
-
-        if ($image !== null) {
-            $variety->addMedia($image)->toMediaCollection('variety_image');
-        }
-
-        $this->updatePriceHistory($variety, $priceMin, $priceMax);
-
-        return $variety->load('latestPrice');
-    }
-
-    public function delete(Variety $variety): bool
-    {
-        // InteractsWithMedia hooks into the model 'deleted' event and removes
-        // all media files and records — no manual cleanup needed.
-        // NOTE: This always returns true. The controller branch for false is dead code
-        // and should be addressed in a separate PR (add a guard for active posts).
-        $variety->delete();
-
-        return true;
-    }
-
-    private function createPriceHistory(Variety $variety, float $priceMin, float $priceMax): void
-    {
-        $variety->prices()->create([
-            'price_min'   => $priceMin,
-            'price_max'   => $priceMax,
-            'recorded_at' => now(),
-        ]);
-    }
-
-    private function updatePriceHistory(Variety $variety, float $priceMin, float $priceMax): void
-    {
-        $variety->prices()->create([
-            'price_min'   => $priceMin,
-            'price_max'   => $priceMax,
-            'recorded_at' => now(),
-        ]);
     }
 
     private static function computePriceFreshness(CarbonInterface $date): string

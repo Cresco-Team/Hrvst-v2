@@ -23,23 +23,23 @@ class VegetableController extends Controller
     public function index(Request $request)
     {
         return Inertia::render('admin/vegetables/Index', [
-            'summary' => Inertia::defer(fn () => VarietyService::summary()),
+            'summary' => Inertia::defer(fn () => $this->varietyService->summary()),
             'filters' => [
                 'price_filter' => $request->query('price_filter', null),
                 'search'       => $request->query('search', null),
             ],
-            'varieties' => Inertia::defer(fn () => VarietyService::paginated(
+            'varieties' => Inertia::defer(fn () => $this->varietyService->paginated(
                 perPage: 20,
                 priceFilter: $request->query('price_filter', null),
                 search: $request->query('search', null),
             )),
-            'vegetableOptions' => Inertia::defer(fn () => VarietyService::vegetableOptions()),
+            'vegetableOptions' => Inertia::defer(fn () => $this->varietyService->vegetableOptions()),
         ]);
     }
 
     public function details(Variety $variety): JsonResponse
     {
-        return response()->json(VarietyService::detailed($variety));
+        return response()->json($this->varietyService->detailed($variety));
     }
 
     public function store(StoreVarietyRequest $request, CreateVarietyAction $createVariety)
