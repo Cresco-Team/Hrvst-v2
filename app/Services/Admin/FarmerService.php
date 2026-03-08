@@ -9,7 +9,7 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class FarmerService
 {
-    public static function summary(): array
+    public function summary(): array
     {
         $newFarmerThisMonth = FarmerProfile::approved()
             ->where('created_at', '>=', now()->startOfMonth())
@@ -25,7 +25,7 @@ class FarmerService
         ];
     }
 
-    public static function paginated(int $perPage = 20, ?int $page = null): LengthAwarePaginator
+    public function paginated(int $perPage = 20, ?int $page = null): LengthAwarePaginator
     {
         return FarmerProfile::with([
             'user.media',
