@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Actions\Product\CreateVarietyAction;
+use App\Actions\Product\UpdateVarietyAction;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Product\StoreVarietyRequest;
 use App\Http\Requests\Admin\Product\UpdateVarietyRequest;
@@ -43,20 +44,20 @@ class VegetableController extends Controller
     public function store(StoreVarietyRequest $request, CreateVarietyAction $createVariety)
     {
         $createVariety->handle(
-            $request->safe()->except('image'),
-            $request->file('image')
+            validated: $request->safe()->except('image'),
+            image: $request->file('image')
         );
 
         return redirect()->route('admin.vegetables.index')
             ->with('flash', ['type' => 'success', 'message' => 'Variety created successfully.']);
     }
 
-    public function update(UpdateVarietyRequest $request, Variety $variety)
+    public function update(UpdateVarietyRequest $request, Variety $variety, UpdateVarietyAction $updateVariety)
     {
-        $this->varietyService->update(
-            $variety,
-            $request->safe()->except('image'),
-            $request->file('image')
+        $updateVariety->handle(
+            variety: $variety,
+            validated: $request->safe()->except('image'),
+            image: $request->file('image')
         );
 
         return redirect()->route('admin.vegetables.index')
