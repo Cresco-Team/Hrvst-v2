@@ -10,18 +10,23 @@ use App\Services\Product\VarietyService;
 
 class DashboardService
 {
-    public static function getKPIs(): array
+    public function __construct(
+        private FarmerService $farmerService,
+        private VarietyService $varietyService,
+    ){}
+
+    public function getKPIs(): array
     {
         return [
-            'farmers' => self::getFarmerKPIs(),
+            'farmers' => $this->getFarmerKPIs(),
             'dealers' => self::getDealerKPIs(),
-            'varieties' => self::getVarietyKPIs(),
+            'varieties' => $this->getVarietyKPIs(),
         ];
     }
 
-    private static function getFarmerKPIs(): array
+    private function getFarmerKPIs(): array
     {
-        $current = FarmerService::summary();
+        $current = $this->farmerService->summary();
         
         // Get previous period data (30 days ago)
         $previousTotal = FarmerProfile::approved()
@@ -70,9 +75,9 @@ class DashboardService
         ];
     }
 
-    private static function getVarietyKPIs(): array
+    private function getVarietyKPIs(): array
     {
-        $current = VarietyService::summary();
+        $current = $this->varietyService->summary();
 
         return [
             'total_varieties' => [
