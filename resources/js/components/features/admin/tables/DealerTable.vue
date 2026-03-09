@@ -36,7 +36,7 @@ const columns: ColumnDef<Dealer>[] = [
         enableSorting: true,
     }, {
         id: 'ongoing_demands_count',
-        header: 'Total Open Requests',
+        header: 'Demands',
         accessorFn: (row) => row.ongoing_demands_count,
         enableSorting: true,
     }, {
