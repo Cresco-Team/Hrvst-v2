@@ -10,7 +10,7 @@ use Inertia\Response;
 
 class VegetablesController extends Controller
 {
-    private function __construct(
+    public function __construct(
         private VarietyService $varietyService,
     ){}
 
