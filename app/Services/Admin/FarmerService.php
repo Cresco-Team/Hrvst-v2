@@ -6,6 +6,7 @@ use App\Enums\PostStatus;
 use App\Models\Marketplace\FarmerSupply;
 use App\Models\Profiles\FarmerProfile;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Builder;
 
 class FarmerService
 {
@@ -25,9 +26,9 @@ class FarmerService
         ];
     }
 
-    public function paginated(int $perPage = 20, ?int $page = null): LengthAwarePaginator
+    public function paginated(int $perPage = 20, ?string $search = null): LengthAwarePaginator
     {
-        return FarmerProfile::with([
+        $query = FarmerProfile::with([
             'user.media',
             'media',
             'province',
@@ -38,9 +39,16 @@ class FarmerService
                 ->with(['media', 'post.variety.media', 'post.variety.vegetable.category'])
                 ->orderBy('expiration_date', 'asc'),
         ])
-            ->approved()
-            ->orderBy('created_at', 'desc')
-            ->paginate($perPage, ['*'], 'page', $page)
+            ->approved();
+
+        if ($search) {
+            $query->whereHas('user', function (Builder $q) use ($search) {
+                $q->where('name', 'like', "%{$search}%");
+            });
+        }
+
+        return $query->orderBy('created_at', 'desc')
+            ->paginate($perPage)
             ->through(function ($farmer) {
                 $ongoingSupplies = $farmer->supplies->filter(
                     fn ($supply) => $supply->post->status === PostStatus::Ongoing

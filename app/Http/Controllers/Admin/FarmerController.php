@@ -31,6 +31,7 @@ class FarmerController extends Controller
         return Inertia::render('admin/farmers/Index', [
             'view'      => $view,
             'filters'   => [
+                'search'            => $request->query('search', null),
                 'municipalities'    => $this->farmerMapService->getMunicipalityOptions(),
                 'supplies'          => $this->farmerMapService->getSupplyOptions(),
             ],
@@ -42,7 +43,10 @@ class FarmerController extends Controller
                 'defaultZoom' => 13,
             ],
             'farmers' => $view === 'list' 
-                ? Inertia::defer(fn () => $this->farmerService->paginated())
+                ? Inertia::defer(fn () => $this->farmerService->paginated(
+                    perPage: 20,
+                    search: $request->query('search', null),
+                ))
                 : null,
             'summary' => Inertia::defer(fn () => $this->farmerService->summary()),
         ]);

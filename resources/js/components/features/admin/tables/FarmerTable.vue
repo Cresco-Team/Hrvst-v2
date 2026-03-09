@@ -13,19 +13,23 @@ import type { PaginatedResponse } from '@/types/pagination'
 
 defineProps<{
     farmers: PaginatedResponse<Farmer>
+    searchQuery?: string
 }>()
 
 defineEmits<{
     'view-farmer': [farmer: Farmer]
     'page-change': [page: number]
+    'search': [query: string]
 }>()
 
 /* -- column definitions -- */
 const columns: ColumnDef<Farmer>[] = [
     {
         id: 'expander',
-        header: () => null,
-        cell: () => null,
+        header: '',
+    }, {
+        id: 'image',
+        header: 'Image',
     }, {
         id: 'farmer',
         header: 'Farmer',
@@ -56,28 +60,48 @@ const columns: ColumnDef<Farmer>[] = [
 </script>
 
 <template>
-    <DataTable :data="farmers" :columns="columns" search-placeholder="Search farmers..."
-        empty-message="No farmers found." entity-name="farmers" enable-expand
-        @page-change="$emit('page-change', $event)">
+    <DataTable
+        :data="farmers"
+        :columns="columns"
+        :search-query="searchQuery"
+        search-placeholder="Search farmers..."
+        entity-name="farmers"
+        empty-message="No farmers found"
+        enable-expand
+        @page-change="$emit('page-change', $event)"
+        @search="$emit('search', $event)"
+    >
         <!-- Custom Cell: Expander -->
         <template #cell-expander="{ row, cell }">
-            <button v-if="row.ongoing_supplies.length > 0" @click="cell.row.toggleExpanded()"
-                class="p-1 hover:bg-accent rounded transition-colors">
+            <Button 
+                v-if="row.ongoing_supplies.length > 0" 
+                @click="cell.row.toggleExpanded()"
+                variant="ghost"
+                size="icon-sm"
+                class="text-muted-foreground"
+            >
                 <ChevronDownIcon v-if="cell.row.getIsExpanded()" class="size-4" />
                 <ChevronRightIcon v-else class="size-4" />
-            </button>
+            </Button>
         </template>
 
-        <!-- Custom Cell: Farmer -->
+        <!-- Image -->
+        <template #cell-image="{ row }">
+            <Avatar class="size-12 rounded-md">
+                <AvatarImage
+                    v-if="row.farm_url"
+                    :src="row.farm_url"
+                    :alt="row.user.name"
+                />
+                <AvatarFallback class="rounded-md bg-primary/10 text-primary font-semibold">
+                    {{ getInitials(row.user.name) }}
+                </AvatarFallback>
+            </Avatar>
+        </template>
+
+        <!-- Farmer -->
         <template #cell-farmer="{ row }">
             <div class="flex items-center gap-3">
-                <Avatar class="size-10 rounded-md">
-                    <AvatarImage v-if="row.user.image_url" :src="row.user.image_url" :alt="row.user.name"
-                        class="object-cover" />
-                    <AvatarFallback class="rounded-md bg-primary/10 text-primary font-semibold">
-                        {{ getInitials(row.user.name) }}
-                    </AvatarFallback>
-                </Avatar>
                 <div class="flex flex-col gap-0.5">
                     <span class="font-medium">{{ row.user.name }}</span>
                     <div class="flex items-center gap-2 text-xs text-muted-foreground">

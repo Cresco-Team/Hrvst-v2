@@ -16,6 +16,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import AppLayout from '@/layouts/AppLayout.vue'
 import admin from '@/routes/admin'
+import { index } from '@/routes/admin/farmers'
 import type { Filters, Farmer, Summary, FarmerDetails, MarkerData } from '@/types/admin/farmers'
 import type { PaginatedResponse } from '@/types/pagination'
 
@@ -58,6 +59,8 @@ const breadcrumbs = [
     { title: 'Admin', href: admin.dashboard().url },
     { title: 'Farmers', href: admin.farmers.index().url },
 ]
+
+const searchQuery = ref(props.filters?.search ?? '');
 
 /* -- View Toggle -- */
 function switchView(newView: 'list' | 'map') {
@@ -123,6 +126,18 @@ function openFarmerSidebar(farmerId: number) {
 function closeSidebar() {
     sidebarOpen.value = false
     selectedFarmer.value = null
+}
+
+function handleSearch(query: string) {
+    searchQuery.value = query
+    router.visit(index().url, {
+        data: {
+            search: query || undefined
+        },
+        preserveState: true,
+        preserveScroll: true,
+        only: ['farmers', 'filters'],
+    })
 }
 
 function handlePageChange(page: number) {
@@ -215,16 +230,21 @@ if (storedView && storedView !== props.view) {
                         </div>
                     </template>
 
+                    <FarmerTable
+                        v-if="farmers" 
+                        :farmers="farmers"
+                        :search-query="searchQuery"
+                        @view-farmer="openFarmerSidebar($event.id)"
+                        @page-change="handlePageChange" 
+                        @search="handleSearch"
+                    />
+
                     <EmptyState
-                        v-if="farmers.data.length === 0"
+                        v-else
                         title="No Farmers Yet"
                         description="Please wait for farmers to register or check for pending farmers."
                         :icon="SearchX"
                     />
-
-                    <FarmerTable v-else :farmers="farmers"
-                        @view-farmer="openFarmerSidebar($event.id)"
-                        @page-change="handlePageChange" />
                 </Deferred>
             </div>
 
