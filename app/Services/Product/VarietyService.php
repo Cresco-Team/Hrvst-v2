@@ -189,7 +189,7 @@ class VarietyService
         ];
     }
 
-    public static function forCatalog(int $perPage = 20, ?string $search = null, ?int $categoryId = null): LengthAwarePaginator
+    public function forCatalog(int $perPage = 20, ?string $search = null, ?int $categoryId = null): LengthAwarePaginator
     {
         return Variety::with(['vegetable.category', 'latestPrice', 'media'])
             ->when($search, fn (Builder $q) => $q->where('name', 'like', "%{$search}%"))

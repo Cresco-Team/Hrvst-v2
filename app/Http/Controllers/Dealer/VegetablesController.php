@@ -10,6 +10,10 @@ use Inertia\Response;
 
 class VegetablesController extends Controller
 {
+    private function __construct(
+        private VarietyService $varietyService
+    ){}
+
     public function index(Request $request): Response
     {
         return Inertia::render('dealer/vegetables/Index', [
@@ -17,12 +21,12 @@ class VegetablesController extends Controller
                 'search' => $request->query('search'),
                 'category_id' => $request->integer('category_id') ?: null,
             ],
-            'varieties' => Inertia::defer(fn () => VarietyService::forCatalog(
+            'varieties' => Inertia::defer(fn () => $this->varietyService->forCatalog(
                 perPage: 20,
                 search: $request->query('search'),
                 categoryId: $request->integer('category_id') ?: null,
             )),
-            'categoryOptions' => Inertia::defer(fn () => VarietyService::categoryOptions()),
+            'categoryOptions' => Inertia::defer(fn () => $this->varietyService->categoryOptions()),
         ]);
     }
 }
