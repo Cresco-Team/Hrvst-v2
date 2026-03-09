@@ -69,7 +69,7 @@ class DealerService
                         'id' => $demand->id,
                         'variety' => [
                             'id' => $demand->post->variety->id,
-                            'name' => $demand->post->variety->name,
+                            'name' => $demand->post->variety->vegetable->name.' '.$demand->post->variety->name,
                             'category' => $demand->post->variety->vegetable->category->name,
                             'image_url' => $demand->post->variety->getFirstMediaUrl('variety_image'),
                         ],
