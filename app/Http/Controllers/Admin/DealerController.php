@@ -9,6 +9,7 @@ use App\Models\Profiles\DealerProfile;
 use App\Services\Admin\DealerService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -16,17 +17,22 @@ use Symfony\Component\HttpFoundation\Response as HttpFoundationResponse;
 
 class DealerController extends Controller
 {
-    public function index(): Response
+    public function index(Request $request): Response
     {
         Gate::authorize('viewAny', DealerProfile::class);
 
         return Inertia::render('admin/dealers/Index', [
             'summary' => Inertia::defer(fn () => DealerService::summary()),
-            'dealers' => Inertia::defer(fn () => DealerService::paginated()),
+            'dealers' => Inertia::defer(fn () => DealerService::paginated(
+                search: $request->query('search', null),
+            )),
+            'filters' => [
+                'search' => $request->query('search', null),
+            ],
         ]);
     }
 
-    public function details(int $id, ): JsonResponse
+    public function details(int $id): JsonResponse
     {
         $dealer = DealerService::details($id);
 
@@ -47,7 +53,7 @@ class DealerController extends Controller
 
         $dealer = DealerService::show($id);
 
-        if (!$dealer) {
+        if (! $dealer) {
             abort(404, 'Dealer not found');
         }
 
@@ -72,7 +78,7 @@ class DealerController extends Controller
         return back()
             ->with('flash', [
                 'type' => 'success',
-                'message' => 'Dealer Approved.'
+                'message' => 'Dealer Approved.',
             ]);
     }
 
@@ -85,7 +91,7 @@ class DealerController extends Controller
         return back()
             ->with('flash', [
                 'type' => 'success',
-                'message' => 'Dealer Rejected and Deleted.'
+                'message' => 'Dealer Rejected and Deleted.',
             ]);
     }
 
