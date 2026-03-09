@@ -1,7 +1,7 @@
 <script setup lang="ts">
 
 import { Link, usePage } from '@inertiajs/vue3';
-import { Gem, MapPinned, Menu, MessagesSquare, Package, PackageSearch, Sprout, Store, Truck } from 'lucide-vue-next';
+import { MapPinned, Menu, MessagesSquare, Package, PackageSearch, ShoppingBag, Sprout, Store, Truck } from 'lucide-vue-next';
 import { computed } from 'vue';
 import AppLogo from '@/components/AppLogo.vue';
 import AppLogoIcon from '@/components/AppLogoIcon.vue';
@@ -48,7 +48,7 @@ const mainNavItems = computed<NavItem[]>(() => {
             items.push({
                 title: 'Vegetables',
                 href: admin.vegetables.index(),
-                icon: Gem
+                icon: Package
             }, {
                 title: 'Farmers',
                 href: admin.farmers.index(),
@@ -56,7 +56,7 @@ const mainNavItems = computed<NavItem[]>(() => {
             }, {
                 title: 'Dealers',
                 href: admin.dealers.index(),
-                icon: Store
+                icon: ShoppingBag
             })
         }
 
