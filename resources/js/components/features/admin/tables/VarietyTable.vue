@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { ColumnDef } from '@tanstack/vue-table'
-import { ChevronDown, ChevronRight, Clock, Eye, MapPin, Pencil, Plus, Trash2, TrendingUp } from 'lucide-vue-next'
+import { ChevronDown, ChevronRight, ClipboardList, ClipboardPenLine, ClipboardPlus, ClipboardX, Clock, MapPin, Plus } from 'lucide-vue-next'
 import DataTable from '@/components/shared/tables/DataTable.vue'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
@@ -11,10 +11,11 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from '@/components/ui/tooltip'
-import type { PaginatedData, Variety } from '@/types/admin/vegetable-varieties'
+import type { Variety } from '@/types/admin/vegetable-varieties'
+import type { PaginatedResponse } from '@/types/pagination'
 
 defineProps<{
-    varieties: PaginatedData
+    varieties: PaginatedResponse<Variety>
 }>()
 
 defineEmits<{
@@ -27,7 +28,7 @@ defineEmits<{
 }>()
 
 const columns: ColumnDef<Variety>[] = [
-    { id: 'expand',      header: '',         enableSorting: false },
+    { id: 'expand',      header: '', },
     { id: 'image',       header: 'Image',    enableSorting: false },
     {
         id: 'name',
@@ -54,7 +55,6 @@ const columns: ColumnDef<Variety>[] = [
         :columns="columns"
         :enable-expand="true"
         search-placeholder="Search varieties…"
-        empty-message="No varieties found."
         entity-name="varieties"
         @page-change="$emit('page-change', $event)"
     >
@@ -182,7 +182,7 @@ const columns: ColumnDef<Variety>[] = [
                                 class="text-muted-foreground hover:text-foreground"
                                 @click="$emit('open-view', row)"
                             >
-                                <Eye class="size-4" />
+                                <ClipboardList class="size-4" />
                             </Button>
                         </TooltipTrigger>
                         <TooltipContent><p class="text-xs">View details</p></TooltipContent>
@@ -198,7 +198,7 @@ const columns: ColumnDef<Variety>[] = [
                                 class="text-muted-foreground hover:text-primary"
                                 @click="$emit('open-update-price', row)"
                             >
-                                <TrendingUp class="size-4" />
+                                <ClipboardPlus class="size-4" />
                             </Button>
                         </TooltipTrigger>
                         <TooltipContent><p class="text-xs">Update price</p></TooltipContent>
@@ -214,7 +214,7 @@ const columns: ColumnDef<Variety>[] = [
                                 class="text-muted-foreground hover:text-foreground"
                                 @click="$emit('open-edit', row)"
                             >
-                                <Pencil class="size-4" />
+                                <ClipboardPenLine class="size-4" />
                             </Button>
                         </TooltipTrigger>
                         <TooltipContent><p class="text-xs">Edit variety</p></TooltipContent>
@@ -230,7 +230,7 @@ const columns: ColumnDef<Variety>[] = [
                                 class="text-muted-foreground hover:text-destructive"
                                 @click="$emit('open-delete', row)"
                             >
-                                <Trash2 class="size-4" />
+                                <ClipboardX class="size-4" />
                             </Button>
                         </TooltipTrigger>
                         <TooltipContent><p class="text-xs">Delete variety</p></TooltipContent>
