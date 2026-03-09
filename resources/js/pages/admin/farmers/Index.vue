@@ -142,7 +142,7 @@ function handleSearch(query: string) {
 
 function handlePageChange(page: number) {
     router.visit(admin.farmers.index().url, {
-        data: { page, view: 'list' },
+        data: { page, view: 'list', },
         preserveState: true,
         preserveScroll: true,
     })

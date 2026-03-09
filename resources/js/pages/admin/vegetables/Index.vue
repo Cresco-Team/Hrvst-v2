@@ -163,7 +163,7 @@ function handlePriceSubmit(formData: FormData) {
 function handlePageChange(page: number) {
   router.get(
     index().url,
-    { page, price_filter: props.filters.price_filter },
+    { page, price_filter: props.filters.price_filter, search: searchQuery.value || undefined },
     { preserveScroll: true },
   )
 }
