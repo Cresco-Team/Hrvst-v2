@@ -1,7 +1,7 @@
 <script setup lang="ts">
 
 import type { ColumnDef } from '@tanstack/vue-table'
-import { ChevronDownIcon, ChevronRightIcon, MapPin, Phone, Mail, Eye, Package } from 'lucide-vue-next'
+import { ChevronDownIcon, ChevronRightIcon, MapPin, Phone, Mail, Package, ClipboardList } from 'lucide-vue-next'
 import DataTable from '@/components/shared/tables/DataTable.vue'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
@@ -164,7 +164,7 @@ const columns: ColumnDef<Farmer>[] = [
                         <TooltipTrigger as-child>
                             <Button variant="ghost" size="icon-sm" class="text-muted-foreground hover:text-foreground"
                                 @click="$emit('view-farmer', row)">
-                                <Eye class="size-4" />
+                                <ClipboardList class="size-4" />
                             </Button>
                         </TooltipTrigger>
                         <TooltipContent>

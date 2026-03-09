@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { ColumnDef } from '@tanstack/vue-table';
-import { Phone, Mail, Package, ChevronDownIcon, ChevronRightIcon } from 'lucide-vue-next';
+import { Phone, Mail, Package, ChevronDownIcon, ChevronRightIcon, ClipboardList } from 'lucide-vue-next';
 import DataTable from '@/components/shared/tables/DataTable.vue';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
