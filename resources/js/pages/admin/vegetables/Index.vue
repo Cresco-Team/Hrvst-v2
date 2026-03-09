@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { Head, router } from '@inertiajs/vue3'
+import { Deferred, Head, router } from '@inertiajs/vue3'
 import axios from 'axios'
-import { AlertTriangle, Leaf, TrendingUp } from 'lucide-vue-next'
+import { AlertTriangle, Leaf, Sprout, TrendingUp } from 'lucide-vue-next'
 import { ref, computed } from 'vue'
 import { toast } from 'vue-sonner'
 import VarietyForm from '@/components/admin/forms/VarietyForm.vue'
 import ConfirmationDialog from '@/components/ConfirmationDialog.vue'
+import EmptyState from '@/components/EmptyState.vue'
 import PriceFreshnessFilter from '@/components/features/admin/filters/PriceFreshnessFilter.vue'
 import VarietyTable from '@/components/features/admin/tables/VarietyTable.vue'
 import Heading from '@/components/Heading.vue'
@@ -31,6 +32,8 @@ const breadcrumbs: BreadcrumbItem[] = [
   { title: 'Admin', href: dashboard().url },
   { title: 'Vegetables', href: index().url },
 ]
+
+const searchQuery = ref(props.filters?.search ?? '')
 
 /* -- Variety CRUD state -- */
 const formOpen = ref(false)
@@ -87,6 +90,19 @@ async function openView(variety: Variety) {
 /* -- Filtering -- */
 function handleFilterChange(filter: string | null) {
   router.get(index().url, { price_filter: filter }, { preserveScroll: true, preserveState: true })
+}
+
+function handleSearch(query: string) {
+    searchQuery.value = query
+    router.visit(index().url, {
+        data: {
+            search: query || undefined,
+            price_filter: props.filters.price_filter || undefined,
+        },
+        preserveState: true,
+        preserveScroll: true,
+        only: ['varieties', 'filters'],
+    })
 }
 
 /* -- Variety CRUD -- */
@@ -147,7 +163,7 @@ function handlePriceSubmit(formData: FormData) {
 function handlePageChange(page: number) {
   router.get(
     index().url,
-    { page, price_filter: props.filters.price_filter },
+    { page, price_filter: props.filters.price_filter, search: searchQuery.value || undefined },
     { preserveScroll: true },
   )
 }
@@ -174,58 +190,77 @@ const isLoadingVarieties = computed(() => !props.varieties)
       </div>
 
       <!-- Summary cards -->
-      <div v-if="isLoadingSummary" class="grid gap-4 md:grid-cols-3">
-        <Skeleton class="h-33" />
-        <Skeleton class="h-33" />
-        <Skeleton class="h-33" />
-      </div>
-      <div v-else-if="summary" class="grid gap-4 md:grid-cols-3">
-        <LargeCard
-          title="Total Varieties"
-          subtext="available for planting"
-          :value="summary.total_varieties"
-          :icon="Leaf"
-          cardClass="md:col-span-1 bg-linear-to-br from-lime-500/10 to-green-500/30"
-        />
-        <LargeCard
-          title="Price Updates"
-          subtext="this week"
-          :value="summary.price_stats.updated_week"
-          :icon="TrendingUp"
-          cardClass="md:col-span-1 bg-linear-to-br from-lime-500/10 to-green-500/30"
-        />
-        <LargeCard
-          title="Needs Attention"
-          subtext="varieties"
-          :value="summary.price_stats.stale"
-          :icon="AlertTriangle"
-          iconColor="text-orange-500"
-          cardClass="md:col-span-1 bg-linear-to-br from-red-500/20 via-green-500/10 to-green-500/30"
-        />
-      </div>
+       <Deferred data="summary">
+        <template #fallback>
+          <div v-if="isLoadingSummary" class="grid gap-4 md:grid-cols-3">
+            <Skeleton class="h-33" />
+            <Skeleton class="h-33" />
+            <Skeleton class="h-33" />
+          </div>
+        </template>
+
+        <div class="grid gap-4 md:grid-cols-3">
+          <LargeCard
+            title="Total Varieties"
+            subtext="available for planting"
+            :value="summary?.total_varieties"
+            :icon="Leaf"
+            cardClass="md:col-span-1 bg-linear-to-br from-lime-500/10 to-green-500/30"
+          />
+          <LargeCard
+            title="Price Updates"
+            subtext="this week"
+            :value="summary?.price_stats.updated_week"
+            :icon="TrendingUp"
+            cardClass="md:col-span-1 bg-linear-to-br from-lime-500/10 to-green-500/30"
+          />
+          <LargeCard
+            title="Needs Attention"
+            subtext="varieties"
+            :value="summary?.price_stats.stale"
+            :icon="AlertTriangle"
+            iconColor="text-orange-500"
+            cardClass="md:col-span-1 bg-linear-to-br from-red-500/20 via-green-500/10 to-green-500/30"
+          />
+        </div>
+       </Deferred>
 
       <!-- Table skeleton -->
-      <div v-if="isLoadingVarieties" class="flex flex-col gap-4">
-        <div class="flex items-center justify-between">
-          <Skeleton class="h-9 w-64" />
-          <Skeleton class="h-9 w-32" />
-        </div>
-        <div class="rounded-lg border">
-          <div class="space-y-3 p-4">
-            <Skeleton v-for="n in 5" :key="n" class="h-12 w-full" />
+       <Deferred data="varieties">
+        <template #fallback>
+          <div v-if="isLoadingVarieties" class="flex flex-col gap-4">
+            <div class="flex items-center justify-between">
+              <Skeleton class="h-9 w-64" />
+              <Skeleton class="h-9 w-32" />
+            </div>
+            <div class="rounded-lg border">
+              <div class="space-y-3 p-4">
+                <Skeleton v-for="n in 5" :key="n" class="h-12 w-full" />
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
-      <VarietyTable
-        v-else-if="varieties"
-        :varieties="varieties"
-        @open-create="openCreate"
-        @open-view="openView"
-        @open-edit="openEdit"
-        @open-delete="openDelete"
-        @open-update-price="openUpdatePrice"
-        @page-change="handlePageChange"
-      />
+        </template>
+
+        <VarietyTable
+          v-if="varieties"
+          :varieties="varieties"
+          :search-query="searchQuery"
+          @open-create="openCreate"
+          @open-view="openView"
+          @open-edit="openEdit"
+          @open-delete="openDelete"
+          @open-update-price="openUpdatePrice"
+          @page-change="handlePageChange"
+          @search="handleSearch"
+        />
+
+        <EmptyState 
+          v-else
+          title="No Vegetables Yet"
+          description="Create a vegetable variety to display."
+          :icon="Sprout"
+        />
+       </Deferred>
 
     </div>
   </AppLayout>

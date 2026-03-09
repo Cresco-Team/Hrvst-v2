@@ -3,6 +3,7 @@ import type { User } from "../users/user"
 
 /* filters */
 export interface Filters {
+    search?: string | null
     municipalities: Municipality[]
     offerings: OfferingsByCategory
 }

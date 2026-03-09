@@ -18,6 +18,7 @@ use Inertia\Response;
 class FarmerController extends Controller
 {
     public function __construct(
+        private FarmerService $farmerService,
         private FarmerMapService $farmerMapService
     ) {}
 
@@ -30,6 +31,7 @@ class FarmerController extends Controller
         return Inertia::render('admin/farmers/Index', [
             'view'      => $view,
             'filters'   => [
+                'search'            => $request->query('search', null),
                 'municipalities'    => $this->farmerMapService->getMunicipalityOptions(),
                 'supplies'          => $this->farmerMapService->getSupplyOptions(),
             ],
@@ -41,9 +43,12 @@ class FarmerController extends Controller
                 'defaultZoom' => 13,
             ],
             'farmers' => $view === 'list' 
-                ? Inertia::defer(fn () => FarmerService::paginated())
+                ? Inertia::defer(fn () => $this->farmerService->paginated(
+                    perPage: 20,
+                    search: $request->query('search', null),
+                ))
                 : null,
-            'summary' => Inertia::defer(fn () => FarmerService::summary()),
+            'summary' => Inertia::defer(fn () => $this->farmerService->summary()),
         ]);
     }
 
@@ -93,7 +98,7 @@ class FarmerController extends Controller
         $farmerProfile = FarmerProfile::findOrFail($id);
         Gate::authorize('view', $farmerProfile);
 
-        $farmer = FarmerService::show($id);
+        $farmer = $this->farmerService->show($id);
 
         if (!$farmer) abort(404, 'Farmer not found');
 
@@ -107,7 +112,7 @@ class FarmerController extends Controller
     {
         Gate::authorize('viewAny', FarmerProfile::class);
 
-        return response()->json(FarmerService::pending());
+        return response()->json($this->farmerService->pending());
     }
 
     public function approve(FarmerProfile $farmer, ApproveFarmerAction $approveFarmer): RedirectResponse

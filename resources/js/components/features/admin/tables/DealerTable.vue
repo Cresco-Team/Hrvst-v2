@@ -1,79 +1,83 @@
 <script setup lang="ts">
+import type { ColumnDef } from '@tanstack/vue-table';
+import { Phone, Mail, Package, ChevronDownIcon, ChevronRightIcon, ClipboardList } from 'lucide-vue-next';
+import DataTable from '@/components/shared/tables/DataTable.vue';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
+import { Item, ItemContent, ItemDescription, ItemMedia, ItemTitle } from '@/components/ui/item';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { getInitials } from '@/composables/useInitials';
+import type { Dealer } from '@/types/admin/dealers';
+import type { PaginatedResponse } from '@/types/pagination';
 
-import type { ColumnDef } from '@tanstack/vue-table'
-import { Eye, Phone, Mail, Package, ChevronDownIcon, ChevronRightIcon } from 'lucide-vue-next'
-import DataTable from '@/components/shared/tables/DataTable.vue'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Button } from '@/components/ui/button'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import { getInitials } from '@/composables/useInitials'
-import type { Dealer } from '@/types/admin/dealers'
-import type { PaginatedResponse } from '@/types/pagination'
-
-/* -- props / emits -- */
 defineProps<{
-    dealers: PaginatedResponse<Dealer>
-}>()
+    dealers: PaginatedResponse<Dealer>;
+    searchQuery?: string;
+}>();
 
 defineEmits<{
-    'view-dealer': [dealer: Dealer]
-    'page-change': [page: number]
-}>()
+    'view-dealer': [dealer: Dealer];
+    'page-change': [page: number];
+    search: [query: string];
+}>();
 
 /* -- column definitions -- */
 const columns: ColumnDef<Dealer>[] = [
     {
         id: 'expander',
-        header: () => null,
-        cell: () => null,
+        header: '',
+    }, {
+        id: 'image',
+        header: 'Image',
     }, {
         id: 'dealer',
         header: 'Dealer',
         accessorFn: (row) => row.user.name,
         enableSorting: true,
-    },
-    {
+    }, {
         id: 'ongoing_demands_count',
-        header: 'Total Open Requests',
+        header: 'Demands',
         accessorFn: (row) => row.ongoing_demands_count,
         enableSorting: true,
-    },
-    {
+    }, {
         id: 'joined_at',
         header: 'Joined',
         accessorFn: (row) => row.joined_at,
         enableSorting: true,
-    },
-    {
+    }, {
         id: 'actions',
         header: 'Actions',
         enableSorting: false,
     },
-]
+];
 </script>
 
 <template>
-    <DataTable :data="dealers" :columns="columns" search-placeholder="Search dealers..."
-        empty-message="No dealers found." entity-name="dealers" @page-change="$emit('page-change', $event)" enable-expand>
-        <!-- Custom Cell: Expander -->
-         <template #cell-expander="{ row, cell }">
-            <button v-if="row.ongoing_demands.length > 0" @click="cell.row.toggleExpanded()"
-                class="p-1 hover:bg-accent rounded transition-colors">
+    <DataTable :data="dealers" :columns="columns" :search-query="searchQuery" search-placeholder="Search dealers..."
+        entity-name="dealers" empty-message="No dealers found." enable-expand
+        @page-change="$emit('page-change', $event)" @search="$emit('search', $event)">
+        <!-- Expander -->
+        <template #cell-expander="{ row, cell }">
+            <Button v-if="row.ongoing_demands.length > 0" @click="cell.row.toggleExpanded()"
+                variant="ghost" size="icon-sm" class="text-muted-foreground">
                 <ChevronDownIcon v-if="cell.row.getIsExpanded()" class="size-4" />
                 <ChevronRightIcon v-else class="size-4" />
-            </button>
+            </Button>
         </template>
 
-        <!-- Custom Cell: Dealer -->
+        <!-- Image -->
+        <template #cell-image="{ row }">
+            <Avatar class="size-12 rounded-md">
+                <AvatarImage v-if="row.document_image" :src="row.document_image" :alt="row.user.name" />
+                <AvatarFallback class="rounded-md bg-primary/10 text-primary font-semibold">
+                    {{ getInitials(row.user.name) }}
+                </AvatarFallback>
+            </Avatar>
+        </template>
+
+        <!-- Dealer -->
         <template #cell-dealer="{ row }">
             <div class="flex items-center gap-3">
-                <Avatar class="size-10 rounded-md">
-                    <AvatarImage v-if="row.user.image_url" :src="row.user.image_url" :alt="row.user.name"
-                        class="object-cover" />
-                    <AvatarFallback class="rounded-md bg-primary/10 text-primary font-semibold">
-                        {{ getInitials(row.user.name) }}
-                    </AvatarFallback>
-                </Avatar>
                 <div class="flex flex-col gap-0.5">
                     <span class="font-medium">{{ row.user.name }}</span>
                     <div class="flex items-center gap-2 text-xs text-muted-foreground">
@@ -90,7 +94,7 @@ const columns: ColumnDef<Dealer>[] = [
             </div>
         </template>
 
-        <!-- Custom Cell: Open Requests -->
+        <!-- Custom Cell: Ongoing Demands -->
         <template #cell-ongoing_demands_count="{ row }">
             <div class="flex items-center gap-2">
                 <Package class="size-4 text-muted-foreground" />
@@ -100,12 +104,12 @@ const columns: ColumnDef<Dealer>[] = [
             </div>
         </template>
 
-        <!-- Custom Cell: Joined -->
+        <!-- Joined -->
         <template #cell-joined_at="{ row }">
             <TooltipProvider v-if="row.joined_at" :delay-duration="200">
                 <Tooltip>
                     <TooltipTrigger as-child>
-                        <div class="text-sm cursor-help">
+                        <div class="cursor-help text-sm">
                             {{ row.joined_at_human }}
                         </div>
                     </TooltipTrigger>
@@ -116,7 +120,7 @@ const columns: ColumnDef<Dealer>[] = [
             </TooltipProvider>
         </template>
 
-        <!-- Custom Cell: Actions -->
+        <!-- Actions -->
         <template #cell-actions="{ row }">
             <div class="flex items-center gap-1.5">
                 <TooltipProvider :delay-duration="200">
@@ -124,7 +128,7 @@ const columns: ColumnDef<Dealer>[] = [
                         <TooltipTrigger as-child>
                             <Button variant="ghost" size="icon-sm" class="text-muted-foreground hover:text-foreground"
                                 @click="$emit('view-dealer', row)">
-                                <Eye class="size-4" />
+                                <ClipboardList class="size-4" />
                             </Button>
                         </TooltipTrigger>
                         <TooltipContent>
@@ -135,24 +139,31 @@ const columns: ColumnDef<Dealer>[] = [
             </div>
         </template>
 
-        <!-- Expanded Row: Demands -->
-         <template #expanded-row="{ row, colspan }">
+        <!-- Demands -->
+        <template #expanded-row="{ row, colspan }">
             <tr class="bg-muted/20">
                 <td :colspan="colspan" class="px-4 py-4">
                     <div class="ml-12">
-                        <h4 class="text-sm font-medium mb-3">Available Demands ({{ row.ongoing_demands.length }})
+                        <h4 class="mb-3 text-sm font-medium">
+                            Ongoing Demands ({{ row.ongoing_demands.length }})
                         </h4>
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                            <div v-for="demand in row.ongoing_demands" :key="demand.id"
-                                class="flex items-start gap-3 p-3 rounded-lg border bg-card hover:shadow-sm transition-shadow">
-                                <Avatar class="size-12 rounded-md shrink-0">
-                                    <AvatarImage :src="demand.variety.image_url" :alt="demand.variety.name"
-                                        class="object-cover" />
-                                    <AvatarFallback class="rounded-md bg-primary/10 text-primary font-semibold text-xs">
-                                        {{ demand.variety.name.charAt(0) }}
-                                    </AvatarFallback>
-                                </Avatar>
-                            </div>
+                        <div class="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-4">
+                            <Item v-for="demand in row.ongoing_demands" :key="demand.id" variant="outline">
+                                <ItemMedia variant="image">
+                                    <img
+                                        v-if="demand.variety.image_url"
+                                        :src="demand.variety.image_url"
+                                        :alt="demand.variety.name"
+                                    >
+                                </ItemMedia>
+
+                                <ItemContent>
+                                    <ItemTitle class="line-clamp-1">
+                                        {{ demand.variety.name }} - <span class="text-muted-foreground">{{ demand.variety.category }}</span>
+                                    </ItemTitle>
+                                    <ItemDescription>{{ demand.quantity_kg.toFixed(2) }} kg</ItemDescription>
+                                </ItemContent>
+                            </Item>
                         </div>
                     </div>
                 </td>
