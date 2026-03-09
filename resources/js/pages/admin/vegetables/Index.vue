@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { Deferred, Head, router } from '@inertiajs/vue3'
 import axios from 'axios'
-import { AlertTriangle, Leaf, TrendingUp } from 'lucide-vue-next'
+import { AlertTriangle, Leaf, Sprout, TrendingUp } from 'lucide-vue-next'
 import { ref, computed } from 'vue'
 import { toast } from 'vue-sonner'
 import VarietyForm from '@/components/admin/forms/VarietyForm.vue'
 import ConfirmationDialog from '@/components/ConfirmationDialog.vue'
+import EmptyState from '@/components/EmptyState.vue'
 import PriceFreshnessFilter from '@/components/features/admin/filters/PriceFreshnessFilter.vue'
 import VarietyTable from '@/components/features/admin/tables/VarietyTable.vue'
 import Heading from '@/components/Heading.vue'
@@ -251,6 +252,13 @@ const isLoadingVarieties = computed(() => !props.varieties)
           @open-update-price="openUpdatePrice"
           @page-change="handlePageChange"
           @search="handleSearch"
+        />
+
+        <EmptyState 
+          v-else
+          title="No Vegetables Yet"
+          description="Create a vegetable variety to display."
+          :icon="Sprout"
         />
        </Deferred>
 
