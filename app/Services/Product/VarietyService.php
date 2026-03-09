@@ -205,12 +205,21 @@ class VarietyService
                     'category' => $variety->vegetable->category->name,
                 ],
                 'weeks_to_harvest' => $variety->weeks_to_harvest,
-                'latest_price'     => $variety->latestPrice
-                    ? [
-                        'price_min' => (float) $variety->latestPrice->price_min,
-                        'price_max' => (float) $variety->latestPrice->price_max,
-                    ]
-                    : null,
+                'latest_price' => $variety->latestPrice
+                ? [
+                    'price_min'   => (float) $variety->latestPrice->price_min,
+                    'price_max'   => (float) $variety->latestPrice->price_max,
+                    'recorded_at' => $variety->latestPrice->recorded_at->format('M d, Y'),
+                    'freshness'   => self::computePriceFreshness($variety->latestPrice->recorded_at),
+                ] : null,
+                'recent_prices' => $variety->recentPrices
+                ->sortBy('recorded_at')
+                ->map(fn ($p) => [
+                    'price_min' => (float) $p->price_min,
+                    'price_max' => (float) $p->price_max,
+                    'recorded_at'=> $p->recorded_at->format('M d, Y'),
+                ])
+                ->values(),
             ]);
     }
 
