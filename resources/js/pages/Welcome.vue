@@ -57,8 +57,7 @@ const steps = [
         </Head>
 
         <!-- ═══════════════════════════════════════ NAV ═══ -->
-        <nav class="fixed top-0 z-50 w-full border-b"
-            style="background: oklch(1 0 0 / 0.85); border-color: var(--border); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);">
+        <nav class="fixed top-0 z-50 w-full border-b bg-background/75 border-border backdrop-blur-md">
             <div class="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
                 <Link href="/" class="flex items-center gap-2.5 select-none">
                     <AppLogoIcon class="size-8 fill-current" style="color: #13DD5A;" />
@@ -94,7 +93,7 @@ const steps = [
 
         <!-- ═══════════════════════════════════════ HERO ═══ -->
         <section
-            class="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6 pt-16 text-center">
+            class="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6 pt-20 text-center">
             <!-- On-brand radial green glow -->
             <div class="pointer-events-none absolute inset-0" aria-hidden="true"
                 style="background: radial-gradient(ellipse 70% 55% at 50% 40%, oklch(0.7920 0.2090 151.7110 / 0.12) 0%, transparent 70%);" />
@@ -119,8 +118,10 @@ const steps = [
 
                 <p class="hero-sub mx-auto mb-10 max-w-xl text-base leading-relaxed sm:text-lg"
                     style="color: var(--muted-foreground);">
-                    Hrvst is the direct trading platform connecting farmers and dealers —
-                    transparent pricing, verified profiles.
+                    Hrvst aims to solve oversupply of vegetables and undersupply of demands
+                    by connecting farmers and dealers through a transparent supply & demand data,
+                    making this website a perfect place for farmers and dealers to gather data analysis
+                    and perform the best decision beforehand — Created and preserved by team Cresco.
                 </p>
 
                 <!-- CTAs -->
@@ -145,7 +146,7 @@ const steps = [
                 </div>
 
                 <p class="hero-hint mt-6 text-xs" style="color: oklch(0.7920 0.2090 151.7110 / 0.5);">
-                    Farmers · Dealers — one platform, two roles.
+                    We shape the transparency · You decide for the best.
                 </p>
             </div>
 
@@ -187,12 +188,13 @@ const steps = [
 
                             <h3 class="mb-4 text-2xl font-black leading-snug lg:text-3xl"
                                 style="font-family: 'Aleo', ui-serif, serif; color: var(--foreground);">
-                                Sell your harvest<br>on your terms.
+                                Grow what's missing,<br>not what's popular.
                             </h3>
 
                             <p class="mb-8 text-sm leading-relaxed" style="color: var(--muted-foreground);">
-                                List your produce, set your price, and connect directly with verified dealers —
-                                no more relying on intermediaries to determine your earnings.
+                                Turn market transparency into higher profits. See what’s in demand,
+                                list your harvest at your price, and deal directly with verified buyers.
+                                Your hard work, your data, your profit.
                             </p>
 
                             <ul class="space-y-4">
@@ -233,12 +235,11 @@ const steps = [
 
                             <h3 class="mb-4 text-2xl font-black leading-snug lg:text-3xl"
                                 style="font-family: 'Aleo', ui-serif, serif; color: var(--foreground);">
-                                Source fresh supply<br>without the chase.
+                                Source by certainty,<br>not by chance.
                             </h3>
 
                             <p class="mb-8 text-sm leading-relaxed" style="color: var(--muted-foreground);">
-                                Browse verified farmer listings, post your demand, and let supply come to you —
-                                with a supply map to plan your sourcing routes at a glance.
+                                Access real-time supply data to find the best produce at the right price. Connect directly with verified farmers and secure your inventory.
                             </p>
 
                             <ul class="space-y-4">
@@ -313,7 +314,7 @@ const steps = [
                     style="font-family: 'Aleo', ui-serif, serif; color: var(--primary-foreground);">
                     Ready to trade<br>the better way?
                 </h2>
-                <p class="mb-10 text-sm leading-relaxed" style="color: oklch(1 0 0 / 0.65);">
+                <p class="mb-10 text-sm leading-relaxed text-background">
                     Join Hrvst today. Get verified, list your produce or demand, and start trading directly —
                     no middlemen, no opacity.
                 </p>
