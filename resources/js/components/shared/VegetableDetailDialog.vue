@@ -38,7 +38,7 @@ const freshnessConfig = {
 
 // recent_prices arrive oldest → newest from the service (sorted ascending)
 const chartData = computed(() => {
-  if (!props.variety?.recent_prices.length) return null
+  if (!props.variety?.recent_prices?.length) return null
 
   const prices = props.variety.recent_prices
 
