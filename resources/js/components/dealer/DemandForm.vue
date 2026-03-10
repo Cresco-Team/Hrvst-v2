@@ -1,11 +1,14 @@
 <script setup lang="ts">
+
+import { useForm } from '@inertiajs/vue3'
+import { Sprout } from 'lucide-vue-next'
 import { computed, watch } from 'vue'
-import { InertiaForm } from '@inertiajs/vue3'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Sprout } from 'lucide-vue-next'
-import { Demand, VarietyOption } from '@/types/dealer/demands'
+import { store, update } from '@/routes/dealer/demands'
+import type { Demand } from '@/types/dealer/demands'
+import type { VarietyOption } from '@/types/product/variety'
 import DialogForm from '../DialogForm.vue'
 import { Badge } from '../ui/badge'
 
@@ -13,12 +16,6 @@ interface Props {
   open: boolean
   demand?: Demand | null
   varietyOptions: Record<string, VarietyOption[]>
-  form: InertiaForm<{
-    variety_id: number | null
-    quantity_kg: number
-    offered_price: number
-    transaction_date: string
-  }>
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -29,6 +26,13 @@ const emit = defineEmits<{
   'update:open': [value: boolean]
   'submit': []
 }>()
+
+const form = useForm({
+  variety_id: null as number | null,
+  quantity_kg: 0,
+  offered_price: 0,
+  transaction_date: '',
+})
 
 const minDate = computed(() => {
   const tomorrow = new Date()
@@ -46,10 +50,33 @@ const isEditMode = computed(() => !!props.demand)
 
 watch(() => props.open, (isOpen) => {
   if (!isOpen) {
-    props.form.reset()
-    props.form.clearErrors()
+    if (props.demand) {
+      form.variety_id = props.demand.variety.id
+      form.quantity_kg = props.demand.quantity_kg
+      form.offered_price = props.demand.offered_price
+      form.transaction_date = props.demand.transaction_date
+    } else {
+      form.reset()
+    }
+    form.clearErrors()
   }
 })
+
+const handleSubmit = () => {
+  const routeData = props.demand
+    ? update(props.demand.id)
+    : store()
+
+    form.transform((data) => ({
+      ...data,
+      ...(props.demand ? { __method: 'PUT' } : {})
+    })).post(routeData.url, {
+      preserveScroll: true,
+      onSuccess: () => {
+        emit('update:open', false)
+      }
+    })
+}
 </script>
 
 <template>
@@ -61,7 +88,7 @@ watch(() => props.open, (isOpen) => {
     :submit-label="isEditMode ? 'Update Post' : 'Post Vegetable Request'"
     max-width="2xl"
     @update:open="emit('update:open', $event)"
-    @submit="emit('submit')"
+    @submit="handleSubmit"
   >
     <template #icon>
       <Sprout class="size-5 text-primary" />

@@ -1,21 +1,23 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+
 import { Deferred, Head, router, useForm } from '@inertiajs/vue3'
+import { Plus, PackageSearch, PackageCheck, CalendarX, CalendarClock, Package } from 'lucide-vue-next'
+import { ref, computed } from 'vue'
+import ConfirmationDialog from '@/components/ConfirmationDialog.vue'
+import DemandCard from '@/components/dealer/DemandCard.vue'
+import DemandForm from '@/components/dealer/DemandForm.vue'
+import EmptyState from '@/components/EmptyState.vue'
+import Heading from '@/components/Heading.vue'
+import LargeCard from '@/components/shared/cards/LargeCard.vue'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Plus, PackageSearch, PackageCheck, CalendarX, CalendarClock, Package } from 'lucide-vue-next'
-import DemandForm from '@/components/dealer/DemandForm.vue'
-import dealer from '@/routes/dealer'
 import AppLayout from '@/layouts/AppLayout.vue'
-import Heading from '@/components/Heading.vue'
-import { PaginatedResponse } from '@/types/pagination'
-import { Demand, Summary, VarietyOption } from '@/types/dealer/demands'
-import { archive, destroy, fulfill, index, store, update } from '@/routes/dealer/demands'
-import LargeCard from '@/components/shared/cards/LargeCard.vue'
-import EmptyState from '@/components/EmptyState.vue'
-import DemandCard from '@/components/dealer/DemandCard.vue'
-import ConfirmationDialog from '@/components/ConfirmationDialog.vue'
+import dealer from '@/routes/dealer'
+import { archive, destroy, fulfill, index } from '@/routes/dealer/demands'
+import type { Demand, Summary } from '@/types/dealer/demands'
+import type { PaginatedResponse } from '@/types/pagination'
+import type { VarietyOption } from '@/types/product/variety'
 
 interface Props {
   summary?: Summary
@@ -98,23 +100,6 @@ function openFulfill(demand: Demand) {
 function openDelete(demand: Demand) {
   demandToDelete.value = demand
   deleteDialogOpen.value = true
-}
-
-function handleSubmit() {
-  const routeData = activeDemand.value
-    ? update(activeDemand.value.id)
-    : store()
-
-  form.transform((data) => ({
-    ...data,
-    ...(activeDemand.value ? { __method: 'PUT' } : {})
-  })).post(routeData.url, {
-    preserveScroll: true,
-    onSuccess: () => {
-      formOpen.value = false
-      form.reset()
-    }
-  })
 }
 
 function handleArchive() {
@@ -263,9 +248,7 @@ function handleDelete() {
     :open="formOpen"
     :demand="activeDemand"
     :variety-options="varietyOptions!"
-    :form="form"
     @update:open="formOpen = $event"
-    @submit="handleSubmit"
   />
 
   <ConfirmationDialog 
