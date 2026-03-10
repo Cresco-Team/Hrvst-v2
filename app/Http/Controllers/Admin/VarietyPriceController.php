@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Actions\Product\AddVarietyPriceAction;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Admin\Product\StorePriceHistoryRequest;
+use App\Http\Requests\Product\StorePriceHistoryRequest;
 use App\Models\Product\Variety;
 use Illuminate\Http\RedirectResponse;
 
