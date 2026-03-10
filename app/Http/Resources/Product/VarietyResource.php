@@ -1,0 +1,71 @@
+<?php
+
+namespace App\Http\Resources\Product;
+
+use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\JsonResource;
+
+class VarietyResource extends JsonResource
+{
+    public function toArray(Request $request): array
+    {
+        return [
+            /* Always present */
+            'id'               => $this->id,
+            'name'             => $this->name,
+            'image_url'        => $this->getFirstMediaUrl('variety_image'),
+            'weeks_to_harvest' => $this->weeks_to_harvest,
+
+            /* with('vegetable.category') */
+            'vegetable' => $this->whenLoaded('vegetable', function () {
+                return [
+                    'id'   => $this->vegetable->id,
+                    'name' => $this->vegetable->name,
+                    'category' => $this->vegetable->relationLoaded('category')
+                        ? [
+                            'id'   => $this->vegetable->category->id,
+                            'name' => $this->vegetable->category->name,
+                        ]
+                        : null,
+                ];
+            }),
+
+            /* Full display label */
+            'display_name' => $this->whenLoaded('vegetable', fn () =>
+                "{$this->vegetable->name} {$this->name}"
+            ),
+
+            /* with('latestPrice) */
+            'latest_price' => $this->whenLoaded('latestPrice', function () {
+                return $this->latestPrice
+                    ? new PriceHistoryResource($this->latestPrice)
+                    : null;
+            }),
+
+            /* Computed when latestPrice is loaded */
+            'price_updated_human' => $this->whenLoaded('latestPrice', fn () =>
+                $this->latestPrice?->recorded_at->diffForHumans()
+            ),
+            'price_updated_date' => $this->whenLoaded('latestPrice', fn () =>
+                $this->latestPrice?->recorded_at->format('M d, Y')
+            ),
+
+            /* with('recentPrices) */
+            'recent_prices' => $this->whenLoaded('recentPrices', function () {
+                return PriceHistoryResource::collection(
+                    $this->recentPrices->sortBy('recorded_at')->values()
+                );
+            }),
+
+            /* withCount([...]) */
+            'supply_count' => $this->whenCounted('supply_count'),
+            'demand_count' => $this->whenCounted('demand_count'),
+
+            /* Admin paginated only */
+            'supply_municipalities' => $this->when(
+                isset($this->resource->supply_municipalities),
+                fn () => $this->supply_municipalities
+            ),
+        ];
+    }
+}
