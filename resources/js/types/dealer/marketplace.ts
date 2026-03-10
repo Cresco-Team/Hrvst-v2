@@ -1,3 +1,4 @@
+import type { VarietyRef } from "../product/variety"
 
 export interface MarketplaceFilters {
     search?: string | null
@@ -13,12 +14,7 @@ export interface Supply {
         name: string
         image_url: string
     }
-    variety: {
-        id: number
-        name: string
-        vegetable: string
-        image_url: string
-    }
+    variety: VarietyRef
     title: string
     image_url: string
     quantity_kg: number
