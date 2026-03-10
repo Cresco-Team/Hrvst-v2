@@ -8,6 +8,7 @@ use App\Actions\Product\UpdateVarietyAction;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Product\StoreVarietyRequest;
 use App\Http\Requests\Admin\Product\UpdateVarietyRequest;
+use App\Http\Resources\Product\VarietyResource;
 use App\Models\Product\Variety;
 use App\Services\Product\VarietyService;
 use Illuminate\Http\JsonResponse;
@@ -28,10 +29,12 @@ class VegetableController extends Controller
                 'price_filter' => $request->query('price_filter', null),
                 'search'       => $request->query('search', null),
             ],
-            'varieties' => Inertia::defer(fn () => $this->varietyService->paginated(
-                perPage: 20,
-                priceFilter: $request->query('price_filter', null),
-                search: $request->query('search', null),
+             'varieties' => Inertia::defer(fn () => VarietyResource::collection(
+                $this->varietyService->paginated(
+                    perPage: 20,
+                    priceFilter: $request->query('price_filter', null),
+                    search: $request->query('search', null),
+                )
             )),
             'vegetableOptions' => Inertia::defer(fn () => $this->varietyService->vegetableOptions()),
         ]);
@@ -39,7 +42,9 @@ class VegetableController extends Controller
 
     public function details(Variety $variety): JsonResponse
     {
-        return response()->json($this->varietyService->detailed($variety));
+        return response()->json(
+            (new VarietyResource($this->varietyService->detailed($variety)))->resolve()
+        );
     }
 
     public function store(StoreVarietyRequest $request, CreateVarietyAction $createVariety)
