@@ -49,7 +49,7 @@ const maxDate = computed(() => {
 const isEditMode = computed(() => !!props.demand)
 
 watch(() => props.open, (isOpen) => {
-  if (!isOpen) {
+  if (isOpen) {
     if (props.demand) {
       form.variety_id = props.demand.variety.id
       form.quantity_kg = props.demand.quantity_kg
@@ -63,19 +63,21 @@ watch(() => props.open, (isOpen) => {
 })
 
 const handleSubmit = () => {
-  const routeData = props.demand
-    ? update(props.demand.id)
-    : store()
-
-    form.transform((data) => ({
-      ...data,
-      ...(props.demand ? { __method: 'PUT' } : {})
-    })).post(routeData.url, {
+  if (props.demand) {
+    form.put(update(props.demand.id).url, {
       preserveScroll: true,
       onSuccess: () => {
         emit('update:open', false)
       }
     })
+  } else {
+    form.post(store().url, {
+      preserveScroll: true,
+      onSuccess: () => {
+        emit('update:open', false)
+      }
+    })
+  }
 }
 </script>
 
