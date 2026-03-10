@@ -8,10 +8,12 @@ import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/in
 
 interface PaginatedData<T> {
     data: T[]
-    current_page: number
-    last_page: number
-    per_page: number
-    total: number
+    meta: {
+        current_page: number
+        last_page: number
+        per_page: number
+        total: number
+    }
 }
 
 interface Props<TData> {
@@ -73,12 +75,12 @@ const table = useVueTable({
 })
 
 /* -- pagination helpers -- */
-const hasPrevPage = computed(() => props.data.current_page > 1)
-const hasNextPage = computed(() => props.data.current_page < props.data.last_page)
+const hasPrevPage = computed(() => props.data.meta.current_page > 1)
+const hasNextPage = computed(() => props.data.meta.current_page < props.data.meta.last_page)
 
 const paginationRange = computed(() => ({
-    start: (props.data.current_page - 1) * props.data.per_page + 1,
-    end: Math.min(props.data.current_page * props.data.per_page, props.data.total),
+    start: (props.data.meta.current_page - 1) * props.data.meta.per_page + 1,
+    end: Math.min(props.data.meta.current_page * props.data.meta.per_page, props.data.meta.total),
 }))
 
 /* -- sort icon helper -- */
@@ -113,7 +115,7 @@ function handleSearchInput() {
                     <Search />
                 </InputGroupAddon>
                 <InputGroupAddon align="inline-end">
-                    {{ data.total }} results
+                    {{ data.meta.total }} results
                 </InputGroupAddon>
             </InputGroup>
 
@@ -178,21 +180,21 @@ function handleSearchInput() {
             <span>
                 Showing
                 <strong>{{ paginationRange.start }}</strong>–<strong>{{ paginationRange.end }}</strong>
-                of <strong>{{ data.total }}</strong> {{ entityName }}
+                of <strong>{{ data.meta.total }}</strong> {{ entityName }}
             </span>
 
             <div class="flex items-center gap-1.5">
                 <Button variant="outline" size="icon-sm" :disabled="!hasPrevPage"
-                    @click="$emit('page-change', data.current_page - 1)">
+                    @click="$emit('page-change', data.meta.current_page - 1)">
                     <ChevronLeft class="size-4" />
                 </Button>
 
                 <span class="px-2 font-medium text-foreground">
-                    {{ data.current_page }} / {{ data.last_page }}
+                    {{ data.meta.current_page }} / {{ data.meta.last_page }}
                 </span>
 
                 <Button variant="outline" size="icon-sm" :disabled="!hasNextPage"
-                    @click="$emit('page-change', data.current_page + 1)">
+                    @click="$emit('page-change', data.meta.current_page + 1)">
                     <ChevronRight class="size-4" />
                 </Button>
             </div>
