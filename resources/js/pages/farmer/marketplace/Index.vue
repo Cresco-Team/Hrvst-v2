@@ -12,9 +12,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Skeleton } from '@/components/ui/skeleton'
 import AppLayout from '@/layouts/AppLayout.vue'
 import farmer from '@/routes/farmer'
-import type { CategoryOption } from '@/types/announcement'
 import type { DealerDemand, DemandFilters } from '@/types/farmer/marketplace'
 import type { PaginatedResponse } from '@/types/pagination'
+import type { CategoryOption } from '@/types/product/category'
 
 interface Props {
   filters: DemandFilters

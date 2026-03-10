@@ -1,3 +1,4 @@
+import type { VarietyRef } from "../product/variety"
 
 export interface DemandFilters {
     search?: string | null
@@ -15,12 +16,7 @@ export interface DealerDemand {
         phone_number: string
         image_url: string | null
       }
-      variety: {
-        id: number
-        name: string
-        vegetable: string
-        image_url: string
-      }
+      variety: VarietyRef
       title: string
       quantity_kg: number
       offered_price: number
@@ -42,12 +38,7 @@ export interface DemandDetails {
   transaction_date: string
   days_until_transaction: number
   status: 'open' | 'fulfilled' | 'expired'
-  variety: {
-    id: number
-    name: string
-    vegetable: string
-    image_url: string
-  }
+  variety: VarietyRef
   quantity_kg: number
   price_offered: number
   price_flag: 'low' | 'fair' | 'premium'
@@ -57,9 +48,4 @@ export interface DemandDetails {
   }
   created_at: string
   created_at_human: string
-}
-
-export interface CategoryOption {
-    id: number
-    name: string
 }
