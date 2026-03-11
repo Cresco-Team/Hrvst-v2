@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Builder;
 
 class SupplyMapService
 {
-    public static function mapConfig(): array
+    public function mapConfig(): array
     {
         return [
             'center' => [
@@ -31,7 +31,7 @@ class SupplyMapService
      * Coordinates = arithmetic mean of all unique approved farmer positions in
      * the barangay. Zero farmer PII is exposed — no IDs, names, or contacts.
      */
-    public static function markers(?int $categoryId = null, ?int $varietyId = null): array
+    public function markers(?int $categoryId = null, ?int $varietyId = null): array
     {
         $query = FarmerSupply::query()
             ->whereHas('post', fn (Builder $q) => $q->ongoing())
@@ -106,7 +106,7 @@ class SupplyMapService
      * Filter options for the map sidebar.
      * Only returns categories/varieties that have active, non-expired supplies.
      */
-    public static function filterOptions(): array
+    public function filterOptions(): array
     {
         $categories = Category::whereHas(
             'vegetables.varieties.posts',

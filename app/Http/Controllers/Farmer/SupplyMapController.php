@@ -13,13 +13,17 @@ use Inertia\Response;
 
 class SupplyMapController extends Controller
 {
+    public function __construct(
+        private SupplyMapService $supplyMapService
+    ) {}
+
     public function index(): Response
     {
         Gate::authorize('viewAny', FarmerSupply::class);
 
         return Inertia::render('farmer/supply-map/Index', [
-            'mapConfig'     => SupplyMapService::mapConfig(),
-            'filterOptions' => Inertia::defer(fn () => SupplyMapService::filterOptions()),
+            'mapConfig'     => $this->supplyMapService->mapConfig(),
+            'filterOptions' => Inertia::defer(fn () => $this->supplyMapService->filterOptions()),
         ]);
     }
 
@@ -33,7 +37,7 @@ class SupplyMapController extends Controller
         ]);
 
         return response()->json([
-            'markers' => SupplyMapService::markers(
+            'markers' => $this->supplyMapService->markers(
                 categoryId: $validated['category_id'] ?? null,
                 varietyId:  $validated['variety_id'] ?? null,
             ),
