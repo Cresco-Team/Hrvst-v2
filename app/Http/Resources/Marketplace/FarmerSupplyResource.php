@@ -1,0 +1,58 @@
+<?php
+
+namespace App\Http\Resources\Marketplace;
+
+use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\JsonResource;
+
+class FarmerSupplyResource extends JsonResource
+{
+    public function toArray(Request $request): array
+    {
+        return [
+            /* Always present */
+            'id'                    => $this->id,
+            'expiration_date'       => $this->expiration_date->format('M d, Y'),
+            'days_until_expiration' => $this->days_until_expiration,
+            'created_at'            => $this->created_at->format('M d, Y'),
+            'created_at_human'      => $this->created_at->diffForHumans(),
+
+            /* with('media') */
+            'image_url' => $this->whenLoaded('media', fn () =>
+                $this->getFirstMediaUrl('supply_image')
+            ),
+
+            /* with('post') — post is always in $with, but guard defensively */
+            'title'         => $this->whenLoaded('post', fn () => $this->post->title),
+            'quantity_kg'   => $this->whenLoaded('post', fn () => (float) $this->post->quantity_kg),
+            'offered_price' => $this->whenLoaded('post', fn () => (float) $this->post->offered_price),
+            'price_flag'    => $this->whenLoaded('post', fn () => $this->post->price_flag),
+            'status'        => $this->whenLoaded('post', fn () => $this->post->status),
+
+            /* with('post.variety.vegetable.category', 'post.variety.media') */
+            'variety' => $this->whenLoaded('post', function () {
+                if (! $this->post->relationLoaded('variety')) {
+                    return null;
+                }
+
+                $variety = $this->post->variety;
+
+                return [
+                    'id'        => $variety->id,
+                    'name'      => $variety->name,
+                    'vegetable' => $variety->relationLoaded('vegetable') ? $variety->vegetable->name : null,
+                    'category'  => $variety->relationLoaded('vegetable') && $variety->vegetable->relationLoaded('category')
+                        ? $variety->vegetable->category->name
+                        : null,
+                    'image_url' => $variety->getFirstMediaUrl('variety_image'),
+                ];
+            }),
+
+            /* with('farmer.user') — omit when inside FarmerResource (redundant) */
+            'farmer' => $this->whenLoaded('farmer', fn () => [
+                'id'   => $this->farmer->id,
+                'name' => $this->farmer->user->name,
+            ]),
+        ];
+    }
+}
