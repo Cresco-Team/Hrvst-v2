@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Builder;
 
 class DealerService
 {
-    public static function summary(): array
+    public function summary(): array
     {
         $newDealersThisMonth = DealerProfile::approved()
             ->where('created_at', '>=', now()->startOfMonth())
@@ -26,7 +26,7 @@ class DealerService
         ];
     }
 
-    public static function paginated(int $perPage = 20, ?string $search = null): LengthAwarePaginator
+    public function paginated(int $perPage = 20, ?string $search = null): LengthAwarePaginator
     {
         $query = DealerProfile::with([
             'user.media',
@@ -82,7 +82,7 @@ class DealerService
             });
     }
 
-    public static function details(int $dealerId): ?array
+    public function details(int $dealerId): ?array
     {
         $dealer = DealerProfile::query()
             ->where('is_approved', true)
@@ -134,7 +134,7 @@ class DealerService
         ];
     }
 
-    public static function show(int $dealerId): ?array
+    public function show(int $dealerId): ?array
     {
         $dealer = DealerProfile::with([
             'user.media',
@@ -196,7 +196,7 @@ class DealerService
         ];
     }
 
-    public static function pending(): array
+    public function pending(): array
     {
         return DealerProfile::with(['user.media'])
             ->where('is_approved', false)

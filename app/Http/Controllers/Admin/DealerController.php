@@ -17,13 +17,17 @@ use Symfony\Component\HttpFoundation\Response as HttpFoundationResponse;
 
 class DealerController extends Controller
 {
+    public function __construct(
+        private DealerService $dealerService
+    ) {}
+
     public function index(Request $request): Response
     {
         Gate::authorize('viewAny', DealerProfile::class);
 
         return Inertia::render('admin/dealers/Index', [
-            'summary' => Inertia::defer(fn () => DealerService::summary()),
-            'dealers' => Inertia::defer(fn () => DealerService::paginated(
+            'summary' => Inertia::defer(fn () => $this->dealerService->summary()),
+            'dealers' => Inertia::defer(fn () => $this->dealerService->paginated(
                 search: $request->query('search', null),
             )),
             'filters' => [
@@ -34,7 +38,7 @@ class DealerController extends Controller
 
     public function details(int $id): JsonResponse
     {
-        $dealer = DealerService::details($id);
+        $dealer = $this->dealerService->details($id);
 
         if (! $dealer) {
             return response()->json(['error' => 'Dealer not found']);
@@ -51,7 +55,7 @@ class DealerController extends Controller
         $dealerProfile = DealerProfile::findOrFail($id);
         Gate::authorize('view', $dealerProfile);
 
-        $dealer = DealerService::show($id);
+        $dealer = $this->dealerService->show($id);
 
         if (! $dealer) {
             abort(404, 'Dealer not found');
@@ -66,7 +70,7 @@ class DealerController extends Controller
     {
         Gate::authorize('viewAny', DealerProfile::class);
 
-        return response()->json(DealerService::pending());
+        return response()->json($this->dealerService->pending());
     }
 
     public function approve(DealerProfile $dealer, ApproveDealerAction $approveDealer): RedirectResponse
