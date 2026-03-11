@@ -21,6 +21,10 @@ use Inertia\Response;
 
 class SupplyController extends Controller
 {
+    public function __construct(
+        private SupplyService $supplyService
+    ) {}
+
     public function index(Request $request): Response
     {
         Gate::authorize('viewAny', FarmerSupply::class);
@@ -30,9 +34,9 @@ class SupplyController extends Controller
 
         return Inertia::render('farmer/garden/Index', [
             'filters'           => ['status' => $status],
-            'summary'           => Inertia::defer(fn() => SupplyService::summary($farmerId)),
-            'varietyOptions'    => Inertia::defer(fn() => SupplyService::varietyOptions()),
-            'supplies'            => Inertia::defer(fn() => SupplyService::paginated(farmerId: $farmerId, status: $status)),
+            'summary'           => Inertia::defer(fn() => $this->supplyService->summary($farmerId)),
+            'varietyOptions'    => Inertia::defer(fn() => $this->supplyService->varietyOptions()),
+            'supplies'            => Inertia::defer(fn() => $this->supplyService->paginated(farmerId: $farmerId, status: $status)),
         ]);
     }
 

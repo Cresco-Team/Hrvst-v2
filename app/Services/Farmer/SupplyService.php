@@ -9,7 +9,7 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class SupplyService
 {
-    public static function summary(int $farmerId): array
+    public function summary(int $farmerId): array
     {
         $query = FarmerSupply::query()->where('farmer_id', $farmerId);
 
@@ -38,7 +38,7 @@ class SupplyService
         ];
     }
 
-    public static function paginated(int $farmerId, PostStatus $status, int $perPage = 20): LengthAwarePaginator
+    public function paginated(int $farmerId, PostStatus $status, int $perPage = 20): LengthAwarePaginator
     {
         $query = FarmerSupply::with([
             'farmer.user',
@@ -81,7 +81,7 @@ class SupplyService
             ]);
     }
 
-    public static function varietyOptions(): array
+    public function varietyOptions(): array
     {
         return cache()->remember('farmer_supply_variety_options', 3600, fn () =>
             Variety::with('vegetable.category')
