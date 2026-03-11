@@ -9,7 +9,7 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class DemandService
 {
-    public static function summary(int $dealerId): array
+    public function summary(int $dealerId): array
     {
         $query = DealerDemand::query()->where('dealer_id', $dealerId);
 
@@ -38,7 +38,7 @@ class DemandService
         ];
     }
 
-    public static function paginated(int $dealerId, PostStatus $status, int $perPage = 20): LengthAwarePaginator
+    public function paginated(int $dealerId, PostStatus $status, int $perPage = 20): LengthAwarePaginator
     {
         $query = DealerDemand::with([
             'dealer.user',
@@ -79,7 +79,7 @@ class DemandService
             ]);
     }
 
-    public static function varietyOptions(): array
+    public function varietyOptions(): array
     {
         return cache()->remember('dealer_demand_variety_options', 3600, fn () =>
             Variety::with('vegetable.category', 'latestPrice')
