@@ -1,27 +1,23 @@
 <script setup lang="ts">
 
+import { useForm } from '@inertiajs/vue3'
 import { TrendingUp } from 'lucide-vue-next'
 import { ref, watch, computed } from 'vue'
 import DialogForm from '@/components/DialogForm.vue'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-
-interface Variety {
-  id: number
-  name: string
-  vegetable: { name: string }
-  latest_price: { price_min: string; price_max: string } | null
-}
+import { store } from '@/routes/admin/vegetables/prices'
+import type { Variety } from '@/types/admin/vegetable-varieties'
 
 interface PriceForm {
-  price_min: string
-  price_max: string
+  price_min: number
+  price_max: number
 }
 
 const props = defineProps<{
   open: boolean
-  variety: Variety | null
+  variety: Variety
   isSubmitting: boolean
 }>()
 
@@ -30,66 +26,38 @@ const emit = defineEmits<{
   submit: [payload: FormData]
 }>()
 
-const form = ref<PriceForm>({ price_min: '', price_max: '' })
+const form = useForm({
+  price_min: 0,
+  price_max: 0,
+})
+
 const errors = ref<Partial<PriceForm>>({})
 
 // Seed fields with the current price when the dialog opens
-watch(
-  () => [props.open, props.variety] as const,
-  ([open, variety]) => {
-    if (!open) return
-    form.value = {
-      price_min: variety?.latest_price?.price_min ?? '',
-      price_max: variety?.latest_price?.price_max ?? '',
-    }
-    errors.value = {}
+watch(() => [props.open, props.variety] as const, (isOpen) => {
+    if (!isOpen) return
+    
+    form.price_min = props.variety?.latest_price?.price_min
+    form.price_max = props.variety?.latest_price?.price_max
+
+    form.clearErrors()
   },
 )
 
 const priceRange = computed(() => {
-  const min = parseFloat(form.value.price_min)
-  const max = parseFloat(form.value.price_max)
+  const min = parseFloat(form.price_min)
+  const max = parseFloat(form.price_max)
   if (isNaN(min) || isNaN(max)) return null
   return `₱${min.toFixed(2)} – ₱${max.toFixed(2)} (avg: ₱${((min + max) / 2).toFixed(2)})`
 })
 
-function validate(): boolean {
-  const e: Partial<PriceForm> = {}
-  const min = parseFloat(form.value.price_min)
-  const max = parseFloat(form.value.price_max)
-
-  if (!form.value.price_min || isNaN(min)) {
-    e.price_min = 'Minimum price is required'
-  } else if (min < 0) {
-    e.price_min = 'Price cannot be negative'
-  } else if (min > 9999.99) {
-    e.price_min = 'Price cannot exceed ₱9,999.99'
-  }
-
-  if (!form.value.price_max || isNaN(max)) {
-    e.price_max = 'Maximum price is required'
-  } else if (max < 0) {
-    e.price_max = 'Price cannot be negative'
-  } else if (max > 9999.99) {
-    e.price_max = 'Price cannot exceed ₱9,999.99'
-  }
-
-  if (!e.price_min && !e.price_max && max < min) {
-    e.price_max = 'Maximum price must be ≥ minimum price'
-  }
-
-  errors.value = e
-  return Object.keys(e).length === 0
-}
-
 function handleSubmit() {
-  if (!validate()) return
-
-  const payload = new FormData()
-  payload.append('price_min', parseFloat(form.value.price_min).toFixed(2))
-  payload.append('price_max', parseFloat(form.value.price_max).toFixed(2))
-
-  emit('submit', payload)
+  form.post(store(props.variety.id).url, {
+    preserveScroll: true,
+    onSuccess: () => {
+      emit('update:open', false)
+    }
+  })
 }
 </script>
 

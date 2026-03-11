@@ -9,15 +9,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useDialogForm } from '@/composables/useDialogForm'
-
-interface Variety {
-  id: number
-  vegetable_id: number
-  name: string
-  image_url?: string
-  weeks_to_harvest: number
-  latest_price?: { price_min: string; price_max: string } | null
-}
+import type { Variety } from '@/types/admin/vegetable-varieties'
 
 interface VegetableOptions {
   [categoryName: string]: { [vegetableId: number]: string }
@@ -48,11 +40,10 @@ const { form, errors, isEditMode, validateForm } = useDialogForm<Variety, Variet
   item: () => props.variety,
   open: () => props.open,
   mapToForm: (variety) => ({
-    vegetable_id: variety?.vegetable_id?.toString() ?? '',
+    vegetable_id: variety?.vegetable?.id?.toString() ?? '',
     name: variety?.name ?? '',
     image: null,
     weeks_to_harvest: variety?.weeks_to_harvest ?? 8,
-    // Price fields are only relevant on create; keep empty on edit.
     price_min: '',
     price_max: '',
   }),
@@ -72,7 +63,6 @@ const { form, errors, isEditMode, validateForm } = useDialogForm<Variety, Variet
       errs.weeks_to_harvest = 'Must be between 1 and 52 weeks'
     }
 
-    // Price validation is only applicable on create
     if (!isEditMode.value) {
       const min = parseFloat(data.price_min)
       const max = parseFloat(data.price_max)
@@ -139,7 +129,6 @@ function handleSubmit() {
     payload.append('image', form.value.image)
   }
 
-  // Price is only sent on create
   if (!isEditMode.value) {
     payload.append('price_min', parseFloat(form.value.price_min).toFixed(2))
     payload.append('price_max', parseFloat(form.value.price_max).toFixed(2))
