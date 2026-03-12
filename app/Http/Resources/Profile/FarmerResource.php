@@ -20,7 +20,7 @@ class FarmerResource extends JsonResource
 
             /* with('user') or with('user.media') */
             'user' => $this->whenLoaded('user', fn () =>
-                new UserResource($this->user)
+                (new UserResource($this->user))->toArray($request)
             ),
 
             /* with('province', 'municipality', 'barangay') — all three must be loaded */
@@ -47,7 +47,10 @@ class FarmerResource extends JsonResource
 
             /* with('supplies.*') */
             'supplies' => $this->whenLoaded('supplies', fn () =>
-                FarmerSupplyResource::collection($this->supplies)
+                $this->supplies
+                    ->map(fn ($supply) => (new FarmerSupplyResource($supply))->toArray($request))
+                    ->values()
+                    ->all()
             ),
 
             /* withCount(['supplies as ongoing_supplies_count' => ...]) */

@@ -46,7 +46,10 @@ export interface FarmerSupply {
         category: string
         image_url: string
     }
+    title: string | null
     image_url: string | null
+    offered_price: number
+    price_flag: 'Low' | 'Fair' | 'High'
     quantity_kg: number
     expiration_date: string
     days_until_expiration: number
@@ -104,16 +107,8 @@ export interface ShowFarmer {
     id: number
     user: User
     location: Location
-    farm_url: string
-    supplies: {
-        ongoing: Supply[]
-        archived: Supply[]
-        fulfilled: Supply[]
-    }
-    total_supplies: number
-    total_quantity: number
-    total_ongoing_supplies: number
-    total_ongoing_supplies_quantity: number
+    farm_url: string | null
+    supplies: FarmerSupply[]
     joined_at: string
     joined_at_human: string
 }

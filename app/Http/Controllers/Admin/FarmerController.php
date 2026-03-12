@@ -95,7 +95,9 @@ class FarmerController extends Controller
         Gate::authorize('view', $farmer);
 
         return Inertia::render('admin/farmers/Show', [
-            'farmer' => (new FarmerResource($this->farmerService->show($farmer)))->resolve(),
+            'farmer' => Inertia::defer(fn () =>
+                (new FarmerResource($this->farmerService->show($farmer)))->resolve()
+            ),
         ]);
     }
 
