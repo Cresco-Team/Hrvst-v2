@@ -85,13 +85,9 @@ class FarmerController extends Controller
     {
         Gate::authorize('view', $farmer);
         
-        $data = $this->farmerMapService->getFarmerDetails($farmer->id);
-
-        if (! $data) {
-            return response()->json(['error' => 'Farmer not found'], 404);
-        }
-
-        return response()->json($farmer);
+        return response()->json(
+            (new FarmerResource($this->farmerService->details($farmer)))->resolve()
+        );
     }
 
     public function show(FarmerProfile $farmer): Response

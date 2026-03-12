@@ -54,6 +54,21 @@ class FarmerService
         return $query->orderBy('created_at', 'desc')->paginate($perPage);
     }
 
+    public function details(farmerProfile $farmer): FarmerProfile
+    {
+        return $farmer->load([
+            'user.media',
+            'media',
+            'province',
+            'municipality',
+            'barangay',
+            'supplies' => fn ($q) => $q
+                ->whereHas('post', fn ($q) => $q->ongoing())
+                ->with(['media', 'post.variety.media', 'post.variety.vegetable.category'])
+                ->orderBy('expiration_date', 'asc'),
+        ]);
+    }
+
     public static function show(FarmerProfile $farmer): FarmerProfile
     {
         return $farmer->load([

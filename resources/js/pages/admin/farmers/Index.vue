@@ -17,7 +17,7 @@ import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import AppLayout from '@/layouts/AppLayout.vue'
 import admin from '@/routes/admin'
 import { index } from '@/routes/admin/farmers'
-import type { Filters, Farmer, Summary, FarmerDetails, MarkerData } from '@/types/admin/farmers'
+import type { Filters, Farmer, Summary, Detail, MarkerData } from '@/types/admin/farmers'
 import type { PaginatedResponse } from '@/types/pagination'
 
 interface Props {
@@ -43,7 +43,7 @@ const selectedMunicipality = ref<string | null>(null)
 const selectedVariety = ref<string | null>(null)
 const loadingMarkers = ref(false)
 const sidebarOpen = ref(false)
-const selectedFarmer = ref<FarmerDetails | null>(null)
+const selectedFarmer = ref<Detail | null>(null)
 const loadingFarmer = ref(false)
 const mapBounds = ref<{ north: number; south: number; east: number; west: number } | null>(null)
 

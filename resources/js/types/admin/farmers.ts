@@ -38,6 +38,23 @@ export interface Location {
     coordinates: Coordinates
 }
 
+export interface FarmerSupply {
+    id: number
+    variety: {
+        id: number
+        name: string
+        category: string
+        image_url: string
+    }
+    image_url: string | null
+    quantity_kg: number
+    expiration_date: string
+    days_until_expiration: number
+    status: 'Ongoing' | 'Archived' | 'Fulfilled'
+    created_at: string
+    created_at_human: string
+}
+
 export interface Farmer {
     id: number
     user: User
@@ -73,16 +90,12 @@ export interface MarkerData {
     }>
 }
 
-export interface FarmerDetails {
+export interface Detail {
     id: number
     user: User
     location: Location
     farm_url: string | null
-    ongoing_supplies: Supply[]
-    statistics: {
-        total_ongoing_supplies: number
-        total_quantity: number
-    }
+    supplies: FarmerSupply[]
     joined_at: string
     joined_at_human: string
 }
