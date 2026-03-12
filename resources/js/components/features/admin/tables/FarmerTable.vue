@@ -74,7 +74,7 @@ const columns: ColumnDef<Farmer>[] = [
         <!-- Custom Cell: Expander -->
         <template #cell-expander="{ row, cell }">
             <Button 
-                v-if="row.ongoing_supplies.length > 0" 
+                v-if="row.ongoing_supplies_count" 
                 @click="cell.row.toggleExpanded()"
                 variant="ghost"
                 size="icon-sm"
