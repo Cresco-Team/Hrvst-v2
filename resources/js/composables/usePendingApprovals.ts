@@ -21,9 +21,6 @@ export function usePendingApprovals() {
         window.fetch(index.dealers.api.pending.url()),
       ])
 
-      console.log(farmersRes.json())
-      console.log(dealersRes.json())
-
       if (!farmersRes.ok || !dealersRes.ok) {
         throw new Error('Failed to load pending approvals.')
       }
