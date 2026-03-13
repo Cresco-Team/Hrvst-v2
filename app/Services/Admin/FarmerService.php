@@ -54,7 +54,7 @@ class FarmerService
         return $query->orderBy('created_at', 'desc')->paginate($perPage);
     }
 
-    public function details(farmerProfile $farmer): FarmerProfile
+    public function details(FarmerProfile $farmer): FarmerProfile
     {
         return $farmer->load([
             'user.media',
