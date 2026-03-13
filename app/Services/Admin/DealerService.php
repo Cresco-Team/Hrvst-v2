@@ -35,6 +35,10 @@ class DealerService
                 ->with(['post.variety.media', 'post.variety.vegetable.category'])
                 ->orderBy('transaction_date', 'asc'),
         ])
+            ->withCount([
+                'demands as ongoing_demands_count' => fn (Builder $q) => $q
+                    ->whereHas('post', fn ($q) => $q->ongoing()),
+            ])
             ->approved();
 
         if ($search) {
