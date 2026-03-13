@@ -13,11 +13,11 @@ import { Item, ItemContent, ItemDescription, ItemMedia, ItemTitle } from '@/comp
 import { Separator } from '@/components/ui/separator'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useInitials } from '@/composables/useInitials'
-import type { Dealer } from '@/types/admin/dealers'
+import type { Detail } from '@/types/admin/dealers'
 
 const props = defineProps<{
     open: boolean
-    dealer: Dealer | null
+    dealer: Detail | null
     loading: boolean
 }>()
 
@@ -42,7 +42,7 @@ const { getInitials } = useInitials()
 </script>
 
 <template>
-    <DetailSheet :open="open" title="dealer Details" @update:open="!$event && $emit('close')">
+    <DetailSheet :open="open" title="Dealer Details" @update:open="!$event && $emit('close')">
         <!-- Loading Skeleton -->
         <div v-if="loading" class="space-y-6">
             <!-- User Info Skeleton -->
@@ -87,7 +87,7 @@ const { getInitials } = useInitials()
             <Item variant="outline">
                 <ItemMedia>
                     <Avatar class="size-16">
-                        <AvatarImage v-if="dealer.user.image_url" :src="dealer?.user.image_url"
+                        <AvatarImage v-if="dealer.user.avatar_url" :src="dealer?.user.avatar_url"
                             :alt="dealer.user.name" />
                         <AvatarFallback class="bg-primary/10 text-lg font-semibold text-primary">
                             {{ getInitials(dealer.user.name) }}
@@ -123,12 +123,12 @@ const { getInitials } = useInitials()
                 </ItemMedia>
                 <ItemContent>
                     <ItemTitle class="flex justify-between w-full">
-                        <p>Ongoing Supplies</p>
-                        <Badge>{{ dealer.ongoing_demands.length }}</Badge>
+                        <p>Ongoing Demands</p>
+                        <Badge>{{ dealer.demands.length }}</Badge>
                     </ItemTitle>
                     <ItemDescription class="space-x-2 truncate">
-                        <Badge v-for="supply in dealer.ongoing_demands" :key="supply.id" class="bg-amber-300">
-                            {{ supply.variety.name }}
+                        <Badge v-for="demand in dealer.demands" :key="demand.id" class="bg-amber-300">
+                            {{ demand.variety.name }}
                         </Badge>
                     </ItemDescription>
                 </ItemContent>
