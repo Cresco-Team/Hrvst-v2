@@ -28,24 +28,35 @@ defineEmits<{
 }>()
 
 const columns: ColumnDef<Variety>[] = [
-    { id: 'expand',      header: '', },
-    { id: 'image',       header: 'Image',    enableSorting: false },
-    {
+    { 
+        id: 'expand',
+        header: '', 
+    }, { 
+        id: 'image',
+        header: 'Image',
+        enableSorting: false 
+    }, {
         id: 'name',
         header: 'Variety',
         accessorFn: (row) => `${row.vegetable.name} ${row.name}`,
         enableSorting: true,
-    },
-    {
+    }, {
         id: 'price_range',
         header: 'Price Range',
         accessorFn: (row) => row.latest_price
             ? `₱${row.latest_price.price_min} – ₱${row.latest_price.price_max}`
             : 'No price data',
         enableSorting: false,
+    }, { 
+        id: 'activity',
+        header: 'Activity', 
+        enableSorting: false 
+    }, { 
+        id: 'actions',
+        header: 'Actions',
+        enableSorting: false, 
+        enableHiding: true,
     },
-    { id: 'activity',    header: 'Activity', enableSorting: false },
-    { id: 'actions',     header: 'Actions',  enableSorting: false },
 ]
 </script>
 
@@ -84,9 +95,9 @@ const columns: ColumnDef<Variety>[] = [
         <!-- Image -->
         <template #cell-image="{ row }">
             <Avatar class="size-12 rounded-md">
-                <AvatarImage :src="row.image_url" :alt="row.name" class="object-cover" />
+                <AvatarImage v-if="row.image_url" :src="row.image_url" :alt="row.name" class="object-cover" />
                 <AvatarFallback class="rounded-md bg-primary/10 font-semibold text-primary">
-                    {{ row.name.charAt(0) }}
+                    {{ row.vegetable.name.charAt(0) }}{{ row.name.charAt(0) }}
                 </AvatarFallback>
             </Avatar>
         </template>
@@ -106,21 +117,21 @@ const columns: ColumnDef<Variety>[] = [
                     <Badge variant="secondary" class="w-fit font-mono">
                         ₱{{ row.latest_price.price_min }} – ₱{{ row.latest_price.price_max }}
                     </Badge>
-                    <TooltipProvider v-if="row.price_freshness" :delay-duration="200">
+                    <TooltipProvider v-if="row.latest_price.freshness" :delay-duration="200">
                         <Tooltip>
                             <TooltipTrigger as-child>
                                 <div
                                     class="size-2 cursor-help rounded-full"
                                     :class="{
-                                        'bg-amber-400': row.price_freshness === 'recent',
-                                        'bg-green-400': row.price_freshness === 'stable',
-                                        'bg-sky-500':   row.price_freshness === 'very stable',
-                                        'bg-gray-500':  row.price_freshness === 'stale',
+                                        'bg-amber-400': row.latest_price.freshness === 'recent',
+                                        'bg-green-400': row.latest_price.freshness === 'stable',
+                                        'bg-sky-500':   row.latest_price.freshness === 'very stable',
+                                        'bg-gray-500':  row.latest_price.freshness === 'stale',
                                     }"
                                 />
                             </TooltipTrigger>
                             <TooltipContent>
-                                <p class="text-xs capitalize">{{ row.price_freshness }}</p>
+                                <p class="text-xs capitalize">{{ row.latest_price.freshness }}</p>
                             </TooltipContent>
                         </Tooltip>
                     </TooltipProvider>

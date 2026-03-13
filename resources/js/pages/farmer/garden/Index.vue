@@ -14,8 +14,9 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import AppLayout from '@/layouts/AppLayout.vue'
 import farmer from '@/routes/farmer'
 import { archive, destroy, fulfill, index, store, update } from '@/routes/farmer/garden'
-import type { Supply, Summary, VarietyOption } from '@/types/farmer/garden'
+import type { Supply, Summary } from '@/types/farmer/garden'
 import type { PaginatedResponse } from '@/types/pagination'
+import type { VarietyOption } from '@/types/product/variety'
 
 interface Props {
   filters: { status: string | null }

@@ -18,8 +18,6 @@ class UpdateVarietyRequest extends FormRequest
             'name' => ['required', 'string', 'max:255'],
             'image' => ['nullable', 'image', 'mimes:jpeg,jpg,png,webp', 'max:5120'], // Optional on update
             'weeks_to_harvest' => ['required', 'integer', 'min:1', 'max:52'],
-            'price_min' => ['required', 'numeric', 'min:0', 'max:9999.99'],
-            'price_max' => ['required', 'numeric', 'min:0', 'max:9999.99', 'gte:price_min'],
         ];
     }
 
@@ -35,15 +33,6 @@ class UpdateVarietyRequest extends FormRequest
             'weeks_to_harvest.required' => 'Weeks to harvest is required.',
             'weeks_to_harvest.min' => 'Must be at least 1 week.',
             'weeks_to_harvest.max' => 'Cannot exceed 52 weeks.',
-            'price_min.required' => 'Minimum price is required.',
-            'price_min.numeric' => 'Minimum price must be a number.',
-            'price_min.min' => 'Price cannot be negative.',
-            'price_min.max' => 'Price cannot exceed ₱9,999.99.',
-            'price_max.required' => 'Maximum price is required.',
-            'price_max.numeric' => 'Maximum price must be a number.',
-            'price_max.min' => 'Price cannot be negative.',
-            'price_max.max' => 'Price cannot exceed ₱9,999.99.',
-            'price_max.gte' => 'Maximum price must be greater than or equal to minimum price.',
         ];
     }
 }

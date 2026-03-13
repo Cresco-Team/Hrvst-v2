@@ -12,15 +12,16 @@ import { Skeleton } from '@/components/ui/skeleton';
 import AppLayout from '@/layouts/AppLayout.vue';
 import admin from '@/routes/admin';
 import type { BreadcrumbItem } from '@/types';
-import type { Dealer, PaginatedData, Summary } from '@/types/admin/dealers';
+import type { Dealer, Detail, Summary } from '@/types/admin/dealers';
+import type { PaginatedResponse } from '@/types/pagination';
 
 const props = defineProps<{
     summary: Summary;
-    dealers: PaginatedData;
+    dealers: PaginatedResponse<Dealer>;
     filters: { search: string | null };
 }>();
 
-const selectedDealer = ref<Dealer | null>(null);
+const selectedDealer = ref<Detail | null>(null);
 const sidebarOpen = ref(false);
 const loadingDealer = ref(false);
 
@@ -54,6 +55,11 @@ async function loadDealerDetails(dealerId: number) {
 
 function openDealerSidebar(dealerId: number) {
     loadDealerDetails(dealerId);
+}
+
+function closeSidebar() {
+    sidebarOpen.value = false
+    selectedDealer.value = null
 }
 
 function handlePageChange(page: number) {
@@ -160,5 +166,6 @@ function handleSearch(query: string) {
         :open="sidebarOpen"
         :dealer="selectedDealer"
         :loading="loadingDealer"
+        @close="closeSidebar"
     />
 </template>

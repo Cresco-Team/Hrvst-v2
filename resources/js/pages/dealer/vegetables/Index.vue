@@ -14,11 +14,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Skeleton } from '@/components/ui/skeleton'
 import AppLayout from '@/layouts/AppLayout.vue'
 import dealer from '@/routes/dealer'
-import type { CatalogVariety, CatalogFilters, CatalogPaginatedResponse, CategoryOption } from '@/types/shared/vegetables'
+import type { PaginatedResponse } from '@/types/pagination'
+import type { CatalogVariety, CatalogFilters, CategoryOption } from '@/types/shared/vegetables'
 
 interface Props {
   filters: CatalogFilters
-  varieties?: CatalogPaginatedResponse
+  varieties?: PaginatedResponse<CatalogVariety>
   categoryOptions?: CategoryOption[]
 }
 
@@ -105,6 +106,9 @@ function handlePageChange(page: number) {
             placeholder="Search varieties..."
             @input="handleSearch"
           />
+          <InputGroupAddon align="inline-end">
+            {{ varieties?.meta.total }} results
+          </InputGroupAddon>
         </InputGroup>
 
         <Deferred data="categoryOptions">
@@ -162,25 +166,25 @@ function handlePageChange(page: number) {
 
       <!-- Pagination -->
       <div
-        v-if="varieties && varieties.last_page > 1"
+        v-if="varieties && varieties.meta.last_page > 1"
         class="flex items-center justify-between border-t pt-4"
       >
         <Button
           variant="outline"
           size="sm"
-          :disabled="varieties.current_page === 1"
-          @click="handlePageChange(varieties.current_page - 1)"
+          :disabled="varieties.meta.current_page === 1"
+          @click="handlePageChange(varieties.meta.current_page - 1)"
         >
           Previous
         </Button>
         <span class="text-sm text-muted-foreground">
-          Page {{ varieties.current_page }} of {{ varieties.last_page }}
+          Page {{ varieties.meta.current_page }} of {{ varieties.meta.last_page }}
         </span>
         <Button
           variant="outline"
           size="sm"
-          :disabled="varieties.current_page === varieties.last_page"
-          @click="handlePageChange(varieties.current_page + 1)"
+          :disabled="varieties.meta.current_page === varieties.meta.last_page"
+          @click="handlePageChange(varieties.meta.current_page + 1)"
         >
           Next
         </Button>

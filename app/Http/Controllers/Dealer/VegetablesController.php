@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Dealer;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Product\VarietyResource;
 use App\Services\Product\VarietyService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -21,10 +22,12 @@ class VegetablesController extends Controller
                 'search' => $request->query('search'),
                 'category_id' => $request->integer('category_id') ?: null,
             ],
-            'varieties' => Inertia::defer(fn () => $this->varietyService->forCatalog(
-                perPage: 20,
-                search: $request->query('search'),
-                categoryId: $request->integer('category_id') ?: null,
+            'varieties' => Inertia::defer(fn () => VarietyResource::collection(
+                $this->varietyService->forCatalog(
+                    perPage: 20,
+                    search: $request->query('search'),
+                    categoryId: $request->integer('category_id') ?: null,
+                )
             )),
             'categoryOptions' => Inertia::defer(fn () => $this->varietyService->categoryOptions()),
         ]);

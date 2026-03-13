@@ -1,3 +1,4 @@
+import type { VarietyRef } from "../product/variety"
 
 export interface Supply {
   id: number
@@ -5,12 +6,7 @@ export interface Supply {
     id: number
     name: string
   }
-  variety: {
-    id: number
-    name: string
-    vegetable: string
-    image_url: string
-  }
+  variety: VarietyRef
   title: string
   image_url: string
   quantity_kg: number
@@ -26,13 +22,4 @@ export interface Summary {
   total_fulfilled: number
   total_archived: number
   expiring_this_week: number
-}
-
-export interface VarietyOption {
-  id: number
-  name: string
-  current_price?: {
-    min: number
-    max: number
-  } | null
 }

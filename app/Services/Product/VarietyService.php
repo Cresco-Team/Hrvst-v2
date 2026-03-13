@@ -8,7 +8,6 @@ use App\Models\Marketplace\FarmerSupply;
 use App\Models\Product\Category;
 use App\Models\Product\Variety;
 use App\Models\Product\Vegetable;
-use Carbon\CarbonInterface;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
@@ -105,18 +104,7 @@ class VarietyService
 
         return $query->orderBy('name')
             ->paginate($perPage)
-            ->through(function ($variety) use ($municipalitySupplies) {
-                $variety->price_updated_human = $variety->latestPrice->recorded_at->diffForHumans();
-                $variety->price_updated_date  = $variety->latestPrice->recorded_at->format('M d, Y');
-
-                $daysOld = $variety->latestPrice->recorded_at->diffInDays(now());
-                $variety->price_freshness = match (true) {
-                    $daysOld <= 7   => 'recent',
-                    $daysOld <= 30  => 'stable',
-                    $daysOld <= 90  => 'very stable',
-                    default         => 'stale',
-                };
-
+            ->through(function (Variety $variety) use ($municipalitySupplies) {
                 $variety->supply_municipalities = $municipalitySupplies
                     ->get($variety->id, collect())
                     ->map(fn ($row) => [
@@ -154,84 +142,20 @@ class VarietyService
         });
     }
 
-    public function detailed(Variety $variety): array
+    public function detailed(Variety $variety): Variety
     {
-        $variety->load(['vegetable.category', 'latestPrice', 'recentPrices', 'media']);
-
-        return [
-            'id'               => $variety->id,
-            'name'             => $variety->name,
-            'image_url'        => $variety->getFirstMediaUrl('variety_image'),
-            'weeks_to_harvest' => $variety->weeks_to_harvest,
-            'vegetable'        => [
-                'id'       => $variety->vegetable->id,
-                'name'     => $variety->vegetable->name,
-                'category' => [
-                    'id'   => $variety->vegetable->category->id,
-                    'name' => $variety->vegetable->category->name,
-                ],
-            ],
-            'latest_price' => $variety->latestPrice
-                ? [
-                    'price_min'   => (float) $variety->latestPrice->price_min,
-                    'price_max'   => (float) $variety->latestPrice->price_max,
-                    'recorded_at' => $variety->latestPrice->recorded_at->format('M d, Y'),
-                    'freshness'   => self::computePriceFreshness($variety->latestPrice->recorded_at),
-                ] : null,
-            'recent_prices' => $variety->recentPrices
-                ->sortBy('recorded_at')
-                ->map(fn ($p) => [
-                    'price_min' => (float) $p->price_min,
-                    'price_max' => (float) $p->price_max,
-                    'recorded_at'=> $p->recorded_at->format('M d, Y'),
-                ])
-                ->values(),
-        ];
+        return $variety->load(['vegetable.category', 'latestPrice', 'recentPrices', 'media']);
     }
 
     public function forCatalog(int $perPage = 20, ?string $search = null, ?int $categoryId = null): LengthAwarePaginator
     {
-        return Variety::with(['vegetable.category', 'latestPrice', 'media'])
-            ->when($search, fn (Builder $q) => $q->where('name', 'like', "%{$search}%"))
+        return Variety::with(['vegetable.category', 'latestPrice', 'recentPrices', 'media'])
+            ->when($search, fn (Builder $q) => $q
+                ->where('name', 'like', "%{$search}%")
+                ->orWhereHas('vegetable', fn (Builder $q) => $q->where('name', 'like', "%{$search}%"))
+            )
             ->when($categoryId, fn (Builder $q) => $q->whereHas('vegetable', fn ($q) => $q->where('category_id', $categoryId)))
             ->orderBy('name')
-            ->paginate($perPage)
-            ->through(fn ($variety) => [
-                'id'        => $variety->id,
-                'name'      => $variety->name,
-                'image_url' => $variety->getFirstMediaUrl('variety_image'),
-                'vegetable' => [
-                    'name'     => $variety->vegetable->name,
-                    'category' => $variety->vegetable->category->name,
-                ],
-                'weeks_to_harvest' => $variety->weeks_to_harvest,
-                'latest_price' => $variety->latestPrice
-                ? [
-                    'price_min'   => (float) $variety->latestPrice->price_min,
-                    'price_max'   => (float) $variety->latestPrice->price_max,
-                    'recorded_at' => $variety->latestPrice->recorded_at->format('M d, Y'),
-                    'freshness'   => self::computePriceFreshness($variety->latestPrice->recorded_at),
-                ] : null,
-                'recent_prices' => $variety->recentPrices
-                ->sortBy('recorded_at')
-                ->map(fn ($p) => [
-                    'price_min' => (float) $p->price_min,
-                    'price_max' => (float) $p->price_max,
-                    'recorded_at'=> $p->recorded_at->format('M d, Y'),
-                ])
-                ->values(),
-            ]);
-    }
-
-    private static function computePriceFreshness(CarbonInterface $date): string
-    {
-        $daysOld = $date->diffInDays(now());
-
-        return match (true) {
-            $daysOld <= 7 => 'recent',
-            $daysOld <= 30 => 'stable',
-            $daysOld <= 90 => 'very stable',
-            default => 'stale',
-        };
+            ->paginate($perPage);
     }
 }

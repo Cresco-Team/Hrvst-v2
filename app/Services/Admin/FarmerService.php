@@ -2,11 +2,11 @@
 
 namespace App\Services\Admin;
 
-use App\Enums\PostStatus;
 use App\Models\Marketplace\FarmerSupply;
 use App\Models\Profiles\FarmerProfile;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 
 class FarmerService
 {
@@ -39,6 +39,10 @@ class FarmerService
                 ->with(['media', 'post.variety.media', 'post.variety.vegetable.category'])
                 ->orderBy('expiration_date', 'asc'),
         ])
+        ->withCount([
+            'supplies as ongoing_supplies_count' => fn (Builder $q) => $q
+                ->whereHas('post', fn ($q) => $q->ongoing()),
+        ])
             ->approved();
 
         if ($search) {
@@ -47,129 +51,39 @@ class FarmerService
             });
         }
 
-        return $query->orderBy('created_at', 'desc')
-            ->paginate($perPage)
-            ->through(function ($farmer) {
-                $ongoingSupplies = $farmer->supplies->filter(
-                    fn ($supply) => $supply->post->status === PostStatus::Ongoing
-                );
-
-                return [
-                    'id'   => $farmer->id,
-                    'user' => [
-                        'id'           => $farmer->user->id,
-                        'name'         => $farmer->user->name,
-                        'email'        => $farmer->user->email,
-                        'phone_number' => $farmer->user->phone_number,
-                        'avatar_url'   => $farmer->user->getFirstMediaUrl('avatar'),
-                    ],
-                    'location' => [
-                        'province'     => $farmer->province->name,
-                        'municipality' => $farmer->municipality->name,
-                        'barangay'     => $farmer->barangay->name,
-                        'coordinates'  => [
-                            'lat' => $farmer->latitude,
-                            'lng' => $farmer->longitude,
-                        ],
-                    ],
-                    'farm_url'               => $farmer->getFirstMediaUrl('farm_photo'),
-                    'ongoing_supplies_count' => $ongoingSupplies->count(),
-                    'ongoing_supplies'       => $ongoingSupplies->map(fn ($supply) => [
-                        'id'      => $supply->id,
-                        'image_url' => $supply->getFirstMediaUrl('supply_image'),
-                        'variety' => [
-                            'id'        => $supply->post->variety->id,
-                            'name'      => $supply->post->variety->vegetable->name.' '.$supply->post->variety->name,
-                            'category'  => $supply->post->variety->vegetable->category->name,
-                            'image_url' => $supply->post->variety->getFirstMediaUrl('variety_image'),
-                        ],
-                        'quantity_kg'     => $supply->post->quantity_kg,
-                        'expiration_date' => $supply->expiration_date->format('M d, Y'),
-                    ]),
-                    'joined_at'       => $farmer->created_at->format('M d, Y'),
-                    'joined_at_human' => $farmer->created_at->diffForHumans(),
-                ];
-            });
+        return $query->orderBy('created_at', 'desc')->paginate($perPage);
     }
 
-    public static function show(int $farmerId): ?array
+    public function details(FarmerProfile $farmer): FarmerProfile
     {
-        $farmer = FarmerProfile::with([
+        return $farmer->load([
             'user.media',
             'media',
             'province',
             'municipality',
             'barangay',
-            'supplies' => fn ($query) => $query
-                ->whereHas('post')
+            'supplies' => fn ($q) => $q
+                ->whereHas('post', fn ($q) => $q->ongoing())
                 ->with(['media', 'post.variety.media', 'post.variety.vegetable.category'])
-                ->orderBy('expiration_date', 'desc'),
-        ])
-            ->where('is_approved', true)
-            ->find($farmerId);
-
-        if (! $farmer) {
-            return null;
-        }
-
-        $formatSupply = fn ($supply) => [
-            'id'      => $supply->id,
-            'variety' => [
-                'id'        => $supply->post->variety->id,
-                'name'      => $supply->post->variety->vegetable->name.' '.$supply->post->variety->name,
-                'category'  => $supply->post->variety->vegetable->category->name,
-                'image_url' => $supply->post->variety->getFirstMediaUrl('variety_image'),
-            ],
-            'title'            => $supply->post->title,
-            'image_url'        => $supply->getFirstMediaUrl('supply_image'),
-            'quantity_kg'      => (float) $supply->post->quantity_kg,     // was: $supply->quantity_kg (bug)
-            'offered_price'    => (float) $supply->post->offered_price,
-            'price_flag'       => $supply->post->price_flag,
-            'expiration_date'  => $supply->expiration_date->format('M d, Y'),
-            'status'           => $supply->post->status,
-            'created_at'       => $supply->created_at->format('M d, Y'),
-            'created_at_human' => $supply->created_at->diffForHumans(),   // was: 'created_at_haman' (typo)
-        ];
-
-        $ongoingSupplies   = $farmer->supplies->filter(fn ($s) => $s->post->status === PostStatus::Ongoing)->values();
-        $archivedSupplies  = $farmer->supplies->filter(fn ($s) => $s->post->status === PostStatus::Archived)->values();
-        $fulfilledSupplies = $farmer->supplies->filter(fn ($s) => $s->post->status === PostStatus::Fulfilled)->values();
-
-        return [
-            'id'   => $farmer->id,
-            'user' => [
-                'id'           => $farmer->user->id,
-                'name'         => $farmer->user->name,
-                'email'        => $farmer->user->email,
-                'phone_number' => $farmer->user->phone_number,
-                'avatar_url'   => $farmer->user->getFirstMediaUrl('avatar'),
-            ],
-            'location' => [
-                'province'     => $farmer->province->name,
-                'municipality' => $farmer->municipality->name,
-                'barangay'     => $farmer->barangay->name,
-                'full_address' => "{$farmer->barangay->name}, {$farmer->municipality->name}, {$farmer->province->name}",
-                'coordinates'  => [
-                    'lat' => $farmer->latitude,
-                    'lng' => $farmer->longitude,
-                ],
-            ],
-            'farm_url' => $farmer->getFirstMediaUrl('farm_photo'),
-            'supplies' => [
-                'ongoing'   => $ongoingSupplies->map($formatSupply),
-                'archived'  => $archivedSupplies->map($formatSupply),
-                'fulfilled' => $fulfilledSupplies->map($formatSupply),
-            ],
-            'total_supplies'                  => $farmer->supplies->count(),
-            'total_quantity'                  => $farmer->supplies->sum(fn ($s) => $s->post->quantity_kg),
-            'total_ongoing_supplies'          => $ongoingSupplies->count(),
-            'total_ongoing_supplies_quantity' => $ongoingSupplies->sum(fn ($s) => $s->post->quantity_kg),
-            'joined_at'                       => $farmer->created_at->format('M d, Y'),
-            'joined_at_human'                 => $farmer->created_at->diffForHumans(),
-        ];
+                ->orderBy('expiration_date', 'asc'),
+        ]);
     }
 
-    public static function pending(): array
+    public static function show(FarmerProfile $farmer): FarmerProfile
+    {
+        return $farmer->load([
+            'user.media',
+            'media',
+            'province',
+            'municipality',
+            'barangay',
+            'supplies.media',
+            'supplies.post.variety.media',
+            'supplies.post.variety.vegetable.category',
+        ]);
+    }
+
+    public function pending(): Collection
     {
         return FarmerProfile::with([
             'user.media',
@@ -178,31 +92,8 @@ class FarmerService
             'municipality',
             'barangay',
         ])
-            ->pending()
-            ->orderBy('created_at', 'asc')
-            ->get()
-            ->map(fn ($farmer) => [
-                'id'   => $farmer->id,
-                'user' => [
-                    'id'           => $farmer->user->id,
-                    'name'         => $farmer->user->name,
-                    'email'        => $farmer->user->email,
-                    'phone_number' => $farmer->user->phone_number,
-                    'avatar_url'   => $farmer->user->getFirstMediaUrl('avatar'), // was: image_path (column removed)
-                ],
-                'location' => [
-                    'province'     => $farmer->province->name,
-                    'municipality' => $farmer->municipality->name,
-                    'barangay'     => $farmer->barangay->name,
-                    'coordinates'  => [
-                        'lat' => (float) $farmer->latitude,
-                        'lng' => (float) $farmer->longitude,
-                    ],
-                ],
-                'farm_url'           => $farmer->getFirstMediaUrl('farm_photo'),
-                'submitted_at'       => $farmer->created_at->format('M d, Y g:i A'),
-                'submitted_at_human' => $farmer->created_at->diffForHumans(),
-            ])
-            ->toArray();
+        ->pending()
+        ->orderBy('created_at', 'asc')
+        ->get();
     }
 }

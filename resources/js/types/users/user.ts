@@ -3,5 +3,5 @@ export interface User {
     name: string
     email: string
     phone_number: string
-    image_url: string | null
+    avatar_url: string | null
 }

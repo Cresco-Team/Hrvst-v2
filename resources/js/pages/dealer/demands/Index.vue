@@ -1,21 +1,23 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+
 import { Deferred, Head, router, useForm } from '@inertiajs/vue3'
+import { Plus, PackageSearch, PackageCheck, CalendarX, CalendarClock, Package } from 'lucide-vue-next'
+import { ref, computed } from 'vue'
+import ConfirmationDialog from '@/components/ConfirmationDialog.vue'
+import DemandCard from '@/components/dealer/DemandCard.vue'
+import DemandForm from '@/components/dealer/DemandForm.vue'
+import EmptyState from '@/components/EmptyState.vue'
+import Heading from '@/components/Heading.vue'
+import LargeCard from '@/components/shared/cards/LargeCard.vue'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Plus, PackageSearch, PackageCheck, CalendarX, CalendarClock, Package } from 'lucide-vue-next'
-import DemandForm from '@/components/dealer/DemandForm.vue'
-import dealer from '@/routes/dealer'
 import AppLayout from '@/layouts/AppLayout.vue'
-import Heading from '@/components/Heading.vue'
-import { PaginatedResponse } from '@/types/pagination'
-import { Demand, Summary, VarietyOption } from '@/types/dealer/demands'
-import { archive, destroy, fulfill, index, store, update } from '@/routes/dealer/demands'
-import LargeCard from '@/components/shared/cards/LargeCard.vue'
-import EmptyState from '@/components/EmptyState.vue'
-import DemandCard from '@/components/dealer/DemandCard.vue'
-import ConfirmationDialog from '@/components/ConfirmationDialog.vue'
+import dealer from '@/routes/dealer'
+import { archive, destroy, fulfill, index } from '@/routes/dealer/demands'
+import type { Demand, Summary } from '@/types/dealer/demands'
+import type { PaginatedResponse } from '@/types/pagination'
+import type { VarietyOption } from '@/types/product/variety'
 
 interface Props {
   summary?: Summary
@@ -54,7 +56,7 @@ const activeTab = computed(() => props.filters.status || 'Ongoing')
 
 const breadcrumbs = [
   { title: 'Dealer', href: dealer.demands.index().url },
-  { title: 'My Posts', href: dealer.demands.index().url }
+  { title: 'Demands', href: dealer.demands.index().url }
 ]
 
 function handleTabChange(value: string | number) {
@@ -100,23 +102,6 @@ function openDelete(demand: Demand) {
   deleteDialogOpen.value = true
 }
 
-function handleSubmit() {
-  const routeData = activeDemand.value
-    ? update(activeDemand.value.id)
-    : store()
-
-  form.transform((data) => ({
-    ...data,
-    ...(activeDemand.value ? { __method: 'PUT' } : {})
-  })).post(routeData.url, {
-    preserveScroll: true,
-    onSuccess: () => {
-      formOpen.value = false
-      form.reset()
-    }
-  })
-}
-
 function handleArchive() {
   if (!demandToArchive.value) return
 
@@ -158,20 +143,20 @@ function handleDelete() {
 </script>
 
 <template>
-  <Head title="My Posts" />
+  <Head title="My Demands" />
 
   <AppLayout :breadcrumbs="breadcrumbs">
     <div class="flex h-full flex-col gap-6 p-4 lg:p-6">
       <!-- Header -->
       <div class="flex items-end justify-between">
         <Heading
-          title="My Posts"
-          description="Manage your vegetable requests."
+          title="My Demands"
+          description="Manage your vegetable demands."
         />
         
         <Button @click="openCreate" class="gap-2">
           <Plus class="size-4" />
-          New Post
+          New Demand
         </Button>
       </div>
 
@@ -185,25 +170,25 @@ function handleDelete() {
 
         <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-2">
           <LargeCard 
-            title="Open Requests"
+            title="Ongoing Demands"
             :value="summary?.total_ongoing"
-            subtext="all open requests"
+            subtext="all ongoing demands"
             :icon="PackageSearch"
             card-class="from-emerald-50 to-green-50 dark:from-emerald-950/20 dark:to-green-950/20"
           />
 
           <LargeCard 
-            title="Archived"
+            title="Archived Demands"
             :value="summary?.total_archived"
-            subtext="all archived requests"
+            subtext="all archived demands"
             :icon="PackageCheck"
             card-class="from-emerald-50 to-green-50 dark:from-emerald-950/20 dark:to-green-950/20"
           />
 
           <LargeCard 
-            title="Fulfilled Requests"
+            title="Fulfilled Demands"
             :value="summary?.total_fulfilled"
-            subtext="all fulfilled requests"
+            subtext="all fulfilled demands"
             :icon="CalendarX"
             card-class="from-emerald-50 to-green-50 dark:from-emerald-950/20 dark:to-green-950/20"
           />
@@ -240,7 +225,6 @@ function handleDelete() {
           title="No Posted Demands Yet."
           description="Post a demand"
           :icon="Package"
-          button="Create Post"
         />
 
         <div v-else class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -263,14 +247,12 @@ function handleDelete() {
     :open="formOpen"
     :demand="activeDemand"
     :variety-options="varietyOptions!"
-    :form="form"
     @update:open="formOpen = $event"
-    @submit="handleSubmit"
   />
 
   <ConfirmationDialog 
     v-model:open="archiveDialogOpen"
-    title="Archive Post"
+    title="Archive Demand"
     :description="`Are you sure you want to archvie ${demandToArchive?.variety.vegetable} ${demandToArchive?.variety.name}?`"
     @action="handleArchive"
   />
@@ -286,7 +268,7 @@ function handleDelete() {
   <!-- Delete Confirmation -->
   <ConfirmationDialog
     v-model:open="deleteDialogOpen"
-    title="Delete Post?"
+    title="Delete Demand?"
     description="This action cannot be undone. The post will be permanently deleted."
     @action="handleDelete"
     variant="destructive"

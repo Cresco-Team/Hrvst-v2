@@ -1,13 +1,5 @@
-import type { Demand, Supply } from "../marketplace"
 import type { User } from "../users/user"
 
-export interface PaginatedData {
-    data: Dealer[]
-    current_page: number
-    last_page: number
-    per_page: number
-    total: number
-}
 
 export interface Summary {
     total_dealers: number
@@ -16,42 +8,48 @@ export interface Summary {
     new_demands_this_month: number
 }
 
+export interface DealerDemand {
+    id: number
+    variety: {
+        id: number
+        name: string
+        category: string
+        image_url: string
+    }
+    title: string | null
+    offered_price: number
+    price_flag: 'Low' | 'Fair' | 'High'
+    quantity_kg: number
+    transaction_date: string
+    days_until_transaction: number
+    status: 'Ongoing' | 'Archived' | 'Fulfilled'
+    created_at: string
+    created_at_human: string
+}
+
 export interface Dealer {
     id: number
     user: User
     document_image: string | null
     ongoing_demands_count: number
-    ongoing_demands: Demand[]
+    demands: DealerDemand[]
     joined_at: string
     joined_at_human: string
 }
 
-export interface DealerSidebar {
+export interface Detail {
     id: number
     user: User
-    documentation_image: string
-    ongoing_demands: Supply[]
-    statistics: {
-        total_ongoing_demands: number
-        total_quantity: number
-    }
-    joined_at: string
+    demands: DealerDemand[]
+    joinedd_at: string
     joined_at_human: string
 }
 
-export interface DealerShow {
+export interface Show {
     id: number
     user: User
     document_image: string
-    demands: {
-        ongoing: Demand[]
-        archived: Demand[]
-        fulfilled: Demand[]
-    }
-    total_demands: number
-    total_quantity: number
-    total_ongoing_demands: number
-    total_ongoing_demands_quantity: number
+    demands: DealerDemand[]
     joined_at: string
     joined_at_human: string
 }

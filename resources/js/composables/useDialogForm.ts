@@ -41,7 +41,7 @@ export function useDialogForm<TData, TFormData extends Record<string, any>>(
             form.value = options.mapToForm(options.item())
             errors.value = {}
         },
-        { deep: true }
+        { deep: true, immediate: true }
     )
 
     // Validation function

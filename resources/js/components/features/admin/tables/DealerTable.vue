@@ -58,7 +58,7 @@ const columns: ColumnDef<Dealer>[] = [
         @page-change="$emit('page-change', $event)" @search="$emit('search', $event)">
         <!-- Expander -->
         <template #cell-expander="{ row, cell }">
-            <Button v-if="row.ongoing_demands.length > 0" @click="cell.row.toggleExpanded()"
+            <Button v-if="row.ongoing_demands_count > 0" @click="cell.row.toggleExpanded()"
                 variant="ghost" size="icon-sm" class="text-muted-foreground">
                 <ChevronDownIcon v-if="cell.row.getIsExpanded()" class="size-4" />
                 <ChevronRightIcon v-else class="size-4" />
@@ -99,7 +99,7 @@ const columns: ColumnDef<Dealer>[] = [
             <div class="flex items-center gap-2">
                 <Package class="size-4 text-muted-foreground" />
                 <span class="font-mono font-medium">
-                    {{ row.ongoing_demands_count }}
+                    {{ row.demands.length }}
                 </span>
             </div>
         </template>
@@ -145,10 +145,10 @@ const columns: ColumnDef<Dealer>[] = [
                 <td :colspan="colspan" class="px-4 py-4">
                     <div class="ml-12">
                         <h4 class="mb-3 text-sm font-medium">
-                            Ongoing Demands ({{ row.ongoing_demands.length }})
+                            Ongoing Demands ({{ row.demands.length }})
                         </h4>
                         <div class="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-4">
-                            <Item v-for="demand in row.ongoing_demands" :key="demand.id" variant="outline">
+                            <Item v-for="demand in row.demands" :key="demand.id" variant="outline">
                                 <ItemMedia variant="image">
                                     <img
                                         v-if="demand.variety.image_url"

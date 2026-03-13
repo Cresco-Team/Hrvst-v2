@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Actions\Farmer\ApproveFarmerAction;
 use App\Actions\Farmer\RejectFarmerAction;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Profile\FarmerResource;
 use App\Models\Profiles\FarmerProfile;
 use App\Services\Admin\FarmerMapService;
 use App\Services\Admin\FarmerService;
@@ -43,9 +44,11 @@ class FarmerController extends Controller
                 'defaultZoom' => 13,
             ],
             'farmers' => $view === 'list' 
-                ? Inertia::defer(fn () => $this->farmerService->paginated(
-                    perPage: 20,
-                    search: $request->query('search', null),
+                ? Inertia::defer(fn () => FarmerResource::collection(
+                    $this->farmerService->paginated(
+                        perPage: 20,
+                        search: $request->query('search', null),
+                    )
                 ))
                 : null,
             'summary' => Inertia::defer(fn () => $this->farmerService->summary()),
@@ -58,18 +61,18 @@ class FarmerController extends Controller
 
         $validated = $request->validate([
             'municipality_id' => 'nullable|exists:municipalities,id',
-            'variety_id' => 'nullable|exists:varieties,id',
-            'bounds' => 'nullable|array',
-            'bounds.north' => 'required_with:bounds|numeric',
-            'bounds.south' => 'required_with:bounds|numeric',
-            'bounds.east' => 'required_with:bounds|numeric',
-            'bounds.west' => 'required_with:bounds|numeric',
+            'variety_id'      => 'nullable|exists:varieties,id',
+            'bounds'          => 'nullable|array',
+            'bounds.north'    => 'required_with:bounds|numeric',
+            'bounds.south'    => 'required_with:bounds|numeric',
+            'bounds.east'     => 'required_with:bounds|numeric',
+            'bounds.west'     => 'required_with:bounds|numeric',
         ]);
 
         $farmers = $this->farmerMapService->getFarmersForMap(
             municipalityId: $validated['municipality_id'] ?? null,
-            varietyId: $validated['variety_id'] ?? null,
-            bounds: $validated['bounds'] ?? null
+            varietyId:      $validated['variety_id'] ?? null,
+            bounds:         $validated['bounds'] ?? null
         );
 
         return response()->json([
@@ -78,33 +81,23 @@ class FarmerController extends Controller
         ]);
     }
 
-    public function details(int $id): JsonResponse
+    public function details(FarmerProfile $farmer): JsonResponse
     {
-        $farmerProfile = FarmerProfile::findOrFail($id);
-        Gate::authorize('view', $farmerProfile);
+        Gate::authorize('view', $farmer);
         
-        $farmer = $this->farmerMapService->getFarmerDetails($id);
-
-        if (!$farmer) {
-            return response()->json(['error' => 'Farmer not found'], 404);
-        }
-
-
-        return response()->json($farmer);
+        return response()->json(
+            (new FarmerResource($this->farmerService->details($farmer)))->resolve()
+        );
     }
 
-    public function show(int $id): Response
+    public function show(FarmerProfile $farmer): Response
     {
-        $farmerProfile = FarmerProfile::findOrFail($id);
-        Gate::authorize('view', $farmerProfile);
-
-        $farmer = $this->farmerService->show($id);
-
-        if (!$farmer) abort(404, 'Farmer not found');
-
+        Gate::authorize('view', $farmer);
 
         return Inertia::render('admin/farmers/Show', [
-            'farmer' => $farmer,
+            'farmer' => Inertia::defer(fn () =>
+                (new FarmerResource($this->farmerService->show($farmer)))->resolve()
+            ),
         ]);
     }
 
@@ -112,7 +105,9 @@ class FarmerController extends Controller
     {
         Gate::authorize('viewAny', FarmerProfile::class);
 
-        return response()->json($this->farmerService->pending());
+        return response()->json(
+            FarmerResource::collection($this->farmerService->pending())->resolve()
+        );
     }
 
     public function approve(FarmerProfile $farmer, ApproveFarmerAction $approveFarmer): RedirectResponse

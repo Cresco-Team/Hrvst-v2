@@ -12,6 +12,10 @@ use Inertia\Response;
 
 class MarketplaceController extends Controller
 {
+    public function __construct(
+        private MarketplaceService $marketplaceService
+    ) {}
+
     public function index(Request $request): Response
     {
         Gate::authorize('viewAny', FarmerSupply::class);
@@ -25,8 +29,8 @@ class MarketplaceController extends Controller
 
         return Inertia::render('dealer/marketplace/Index', [
             'filters' => $validated,
-            'supplies' => Inertia::defer(fn() => MarketplaceService::paginated($validated)),
-            'categoryOptions' => Inertia::defer(fn() => MarketplaceService::categoryOptions()),
+            'supplies' => Inertia::defer(fn() => $this->marketplaceService->paginated($validated)),
+            'categoryOptions' => Inertia::defer(fn() => $this->marketplaceService->categoryOptions()),
         ]);
     }
 
@@ -35,7 +39,7 @@ class MarketplaceController extends Controller
         Gate::authorize('view', $supply);
 
         return Inertia::render('dealer/marketplace/Show', [
-            'supply' => MarketplaceService::detailed($supply),
+            'supply' => $this->marketplaceService->detailed($supply),
         ]);
     }
 }

@@ -21,6 +21,10 @@ use Inertia\Response;
 
 class DemandController extends Controller
 {
+    public function __construct (
+        private DemandService $demandService
+    ) {}
+
     public function index(Request $request): Response
     {
         Gate::authorize('viewAny', DealerDemand::class);
@@ -30,9 +34,9 @@ class DemandController extends Controller
 
         return Inertia::render('dealer/demands/Index', [
             'filters'           => ['status' => $status],
-            'summary'           => Inertia::defer(fn() => DemandService::summary($dealerId)),
-            'varietyOptions'    => Inertia::defer(fn() => DemandService::varietyOptions()),
-            'demands'           => Inertia::defer(fn() => DemandService::paginated(dealerId: $dealerId, status: $status)),
+            'summary'           => Inertia::defer(fn() => $this->demandService->summary($dealerId)),
+            'varietyOptions'    => Inertia::defer(fn() => $this->demandService->varietyOptions()),
+            'demands'           => Inertia::defer(fn() => $this->demandService->paginated(dealerId: $dealerId, status: $status)),
         ]);
     }
 

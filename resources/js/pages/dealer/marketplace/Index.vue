@@ -11,8 +11,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Skeleton } from '@/components/ui/skeleton'
 import AppLayout from '@/layouts/AppLayout.vue'
 import dealer from '@/routes/dealer'
-import type { CategoryOption, MarketplaceFilters, Supply } from '@/types/dealer/marketplace'
+import type { MarketplaceFilters, Supply } from '@/types/dealer/marketplace'
 import type { PaginatedResponse } from '@/types/pagination'
+import type { CategoryOption } from '@/types/product/category'
 
 interface Props {
   filters: MarketplaceFilters

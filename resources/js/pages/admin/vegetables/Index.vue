@@ -16,7 +16,6 @@ import { Skeleton } from '@/components/ui/skeleton'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { dashboard } from '@/routes/admin'
 import { destroy, index, store, update, details as varietyDetails } from '@/routes/admin/vegetables'
-import { store as pricesStore } from '@/routes/admin/vegetables/prices/index';
 import type { BreadcrumbItem } from '@/types'
 import type { Props, Variety } from '@/types/admin/vegetable-varieties'
 import type { CatalogVariety } from '@/types/shared/vegetables'
@@ -139,23 +138,6 @@ function handleDelete() {
     onSuccess() {
       deleteOpen.value = false
       activeVariety.value = null
-    },
-  })
-}
-
-/* -- Update Price -- */
-function handlePriceSubmit(formData: FormData) {
-  if (!priceVariety.value) return
-  isPriceSubmitting.value = true
-
-  router.post(pricesStore({ variety: priceVariety.value.id }).url, formData, {
-    onSuccess() {
-      priceOpen.value = false
-      priceVariety.value = null
-      isPriceSubmitting.value = false
-    },
-    onError() {
-      isPriceSubmitting.value = false
     },
   })
 }
@@ -290,7 +272,6 @@ const isLoadingVarieties = computed(() => !props.varieties)
     :variety="priceVariety"
     :is-submitting="isPriceSubmitting"
     @update:open="priceOpen = $event"
-    @submit="handlePriceSubmit"
   />
 
   <!-- Detail view -->

@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Builder;
 
 class MarketplaceService
 {
-    public static function paginated(array $filters = [], int $perPage = 20): LengthAwarePaginator
+    public function paginated(array $filters = [], int $perPage = 20): LengthAwarePaginator
     {
         $query = DealerDemand::with([
             'dealer.user.media',
@@ -73,7 +73,7 @@ class MarketplaceService
             ]);
     }
 
-    public static function detailed(DealerDemand $demand): array
+    public function detailed(DealerDemand $demand): array
     {
         // All variety/price/status data lives on Post, not on DealerDemand directly.
         // Previous code accessed $demand->variety, $demand->quantity_kg etc. — all wrong.
@@ -114,7 +114,7 @@ class MarketplaceService
         ];
     }
 
-    public static function categoryOptions(): array
+    public function categoryOptions(): array
     {
         return Category::whereHas('vegetables.varieties.posts', fn (Builder $q) => $q
             ->ongoing()
