@@ -13,13 +13,36 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { getInitials } from '@/composables/useInitials';
 import AppLayout from '@/layouts/AppLayout.vue';
 import admin from '@/routes/admin';
-import type { DealerShow } from '@/types/admin/dealers';
+import type { DealerDemand, Show } from '@/types/admin/dealers';
 
 interface Props {
-    dealer: DealerShow
+    dealer: Show
 }
 
 const props = defineProps<Props>()
+
+/* Demand groups */
+const ongoingDemands = computed<DealerDemand[]>(() =>
+    props.dealer?.demands.filter(s => s.status === 'Ongoing') ?? []
+)
+
+const archivedDemands = computed<DealerDemand[]>(() =>
+    props.dealer?.demands.filter(s => s.status === 'Archived') ?? []
+)
+
+const fulfilledDemands = computed<DealerDemand[]>(() =>
+    props.dealer?.demands.filter(s => s.status === 'Fulfilled') ?? []
+)
+
+/* ---------- Stats ---------- */
+const totalDemands = computed(() => props.dealer?.demands.length ?? 0)
+const totalQuantity = computed(() =>
+    props.dealer?.demands.reduce((sum, s) => sum + s.quantity_kg, 0) ?? 0
+)
+const totalOngoing = computed(() => ongoingDemands.value.length)
+const totalOngoingQuantity = computed(() =>
+    ongoingDemands.value.reduce((sum, s) => sum + s.quantity_kg, 0)
+)
 
 const breadcrumbs = computed(() => [
     { title: 'Admin', href: admin.dashboard().url },
@@ -48,8 +71,8 @@ function priceFlagVariant(flag: 'Low' | 'Fair' | 'High' | undefined) {
                         <div class="flex flex-col items-start gap-3">
                             <Avatar class="size-16">
                                 <AvatarImage 
-                                    v-if="dealer.user.image_url"
-                                    :src="dealer.user.image_url"
+                                    v-if="dealer.user.avatar_url"
+                                    :src="dealer.user.avatar_url"
                                     :alt="dealer.user.name"
                                 />
                                 <AvatarFallback class="bg-primary/10 text-base font-semibold text-primary">
@@ -85,20 +108,20 @@ function priceFlagVariant(flag: 'Low' | 'Fair' | 'High' | undefined) {
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
                         <SmallCard
                             title="Total demands"
-                            :value="dealer.total_demands"
+                            :value="totalDemands"
                         />
                         <SmallCard
                             title="Total Quantity"
-                            :value="dealer.total_quantity"
+                            :value="totalQuantity"
                             subtext="kg"
                         />
                         <SmallCard
                             title="Ongoing demands"
-                            :value="dealer.total_ongoing_demands"
+                            :value="totalOngoing"
                         />
                         <SmallCard
                             title="Ongoing Quantity"
-                            :value="dealer.total_ongoing_demands_quantity"
+                            :value="totalOngoingQuantity"
                             subtext="kg"
                         />
                     </div>
@@ -112,32 +135,32 @@ function priceFlagVariant(flag: 'Low' | 'Fair' | 'High' | undefined) {
                                         <Package class="size-4" />
                                         Ongoing
                                         <Badge variant="secondary" class="ml-1 px-1.5 py-0 text-xs">
-                                            {{ dealer.demands.ongoing.length }}
+                                            {{ ongoingDemands.length }}
                                         </Badge>
                                     </TabsTrigger>
                                     <TabsTrigger value="archived" class="gap-1.5">
                                         <Archive class="size-4" />
                                         Archived
                                         <Badge variant="secondary" class="ml-1 px-1.5 py-0 text-xs">
-                                            {{ dealer.demands.archived.length }}
+                                            {{ archivedDemands.length }}
                                         </Badge>
                                     </TabsTrigger>
                                     <TabsTrigger value="fulfilled" class="gap-1.5">
                                         <PackageCheck class="size-4" />
                                         Fulfilled
                                         <Badge variant="secondary" class="ml-1 px-1.5 py-0 text-xs">
-                                            {{ dealer.demands.fulfilled.length }}
+                                            {{ fulfilledDemands.length }}
                                         </Badge>
                                     </TabsTrigger>
                                 </TabsList>
 
                                 <!-- Ongoing -->
                                 <TabsContent value="ongoing">
-                                    <div v-if="dealer.demands.ongoing.length === 0" class="flex items-center justify-center h-24 text-sm text-muted-foreground">
+                                    <div v-if="ongoingDemands.length === 0" class="flex items-center justify-center h-24 text-sm text-muted-foreground">
                                         No ongoing demands
                                     </div>
                                     <ItemGroup v-else class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                        <Item v-for="demand in dealer.demands.ongoing" :key="demand.id" variant="outline">
+                                        <Item v-for="demand in ongoingDemands" :key="demand.id" variant="outline">
                                             <ItemMedia variant="image">
                                                 <img :src="demand.variety.image_url || demand.variety.image_url" :alt="demand.variety.name" />
                                             </ItemMedia>
@@ -156,11 +179,11 @@ function priceFlagVariant(flag: 'Low' | 'Fair' | 'High' | undefined) {
 
                                 <!-- Archived -->
                                 <TabsContent value="archived">
-                                    <div v-if="dealer.demands.archived.length === 0" class="flex items-center justify-center h-24 text-sm text-muted-foreground">
+                                    <div v-if="archivedDemands.length === 0" class="flex items-center justify-center h-24 text-sm text-muted-foreground">
                                         No archived demands
                                     </div>
                                     <ItemGroup v-else class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                        <Item v-for="demand in dealer.demands.archived" :key="demand.id" variant="outline">
+                                        <Item v-for="demand in archivedDemands" :key="demand.id" variant="outline">
                                             <ItemMedia variant="image">
                                                 <img :src="demand.variety.image_url || demand.variety.image_url" :alt="demand.variety.name" />
                                             </ItemMedia>
@@ -179,11 +202,11 @@ function priceFlagVariant(flag: 'Low' | 'Fair' | 'High' | undefined) {
 
                                 <!-- Fulfilled -->
                                 <TabsContent value="fulfilled">
-                                    <div v-if="dealer.demands.fulfilled.length === 0" class="flex items-center justify-center h-24 text-sm text-muted-foreground">
+                                    <div v-if="fulfilledDemands.length === 0" class="flex items-center justify-center h-24 text-sm text-muted-foreground">
                                         No fulfilled demands
                                     </div>
                                     <ItemGroup v-else class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                        <Item v-for="demand in dealer.demands.fulfilled" :key="demand.id" variant="outline">
+                                        <Item v-for="demand in fulfilledDemands" :key="demand.id" variant="outline">
                                             <ItemMedia variant="image">
                                                 <img :src="demand.variety.image_url || demand.variety.image_url" :alt="demand.variety.name" />
                                             </ItemMedia>
