@@ -1,16 +1,17 @@
 <script setup lang="ts">
+
 import { Check, ClipboardList, X } from 'lucide-vue-next'
 import { ref, watch } from 'vue'
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Button } from '@/components/ui/button'
+import PendingApprovalDialog from '@/components/admin/PendingApprovalDialog.vue'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
 import { Skeleton } from '@/components/ui/skeleton'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import PendingApprovalDialog from '@/components/admin/PendingApprovalDialog.vue'
-import { usePendingApprovals } from '@/composables/usePendingApprovals'
 import { getInitials } from '@/composables/useInitials'
+import { usePendingApprovals } from '@/composables/usePendingApprovals'
 import type { PendingDealer, PendingFarmer } from '@/types/admin/pending-approvals'
 
 const sheetOpen = ref(false)

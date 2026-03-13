@@ -1,7 +1,7 @@
 import { router } from '@inertiajs/vue3'
 import { ref } from 'vue'
-import type { PendingDealer, PendingFarmer } from '@/types/admin/pending-approvals'
 import index from '@/routes/admin/index'
+import type { PendingDealer, PendingFarmer } from '@/types/admin/pending-approvals'
 
 type ApprovalState = 'idle' | 'loading' | 'error'
 
@@ -20,6 +20,9 @@ export function usePendingApprovals() {
         window.fetch(index.farmers.api.pending.url()),
         window.fetch(index.dealers.api.pending.url()),
       ])
+
+      console.log(farmersRes.json())
+      console.log(dealersRes.json())
 
       if (!farmersRes.ok || !dealersRes.ok) {
         throw new Error('Failed to load pending approvals.')
