@@ -7,12 +7,16 @@ type Props = {
     description: string
 }
 
-const props = defineProps<Props>()
+defineProps<Props>()
+
+defineEmits<{
+    'update:open': [value: boolean]
+}>()
 
 </script>
 
 <template>
-    <Dialog :open="open">
+    <Dialog :open="open" @update:open="$emit('update:open', $event)">
         <DialogContent class="flex max-h-[85vh] flex-col gap-0 p-0">
             <DialogHeader class="space-y-2 border-b px-6 py-4">
                 <DialogTitle>{{ title }}</DialogTitle>
