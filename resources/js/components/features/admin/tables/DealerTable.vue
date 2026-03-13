@@ -58,7 +58,7 @@ const columns: ColumnDef<Dealer>[] = [
         @page-change="$emit('page-change', $event)" @search="$emit('search', $event)">
         <!-- Expander -->
         <template #cell-expander="{ row, cell }">
-            <Button v-if="row.ongoing_demands.length > 0" @click="cell.row.toggleExpanded()"
+            <Button v-if="row.ongoing_demands_count > 0" @click="cell.row.toggleExpanded()"
                 variant="ghost" size="icon-sm" class="text-muted-foreground">
                 <ChevronDownIcon v-if="cell.row.getIsExpanded()" class="size-4" />
                 <ChevronRightIcon v-else class="size-4" />
