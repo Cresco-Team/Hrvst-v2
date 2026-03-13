@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Actions\Dealer\ApproveDealerAction;
 use App\Actions\Dealer\RejectDealerAction;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Profile\DealerResource;
 use App\Models\Profiles\DealerProfile;
 use App\Services\Admin\DealerService;
 use Illuminate\Http\JsonResponse;
@@ -27,8 +28,10 @@ class DealerController extends Controller
 
         return Inertia::render('admin/dealers/Index', [
             'summary' => Inertia::defer(fn () => $this->dealerService->summary()),
-            'dealers' => Inertia::defer(fn () => $this->dealerService->paginated(
+            'dealers' => Inertia::defer(fn () => DealerResource::collection(
+                $this->dealerService->paginated(
                 search: $request->query('search', null),
+                )
             )),
             'filters' => [
                 'search' => $request->query('search', null),
@@ -36,33 +39,23 @@ class DealerController extends Controller
         ]);
     }
 
-    public function details(int $id): JsonResponse
+    public function details(DealerProfile $dealer): JsonResponse
     {
-        $dealer = $this->dealerService->details($id);
-
-        if (! $dealer) {
-            return response()->json(['error' => 'Dealer not found']);
-        }
-
-        $dealerProfile = DealerProfile::findOrFail($id);
-        Gate::authorize('view', $dealerProfile);
-
-        return response()->json($dealer);
+        Gate::authorize('view', $dealer);
+        
+        return response()->json(
+            (new DealerResource(($this->dealerService->details($dealer))))->resolve()
+        );
     }
 
-    public function show(int $id): Response
+    public function show(DealerProfile $dealer): Response
     {
-        $dealerProfile = DealerProfile::findOrFail($id);
-        Gate::authorize('view', $dealerProfile);
-
-        $dealer = $this->dealerService->show($id);
-
-        if (! $dealer) {
-            abort(404, 'Dealer not found');
-        }
+        Gate::authorize('view', $dealer);
 
         return Inertia::render('admin/dealers/Show', [
-            'dealer' => $dealer,
+            'dealer' => Inertia::defer(fn () =>
+                (new DealerResource($this->dealerService->show($dealer)))->resolve()
+            ),
         ]);
     }
 
@@ -70,7 +63,9 @@ class DealerController extends Controller
     {
         Gate::authorize('viewAny', DealerProfile::class);
 
-        return response()->json($this->dealerService->pending());
+        return response()->json(
+            DealerResource::colection($this->dealerService->pending())->resolve()
+        );
     }
 
     public function approve(DealerProfile $dealer, ApproveDealerAction $approveDealer): RedirectResponse

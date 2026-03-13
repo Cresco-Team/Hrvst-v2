@@ -20,12 +20,15 @@ class DealerResource extends JsonResource
 
             /* with('user') or with('user.media') */
             'user' => $this->whenLoaded('user', fn () =>
-                new UserResource($this->user)
+                (new UserResource($this->user))->toArray($request)
             ),
 
             /* with('demands.*') */
             'demands' => $this->whenLoaded('demands', fn () =>
-                DealerDemandResource::collection($this->demands)
+                $this->demands
+                    ->map(fn ($demand) => (new DealerDemandResource($demand))->toArray($request))
+                    ->values()
+                    ->all()
             ),
 
             /* withCount(['demands as ongoing_demands_count' => ...]) */
