@@ -22,14 +22,26 @@ class CreateNewUser implements CreatesNewUsers
     {
         $this->validateInput($input);
 
-        return DB::transaction(function () use ($input): User {
-            $user = $this->createUser($input);
+        $profileImage  = $input['profile_image'] instanceof UploadedFile
+            ? $input['profile_image']
+            : null;
+
+        $farmImage     = isset($input['farm_image']) && $input['farm_image'] instanceof UploadedFile
+            ? $input['farm_image']
+            : null;
+
+        $documentImage = isset($input['document_image']) && $input['document_image'] instanceof UploadedFile
+            ? $input['document_image']
+            : null;
+
+        return DB::transaction(function () use ($input, $profileImage, $farmImage, $documentImage): User {
+            $user = $this->createUser($input, $profileImage);
 
             $this->assignRole($user, $input['role']);
 
             match ($input['role']) {
-                'farmer' => $this->createFarmerProfile($user, $input),
-                'dealer' => $this->createDealerProfile($user, $input),
+                'farmer' => $this->createFarmerProfile($user, $input, $farmImage),
+                'dealer' => $this->createDealerProfile($user, $documentImage),
             };
 
             return $user;
@@ -71,7 +83,7 @@ class CreateNewUser implements CreatesNewUsers
         ])->validate();
     }
 
-    private function createUser(array $input): User
+    private function createUser(array $input, ?UploadedFile $profileImage): User
     {
         $user = User::create([
             'name'         => $input['name'],
@@ -80,8 +92,8 @@ class CreateNewUser implements CreatesNewUsers
             'phone_number' => $input['phone_number'],
         ]);
 
-        if (isset($input['profile_image']) && $input['profile_image'] instanceof UploadedFile) {
-            $user->addMedia($input['profile_image'])->toMediaCollection('avatar');
+        if ($profileImage !== null) {
+            $user->addMedia($profileImage)->toMediaCollection('avatar');
         }
 
         return $user;
@@ -93,7 +105,7 @@ class CreateNewUser implements CreatesNewUsers
         $user->roles()->attach($role);
     }
 
-    private function createFarmerProfile(User $user, array $input): void
+    private function createFarmerProfile(User $user, array $input, ?UploadedFile $farmImage): void
     {
         $farmer = FarmerProfile::create([
             'user_id'         => $user->id,
@@ -104,21 +116,17 @@ class CreateNewUser implements CreatesNewUsers
             'longitude'       => $input['longitude'],
         ]);
 
-        /** @var UploadedFile $farmImage */
-        $farmImage = $input['farm_image'];
-        $farmer->addMedia($farmImage)->toMediaCollection('farm_photo');
+        if ($farmImage !== null) {
+            $farmer->addMedia($farmImage)->toMediaCollection('farm_photo');
+        }
     }
 
-    private function createDealerProfile(User $user, array $input): void
+    private function createDealerProfile(User $user, ?UploadedFile $documentImage): void
     {
         $dealer = DealerProfile::create(['user_id' => $user->id]);
 
-        /** @var UploadedFile $documentImage */
-        $documentImage = $input['document_image'];
-
-        // Stored on the private 'documents' disk — never served by a public URL.
-        // Add GET /admin/dealers/{dealer}/document guarded by 'admin' middleware
-        // that calls $dealer->getFirstMedia('document')->toResponse($request)
-        $dealer->addMedia($documentImage)->toMediaCollection('document');
+        if ($documentImage !== null) {
+            $dealer->addMedia($documentImage)->toMediaCollection('document');
+        }
     }
 }
