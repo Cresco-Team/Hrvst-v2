@@ -1,7 +1,7 @@
 <script setup lang="ts">
 
 import { router } from '@inertiajs/vue3'
-import { Mail, Trash, Info, Calendar1, Wheat } from 'lucide-vue-next'
+import { Mail, Trash, Info, Calendar1, Wheat, Phone } from 'lucide-vue-next'
 import { ref } from 'vue'
 import { destroy, show } from '@/actions/App/Http/Controllers/Admin/DealerController'
 import ConfirmationDialog from '@/components/ConfirmationDialog.vue'
@@ -112,6 +112,13 @@ const { getInitials } = useInitials()
                         <span>Email</span>
                     </div>
                     <p class="text-muted-foreground">{{ dealer.user.email }}</p>
+                </div>
+                <div class="flex justify-between text-sm">
+                    <div class="flex items-center gap-1.5">
+                        <Phone class="size-3.5 text-primary" />
+                        <span>Phone Number</span>
+                    </div>
+                    <p class="text-muted-foreground">{{ dealer.user.phone_number }}</p>
                 </div>
             </div>
 
