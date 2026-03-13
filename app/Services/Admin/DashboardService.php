@@ -11,15 +11,16 @@ use App\Services\Product\VarietyService;
 class DashboardService
 {
     public function __construct(
-        private FarmerService $farmerService,
         private VarietyService $varietyService,
-    ){}
+        private FarmerService $farmerService,
+        private DealerService $dealerService,
+        ){}
 
     public function getKPIs(): array
     {
         return [
             'farmers' => $this->getFarmerKPIs(),
-            'dealers' => self::getDealerKPIs(),
+            'dealers' => $this->getDealerKPIs(),
             'varieties' => $this->getVarietyKPIs(),
         ];
     }
@@ -50,9 +51,9 @@ class DashboardService
         ];
     }
 
-    private static function getDealerKPIs(): array
+    private function getDealerKPIs(): array
     {
-        $current = DealerService::summary();
+        $current = $this->dealerService->summary();
         
         $previousTotal = DealerProfile::approved()
             ->where('created_at', '<', now()->subDays(30))
