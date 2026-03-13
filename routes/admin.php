@@ -24,35 +24,33 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
 
     Route::prefix('farmers')->name('farmers.')->group(function () {
         Route::get('/', [FarmerController::class, 'index'])->name('index');
-        Route::get('/{farmer}', [FarmerController::class, 'show'])->name('show');
-        Route::delete('{farmer}', [FarmerController::class, 'destroy'])->name('destroy');
 
-        // API Route (AJAX)
         Route::prefix('api')->name('api.')->group(function () {
             // Map
             Route::get('/markers', [FarmerController::class, 'markers'])->name('markers');
-            Route::get('/{farmer}/details', [FarmerController::class, 'details'])->name('details');
-            // Pending
             Route::get('/pending', [FarmerController::class, 'pending'])->name('pending');
+            Route::get('/{farmer}/details', [FarmerController::class, 'details'])->name('details');
         });
 
-        // Pending Farmers
+        Route::get('/{farmer}', [FarmerController::class, 'show'])->name('show');
+        Route::delete('{farmer}', [FarmerController::class, 'destroy'])->name('destroy');
+
         Route::post('/{farmer}/approve', [FarmerController::class, 'approve'])->name('approve');
         Route::post('/{farmer}/reject', [FarmerController::class, 'reject'])->name('reject');
     });
     
     Route::prefix('dealers')->name('dealers.')->group(function () {
         Route::get('/', [DealerController::class, 'index'])->name('index');
-        Route::get('/{dealer}', [DealerController::class, 'show'])->name('show');
-        Route::delete('/{dealer}', [DealerController::class, 'destroy'])->name('destroy');
-        Route::get('/{dealer}/document', [DealerController::class, 'document'])->name('document');
 
         Route::prefix('api')->name('api.')->group(function () {
-            Route::get('/{dealer}/details', [DealerController::class, 'details'])->name('details');
             Route::get('/pending', [DealerController::class, 'pending'])->name('pending');
+            Route::get('/{dealer}/details', [DealerController::class, 'details'])->name('details');
         });
+
+        Route::get('/{dealer}', [DealerController::class, 'show'])->name('show');
+        Route::get('/{dealer}/document', [DealerController::class, 'document'])->name('document');
+        Route::delete('/{dealer}', [DealerController::class, 'destroy'])->name('destroy');
         
-        // Pending Dealers
         Route::post('/{dealer}/approve', [DealerController::class, 'approve'])->name('approve');
         Route::post('/{dealer}/reject', [DealerController::class, 'reject'])->name('reject');
     });
