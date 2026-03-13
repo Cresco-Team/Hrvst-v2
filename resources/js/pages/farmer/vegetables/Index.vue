@@ -106,6 +106,9 @@ function handlePageChange(page: number) {
             placeholder="Search varieties..."
             @input="handleSearch"
           />
+          <InputGroupAddon align="inline-end">
+            {{ varieties?.meta.total }} results
+          </InputGroupAddon>
         </InputGroup>
 
         <Deferred data="categoryOptions">
