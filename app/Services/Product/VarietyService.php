@@ -8,7 +8,6 @@ use App\Models\Marketplace\FarmerSupply;
 use App\Models\Product\Category;
 use App\Models\Product\Variety;
 use App\Models\Product\Vegetable;
-use Carbon\CarbonInterface;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
@@ -151,7 +150,10 @@ class VarietyService
     public function forCatalog(int $perPage = 20, ?string $search = null, ?int $categoryId = null): LengthAwarePaginator
     {
         return Variety::with(['vegetable.category', 'latestPrice', 'recentPrices', 'media'])
-            ->when($search, fn (Builder $q) => $q->where('name', 'like', "%{$search}%"))
+            ->when($search, fn (Builder $q) => $q
+                ->where('name', 'like', "%{$search}%")
+                ->orWhereHas('vegetable', fn (Builder $q) => $q->where('name', 'like', "%{$search}%"))
+            )
             ->when($categoryId, fn (Builder $q) => $q->whereHas('vegetable', fn ($q) => $q->where('category_id', $categoryId)))
             ->orderBy('name')
             ->paginate($perPage);
