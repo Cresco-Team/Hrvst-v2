@@ -63,7 +63,7 @@ export interface Farmer {
     location: Location
     farm_url: string | null
     ongoing_supplies_count: number
-    ongoing_supplies: FarmerSupply[]
+    supplies: FarmerSupply[]
     joined_at: string
     joined_at_human: string
 }

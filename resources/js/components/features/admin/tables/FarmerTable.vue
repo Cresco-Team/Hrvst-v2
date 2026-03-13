@@ -183,7 +183,7 @@ const columns: ColumnDef<Farmer>[] = [
                         <h4 class="text-sm font-medium mb-3">Available Supplies ({{ row.ongoing_supplies_count }})
                         </h4>
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
-                            <Item v-for="supply in row.ongoing_supplies" :key="supply.id" variant="outline">
+                            <Item v-for="supply in row.supplies" :key="supply.id" variant="outline">
                                 <ItemMedia variant="image">
                                     <img
                                         v-if="supply.image_url"

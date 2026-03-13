@@ -32,7 +32,7 @@ export interface Dealer {
     user: User
     document_image: string | null
     ongoing_demands_count: number
-    ongoing_demands: DealerDemand[]
+    demands: DealerDemand[]
     joined_at: string
     joined_at_human: string
 }
