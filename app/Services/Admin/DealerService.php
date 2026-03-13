@@ -6,6 +6,7 @@ use App\Models\Marketplace\DealerDemand;
 use App\Models\Profiles\DealerProfile;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 
 class DealerService
 {
@@ -73,7 +74,7 @@ class DealerService
         ]);
     }
 
-    public function pending(): array
+    public function pending(): Collection
     {
         $dealers = DealerProfile::with(['user.media'])
             ->pending()
