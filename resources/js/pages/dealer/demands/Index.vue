@@ -56,7 +56,7 @@ const activeTab = computed(() => props.filters.status || 'Ongoing')
 
 const breadcrumbs = [
   { title: 'Dealer', href: dealer.demands.index().url },
-  { title: 'My Posts', href: dealer.demands.index().url }
+  { title: 'Demands', href: dealer.demands.index().url }
 ]
 
 function handleTabChange(value: string | number) {
@@ -143,20 +143,20 @@ function handleDelete() {
 </script>
 
 <template>
-  <Head title="My Posts" />
+  <Head title="My Demands" />
 
   <AppLayout :breadcrumbs="breadcrumbs">
     <div class="flex h-full flex-col gap-6 p-4 lg:p-6">
       <!-- Header -->
       <div class="flex items-end justify-between">
         <Heading
-          title="My Posts"
-          description="Manage your vegetable requests."
+          title="My Demands"
+          description="Manage your vegetable demands."
         />
         
         <Button @click="openCreate" class="gap-2">
           <Plus class="size-4" />
-          New Post
+          New Demand
         </Button>
       </div>
 
@@ -170,25 +170,25 @@ function handleDelete() {
 
         <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-2">
           <LargeCard 
-            title="Open Requests"
+            title="Ongoing Demands"
             :value="summary?.total_ongoing"
-            subtext="all open requests"
+            subtext="all ongoing demands"
             :icon="PackageSearch"
             card-class="from-emerald-50 to-green-50 dark:from-emerald-950/20 dark:to-green-950/20"
           />
 
           <LargeCard 
-            title="Archived"
+            title="Archived Demands"
             :value="summary?.total_archived"
-            subtext="all archived requests"
+            subtext="all archived demands"
             :icon="PackageCheck"
             card-class="from-emerald-50 to-green-50 dark:from-emerald-950/20 dark:to-green-950/20"
           />
 
           <LargeCard 
-            title="Fulfilled Requests"
+            title="Fulfilled Demands"
             :value="summary?.total_fulfilled"
-            subtext="all fulfilled requests"
+            subtext="all fulfilled demands"
             :icon="CalendarX"
             card-class="from-emerald-50 to-green-50 dark:from-emerald-950/20 dark:to-green-950/20"
           />
@@ -225,7 +225,6 @@ function handleDelete() {
           title="No Posted Demands Yet."
           description="Post a demand"
           :icon="Package"
-          button="Create Post"
         />
 
         <div v-else class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -253,7 +252,7 @@ function handleDelete() {
 
   <ConfirmationDialog 
     v-model:open="archiveDialogOpen"
-    title="Archive Post"
+    title="Archive Demand"
     :description="`Are you sure you want to archvie ${demandToArchive?.variety.vegetable} ${demandToArchive?.variety.name}?`"
     @action="handleArchive"
   />
@@ -269,7 +268,7 @@ function handleDelete() {
   <!-- Delete Confirmation -->
   <ConfirmationDialog
     v-model:open="deleteDialogOpen"
-    title="Delete Post?"
+    title="Delete Demand?"
     description="This action cannot be undone. The post will be permanently deleted."
     @action="handleDelete"
     variant="destructive"
