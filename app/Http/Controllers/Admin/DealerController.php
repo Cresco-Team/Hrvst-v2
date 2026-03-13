@@ -64,7 +64,7 @@ class DealerController extends Controller
         Gate::authorize('viewAny', DealerProfile::class);
 
         return response()->json(
-            DealerResource::colection($this->dealerService->pending())->resolve()
+            DealerResource::collection($this->dealerService->pending())->resolve()
         );
     }
 
