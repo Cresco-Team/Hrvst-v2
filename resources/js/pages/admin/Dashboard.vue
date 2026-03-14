@@ -121,12 +121,6 @@ function formatChange(change?: number): string {
                         :value="kpis?.varieties.needs_attention.value"
                         cardClass="col-span-5 md:col-span-4 lg:col-span-2"
                     />
-
-                    <SmallCard 
-                        title="Average Harvest Weeks"
-                        :value="kpis?.varieties.average_harvest_time.value"
-                        cardClass="col-span-5 md:col-span-3 lg:col-span-2"
-                    />
                 </div>
             </Deferred>
 

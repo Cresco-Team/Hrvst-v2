@@ -14,7 +14,6 @@ class VarietyResource extends JsonResource
             'id'               => $this->id,
             'name'             => $this->name,
             'image_url'        => $this->getFirstMediaUrl('variety_image'),
-            'weeks_to_harvest' => $this->weeks_to_harvest,
 
             /* with('vegetable.category') */
             'vegetable' => $this->whenLoaded('vegetable', function () {

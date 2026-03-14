@@ -69,7 +69,6 @@ class SupplyService
                 ->map(fn ($varieties) => $varieties->map(fn ($variety) => [
                     'id'               => $variety->id,
                     'name'             => $variety->vegetable->name.' '.$variety->name,
-                    'weeks_to_harvest' => $variety->weeks_to_harvest,
                 ])->values()->toArray())
                 ->toArray()
         );

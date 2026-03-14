@@ -19,7 +19,6 @@ class Variety extends Model implements HasMedia
     protected $fillable = [
         'vegetable_id',
         'name',
-        'weeks_to_harvest',
     ];
 
     /* ---------- relations ---------- */

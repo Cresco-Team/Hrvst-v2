@@ -30,7 +30,6 @@ class VarietyService
             })
             ->selectRaw('
                 COUNT(varieties.id) as total_varieties,
-                AVG(varieties.weeks_to_harvest) as avg_weeks,
                 SUM(CASE WHEN ph.recorded_at >= ? THEN 1 ELSE 0 END) as updated_week,
                 SUM(CASE WHEN ph.recorded_at >= ? AND ph.recorded_at < ? THEN 1 ELSE 0 END) as updated_month,
                 SUM(CASE WHEN ph.recorded_at < ? AND ph.recorded_at IS NOT NULL THEN 1 ELSE 0 END) as stale,
@@ -41,7 +40,6 @@ class VarietyService
         return [
             'total_varieties'          => (int) $priceStats->total_varieties,
             'total_vegetables'         => Vegetable::count(),
-            'average_weeks_to_harvest' => round($priceStats->avg_weeks ?? 0, 1),
             'price_stats'              => [
                 'updated_week'  => (int) $priceStats->updated_week,
                 'updated_month' => (int) $priceStats->updated_month,

@@ -17,7 +17,6 @@ class StoreVarietyRequest extends FormRequest
             'vegetable_id' => ['required', 'exists:vegetables,id'],
             'name' => ['required', 'string', 'max:255'],
             'image' => ['required', 'image', 'mimes:jpeg,jpg,png,webp', 'max:5120'], // 5MB max
-            'weeks_to_harvest' => ['required', 'integer', 'min:1', 'max:52'],
             'price_min' => ['required', 'numeric', 'min:0', 'max:9999.99'],
             'price_max' => ['required', 'numeric', 'min:0', 'max:9999.99', 'gte:price_min'],
         ];
@@ -33,9 +32,6 @@ class StoreVarietyRequest extends FormRequest
             'image.image' => 'The file must be an image.',
             'image.mimes' => 'Image must be JPEG, PNG, or WebP format.',
             'image.max' => 'Image size cannot exceed 5MB.',
-            'weeks_to_harvest.required' => 'Weeks to harvest is required.',
-            'weeks_to_harvest.min' => 'Must be at least 1 week.',
-            'weeks_to_harvest.max' => 'Cannot exceed 52 weeks.',
             'price_min.required' => 'Minimum price is required.',
             'price_min.numeric' => 'Minimum price must be a number.',
             'price_min.min' => 'Price cannot be negative.',

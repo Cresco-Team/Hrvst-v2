@@ -62,13 +62,6 @@ const freshnessConfig = {
           ₱{{ variety.latest_price?.price_min.toFixed(2) }} – ₱{{ variety.latest_price?.price_max.toFixed(2) }}
         </p>
       </div>
-
-      <!-- Weeks to harvest -->
-      <div class="flex items-center gap-1.5 pt-3 text-xs text-muted-foreground">
-        <Clock class="size-3.5 shrink-0" />
-        <span>{{ variety.weeks_to_harvest }} weeks to harvest</span>
-        <TrendingUp class="ml-auto size-3.5 text-muted-foreground/50 transition-colors group-hover:text-primary" />
-      </div>
     </CardContent>
   </Card>
 </template>
