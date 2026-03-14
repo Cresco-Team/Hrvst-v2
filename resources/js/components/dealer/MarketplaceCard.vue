@@ -1,13 +1,9 @@
 <script setup lang="ts">
 
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { getInitials } from '@/composables/useInitials'
+import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import type { Supply } from '@/types/dealer/marketplace'
 import { AspectRatio } from '../ui/aspect-ratio'
-import { Item, ItemContent, ItemDescription, ItemMedia, ItemTitle } from '../ui/item'
-import { Separator } from '../ui/separator'
 
 interface Props {
   supply: Supply
@@ -41,24 +37,6 @@ const { supply } = defineProps<Props>()
             ₱ {{ supply.offered_price.toFixed(2) }}
           </Badge>
       </CardDescription>
-      <Separator />
     </CardHeader>
-
-    <CardContent class="p-5 pt-2 grid gap-2">
-      <Item class="p-0">
-        <ItemMedia>
-          <Avatar class="size-10">
-            <AvatarImage v-if="supply.farmer.image_url" :src="supply.farmer.image_url" />
-            <AvatarFallback>{{ getInitials(supply.farmer.name) }}</AvatarFallback>
-          </Avatar>
-        </ItemMedia>
-        <ItemContent>
-          <ItemTitle>{{ supply.farmer.name }}</ItemTitle>
-          <ItemDescription class="text-xs">
-            Exp: {{ supply.expiration_date }} ({{ supply.days_until_expiration }} days)
-          </ItemDescription>
-        </ItemContent>
-      </Item>
-    </CardContent>
   </Card>
 </template>
