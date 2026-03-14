@@ -132,7 +132,7 @@ const breadcrumbs = [
         <p class="text-sm text-muted-foreground">
           <Deferred data="demands">
             <template #fallback>Loading...</template>
-            Showing {{ demands?.data.length }} of {{ demands?.total }} posts
+            Showing {{ demands?.data.length }} of {{ demands?.meta.total }} posts
           </Deferred>
         </p>
       </div>
@@ -156,32 +156,31 @@ const breadcrumbs = [
             v-for="demand in demands?.data"
             :key="demand.id"
             :demand="demand" 
-            :href="farmer.marketplace.show(demand.id).url"
           />
         </div>
        </Deferred>
 
       <!-- Pagination -->
       <div
-        v-if="demands && demands.last_page > 1"
+        v-if="demands && demands.meta.last_page > 1"
         class="flex items-center justify-between border-t pt-4"
       >
         <Button
           variant="outline"
           size="sm"
-          :disabled="demands.current_page === 1"
-          @click="handlePageChange(demands.current_page - 1)"
+          :disabled="demands.meta.current_page === 1"
+          @click="handlePageChange(demands.meta.current_page - 1)"
         >
           Previous
         </Button>
         <span class="text-sm text-muted-foreground">
-          Page {{ demands.current_page }} of {{ demands.last_page }}
+          Page {{ demands.meta.current_page }} of {{ demands.meta.last_page }}
         </span>
         <Button
           variant="outline"
           size="sm"
-          :disabled="demands.current_page === demands.last_page"
-          @click="handlePageChange(demands.current_page + 1)"
+          :disabled="demands.meta.current_page === demands.meta.last_page"
+          @click="handlePageChange(demands.meta.current_page + 1)"
         >
           Next
         </Button>

@@ -12,7 +12,6 @@ class MarketplaceService
     public function paginated(array $filters = [], int $perPage = 20): LengthAwarePaginator
     {
         $query = DealerDemand::with([
-            'dealer.user.media',
             'post.variety.media',
             'post.variety.vegetable.category',
             'post.variety.latestPrice',
@@ -47,30 +46,7 @@ class MarketplaceService
         }
 
         return $query->orderBy('transaction_date', 'asc')
-            ->paginate($perPage)
-            ->through(fn ($demand) => [
-                'id'     => $demand->id,
-                'dealer' => [
-                    'id'           => $demand->dealer->id,
-                    'name'         => $demand->dealer->user->name,
-                    'phone_number' => $demand->dealer->user->phone_number,
-                    'avatar_url'   => $demand->dealer->user->getFirstMediaUrl('avatar'),
-                ],
-                'variety' => [
-                    'id'        => $demand->post->variety_id,
-                    'name'      => $demand->post->variety->name,
-                    'vegetable' => $demand->post->variety->vegetable->name,
-                    'image_url' => $demand->post->variety->getFirstMediaUrl('variety_image'),
-                ],
-                'title'                  => $demand->post->title,
-                'quantity_kg'            => (float) $demand->post->quantity_kg,
-                'offered_price'          => (float) $demand->post->offered_price,
-                'price_flag'             => $demand->post->price_flag,
-                'transaction_date'       => $demand->transaction_date->format('M d, Y'),
-                'days_until_transaction' => now()->diffInDays($demand->transaction_date, false),
-                'status'                 => $demand->post->status,
-                'created_at_human'       => $demand->created_at->diffForHumans(),
-            ]);
+            ->paginate($perPage);
     }
 
     public function detailed(DealerDemand $demand): array

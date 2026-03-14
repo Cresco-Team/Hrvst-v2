@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Farmer;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Marketplace\DealerDemandResource;
 use App\Models\Marketplace\DealerDemand;
 use App\Services\Farmer\MarketplaceService;
 use Illuminate\Http\Request;
@@ -28,7 +29,7 @@ class MarketplaceController extends Controller
         return Inertia::render('farmer/marketplace/Index', [
             'filters' => $validated,
             'categoryOptions' => Inertia::defer(fn () => $this->marketplaceService->categoryOptions(), 'options'),
-            'demands' => Inertia::defer(fn () => $this->marketplaceService->paginated($validated), 'demands'),
+            'demands' => Inertia::defer(fn () => DealerDemandResource::collection($this->marketplaceService->paginated($validated)), 'demands'),
         ]);
     }
 
