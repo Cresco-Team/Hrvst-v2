@@ -47,7 +47,10 @@ class DealerDemandResource extends JsonResource
             'dealer' => $this->whenLoaded('dealer', fn () => [
                 'id'   => $this->dealer->id,
                 'name' => $this->dealer->user->name,
-            ]),
+                'avatar_url' => $this->dealer->user->relationLoaded('media')
+                    ? $this->dealer->user->getFirstMediaUrl('avatar')
+                    : null,
+                ]),
         ];
     }
 }
