@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head, router, Link, Deferred } from '@inertiajs/vue3'
+import { Head, router, Deferred } from '@inertiajs/vue3'
 import { Search } from 'lucide-vue-next'
 import { ref, computed } from 'vue'
 import MarketplaceCard from '@/components/dealer/MarketplaceCard.vue'
@@ -138,7 +138,7 @@ const breadcrumbs = [
           </div>
         </template>
         
-        <p class="text-sm text-muted-foreground">Showing {{ supplies?.data.length }} of {{ supplies?.total }} offerings</p>
+        <p class="text-sm text-muted-foreground">Showing {{ supplies?.data.length }} of {{ supplies?.meta.total }} supplies</p>
 
         <EmptyState 
           v-if="supplies?.data.length === 0"
@@ -148,38 +148,35 @@ const breadcrumbs = [
         />
 
         <div v-else class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          <Link
+          <MarketplaceCard 
             v-for="supply in supplies?.data"
             :key="supply.id"
-            :href="dealer.marketplace.show(supply.id).url"
-            class="block"
-          >
-            <MarketplaceCard :supply="supply" />
-          </Link>
+            :supply="supply"
+          />
         </div>
       </Deferred>
 
       <!-- Pagination -->
       <div
-        v-if="supplies && supplies.last_page > 1"
+        v-if="supplies && supplies.meta.last_page > 1"
         class="flex items-center justify-between border-t pt-4"
       >
         <Button
           variant="outline"
           size="sm"
-          :disabled="supplies.current_page === 1"
-          @click="handlePageChange(supplies.current_page - 1)"
+          :disabled="supplies.meta.current_page === 1"
+          @click="handlePageChange(supplies.meta.current_page - 1)"
         >
           Previous
         </Button>
         <span class="text-sm text-muted-foreground">
-          Page {{ supplies.current_page }} of {{ supplies.last_page }}
+          Page {{ supplies.meta.current_page }} of {{ supplies.meta.last_page }}
         </span>
         <Button
           variant="outline"
           size="sm"
-          :disabled="supplies.current_page === supplies.last_page"
-          @click="handlePageChange(supplies.current_page + 1)"
+          :disabled="supplies.meta.current_page === supplies.meta.last_page"
+          @click="handlePageChange(supplies.meta.current_page + 1)"
         >
           Next
         </Button>
