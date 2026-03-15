@@ -98,28 +98,24 @@ function formatChange(change?: number): string {
                     />
                 </div>
                 
-                <div class="grid md:grid-cols-10 gap-4">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <SmallCard 
                         title="Total Farmer Supplies"
                         :value="kpis?.farmers.total_supplies.value"
-                        cardClass="col-span-5 lg:col-span-2"
                     />
                     <SmallCard 
                         title="Total Dealer Demands"
                         :value="kpis?.dealers.total_demands.value"
-                        cardClass="col-span-5 lg:col-span-2"
                     />
 
                     <SmallCard 
                         title="Updated This Week"
                         :value="kpis?.varieties.price_updates_week.value"
-                        cardClass="col-span-10 md:col-span-3 lg:col-span-2"
                     />
 
                     <SmallCard 
                         title="Stale Vegetables"
                         :value="kpis?.varieties.needs_attention.value"
-                        cardClass="col-span-5 md:col-span-4 lg:col-span-2"
                     />
                 </div>
             </Deferred>
