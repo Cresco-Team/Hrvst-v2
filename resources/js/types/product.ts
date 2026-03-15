@@ -16,7 +16,6 @@ export interface Variety {
     vegetable?: string
     category?: string
     image_url: string
-    weeks_to_harvest?: number
 }
 
 export interface Planting {

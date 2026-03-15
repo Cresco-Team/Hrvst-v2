@@ -7,7 +7,6 @@ export type { AdminVariety as Variety, VegetableOptions }
 export interface Summary {
     total_varieties: number
     total_vegetables: number
-    average_weeks_to_harvest: number
     price_stats: {
         updated_week: number
         updated_month: number
