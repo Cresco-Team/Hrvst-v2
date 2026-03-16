@@ -3,10 +3,9 @@
 namespace App\Http\Controllers\Farmer;
 
 use App\Http\Controllers\Controller;
-use App\Models\Marketplace\DealerDemand;
+use App\Http\Resources\Marketplace\DealerDemandResource;
 use App\Services\Farmer\MarketplaceService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -28,16 +27,7 @@ class MarketplaceController extends Controller
         return Inertia::render('farmer/marketplace/Index', [
             'filters' => $validated,
             'categoryOptions' => Inertia::defer(fn () => $this->marketplaceService->categoryOptions(), 'options'),
-            'demands' => Inertia::defer(fn () => $this->marketplaceService->paginated($validated), 'demands'),
-        ]);
-    }
-
-    public function show(DealerDemand $demand): Response
-    {
-        Gate::authorize('view', $demand);
-
-        return Inertia::render('farmer/marketplace/Show', [
-            'details' => $this->marketplaceService->detailed($demand),
+            'demands' => Inertia::defer(fn () => DealerDemandResource::collection($this->marketplaceService->paginated($validated)), 'demands'),
         ]);
     }
 }

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-import { Leaf, Clock, DollarSign } from 'lucide-vue-next'
+import { Leaf, DollarSign } from 'lucide-vue-next'
 import { computed } from 'vue'
 import DialogForm from '@/components/DialogForm.vue'
 import ImageUpload from '@/components/shared/media/ImageUpload.vue'
@@ -19,7 +19,6 @@ interface VarietyFormData {
   vegetable_id: string
   name: string
   image: File | null
-  weeks_to_harvest: number
   price_min: string
   price_max: string
 }
@@ -43,7 +42,6 @@ const { form, errors, isEditMode, validateForm } = useDialogForm<Variety, Variet
     vegetable_id: variety?.vegetable?.id?.toString() ?? '',
     name: variety?.name ?? '',
     image: null,
-    weeks_to_harvest: variety?.weeks_to_harvest ?? 8,
     price_min: '',
     price_max: '',
   }),
@@ -58,9 +56,6 @@ const { form, errors, isEditMode, validateForm } = useDialogForm<Variety, Variet
     }
     if (!isEditMode.value && !data.image) {
       errs.image = 'Image is required for new varieties'
-    }
-    if (data.weeks_to_harvest < 1 || data.weeks_to_harvest > 52) {
-      errs.weeks_to_harvest = 'Must be between 1 and 52 weeks'
     }
 
     if (!isEditMode.value) {
@@ -123,7 +118,6 @@ function handleSubmit() {
   const payload = new FormData()
   payload.append('vegetable_id', form.value.vegetable_id)
   payload.append('name', form.value.name.trim())
-  payload.append('weeks_to_harvest', form.value.weeks_to_harvest.toString())
 
   if (form.value.image) {
     payload.append('image', form.value.image)
@@ -256,35 +250,6 @@ function handleSubmit() {
         </div>
         <p v-else class="text-xs text-muted-foreground">
           Enter the current market price range per kilogram
-        </p>
-      </div>
-
-      <!-- Weeks to Harvest -->
-      <div class="flex flex-col gap-2">
-        <Label for="weeks_to_harvest" class="flex items-center gap-1.5">
-          <Clock class="size-3.5" />
-          Weeks to Harvest
-        </Label>
-        <div class="flex items-center gap-3">
-          <Input
-            id="weeks_to_harvest"
-            v-model.number="form.weeks_to_harvest"
-            type="number"
-            min="1"
-            max="52"
-            class="max-w-[120px]"
-            :class="{ 'border-destructive': errors.weeks_to_harvest }"
-          />
-          <span class="text-sm text-muted-foreground">
-            {{ form.weeks_to_harvest }} week{{ form.weeks_to_harvest !== 1 ? 's' : '' }}
-            ({{ Math.round(form.weeks_to_harvest * 7) }} days)
-          </span>
-        </div>
-        <p v-if="errors.weeks_to_harvest" class="text-xs text-destructive">
-          {{ errors.weeks_to_harvest }}
-        </p>
-        <p v-else class="text-xs text-muted-foreground">
-          Average time from planting to harvest (1–52 weeks)
         </p>
       </div>
     </div>

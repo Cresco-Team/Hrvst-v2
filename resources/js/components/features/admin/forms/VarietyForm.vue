@@ -1,20 +1,13 @@
 <script setup lang="ts">
+
+import { Leaf, DollarSign } from 'lucide-vue-next'
 import { computed } from 'vue'
 import DialogForm from '@/components/DialogForm.vue'
 import ImageUpload from '@/components/shared/media/ImageUpload.vue'
-import {
-    Select,
-    SelectContent,
-    SelectGroup,
-    SelectItem,
-    SelectLabel,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select'
-import { Label } from '@/components/ui/label'
-import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
-import { Leaf, Clock, DollarSign } from 'lucide-vue-next'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useDialogForm } from '@/composables/useDialogForm'
 
 interface Variety {
@@ -22,7 +15,6 @@ interface Variety {
     vegetable_id: number
     name: string
     image_url?: string
-    weeks_to_harvest: number
     latest_price?: {
         price_min: string
         price_max: string
@@ -39,7 +31,6 @@ interface VarietyFormData {
     vegetable_id: string
     name: string
     image: File | null
-    weeks_to_harvest: number
     price_min: string
     price_max: string
 }
@@ -64,7 +55,6 @@ const { form, errors, isEditMode, validateForm } = useDialogForm<Variety, Variet
         vegetable_id: variety?.vegetable_id?.toString() ?? '',
         name: variety?.name ?? '',
         image: null,
-        weeks_to_harvest: variety?.weeks_to_harvest ?? 8,
         price_min: variety?.latest_price?.price_min ?? '',
         price_max: variety?.latest_price?.price_max ?? '',
     }),
@@ -79,9 +69,6 @@ const { form, errors, isEditMode, validateForm } = useDialogForm<Variety, Variet
         }
         if (!isEditMode.value && !form.image) {
             errors.image = 'Image is required for new varieties'
-        }
-        if (form.weeks_to_harvest < 1 || form.weeks_to_harvest > 52) {
-            errors.weeks_to_harvest = 'Must be between 1 and 52 weeks'
         }
         
         const priceMin = parseFloat(form.price_min)
@@ -121,7 +108,7 @@ const description = computed(() =>
 const selectedVegetableName = computed(() => {
     if (!form.value.vegetable_id) return null
     
-    for (const [category, vegetables] of Object.entries(props.vegetableOptions)) {
+    for (const [vegetables] of Object.entries(props.vegetableOptions)) {
         const vegName = vegetables[Number(form.value.vegetable_id)]
         if (vegName) return vegName
     }
@@ -146,7 +133,6 @@ function handleSubmit() {
     const formData = new FormData()
     formData.append('vegetable_id', form.value.vegetable_id)
     formData.append('name', form.value.name.trim())
-    formData.append('weeks_to_harvest', form.value.weeks_to_harvest.toString())
     formData.append('price_min', parseFloat(form.value.price_min).toFixed(2))
     formData.append('price_max', parseFloat(form.value.price_max).toFixed(2))
     
@@ -296,35 +282,6 @@ function handleSubmit() {
                 </div>
                 <p v-else class="text-xs text-muted-foreground">
                     Enter the current market price range per kilogram
-                </p>
-            </div>
-
-            <!-- Weeks to Harvest -->
-            <div class="flex flex-col gap-2">
-                <Label for="weeks_to_harvest" class="flex items-center gap-1.5">
-                    <Clock class="size-3.5" />
-                    Weeks to Harvest
-                </Label>
-                <div class="flex items-center gap-3">
-                    <Input
-                        id="weeks_to_harvest"
-                        v-model.number="form.weeks_to_harvest"
-                        type="number"
-                        min="1"
-                        max="52"
-                        class="max-w-[120px]"
-                        :class="{ 'border-destructive': errors.weeks_to_harvest }"
-                    />
-                    <span class="text-sm text-muted-foreground">
-                        {{ form.weeks_to_harvest }} week{{ form.weeks_to_harvest !== 1 ? 's' : '' }}
-                        ({{ Math.round(form.weeks_to_harvest * 7) }} days)
-                    </span>
-                </div>
-                <p v-if="errors.weeks_to_harvest" class="text-xs text-destructive">
-                    {{ errors.weeks_to_harvest }}
-                </p>
-                <p v-else class="text-xs text-muted-foreground">
-                    Average time from planting to harvest (1-52 weeks)
                 </p>
             </div>
         </div>

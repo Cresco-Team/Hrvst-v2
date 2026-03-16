@@ -56,29 +56,7 @@ class SupplyService
 
         return $query
             ->orderBy('expiration_date', 'desc')
-            ->paginate($perPage)
-            ->through(fn (FarmerSupply $supply) => [
-                'id'     => $supply->id,
-                'farmer' => [
-                    'id'   => $supply->farmer->id,
-                    'name' => $supply->farmer->user->name,
-                ],
-                'variety' => [
-                    'id'        => $supply->post->variety->id,
-                    'name'      => $supply->post->variety->name,
-                    'vegetable' => $supply->post->variety->vegetable->name,
-                    'image_url' => $supply->post->variety->getFirstMediaUrl('variety_image'),
-                ],
-                'title'                 => $supply->post->title,
-                'image_url'             => $supply->getFirstMediaUrl('supply_image'),
-                'quantity_kg'           => (float) $supply->post->quantity_kg,
-                'offered_price'         => (float) $supply->post->offered_price,
-                'price_flag'            => $supply->post->price_flag,
-                'expiration_date'       => $supply->expiration_date?->format('M d, Y'),
-                'days_until_expiration' => $supply->days_until_expiration,
-                'status'                => $supply->post->status,
-                'created_at_human'      => $supply->created_at->diffForHumans(),
-            ]);
+            ->paginate($perPage);
     }
 
     public function varietyOptions(): array
@@ -91,7 +69,6 @@ class SupplyService
                 ->map(fn ($varieties) => $varieties->map(fn ($variety) => [
                     'id'               => $variety->id,
                     'name'             => $variety->vegetable->name.' '.$variety->name,
-                    'weeks_to_harvest' => $variety->weeks_to_harvest,
                 ])->values()->toArray())
                 ->toArray()
         );

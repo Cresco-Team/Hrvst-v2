@@ -1,7 +1,7 @@
 <script setup lang="ts">
 
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler, type ChartOptions } from 'chart.js'
-import { Leaf, Clock, AlertCircle } from 'lucide-vue-next'
+import { Leaf, AlertCircle } from 'lucide-vue-next'
 import { computed } from 'vue'
 import { Line } from 'vue-chartjs'
 import { Badge } from '@/components/ui/badge'
@@ -172,13 +172,6 @@ const tableRows = computed(() =>
               <p class="text-xs text-muted-foreground">Max Price</p>
               <p class="mt-0.5 font-mono text-base font-semibold text-indigo-600 dark:text-indigo-400">
                 {{ variety?.latest_price ? `₱${variety.latest_price.price_max.toFixed(2)}` : '—' }}
-              </p>
-            </div>
-            <div class="rounded-lg border bg-muted/30 p-3 text-center">
-              <p class="text-xs text-muted-foreground">Weeks to Harvest</p>
-              <p class="mt-0.5 flex items-center justify-center gap-1 text-base font-semibold">
-                <Clock class="size-3.5 text-muted-foreground" />
-                {{ variety?.weeks_to_harvest }}
               </p>
             </div>
           </div>

@@ -13,7 +13,6 @@ return new class extends Migration
             $table->foreignId('vegetable_id')->constrained();
 
             $table->string('name');
-            $table->integer('weeks_to_harvest');
 
             $table->timestamps();
 

@@ -3,7 +3,6 @@
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DealerController;
 use App\Http\Controllers\Admin\FarmerController;
-use App\Http\Controllers\Admin\FlagController;
 use App\Http\Controllers\Admin\VarietyPriceController;
 use App\Http\Controllers\Admin\VegetableController;
 use Illuminate\Support\Facades\Route;
@@ -53,13 +52,5 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
         
         Route::post('/{dealer}/approve', [DealerController::class, 'approve'])->name('approve');
         Route::post('/{dealer}/reject', [DealerController::class, 'reject'])->name('reject');
-    });
-
-    // Content Moderation (Flags)
-    Route::prefix('flags')->name('flags.')->group(function () {
-        Route::get('/', [FlagController::class, 'index'])->name('index');
-        Route::post('/{flag}/review', [FlagController::class, 'review'])->name('review');
-        Route::post('/{flag}/dismiss', [FlagController::class, 'dismiss'])->name('dismiss');
-        Route::delete('/{flag}/content', [FlagController::class, 'destroyContent'])->name('destroy-content');
     });
 });

@@ -92,10 +92,6 @@ class DashboardService
                 'value' => $current['price_stats']['stale'] + $current['price_stats']['no_price'],
                 'label' => 'Stale/No price',
             ],
-            'average_harvest_time' => [
-                'value' => $current['average_weeks_to_harvest'],
-                'label' => 'Average harvest weeks',
-            ],
         ];
     }
 

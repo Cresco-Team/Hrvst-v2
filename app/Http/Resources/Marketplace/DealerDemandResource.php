@@ -42,12 +42,6 @@ class DealerDemandResource extends JsonResource
                     'image_url' => $variety->getFirstMediaUrl('variety_image'),
                 ];
             }),
-
-            /* with('dealer.user') — omit when inside DealerResource (redundant) */
-            'dealer' => $this->whenLoaded('dealer', fn () => [
-                'id'   => $this->dealer->id,
-                'name' => $this->dealer->user->name,
-            ]),
         ];
     }
 }

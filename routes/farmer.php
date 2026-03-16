@@ -29,6 +29,5 @@ Route::middleware(['auth', 'verified', 'farmer'])->prefix('farmer')->name('farme
 
     Route::prefix('marketplace')->name('marketplace.')->group(function () {
         Route::get('/', [MarketplaceController::class, 'index'])->name('index');
-        Route::get('/{demand}', [MarketplaceController::class, 'show'])->name('show');
     });
 });

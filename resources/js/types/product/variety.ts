@@ -45,7 +45,6 @@ export interface CatalogVariety {
     name: string
     display_name: string
     image_url: string | null
-    weeks_to_harvest: number
     vegetable: {
         id: number
         name: string

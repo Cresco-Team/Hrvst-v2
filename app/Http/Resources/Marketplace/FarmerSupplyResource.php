@@ -47,12 +47,6 @@ class FarmerSupplyResource extends JsonResource
                     'image_url' => $variety->getFirstMediaUrl('variety_image'),
                 ];
             }),
-
-            /* with('farmer.user') — omit when inside FarmerResource (redundant) */
-            'farmer' => $this->whenLoaded('farmer', fn () => [
-                'id'   => $this->farmer->id,
-                'name' => $this->farmer->user->name,
-            ]),
         ];
     }
 }

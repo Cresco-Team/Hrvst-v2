@@ -2,13 +2,8 @@
 
 namespace App\Models;
 
-use App\Models\Interaction\Comment;
-use App\Models\Interaction\PostFlag;
 use App\Models\Interaction\Reaction;
 use App\Models\Marketplace\Post;
-use App\Models\Messaging\Conversation;
-use App\Models\Messaging\ConversationParticipant;
-use App\Models\Messaging\Message;
 use App\Models\Profiles\DealerProfile;
 use App\Models\Profiles\FarmerProfile;
 use App\Models\Profiles\Role;
@@ -73,33 +68,9 @@ class User extends Authenticatable implements HasMedia
         return $this->hasMany(Post::class);
     }
 
-    public function comments(): HasMany
-    {
-        return $this->hasMany(Comment::class);
-    }
-
     public function reactions(): HasMany
     {
         return $this->hasMany(Reaction::class);
-    }
-
-    public function postFlags(): HasMany
-    {
-        return $this->hasMany(PostFlag::class);
-    }
-
-    // Conversation
-    public function conversations(): BelongsToMany
-    {
-        return $this->belongsToMany(Conversation::class, 'conversation_participants')
-            ->using(ConversationParticipant::class)
-            ->withPivot(['last_read_at'])
-            ->withTimestamps();
-    }
-
-    public function messages(): HasMany
-    {
-        return $this->hasMany(Message::class, 'sender_id');
     }
 
     /* ---------- methods ---------- */
