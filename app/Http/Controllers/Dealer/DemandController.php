@@ -11,6 +11,7 @@ use App\Enums\PostStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Dealer\StoreDemandRequest;
 use App\Http\Requests\Dealer\UpdateDemandRequest;
+use App\Http\Resources\Marketplace\DealerDemandResource;
 use App\Models\Marketplace\DealerDemand;
 use App\Services\Dealer\DemandService;
 use Illuminate\Http\RedirectResponse;
@@ -36,7 +37,7 @@ class DemandController extends Controller
             'filters'           => ['status' => $status],
             'summary'           => Inertia::defer(fn() => $this->demandService->summary($dealerId)),
             'varietyOptions'    => Inertia::defer(fn() => $this->demandService->varietyOptions()),
-            'demands'           => Inertia::defer(fn() => $this->demandService->paginated(dealerId: $dealerId, status: $status)),
+            'demands'           => Inertia::defer(fn() => DealerDemandResource::collection($this->demandService->paginated(dealerId: $dealerId, status: $status))),
         ]);
     }
 
