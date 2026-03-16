@@ -1,8 +1,6 @@
 <?php
 
 use App\Http\Controllers\AddressController;
-use App\Http\Controllers\Announcement\CommentController;
-use App\Http\Controllers\Announcement\FlagController;
 use App\Http\Controllers\Announcement\ReactionController;
 use App\Http\Controllers\NotificationController;
 use Illuminate\Support\Facades\Auth;
@@ -38,20 +36,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('reactions.toggle');
     Route::get('/reactions', [ReactionController::class, 'show'])
         ->name('reactions.show');
-
-    // Comments
-    Route::get('/offerings/{farmerOffering}/comments', [CommentController::class, 'index'])
-        ->name('comments.index');
-    Route::post('/offerings/{farmerOffering}/comments', [CommentController::class, 'store'])
-        ->name('comments.store');
-    Route::put('/comments/{comment}', [CommentController::class, 'update'])
-        ->name('comments.update');
-    Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])
-        ->name('comments.destroy');
-
-    // Flags
-    Route::post('/flags', [FlagController::class, 'store'])
-        ->name('flags.store');
 
     Route::get('/notifications', [NotificationController::class, 'index'])
         ->name('notifications.index');

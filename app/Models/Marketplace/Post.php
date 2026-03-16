@@ -4,8 +4,6 @@ namespace App\Models\Marketplace;
 
 use App\Enums\PostPriceFlag;
 use App\Enums\PostStatus;
-use App\Models\Interaction\Comment;
-use App\Models\Interaction\PostFlag;
 use App\Models\Interaction\Reaction;
 use App\Models\Product\Variety;
 use App\Models\User;
@@ -59,16 +57,6 @@ class Post extends Model
     public function reactions(): HasMany
     {
         return $this->hasMany(Reaction::class);
-    }
-
-    public function comments(): HasMany
-    {
-        return $this->hasMany(Comment::class);
-    }
-
-    public function flags(): HasMany
-    {
-        return $this->hasMany(PostFlag::class);
     }
 
     /* ---------- scopes ---------- */

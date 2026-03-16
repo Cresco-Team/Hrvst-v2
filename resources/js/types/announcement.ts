@@ -66,34 +66,12 @@ export interface FarmerOffering {
   created_at?: string
   created_at_human: string
   reaction_counts?: Record<string, number>
-  comment_count?: number
-}
-
-export interface AnnouncementComment {
-  id: number
-  user: {
-    id: number
-    name: string
-    avatar: string | null
-    role: 'dealer' | 'farmer' | 'user'
-  }
-  comment: string
-  created_at: string
-  created_at_human: string
-  can_delete: boolean
 }
 
 export interface AnnouncementReaction {
   reactionable_type: 'DealerRequest' | 'FarmerOffering'
   reactionable_id: number
   reaction_type: string
-}
-
-export interface AnnouncementFlag {
-  flaggable_type: 'DealerRequest' | 'FarmerOffering' | 'AnnouncementComment'
-  flaggable_id: number
-  reason: string
-  description?: string
 }
 
 // Filter types

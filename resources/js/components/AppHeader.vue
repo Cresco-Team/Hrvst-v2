@@ -1,7 +1,7 @@
 <script setup lang="ts">
 
 import { Link, usePage } from '@inertiajs/vue3';
-import { MapPinned, Menu, MessagesSquare, Package, PackageSearch, ShoppingBag, Sprout, Store, Truck } from 'lucide-vue-next';
+import { MapPinned, Menu, Package, PackageSearch, ShoppingBag, Sprout, Store, Truck } from 'lucide-vue-next';
 import { computed } from 'vue';
 import AppLogo from '@/components/AppLogo.vue';
 import AppLogoIcon from '@/components/AppLogoIcon.vue';
@@ -105,22 +105,6 @@ const mainNavItems = computed<NavItem[]>(() => {
 
 const rightNavItems = computed<NavItem[]>(() => {
     const items: NavItem[] = []
-
-    if (page.props.auth.user.roles.includes('dealer')) {
-        items.push({
-            title: 'Conversation',
-            href: '#',
-            icon: MessagesSquare, 
-        })
-    }
-
-    if (page.props.auth.user.roles.includes('farmer')) {
-        items.push({
-            title: 'Conversation',
-            href: '#',
-            icon: MessagesSquare, 
-        })
-    }
 
     return items;
 })
