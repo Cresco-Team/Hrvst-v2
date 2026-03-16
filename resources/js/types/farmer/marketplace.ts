@@ -17,7 +17,6 @@ export interface DealerDemand {
         image_url: string | null
       }
       variety: VarietyRef
-      title: string
       quantity_kg: number
       offered_price: number
       price_flag: 'Low' | 'Fair' | 'High'

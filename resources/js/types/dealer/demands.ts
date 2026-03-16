@@ -27,7 +27,6 @@ export interface Demand {
         vegetable: string
         image_url: string
     }
-    title: string | null
     quantity_kg: number
     offered_price: number
     price_flag: 'Low' | 'Fair' | 'High'

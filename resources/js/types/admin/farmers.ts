@@ -45,7 +45,6 @@ export interface FarmerSupply {
         category: string
         image_url: string
     }
-    title: string | null
     image_url: string | null
     offered_price: number
     price_flag: 'Low' | 'Fair' | 'High'

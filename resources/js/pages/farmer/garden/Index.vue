@@ -42,14 +42,12 @@ const supplyToFulfill = ref<Supply | null>(null)
 /* Form setup using Inertia's useForm */
 const form = useForm<{
   variety_id: number | null
-  title: string
   image: File | null
   quantity_kg: number
   offered_price: number
   expiration_date: string
 }>({
   variety_id: null,
-  title: '',
   image: null,
   quantity_kg: 0,
   offered_price: 0,

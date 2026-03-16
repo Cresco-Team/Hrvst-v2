@@ -23,7 +23,6 @@ export interface CategoryOption {
 export interface Supply {
     id: number
     variety: Variety
-    title?: string
     image_url?: string
     quantity_kg: number
     offered_price: number
@@ -38,7 +37,6 @@ export interface Supply {
 export interface Demand {
     id: number
     variety: Variety
-    title?: string
     quantity_kg: number
     offered_price: number
     price_flag?: 'Low' | 'Fair' | 'High'

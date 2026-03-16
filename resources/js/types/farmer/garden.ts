@@ -7,7 +7,6 @@ export interface Supply {
     name: string
   }
   variety: VarietyRef
-  title: string
   image_url: string
   quantity_kg: number
   offered_price: number
