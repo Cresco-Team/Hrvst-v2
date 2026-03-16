@@ -27,7 +27,6 @@ final class CreateSupplyAction
         $supply->post()->create([
             'user_id'       => $farmer->user_id,
             'variety_id'    => $validated['variety_id'],
-            'title'         => $validated['title'] ?? null,
             'quantity_kg'   => $validated['quantity_kg'],
             'offered_price' => $validated['offered_price'],
             'price_flag'    => PostPriceFlag::fromMarketPrice($validated['offered_price'], $variety->latestPrice),

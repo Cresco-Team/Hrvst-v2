@@ -126,12 +126,6 @@ const isFulfilled = computed(() => props.supply.status === 'Fulfilled')
                     {{ supply.expiration_date }}
                 </p>
             </div>
-
-            <Separator />
-
-            <div class="text-xs italic truncate text-muted-foreground">
-                {{ supply.title ? supply.title : "No desctiption provided..." }}
-            </div>
         </CardContent>
     </Card>
 </template>

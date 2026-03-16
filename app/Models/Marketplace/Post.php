@@ -21,7 +21,6 @@ class Post extends Model
         'variety_id',
         'postable_id',
         'postable_type',
-        'title',
         'quantity_kg',
         'offered_price',
         'price_flag',

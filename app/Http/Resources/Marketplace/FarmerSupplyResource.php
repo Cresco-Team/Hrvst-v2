@@ -23,7 +23,6 @@ class FarmerSupplyResource extends JsonResource
             ),
 
             /* with('post') — post is always in $with, but guard defensively */
-            'title'         => $this->whenLoaded('post', fn () => $this->post->title),
             'quantity_kg'   => $this->whenLoaded('post', fn () => (float) $this->post->quantity_kg),
             'offered_price' => $this->whenLoaded('post', fn () => (float) $this->post->offered_price),
             'price_flag'    => $this->whenLoaded('post', fn () => $this->post->price_flag),

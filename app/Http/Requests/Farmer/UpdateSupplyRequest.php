@@ -15,7 +15,6 @@ class UpdateSupplyRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title'           => ['nullable', 'string', 'max:255'],
             'variety_id'      => ['sometimes', 'integer', 'exists:varieties,id'],
             'quantity_kg'     => ['sometimes', 'numeric', 'min:0.01'],
             'offered_price'   => ['sometimes', 'numeric', 'min:0'],
@@ -28,7 +27,6 @@ class UpdateSupplyRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'title.max'             => 'Post title is too long',
             'variety_id.exists'   => 'Variety is required.',
 
             'quantity_kg.numeric'   => 'Quantity must be a number',

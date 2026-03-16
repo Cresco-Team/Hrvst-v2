@@ -16,7 +16,6 @@ return new class extends Migration
             $table->unsignedBigInteger('postable_id');
             $table->string('postable_type');
 
-            $table->string('title')->nullable();
             $table->decimal('quantity_kg', 8, 2);
             $table->decimal('offered_price', 8, 2)->nullable();
             $table->enum('price_flag', ['Low', 'Fair', 'High'])->default('Fair');

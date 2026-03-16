@@ -17,7 +17,6 @@ class StoreSupplyRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title'         => ['nullable', 'string', 'max:255'],
             'variety_id'    => ['required', 'integer', 'exists:varieties,id'],
             'quantity_kg'   => ['required', 'numeric', 'min:0.1', 'max:99999'],
             'offered_price' => ['numeric', 'min:0', 'max:9999.99'],
@@ -31,7 +30,6 @@ class StoreSupplyRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'title.max'             => 'Post title is too long',
             'variety_id.required'   => 'Variety is required.',
 
             'quantity_kg.required'  => 'Quantity is required',

@@ -13,7 +13,6 @@ import type { Supply, VarietyOption } from '@/types/farmer/garden'
 
 const form = defineModel<InertiaForm<{
   variety_id: number | null
-  title: string | number | undefined
   image: File | null
   quantity_kg: number
   offered_price: number
@@ -195,28 +194,6 @@ watch(() => props.open, (isOpen) => {
           Offering will auto-expire after this date (max 3 months)
         </p>
       </div>
-
-      <!-- Title -->
-      <div class="space-y-2">
-        <Label for="quantity" class="flex items-center gap-1.5">
-          Title
-          <Badge variant="secondary" class="text-xs font-normal">Optional</Badge>
-        </Label>
-        <Input
-          id="title"
-          v-model="form.title"
-          type="string"
-          placeholder="Enter your post title..."
-          :class="{ 'border-destructive': form.errors.title }"
-        />
-        <p v-if="form.errors.title" class="text-xs text-destructive">
-          {{ form.errors.title }}
-        </p>
-        <p v-else class="text-xs text-muted-foreground">
-          Enter the title for the dealers
-        </p>
-      </div>
-
     </div>
   </DialogForm>
 </template>

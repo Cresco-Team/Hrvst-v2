@@ -18,7 +18,6 @@ class DealerDemandResource extends JsonResource
             'created_at_human'        => $this->created_at->diffForHumans(),
 
             /* with('post') */
-            'title'         => $this->whenLoaded('post', fn () => $this->post->title),
             'quantity_kg'   => $this->whenLoaded('post', fn () => (float) $this->post->quantity_kg),
             'offered_price' => $this->whenLoaded('post', fn () => (float) $this->post->offered_price),
             'price_flag'    => $this->whenLoaded('post', fn () => $this->post->price_flag),

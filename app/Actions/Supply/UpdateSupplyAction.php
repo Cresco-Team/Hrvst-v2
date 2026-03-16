@@ -27,7 +27,7 @@ final class UpdateSupplyAction
         }
 
         $postFields = array_intersect_key($validated, array_flip([
-            'title', 'variety_id', 'quantity_kg', 'offered_price',
+            'variety_id', 'quantity_kg', 'offered_price',
         ]));
 
         if (isset($postFields['offered_price'])) {
