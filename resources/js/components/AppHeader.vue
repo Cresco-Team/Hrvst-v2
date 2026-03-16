@@ -22,7 +22,6 @@ import dealer from '@/routes/dealer';
 import farmer from '@/routes/farmer';
 import type { BreadcrumbItem, NavItem } from '@/types';
 import PendingApprovalSheet from './admin/PendingApprovalSheet.vue';
-import NotificationBell from './NotificationBell.vue';
 
 type Props = {
     breadcrumbs?: BreadcrumbItem[];
@@ -107,11 +106,6 @@ const rightNavItems = computed<NavItem[]>(() => {
     const items: NavItem[] = []
 
     return items;
-})
-
-const shouldShowNotifications = computed(() => {
-    return page.props.auth.user.roles.includes('dealer') ||
-            page.props.auth.user.roles.includes('farmer')
 })
 </script>
 
@@ -269,8 +263,6 @@ const shouldShowNotifications = computed(() => {
                     </div>
 
                     <PendingApprovalSheet v-if="isAdmin" />
-
-                    <NotificationBell v-if="shouldShowNotifications" />
 
                     <DropdownMenu>
                         <DropdownMenuTrigger :as-child="true">

@@ -2,7 +2,6 @@
 
 use App\Http\Controllers\AddressController;
 use App\Http\Controllers\Announcement\ReactionController;
-use App\Http\Controllers\NotificationController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -36,32 +35,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('reactions.toggle');
     Route::get('/reactions', [ReactionController::class, 'show'])
         ->name('reactions.show');
-
-    Route::get('/notifications', [NotificationController::class, 'index'])
-        ->name('notifications.index');
-    Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount'])
-        ->name('notifications.unread_count');
-    Route::post('/notifications/{id}/mark-as-read', [NotificationController::class, 'markAsRead'])
-        ->name('notifications.mark_as_read');
-    Route::post('/notifications/mark-all-as-read', [NotificationController::class, 'markAllAsRead'])
-        ->name('notifications.mark_all_as_read');
-    Route::post('/notifications/mark-multiple-as-read', [NotificationController::class, 'markMultipleAsRead'])
-        ->name('notifications.mark_multiple_as_read');
-    Route::delete('/notifications/{id}', [NotificationController::class, 'destroy'])
-        ->name('notifications.destroy');
-    Route::delete('/notifications/read/all', [NotificationController::class, 'destroyRead'])
-        ->name('notifications.destroy_read');
-
-    // API routes - AJAX calls from frontend
-    Route::prefix('api')->group(function () {
-        Route::get('/notifications', [NotificationController::class, 'list'])->name('api.notifications.list');
-        Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount'])->name('api.notifications.unread-count');
-        Route::post('/notifications/{notificationId}/read', [NotificationController::class, 'markAsRead'])->name('api.notifications.mark-as-read');
-        Route::post('/notifications/read-all', [NotificationController::class, 'markAllAsRead'])->name('api.notifications.mark-all-as-read');
-        Route::post('/notifications/read-multiple', [NotificationController::class, 'markMultipleAsRead'])->name('api.notifications.mark-multiple-as-read');
-        Route::delete('/notifications/{notificationId}', [NotificationController::class, 'destroy'])->name('api.notifications.destroy');
-        Route::delete('/notifications/read', [NotificationController::class, 'destroyRead'])->name('api.notifications.destroy-read');
-    });
 });
 
 /* Development only */
