@@ -11,6 +11,7 @@ use App\Enums\PostStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Farmer\StoreSupplyRequest;
 use App\Http\Requests\Farmer\UpdateSupplyRequest;
+use App\Http\Resources\Marketplace\FarmerSupplyResource;
 use App\Models\Marketplace\FarmerSupply;
 use App\Services\Farmer\SupplyService;
 use Illuminate\Http\RedirectResponse;
@@ -36,7 +37,7 @@ class SupplyController extends Controller
             'filters'           => ['status' => $status],
             'summary'           => Inertia::defer(fn() => $this->supplyService->summary($farmerId)),
             'varietyOptions'    => Inertia::defer(fn() => $this->supplyService->varietyOptions()),
-            'supplies'            => Inertia::defer(fn() => $this->supplyService->paginated(farmerId: $farmerId, status: $status)),
+            'supplies'            => Inertia::defer(fn() => FarmerSupplyResource::collection($this->supplyService->paginated(farmerId: $farmerId, status: $status))),
         ]);
     }
 
