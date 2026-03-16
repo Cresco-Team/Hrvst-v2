@@ -32,13 +32,4 @@ class MarketplaceController extends Controller
             'demands' => Inertia::defer(fn () => DealerDemandResource::collection($this->marketplaceService->paginated($validated)), 'demands'),
         ]);
     }
-
-    public function show(DealerDemand $demand): Response
-    {
-        Gate::authorize('view', $demand);
-
-        return Inertia::render('farmer/marketplace/Show', [
-            'details' => $this->marketplaceService->detailed($demand),
-        ]);
-    }
 }

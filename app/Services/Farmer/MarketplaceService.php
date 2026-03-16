@@ -49,47 +49,6 @@ class MarketplaceService
             ->paginate($perPage);
     }
 
-    public function detailed(DealerDemand $demand): array
-    {
-        // All variety/price/status data lives on Post, not on DealerDemand directly.
-        // Previous code accessed $demand->variety, $demand->quantity_kg etc. — all wrong.
-        $demand->load([
-            'dealer.user.media',
-            'post.variety.media',
-            'post.variety.vegetable.category',
-            'post.variety.latestPrice',
-            'post.reactions.user',
-        ]);
-
-        return [
-            'id'     => $demand->id,
-            'dealer' => [
-                'id'           => $demand->dealer->id,
-                'name'         => $demand->dealer->user->name,
-                'phone_number' => $demand->dealer->user->phone_number,
-                'avatar_url'   => $demand->dealer->user->getFirstMediaUrl('avatar'), // was: image_path (column removed)
-            ],
-            'variety' => [
-                'id'        => $demand->post->variety_id,              // was: $demand->variety_id (bug)
-                'name'      => $demand->post->variety->name,            // was: $demand->variety->name (bug)
-                'vegetable' => $demand->post->variety->vegetable->name,
-                'image_url' => $demand->post->variety->getFirstMediaUrl('variety_image'),
-            ],
-            'transaction_date'       => $demand->transaction_date->format('M d, Y'),
-            'days_until_transaction' => now()->diffInDays($demand->transaction_date, false),
-            'status'                 => $demand->post->status,          // was: $demand->status (bug)
-            'quantity_kg'            => (float) $demand->post->quantity_kg,  // was: $demand->quantity_kg (bug)
-            'offered_price'          => (float) $demand->post->offered_price, // was: $demand->price_offered (wrong key + bug)
-            'price_flag'             => $demand->post->price_flag,
-            'market_price'           => [
-                'min' => (float) $demand->post->variety->latestPrice->price_min,
-                'max' => (float) $demand->post->variety->latestPrice->price_max,
-            ],
-            'created_at'       => $demand->created_at->format('M d, Y g:i A'),
-            'created_at_human' => $demand->created_at->diffForHumans(),
-        ];
-    }
-
     public function categoryOptions(): array
     {
         return Category::whereHas('vegetables.varieties.posts', fn (Builder $q) => $q
