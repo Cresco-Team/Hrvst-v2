@@ -166,6 +166,16 @@ function handleDelete() {
     }
   })
 }
+
+function handlePageChange(page: number) {
+  router.visit(farmer.garden.index().url, {
+    data: {
+      page,
+      search: props.filters.status || undefined,
+    },
+    preserveScroll: true,
+  })
+}
 </script>
 
 <template>
@@ -266,6 +276,31 @@ function handleDelete() {
           />
         </div>
       </Deferred>
+
+      <div
+        v-if="supplies && supplies.meta.last_page > 1"
+        class="flex items-center justify-between border-t pt-4"
+      >
+        <Button
+          variant="outline"
+          size="sm"
+          :disabled="supplies.meta.current_page === 1"
+          @click="handlePageChange(supplies.meta.current_page - 1)"
+        >
+          Previous
+        </Button>
+        <span class="text-sm text-muted-foreground">
+          Page {{ supplies.meta.current_page }} of {{ supplies.meta.last_page }}
+        </span>
+        <Button
+          variant="outline"
+          size="sm"
+          :disabled="supplies.meta.current_page === supplies.meta.last_page"
+          @click="handlePageChange(supplies.meta.current_page + 1)"
+        >
+          Next
+        </Button>
+      </div>
     </div>
   </AppLayout>
 

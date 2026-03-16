@@ -140,6 +140,16 @@ function handleDelete() {
     }
   })
 }
+
+function handlePageChange(page: number) {
+  router.visit(dealer.demands.index().url, {
+    data: {
+      page,
+      search: props.filters.status || undefined,
+    },
+    preserveScroll: true,
+  })
+}
 </script>
 
 <template>
@@ -239,6 +249,31 @@ function handleDelete() {
           />
         </div>
       </Deferred>
+
+      <div
+        v-if="demands && demands.meta.last_page > 1"
+        class="flex items-center justify-between border-t pt-4"
+      >
+        <Button
+          variant="outline"
+          size="sm"
+          :disabled="demands.meta.current_page === 1"
+          @click="handlePageChange(demands.meta.current_page - 1)"
+        >
+          Previous
+        </Button>
+        <span class="text-sm text-muted-foreground">
+          Page {{ demands.meta.current_page }} of {{ demands.meta.last_page }}
+        </span>
+        <Button
+          variant="outline"
+          size="sm"
+          :disabled="demands.meta.current_page === demands.meta.last_page"
+          @click="handlePageChange(demands.meta.current_page + 1)"
+        >
+          Next
+        </Button>
+      </div>
     </div>
   </AppLayout>
 
