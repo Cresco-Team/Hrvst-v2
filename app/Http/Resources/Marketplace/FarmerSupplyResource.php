@@ -10,36 +10,34 @@ class FarmerSupplyResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            /* Always present */
             'id'                    => $this->id,
-            'expiration_date'       => $this->expiration_date->format('M d, Y'),
-            'days_until_expiration' => $this->days_until_expiration,
+            'scheduled_date'        => $this->scheduled_date?->format('M d, Y'),
+            'days_until_expiration' => $this->scheduled_date
+                ? (int) now()->diffInDays($this->scheduled_date, false)
+                : null,
             'created_at'            => $this->created_at->format('M d, Y'),
             'created_at_human'      => $this->created_at->diffForHumans(),
 
             /* with('media') */
             'image_url' => $this->whenLoaded('media', fn () =>
-                $this->getFirstMediaUrl('supply_image')
+                $this->getFirstMediaUrl('post_image')
             ),
 
-            /* with('post') — post is always in $with, but guard defensively */
-            'quantity_kg'   => $this->whenLoaded('post', fn () => (float) $this->post->quantity_kg),
-            'offered_price' => $this->whenLoaded('post', fn () => (float) $this->post->offered_price),
-            'price_flag'    => $this->whenLoaded('post', fn () => $this->post->price_flag),
-            'status'        => $this->whenLoaded('post', fn () => $this->post->status),
+            'quantity_kg'   => (float) $this->quantity_kg,
+            'offered_price' => (float) $this->offered_price,
+            'price_flag'    => $this->price_flag,
+            'status'        => $this->status,
 
-            /* with('post.variety.vegetable.category', 'post.variety.media') */
-            'variety' => $this->whenLoaded('post', function () {
-                if (! $this->post->relationLoaded('variety')) {
-                    return null;
-                }
-
-                $variety = $this->post->variety;
+            /* with('variety.vegetable.category', 'variety.media') */
+            'variety' => $this->whenLoaded('variety', function () {
+                $variety = $this->variety;
 
                 return [
                     'id'        => $variety->id,
                     'name'      => $variety->name,
-                    'vegetable' => $variety->relationLoaded('vegetable') ? $variety->vegetable->name : null,
+                    'vegetable' => $variety->relationLoaded('vegetable')
+                        ? $variety->vegetable->name
+                        : null,
                     'category'  => $variety->relationLoaded('vegetable') && $variety->vegetable->relationLoaded('category')
                         ? $variety->vegetable->category->name
                         : null,
