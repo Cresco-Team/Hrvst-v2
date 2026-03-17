@@ -2,16 +2,12 @@
 
 namespace App\Actions\Demand;
 
-use App\Models\Marketplace\DealerDemand;
-use Illuminate\Support\Facades\DB;
+use App\Models\Marketplace\Post;
 
 final class DeleteDemandAction
 {
-    public function __invoke(DealerDemand $demand): void
+    public function handle(Post $post): void
     {
-        DB::transaction(function () use ($demand) {
-            $demand->post()->delete();
-            $demand->delete();
-        });
+        $post->delete();
     }
 }

@@ -2,12 +2,12 @@
 
 namespace App\Actions\Supply;
 
-use App\Models\Marketplace\FarmerSupply;
+use App\Models\Marketplace\Post;
 
 final class FulfillSupplyAction
 {
-    public function __invoke(FarmerSupply $supply): void
+    public function handle(Post $post): void
     {
-        $supply->post->markAsFulfilled();
+        $post->markAsFulfilled();
     }
 }
