@@ -3,6 +3,7 @@
 namespace App\Services\Product;
 
 use App\Enums\PostStatus;
+use App\Enums\PostType;
 use App\Models\Marketplace\DealerDemand;
 use App\Models\Marketplace\FarmerSupply;
 use App\Models\Product\Category;
@@ -83,13 +84,11 @@ class VarietyService
         }
 
         $municipalitySupplies = DB::table('posts')
-            ->join('farmer_supplies', function ($join) {
-                $join->on('posts.postable_id', '=', 'farmer_supplies.id')
-                    ->where('posts.postable_type', FarmerSupply::class);
-            })
-            ->join('farmer_profiles', 'farmer_supplies.farmer_id', '=', 'farmer_profiles.id')
+            ->join('users', 'posts.user_id', '=', 'users.id')
+            ->join('farmer_profiles', 'users.id', '=', 'farmer_profiles.user_id')
             ->join('municipalities', 'farmer_profiles.municipality_id', '=', 'municipalities.id')
             ->whereIn('posts.variety_id', $query->pluck('id'))
+            ->where('posts.type', PostType::Supply->value)
             ->where('posts.status', PostStatus::Ongoing->value)
             ->groupBy('posts.variety_id', 'municipalities.id', 'municipalities.name')
             ->select(
