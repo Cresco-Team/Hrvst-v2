@@ -3,59 +3,40 @@
 namespace App\Services\Dealer;
 
 use App\Enums\PostStatus;
-use App\Models\Marketplace\DealerDemand;
+use App\Models\Marketplace\Post;
 use App\Models\Product\Variety;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class DemandService
 {
-    public function summary(int $dealerId): array
+    public function summary(int $userId): array
     {
-        $query = DealerDemand::query()->where('dealer_id', $dealerId);
-
-        $totalOngoing = (clone $query)
-            ->whereHas('post', fn ($q) => $q->where('status', PostStatus::Ongoing))
-            ->count();
-
-        $totalFulfilled = (clone $query)
-            ->whereHas('post', fn ($q) => $q->where('status', PostStatus::Fulfilled))
-            ->count();
-
-        $totalArchived = (clone $query)
-            ->whereHas('post', fn ($q) => $q->where('status', PostStatus::Archived))
-            ->count();
-
-        $upcomingTransactions = (clone $query)
-            ->whereHas('post', fn ($q) => $q->where('status', PostStatus::Ongoing))
-            ->whereBetween('transaction_date', [now(), now()->addWeek()])
-            ->count();
+        $query = Post::demand()->where('user_id', $userId);
 
         return [
-            'total_ongoing'         => $totalOngoing,
-            'total_fulfilled'       => $totalFulfilled,
-            'total_archived'        => $totalArchived,
-            'upcoming_transactions' => $upcomingTransactions,
+            'total_ongoing'         => (clone $query)->ongoing()->count(),
+            'total_fulfilled'       => (clone $query)->fulfilled()->count(),
+            'total_archived'        => (clone $query)->archived()->count(),
+            'upcoming_transactions' => (clone $query)
+                ->ongoing()
+                ->whereBetween('scheduled_date', [now(), now()->addWeek()])
+                ->count(),
         ];
     }
 
-    public function paginated(int $dealerId, PostStatus $status, int $perPage = 20): LengthAwarePaginator
+    public function paginated(int $userId, PostStatus $status, int $perPage = 20): LengthAwarePaginator
     {
-        $query = DealerDemand::with([
-            'dealer.user',
-            'post.variety.media',
-            'post.variety.vegetable.category',
-            'post.variety.latestPrice',
-        ])->where('dealer_id', $dealerId);
+        $query = Post::demand()
+            ->where('user_id', $userId)
+            ->with(['variety.media', 'variety.vegetable.category', 'variety.latestPrice']);
 
         match ($status) {
-            PostStatus::Ongoing   => $query->whereHas('post', fn ($q) => $q->ongoing()),
-            PostStatus::Archived  => $query->whereHas('post', fn ($q) => $q->archived()),
-            PostStatus::Fulfilled => $query->whereHas('post', fn ($q) => $q->fulfilled()),
+            PostStatus::Ongoing   => $query->ongoing(),
+            PostStatus::Archived  => $query->archived(),
+            PostStatus::Fulfilled => $query->fulfilled(),
         };
 
-        return $query
-            ->orderBy('transaction_date', 'desc')
-            ->paginate($perPage);
+        return $query->orderBy('scheduled_date', 'desc')->paginate($perPage);
     }
 
     public function varietyOptions(): array
@@ -66,7 +47,7 @@ class DemandService
                 ->groupBy(fn ($variety) => $variety->vegetable->category->name)
                 ->map(fn ($varieties) => $varieties->map(fn ($variety) => [
                     'id'            => $variety->id,
-                    'name'          => $variety->vegetable->name.' '.$variety->name,
+                    'name'          => $variety->vegetable->name . ' ' . $variety->name,
                     'current_price' => $variety->latestPrice ? [
                         'min' => (float) $variety->latestPrice->price_min,
                         'max' => (float) $variety->latestPrice->price_max,

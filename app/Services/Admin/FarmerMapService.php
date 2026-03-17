@@ -3,7 +3,7 @@
 namespace App\Services\Admin;
 
 use App\Models\Address\Municipality;
-use App\Models\Marketplace\FarmerSupply;
+use App\Models\Marketplace\Post;
 use App\Models\Profiles\FarmerProfile;
 use App\Models\Product\Variety;
 use Illuminate\Database\Eloquent\Builder;
@@ -29,9 +29,7 @@ class FarmerMapService
     public function getSupplyOptions(): array
     {
         return Variety::query()
-            ->whereHas('posts', function ($q) {
-                $q->ongoing()->whereHasMorph('postable', FarmerSupply::class);
-            })
+            ->whereHas('posts', fn ($q) => $q->ongoing()->supply())
             ->with('vegetable.category')
             ->orderBy('name')
             ->get()
@@ -50,9 +48,7 @@ class FarmerMapService
             ->with([
                 'user',
                 'municipality',
-                'supplies' => fn ($q) => $q
-                    ->whereHas('post', fn ($q) => $q->ongoing())
-                    ->with('post.variety.vegetable'),
+                'supplies' => fn ($q) => $q->ongoing()->with('variety.vegetable'),
             ])
             ->where('is_approved', true);
 
@@ -61,9 +57,9 @@ class FarmerMapService
         }
 
         if ($varietyId) {
-            $query->whereHas('supplies.post', function (Builder $q) use ($varietyId) {
-                $q->ongoing()->where('variety_id', $varietyId);
-            });
+            $query->whereHas('supplies', fn (Builder $q) =>
+                $q->ongoing()->where('variety_id', $varietyId)
+            );
         }
 
         if ($bounds) {
@@ -72,7 +68,7 @@ class FarmerMapService
         }
 
         return $query->get()
-            ->map(function ($farmer) {
+            ->map(function (FarmerProfile $farmer) {
                 $ongoingSupplies = $farmer->supplies;
 
                 return [
@@ -85,11 +81,11 @@ class FarmerMapService
                     'municipality'           => $farmer->municipality->name,
                     'ongoing_supplies_count' => $ongoingSupplies->count(),
                     'supplies_summary'       => $ongoingSupplies
-                        ->groupBy(fn ($supply) => $supply->post->variety->vegetable->name)
-                        ->map(fn ($supplies, $vegetableName) => [
+                        ->groupBy(fn (Post $supply) => $supply->variety->vegetable->name)
+                        ->map(fn ($supplies, string $vegetableName) => [
                             'vegetable' => $vegetableName,
                             'count'     => $supplies->count(),
-                            'varieties' => $supplies->pluck('post.variety.name')->unique()->values()->toArray(),
+                            'varieties' => $supplies->pluck('variety.name')->unique()->values()->toArray(),
                         ])
                         ->values()
                         ->toArray(),

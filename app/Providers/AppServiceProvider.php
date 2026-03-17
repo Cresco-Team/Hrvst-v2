@@ -2,8 +2,7 @@
 
 namespace App\Providers;
 
-use App\Models\Marketplace\DealerDemand;
-use App\Models\Marketplace\FarmerSupply;
+use App\Models\Marketplace\Post;
 use App\Models\Product\Variety;
 use App\Models\Profiles\DealerProfile;
 use App\Models\Profiles\FarmerProfile;
@@ -39,8 +38,8 @@ class AppServiceProvider extends ServiceProvider
         Model::automaticallyEagerLoadRelationships();
         Gate::policy(FarmerProfile::class, FarmerPolicy::class);
         Gate::policy(DealerProfile::class, DealerPolicy::class);
-        Gate::policy(FarmerSupply::class, SupplyPolicy::class);
-        Gate::policy(DealerDemand::class, DemandPolicy::class);
+        /* Gate::policy(Post::class, SupplyPolicy::class);
+        Gate::policy(Post::class, DemandPolicy::class); */
         Variety::observe(VarietyObserver::class);
     }
 
