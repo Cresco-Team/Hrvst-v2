@@ -2,7 +2,9 @@
 
 namespace App\Models\Profiles;
 
+use App\Enums\PostType;
 use App\Models\Marketplace\DealerDemand;
+use App\Models\Marketplace\Post;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -19,7 +21,6 @@ class DealerProfile extends Model implements HasMedia
     protected $fillable = [
         'user_id',
         'is_approved',
-        // document_image removed — stored as media on private disk
     ];
 
     protected function casts(): array
@@ -36,9 +37,10 @@ class DealerProfile extends Model implements HasMedia
         return $this->belongsTo(User::class);
     }
 
-    public function demands(): HasMany
+    public function post(): HasMany
     {
-        return $this->hasMany(DealerDemand::class, 'dealer_id');
+        return $this->hasMany(Post::class, 'user_id', 'user_id')
+            ->where('type', PostType::Demand);
     }
 
     /* ---------- scopes ---------- */
