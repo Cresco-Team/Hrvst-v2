@@ -1,31 +1,14 @@
 <script setup lang="ts">
 import { router } from '@inertiajs/vue3'
-import {
-	Calendar1,
-	Info,
-	Mail,
-	MapPinHouse,
-	Phone,
-	Trash,
-	Wheat,
-} from 'lucide-vue-next'
+import { Calendar1, Info, Mail, MapPinHouse, Phone, Trash, Wheat } from 'lucide-vue-next'
 import { ref } from 'vue'
-import {
-	destroy,
-	show,
-} from '@/actions/App/Http/Controllers/Admin/FarmerController'
+import { destroy, show } from '@/actions/App/Http/Controllers/Admin/FarmerController'
 import ConfirmationDialog from '@/components/ConfirmationDialog.vue'
 import DetailSheet from '@/components/DetailSheet.vue'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import {
-	Item,
-	ItemContent,
-	ItemDescription,
-	ItemMedia,
-	ItemTitle,
-} from '@/components/ui/item'
+import { Item, ItemContent, ItemDescription, ItemMedia, ItemTitle } from '@/components/ui/item'
 import { Separator } from '@/components/ui/separator'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useInitials } from '@/composables/useInitials'

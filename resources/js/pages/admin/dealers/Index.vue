@@ -16,9 +16,9 @@ import type { Dealer, Detail, Summary } from '@/types/admin/dealers'
 import type { PaginatedResponse } from '@/types/pagination'
 
 const props = defineProps<{
-    summary: Summary
-    dealers: PaginatedResponse<Dealer>
-    filters: { search: string | null }
+	summary: Summary
+	dealers: PaginatedResponse<Dealer>
+	filters: { search: string | null }
 }>()
 
 const selectedDealer = ref<Detail | null>(null)
@@ -26,55 +26,54 @@ const sidebarOpen = ref(false)
 const loadingDealer = ref(false)
 
 const breadcrumbs: BreadcrumbItem[] = [
-    { title: 'Admin', href: admin.dashboard().url },
-    { title: 'Dealers', href: admin.dealers.index().url },
+	{ title: 'Admin', href: admin.dashboard().url },
+	{ title: 'Dealers', href: admin.dealers.index().url },
 ]
 
 const searchQuery = ref(props.filters?.search ?? '')
 
 async function loadDealerDetails(dealerId: number) {
-    loadingDealer.value = true
-    selectedDealer.value = null
-    sidebarOpen.value = true
-    try {
-        const response = await axios.get(`/admin/dealers/api/${dealerId}/details`)
-        selectedDealer.value = response.data
-    } catch (error: any) {
-        toast.error('Error loading dealer details', {
-            description:
-                error.response?.data?.error || 'Failed to load dealer information',
-        })
-        sidebarOpen.value = false
-    } finally {
-        loadingDealer.value = false
-    }
+	loadingDealer.value = true
+	selectedDealer.value = null
+	sidebarOpen.value = true
+	try {
+		const response = await axios.get(`/admin/dealers/api/${dealerId}/details`)
+		selectedDealer.value = response.data
+	} catch (error: any) {
+		toast.error('Error loading dealer details', {
+			description: error.response?.data?.error || 'Failed to load dealer information',
+		})
+		sidebarOpen.value = false
+	} finally {
+		loadingDealer.value = false
+	}
 }
 
 function openDealerSidebar(dealerId: number) {
-    loadDealerDetails(dealerId)
+	loadDealerDetails(dealerId)
 }
 
 function closeSidebar() {
-    sidebarOpen.value = false
-    selectedDealer.value = null
+	sidebarOpen.value = false
+	selectedDealer.value = null
 }
 
 function handlePageChange(page: number) {
-    router.visit(admin.dealers.index(), {
-        data: { page, search: searchQuery.value || undefined },
-        preserveState: true,
-        preserveScroll: true,
-    })
+	router.visit(admin.dealers.index(), {
+		data: { page, search: searchQuery.value || undefined },
+		preserveState: true,
+		preserveScroll: true,
+	})
 }
 
 function handleSearch(query: string) {
-    searchQuery.value = query
-    router.visit(admin.dealers.index().url, {
-        data: { search: query || undefined },
-        preserveState: true,
-        preserveScroll: true,
-        only: ['dealers', 'filters'],
-    })
+	searchQuery.value = query
+	router.visit(admin.dealers.index().url, {
+		data: { search: query || undefined },
+		preserveState: true,
+		preserveScroll: true,
+		only: ['dealers', 'filters'],
+	})
 }
 </script>
 

@@ -6,11 +6,7 @@ import MarketplaceCard from '@/components/dealer/MarketplaceCard.vue'
 import EmptyState from '@/components/EmptyState.vue'
 import Heading from '@/components/Heading.vue'
 import { Button } from '@/components/ui/button'
-import {
-	InputGroup,
-	InputGroupAddon,
-	InputGroupInput,
-} from '@/components/ui/input-group'
+import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group'
 import {
 	Select,
 	SelectContent,

@@ -5,9 +5,7 @@ import { SwitchRoot, SwitchThumb, useForwardPropsEmits } from 'reka-ui'
 import type { HTMLAttributes } from 'vue'
 import { cn } from '@/lib/utils'
 
-const props = defineProps<
-	SwitchRootProps & { class?: HTMLAttributes['class'] }
->()
+const props = defineProps<SwitchRootProps & { class?: HTMLAttributes['class'] }>()
 
 const emits = defineEmits<SwitchRootEmits>()
 

@@ -5,9 +5,7 @@ import { DialogOverlay } from 'reka-ui'
 import type { HTMLAttributes } from 'vue'
 import { cn } from '@/lib/utils'
 
-const props = defineProps<
-	DialogOverlayProps & { class?: HTMLAttributes['class'] }
->()
+const props = defineProps<DialogOverlayProps & { class?: HTMLAttributes['class'] }>()
 
 const delegatedProps = reactiveOmit(props, 'class')
 </script>

@@ -6,10 +6,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { getInitials } from '@/composables/useInitials'
-import type {
-	PendingDealer,
-	PendingFarmer,
-} from '@/types/admin/pending-approvals'
+import type { PendingDealer, PendingFarmer } from '@/types/admin/pending-approvals'
 import ActionDialog from '../ActionDialog.vue'
 
 type Props = {

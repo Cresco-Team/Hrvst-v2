@@ -1,16 +1,7 @@
 <script setup lang="ts">
 import { Deferred, Head, router } from '@inertiajs/vue3'
 import axios from 'axios'
-import {
-	List,
-	Loader2,
-	Map,
-	Package,
-	PackagePlus,
-	SearchX,
-	UserPlus,
-	Users,
-} from 'lucide-vue-next'
+import { List, Loader2, Map, Package, PackagePlus, SearchX, UserPlus, Users } from 'lucide-vue-next'
 import { computed, ref, watch } from 'vue'
 import { toast } from 'vue-sonner'
 import FarmerDetailSidebar from '@/components/admin/FarmerDetailSidebar.vue'
@@ -25,13 +16,7 @@ import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import AppLayout from '@/layouts/AppLayout.vue'
 import admin from '@/routes/admin'
 import { index } from '@/routes/admin/farmers'
-import type {
-	Detail,
-	Farmer,
-	Filters,
-	MarkerData,
-	Summary,
-} from '@/types/admin/farmers'
+import type { Detail, Farmer, Filters, MarkerData, Summary } from '@/types/admin/farmers'
 import type { PaginatedResponse } from '@/types/pagination'
 
 interface Props {
@@ -104,8 +89,7 @@ async function fetchMarkers() {
 	try {
 		const params: any = {}
 
-		if (selectedMunicipality.value)
-			params.municipality_id = selectedMunicipality.value
+		if (selectedMunicipality.value) params.municipality_id = selectedMunicipality.value
 		if (selectedVariety.value) params.variety_id = selectedVariety.value
 		if (mapBounds.value) params.bounds = mapBounds.value
 
@@ -113,8 +97,7 @@ async function fetchMarkers() {
 		markers.value = response.data.markers
 	} catch (error: any) {
 		toast.error('Error loading markers', {
-			description:
-				error.response?.data?.message || 'Failed to load farmer markers',
+			description: error.response?.data?.message || 'Failed to load farmer markers',
 		})
 	} finally {
 		loadingMarkers.value = false
@@ -131,8 +114,7 @@ async function loadFarmerDetails(farmerId: number) {
 		selectedFarmer.value = response.data
 	} catch (error: any) {
 		toast.error('Error loading farmer details', {
-			description:
-				error.response?.data?.error || 'Failed to load farmer information',
+			description: error.response?.data?.error || 'Failed to load farmer information',
 		})
 		sidebarOpen.value = false
 	} finally {
@@ -170,12 +152,7 @@ function handlePageChange(page: number) {
 	})
 }
 
-function handleBoundsChange(bounds: {
-	north: number
-	south: number
-	east: number
-	west: number
-}) {
+function handleBoundsChange(bounds: { north: number; south: number; east: number; west: number }) {
 	mapBounds.value = bounds
 }
 

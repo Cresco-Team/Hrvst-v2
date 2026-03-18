@@ -58,11 +58,7 @@
 		],
 		"lint": ["pint --parallel"],
 		"test:lint": ["pint --parallel --test"],
-		"test": [
-			"@php artisan config:clear --ansi",
-			"@test:lint",
-			"@php artisan test"
-		],
+		"test": ["@php artisan config:clear --ansi", "@test:lint", "@php artisan test"],
 		"post-autoload-dump": [
 			"Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
 			"@php artisan package:discover --ansi"
@@ -79,9 +75,7 @@
 			"@php -r \"file_exists('database/database.sqlite') || touch('database/database.sqlite');\"",
 			"@php artisan migrate --graceful --ansi"
 		],
-		"pre-package-uninstall": [
-			"Illuminate\\Foundation\\ComposerScripts::prePackageUninstall"
-		]
+		"pre-package-uninstall": ["Illuminate\\Foundation\\ComposerScripts::prePackageUninstall"]
 	},
 	"extra": {
 		"laravel": {

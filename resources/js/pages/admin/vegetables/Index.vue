@@ -16,13 +16,7 @@ import VegetableDetailDialog from '@/components/shared/VegetableDetailDialog.vue
 import { Skeleton } from '@/components/ui/skeleton'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { dashboard } from '@/routes/admin'
-import {
-	destroy,
-	index,
-	store,
-	update,
-	details as varietyDetails,
-} from '@/routes/admin/vegetables'
+import { destroy, index, store, update, details as varietyDetails } from '@/routes/admin/vegetables'
 import type { BreadcrumbItem } from '@/types'
 import type { Props, Variety } from '@/types/admin/vegetable-varieties'
 import type { CatalogVariety } from '@/types/shared/vegetables'
@@ -94,11 +88,7 @@ async function openView(variety: Variety) {
 
 /* -- Filtering -- */
 function handleFilterChange(filter: string | null) {
-	router.get(
-		index().url,
-		{ price_filter: filter },
-		{ preserveScroll: true, preserveState: true },
-	)
+	router.get(index().url, { price_filter: filter }, { preserveScroll: true, preserveState: true })
 }
 
 function handleSearch(query: string) {

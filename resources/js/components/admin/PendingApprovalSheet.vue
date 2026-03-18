@@ -15,18 +15,10 @@ import {
 } from '@/components/ui/sheet'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import {
-	Tooltip,
-	TooltipContent,
-	TooltipProvider,
-	TooltipTrigger,
-} from '@/components/ui/tooltip'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { getInitials } from '@/composables/useInitials'
 import { usePendingApprovals } from '@/composables/usePendingApprovals'
-import type {
-	PendingDealer,
-	PendingFarmer,
-} from '@/types/admin/pending-approvals'
+import type { PendingDealer, PendingFarmer } from '@/types/admin/pending-approvals'
 
 const sheetOpen = ref(false)
 
@@ -54,10 +46,7 @@ const dialogOpen = ref(false)
 const dialogItem = ref<PendingFarmer | PendingDealer | null>(null)
 const dialogType = ref<'farmer' | 'dealer'>('farmer')
 
-function openDialog(
-	item: PendingFarmer | PendingDealer,
-	type: 'farmer' | 'dealer',
-) {
+function openDialog(item: PendingFarmer | PendingDealer, type: 'farmer' | 'dealer') {
 	dialogItem.value = item
 	dialogType.value = type
 	dialogOpen.value = true

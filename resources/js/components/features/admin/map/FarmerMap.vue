@@ -20,9 +20,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
 	'marker-click': [farmerId: number]
-	'bounds-change': [
-		bounds: { north: number; south: number; east: number; west: number },
-	]
+	'bounds-change': [bounds: { north: number; south: number; east: number; west: number }]
 }>()
 
 const mapContainer = ref<HTMLDivElement | null>(null)
@@ -99,10 +97,7 @@ const createCustomMarker = (markers: MarkerData): L.DivIcon => {
 const initMap = () => {
 	if (!mapContainer.value || map) return
 
-	map = L.map(mapContainer.value).setView(
-		[props.center.lat, props.center.lng],
-		props.zoom,
-	)
+	map = L.map(mapContainer.value).setView([props.center.lat, props.center.lng], props.zoom)
 
 	L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 		attribution: '© OpenStreetMap contributors',
@@ -145,12 +140,9 @@ const updateMarkers = () => {
 	if (!markerClusterGroup) return
 	markerClusterGroup.clearLayers()
 	props.markers.forEach((markerData) => {
-		const marker = L.marker(
-			[markerData.coordinates.lat, markerData.coordinates.lng],
-			{
-				icon: createCustomMarker(markerData),
-			},
-		)
+		const marker = L.marker([markerData.coordinates.lat, markerData.coordinates.lng], {
+			icon: createCustomMarker(markerData),
+		})
 		marker.on('click', () => emit('marker-click', markerData.id))
 		markerClusterGroup!.addLayer(marker)
 	})

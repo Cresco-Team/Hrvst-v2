@@ -49,10 +49,7 @@ function initMap(): void {
 	if (!el) return
 
 	const center = props.municipalityCoords
-		? ([
-				props.municipalityCoords.lat,
-				props.municipalityCoords.lng,
-			] as L.LatLngExpression)
+		? ([props.municipalityCoords.lat, props.municipalityCoords.lng] as L.LatLngExpression)
 		: DEFAULT_CENTER
 
 	map = L.map(el, { zoomControl: true }).setView(center, DEFAULT_ZOOM)

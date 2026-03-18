@@ -1,7 +1,4 @@
-import {
-	defineConfigWithVueTs,
-	vueTsConfigs,
-} from '@vue/eslint-config-typescript'
+import { defineConfigWithVueTs, vueTsConfigs } from '@vue/eslint-config-typescript'
 import prettier from 'eslint-config-prettier'
 import importPlugin from 'eslint-plugin-import'
 import vue from 'eslint-plugin-vue'
@@ -45,14 +42,7 @@ export default defineConfigWithVueTs(
 			'import/order': [
 				'error',
 				{
-					groups: [
-						'builtin',
-						'external',
-						'internal',
-						'parent',
-						'sibling',
-						'index',
-					],
+					groups: ['builtin', 'external', 'internal', 'parent', 'sibling', 'index'],
 					alphabetize: {
 						order: 'asc',
 						caseInsensitive: true,

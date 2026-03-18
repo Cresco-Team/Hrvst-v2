@@ -4,13 +4,7 @@ import { Eye, EyeOff, LockKeyhole, RefreshCw } from 'lucide-vue-next'
 import { nextTick, onMounted, ref, useTemplateRef } from 'vue'
 import AlertError from '@/components/AlertError.vue'
 import { Button } from '@/components/ui/button'
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from '@/components/ui/card'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { useTwoFactorAuth } from '@/composables/useTwoFactorAuth'
 import { regenerateRecoveryCodes } from '@/routes/two-factor'
 

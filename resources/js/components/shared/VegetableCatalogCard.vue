@@ -1,12 +1,6 @@
 <script setup lang="ts">
 import { Clock, TrendingUp } from 'lucide-vue-next'
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from '@/components/ui/card'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import type { CatalogVariety } from '@/types/shared/vegetables'
 import { AspectRatio } from '../ui/aspect-ratio'
 import { Separator } from '../ui/separator'

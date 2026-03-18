@@ -8,11 +8,7 @@ import Heading from '@/components/Heading.vue'
 import VegetableCatalogCard from '@/components/shared/VegetableCatalogCard.vue'
 import VegetableDetailDialog from '@/components/shared/VegetableDetailDialog.vue'
 import { Button } from '@/components/ui/button'
-import {
-	InputGroup,
-	InputGroupAddon,
-	InputGroupInput,
-} from '@/components/ui/input-group'
+import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group'
 import {
 	Select,
 	SelectContent,
@@ -24,11 +20,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import AppLayout from '@/layouts/AppLayout.vue'
 import farmer from '@/routes/farmer'
 import type { PaginatedResponse } from '@/types/pagination'
-import type {
-	CatalogFilters,
-	CatalogVariety,
-	CategoryOption,
-} from '@/types/shared/vegetables'
+import type { CatalogFilters, CatalogVariety, CategoryOption } from '@/types/shared/vegetables'
 
 interface Props {
 	filters: CatalogFilters

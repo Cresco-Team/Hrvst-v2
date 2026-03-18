@@ -55,10 +55,7 @@ const emit = defineEmits<{
 }>()
 
 // Use the composable for form state management
-const { form, errors, isEditMode, validateForm } = useDialogForm<
-	Variety,
-	VarietyFormData
->({
+const { form, errors, isEditMode, validateForm } = useDialogForm<Variety, VarietyFormData>({
 	item: () => props.variety,
 	open: () => props.open,
 	mapToForm: (variety) => ({
@@ -101,17 +98,14 @@ const { form, errors, isEditMode, validateForm } = useDialogForm<
 		}
 
 		if (!errors.price_min && !errors.price_max && priceMax < priceMin) {
-			errors.price_max =
-				'Maximum price must be greater than or equal to minimum price'
+			errors.price_max = 'Maximum price must be greater than or equal to minimum price'
 		}
 
 		return errors
 	},
 })
 
-const title = computed(() =>
-	isEditMode.value ? 'Edit Variety' : 'Add New Variety',
-)
+const title = computed(() => (isEditMode.value ? 'Edit Variety' : 'Add New Variety'))
 const description = computed(() =>
 	isEditMode.value
 		? 'Update the details of this variety.'

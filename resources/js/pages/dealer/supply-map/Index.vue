@@ -10,12 +10,7 @@ import SupplyMapFilters from '@/components/features/map/SupplyMapFilters.vue'
 import Heading from '@/components/Heading.vue'
 import AppLayout from '@/layouts/AppLayout.vue'
 import dealer from '@/routes/dealer'
-import type {
-	BarangayMarker,
-	FilterOptions,
-	MapConfig,
-	MapFilters,
-} from '@/types/supply-map'
+import type { BarangayMarker, FilterOptions, MapConfig, MapFilters } from '@/types/supply-map'
 
 interface Props {
 	mapConfig: MapConfig
@@ -43,9 +38,7 @@ const filters = ref<MapFilters>({
 
 /* ── Computed ────────────────────────────────────────── */
 
-const totalSupplies = computed(() =>
-	markers.value.reduce((sum, m) => sum + m.supply_count, 0),
-)
+const totalSupplies = computed(() => markers.value.reduce((sum, m) => sum + m.supply_count, 0))
 
 /* ── Data Fetching ───────────────────────────────────── */
 
@@ -53,8 +46,7 @@ async function fetchMarkers(): Promise<void> {
 	loading.value = true
 	try {
 		const params: Record<string, number> = {}
-		if (filters.value.category_id)
-			params.category_id = filters.value.category_id
+		if (filters.value.category_id) params.category_id = filters.value.category_id
 		if (filters.value.variety_id) params.variety_id = filters.value.variety_id
 
 		const { data } = await axios.get(dealer.supplyMap.markers().url, {

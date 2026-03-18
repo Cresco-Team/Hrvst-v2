@@ -1,14 +1,6 @@
 <script setup lang="ts">
 import { Deferred, Head } from '@inertiajs/vue3'
-import {
-	Archive,
-	CalendarDays,
-	Mail,
-	MapPin,
-	Package,
-	PackageCheck,
-	Phone,
-} from 'lucide-vue-next'
+import { Archive, CalendarDays, Mail, MapPin, Package, PackageCheck, Phone } from 'lucide-vue-next'
 import { computed } from 'vue'
 import Heading from '@/components/Heading.vue'
 import LeafletMap from '@/components/LeafletMap.vue'

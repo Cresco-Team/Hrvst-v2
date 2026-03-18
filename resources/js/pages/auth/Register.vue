@@ -65,13 +65,13 @@ const form = useForm({
 // you the VALUE (null), not the ref itself, making .value throw on null.
 // ---------------------------------------------------------------------------
 
-const previews = reactive<
-	Record<'profile_image' | 'farm_image' | 'document_image', string | null>
->({
-	profile_image: null,
-	farm_image: null,
-	document_image: null,
-})
+const previews = reactive<Record<'profile_image' | 'farm_image' | 'document_image', string | null>>(
+	{
+		profile_image: null,
+		farm_image: null,
+		document_image: null,
+	},
+)
 
 function handleFileSelect(
 	event: Event,

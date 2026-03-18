@@ -42,10 +42,7 @@ const emit = defineEmits<{
 	submit: [payload: FormData]
 }>()
 
-const { form, errors, isEditMode, validateForm } = useDialogForm<
-	Variety,
-	VarietyFormData
->({
+const { form, errors, isEditMode, validateForm } = useDialogForm<Variety, VarietyFormData>({
 	item: () => props.variety,
 	open: () => props.open,
 	mapToForm: (variety) => ({
@@ -89,8 +86,7 @@ const { form, errors, isEditMode, validateForm } = useDialogForm<
 			}
 
 			if (!errs.price_min && !errs.price_max && max < min) {
-				errs.price_max =
-					'Maximum price must be greater than or equal to minimum price'
+				errs.price_max = 'Maximum price must be greater than or equal to minimum price'
 			}
 		}
 
@@ -98,9 +94,7 @@ const { form, errors, isEditMode, validateForm } = useDialogForm<
 	},
 })
 
-const title = computed(() =>
-	isEditMode.value ? 'Edit Variety' : 'Add New Variety',
-)
+const title = computed(() => (isEditMode.value ? 'Edit Variety' : 'Add New Variety'))
 const description = computed(() =>
 	isEditMode.value
 		? 'Update the variety details. Use the "Update Price" action to record a new price.'

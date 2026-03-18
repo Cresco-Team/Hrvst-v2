@@ -1,12 +1,6 @@
 <script setup lang="ts">
 import type { Component } from 'vue'
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from '@/components/ui/card'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 
 withDefaults(
 	defineProps<{

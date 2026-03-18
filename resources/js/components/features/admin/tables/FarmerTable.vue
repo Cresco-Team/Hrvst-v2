@@ -12,19 +12,8 @@ import {
 import DataTable from '@/components/shared/tables/DataTable.vue'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
-import {
-	Item,
-	ItemContent,
-	ItemDescription,
-	ItemMedia,
-	ItemTitle,
-} from '@/components/ui/item'
-import {
-	Tooltip,
-	TooltipContent,
-	TooltipProvider,
-	TooltipTrigger,
-} from '@/components/ui/tooltip'
+import { Item, ItemContent, ItemDescription, ItemMedia, ItemTitle } from '@/components/ui/item'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { getInitials } from '@/composables/useInitials'
 import type { Farmer } from '@/types/admin/farmers'
 import type { PaginatedResponse } from '@/types/pagination'
@@ -64,8 +53,7 @@ const columns: ColumnDef<Farmer>[] = [
 	{
 		id: 'location',
 		header: 'Address',
-		accessorFn: (row) =>
-			`${row.location.barangay}, ${row.location.municipality}`,
+		accessorFn: (row) => `${row.location.barangay}, ${row.location.municipality}`,
 		enableSorting: true,
 	},
 	{

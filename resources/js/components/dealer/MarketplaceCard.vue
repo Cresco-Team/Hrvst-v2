@@ -1,11 +1,6 @@
 <script setup lang="ts">
 import { Badge } from '@/components/ui/badge'
-import {
-	Card,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from '@/components/ui/card'
+import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import type { Supply } from '@/types/dealer/marketplace'
 import { AspectRatio } from '../ui/aspect-ratio'
 

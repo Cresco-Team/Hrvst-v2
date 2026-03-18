@@ -6,9 +6,7 @@ import type { HTMLAttributes } from 'vue'
 import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
-const props = defineProps<
-	AlertDialogActionProps & { class?: HTMLAttributes['class'] }
->()
+const props = defineProps<AlertDialogActionProps & { class?: HTMLAttributes['class'] }>()
 
 const delegatedProps = reactiveOmit(props, 'class')
 </script>

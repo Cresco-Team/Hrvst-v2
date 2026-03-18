@@ -82,9 +82,7 @@ const appearance = ref<Appearance>('system')
 
 export function useAppearance(): UseAppearanceReturn {
 	onMounted(() => {
-		const savedAppearance = localStorage.getItem(
-			'appearance',
-		) as Appearance | null
+		const savedAppearance = localStorage.getItem('appearance') as Appearance | null
 
 		if (savedAppearance) {
 			appearance.value = savedAppearance

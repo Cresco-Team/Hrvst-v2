@@ -18,11 +18,7 @@ import {
 } from 'lucide-vue-next'
 import { computed, ref } from 'vue'
 import { Button } from '@/components/ui/button'
-import {
-	InputGroup,
-	InputGroupAddon,
-	InputGroupInput,
-} from '@/components/ui/input-group'
+import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group'
 
 interface PaginatedData<T> {
 	data: T[]
@@ -80,9 +76,7 @@ const table = useVueTable({
 	},
 	onExpandedChange: (updaterOrValue) => {
 		expanded.value =
-			typeof updaterOrValue === 'function'
-				? updaterOrValue(expanded.value)
-				: updaterOrValue
+			typeof updaterOrValue === 'function' ? updaterOrValue(expanded.value) : updaterOrValue
 	},
 	getExpandedRowModel: getExpandedRowModel(),
 	getCoreRowModel: getCoreRowModel(),
@@ -95,16 +89,11 @@ const table = useVueTable({
 
 /* -- pagination helpers -- */
 const hasPrevPage = computed(() => props.data.meta.current_page > 1)
-const hasNextPage = computed(
-	() => props.data.meta.current_page < props.data.meta.last_page,
-)
+const hasNextPage = computed(() => props.data.meta.current_page < props.data.meta.last_page)
 
 const paginationRange = computed(() => ({
 	start: (props.data.meta.current_page - 1) * props.data.meta.per_page + 1,
-	end: Math.min(
-		props.data.meta.current_page * props.data.meta.per_page,
-		props.data.meta.total,
-	),
+	end: Math.min(props.data.meta.current_page * props.data.meta.per_page, props.data.meta.total),
 }))
 
 /* -- sort icon helper -- */

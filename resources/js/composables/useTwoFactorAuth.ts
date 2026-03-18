@@ -41,9 +41,7 @@ const hasSetupData = computed<boolean>(
 export const useTwoFactorAuth = (): UseTwoFactorAuthReturn => {
 	const fetchQrCode = async (): Promise<void> => {
 		try {
-			const { svg } = await fetchJson<{ svg: string; url: string }>(
-				qrCode.url(),
-			)
+			const { svg } = await fetchJson<{ svg: string; url: string }>(qrCode.url())
 
 			qrCodeSvg.value = svg
 		} catch {
@@ -54,9 +52,7 @@ export const useTwoFactorAuth = (): UseTwoFactorAuthReturn => {
 
 	const fetchSetupKey = async (): Promise<void> => {
 		try {
-			const { secretKey: key } = await fetchJson<{ secretKey: string }>(
-				secretKey.url(),
-			)
+			const { secretKey: key } = await fetchJson<{ secretKey: string }>(secretKey.url())
 
 			manualSetupKey.value = key
 		} catch {

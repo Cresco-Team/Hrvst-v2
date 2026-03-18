@@ -3,13 +3,7 @@
 import { Link } from '@inertiajs/vue3'
 import type { Component } from 'vue'
 import type { RouteDefinition } from '@/wayfinder'
-import {
-	Item,
-	ItemContent,
-	ItemDescription,
-	ItemMedia,
-	ItemTitle,
-} from './ui/item'
+import { Item, ItemContent, ItemDescription, ItemMedia, ItemTitle } from './ui/item'
 
 const props = withDefaults(
 	defineProps<{

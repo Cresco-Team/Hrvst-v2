@@ -1,10 +1,7 @@
 import { router } from '@inertiajs/vue3'
 import { ref } from 'vue'
 import index from '@/routes/admin/index'
-import type {
-	PendingDealer,
-	PendingFarmer,
-} from '@/types/admin/pending-approvals'
+import type { PendingDealer, PendingFarmer } from '@/types/admin/pending-approvals'
 
 type ApprovalState = 'idle' | 'loading' | 'error'
 

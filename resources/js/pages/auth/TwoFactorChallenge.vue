@@ -4,11 +4,7 @@ import { computed, ref } from 'vue'
 import InputError from '@/components/InputError.vue'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import {
-	InputOTP,
-	InputOTPGroup,
-	InputOTPSlot,
-} from '@/components/ui/input-otp'
+import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp'
 import AuthLayout from '@/layouts/AuthLayout.vue'
 import { store } from '@/routes/two-factor/login'
 import type { TwoFactorConfigContent } from '@/types'
@@ -25,8 +21,7 @@ const authConfigContent = computed<TwoFactorConfigContent>(() => {
 
 	return {
 		title: 'Authentication Code',
-		description:
-			'Enter the authentication code provided by your authenticator application.',
+		description: 'Enter the authentication code provided by your authenticator application.',
 		buttonText: 'login using a recovery code',
 	}
 })

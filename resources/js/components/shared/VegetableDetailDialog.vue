@@ -15,12 +15,7 @@ import { AlertCircle, Leaf } from 'lucide-vue-next'
 import { computed } from 'vue'
 import { Line } from 'vue-chartjs'
 import { Badge } from '@/components/ui/badge'
-import {
-	Dialog,
-	DialogContent,
-	DialogDescription,
-	DialogTitle,
-} from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog'
 import { Separator } from '@/components/ui/separator'
 import type { CatalogVariety } from '@/types/shared/vegetables'
 
@@ -47,8 +42,7 @@ defineEmits<{
 const freshnessConfig = {
 	recent: {
 		label: 'Recently Updated',
-		class:
-			'bg-green-500/10 text-green-700 dark:text-green-400 border-green-500/20',
+		class: 'bg-green-500/10 text-green-700 dark:text-green-400 border-green-500/20',
 	},
 	stable: {
 		label: 'Stable',
@@ -56,8 +50,7 @@ const freshnessConfig = {
 	},
 	'very stable': {
 		label: 'Older Price',
-		class:
-			'bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20',
+		class: 'bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20',
 	},
 	stale: {
 		label: 'Stale Price',
@@ -136,9 +129,7 @@ const chartOptions: ChartOptions<'line'> = {
 }
 
 // Table shows newest → oldest (reverse of chart)
-const tableRows = computed(() =>
-	props.variety ? [...props.variety.recent_prices].reverse() : [],
-)
+const tableRows = computed(() => (props.variety ? [...props.variety.recent_prices].reverse() : []))
 </script>
 
 <template>

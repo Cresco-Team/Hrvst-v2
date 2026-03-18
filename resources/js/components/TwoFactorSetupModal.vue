@@ -13,11 +13,7 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from '@/components/ui/dialog'
-import {
-	InputOTP,
-	InputOTPGroup,
-	InputOTPSlot,
-} from '@/components/ui/input-otp'
+import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp'
 import { Spinner } from '@/components/ui/spinner'
 import { useAppearance } from '@/composables/useAppearance'
 import { useTwoFactorAuth } from '@/composables/useTwoFactorAuth'
@@ -35,8 +31,7 @@ const props = defineProps<Props>()
 const isOpen = defineModel<boolean>('isOpen')
 
 const { copy, copied } = useClipboard()
-const { qrCodeSvg, manualSetupKey, clearSetupData, fetchSetupData, errors } =
-	useTwoFactorAuth()
+const { qrCodeSvg, manualSetupKey, clearSetupData, fetchSetupData, errors } = useTwoFactorAuth()
 
 const showVerificationStep = ref(false)
 const code = ref<string>('')

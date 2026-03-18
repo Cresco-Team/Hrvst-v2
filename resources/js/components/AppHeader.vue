@@ -28,19 +28,8 @@ import {
 	NavigationMenuList,
 	navigationMenuTriggerStyle,
 } from '@/components/ui/navigation-menu'
-import {
-	Sheet,
-	SheetContent,
-	SheetHeader,
-	SheetTitle,
-	SheetTrigger,
-} from '@/components/ui/sheet'
-import {
-	Tooltip,
-	TooltipContent,
-	TooltipProvider,
-	TooltipTrigger,
-} from '@/components/ui/tooltip'
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { useCurrentUrl } from '@/composables/useCurrentUrl'
 import { getInitials } from '@/composables/useInitials'
 import { toUrl } from '@/lib/utils'
@@ -63,8 +52,7 @@ const page = usePage()
 const auth = computed(() => page.props.auth)
 const { isCurrentUrl, whenCurrentUrl } = useCurrentUrl()
 
-const activeItemStyles =
-	'text-neutral-900 dark:bg-neutral-800 dark:text-neutral-100'
+const activeItemStyles = 'text-neutral-900 dark:bg-neutral-800 dark:text-neutral-100'
 
 const isAdmin = computed(() => page.props.auth.user.roles.includes('admin'))
 

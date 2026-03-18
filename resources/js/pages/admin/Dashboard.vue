@@ -1,23 +1,11 @@
 <script setup lang="ts">
 import { Deferred, Head } from '@inertiajs/vue3'
-import {
-	Minus,
-	Package,
-	Tractor,
-	TrendingDown,
-	TrendingUp,
-} from 'lucide-vue-next'
+import { Minus, Package, Tractor, TrendingDown, TrendingUp } from 'lucide-vue-next'
 import Heading from '@/components/Heading.vue'
 import QuickNavItem from '@/components/QuickNavItem.vue'
 import LargeCard from '@/components/shared/cards/LargeCard.vue'
 import SmallCard from '@/components/shared/cards/SmallCard.vue'
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from '@/components/ui/card'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { Skeleton } from '@/components/ui/skeleton'
 import AppLayout from '@/layouts/AppLayout.vue'

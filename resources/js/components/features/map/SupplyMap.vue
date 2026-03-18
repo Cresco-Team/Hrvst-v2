@@ -31,9 +31,7 @@ const categoryColors: Record<string, string> = {
 }
 const defaultColor = '#3b82f6'
 
-function getDominantColor(
-	breakdown: BarangayMarker['supply_breakdown'],
-): string {
+function getDominantColor(breakdown: BarangayMarker['supply_breakdown']): string {
 	if (!breakdown.length) return defaultColor
 	const dominant = breakdown.reduce((a, b) => (a.count >= b.count ? a : b))
 	return categoryColors[dominant.category] ?? defaultColor
@@ -100,10 +98,9 @@ async function renderMarkers(): Promise<void> {
 	}
 
 	props.markers.forEach((markerData) => {
-		const marker = L.marker(
-			[markerData.coordinates.lat, markerData.coordinates.lng],
-			{ icon: buildMarkerIcon(L, markerData) },
-		)
+		const marker = L.marker([markerData.coordinates.lat, markerData.coordinates.lng], {
+			icon: buildMarkerIcon(L, markerData),
+		})
 		marker.on('click', () => emit('marker-click', markerData))
 		clusterGroup!.addLayer(marker)
 	})

@@ -18,8 +18,7 @@ createServer(
 					`./pages/${name}.vue`,
 					import.meta.glob<DefineComponent>('./pages/**/*.vue'),
 				),
-			setup: ({ App, props, plugin }) =>
-				createSSRApp({ render: () => h(App, props) }).use(plugin),
+			setup: ({ App, props, plugin }) => createSSRApp({ render: () => h(App, props) }).use(plugin),
 		}),
 	{ cluster: true },
 )

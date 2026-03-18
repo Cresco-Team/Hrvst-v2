@@ -4,9 +4,7 @@ import type { HTMLAttributes } from 'vue'
 import { Separator } from '@/components/ui/separator'
 import { cn } from '@/lib/utils'
 
-const props = defineProps<
-	SeparatorProps & { class?: HTMLAttributes['class'] }
->()
+const props = defineProps<SeparatorProps & { class?: HTMLAttributes['class'] }>()
 </script>
 
 <template>

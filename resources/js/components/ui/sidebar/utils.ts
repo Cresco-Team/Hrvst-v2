@@ -18,5 +18,4 @@ export const SIDEBAR_WIDTH_MOBILE = '18rem'
 export const SIDEBAR_WIDTH_ICON = '3rem'
 export const SIDEBAR_KEYBOARD_SHORTCUT = 'b'
 
-export const [useSidebar, provideSidebarContext] =
-	createContext<SidebarContext>('Sidebar')
+export const [useSidebar, provideSidebarContext] = createContext<SidebarContext>('Sidebar')
