@@ -4,8 +4,6 @@ namespace App\Services\Product;
 
 use App\Enums\PostStatus;
 use App\Enums\PostType;
-use App\Models\Marketplace\DealerDemand;
-use App\Models\Marketplace\FarmerSupply;
 use App\Models\Product\Category;
 use App\Models\Product\Variety;
 use App\Models\Product\Vegetable;
@@ -17,7 +15,7 @@ class VarietyService
 {
     public function summary(): array
     {
-        $oneWeekAgo  = now()->subWeek();
+        $oneWeekAgo = now()->subWeek();
         $oneMonthAgo = now()->subMonth();
 
         $priceStats = DB::table('varieties')
@@ -39,13 +37,13 @@ class VarietyService
             ->first();
 
         return [
-            'total_varieties'          => (int) $priceStats->total_varieties,
-            'total_vegetables'         => Vegetable::count(),
-            'price_stats'              => [
-                'updated_week'  => (int) $priceStats->updated_week,
+            'total_varieties' => (int) $priceStats->total_varieties,
+            'total_vegetables' => Vegetable::count(),
+            'price_stats' => [
+                'updated_week' => (int) $priceStats->updated_week,
                 'updated_month' => (int) $priceStats->updated_month,
-                'stale'         => (int) $priceStats->stale,
-                'no_price'      => (int) $priceStats->no_price,
+                'stale' => (int) $priceStats->stale,
+                'no_price' => (int) $priceStats->no_price,
             ],
         ];
     }
@@ -57,18 +55,14 @@ class VarietyService
             'latestPrice',
             'media',
         ])->withCount([
-            'posts as supply_count' => fn (Builder $q) => $q
-                ->where('postable_type', FarmerSupply::class)
-                ->ongoing(),
-            'posts as demand_count' => fn (Builder $q) => $q
-                ->where('postable_type', DealerDemand::class)
-                ->ongoing(),
+            'posts as supply_count' => fn (Builder $q) => $q->supply(),
+            'posts as demand_count' => fn (Builder $q) => $q->demand(),
         ]);
 
         if ($priceFilter) {
             $query->whereHas('latestPrice', function (Builder $q) use ($priceFilter) {
                 match ($priceFilter) {
-                    'week'  => $q->where('recorded_at', '>=', now()->subWeek()),
+                    'week' => $q->where('recorded_at', '>=', now()->subWeek()),
                     'month' => $q->where('recorded_at', '>=', now()->subMonth()),
                     'stale' => $q->where('recorded_at', '<', now()->subMonth()),
                     default => null,
@@ -79,7 +73,7 @@ class VarietyService
         if ($search) {
             $query->where(function (Builder $q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                ->orWhereHas('vegetable', fn (Builder $vq) => $vq->where('name', 'like', "%{$search}%"));
+                    ->orWhereHas('vegetable', fn (Builder $vq) => $vq->where('name', 'like', "%{$search}%"));
             });
         }
 
@@ -105,7 +99,7 @@ class VarietyService
                 $variety->supply_municipalities = $municipalitySupplies
                     ->get($variety->id, collect())
                     ->map(fn ($row) => [
-                        'name'     => $row->municipality_name,
+                        'name' => $row->municipality_name,
                         'total_kg' => (float) $row->total_kg,
                     ])
                     ->sortByDesc('total_kg')
