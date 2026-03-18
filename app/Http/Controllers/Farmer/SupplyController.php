@@ -35,10 +35,10 @@ class SupplyController extends Controller
         $status = PostStatus::tryFrom($request->query('status', PostStatus::Ongoing->value));
 
         return Inertia::render('farmer/garden/Index', [
-            'filters'        => ['status' => $status],
-            'summary'        => Inertia::defer(fn () => $this->supplyService->summary($userId)),
+            'filters' => ['status' => $status],
+            'summary' => Inertia::defer(fn () => $this->supplyService->summary($userId)),
             'varietyOptions' => Inertia::defer(fn () => $this->supplyService->varietyOptions()),
-            'supplies'       => Inertia::defer(fn () => FarmerSupplyResource::collection(
+            'supplies' => Inertia::defer(fn () => FarmerSupplyResource::collection(
                 $this->supplyService->paginated(userId: $userId, status: $status)
             )),
         ]);
@@ -49,9 +49,9 @@ class SupplyController extends Controller
         Gate::authorize('create', [Post::class, PostType::Supply]);
 
         $createSupply->handle(
-            farmer:    $request->user()->farmerProfile,
+            farmer: $request->user()->farmerProfile,
             validated: $request->validated(),
-            image:     $request->file('image')
+            image: $request->file('image')
         );
 
         return redirect()->route('farmer.garden.index')
@@ -60,14 +60,12 @@ class SupplyController extends Controller
 
     public function update(UpdateSupplyRequest $request, Post $supply, UpdateSupplyAction $updateSupply): RedirectResponse
     {
-        \Log::info('UPDATE HIT', ['supply' => $supply->id, 'data' => $request->all()]);
-        dd($request->validated());
         Gate::authorize('update', $supply);
 
         $updateSupply->handle(
-            post:      $supply,
+            post: $supply,
             validated: $request->validated(),
-            image:     $request->file('image')
+            image: $request->file('image')
         );
 
         return redirect()->route('farmer.garden.index')
