@@ -20,6 +20,18 @@ export interface VarietyOption {
 	current_price: { min: number; max: number } | null
 }
 
+export interface CategoryOption {
+	id: number
+	name: string
+}
+
+export interface MarketplaceFilters {
+	search?: string | null
+	category_id?: number | null
+	variety_id?: number | null
+	municipality_id?: number | null
+}
+
 /* --- Supply (Farmer post) --------------- */
 
 export interface Supply {
