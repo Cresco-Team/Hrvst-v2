@@ -1,146 +1,159 @@
 <script setup lang="ts">
-
-import { Leaf, DollarSign } from 'lucide-vue-next'
+import { DollarSign, Leaf } from 'lucide-vue-next'
 import { computed } from 'vue'
 import DialogForm from '@/components/DialogForm.vue'
 import ImageUpload from '@/components/shared/media/ImageUpload.vue'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select'
+import {
+	Select,
+	SelectContent,
+	SelectGroup,
+	SelectItem,
+	SelectLabel,
+	SelectTrigger,
+	SelectValue,
+} from '@/components/ui/select'
 import { useDialogForm } from '@/composables/useDialogForm'
 
 interface Variety {
-    id: number
-    vegetable_id: number
-    name: string
-    image_url?: string
-    latest_price?: {
-        price_min: string
-        price_max: string
-    } | null
+	id: number
+	vegetable_id: number
+	name: string
+	image_url?: string
+	latest_price?: {
+		price_min: string
+		price_max: string
+	} | null
 }
 
 interface VegetableOptions {
-    [categoryName: string]: {
-        [vegetableId: number]: string
-    }
+	[categoryName: string]: {
+		[vegetableId: number]: string
+	}
 }
 
 interface VarietyFormData {
-    vegetable_id: string
-    name: string
-    image: File | null
-    price_min: string
-    price_max: string
+	vegetable_id: string
+	name: string
+	image: File | null
+	price_min: string
+	price_max: string
 }
 
 const props = defineProps<{
-    open: boolean
-    variety: Variety | null
-    vegetableOptions: VegetableOptions
-    isSubmitting: boolean
+	open: boolean
+	variety: Variety | null
+	vegetableOptions: VegetableOptions
+	isSubmitting: boolean
 }>()
 
 const emit = defineEmits<{
-    'update:open': [value: boolean]
-    submit: [payload: FormData]
+	'update:open': [value: boolean]
+	submit: [payload: FormData]
 }>()
 
 // Use the composable for form state management
-const { form, errors, isEditMode, validateForm } = useDialogForm<Variety, VarietyFormData>({
-    item: () => props.variety,
-    open: () => props.open,
-    mapToForm: (variety) => ({
-        vegetable_id: variety?.vegetable_id?.toString() ?? '',
-        name: variety?.name ?? '',
-        image: null,
-        price_min: variety?.latest_price?.price_min ?? '',
-        price_max: variety?.latest_price?.price_max ?? '',
-    }),
-    validate: (form) => {
-        const errors: Record<string, string> = {}
-        
-        if (!form.name.trim()) {
-            errors.name = 'Variety name is required'
-        }
-        if (!form.vegetable_id) {
-            errors.vegetable_id = 'Please select a parent vegetable'
-        }
-        if (!isEditMode.value && !form.image) {
-            errors.image = 'Image is required for new varieties'
-        }
-        
-        const priceMin = parseFloat(form.price_min)
-        const priceMax = parseFloat(form.price_max)
-        
-        if (!form.price_min || isNaN(priceMin)) {
-            errors.price_min = 'Minimum price is required'
-        } else if (priceMin < 0) {
-            errors.price_min = 'Price cannot be negative'
-        } else if (priceMin > 9999.99) {
-            errors.price_min = 'Price cannot exceed ₱9,999.99'
-        }
-        
-        if (!form.price_max || isNaN(priceMax)) {
-            errors.price_max = 'Maximum price is required'
-        } else if (priceMax < 0) {
-            errors.price_max = 'Price cannot be negative'
-        } else if (priceMax > 9999.99) {
-            errors.price_max = 'Price cannot exceed ₱9,999.99'
-        }
-        
-        if (!errors.price_min && !errors.price_max && priceMax < priceMin) {
-            errors.price_max = 'Maximum price must be greater than or equal to minimum price'
-        }
-        
-        return errors
-    },
+const { form, errors, isEditMode, validateForm } = useDialogForm<
+	Variety,
+	VarietyFormData
+>({
+	item: () => props.variety,
+	open: () => props.open,
+	mapToForm: (variety) => ({
+		vegetable_id: variety?.vegetable_id?.toString() ?? '',
+		name: variety?.name ?? '',
+		image: null,
+		price_min: variety?.latest_price?.price_min ?? '',
+		price_max: variety?.latest_price?.price_max ?? '',
+	}),
+	validate: (form) => {
+		const errors: Record<string, string> = {}
+
+		if (!form.name.trim()) {
+			errors.name = 'Variety name is required'
+		}
+		if (!form.vegetable_id) {
+			errors.vegetable_id = 'Please select a parent vegetable'
+		}
+		if (!isEditMode.value && !form.image) {
+			errors.image = 'Image is required for new varieties'
+		}
+
+		const priceMin = parseFloat(form.price_min)
+		const priceMax = parseFloat(form.price_max)
+
+		if (!form.price_min || isNaN(priceMin)) {
+			errors.price_min = 'Minimum price is required'
+		} else if (priceMin < 0) {
+			errors.price_min = 'Price cannot be negative'
+		} else if (priceMin > 9999.99) {
+			errors.price_min = 'Price cannot exceed ₱9,999.99'
+		}
+
+		if (!form.price_max || isNaN(priceMax)) {
+			errors.price_max = 'Maximum price is required'
+		} else if (priceMax < 0) {
+			errors.price_max = 'Price cannot be negative'
+		} else if (priceMax > 9999.99) {
+			errors.price_max = 'Price cannot exceed ₱9,999.99'
+		}
+
+		if (!errors.price_min && !errors.price_max && priceMax < priceMin) {
+			errors.price_max =
+				'Maximum price must be greater than or equal to minimum price'
+		}
+
+		return errors
+	},
 })
 
-const title = computed(() => isEditMode.value ? 'Edit Variety' : 'Add New Variety')
-const description = computed(() => 
-    isEditMode.value
-        ? 'Update the details of this variety.'
-        : 'Create a new variety for a vegetable type.'
+const title = computed(() =>
+	isEditMode.value ? 'Edit Variety' : 'Add New Variety',
+)
+const description = computed(() =>
+	isEditMode.value
+		? 'Update the details of this variety.'
+		: 'Create a new variety for a vegetable type.',
 )
 
 const selectedVegetableName = computed(() => {
-    if (!form.value.vegetable_id) return null
-    
-    for (const [vegetables] of Object.entries(props.vegetableOptions)) {
-        const vegName = vegetables[Number(form.value.vegetable_id)]
-        if (vegName) return vegName
-    }
-    return null
+	if (!form.value.vegetable_id) return null
+
+	for (const [vegetables] of Object.entries(props.vegetableOptions)) {
+		const vegName = vegetables[Number(form.value.vegetable_id)]
+		if (vegName) return vegName
+	}
+	return null
 })
 
 const existingImageUrl = computed(() => props.variety?.image_url ?? null)
 
 const priceRange = computed(() => {
-    const min = parseFloat(form.value.price_min)
-    const max = parseFloat(form.value.price_max)
-    
-    if (isNaN(min) || isNaN(max)) return null
-    
-    const avg = ((min + max) / 2).toFixed(2)
-    return `₱${min} - ₱${max} (avg: ₱${avg})`
+	const min = parseFloat(form.value.price_min)
+	const max = parseFloat(form.value.price_max)
+
+	if (isNaN(min) || isNaN(max)) return null
+
+	const avg = ((min + max) / 2).toFixed(2)
+	return `₱${min} - ₱${max} (avg: ₱${avg})`
 })
 
 function handleSubmit() {
-    if (!validateForm()) return
+	if (!validateForm()) return
 
-    const formData = new FormData()
-    formData.append('vegetable_id', form.value.vegetable_id)
-    formData.append('name', form.value.name.trim())
-    formData.append('price_min', parseFloat(form.value.price_min).toFixed(2))
-    formData.append('price_max', parseFloat(form.value.price_max).toFixed(2))
-    
-    if (form.value.image) {
-        formData.append('image', form.value.image)
-    }
+	const formData = new FormData()
+	formData.append('vegetable_id', form.value.vegetable_id)
+	formData.append('name', form.value.name.trim())
+	formData.append('price_min', parseFloat(form.value.price_min).toFixed(2))
+	formData.append('price_max', parseFloat(form.value.price_max).toFixed(2))
 
-    emit('submit', formData)
+	if (form.value.image) {
+		formData.append('image', form.value.image)
+	}
+
+	emit('submit', formData)
 }
 </script>
 

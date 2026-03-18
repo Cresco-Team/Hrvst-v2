@@ -2,8 +2,9 @@
 import { Deferred, Head, router } from '@inertiajs/vue3'
 import axios from 'axios'
 import { AlertTriangle, Leaf, Sprout, TrendingUp } from 'lucide-vue-next'
-import { ref, computed } from 'vue'
+import { computed, ref } from 'vue'
 import { toast } from 'vue-sonner'
+import PriceUpdateForm from '@/components/admin/forms/PriceUpdateForm.vue'
 import VarietyForm from '@/components/admin/forms/VarietyForm.vue'
 import ConfirmationDialog from '@/components/ConfirmationDialog.vue'
 import EmptyState from '@/components/EmptyState.vue'
@@ -15,21 +16,26 @@ import VegetableDetailDialog from '@/components/shared/VegetableDetailDialog.vue
 import { Skeleton } from '@/components/ui/skeleton'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { dashboard } from '@/routes/admin'
-import { destroy, index, store, update, details as varietyDetails } from '@/routes/admin/vegetables'
+import {
+	destroy,
+	index,
+	store,
+	update,
+	details as varietyDetails,
+} from '@/routes/admin/vegetables'
 import type { BreadcrumbItem } from '@/types'
 import type { Props, Variety } from '@/types/admin/vegetable-varieties'
 import type { CatalogVariety } from '@/types/shared/vegetables'
-import PriceUpdateForm from '@/components/admin/forms/PriceUpdateForm.vue'
 
 const props = withDefaults(defineProps<Props>(), {
-  varieties: undefined,
-  summary: undefined,
-  vegetableOptions: undefined,
+	varieties: undefined,
+	summary: undefined,
+	vegetableOptions: undefined,
 })
 
 const breadcrumbs: BreadcrumbItem[] = [
-  { title: 'Admin', href: dashboard().url },
-  { title: 'Vegetables', href: index().url },
+	{ title: 'Admin', href: dashboard().url },
+	{ title: 'Vegetables', href: index().url },
 ]
 
 const searchQuery = ref(props.filters?.search ?? '')
@@ -51,103 +57,111 @@ const detailVariety = ref<CatalogVariety | null>(null)
 const loadingDetail = ref(false)
 
 function openCreate() {
-  activeVariety.value = null
-  formOpen.value = true
+	activeVariety.value = null
+	formOpen.value = true
 }
 
 function openEdit(variety: Variety) {
-  activeVariety.value = variety
-  formOpen.value = true
+	activeVariety.value = variety
+	formOpen.value = true
 }
 
 function openDelete(variety: Variety) {
-  activeVariety.value = variety
-  deleteOpen.value = true
+	activeVariety.value = variety
+	deleteOpen.value = true
 }
 
 function openUpdatePrice(variety: Variety) {
-  priceVariety.value = variety
-  priceOpen.value = true
+	priceVariety.value = variety
+	priceOpen.value = true
 }
 
 async function openView(variety: Variety) {
-  loadingDetail.value = true
-  detailVariety.value = null
-  detailOpen.value = true
+	loadingDetail.value = true
+	detailVariety.value = null
+	detailOpen.value = true
 
-  try {
-    const { data } = await axios.get(varietyDetails(variety.id).url)
-    detailVariety.value = data
-  } catch {
-    toast.error('Failed to load variety details')
-    detailOpen.value = false
-  } finally {
-    loadingDetail.value = false
-  }
+	try {
+		const { data } = await axios.get(varietyDetails(variety.id).url)
+		detailVariety.value = data
+	} catch {
+		toast.error('Failed to load variety details')
+		detailOpen.value = false
+	} finally {
+		loadingDetail.value = false
+	}
 }
 
 /* -- Filtering -- */
 function handleFilterChange(filter: string | null) {
-  router.get(index().url, { price_filter: filter }, { preserveScroll: true, preserveState: true })
+	router.get(
+		index().url,
+		{ price_filter: filter },
+		{ preserveScroll: true, preserveState: true },
+	)
 }
 
 function handleSearch(query: string) {
-    searchQuery.value = query
-    router.visit(index().url, {
-        data: {
-            search: query || undefined,
-            price_filter: props.filters.price_filter || undefined,
-        },
-        preserveState: true,
-        preserveScroll: true,
-        only: ['varieties', 'filters'],
-    })
+	searchQuery.value = query
+	router.visit(index().url, {
+		data: {
+			search: query || undefined,
+			price_filter: props.filters.price_filter || undefined,
+		},
+		preserveState: true,
+		preserveScroll: true,
+		only: ['varieties', 'filters'],
+	})
 }
 
 /* -- Variety CRUD -- */
 function handleSubmit(formData: FormData) {
-  isSubmitting.value = true
+	isSubmitting.value = true
 
-  if (activeVariety.value) {
-    formData.append('_method', 'PUT')
-    router.post(update({ variety: activeVariety.value.id }).url, formData, {
-      onSuccess() {
-        formOpen.value = false
-        isSubmitting.value = false
-      },
-      onError() {
-        isSubmitting.value = false
-      },
-    })
-  } else {
-    router.post(store().url, formData, {
-      onSuccess() {
-        formOpen.value = false
-        isSubmitting.value = false
-      },
-      onError() {
-        isSubmitting.value = false
-      },
-    })
-  }
+	if (activeVariety.value) {
+		formData.append('_method', 'PUT')
+		router.post(update({ variety: activeVariety.value.id }).url, formData, {
+			onSuccess() {
+				formOpen.value = false
+				isSubmitting.value = false
+			},
+			onError() {
+				isSubmitting.value = false
+			},
+		})
+	} else {
+		router.post(store().url, formData, {
+			onSuccess() {
+				formOpen.value = false
+				isSubmitting.value = false
+			},
+			onError() {
+				isSubmitting.value = false
+			},
+		})
+	}
 }
 
 function handleDelete() {
-  if (!activeVariety.value) return
-  router.delete(destroy({ variety: activeVariety.value.id }).url, {
-    onSuccess() {
-      deleteOpen.value = false
-      activeVariety.value = null
-    },
-  })
+	if (!activeVariety.value) return
+	router.delete(destroy({ variety: activeVariety.value.id }).url, {
+		onSuccess() {
+			deleteOpen.value = false
+			activeVariety.value = null
+		},
+	})
 }
 
 function handlePageChange(page: number) {
-  router.get(
-    index().url,
-    { page, price_filter: props.filters.price_filter, search: searchQuery.value || undefined },
-    { preserveScroll: true },
-  )
+	router.get(
+		index().url,
+		{
+			page,
+			price_filter: props.filters.price_filter,
+			search: searchQuery.value || undefined,
+		},
+		{ preserveScroll: true },
+	)
 }
 
 const isLoadingSummary = computed(() => !props.summary)

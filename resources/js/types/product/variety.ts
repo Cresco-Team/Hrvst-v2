@@ -12,14 +12,14 @@ export type PriceFreshness = 'recent' | 'stable' | 'very stable' | 'stale'
 
 /** A single price history record. Maps to PriceHistoryResource. */
 export interface PriceEntry {
-    price_min: number
-    price_max: number
-    recorded_at: string
+	price_min: number
+	price_max: number
+	recorded_at: string
 }
 
 /** The most recent price record, with computed freshness label. */
 export interface LatestPrice extends PriceEntry {
-    freshness: PriceFreshness
+	freshness: PriceFreshness
 }
 
 // ─── Variety shapes ────────────────────────────────────────────────────────────
@@ -30,10 +30,10 @@ export interface LatestPrice extends PriceEntry {
  * whatever the resource serializes (e.g. "Tomato"). Do not expect sub-fields.
  */
 export interface VarietyRef {
-    id: number
-    name: string
-    vegetable: string
-    image_url: string | null
+	id: number
+	name: string
+	vegetable: string
+	image_url: string | null
 }
 
 /**
@@ -41,21 +41,21 @@ export interface VarietyRef {
  * Requires: with('vegetable.category', 'latestPrice', 'recentPrices')
  */
 export interface CatalogVariety {
-    id: number
-    name: string
-    display_name: string
-    image_url: string | null
-    vegetable: {
-        id: number
-        name: string
-        category: {
-            id: number
-            name: string
-        }
-    }
-    latest_price: LatestPrice | null
-    /** Sorted oldest → newest. Absent when recentPrices not loaded. */
-    recent_prices?: PriceEntry[]
+	id: number
+	name: string
+	display_name: string
+	image_url: string | null
+	vegetable: {
+		id: number
+		name: string
+		category: {
+			id: number
+			name: string
+		}
+	}
+	latest_price: LatestPrice | null
+	/** Sorted oldest → newest. Absent when recentPrices not loaded. */
+	recent_prices?: PriceEntry[]
 }
 
 /**
@@ -64,28 +64,28 @@ export interface CatalogVariety {
  * Requires: withCount(['supply_count', 'demand_count']), ->through() for supply_municipalities
  */
 export interface AdminVariety extends CatalogVariety {
-    price_updated_human: string | null
-    price_updated_date: string | null
-    supply_count: number
-    demand_count: number
-    supply_municipalities: MunicipalitySupply[]
+	price_updated_human: string | null
+	price_updated_date: string | null
+	supply_count: number
+	demand_count: number
+	supply_municipalities: MunicipalitySupply[]
 }
 
 // ─── Supporting shapes ─────────────────────────────────────────────────────────
 
 export interface MunicipalitySupply {
-    name: string
-    total_kg: number
+	name: string
+	total_kg: number
 }
 
 /** Dropdown option for variety selects. current_price absent when not loaded. */
 export interface VarietyOption {
-    id: number
-    name: string
-    current_price?: {
-        min: number
-        max: number
-    } | null
+	id: number
+	name: string
+	current_price?: {
+		min: number
+		max: number
+	} | null
 }
 
 /**

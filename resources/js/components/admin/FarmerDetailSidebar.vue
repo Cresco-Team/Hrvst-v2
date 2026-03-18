@@ -1,39 +1,55 @@
 <script setup lang="ts">
-
 import { router } from '@inertiajs/vue3'
-import { Phone, Mail, Trash, Info, MapPinHouse, Calendar1, Wheat } from 'lucide-vue-next'
+import {
+	Calendar1,
+	Info,
+	Mail,
+	MapPinHouse,
+	Phone,
+	Trash,
+	Wheat,
+} from 'lucide-vue-next'
 import { ref } from 'vue'
-import { destroy, show } from '@/actions/App/Http/Controllers/Admin/FarmerController'
+import {
+	destroy,
+	show,
+} from '@/actions/App/Http/Controllers/Admin/FarmerController'
 import ConfirmationDialog from '@/components/ConfirmationDialog.vue'
 import DetailSheet from '@/components/DetailSheet.vue'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Item, ItemContent, ItemDescription, ItemMedia, ItemTitle } from '@/components/ui/item'
+import {
+	Item,
+	ItemContent,
+	ItemDescription,
+	ItemMedia,
+	ItemTitle,
+} from '@/components/ui/item'
 import { Separator } from '@/components/ui/separator'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useInitials } from '@/composables/useInitials'
 import type { Detail } from '@/types/admin/farmers'
 
 const props = defineProps<{
-    open: boolean
-    farmer: Detail | null
-    loading: boolean
+	open: boolean
+	farmer: Detail | null
+	loading: boolean
 }>()
 
 defineEmits<{
-    close: []
+	close: []
 }>()
 
 const isDeleteDialogOpen = ref(false)
 
 const openDeleteDialog = () => {
-    isDeleteDialogOpen.value = true
+	isDeleteDialogOpen.value = true
 }
 
 const handleDelete = () => {
-    if (!props.farmer) return
-    router.delete(destroy(props.farmer.id).url)
+	if (!props.farmer) return
+	router.delete(destroy(props.farmer.id).url)
 }
 
 const { getInitials } = useInitials()

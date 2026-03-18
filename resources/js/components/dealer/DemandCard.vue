@@ -1,25 +1,46 @@
 <script setup lang="ts">
+import {
+	Archive,
+	CalendarClock,
+	CircleCheckBig,
+	MoreVertical,
+	Pencil,
+	PhilippinePeso,
+	Trash,
+	Weight,
+} from 'lucide-vue-next'
 import { computed } from 'vue'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Archive, PhilippinePeso, Weight, CalendarClock, Pencil, MoreVertical, Trash, CircleCheckBig } from 'lucide-vue-next'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { AspectRatio } from '@/components/ui/aspect-ratio'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import {
+	Card,
+	CardContent,
+	CardDescription,
+	CardHeader,
+	CardTitle,
+} from '@/components/ui/card'
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuSeparator,
+	DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import { Separator } from '@/components/ui/separator'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { Demand } from '@/types/dealer/demands'
+import type { Demand } from '@/types/dealer/demands'
 
 interface Props {
-  demand: Demand
+	demand: Demand
 }
 
 const props = defineProps<Props>()
 
 const emit = defineEmits<{
-  edit: [demand: Demand]
-  archive: [demand: Demand]
-  fulfill: [demand: Demand]
-  delete: [demand: Demand]
+	edit: [demand: Demand]
+	archive: [demand: Demand]
+	fulfill: [demand: Demand]
+	delete: [demand: Demand]
 }>()
 
 const isOngoing = computed(() => props.demand.status === 'Ongoing')

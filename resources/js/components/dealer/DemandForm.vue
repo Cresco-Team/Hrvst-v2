@@ -1,11 +1,18 @@
 <script setup lang="ts">
-
 import { useForm } from '@inertiajs/vue3'
 import { Sprout } from 'lucide-vue-next'
 import { computed, watch } from 'vue'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select'
+import {
+	Select,
+	SelectContent,
+	SelectGroup,
+	SelectItem,
+	SelectLabel,
+	SelectTrigger,
+	SelectValue,
+} from '@/components/ui/select'
 import { store, update } from '@/routes/dealer/demands'
 import type { Demand } from '@/types/dealer/demands'
 import type { VarietyOption } from '@/types/product/variety'
@@ -13,71 +20,74 @@ import DialogForm from '../DialogForm.vue'
 import { Badge } from '../ui/badge'
 
 interface Props {
-  open: boolean
-  demand?: Demand | null
-  varietyOptions: Record<string, VarietyOption[]>
+	open: boolean
+	demand?: Demand | null
+	varietyOptions: Record<string, VarietyOption[]>
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  demand: null,
+	demand: null,
 })
 
 const emit = defineEmits<{
-  'update:open': [value: boolean]
-  'submit': []
+	'update:open': [value: boolean]
+	submit: []
 }>()
 
 const form = useForm({
-  variety_id: null as number | null,
-  quantity_kg: 0,
-  offered_price: 0,
-  transaction_date: '',
+	variety_id: null as number | null,
+	quantity_kg: 0,
+	offered_price: 0,
+	transaction_date: '',
 })
 
 const minDate = computed(() => {
-  const tomorrow = new Date()
-  tomorrow.setDate(tomorrow.getDate() + 1)
-  return tomorrow.toISOString().split('T')[0]
+	const tomorrow = new Date()
+	tomorrow.setDate(tomorrow.getDate() + 1)
+	return tomorrow.toISOString().split('T')[0]
 })
 
 const maxDate = computed(() => {
-  const threeMonths = new Date()
-  threeMonths.setMonth(threeMonths.getMonth() + 3)
-  return threeMonths.toISOString().split('T')[0]
+	const threeMonths = new Date()
+	threeMonths.setMonth(threeMonths.getMonth() + 3)
+	return threeMonths.toISOString().split('T')[0]
 })
 
 const isEditMode = computed(() => !!props.demand)
 
-watch(() => props.open, (isOpen) => {
-  if (isOpen) {
-    if (props.demand) {
-      form.variety_id = props.demand.variety.id
-      form.quantity_kg = props.demand.quantity_kg
-      form.offered_price = props.demand.offered_price
-      form.transaction_date = props.demand.transaction_date
-    } else {
-      form.reset()
-    }
-    form.clearErrors()
-  }
-})
+watch(
+	() => props.open,
+	(isOpen) => {
+		if (isOpen) {
+			if (props.demand) {
+				form.variety_id = props.demand.variety.id
+				form.quantity_kg = props.demand.quantity_kg
+				form.offered_price = props.demand.offered_price
+				form.transaction_date = props.demand.transaction_date
+			} else {
+				form.reset()
+			}
+			form.clearErrors()
+		}
+	},
+)
 
 const handleSubmit = () => {
-  if (props.demand) {
-    form.put(update(props.demand.id).url, {
-      preserveScroll: true,
-      onSuccess: () => {
-        emit('update:open', false)
-      }
-    })
-  } else {
-    form.post(store().url, {
-      preserveScroll: true,
-      onSuccess: () => {
-        emit('update:open', false)
-      }
-    })
-  }
+	if (props.demand) {
+		form.put(update(props.demand.id).url, {
+			preserveScroll: true,
+			onSuccess: () => {
+				emit('update:open', false)
+			},
+		})
+	} else {
+		form.post(store().url, {
+			preserveScroll: true,
+			onSuccess: () => {
+				emit('update:open', false)
+			},
+		})
+	}
 }
 </script>
 

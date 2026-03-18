@@ -1,38 +1,52 @@
 <script setup lang="ts">
-
 import { Check, ClipboardList, X } from 'lucide-vue-next'
 import { ref, watch } from 'vue'
 import PendingApprovalDialog from '@/components/admin/PendingApprovalDialog.vue'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
+import {
+	Sheet,
+	SheetContent,
+	SheetDescription,
+	SheetHeader,
+	SheetTitle,
+	SheetTrigger,
+} from '@/components/ui/sheet'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipProvider,
+	TooltipTrigger,
+} from '@/components/ui/tooltip'
 import { getInitials } from '@/composables/useInitials'
 import { usePendingApprovals } from '@/composables/usePendingApprovals'
-import type { PendingDealer, PendingFarmer } from '@/types/admin/pending-approvals'
+import type {
+	PendingDealer,
+	PendingFarmer,
+} from '@/types/admin/pending-approvals'
 
 const sheetOpen = ref(false)
 
 const {
-  farmers,
-  dealers,
-  state,
-  error,
-  fetch,
-  approveFarmer,
-  rejectFarmer,
-  approveDealer,
-  rejectDealer,
+	farmers,
+	dealers,
+	state,
+	error,
+	fetch,
+	approveFarmer,
+	rejectFarmer,
+	approveDealer,
+	rejectDealer,
 } = usePendingApprovals()
 
 // Lazy-load only when Sheet opens for the first time; re-fetch on subsequent opens.
 watch(sheetOpen, (isOpen) => {
-  if (isOpen) {
-    fetch()
-  }
+	if (isOpen) {
+		fetch()
+	}
 })
 
 // Dialog state
@@ -40,10 +54,13 @@ const dialogOpen = ref(false)
 const dialogItem = ref<PendingFarmer | PendingDealer | null>(null)
 const dialogType = ref<'farmer' | 'dealer'>('farmer')
 
-function openDialog(item: PendingFarmer | PendingDealer, type: 'farmer' | 'dealer') {
-  dialogItem.value = item
-  dialogType.value = type
-  dialogOpen.value = true
+function openDialog(
+	item: PendingFarmer | PendingDealer,
+	type: 'farmer' | 'dealer',
+) {
+	dialogItem.value = item
+	dialogType.value = type
+	dialogOpen.value = true
 }
 
 const totalPending = () => farmers.value.length + dealers.value.length

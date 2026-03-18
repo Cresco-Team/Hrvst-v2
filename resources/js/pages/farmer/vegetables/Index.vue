@@ -1,6 +1,5 @@
 <script setup lang="ts">
-
-import { Head, router, Deferred } from '@inertiajs/vue3'
+import { Deferred, Head, router } from '@inertiajs/vue3'
 import { Search } from 'lucide-vue-next'
 import type { AcceptableValue } from 'reka-ui'
 import { ref } from 'vue'
@@ -9,18 +8,32 @@ import Heading from '@/components/Heading.vue'
 import VegetableCatalogCard from '@/components/shared/VegetableCatalogCard.vue'
 import VegetableDetailDialog from '@/components/shared/VegetableDetailDialog.vue'
 import { Button } from '@/components/ui/button'
-import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import {
+	InputGroup,
+	InputGroupAddon,
+	InputGroupInput,
+} from '@/components/ui/input-group'
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
 import AppLayout from '@/layouts/AppLayout.vue'
 import farmer from '@/routes/farmer'
 import type { PaginatedResponse } from '@/types/pagination'
-import type { CatalogVariety, CatalogFilters, CategoryOption } from '@/types/shared/vegetables'
+import type {
+	CatalogFilters,
+	CatalogVariety,
+	CategoryOption,
+} from '@/types/shared/vegetables'
 
 interface Props {
-  filters: CatalogFilters
-  varieties?: PaginatedResponse<CatalogVariety>
-  categoryOptions?: CategoryOption[]
+	filters: CatalogFilters
+	varieties?: PaginatedResponse<CatalogVariety>
+	categoryOptions?: CategoryOption[]
 }
 
 const props = defineProps<Props>()
@@ -32,54 +45,54 @@ const searchQuery = ref(props.filters.search ?? '')
 let searchDebounce: ReturnType<typeof setTimeout> | null = null
 
 const breadcrumbs = [
-  { title: 'Farmer', href: farmer.garden.index().url },
-  { title: 'Vegetables', href: farmer.vegetables.index().url },
+	{ title: 'Farmer', href: farmer.garden.index().url },
+	{ title: 'Vegetables', href: farmer.vegetables.index().url },
 ]
 
 function openDetail(variety: CatalogVariety) {
-  selectedVariety.value = variety
-  dialogOpen.value = true
+	selectedVariety.value = variety
+	dialogOpen.value = true
 }
 
 function handleSearch() {
-  if (searchDebounce) clearTimeout(searchDebounce)
+	if (searchDebounce) clearTimeout(searchDebounce)
 
-  searchDebounce = setTimeout(() => {
-    router.visit(farmer.vegetables.index().url, {
-      data: {
-        search: searchQuery.value || undefined,
-        category_id: props.filters.category_id || undefined,
-      },
-      preserveState: true,
-      preserveScroll: true,
-      only: ['varieties'],
-    })
-  }, 300)
+	searchDebounce = setTimeout(() => {
+		router.visit(farmer.vegetables.index().url, {
+			data: {
+				search: searchQuery.value || undefined,
+				category_id: props.filters.category_id || undefined,
+			},
+			preserveState: true,
+			preserveScroll: true,
+			only: ['varieties'],
+		})
+	}, 300)
 }
 
 function handleCategoryFilter(value: AcceptableValue) {
-  const category = value === 'all' || value == null ? undefined : String(value)
+	const category = value === 'all' || value == null ? undefined : String(value)
 
-  router.visit(farmer.vegetables.index().url, {
-    data: {
-      search: props.filters.search || undefined,
-      category_id: category,
-    },
-    preserveState: true,
-    preserveScroll: true,
-    only: ['varieties'],
-  })
+	router.visit(farmer.vegetables.index().url, {
+		data: {
+			search: props.filters.search || undefined,
+			category_id: category,
+		},
+		preserveState: true,
+		preserveScroll: true,
+		only: ['varieties'],
+	})
 }
 
 function handlePageChange(page: number) {
-  router.visit(farmer.vegetables.index().url, {
-    data: {
-      page,
-      search: props.filters.search || undefined,
-      category_id: props.filters.category_id || undefined,
-    },
-    preserveScroll: true,
-  })
+	router.visit(farmer.vegetables.index().url, {
+		data: {
+			page,
+			search: props.filters.search || undefined,
+			category_id: props.filters.category_id || undefined,
+		},
+		preserveScroll: true,
+	})
 }
 </script>
 

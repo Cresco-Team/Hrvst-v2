@@ -1,62 +1,78 @@
 <script setup lang="ts">
 import type { ColumnDef } from '@tanstack/vue-table'
-import { ChevronDown, ChevronRight, ClipboardList, ClipboardPenLine, ClipboardPlus, ClipboardX, Clock, MapPin, Plus } from 'lucide-vue-next'
+import {
+	ChevronDown,
+	ChevronRight,
+	ClipboardList,
+	ClipboardPenLine,
+	ClipboardPlus,
+	ClipboardX,
+	Clock,
+	MapPin,
+	Plus,
+} from 'lucide-vue-next'
 import DataTable from '@/components/shared/tables/DataTable.vue'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
-    Tooltip,
-    TooltipContent,
-    TooltipProvider,
-    TooltipTrigger,
+	Tooltip,
+	TooltipContent,
+	TooltipProvider,
+	TooltipTrigger,
 } from '@/components/ui/tooltip'
 import type { Variety } from '@/types/admin/vegetable-varieties'
 import type { PaginatedResponse } from '@/types/pagination'
 
 defineProps<{
-    varieties: PaginatedResponse<Variety>
+	varieties: PaginatedResponse<Variety>
 }>()
 
 defineEmits<{
-    'open-create': []
-    'open-view': [variety: Variety]
-    'open-edit': [variety: Variety]
-    'open-delete': [variety: Variety]
-    'open-update-price': [variety: Variety]
-    'page-change': [page: number]
+	'open-create': []
+	'open-view': [variety: Variety]
+	'open-edit': [variety: Variety]
+	'open-delete': [variety: Variety]
+	'open-update-price': [variety: Variety]
+	'page-change': [page: number]
 }>()
 
 const columns: ColumnDef<Variety>[] = [
-    { 
-        id: 'expand',
-        header: '', 
-    }, { 
-        id: 'image',
-        header: 'Image',
-        enableSorting: false 
-    }, {
-        id: 'name',
-        header: 'Variety',
-        accessorFn: (row) => `${row.vegetable.name} ${row.name}`,
-        enableSorting: true,
-    }, {
-        id: 'price_range',
-        header: 'Price Range',
-        accessorFn: (row) => row.latest_price
-            ? `₱${row.latest_price.price_min} – ₱${row.latest_price.price_max}`
-            : 'No price data',
-        enableSorting: false,
-    }, { 
-        id: 'activity',
-        header: 'Activity', 
-        enableSorting: false 
-    }, { 
-        id: 'actions',
-        header: 'Actions',
-        enableSorting: false, 
-        enableHiding: true,
-    },
+	{
+		id: 'expand',
+		header: '',
+	},
+	{
+		id: 'image',
+		header: 'Image',
+		enableSorting: false,
+	},
+	{
+		id: 'name',
+		header: 'Variety',
+		accessorFn: (row) => `${row.vegetable.name} ${row.name}`,
+		enableSorting: true,
+	},
+	{
+		id: 'price_range',
+		header: 'Price Range',
+		accessorFn: (row) =>
+			row.latest_price
+				? `₱${row.latest_price.price_min} – ₱${row.latest_price.price_max}`
+				: 'No price data',
+		enableSorting: false,
+	},
+	{
+		id: 'activity',
+		header: 'Activity',
+		enableSorting: false,
+	},
+	{
+		id: 'actions',
+		header: 'Actions',
+		enableSorting: false,
+		enableHiding: true,
+	},
 ]
 </script>
 

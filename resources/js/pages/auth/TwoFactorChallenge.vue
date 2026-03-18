@@ -1,45 +1,45 @@
 <script setup lang="ts">
-import { Form, Head } from '@inertiajs/vue3';
-import { computed, ref } from 'vue';
-import InputError from '@/components/InputError.vue';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Form, Head } from '@inertiajs/vue3'
+import { computed, ref } from 'vue'
+import InputError from '@/components/InputError.vue'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import {
-    InputOTP,
-    InputOTPGroup,
-    InputOTPSlot,
-} from '@/components/ui/input-otp';
-import AuthLayout from '@/layouts/AuthLayout.vue';
-import { store } from '@/routes/two-factor/login';
-import type { TwoFactorConfigContent } from '@/types';
+	InputOTP,
+	InputOTPGroup,
+	InputOTPSlot,
+} from '@/components/ui/input-otp'
+import AuthLayout from '@/layouts/AuthLayout.vue'
+import { store } from '@/routes/two-factor/login'
+import type { TwoFactorConfigContent } from '@/types'
 
 const authConfigContent = computed<TwoFactorConfigContent>(() => {
-    if (showRecoveryInput.value) {
-        return {
-            title: 'Recovery Code',
-            description:
-                'Please confirm access to your account by entering one of your emergency recovery codes.',
-            buttonText: 'login using an authentication code',
-        };
-    }
+	if (showRecoveryInput.value) {
+		return {
+			title: 'Recovery Code',
+			description:
+				'Please confirm access to your account by entering one of your emergency recovery codes.',
+			buttonText: 'login using an authentication code',
+		}
+	}
 
-    return {
-        title: 'Authentication Code',
-        description:
-            'Enter the authentication code provided by your authenticator application.',
-        buttonText: 'login using a recovery code',
-    };
-});
+	return {
+		title: 'Authentication Code',
+		description:
+			'Enter the authentication code provided by your authenticator application.',
+		buttonText: 'login using a recovery code',
+	}
+})
 
-const showRecoveryInput = ref<boolean>(false);
+const showRecoveryInput = ref<boolean>(false)
 
 const toggleRecoveryMode = (clearErrors: () => void): void => {
-    showRecoveryInput.value = !showRecoveryInput.value;
-    clearErrors();
-    code.value = '';
-};
+	showRecoveryInput.value = !showRecoveryInput.value
+	clearErrors()
+	code.value = ''
+}
 
-const code = ref<string>('');
+const code = ref<string>('')
 </script>
 
 <template>

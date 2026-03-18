@@ -1,18 +1,18 @@
 <script setup lang="ts">
-import { Form, Head } from '@inertiajs/vue3';
-import InputError from '@/components/InputError.vue';
-import TextLink from '@/components/TextLink.vue';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Spinner } from '@/components/ui/spinner';
-import AuthLayout from '@/layouts/AuthLayout.vue';
-import { login } from '@/routes';
-import { email } from '@/routes/password';
+import { Form, Head } from '@inertiajs/vue3'
+import InputError from '@/components/InputError.vue'
+import TextLink from '@/components/TextLink.vue'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Spinner } from '@/components/ui/spinner'
+import AuthLayout from '@/layouts/AuthLayout.vue'
+import { login } from '@/routes'
+import { email } from '@/routes/password'
 
 defineProps<{
-    status?: string;
-}>();
+	status?: string
+}>()
 </script>
 
 <template>

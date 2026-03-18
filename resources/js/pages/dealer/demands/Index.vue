@@ -1,8 +1,14 @@
 <script setup lang="ts">
-
 import { Deferred, Head, router, useForm } from '@inertiajs/vue3'
-import { Plus, PackageSearch, PackageCheck, CalendarX, CalendarClock, Package } from 'lucide-vue-next'
-import { ref, computed } from 'vue'
+import {
+	CalendarClock,
+	CalendarX,
+	Package,
+	PackageCheck,
+	PackageSearch,
+	Plus,
+} from 'lucide-vue-next'
+import { computed, ref } from 'vue'
 import ConfirmationDialog from '@/components/ConfirmationDialog.vue'
 import DemandCard from '@/components/dealer/DemandCard.vue'
 import DemandForm from '@/components/dealer/DemandForm.vue'
@@ -20,10 +26,10 @@ import type { PaginatedResponse } from '@/types/pagination'
 import type { VarietyOption } from '@/types/product/variety'
 
 interface Props {
-  summary?: Summary
-  filters: { status: string | null }
-  demands?: PaginatedResponse<Demand>
-  varietyOptions?: Record<string, VarietyOption[]>
+	summary?: Summary
+	filters: { status: string | null }
+	demands?: PaginatedResponse<Demand>
+	varietyOptions?: Record<string, VarietyOption[]>
 }
 
 const props = defineProps<Props>()
@@ -41,114 +47,122 @@ const demandToFulfill = ref<Demand | null>(null)
 const demandToDelete = ref<Demand | null>(null)
 
 const form = useForm<{
-  variety_id: number | null
-  quantity_kg: number
-  offered_price: number
-  transaction_date: string
+	variety_id: number | null
+	quantity_kg: number
+	offered_price: number
+	transaction_date: string
 }>({
-  variety_id: null,
-  quantity_kg: 0,
-  offered_price: 0,
-  transaction_date: '',
+	variety_id: null,
+	quantity_kg: 0,
+	offered_price: 0,
+	transaction_date: '',
 })
 
 const activeTab = computed(() => props.filters.status || 'Ongoing')
 
 const breadcrumbs = [
-  { title: 'Dealer', href: dealer.demands.index().url },
-  { title: 'Demands', href: dealer.demands.index().url }
+	{ title: 'Dealer', href: dealer.demands.index().url },
+	{ title: 'Demands', href: dealer.demands.index().url },
 ]
 
 function handleTabChange(value: string | number) {
-  const routeTarget = index({
-    query: { status: value === 'open' ? undefined : value }
-  })
+	const routeTarget = index({
+		query: { status: value === 'open' ? undefined : value },
+	})
 
-  router.visit(routeTarget.url, {
-    preserveState: true,
-    preserveScroll: true,
-    only: ['demands', 'filters', 'summary']
-  })
+	router.visit(routeTarget.url, {
+		preserveState: true,
+		preserveScroll: true,
+		only: ['demands', 'filters', 'summary'],
+	})
 }
 
 function openCreate() {
-  activeDemand.value = null
-  form.reset()
-  form.clearErrors()
-  formOpen.value = true
+	activeDemand.value = null
+	form.reset()
+	form.clearErrors()
+	formOpen.value = true
 }
 
 function openEdit(demand: Demand) {
-  activeDemand.value = demand
-  form.variety_id = demand.variety.id
-  form.quantity_kg = demand.quantity_kg
-  form.offered_price = demand.offered_price
-  form.transaction_date = demand.transaction_date
-  formOpen.value = true
+	activeDemand.value = demand
+	form.variety_id = demand.variety.id
+	form.quantity_kg = demand.quantity_kg
+	form.offered_price = demand.offered_price
+	form.transaction_date = demand.transaction_date
+	formOpen.value = true
 }
 
 function openToArchive(demand: Demand) {
-  demandToArchive.value = demand
-  archiveDialogOpen.value = true
+	demandToArchive.value = demand
+	archiveDialogOpen.value = true
 }
 
 function openFulfill(demand: Demand) {
-  demandToFulfill.value = demand
-  fulfillDialogOpen.value = true
+	demandToFulfill.value = demand
+	fulfillDialogOpen.value = true
 }
 
 function openDelete(demand: Demand) {
-  demandToDelete.value = demand
-  deleteDialogOpen.value = true
+	demandToDelete.value = demand
+	deleteDialogOpen.value = true
 }
 
 function handleArchive() {
-  if (!demandToArchive.value) return
+	if (!demandToArchive.value) return
 
-  router.post(archive(demandToArchive.value.id), {}, {
-    preserveScroll: true,
-    onSuccess: () => {
-      archiveDialogOpen.value = false
-      demandToArchive.value = null
-    }
-  })
+	router.post(
+		archive(demandToArchive.value.id),
+		{},
+		{
+			preserveScroll: true,
+			onSuccess: () => {
+				archiveDialogOpen.value = false
+				demandToArchive.value = null
+			},
+		},
+	)
 }
 
 function handleFulfill() {
-  if (!demandToFulfill.value) return
+	if (!demandToFulfill.value) return
 
-  router.post(fulfill(demandToFulfill.value.id), {}, {
-    preserveScroll: true,
-    onSuccess: () => {
-      fulfillDialogOpen.value = false
-      demandToFulfill.value = null
-    }
-  })
+	router.post(
+		fulfill(demandToFulfill.value.id),
+		{},
+		{
+			preserveScroll: true,
+			onSuccess: () => {
+				fulfillDialogOpen.value = false
+				demandToFulfill.value = null
+			},
+		},
+	)
 }
 
 function handleDelete() {
-  if (!demandToDelete.value) return
+	if (!demandToDelete.value) return
 
-  const routeTarget = destroy(demandToDelete.value.id)
+	const routeTarget = destroy(demandToDelete.value.id)
 
-  router.visit(routeTarget.url, {
-    method: 'delete',
-    preserveScroll: true,
-    onSuccess: () => {
-      deleteDialogOpen.value = false
-      demandToDelete.value = null
-    }
-  })
+	router.visit(routeTarget.url, {
+		method: 'delete',
+		preserveScroll: true,
+		onSuccess: () => {
+			deleteDialogOpen.value = false
+			demandToDelete.value = null
+		},
+	})
 }
 
 function handlePageChange(page: number) {
-  router.visit(dealer.demands.index().url, {
-    data: {
-      page,
-      search: props.filters.status || undefined,
-    },
-    preserveScroll: true,
-  })
+	router.visit(dealer.demands.index().url, {
+		data: {
+			page,
+			search: props.filters.status || undefined,
+		},
+		preserveScroll: true,
+	})
 }
 </script>
 

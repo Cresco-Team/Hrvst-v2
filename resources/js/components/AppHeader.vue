@@ -1,111 +1,153 @@
 <script setup lang="ts">
-
-import { Link, usePage } from '@inertiajs/vue3';
-import { MapPinned, Menu, Package, PackageSearch, ShoppingBag, Sprout, Store, Truck } from 'lucide-vue-next';
-import { computed } from 'vue';
-import AppLogo from '@/components/AppLogo.vue';
-import AppLogoIcon from '@/components/AppLogoIcon.vue';
-import Breadcrumbs from '@/components/Breadcrumbs.vue';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { NavigationMenu, NavigationMenuItem, NavigationMenuList, navigationMenuTriggerStyle } from '@/components/ui/navigation-menu';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import UserMenuContent from '@/components/UserMenuContent.vue';
-import { useCurrentUrl } from '@/composables/useCurrentUrl';
-import { getInitials } from '@/composables/useInitials';
-import { toUrl } from '@/lib/utils';
-import { dashboard } from '@/routes';
-import admin from '@/routes/admin';
-import dealer from '@/routes/dealer';
-import farmer from '@/routes/farmer';
-import type { BreadcrumbItem, NavItem } from '@/types';
-import PendingApprovalSheet from './admin/PendingApprovalSheet.vue';
+import { Link, usePage } from '@inertiajs/vue3'
+import {
+	MapPinned,
+	Menu,
+	Package,
+	PackageSearch,
+	ShoppingBag,
+	Sprout,
+	Store,
+	Truck,
+} from 'lucide-vue-next'
+import { computed } from 'vue'
+import AppLogo from '@/components/AppLogo.vue'
+import AppLogoIcon from '@/components/AppLogoIcon.vue'
+import Breadcrumbs from '@/components/Breadcrumbs.vue'
+import UserMenuContent from '@/components/UserMenuContent.vue'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Button } from '@/components/ui/button'
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import {
+	NavigationMenu,
+	NavigationMenuItem,
+	NavigationMenuList,
+	navigationMenuTriggerStyle,
+} from '@/components/ui/navigation-menu'
+import {
+	Sheet,
+	SheetContent,
+	SheetHeader,
+	SheetTitle,
+	SheetTrigger,
+} from '@/components/ui/sheet'
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipProvider,
+	TooltipTrigger,
+} from '@/components/ui/tooltip'
+import { useCurrentUrl } from '@/composables/useCurrentUrl'
+import { getInitials } from '@/composables/useInitials'
+import { toUrl } from '@/lib/utils'
+import { dashboard } from '@/routes'
+import admin from '@/routes/admin'
+import dealer from '@/routes/dealer'
+import farmer from '@/routes/farmer'
+import type { BreadcrumbItem, NavItem } from '@/types'
+import PendingApprovalSheet from './admin/PendingApprovalSheet.vue'
 
 type Props = {
-    breadcrumbs?: BreadcrumbItem[];
-};
+	breadcrumbs?: BreadcrumbItem[]
+}
 
 const props = withDefaults(defineProps<Props>(), {
-    breadcrumbs: () => [],
-});
+	breadcrumbs: () => [],
+})
 
-const page = usePage();
-const auth = computed(() => page.props.auth);
-const { isCurrentUrl, whenCurrentUrl } = useCurrentUrl();
+const page = usePage()
+const auth = computed(() => page.props.auth)
+const { isCurrentUrl, whenCurrentUrl } = useCurrentUrl()
 
 const activeItemStyles =
-    'text-neutral-900 dark:bg-neutral-800 dark:text-neutral-100';
+	'text-neutral-900 dark:bg-neutral-800 dark:text-neutral-100'
 
 const isAdmin = computed(() => page.props.auth.user.roles.includes('admin'))
 
 const mainNavItems = computed<NavItem[]>(() => {
-    const items: NavItem[] = [];
-        
-        if (page.props.auth.user.roles.includes('admin')) {
-            items.push({
-                title: 'Vegetables',
-                href: admin.vegetables.index(),
-                icon: Package
-            }, {
-                title: 'Farmers',
-                href: admin.farmers.index(),
-                icon: Sprout
-            }, {
-                title: 'Dealers',
-                href: admin.dealers.index(),
-                icon: ShoppingBag
-            })
-        }
+	const items: NavItem[] = []
 
-        if (page.props.auth.user.roles.includes('dealer')) {
-            items.push({
-                title: 'Vegetables',
-                href: dealer.vegetables.index(),
-                icon: Sprout
-            }, {
-                title: 'Supplies',
-                href: dealer.supplyMap.index(),
-                icon: MapPinned
-            }, {
-                title: 'Marketplace',
-                href: dealer.marketplace.index(),
-                icon: Store
-            }, {
-                title: 'My Posts',
-                href: dealer.demands.index(),
-                icon: PackageSearch
-            })
-        }
+	if (page.props.auth.user.roles.includes('admin')) {
+		items.push(
+			{
+				title: 'Vegetables',
+				href: admin.vegetables.index(),
+				icon: Package,
+			},
+			{
+				title: 'Farmers',
+				href: admin.farmers.index(),
+				icon: Sprout,
+			},
+			{
+				title: 'Dealers',
+				href: admin.dealers.index(),
+				icon: ShoppingBag,
+			},
+		)
+	}
 
-        if (page.props.auth.user.roles.includes('farmer')) {
-            items.push({
-                title: 'Vegetables',
-                href: farmer.vegetables.index(),
-                icon: Sprout
-            }, {
-                title: 'Supplies',
-                href: farmer.supplyMap.index(),
-                icon: MapPinned
-            }, {
-                title: 'Marketplace',
-                href: farmer.marketplace.index(),
-                icon: Truck
-            }, {
-                title: 'My Garden',
-                href: farmer.garden.index(),
-                icon: Package
-            })
-        }
-    
-    return items
+	if (page.props.auth.user.roles.includes('dealer')) {
+		items.push(
+			{
+				title: 'Vegetables',
+				href: dealer.vegetables.index(),
+				icon: Sprout,
+			},
+			{
+				title: 'Supplies',
+				href: dealer.supplyMap.index(),
+				icon: MapPinned,
+			},
+			{
+				title: 'Marketplace',
+				href: dealer.marketplace.index(),
+				icon: Store,
+			},
+			{
+				title: 'My Posts',
+				href: dealer.demands.index(),
+				icon: PackageSearch,
+			},
+		)
+	}
+
+	if (page.props.auth.user.roles.includes('farmer')) {
+		items.push(
+			{
+				title: 'Vegetables',
+				href: farmer.vegetables.index(),
+				icon: Sprout,
+			},
+			{
+				title: 'Supplies',
+				href: farmer.supplyMap.index(),
+				icon: MapPinned,
+			},
+			{
+				title: 'Marketplace',
+				href: farmer.marketplace.index(),
+				icon: Truck,
+			},
+			{
+				title: 'My Garden',
+				href: farmer.garden.index(),
+				icon: Package,
+			},
+		)
+	}
+
+	return items
 })
 
 const rightNavItems = computed<NavItem[]>(() => {
-    const items: NavItem[] = []
+	const items: NavItem[] = []
 
-    return items;
+	return items
 })
 </script>
 

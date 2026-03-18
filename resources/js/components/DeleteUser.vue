@@ -1,24 +1,24 @@
 <script setup lang="ts">
-import { Form } from '@inertiajs/vue3';
-import { useTemplateRef } from 'vue';
-import ProfileController from '@/actions/App/Http/Controllers/Settings/ProfileController';
-import Heading from '@/components/Heading.vue';
-import InputError from '@/components/InputError.vue';
-import { Button } from '@/components/ui/button';
+import { Form } from '@inertiajs/vue3'
+import { useTemplateRef } from 'vue'
+import ProfileController from '@/actions/App/Http/Controllers/Settings/ProfileController'
+import Heading from '@/components/Heading.vue'
+import InputError from '@/components/InputError.vue'
+import { Button } from '@/components/ui/button'
 import {
-    Dialog,
-    DialogClose,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+	Dialog,
+	DialogClose,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+	DialogTrigger,
+} from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 
-const passwordInput = useTemplateRef('passwordInput');
+const passwordInput = useTemplateRef('passwordInput')
 </script>
 
 <template>

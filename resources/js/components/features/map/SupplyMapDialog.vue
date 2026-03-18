@@ -3,27 +3,27 @@ import { MapPin, Package, Weight } from 'lucide-vue-next'
 import { computed } from 'vue'
 import { Badge } from '@/components/ui/badge'
 import {
-  Dialog,
-  DialogHeader,
-  DialogScrollContent,
-  DialogTitle,
-  DialogDescription,
+	Dialog,
+	DialogDescription,
+	DialogHeader,
+	DialogScrollContent,
+	DialogTitle,
 } from '@/components/ui/dialog'
 import { Separator } from '@/components/ui/separator'
 import type { BarangayMarker } from '@/types/supply-map'
 
 const props = defineProps<{
-  open: boolean
-  marker: BarangayMarker | null
+	open: boolean
+	marker: BarangayMarker | null
 }>()
 
 const emit = defineEmits<{
-  'update:open': [value: boolean]
+	'update:open': [value: boolean]
 }>()
 
 const sortedBreakdown = computed(() => {
-  if (!props.marker) return []
-  return [...props.marker.supply_breakdown].sort((a, b) => b.count - a.count)
+	if (!props.marker) return []
+	return [...props.marker.supply_breakdown].sort((a, b) => b.count - a.count)
 })
 </script>
 

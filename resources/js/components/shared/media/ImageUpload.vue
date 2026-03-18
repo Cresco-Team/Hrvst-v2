@@ -1,25 +1,25 @@
 <script setup lang="ts">
-import { ref, watch, computed } from 'vue'
-import { Upload, X, Image as ImageIcon } from 'lucide-vue-next'
-import { Label } from '@/components/ui/label'
-import { Button } from '@/components/ui/button'
+import { Image as ImageIcon, Upload, X } from 'lucide-vue-next'
+import { computed, ref, watch } from 'vue'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Label } from '@/components/ui/label'
 
 interface Props {
-    modelValue: File | null
-    existingImageUrl?: string | null
-    error?: string
-    required?: boolean
+	modelValue: File | null
+	existingImageUrl?: string | null
+	error?: string
+	required?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
-    existingImageUrl: null,
-    error: '',
-    required: false,
+	existingImageUrl: null,
+	error: '',
+	required: false,
 })
 
 const emit = defineEmits<{
-    'update:modelValue': [file: File | null]
+	'update:modelValue': [file: File | null]
 }>()
 
 const fileInput = ref<HTMLInputElement | null>(null)
@@ -27,73 +27,79 @@ const isDragging = ref(false)
 const previewUrl = ref<string | null>(props.existingImageUrl)
 
 // Watch for file changes to update preview
-watch(() => props.modelValue, (newFile) => {
-    if (newFile) {
-        const reader = new FileReader()
-        reader.onload = (e) => {
-            previewUrl.value = e.target?.result as string
-        }
-        reader.readAsDataURL(newFile)
-    } else if (!props.existingImageUrl) {
-        previewUrl.value = null
-    }
-})
+watch(
+	() => props.modelValue,
+	(newFile) => {
+		if (newFile) {
+			const reader = new FileReader()
+			reader.onload = (e) => {
+				previewUrl.value = e.target?.result as string
+			}
+			reader.readAsDataURL(newFile)
+		} else if (!props.existingImageUrl) {
+			previewUrl.value = null
+		}
+	},
+)
 
 // Reset preview to existing image when cleared
-watch(() => props.existingImageUrl, (url) => {
-    if (!props.modelValue) {
-        previewUrl.value = url
-    }
-})
+watch(
+	() => props.existingImageUrl,
+	(url) => {
+		if (!props.modelValue) {
+			previewUrl.value = url
+		}
+	},
+)
 
 const hasImage = computed(() => previewUrl.value !== null)
 
 function handleFileSelect(event: Event) {
-    const input = event.target as HTMLInputElement
-    const file = input.files?.[0]
-    
-    if (file) {
-        validateAndEmit(file)
-    }
+	const input = event.target as HTMLInputElement
+	const file = input.files?.[0]
+
+	if (file) {
+		validateAndEmit(file)
+	}
 }
 
 function handleDrop(event: DragEvent) {
-    isDragging.value = false
-    const file = event.dataTransfer?.files[0]
-    
-    if (file) {
-        validateAndEmit(file)
-    }
+	isDragging.value = false
+	const file = event.dataTransfer?.files[0]
+
+	if (file) {
+		validateAndEmit(file)
+	}
 }
 
 function validateAndEmit(file: File) {
-    // Basic client-side validation
-    const validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp']
-    const maxSize = 5 * 1024 * 1024 // 5MB
-    
-    if (!validTypes.includes(file.type)) {
-        alert('Please upload a valid image file (JPEG, PNG, or WebP)')
-        return
-    }
-    
-    if (file.size > maxSize) {
-        alert('Image must be less than 5MB')
-        return
-    }
-    
-    emit('update:modelValue', file)
+	// Basic client-side validation
+	const validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp']
+	const maxSize = 5 * 1024 * 1024 // 5MB
+
+	if (!validTypes.includes(file.type)) {
+		alert('Please upload a valid image file (JPEG, PNG, or WebP)')
+		return
+	}
+
+	if (file.size > maxSize) {
+		alert('Image must be less than 5MB')
+		return
+	}
+
+	emit('update:modelValue', file)
 }
 
 function clearImage() {
-    previewUrl.value = props.existingImageUrl
-    emit('update:modelValue', null)
-    if (fileInput.value) {
-        fileInput.value.value = ''
-    }
+	previewUrl.value = props.existingImageUrl
+	emit('update:modelValue', null)
+	if (fileInput.value) {
+		fileInput.value.value = ''
+	}
 }
 
 function triggerFileInput() {
-    fileInput.value?.click()
+	fileInput.value?.click()
 }
 </script>
 

@@ -8,6 +8,7 @@ use App\Actions\Supply\DeleteSupplyAction;
 use App\Actions\Supply\FulfillSupplyAction;
 use App\Actions\Supply\UpdateSupplyAction;
 use App\Enums\PostStatus;
+use App\Enums\PostType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Farmer\StoreSupplyRequest;
 use App\Http\Requests\Farmer\UpdateSupplyRequest;
@@ -45,7 +46,7 @@ class SupplyController extends Controller
 
     public function store(StoreSupplyRequest $request, CreateSupplyAction $createSupply): RedirectResponse
     {
-        Gate::authorize('create', Post::class);
+        Gate::authorize('create', [Post::class, PostType::Supply]);
 
         $createSupply->handle(
             farmer:    $request->user()->farmerProfile,
@@ -59,6 +60,8 @@ class SupplyController extends Controller
 
     public function update(UpdateSupplyRequest $request, Post $supply, UpdateSupplyAction $updateSupply): RedirectResponse
     {
+        \Log::info('UPDATE HIT', ['supply' => $supply->id, 'data' => $request->all()]);
+        dd($request->validated());
         Gate::authorize('update', $supply);
 
         $updateSupply->handle(

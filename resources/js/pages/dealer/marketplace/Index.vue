@@ -1,13 +1,23 @@
 <script setup lang="ts">
-import { Head, router, Deferred } from '@inertiajs/vue3'
+import { Deferred, Head, router } from '@inertiajs/vue3'
 import { Search } from 'lucide-vue-next'
-import { ref, computed } from 'vue'
+import { computed, ref } from 'vue'
 import MarketplaceCard from '@/components/dealer/MarketplaceCard.vue'
 import EmptyState from '@/components/EmptyState.vue'
 import Heading from '@/components/Heading.vue'
 import { Button } from '@/components/ui/button'
-import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import {
+	InputGroup,
+	InputGroupAddon,
+	InputGroupInput,
+} from '@/components/ui/input-group'
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
 import AppLayout from '@/layouts/AppLayout.vue'
 import dealer from '@/routes/dealer'
@@ -16,9 +26,9 @@ import type { PaginatedResponse } from '@/types/pagination'
 import type { CategoryOption } from '@/types/product/category'
 
 interface Props {
-  filters: MarketplaceFilters
-  supplies?: PaginatedResponse<Supply>
-  categoryOptions?: CategoryOption[]
+	filters: MarketplaceFilters
+	supplies?: PaginatedResponse<Supply>
+	categoryOptions?: CategoryOption[]
 }
 
 const props = defineProps<Props>()
@@ -29,56 +39,56 @@ const searchDebounce = ref<ReturnType<typeof setTimeout> | null>(null)
 const isLoadingFilters = computed(() => !props.categoryOptions)
 
 function handleSearch() {
-  if (searchDebounce.value) clearTimeout(searchDebounce.value)
+	if (searchDebounce.value) clearTimeout(searchDebounce.value)
 
-  searchDebounce.value = setTimeout(() => {
-    router.visit(dealer.marketplace.index().url, {
-      data: {
-        search: searchQuery.value || undefined,
-        category_id: props.filters.category_id || undefined,
-      },
-      preserveState: true,
-      preserveScroll: true,
-      only: ['supplies'],
-    })
-  }, 300)
+	searchDebounce.value = setTimeout(() => {
+		router.visit(dealer.marketplace.index().url, {
+			data: {
+				search: searchQuery.value || undefined,
+				category_id: props.filters.category_id || undefined,
+			},
+			preserveState: true,
+			preserveScroll: true,
+			only: ['supplies'],
+		})
+	}, 300)
 }
 
 function handleFilter(type: 'category' | 'municipality', value: string) {
-  const filters: Record<string, string | undefined> = {
-    search: searchQuery.value || undefined,
-    category_id: undefined,
-    municipality_id: undefined,
-  }
+	const filters: Record<string, string | undefined> = {
+		search: searchQuery.value || undefined,
+		category_id: undefined,
+		municipality_id: undefined,
+	}
 
-  if (type === 'category') {
-    filters.category_id = value === 'all' ? undefined : value
-  } else {
-    filters.category_id = props.filters.category_id?.toString()
-  }
+	if (type === 'category') {
+		filters.category_id = value === 'all' ? undefined : value
+	} else {
+		filters.category_id = props.filters.category_id?.toString()
+	}
 
-  router.visit(dealer.marketplace.index().url, {
-    data: filters,
-    preserveState: true,
-    preserveScroll: true,
-    only: ['supplies'],
-  })
+	router.visit(dealer.marketplace.index().url, {
+		data: filters,
+		preserveState: true,
+		preserveScroll: true,
+		only: ['supplies'],
+	})
 }
 
 function handlePageChange(page: number) {
-  router.visit(dealer.marketplace.index().url, {
-    data: {
-      page,
-      search: searchQuery.value || undefined,
-      category_id: props.filters.category_id || undefined,
-    },
-    preserveScroll: true,
-  })
+	router.visit(dealer.marketplace.index().url, {
+		data: {
+			page,
+			search: searchQuery.value || undefined,
+			category_id: props.filters.category_id || undefined,
+		},
+		preserveScroll: true,
+	})
 }
 
 const breadcrumbs = [
-  { title: 'Dealer', href: dealer.marketplace.index().url },
-  { title: 'Marketplace', href: dealer.marketplace.index().url },
+	{ title: 'Dealer', href: dealer.marketplace.index().url },
+	{ title: 'Marketplace', href: dealer.marketplace.index().url },
 ]
 </script>
 

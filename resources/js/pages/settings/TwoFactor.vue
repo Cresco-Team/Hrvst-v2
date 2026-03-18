@@ -1,41 +1,41 @@
 <script setup lang="ts">
-import { Form, Head } from '@inertiajs/vue3';
-import { ShieldBan, ShieldCheck } from 'lucide-vue-next';
-import { onUnmounted, ref } from 'vue';
-import Heading from '@/components/Heading.vue';
-import TwoFactorRecoveryCodes from '@/components/TwoFactorRecoveryCodes.vue';
-import TwoFactorSetupModal from '@/components/TwoFactorSetupModal.vue';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { useTwoFactorAuth } from '@/composables/useTwoFactorAuth';
-import AppLayout from '@/layouts/AppLayout.vue';
-import SettingsLayout from '@/layouts/settings/Layout.vue';
-import { disable, enable, show } from '@/routes/two-factor';
-import type { BreadcrumbItem } from '@/types';
+import { Form, Head } from '@inertiajs/vue3'
+import { ShieldBan, ShieldCheck } from 'lucide-vue-next'
+import { onUnmounted, ref } from 'vue'
+import Heading from '@/components/Heading.vue'
+import TwoFactorRecoveryCodes from '@/components/TwoFactorRecoveryCodes.vue'
+import TwoFactorSetupModal from '@/components/TwoFactorSetupModal.vue'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { useTwoFactorAuth } from '@/composables/useTwoFactorAuth'
+import AppLayout from '@/layouts/AppLayout.vue'
+import SettingsLayout from '@/layouts/settings/Layout.vue'
+import { disable, enable, show } from '@/routes/two-factor'
+import type { BreadcrumbItem } from '@/types'
 
 type Props = {
-    requiresConfirmation?: boolean;
-    twoFactorEnabled?: boolean;
-};
+	requiresConfirmation?: boolean
+	twoFactorEnabled?: boolean
+}
 
 withDefaults(defineProps<Props>(), {
-    requiresConfirmation: false,
-    twoFactorEnabled: false,
-});
+	requiresConfirmation: false,
+	twoFactorEnabled: false,
+})
 
 const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Two-Factor Authentication',
-        href: show.url(),
-    },
-];
+	{
+		title: 'Two-Factor Authentication',
+		href: show.url(),
+	},
+]
 
-const { hasSetupData, clearTwoFactorAuthData } = useTwoFactorAuth();
-const showSetupModal = ref<boolean>(false);
+const { hasSetupData, clearTwoFactorAuthData } = useTwoFactorAuth()
+const showSetupModal = ref<boolean>(false)
 
 onUnmounted(() => {
-    clearTwoFactorAuthData();
-});
+	clearTwoFactorAuthData()
+})
 </script>
 
 <template>

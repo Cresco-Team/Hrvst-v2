@@ -1,67 +1,67 @@
 <script setup lang="ts">
+import { Check, Filter } from 'lucide-vue-next'
 import { computed } from 'vue'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuLabel,
+	DropdownMenuSeparator,
+	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { Filter, Check } from 'lucide-vue-next'
 
 interface PriceStats {
-    updated_week: number
-    updated_month: number
-    stale: number
-    no_price: number
+	updated_week: number
+	updated_month: number
+	stale: number
+	no_price: number
 }
 
 const props = defineProps<{
-    activeFilter: string | null
-    priceStats: PriceStats
+	activeFilter: string | null
+	priceStats: PriceStats
 }>()
 
 const emit = defineEmits<{
-    'filter-change': [filter: string | null]
+	'filter-change': [filter: string | null]
 }>()
 
 const filters = computed(() => [
-    {
-        value: null,
-        label: 'All Varieties',
-        description: 'Show everything',
-        count: null,
-        indicator: null,
-    },
-    {
-        value: 'week',
-        label: 'This Week',
-        description: 'Updated in the last 7 days',
-        count: props.priceStats.updated_week,
-        indicator: 'green',
-    },
-    {
-        value: 'month',
-        label: 'This Month',
-        description: 'Updated in the last 30 days',
-        count: props.priceStats.updated_month,
-        indicator: 'blue',
-    },
-    {
-        value: 'stale',
-        label: 'Needs Update',
-        description: 'Not updated for over 30 days',
-        count: props.priceStats.stale,
-        indicator: 'orange',
-    },
+	{
+		value: null,
+		label: 'All Varieties',
+		description: 'Show everything',
+		count: null,
+		indicator: null,
+	},
+	{
+		value: 'week',
+		label: 'This Week',
+		description: 'Updated in the last 7 days',
+		count: props.priceStats.updated_week,
+		indicator: 'green',
+	},
+	{
+		value: 'month',
+		label: 'This Month',
+		description: 'Updated in the last 30 days',
+		count: props.priceStats.updated_month,
+		indicator: 'blue',
+	},
+	{
+		value: 'stale',
+		label: 'Needs Update',
+		description: 'Not updated for over 30 days',
+		count: props.priceStats.stale,
+		indicator: 'orange',
+	},
 ])
 
 const activeFilterLabel = computed(() => {
-    const filter = filters.value.find(f => f.value === props.activeFilter)
-    return filter?.label || 'All Varieties'
+	const filter = filters.value.find((f) => f.value === props.activeFilter)
+	return filter?.label || 'All Varieties'
 })
 
 const hasActiveFilter = computed(() => props.activeFilter !== null)

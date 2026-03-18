@@ -1,83 +1,90 @@
 <script setup lang="ts">
-
 import { Deferred, Head } from '@inertiajs/vue3'
 import axios from 'axios'
 import { Loader2, Map } from 'lucide-vue-next'
 import { computed, ref, watch } from 'vue'
 import { toast } from 'vue-sonner'
-import Heading from '@/components/Heading.vue'
-import AppLayout from '@/layouts/AppLayout.vue'
-import farmer from '@/routes/farmer'
-import type { BarangayMarker, FilterOptions, MapConfig, MapFilters } from '@/types/supply-map'
 import SupplyMap from '@/components/features/map/SupplyMap.vue'
 import SupplyMapDialog from '@/components/features/map/SupplyMapDialog.vue'
 import SupplyMapFilters from '@/components/features/map/SupplyMapFilters.vue'
+import Heading from '@/components/Heading.vue'
+import AppLayout from '@/layouts/AppLayout.vue'
+import farmer from '@/routes/farmer'
+import type {
+	BarangayMarker,
+	FilterOptions,
+	MapConfig,
+	MapFilters,
+} from '@/types/supply-map'
 
 interface Props {
-  mapConfig: MapConfig
-  filterOptions?: FilterOptions
+	mapConfig: MapConfig
+	filterOptions?: FilterOptions
 }
 
 defineProps<Props>()
 
 const breadcrumbs = [
-  { title: 'Farmer', href: farmer.garden.index().url },
-  { title: 'Supply Map', href: farmer.supplyMap.index().url },
+	{ title: 'Farmer', href: farmer.garden.index().url },
+	{ title: 'Supply Map', href: farmer.supplyMap.index().url },
 ]
 
 /* ── State ───────────────────────────────────────────── */
 
-const markers        = ref<BarangayMarker[]>([])
-const loading        = ref(false)
+const markers = ref<BarangayMarker[]>([])
+const loading = ref(false)
 const selectedMarker = ref<BarangayMarker | null>(null)
-const dialogOpen     = ref(false)
+const dialogOpen = ref(false)
 
 const filters = ref<MapFilters>({
-  category_id: null,
-  variety_id: null,
+	category_id: null,
+	variety_id: null,
 })
 
 /* ── Computed ────────────────────────────────────────── */
 
 const totalSupplies = computed(() =>
-  markers.value.reduce((sum, m) => sum + m.supply_count, 0)
+	markers.value.reduce((sum, m) => sum + m.supply_count, 0),
 )
 
 /* ── Data Fetching ───────────────────────────────────── */
 
 async function fetchMarkers(): Promise<void> {
-  loading.value = true
-  try {
-    const params: Record<string, number> = {}
-    if (filters.value.category_id) params.category_id = filters.value.category_id
-    if (filters.value.variety_id)  params.variety_id  = filters.value.variety_id
+	loading.value = true
+	try {
+		const params: Record<string, number> = {}
+		if (filters.value.category_id)
+			params.category_id = filters.value.category_id
+		if (filters.value.variety_id) params.variety_id = filters.value.variety_id
 
-    const { data } = await axios.get(farmer.supplyMap.markers().url, { params })
-    markers.value = data.markers
-  } catch (error: any) {
-    toast.error('Failed to load map data', {
-      description: error.response?.data?.message ?? 'Please try again.',
-    })
-  } finally {
-    loading.value = false
-  }
+		const { data } = await axios.get(farmer.supplyMap.markers().url, {
+			params,
+		})
+		markers.value = data.markers
+	} catch (error: any) {
+		toast.error('Failed to load map data', {
+			description: error.response?.data?.message ?? 'Please try again.',
+		})
+	} finally {
+		loading.value = false
+	}
 }
 
 /* ── Event Handlers ──────────────────────────────────── */
 
 function handleMarkerClick(marker: BarangayMarker): void {
-  selectedMarker.value = marker
-  dialogOpen.value = true
+	selectedMarker.value = marker
+	dialogOpen.value = true
 }
 
 function handleFilterUpdate(updated: MapFilters): void {
-  filters.value = updated
+	filters.value = updated
 }
 
 function handleClearFilters(): void {
-  filters.value = { category_id: null, variety_id: null }
-  selectedMarker.value = null
-  dialogOpen.value = false
+	filters.value = { category_id: null, variety_id: null }
+	selectedMarker.value = null
+	dialogOpen.value = false
 }
 
 /* ── Watchers ────────────────────────────────────────── */

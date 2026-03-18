@@ -1,23 +1,23 @@
 <script setup lang="ts">
-import { usePage } from '@inertiajs/vue3';
-import { ChevronsUpDown } from 'lucide-vue-next';
+import { usePage } from '@inertiajs/vue3'
+import { ChevronsUpDown } from 'lucide-vue-next'
+import UserInfo from '@/components/UserInfo.vue'
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import {
-    SidebarMenu,
-    SidebarMenuButton,
-    SidebarMenuItem,
-    useSidebar,
-} from '@/components/ui/sidebar';
-import UserInfo from '@/components/UserInfo.vue';
-import UserMenuContent from './UserMenuContent.vue';
+	SidebarMenu,
+	SidebarMenuButton,
+	SidebarMenuItem,
+	useSidebar,
+} from '@/components/ui/sidebar'
+import UserMenuContent from './UserMenuContent.vue'
 
-const page = usePage();
-const user = page.props.auth.user;
-const { isMobile, state } = useSidebar();
+const page = usePage()
+const user = page.props.auth.user
+const { isMobile, state } = useSidebar()
 </script>
 
 <template>

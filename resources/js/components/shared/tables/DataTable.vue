@@ -1,45 +1,63 @@
 <script setup lang="ts" generic="TData">
-
-import { useVueTable, getCoreRowModel, getSortedRowModel, getExpandedRowModel, FlexRender, type ColumnDef, type ExpandedState } from '@tanstack/vue-table'
-import { ChevronLeft, ChevronRight, ChevronsUpDown, ChevronUp, ChevronDown, Search } from 'lucide-vue-next'
-import { ref, computed } from 'vue'
+import {
+	type ColumnDef,
+	type ExpandedState,
+	FlexRender,
+	getCoreRowModel,
+	getExpandedRowModel,
+	getSortedRowModel,
+	useVueTable,
+} from '@tanstack/vue-table'
+import {
+	ChevronDown,
+	ChevronLeft,
+	ChevronRight,
+	ChevronsUpDown,
+	ChevronUp,
+	Search,
+} from 'lucide-vue-next'
+import { computed, ref } from 'vue'
 import { Button } from '@/components/ui/button'
-import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group'
+import {
+	InputGroup,
+	InputGroupAddon,
+	InputGroupInput,
+} from '@/components/ui/input-group'
 
 interface PaginatedData<T> {
-    data: T[]
-    meta: {
-        current_page: number
-        last_page: number
-        per_page: number
-        total: number
-    }
+	data: T[]
+	meta: {
+		current_page: number
+		last_page: number
+		per_page: number
+		total: number
+	}
 }
 
 interface Props<TData> {
-    data: PaginatedData<TData>
-    columns: ColumnDef<TData>[]
-    searchPlaceholder?: string
-    emptyMessage?: string
-    entityName?: string
-    enableSearch?: boolean
-    enableExpand?: boolean
-    // ✅ NEW: Server-side search support
-    searchQuery?: string
+	data: PaginatedData<TData>
+	columns: ColumnDef<TData>[]
+	searchPlaceholder?: string
+	emptyMessage?: string
+	entityName?: string
+	enableSearch?: boolean
+	enableExpand?: boolean
+	// ✅ NEW: Server-side search support
+	searchQuery?: string
 }
 
 const props = withDefaults(defineProps<Props<TData>>(), {
-    searchPlaceholder: 'Search...',
-    emptyMessage: 'No items found.',
-    entityName: 'items',
-    enableSearch: true,
-    enableExpand: false,
-    searchQuery: '',
+	searchPlaceholder: 'Search...',
+	emptyMessage: 'No items found.',
+	entityName: 'items',
+	enableSearch: true,
+	enableExpand: false,
+	searchQuery: '',
 })
 
 const emit = defineEmits<{
-    'page-change': [page: number]
-    'search': [query: string] // ✅ NEW: Emit search to parent for server-side handling
+	'page-change': [page: number]
+	search: [query: string] // ✅ NEW: Emit search to parent for server-side handling
 }>()
 
 /* -- local state -- */
@@ -48,59 +66,65 @@ const expanded = ref<ExpandedState>({})
 
 /* -- table instance -- */
 const table = useVueTable({
-    get data() {
-        return props.data.data
-    },
-    columns: props.columns,
-    state: {
-        get expanded() {
-            return expanded.value
-        },
-        set expanded(value) {
-            expanded.value = value
-        },
-    },
-    onExpandedChange: (updaterOrValue) => {
-        expanded.value = typeof updaterOrValue === 'function'
-            ? updaterOrValue(expanded.value)
-            : updaterOrValue
-    },
-    getExpandedRowModel: getExpandedRowModel(),
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    // ❌ REMOVED: getFilteredRowModel() - This was causing client-side filtering on server-paginated data
-    ...(props.enableExpand ? { getExpandedRowModel: getExpandedRowModel() } : {}),
-    manualPagination: true,
-    manualFiltering: true, // ✅ NEW: Tell TanStack we're handling filtering server-side
+	get data() {
+		return props.data.data
+	},
+	columns: props.columns,
+	state: {
+		get expanded() {
+			return expanded.value
+		},
+		set expanded(value) {
+			expanded.value = value
+		},
+	},
+	onExpandedChange: (updaterOrValue) => {
+		expanded.value =
+			typeof updaterOrValue === 'function'
+				? updaterOrValue(expanded.value)
+				: updaterOrValue
+	},
+	getExpandedRowModel: getExpandedRowModel(),
+	getCoreRowModel: getCoreRowModel(),
+	getSortedRowModel: getSortedRowModel(),
+	// ❌ REMOVED: getFilteredRowModel() - This was causing client-side filtering on server-paginated data
+	...(props.enableExpand ? { getExpandedRowModel: getExpandedRowModel() } : {}),
+	manualPagination: true,
+	manualFiltering: true, // ✅ NEW: Tell TanStack we're handling filtering server-side
 })
 
 /* -- pagination helpers -- */
 const hasPrevPage = computed(() => props.data.meta.current_page > 1)
-const hasNextPage = computed(() => props.data.meta.current_page < props.data.meta.last_page)
+const hasNextPage = computed(
+	() => props.data.meta.current_page < props.data.meta.last_page,
+)
 
 const paginationRange = computed(() => ({
-    start: (props.data.meta.current_page - 1) * props.data.meta.per_page + 1,
-    end: Math.min(props.data.meta.current_page * props.data.meta.per_page, props.data.meta.total),
+	start: (props.data.meta.current_page - 1) * props.data.meta.per_page + 1,
+	end: Math.min(
+		props.data.meta.current_page * props.data.meta.per_page,
+		props.data.meta.total,
+	),
 }))
 
 /* -- sort icon helper -- */
 function sortIcon(state: string | false) {
-    if (state === 'asc') return ChevronUp
-    if (state === 'desc') return ChevronDown
-    return ChevronsUpDown
+	if (state === 'asc') return ChevronUp
+	if (state === 'desc') return ChevronDown
+	return ChevronsUpDown
 }
 
 /* -- search handler with debounce -- */
 let searchTimeout: ReturnType<typeof setTimeout> | null = null
 
 function handleSearchInput() {
-    // Clear existing timeout
-    if (searchTimeout) clearTimeout(searchTimeout)
+	// Clear existing timeout
+	if (searchTimeout) clearTimeout(searchTimeout)
 
-    // Debounce search (wait 300ms after user stops typing)
-    searchTimeout = setTimeout(() => {
-        emit('search', localSearchQuery.value)
-    }, 300)
+	// Debounce search (wait 300ms after user stops typing)
+	searchTimeout = setTimeout(() => {
+		emit('search', localSearchQuery.value)
+	}, 300)
 }
 </script>
 

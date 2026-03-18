@@ -1,19 +1,27 @@
 <script setup lang="ts">
-
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet'
+import {
+	Sheet,
+	SheetContent,
+	SheetDescription,
+	SheetHeader,
+	SheetTitle,
+} from '@/components/ui/sheet'
 
-withDefaults(defineProps<{
-    open: boolean
-    title: string
-    description?: string
-    side?: 'right' | 'left' | 'top' | 'bottom'
-}>(), {
-    side: 'right',
-})
+withDefaults(
+	defineProps<{
+		open: boolean
+		title: string
+		description?: string
+		side?: 'right' | 'left' | 'top' | 'bottom'
+	}>(),
+	{
+		side: 'right',
+	},
+)
 
 defineEmits<{
-    'update:open': [value: boolean]
+	'update:open': [value: boolean]
 }>()
 </script>
 

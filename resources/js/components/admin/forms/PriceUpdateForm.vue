@@ -1,8 +1,7 @@
 <script setup lang="ts">
-
 import { useForm } from '@inertiajs/vue3'
 import { TrendingUp } from 'lucide-vue-next'
-import { ref, watch, computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import DialogForm from '@/components/DialogForm.vue'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
@@ -11,53 +10,55 @@ import { store } from '@/routes/admin/vegetables/prices'
 import type { Variety } from '@/types/admin/vegetable-varieties'
 
 interface PriceForm {
-  price_min: number
-  price_max: number
+	price_min: number
+	price_max: number
 }
 
 const props = defineProps<{
-  open: boolean
-  variety: Variety
-  isSubmitting: boolean
+	open: boolean
+	variety: Variety
+	isSubmitting: boolean
 }>()
 
 const emit = defineEmits<{
-  'update:open': [value: boolean]
-  submit: [payload: FormData]
+	'update:open': [value: boolean]
+	submit: [payload: FormData]
 }>()
 
 const form = useForm({
-  price_min: 0,
-  price_max: 0,
+	price_min: 0,
+	price_max: 0,
 })
 
 const errors = ref<Partial<PriceForm>>({})
 
 // Seed fields with the current price when the dialog opens
-watch(() => [props.open, props.variety] as const, (isOpen) => {
-    if (!isOpen) return
-    
-    form.price_min = props.variety?.latest_price?.price_min
-    form.price_max = props.variety?.latest_price?.price_max
+watch(
+	() => [props.open, props.variety] as const,
+	(isOpen) => {
+		if (!isOpen) return
 
-    form.clearErrors()
-  },
+		form.price_min = props.variety?.latest_price?.price_min
+		form.price_max = props.variety?.latest_price?.price_max
+
+		form.clearErrors()
+	},
 )
 
 const priceRange = computed(() => {
-  const min = parseFloat(form.price_min)
-  const max = parseFloat(form.price_max)
-  if (isNaN(min) || isNaN(max)) return null
-  return `₱${min.toFixed(2)} – ₱${max.toFixed(2)} (avg: ₱${((min + max) / 2).toFixed(2)})`
+	const min = parseFloat(form.price_min)
+	const max = parseFloat(form.price_max)
+	if (isNaN(min) || isNaN(max)) return null
+	return `₱${min.toFixed(2)} – ₱${max.toFixed(2)} (avg: ₱${((min + max) / 2).toFixed(2)})`
 })
 
 function handleSubmit() {
-  form.post(store(props.variety.id).url, {
-    preserveScroll: true,
-    onSuccess: () => {
-      emit('update:open', false)
-    }
-  })
+	form.post(store(props.variety.id).url, {
+		preserveScroll: true,
+		onSuccess: () => {
+			emit('update:open', false)
+		},
+	})
 }
 </script>
 
