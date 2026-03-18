@@ -1,25 +1,40 @@
 <script setup lang="ts">
+import {
+    Archive,
+    CalendarClock,
+    CircleCheckBig,
+    EqualSquare,
+    MoreVertical,
+    Pencil,
+    PhilippinePeso,
+    Trash,
+    Weight,
+} from 'lucide-vue-next'
 import { computed } from 'vue'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Archive, PhilippinePeso, Weight, CalendarClock, Pencil, MoreVertical, Trash, CircleCheckBig } from 'lucide-vue-next'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { AspectRatio } from '@/components/ui/aspect-ratio'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import { Separator } from '@/components/ui/separator'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { Demand } from '@/types/dealer/demands'
+import type { Demand } from '@/types/marketplace'
 
 interface Props {
-  demand: Demand
+    demand: Demand
 }
 
 const props = defineProps<Props>()
 
 const emit = defineEmits<{
-  edit: [demand: Demand]
-  archive: [demand: Demand]
-  fulfill: [demand: Demand]
-  delete: [demand: Demand]
+    edit: [demand: Demand]
+    archive: [demand: Demand]
+    fulfill: [demand: Demand]
+    delete: [demand: Demand]
 }>()
 
 const isOngoing = computed(() => props.demand.status === 'Ongoing')
@@ -29,13 +44,11 @@ const isArchived = computed(() => props.demand.status === 'Archived')
 
 <template>
     <Card class="py-0 gap-2 overflow-hidden transition-all hover:shadow-lg ">
-        <AspectRatio :ratio="16/9" class="relative overflow-hidden">
-            <img 
-                :src="demand.variety.image_url" 
-                :alt="demand.variety.name" 
-                class="size-full object-cover bg-gray-200"
-            />
-            <div class="absolute bottom-0 right-0 rounded-tl-lg bg-black/60 px-3 py-1 text-xs font-medium text-white backdrop-blur-sm">
+        <AspectRatio :ratio="16 / 9" class="relative overflow-hidden">
+            <img :src="demand.variety.image_url" :alt="demand.variety.name"
+                class="size-full object-cover bg-gray-200" />
+            <div
+                class="absolute bottom-0 right-0 rounded-tl-lg bg-black/60 px-3 py-1 text-xs font-medium text-white backdrop-blur-sm">
                 {{ demand.created_at_human }}
             </div>
 
@@ -47,38 +60,26 @@ const isArchived = computed(() => props.demand.status === 'Archived')
                 </DropdownMenuTrigger>
 
                 <DropdownMenuContent align="end">
-                    <DropdownMenuItem 
-                        v-if="isOngoing"
-                        @click="emit('edit', demand)"
-                    >
+                    <DropdownMenuItem v-if="isOngoing" @click="emit('edit', demand)">
                         <Pencil class="mr-2 size-4" />
                         Edit Details
                     </DropdownMenuItem>
 
                     <DropdownMenuSeparator v-if="isOngoing" />
 
-                    <DropdownMenuItem
-                        v-if="isOngoing || isFulfilled"
-                        @click="emit('archive', demand)"
-                        class="text-orange-500"
-                    >
+                    <DropdownMenuItem v-if="isOngoing || isFulfilled" @click="emit('archive', demand)"
+                        class="text-orange-500">
                         <Archive class="mr-2 size-4" />
                         Archive
                     </DropdownMenuItem>
 
-                    <DropdownMenuItem
-                        v-if="isOngoing || isArchived"
-                        @click="emit('fulfill', demand)"
-                        class="text-green-500"
-                    >
+                    <DropdownMenuItem v-if="isOngoing || isArchived" @click="emit('fulfill', demand)"
+                        class="text-green-500">
                         <CircleCheckBig class="mr-2 size-4" />
                         Fulfill
                     </DropdownMenuItem>
 
-                    <DropdownMenuItem
-                        @click="emit('delete', demand)"
-                        class="text-destructive"
-                    >
+                    <DropdownMenuItem @click="emit('delete', demand)" class="text-destructive">
                         <Trash class="mr-2 size-4" />
                         Delete
                     </DropdownMenuItem>
@@ -88,13 +89,10 @@ const isArchived = computed(() => props.demand.status === 'Archived')
 
         <CardHeader class="p-5 py-2">
             <CardTitle>
-                {{ demand.variety.name }}
+                {{ demand.variety.vegetable }} {{ demand.variety.name }}
             </CardTitle>
-            <CardDescription class="flex justify-between">
-                <p>{{ demand.variety.vegetable }}</p>
-                <Badge>
-                    {{ demand.quantity_kg }} kg
-                </Badge>
+            <CardDescription>
+                {{ demand.variety.category }}
             </CardDescription>
             <Separator />
         </CardHeader>
@@ -105,7 +103,7 @@ const isArchived = computed(() => props.demand.status === 'Archived')
                     <PhilippinePeso :size="15" />
                     Price:
                 </div>
-                <span>{{ demand.offered_price.toFixed(2) }}</span>
+                <span>₱{{ demand.offered_price.toFixed(2) }}/kg</span>
             </div>
 
             <div class="flex justify-between text-sm">
@@ -113,16 +111,24 @@ const isArchived = computed(() => props.demand.status === 'Archived')
                     <Weight :size="15" />
                     Kg:
                 </div>
-                <span>{{ demand.quantity_kg }}</span>
+                <span>{{ demand.quantity_kg.toFixed(2) }} kg</span>
+            </div>
+
+            <div class="flex justify-between text-sm">
+                <div class="flex items-center text-muted-foreground gap-2">
+                    <EqualSquare :size="15" />
+                    Total:
+                </div>
+                <span>₱{{ (demand.quantity_kg * demand.offered_price).toFixed(2) }}</span>
             </div>
 
             <div class="flex justify-between text-sm">
                 <div class="flex items-center text-muted-foreground gap-2">
                     <CalendarClock :size="15" />
-                    Transact:
+                    Schedule:
                 </div>
                 <p>
-                    {{ demand.transaction_date }}
+                    {{ demand.scheduled_date }}
                     <span class="text-xs text-muted-foreground">
                         ({{ demand.days_until_transaction }} days)
                     </span>

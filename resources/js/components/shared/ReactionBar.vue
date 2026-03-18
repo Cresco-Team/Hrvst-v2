@@ -1,21 +1,21 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import { ThumbsUp, ThumbsDown } from 'lucide-vue-next'
+import axios from 'axios'
+import { ThumbsDown, ThumbsUp } from 'lucide-vue-next'
+import { computed, ref } from 'vue'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import axios from 'axios'
 
 interface Props {
-  reactionableType: 'DealerRequest' | 'FarmerOffering'
-  reactionableId: number
-  counts: Record<string, number>
-  userReaction?: string | null
-  variant?: 'thumbs' | 'emoji'
+	reactionableType: 'DealerRequest' | 'FarmerOffering'
+	reactionableId: number
+	counts: Record<string, number>
+	userReaction?: string | null
+	variant?: 'thumbs' | 'emoji'
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  variant: 'thumbs',
-  userReaction: null,
+	variant: 'thumbs',
+	userReaction: null,
 })
 
 const isSubmitting = ref(false)
@@ -28,36 +28,36 @@ const hasThumbsUp = computed(() => localUserReaction.value === 'thumbs_up')
 const hasThumbsDown = computed(() => localUserReaction.value === 'thumbs_down')
 
 async function toggleReaction(reactionType: string) {
-  if (isSubmitting.value) return
+	if (isSubmitting.value) return
 
-  isSubmitting.value = true
+	isSubmitting.value = true
 
-  try {
-    const { data } = await axios.post('/reactions/toggle', {
-      reactionable_type: props.reactionableType,
-      reactionable_id: props.reactionableId,
-      reaction_type: reactionType,
-    })
+	try {
+		const { data } = await axios.post('/reactions/toggle', {
+			reactionable_type: props.reactionableType,
+			reactionable_id: props.reactionableId,
+			reaction_type: reactionType,
+		})
 
-    localCounts.value = data.reaction_counts
-    localUserReaction.value = data.user_reaction
-  } catch (error) {
-    console.error('Error toggling reaction:', error)
-    // Optionally: show a toast notification here
-  } finally {
-    isSubmitting.value = false
-  }
+		localCounts.value = data.reaction_counts
+		localUserReaction.value = data.user_reaction
+	} catch (error) {
+		console.error('Error toggling reaction:', error)
+		// Optionally: show a toast notification here
+	} finally {
+		isSubmitting.value = false
+	}
 }
 
 // Emoji reactions (for FarmerOffering)
 const emojiReactions = ['👍', '❤️', '🔥', '😍', '👏']
 
 function getEmojiCount(emoji: string) {
-  return localCounts.value[emoji] || 0
+	return localCounts.value[emoji] || 0
 }
 
 function hasEmoji(emoji: string) {
-  return localUserReaction.value === emoji
+	return localUserReaction.value === emoji
 }
 </script>
 

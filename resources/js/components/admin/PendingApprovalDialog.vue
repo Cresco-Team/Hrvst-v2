@@ -1,43 +1,42 @@
 <script setup lang="ts">
-
-import { Check, MapPin, Phone, Mail, X } from 'lucide-vue-next'
+import { Check, Mail, MapPin, Phone, X } from 'lucide-vue-next'
 import LeafletMap from '@/components/LeafletMap.vue'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { getInitials } from '@/composables/useInitials'
-import type { PendingFarmer, PendingDealer } from '@/types/admin/pending-approvals'
+import type { PendingDealer, PendingFarmer } from '@/types/admin/pending-approvals'
 import ActionDialog from '../ActionDialog.vue'
 
 type Props = {
-  open: boolean
-  item: PendingFarmer | PendingDealer | null
-  type: 'farmer' | 'dealer'
+	open: boolean
+	item: PendingFarmer | PendingDealer | null
+	type: 'farmer' | 'dealer'
 }
 
 const props = defineProps<Props>()
 
 const emit = defineEmits<{
-  'update:open': [value: boolean]
-  approve: [id: number]
-  reject: [id: number]
+	'update:open': [value: boolean]
+	approve: [id: number]
+	reject: [id: number]
 }>()
 
 function isFarmer(item: PendingFarmer | PendingDealer): item is PendingFarmer {
-  return props.type === 'farmer'
+	return props.type === 'farmer'
 }
 
 function onApprove() {
-  if (!props.item) return
-  emit('approve', props.item.id)
-  emit('update:open', false)
+	if (!props.item) return
+	emit('approve', props.item.id)
+	emit('update:open', false)
 }
 
 function onReject() {
-  if (!props.item) return
-  emit('reject', props.item.id)
-  emit('update:open', false)
+	if (!props.item) return
+	emit('reject', props.item.id)
+	emit('update:open', false)
 }
 </script>
 

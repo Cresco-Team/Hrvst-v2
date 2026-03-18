@@ -1,7 +1,6 @@
 <script setup lang="ts">
-
 import { Deferred, Head } from '@inertiajs/vue3'
-import { TrendingUp, TrendingDown, Minus, Tractor, Package } from 'lucide-vue-next'
+import { Minus, Package, Tractor, TrendingDown, TrendingUp } from 'lucide-vue-next'
 import Heading from '@/components/Heading.vue'
 import QuickNavItem from '@/components/QuickNavItem.vue'
 import LargeCard from '@/components/shared/cards/LargeCard.vue'
@@ -16,30 +15,30 @@ import farmers from '@/routes/admin/farmers'
 import type { KPIs } from '@/types/admin/dashboard'
 
 defineProps<{
-    kpis?: KPIs
+	kpis?: KPIs
 }>()
 
 const breadcrumbs = [
-    { title: 'Admin', href: dashboard().url },
-    { title: 'Dashboard', href: dashboard().url },
+	{ title: 'Admin', href: dashboard().url },
+	{ title: 'Dashboard', href: dashboard().url },
 ]
 
 function getTrendIcon(trend?: string) {
-    if (trend === 'up') return TrendingUp
-    if (trend === 'down') return TrendingDown
-    return Minus
+	if (trend === 'up') return TrendingUp
+	if (trend === 'down') return TrendingDown
+	return Minus
 }
 
 function getTrendColor(trend?: string) {
-    if (trend === 'up') return 'text-green-600 dark:text-green-500'
-    if (trend === 'down') return 'text-red-600 dark:text-red-500'
-    return 'text-muted-foreground'
+	if (trend === 'up') return 'text-green-600 dark:text-green-500'
+	if (trend === 'down') return 'text-red-600 dark:text-red-500'
+	return 'text-muted-foreground'
 }
 
 function formatChange(change?: number): string {
-    if (change === undefined) return ''
-    const sign = change > 0 ? '+' : ''
-    return `${sign}${change}%`
+	if (change === undefined) return ''
+	const sign = change > 0 ? '+' : ''
+	return `${sign}${change}%`
 }
 </script>
 

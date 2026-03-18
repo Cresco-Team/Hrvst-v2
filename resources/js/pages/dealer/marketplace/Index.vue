@@ -1,19 +1,25 @@
 <script setup lang="ts">
-import { Head, router, Deferred } from '@inertiajs/vue3'
+import { Deferred, Head, router } from '@inertiajs/vue3'
 import { Search } from 'lucide-vue-next'
-import { ref, computed } from 'vue'
+import { computed, ref } from 'vue'
 import MarketplaceCard from '@/components/dealer/MarketplaceCard.vue'
 import EmptyState from '@/components/EmptyState.vue'
 import Heading from '@/components/Heading.vue'
 import { Button } from '@/components/ui/button'
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
 import AppLayout from '@/layouts/AppLayout.vue'
 import dealer from '@/routes/dealer'
-import type { MarketplaceFilters, Supply } from '@/types/dealer/marketplace'
+import type { MarketplaceFilters } from '@/types/dealer/marketplace'
+import type { CategoryOption, Supply } from '@/types/marketplace'
 import type { PaginatedResponse } from '@/types/pagination'
-import type { CategoryOption } from '@/types/product/category'
 
 interface Props {
   filters: MarketplaceFilters
@@ -83,45 +89,36 @@ const breadcrumbs = [
 </script>
 
 <template>
+
   <Head title="Marketplace" />
 
   <AppLayout :breadcrumbs="breadcrumbs">
     <div class="flex h-full flex-col gap-6 p-4 lg:p-6">
       <!-- Header -->
-      <Heading
-        title="Marketplace"
-        description="Browse available farmer posts and connect with local producers."
-      />
+      <Heading title="Marketplace"
+        description="Access real-time supplies to find the best produce at the right price." />
 
       <!-- Filters -->
-      <div class="md:flex justify-between">
-         <InputGroup class="md:w-2/3 lg:w-1/2 xl:w-2/5">
-          <InputGroupInput 
-            v-model="searchQuery"
-            type="search"
-            @input="handleSearch"
-            placeholder="Search vegetables (e.g., Cabbage, Lettuce)..." 
-          />
+      <div class="flex flex-wrap gap-3">
+        <InputGroup class="w-full sm:max-w-xs">
           <InputGroupAddon>
             <Search />
           </InputGroupAddon>
+          <InputGroupInput v-model="searchQuery" type="search" @input="handleSearch"
+            placeholder="Search vegetables (e.g., Cabbage, Lettuce)..." />
+          <InputGroupAddon align="inline-end">
+            {{ supplies?.meta.total }} results
+          </InputGroupAddon>
         </InputGroup>
-        
-        <Select
-          :model-value="filters.category_id?.toString() || 'all'"
-          :disabled="isLoadingFilters"
-          @update:model-value="(v) => handleFilter('category', v as string)"
-        >
+
+        <Select :model-value="filters.category_id?.toString() || 'all'" :disabled="isLoadingFilters"
+          @update:model-value="(v) => handleFilter('category', v as string)">
           <SelectTrigger class="w-full md:w-48">
             <SelectValue placeholder="All Categories" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Categories</SelectItem>
-            <SelectItem
-              v-for="category in categoryOptions"
-              :key="category.id"
-              :value="category.id.toString()"
-            >
+            <SelectItem v-for="category in categoryOptions" :key="category.id" :value="category.id.toString()">
               {{ category.name }}
             </SelectItem>
           </SelectContent>
@@ -137,47 +134,29 @@ const breadcrumbs = [
             <Skeleton v-for="i in 8" :key="i" class="h-96 rounded-lg" />
           </div>
         </template>
-        
-        <p class="text-sm text-muted-foreground">Showing {{ supplies?.data.length }} of {{ supplies?.meta.total }} supplies</p>
 
-        <EmptyState 
-          v-if="supplies?.data.length === 0"
-          title="No Offerings Found"
-          description="Try adjusting your search filters"
-          :icon="Search"
-        />
+        <p class="text-sm text-muted-foreground">Showing {{ supplies?.data.length }} of {{ supplies?.meta.total }}
+          supplies</p>
+
+        <EmptyState v-if="supplies?.data.length === 0" title="No Offerings Found"
+          description="Try adjusting your search filters" :icon="Search" />
 
         <div v-else class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          <MarketplaceCard 
-            v-for="supply in supplies?.data"
-            :key="supply.id"
-            :supply="supply"
-          />
+          <MarketplaceCard v-for="supply in supplies?.data" :key="supply.id" :supply="supply" />
         </div>
       </Deferred>
 
       <!-- Pagination -->
-      <div
-        v-if="supplies && supplies.meta.last_page > 1"
-        class="flex items-center justify-between border-t pt-4"
-      >
-        <Button
-          variant="outline"
-          size="sm"
-          :disabled="supplies.meta.current_page === 1"
-          @click="handlePageChange(supplies.meta.current_page - 1)"
-        >
+      <div v-if="supplies && supplies.meta.last_page > 1" class="flex items-center justify-between border-t pt-4">
+        <Button variant="outline" size="sm" :disabled="supplies.meta.current_page === 1"
+          @click="handlePageChange(supplies.meta.current_page - 1)">
           Previous
         </Button>
         <span class="text-sm text-muted-foreground">
           Page {{ supplies.meta.current_page }} of {{ supplies.meta.last_page }}
         </span>
-        <Button
-          variant="outline"
-          size="sm"
-          :disabled="supplies.meta.current_page === supplies.meta.last_page"
-          @click="handlePageChange(supplies.meta.current_page + 1)"
-        >
+        <Button variant="outline" size="sm" :disabled="supplies.meta.current_page === supplies.meta.last_page"
+          @click="handlePageChange(supplies.meta.current_page + 1)">
           Next
         </Button>
       </div>

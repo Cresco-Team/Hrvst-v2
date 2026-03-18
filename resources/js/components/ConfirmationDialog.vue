@@ -1,30 +1,39 @@
 <script setup lang="ts">
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from './ui/alert-dialog';
-import { buttonVariants } from './ui/button';
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+} from './ui/alert-dialog'
+import { buttonVariants } from './ui/button'
 
 type ButtonVariant = 'default' | 'destructive'
 
 type Props = {
-    title: string
-    description: string
-    actionName?: string
-    variant?: ButtonVariant
+	title: string
+	description: string
+	actionName?: string
+	variant?: ButtonVariant
 }
 
 const props = withDefaults(defineProps<Props>(), {
-    actionName: 'Confirm',
-    variant: 'default'
+	actionName: 'Confirm',
+	variant: 'default',
 })
 
 const open = defineModel<boolean>('open', { default: false })
 
 const emit = defineEmits<{
-    action: []
+	action: []
 }>()
 
 const handleAction = () => {
-    emit('action')
-    open.value = false
+	emit('action')
+	open.value = false
 }
 </script>
 

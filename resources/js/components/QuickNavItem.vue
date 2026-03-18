@@ -1,23 +1,23 @@
 <script setup lang="ts">
 // Assuming you are using Lucide icons or similar
-import { Link } from '@inertiajs/vue3';
-import { Item, ItemContent, ItemDescription, ItemMedia, ItemTitle } from './ui/item';
-import type { Component } from 'vue';
-import { RouteDefinition } from '@/wayfinder';
+import { Link } from '@inertiajs/vue3'
+import type { Component } from 'vue'
+import type { RouteDefinition } from '@/wayfinder'
+import { Item, ItemContent, ItemDescription, ItemMedia, ItemTitle } from './ui/item'
 
 const props = withDefaults(
-    defineProps<{
-        href: RouteDefinition<"get"> | undefined
-        title: string
-        description: string
-        icon: Component
-        colorClasses?: string
-        iconClasses?: string
-    }>(),
-    {
-        colorClasses: 'from-green-500/10 to-emerald-500/10',
-        iconClasses: 'text-green-600 dark:text-green-500'
-    }
+	defineProps<{
+		href: RouteDefinition<'get'> | undefined
+		title: string
+		description: string
+		icon: Component
+		colorClasses?: string
+		iconClasses?: string
+	}>(),
+	{
+		colorClasses: 'from-green-500/10 to-emerald-500/10',
+		iconClasses: 'text-green-600 dark:text-green-500',
+	},
 )
 </script>
 

@@ -1,6 +1,5 @@
 <script setup lang="ts">
-
-import { Head, router, Deferred } from '@inertiajs/vue3'
+import { Deferred, Head, router } from '@inertiajs/vue3'
 import { Search } from 'lucide-vue-next'
 import { ref } from 'vue'
 import EmptyState from '@/components/EmptyState.vue'
@@ -8,7 +7,13 @@ import MarketplaceCard from '@/components/farmer/MarketplaceCard.vue'
 import Heading from '@/components/Heading.vue'
 import { Button } from '@/components/ui/button'
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
 import AppLayout from '@/layouts/AppLayout.vue'
 import farmer from '@/routes/farmer'
@@ -17,9 +22,9 @@ import type { PaginatedResponse } from '@/types/pagination'
 import type { CategoryOption } from '@/types/product/category'
 
 interface Props {
-  filters: DemandFilters
-  demands?: PaginatedResponse<DealerDemand>
-  categoryOptions?: CategoryOption[]
+	filters: DemandFilters
+	demands?: PaginatedResponse<DealerDemand>
+	categoryOptions?: CategoryOption[]
 }
 
 const props = defineProps<Props>()
@@ -28,51 +33,51 @@ const searchQuery = ref(props.filters.search || '')
 const searchDebounce = ref<ReturnType<typeof setTimeout> | null>(null)
 
 function handleSearch() {
-  if (searchDebounce.value) clearTimeout(searchDebounce.value)
+	if (searchDebounce.value) clearTimeout(searchDebounce.value)
 
-  searchDebounce.value = setTimeout(() => {
-    router.visit(farmer.marketplace.index().url, {
-      data: {
-        search: searchQuery.value || undefined,
-        category_id: props.filters.category_id || undefined,
-      },
-      preserveState: true,
-      preserveScroll: true,
-      only: ['demands'],
-    })
-  }, 300)
+	searchDebounce.value = setTimeout(() => {
+		router.visit(farmer.marketplace.index().url, {
+			data: {
+				search: searchQuery.value || undefined,
+				category_id: props.filters.category_id || undefined,
+			},
+			preserveState: true,
+			preserveScroll: true,
+			only: ['demands'],
+		})
+	}, 300)
 }
 
 function handleFilter(type: 'category', value: string) {
-  const filters: Record<string, string | undefined> = {
-    category_id: undefined,
-  }
+	const filters: Record<string, string | undefined> = {
+		category_id: undefined,
+	}
 
-  if (type === 'category') {
-    filters.category_id = value === 'all' ? undefined : value
-  }
+	if (type === 'category') {
+		filters.category_id = value === 'all' ? undefined : value
+	}
 
-  router.visit(farmer.marketplace.index().url, {
-    data: filters,
-    preserveState: true,
-    preserveScroll: true,
-    only: ['demands'],
-  })
+	router.visit(farmer.marketplace.index().url, {
+		data: filters,
+		preserveState: true,
+		preserveScroll: true,
+		only: ['demands'],
+	})
 }
 
 function handlePageChange(page: number) {
-  router.visit(farmer.marketplace.index().url, {
-    data: {
-      page,
-      category_id: props.filters.category_id || undefined,
-    },
-    preserveScroll: true,
-  })
+	router.visit(farmer.marketplace.index().url, {
+		data: {
+			page,
+			category_id: props.filters.category_id || undefined,
+		},
+		preserveScroll: true,
+	})
 }
 
 const breadcrumbs = [
-  { title: 'Farmer', href: farmer.garden.index().url },
-  { title: 'Dealer Posts', href: farmer.marketplace.index().url },
+	{ title: 'Farmer', href: farmer.garden.index().url },
+	{ title: 'Dealer Posts', href: farmer.marketplace.index().url },
 ]
 </script>
 

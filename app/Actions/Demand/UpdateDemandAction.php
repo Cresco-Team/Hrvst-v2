@@ -4,38 +4,33 @@ namespace App\Actions\Demand;
 
 use App\Enums\PostPriceFlag;
 use App\Enums\PostStatus;
-use App\Models\Marketplace\DealerDemand;
+use App\Models\Marketplace\Post;
 use App\Models\Product\Variety;
 
 final class UpdateDemandAction
 {
-    public function __invoke(DealerDemand $demand, array $validated): DealerDemand
+    public function handle(Post $post, array $validated): Post
     {
-        $post = $demand->post;
-
         if ($post->status !== PostStatus::Ongoing) {
             throw new \LogicException('Only ongoing demands can be updated.');
         }
 
-        $demandFields = array_intersect_key($validated, array_flip(['transaction_date']));
-
-        $postFields = array_intersect_key($validated, array_flip([
-            'variety_id', 'quantity_kg', 'offered_price',
+        $fields = array_intersect_key($validated, array_flip([
+            'variety_id', 'quantity_kg', 'offered_price', 'scheduled_date',
         ]));
 
-        if (isset($postFields['offered_price'])) {
-            $variety = Variety::with('latestPrice')->findOrFail($postFields['variety_id'] ?? $post->variety_id);
-            $postFields['price_flag'] = PostPriceFlag::fromMarketPrice($postFields['offered_price'], $variety->latestPrice);
+        if (isset($fields['offered_price'])) {
+            $variety = Variety::with('latestPrice')
+                ->findOrFail($fields['variety_id'] ?? $post->variety_id);
+
+            $fields['price_flag'] = PostPriceFlag::fromMarketPrice(
+                (float) $fields['offered_price'],
+                $variety->latestPrice
+            );
         }
 
-        if (!empty($demandFields)) {
-            $demand->update($demandFields);
-        }
+        $post->update($fields);
 
-        if (!empty($postFields)) {
-            $post->update($postFields);
-        }
-
-        return $demand->fresh('post');
+        return $post->fresh('variety');
     }
 }

@@ -2,10 +2,11 @@
 
 namespace App\Models\Profiles;
 
+use App\Enums\PostType;
 use App\Models\Address\Barangay;
 use App\Models\Address\Municipality;
 use App\Models\Address\Province;
-use App\Models\Marketplace\FarmerSupply;
+use App\Models\Marketplace\Post;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -43,9 +44,10 @@ class FarmerProfile extends Model implements HasMedia
         return $this->belongsTo(User::class);
     }
 
-    public function supplies(): HasMany
+    public function posts(): HasMany
     {
-        return $this->hasMany(FarmerSupply::class, 'farmer_id');
+        return $this->hasMany(Post::class, 'user_id', 'user_id')
+            ->where('type', PostType::Supply);
     }
 
     public function province(): BelongsTo

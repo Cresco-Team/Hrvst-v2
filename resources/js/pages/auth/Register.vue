@@ -7,26 +7,32 @@ import TextLink from '@/components/TextLink.vue'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from '@/components/ui/select'
 import { Spinner } from '@/components/ui/spinner'
 import AuthLayout from '@/layouts/AuthLayout.vue'
 import { login } from '@/routes'
 import { store } from '@/routes/register'
 
 interface Municipality {
-    id: number
-    name: string
-    latitude: number
-    longitude: number
+	id: number
+	name: string
+	latitude: number
+	longitude: number
 }
 
 interface Barangay {
-    id: number
-    name: string
+	id: number
+	name: string
 }
 
 const props = defineProps<{
-    municipalities: Municipality[]
+	municipalities: Municipality[]
 }>()
 
 // ---------------------------------------------------------------------------
@@ -34,22 +40,22 @@ const props = defineProps<{
 // ---------------------------------------------------------------------------
 
 const form = useForm({
-    role: '' as 'farmer' | 'dealer' | '',
-    name: '',
-    email: '',
-    phone_number: '',
-    password: '',
-    password_confirmation: '',
-    profile_image: null as File | null,
-    // Farmer-specific
-    province_id: 1,
-    municipality_id: null as number | null,
-    barangay_id: null as number | null,
-    latitude: null as number | null,
-    longitude: null as number | null,
-    farm_image: null as File | null,
-    // Dealer-specific
-    document_image: null as File | null,
+	role: '' as 'farmer' | 'dealer' | '',
+	name: '',
+	email: '',
+	phone_number: '',
+	password: '',
+	password_confirmation: '',
+	profile_image: null as File | null,
+	// Farmer-specific
+	province_id: 1,
+	municipality_id: null as number | null,
+	barangay_id: null as number | null,
+	latitude: null as number | null,
+	longitude: null as number | null,
+	farm_image: null as File | null,
+	// Dealer-specific
+	document_image: null as File | null,
 })
 
 // ---------------------------------------------------------------------------
@@ -59,28 +65,30 @@ const form = useForm({
 // you the VALUE (null), not the ref itself, making .value throw on null.
 // ---------------------------------------------------------------------------
 
-const previews = reactive<Record<'profile_image' | 'farm_image' | 'document_image', string | null>>({
-    profile_image: null,
-    farm_image: null,
-    document_image: null,
-})
+const previews = reactive<Record<'profile_image' | 'farm_image' | 'document_image', string | null>>(
+	{
+		profile_image: null,
+		farm_image: null,
+		document_image: null,
+	},
+)
 
 function handleFileSelect(
-    event: Event,
-    field: 'profile_image' | 'farm_image' | 'document_image',
+	event: Event,
+	field: 'profile_image' | 'farm_image' | 'document_image',
 ): void {
-    const input = event.target as HTMLInputElement
-    const file = input.files?.[0] ?? null
-    form[field] = file
-    if (file) {
-        const reader = new FileReader()
-        reader.onload = (e) => {
-            previews[field] = e.target?.result as string
-        }
-        reader.readAsDataURL(file)
-    } else {
-        previews[field] = null
-    }
+	const input = event.target as HTMLInputElement
+	const file = input.files?.[0] ?? null
+	form[field] = file
+	if (file) {
+		const reader = new FileReader()
+		reader.onload = (e) => {
+			previews[field] = e.target?.result as string
+		}
+		reader.readAsDataURL(file)
+	} else {
+		previews[field] = null
+	}
 }
 
 // ---------------------------------------------------------------------------
@@ -91,57 +99,63 @@ const barangays = ref<Barangay[]>([])
 const loadingBarangays = ref(false)
 
 const selectedMunicipality = computed<Municipality | null>(
-    () => props.municipalities.find(m => m.id === form.municipality_id) ?? null
+	() => props.municipalities.find((m) => m.id === form.municipality_id) ?? null,
 )
 
 const mapCenter = computed(() =>
-    selectedMunicipality.value
-        ? { lat: selectedMunicipality.value.latitude, lng: selectedMunicipality.value.longitude }
-        : null
+	selectedMunicipality.value
+		? {
+				lat: selectedMunicipality.value.latitude,
+				lng: selectedMunicipality.value.longitude,
+			}
+		: null,
 )
 
 async function onMunicipalityChange(value: string): Promise<void> {
-    const id = parseInt(value, 10)
-    form.municipality_id = id
-    form.barangay_id = null
-    form.latitude = null
-    form.longitude = null
-    barangays.value = []
+	const id = parseInt(value, 10)
+	form.municipality_id = id
+	form.barangay_id = null
+	form.latitude = null
+	form.longitude = null
+	barangays.value = []
 
-    loadingBarangays.value = true
-    try {
-        const res = await fetch(`/address/barangays?municipality_id=${id}`)
-        if (!res.ok) throw new Error(`Server returned ${res.status}`)
-        barangays.value = await res.json()
-    } catch (e) {
-        console.error('Failed to load barangays:', e)
-    } finally {
-        loadingBarangays.value = false
-    }
+	loadingBarangays.value = true
+	try {
+		const res = await fetch(`/address/barangays?municipality_id=${id}`)
+		if (!res.ok) throw new Error(`Server returned ${res.status}`)
+		barangays.value = await res.json()
+	} catch (e) {
+		console.error('Failed to load barangays:', e)
+	} finally {
+		loadingBarangays.value = false
+	}
 }
 
 // Reset profile-specific fields on role switch to avoid stale data in submission
-watch(() => form.role, () => {
-    form.municipality_id = null
-    form.barangay_id = null
-    form.latitude = null
-    form.longitude = null
-    form.farm_image = null
-    form.document_image = null
-    previews.farm_image = null
-    previews.document_image = null
-    barangays.value = []
-})
+watch(
+	() => form.role,
+	() => {
+		form.municipality_id = null
+		form.barangay_id = null
+		form.latitude = null
+		form.longitude = null
+		form.farm_image = null
+		form.document_image = null
+		previews.farm_image = null
+		previews.document_image = null
+		barangays.value = []
+	},
+)
 
 // ---------------------------------------------------------------------------
 // Submission
 // ---------------------------------------------------------------------------
 
 function submit(): void {
-    form.post(store.url(), {
-        forceFormData: true,
-        onSuccess: () => form.reset(),
-    })
+	form.post(store.url(), {
+		forceFormData: true,
+		onSuccess: () => form.reset(),
+	})
 }
 </script>
 

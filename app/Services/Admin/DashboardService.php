@@ -2,8 +2,7 @@
 
 namespace App\Services\Admin;
 
-use App\Models\Marketplace\DealerDemand;
-use App\Models\Marketplace\FarmerSupply;
+use App\Models\Marketplace\Post;
 use App\Models\Profiles\DealerProfile;
 use App\Models\Profiles\FarmerProfile;
 use App\Services\Product\VarietyService;
@@ -19,8 +18,8 @@ class DashboardService
     public function getKPIs(): array
     {
         return [
-            'farmers' => $this->getFarmerKPIs(),
-            'dealers' => $this->getDealerKPIs(),
+            'farmers'  => $this->getFarmerKPIs(),
+            'dealers'  => $this->getDealerKPIs(),
             'varieties' => $this->getVarietyKPIs(),
         ];
     }
@@ -28,25 +27,20 @@ class DashboardService
     private function getFarmerKPIs(): array
     {
         $current = $this->farmerService->summary();
-        
-        // Get previous period data (30 days ago)
-        $previousTotal = FarmerProfile::approved()
-            ->where('created_at', '<', now()->subDays(30))
-            ->count();
-        
-        $previousSupplies = FarmerSupply::where('created_at', '<', now()->subDays(30))
-            ->count();
+
+        $previousTotal    = FarmerProfile::approved()->where('created_at', '<', now()->subDays(30))->count();
+        $previousSupplies = Post::supply()->where('created_at', '<', now()->subDays(30))->count();
 
         return [
             'total_farmers' => [
-                'value' => $current['total_farmers'],
+                'value'  => $current['total_farmers'],
                 'change' => self::calculatePercentageChange($previousTotal, $current['total_farmers']),
-                'trend' => self::getTrend($previousTotal, $current['total_farmers']),
+                'trend'  => self::getTrend($previousTotal, $current['total_farmers']),
             ],
             'total_supplies' => [
-                'value' => $current['total_supplies'],
+                'value'  => $current['total_supplies'],
                 'change' => self::calculatePercentageChange($previousSupplies, $current['total_supplies']),
-                'trend' => self::getTrend($previousSupplies, $current['total_supplies']),
+                'trend'  => self::getTrend($previousSupplies, $current['total_supplies']),
             ],
         ];
     }
@@ -54,24 +48,20 @@ class DashboardService
     private function getDealerKPIs(): array
     {
         $current = $this->dealerService->summary();
-        
-        $previousTotal = DealerProfile::approved()
-            ->where('created_at', '<', now()->subDays(30))
-            ->count();
 
-        $previousDemands = DealerDemand::where('created_at', '<', now()->subDays(30))
-            ->count();
+        $previousTotal   = DealerProfile::approved()->where('created_at', '<', now()->subDays(30))->count();
+        $previousDemands = Post::demand()->where('created_at', '<', now()->subDays(30))->count();
 
         return [
             'total_dealers' => [
-                'value' => $current['total_dealers'],
+                'value'  => $current['total_dealers'],
                 'change' => self::calculatePercentageChange($previousTotal, $current['total_dealers']),
-                'trend' => self::getTrend($previousTotal, $current['total_dealers']),
+                'trend'  => self::getTrend($previousTotal, $current['total_dealers']),
             ],
             'total_demands' => [
-                'value' => $current['total_demands'],
+                'value'  => $current['total_demands'],
                 'change' => self::calculatePercentageChange($previousDemands, $current['total_demands']),
-                'trend' => self::getTrend($previousDemands, $current['total_demands']),
+                'trend'  => self::getTrend($previousDemands, $current['total_demands']),
             ],
         ];
     }
@@ -95,19 +85,18 @@ class DashboardService
         ];
     }
 
-    private static function calculatePercentageChange(int $old, int $new): float
+    private static function calculatePercentageChange(int $previous, int $current): float
     {
-        if ($old === 0) return $new > 0 ? 100.0 : 0.0;
-
-        return round((($new - $old) / $old) * 100, 1);
+        if ($previous === 0) return $current > 0 ? 100.0 : 0.0;
+        return round((($current - $previous) / $previous) * 100, 1);
     }
 
-    private static function getTrend(int $old, int $new): string
+    private static function getTrend(int $previous, int $current): string
     {
-        if ($new > $old) return 'up';
-
-        if ($new < $old) return 'down';
-
-        return 'neutral';
+        return match (true) {
+            $current > $previous => 'up',
+            $current < $previous => 'down',
+            default              => 'flat',
+        };
     }
 }

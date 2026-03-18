@@ -1,8 +1,14 @@
 <script setup lang="ts">
-
-import { Deferred, Head, router, useForm } from '@inertiajs/vue3'
-import { Plus, PackageSearch, PackageCheck, CalendarX, CalendarClock, Package } from 'lucide-vue-next'
-import { ref, computed } from 'vue'
+import { Deferred, Head, router } from '@inertiajs/vue3'
+import {
+  CalendarClock,
+  CalendarX,
+  Package,
+  PackageCheck,
+  PackageSearch,
+  Plus,
+} from 'lucide-vue-next'
+import { computed, ref } from 'vue'
 import ConfirmationDialog from '@/components/ConfirmationDialog.vue'
 import DemandCard from '@/components/dealer/DemandCard.vue'
 import DemandForm from '@/components/dealer/DemandForm.vue'
@@ -15,12 +21,11 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import AppLayout from '@/layouts/AppLayout.vue'
 import dealer from '@/routes/dealer'
 import { archive, destroy, fulfill, index } from '@/routes/dealer/demands'
-import type { Demand, Summary } from '@/types/dealer/demands'
+import type { Demand, DemandSummary, VarietyOption } from '@/types/marketplace'
 import type { PaginatedResponse } from '@/types/pagination'
-import type { VarietyOption } from '@/types/product/variety'
 
 interface Props {
-  summary?: Summary
+  summary?: DemandSummary
   filters: { status: string | null }
   demands?: PaginatedResponse<Demand>
   varietyOptions?: Record<string, VarietyOption[]>
@@ -40,50 +45,32 @@ const demandToArchive = ref<Demand | null>(null)
 const demandToFulfill = ref<Demand | null>(null)
 const demandToDelete = ref<Demand | null>(null)
 
-const form = useForm<{
-  variety_id: number | null
-  quantity_kg: number
-  offered_price: number
-  transaction_date: string
-}>({
-  variety_id: null,
-  quantity_kg: 0,
-  offered_price: 0,
-  transaction_date: '',
-})
-
 const activeTab = computed(() => props.filters.status || 'Ongoing')
 
 const breadcrumbs = [
   { title: 'Dealer', href: dealer.demands.index().url },
-  { title: 'Demands', href: dealer.demands.index().url }
+  { title: 'Demands', href: dealer.demands.index().url },
 ]
 
 function handleTabChange(value: string | number) {
   const routeTarget = index({
-    query: { status: value === 'open' ? undefined : value }
+    query: { status: value === 'open' ? undefined : value },
   })
 
   router.visit(routeTarget.url, {
     preserveState: true,
     preserveScroll: true,
-    only: ['demands', 'filters', 'summary']
+    only: ['demands', 'filters', 'summary'],
   })
 }
 
 function openCreate() {
   activeDemand.value = null
-  form.reset()
-  form.clearErrors()
   formOpen.value = true
 }
 
 function openEdit(demand: Demand) {
   activeDemand.value = demand
-  form.variety_id = demand.variety.id
-  form.quantity_kg = demand.quantity_kg
-  form.offered_price = demand.offered_price
-  form.transaction_date = demand.transaction_date
   formOpen.value = true
 }
 
@@ -105,25 +92,33 @@ function openDelete(demand: Demand) {
 function handleArchive() {
   if (!demandToArchive.value) return
 
-  router.post(archive(demandToArchive.value.id), {}, {
-    preserveScroll: true,
-    onSuccess: () => {
-      archiveDialogOpen.value = false
-      demandToArchive.value = null
-    }
-  })
+  router.post(
+    archive(demandToArchive.value.id),
+    {},
+    {
+      preserveScroll: true,
+      onSuccess: () => {
+        archiveDialogOpen.value = false
+        demandToArchive.value = null
+      },
+    },
+  )
 }
 
 function handleFulfill() {
   if (!demandToFulfill.value) return
 
-  router.post(fulfill(demandToFulfill.value.id), {}, {
-    preserveScroll: true,
-    onSuccess: () => {
-      fulfillDialogOpen.value = false
-      demandToFulfill.value = null
-    }
-  })
+  router.post(
+    fulfill(demandToFulfill.value.id),
+    {},
+    {
+      preserveScroll: true,
+      onSuccess: () => {
+        fulfillDialogOpen.value = false
+        demandToFulfill.value = null
+      },
+    },
+  )
 }
 
 function handleDelete() {
@@ -137,7 +132,7 @@ function handleDelete() {
     onSuccess: () => {
       deleteDialogOpen.value = false
       demandToDelete.value = null
-    }
+    },
   })
 }
 
@@ -153,17 +148,15 @@ function handlePageChange(page: number) {
 </script>
 
 <template>
+
   <Head title="My Demands" />
 
   <AppLayout :breadcrumbs="breadcrumbs">
     <div class="flex h-full flex-col gap-6 p-4 lg:p-6">
       <!-- Header -->
       <div class="flex items-end justify-between">
-        <Heading
-          title="My Demands"
-          description="Manage your vegetable demands."
-        />
-        
+        <Heading title="My Demands" description="Manage your vegetable demands." />
+
         <Button @click="openCreate" class="gap-2">
           <Plus class="size-4" />
           New Demand
@@ -171,7 +164,7 @@ function handlePageChange(page: number) {
       </div>
 
       <!-- Summary Cards -->
-       <Deferred data="summary">
+      <Deferred data="summary">
         <template #fallback>
           <div class="grid grid-cols-1 gap-4 sm:grid-cols-4">
             <Skeleton v-for="i in 4" :key="i" class="h-34 rounded-lg" />
@@ -179,39 +172,22 @@ function handlePageChange(page: number) {
         </template>
 
         <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-2">
-          <LargeCard 
-            title="Ongoing Demands"
-            :value="summary?.total_ongoing"
-            subtext="all ongoing demands"
+          <LargeCard title="Ongoing Demands" :value="summary?.total_ongoing" subtext="all ongoing demands"
             :icon="PackageSearch"
-            card-class="from-emerald-50 to-green-50 dark:from-emerald-950/20 dark:to-green-950/20"
-          />
+            card-class="from-emerald-50 to-green-50 dark:from-emerald-950/20 dark:to-green-950/20" />
 
-          <LargeCard 
-            title="Archived Demands"
-            :value="summary?.total_archived"
-            subtext="all archived demands"
+          <LargeCard title="Archived Demands" :value="summary?.total_archived" subtext="all archived demands"
             :icon="PackageCheck"
-            card-class="from-emerald-50 to-green-50 dark:from-emerald-950/20 dark:to-green-950/20"
-          />
+            card-class="from-emerald-50 to-green-50 dark:from-emerald-950/20 dark:to-green-950/20" />
 
-          <LargeCard 
-            title="Fulfilled Demands"
-            :value="summary?.total_fulfilled"
-            subtext="all fulfilled demands"
-            :icon="CalendarX"
-            card-class="from-emerald-50 to-green-50 dark:from-emerald-950/20 dark:to-green-950/20"
-          />
+          <LargeCard title="Fulfilled Demands" :value="summary?.total_fulfilled" subtext="all fulfilled demands"
+            :icon="CalendarX" card-class="from-emerald-50 to-green-50 dark:from-emerald-950/20 dark:to-green-950/20" />
 
-          <LargeCard 
-            title="Upcoming"
-            :value="summary?.upcomming_transactions"
-            subtext="all upcoming transactions"
+          <LargeCard title="Upcoming" :value="summary?.scheduled_this_week" subtext="scheduled this week"
             :icon="CalendarClock"
-            card-class="from-emerald-50 to-green-50 dark:from-emerald-950/20 dark:to-green-950/20"
-          />
+            card-class="from-emerald-50 to-green-50 dark:from-emerald-950/20 dark:to-green-950/20" />
         </div>
-       </Deferred>
+      </Deferred>
 
       <!-- Status Tabs -->
       <Tabs :model-value="activeTab" @update:model-value="handleTabChange">
@@ -230,47 +206,25 @@ function handlePageChange(page: number) {
           </div>
         </template>
 
-        <EmptyState 
-          v-if="demands?.data.length === 0"
-          title="No Posted Demands Yet."
-          description="Post a demand"
-          :icon="Package"
-        />
+        <EmptyState v-if="demands?.data.length === 0" title="No Posted Demands Yet." description="Post a demand"
+          :icon="Package" />
 
         <div v-else class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <DemandCard 
-            v-for="demand in demands!.data"
-            :key="demand.id"
-            :demand="demand"
-            @edit="openEdit"
-            @archive="openToArchive"
-            @fulfill="openFulfill"
-            @delete="openDelete"
-          />
+          <DemandCard v-for="demand in demands!.data" :key="demand.id" :demand="demand" @edit="openEdit"
+            @archive="openToArchive" @fulfill="openFulfill" @delete="openDelete" />
         </div>
       </Deferred>
 
-      <div
-        v-if="demands && demands.meta.last_page > 1"
-        class="flex items-center justify-between border-t pt-4"
-      >
-        <Button
-          variant="outline"
-          size="sm"
-          :disabled="demands.meta.current_page === 1"
-          @click="handlePageChange(demands.meta.current_page - 1)"
-        >
+      <div v-if="demands && demands.meta.last_page > 1" class="flex items-center justify-between border-t pt-4">
+        <Button variant="outline" size="sm" :disabled="demands.meta.current_page === 1"
+          @click="handlePageChange(demands.meta.current_page - 1)">
           Previous
         </Button>
         <span class="text-sm text-muted-foreground">
           Page {{ demands.meta.current_page }} of {{ demands.meta.last_page }}
         </span>
-        <Button
-          variant="outline"
-          size="sm"
-          :disabled="demands.meta.current_page === demands.meta.last_page"
-          @click="handlePageChange(demands.meta.current_page + 1)"
-        >
+        <Button variant="outline" size="sm" :disabled="demands.meta.current_page === demands.meta.last_page"
+          @click="handlePageChange(demands.meta.current_page + 1)">
           Next
         </Button>
       </div>
@@ -278,34 +232,20 @@ function handlePageChange(page: number) {
   </AppLayout>
 
   <!-- Demand Form Dialog -->
-  <DemandForm
-    :open="formOpen"
-    :demand="activeDemand"
-    :variety-options="varietyOptions!"
-    @update:open="formOpen = $event"
-  />
+  <DemandForm :open="formOpen" :demand="activeDemand" :variety-options="varietyOptions!"
+    @update:open="formOpen = $event" />
 
-  <ConfirmationDialog 
-    v-model:open="archiveDialogOpen"
-    title="Archive Demand"
+  <ConfirmationDialog v-model:open="archiveDialogOpen" title="Archive Demand"
     :description="`Are you sure you want to archvie ${demandToArchive?.variety.vegetable} ${demandToArchive?.variety.name}?`"
-    @action="handleArchive"
-  />
+    @action="handleArchive" />
 
   <!-- Fulfill Confirmation -->
-  <ConfirmationDialog
-    v-model:open="fulfillDialogOpen"
-    title="Mark as Fulfilled?"
+  <ConfirmationDialog v-model:open="fulfillDialogOpen" title="Mark as Fulfilled?"
     description="This will mark the demand as fulfilled. You won't be able to edit it after this."
-    @action="handleFulfill"
-  />
+    @action="handleFulfill" />
 
   <!-- Delete Confirmation -->
-  <ConfirmationDialog
-    v-model:open="deleteDialogOpen"
-    title="Delete Demand?"
-    description="This action cannot be undone. The post will be permanently deleted."
-    @action="handleDelete"
-    variant="destructive"
-  />
+  <ConfirmationDialog v-model:open="deleteDialogOpen" title="Delete Demand?"
+    description="This action cannot be undone. The post will be permanently deleted." @action="handleDelete"
+    variant="destructive" />
 </template>

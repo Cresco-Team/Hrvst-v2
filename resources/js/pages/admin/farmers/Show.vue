@@ -1,5 +1,4 @@
 <script setup lang="ts">
-
 import { Deferred, Head } from '@inertiajs/vue3'
 import { Archive, CalendarDays, Mail, MapPin, Package, PackageCheck, Phone } from 'lucide-vue-next'
 import { computed } from 'vue'
@@ -9,7 +8,14 @@ import SmallCard from '@/components/shared/cards/SmallCard.vue'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
-import { Item, ItemContent, ItemDescription, ItemGroup, ItemMedia, ItemTitle } from '@/components/ui/item'
+import {
+	Item,
+	ItemContent,
+	ItemDescription,
+	ItemGroup,
+	ItemMedia,
+	ItemTitle,
+} from '@/components/ui/item'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { getInitials } from '@/composables/useInitials'
@@ -18,46 +24,50 @@ import admin from '@/routes/admin'
 import type { FarmerSupply, ShowFarmer } from '@/types/admin/farmers'
 
 interface Props {
-    farmer: ShowFarmer | null
+	farmer: ShowFarmer | null
 }
 
 const props = defineProps<Props>()
 
 /* ---------- Supply groups ---------- */
-const ongoingSupplies = computed<FarmerSupply[]>(() =>
-    props.farmer?.supplies.filter(s => s.status === 'Ongoing') ?? []
+const ongoingSupplies = computed<FarmerSupply[]>(
+	() => props.farmer?.supplies.filter((s) => s.status === 'Ongoing') ?? [],
 )
-const archivedSupplies = computed<FarmerSupply[]>(() =>
-    props.farmer?.supplies.filter(s => s.status === 'Archived') ?? []
+const archivedSupplies = computed<FarmerSupply[]>(
+	() => props.farmer?.supplies.filter((s) => s.status === 'Archived') ?? [],
 )
-const fulfilledSupplies = computed<FarmerSupply[]>(() =>
-    props.farmer?.supplies.filter(s => s.status === 'Fulfilled') ?? []
+const fulfilledSupplies = computed<FarmerSupply[]>(
+	() => props.farmer?.supplies.filter((s) => s.status === 'Fulfilled') ?? [],
 )
 
 /* ---------- Stats ---------- */
 const totalSupplies = computed(() => props.farmer?.supplies.length ?? 0)
-const totalQuantity = computed(() =>
-    props.farmer?.supplies.reduce((sum, s) => sum + s.quantity_kg, 0) ?? 0
+const totalQuantity = computed(
+	() => props.farmer?.supplies.reduce((sum, s) => sum + s.quantity_kg, 0) ?? 0,
 )
 const totalOngoing = computed(() => ongoingSupplies.value.length)
 const totalOngoingQuantity = computed(() =>
-    ongoingSupplies.value.reduce((sum, s) => sum + s.quantity_kg, 0)
+	ongoingSupplies.value.reduce((sum, s) => sum + s.quantity_kg, 0),
 )
 
 /* ---------- Breadcrumbs — stable fallback until farmer loads ---------- */
 const breadcrumbs = computed(() => [
-    { title: 'Admin', href: admin.dashboard().url },
-    { title: 'Farmers', href: admin.farmers.index().url },
-    ...(props.farmer
-        ? [{ title: props.farmer.user.name, href: admin.farmers.show(props.farmer.id).url }]
-        : []
-    ),
+	{ title: 'Admin', href: admin.dashboard().url },
+	{ title: 'Farmers', href: admin.farmers.index().url },
+	...(props.farmer
+		? [
+				{
+					title: props.farmer.user.name,
+					href: admin.farmers.show(props.farmer.id).url,
+				},
+			]
+		: []),
 ])
 
 function priceFlagVariant(flag: 'Low' | 'Fair' | 'High') {
-    if (flag === 'Low') return 'secondary'
-    if (flag === 'High') return 'destructive'
-    return 'outline'
+	if (flag === 'Low') return 'secondary'
+	if (flag === 'High') return 'destructive'
+	return 'outline'
 }
 </script>
 

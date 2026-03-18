@@ -1,16 +1,14 @@
 <script setup lang="ts">
-
 import { Badge } from '@/components/ui/badge'
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import type { DealerDemand } from '@/types/farmer/marketplace'
 import { AspectRatio } from '../ui/aspect-ratio'
 
 interface Props {
-  demand: DealerDemand
+	demand: DealerDemand
 }
 
 const { demand } = defineProps<Props>()
-
 </script>
 
 <template>

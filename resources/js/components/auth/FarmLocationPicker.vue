@@ -1,104 +1,109 @@
 <script setup lang="ts">
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
-import { onMounted, onUnmounted, watch } from 'vue'
-import InputError from '@/components/InputError.vue'
 
 // Fix Leaflet's broken default icon paths under Vite
 import markerIconUrl from 'leaflet/dist/images/marker-icon.png'
 import markerShadowUrl from 'leaflet/dist/images/marker-shadow.png'
+import { onMounted, onUnmounted, watch } from 'vue'
+import InputError from '@/components/InputError.vue'
 
 L.Marker.prototype.options.icon = L.icon({
-    iconUrl: markerIconUrl,
-    shadowUrl: markerShadowUrl,
-    iconSize: [25, 41],
-    iconAnchor: [12, 41],
-    popupAnchor: [1, -34],
-    shadowSize: [41, 41],
+	iconUrl: markerIconUrl,
+	shadowUrl: markerShadowUrl,
+	iconSize: [25, 41],
+	iconAnchor: [12, 41],
+	popupAnchor: [1, -34],
+	shadowSize: [41, 41],
 })
 
 interface Coordinates {
-    lat: number | null
-    lng: number | null
+	lat: number | null
+	lng: number | null
 }
 
 interface MunicipalityCoords {
-    lat: number
-    lng: number
+	lat: number
+	lng: number
 }
 
 const props = defineProps<{
-    modelValue: Coordinates
-    municipalityCoords: MunicipalityCoords | null
-    latError?: string
-    lngError?: string
+	modelValue: Coordinates
+	municipalityCoords: MunicipalityCoords | null
+	latError?: string
+	lngError?: string
 }>()
 
 const emit = defineEmits<{
-    'update:modelValue': [value: Coordinates]
+	'update:modelValue': [value: Coordinates]
 }>()
 
 let map: L.Map | null = null
 let marker: L.Marker | null = null
 
-const DEFAULT_CENTER: L.LatLngExpression = [16.4023, 120.5960] // Benguet fallback
+const DEFAULT_CENTER: L.LatLngExpression = [16.4023, 120.596] // Benguet fallback
 const DEFAULT_ZOOM = 13
 
 function initMap(): void {
-    const el = document.getElementById('farm-location-map')
-    if (!el) return
+	const el = document.getElementById('farm-location-map')
+	if (!el) return
 
-    const center = props.municipalityCoords
-        ? [props.municipalityCoords.lat, props.municipalityCoords.lng] as L.LatLngExpression
-        : DEFAULT_CENTER
+	const center = props.municipalityCoords
+		? ([props.municipalityCoords.lat, props.municipalityCoords.lng] as L.LatLngExpression)
+		: DEFAULT_CENTER
 
-    map = L.map(el, { zoomControl: true }).setView(center, DEFAULT_ZOOM)
+	map = L.map(el, { zoomControl: true }).setView(center, DEFAULT_ZOOM)
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors',
-        maxZoom: 19,
-    }).addTo(map)
+	L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+		attribution: '© OpenStreetMap contributors',
+		maxZoom: 19,
+	}).addTo(map)
 
-    if (props.modelValue.lat !== null && props.modelValue.lng !== null) {
-        placeMarker(props.modelValue.lat, props.modelValue.lng)
-    }
+	if (props.modelValue.lat !== null && props.modelValue.lng !== null) {
+		placeMarker(props.modelValue.lat, props.modelValue.lng)
+	}
 
-    map.on('click', (e: L.LeafletMouseEvent) => {
-        placeMarker(e.latlng.lat, e.latlng.lng)
-        emit('update:modelValue', { lat: e.latlng.lat, lng: e.latlng.lng })
-    })
+	map.on('click', (e: L.LeafletMouseEvent) => {
+		placeMarker(e.latlng.lat, e.latlng.lng)
+		emit('update:modelValue', { lat: e.latlng.lat, lng: e.latlng.lng })
+	})
 }
 
 function placeMarker(lat: number, lng: number): void {
-    if (!map) return
+	if (!map) return
 
-    if (marker) {
-        marker.setLatLng([lat, lng])
-        return
-    }
+	if (marker) {
+		marker.setLatLng([lat, lng])
+		return
+	}
 
-    marker = L.marker([lat, lng], { draggable: true }).addTo(map)
-    marker.on('dragend', () => {
-        const pos = marker!.getLatLng()
-        emit('update:modelValue', { lat: pos.lat, lng: pos.lng })
-    })
+	marker = L.marker([lat, lng], { draggable: true }).addTo(map)
+	marker.on('dragend', () => {
+		const pos = marker!.getLatLng()
+		emit('update:modelValue', { lat: pos.lat, lng: pos.lng })
+	})
 }
 
-watch(() => props.municipalityCoords, (coords) => {
-    if (!map || !coords) return
-    map.setView([coords.lat, coords.lng], DEFAULT_ZOOM)
-    if (marker) {
-        marker.remove()
-        marker = null
-        emit('update:modelValue', { lat: null, lng: null })
-    }
-})
+watch(
+	() => props.municipalityCoords,
+	(coords) => {
+		if (!map || !coords) return
+		map.setView([coords.lat, coords.lng], DEFAULT_ZOOM)
+		if (marker) {
+			marker.remove()
+			marker = null
+			emit('update:modelValue', { lat: null, lng: null })
+		}
+	},
+)
 
-onMounted(() => { initMap() })
+onMounted(() => {
+	initMap()
+})
 onUnmounted(() => {
-    map?.remove()
-    map = null
-    marker = null
+	map?.remove()
+	map = null
+	marker = null
 })
 </script>
 

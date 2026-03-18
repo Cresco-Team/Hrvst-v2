@@ -1,69 +1,69 @@
 <script setup lang="ts">
+import { MapPin, Sprout, X } from 'lucide-vue-next'
 import { computed } from 'vue'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
-    Select,
-    SelectContent,
-    SelectGroup,
-    SelectItem,
-    SelectLabel,
-    SelectTrigger,
-    SelectValue,
+	Select,
+	SelectContent,
+	SelectGroup,
+	SelectItem,
+	SelectLabel,
+	SelectTrigger,
+	SelectValue,
 } from '@/components/ui/select'
-import { Badge } from '@/components/ui/badge'
-import { MapPin, Sprout, X } from 'lucide-vue-next'
 
 interface Municipality {
-    id: number
-    name: string
-    province: string
-    label: string
+	id: number
+	name: string
+	province: string
+	label: string
 }
 
 interface PlantingOption {
-    id: number
-    name: string
-    category: string
+	id: number
+	name: string
+	category: string
 }
 
 interface PlantingsByCategory {
-    [category: string]: PlantingOption[]
+	[category: string]: PlantingOption[]
 }
 
 const props = defineProps<{
-    municipalities: Municipality[]
-    plantings: PlantingsByCategory
-    selectedMunicipality: string | null
-    selectedVariety: string | null
+	municipalities: Municipality[]
+	plantings: PlantingsByCategory
+	selectedMunicipality: string | null
+	selectedVariety: string | null
 }>()
 
 const emit = defineEmits<{
-    'update:selectedMunicipality': [value: string | null]
-    'update:selectedVariety': [value: string | null]
-    'clear': []
+	'update:selectedMunicipality': [value: string | null]
+	'update:selectedVariety': [value: string | null]
+	clear: []
 }>()
 
-const hasActiveFilters = computed(() => 
-    props.selectedMunicipality !== null || props.selectedVariety !== null
+const hasActiveFilters = computed(
+	() => props.selectedMunicipality !== null || props.selectedVariety !== null,
 )
 
 const activeFilterCount = computed(() => {
-    let count = 0
-    if (props.selectedMunicipality) count++
-    if (props.selectedVariety) count++
-    return count
+	let count = 0
+	if (props.selectedMunicipality) count++
+	if (props.selectedVariety) count++
+	return count
 })
 
 const handleMunicipalityChange = (value: any) => {
-    emit('update:selectedMunicipality', value === 'all' ? null : value)
+	emit('update:selectedMunicipality', value === 'all' ? null : value)
 }
 
 const handleVarietyChange = (value: any) => {
-    emit('update:selectedVariety', value === 'all' ? null : value)
+	emit('update:selectedVariety', value === 'all' ? null : value)
 }
 
 const clearFilters = () => {
-    emit('clear')
+	emit('clear')
 }
 </script>
 

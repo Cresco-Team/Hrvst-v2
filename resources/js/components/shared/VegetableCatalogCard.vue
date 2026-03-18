@@ -1,24 +1,35 @@
 <script setup lang="ts">
-
 import { Clock, TrendingUp } from 'lucide-vue-next'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import type { CatalogVariety } from '@/types/shared/vegetables'
-import { AspectRatio } from '../ui/aspect-ratio';
-import { Separator } from '../ui/separator';
+import { AspectRatio } from '../ui/aspect-ratio'
+import { Separator } from '../ui/separator'
 
 defineProps<{
-  variety: CatalogVariety
+	variety: CatalogVariety
 }>()
 
 defineEmits<{
-  select: [variety: CatalogVariety]
+	select: [variety: CatalogVariety]
 }>()
 
 const freshnessConfig = {
-  recent: { label: 'Updated', class: 'bg-green-500 dark:text-green-400 border-green-500/20' },
-  stable: { label: 'Stable', class: 'bg-blue-400  dark:text-blue-400 border-blue-500/20' },
-  'very stable': { label: 'Older', class: 'bg-amber-400 dark:text-amber-400 border-amber-500/20' },
-  stale: { label: 'Stale', class: 'bg-red-400 dark:text-red-400 border-red-500/20' },
+	recent: {
+		label: 'Updated',
+		class: 'bg-green-500 dark:text-green-400 border-green-500/20',
+	},
+	stable: {
+		label: 'Stable',
+		class: 'bg-blue-400  dark:text-blue-400 border-blue-500/20',
+	},
+	'very stable': {
+		label: 'Older',
+		class: 'bg-amber-400 dark:text-amber-400 border-amber-500/20',
+	},
+	stale: {
+		label: 'Stale',
+		class: 'bg-red-400 dark:text-red-400 border-red-500/20',
+	},
 } as const
 </script>
 

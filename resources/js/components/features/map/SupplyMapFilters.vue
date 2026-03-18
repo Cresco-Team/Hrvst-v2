@@ -5,39 +5,47 @@ import { computed } from 'vue'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select'
+import {
+	Select,
+	SelectContent,
+	SelectGroup,
+	SelectItem,
+	SelectLabel,
+	SelectTrigger,
+	SelectValue,
+} from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
 import type { FilterOptions, MapFilters } from '@/types/supply-map'
 
 const props = defineProps<{
-  filters: MapFilters
-  options: FilterOptions | null
-  totalMarkers: number
-  totalSupplies: number
+	filters: MapFilters
+	options: FilterOptions | null
+	totalMarkers: number
+	totalSupplies: number
 }>()
 
 const emit = defineEmits<{
-  'update:filters': [filters: MapFilters]
-  clear: []
+	'update:filters': [filters: MapFilters]
+	clear: []
 }>()
 
 const hasActiveFilters = computed(
-  () => props.filters.category_id !== null || props.filters.variety_id !== null
+	() => props.filters.category_id !== null || props.filters.variety_id !== null,
 )
 
 function handleCategoryChange(value: AcceptableValue) {
-  emit('update:filters', {
-    category_id: value === 'all' ? null : Number(value),
-    // reset variety when category changes
-    variety_id: null,
-  })
+	emit('update:filters', {
+		category_id: value === 'all' ? null : Number(value),
+		// reset variety when category changes
+		variety_id: null,
+	})
 }
 
 function handleVarietyChange(value: AcceptableValue) {
-  emit('update:filters', {
-    ...props.filters,
-    variety_id: value === 'all' ? null : Number(value),
-  })
+	emit('update:filters', {
+		...props.filters,
+		variety_id: value === 'all' ? null : Number(value),
+	})
 }
 </script>
 

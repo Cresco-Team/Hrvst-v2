@@ -8,11 +8,12 @@ use App\Actions\Supply\DeleteSupplyAction;
 use App\Actions\Supply\FulfillSupplyAction;
 use App\Actions\Supply\UpdateSupplyAction;
 use App\Enums\PostStatus;
+use App\Enums\PostType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Farmer\StoreSupplyRequest;
 use App\Http\Requests\Farmer\UpdateSupplyRequest;
 use App\Http\Resources\Marketplace\FarmerSupplyResource;
-use App\Models\Marketplace\FarmerSupply;
+use App\Models\Marketplace\Post;
 use App\Services\Farmer\SupplyService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -28,24 +29,26 @@ class SupplyController extends Controller
 
     public function index(Request $request): Response
     {
-        Gate::authorize('viewAny', FarmerSupply::class);
+        Gate::authorize('viewAny', Post::class);
 
-        $farmerId = $request->user()->farmerProfile->id;
+        $userId = $request->user()->id;
         $status = PostStatus::tryFrom($request->query('status', PostStatus::Ongoing->value));
 
         return Inertia::render('farmer/garden/Index', [
-            'filters'           => ['status' => $status],
-            'summary'           => Inertia::defer(fn() => $this->supplyService->summary($farmerId)),
-            'varietyOptions'    => Inertia::defer(fn() => $this->supplyService->varietyOptions()),
-            'supplies'            => Inertia::defer(fn() => FarmerSupplyResource::collection($this->supplyService->paginated(farmerId: $farmerId, status: $status))),
+            'filters' => ['status' => $status],
+            'summary' => Inertia::defer(fn () => $this->supplyService->summary($userId)),
+            'varietyOptions' => Inertia::defer(fn () => $this->supplyService->varietyOptions()),
+            'supplies' => Inertia::defer(fn () => FarmerSupplyResource::collection(
+                $this->supplyService->paginated(userId: $userId, status: $status)
+            )),
         ]);
     }
 
     public function store(StoreSupplyRequest $request, CreateSupplyAction $createSupply): RedirectResponse
     {
-        Gate::authorize('create', FarmerSupply::class);
+        Gate::authorize('create', [Post::class, PostType::Supply]);
 
-        $createSupply(
+        $createSupply->handle(
             farmer: $request->user()->farmerProfile,
             validated: $request->validated(),
             image: $request->file('image')
@@ -55,12 +58,12 @@ class SupplyController extends Controller
             ->with('flash', ['type' => 'success', 'message' => 'Supply posted successfully!']);
     }
 
-    public function update(UpdateSupplyRequest $request, FarmerSupply $supply, UpdateSupplyAction $updateSupply): RedirectResponse
+    public function update(UpdateSupplyRequest $request, Post $supply, UpdateSupplyAction $updateSupply): RedirectResponse
     {
         Gate::authorize('update', $supply);
 
-        $updateSupply(
-            supply: $supply,
+        $updateSupply->handle(
+            post: $supply,
             validated: $request->validated(),
             image: $request->file('image')
         );
@@ -69,31 +72,28 @@ class SupplyController extends Controller
             ->with('flash', ['type' => 'success', 'message' => 'Post updated successfully!']);
     }
 
-    public function archive(FarmerSupply $supply, ArchiveSupplyAction $archiveSupply): RedirectResponse
+    public function archive(Post $supply, ArchiveSupplyAction $archiveSupply): RedirectResponse
     {
         Gate::authorize('archive', $supply);
-
-        $archiveSupply($supply);
+        $archiveSupply->handle($supply);
 
         return redirect()->route('farmer.garden.index')
             ->with('flash', ['type' => 'success', 'message' => 'Post archived.']);
     }
 
-    public function fulfill(FarmerSupply $supply, FulfillSupplyAction $fulfillSupply): RedirectResponse
+    public function fulfill(Post $supply, FulfillSupplyAction $fulfillSupply): RedirectResponse
     {
         Gate::authorize('fulfill', $supply);
-
-        $fulfillSupply($supply);
+        $fulfillSupply->handle($supply);
 
         return redirect()->route('farmer.garden.index')
             ->with('flash', ['type' => 'success', 'message' => 'Post marked as fulfilled!']);
     }
 
-    public function destroy(FarmerSupply $supply, DeleteSupplyAction $deleteSupply): RedirectResponse
+    public function destroy(Post $supply, DeleteSupplyAction $deleteSupply): RedirectResponse
     {
         Gate::authorize('delete', $supply);
-
-        $deleteSupply($supply);
+        $deleteSupply->handle($supply);
 
         return redirect()->route('farmer.garden.index')
             ->with('flash', ['type' => 'success', 'message' => 'Post deleted.']);

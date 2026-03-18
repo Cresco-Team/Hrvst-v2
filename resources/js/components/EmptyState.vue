@@ -1,19 +1,26 @@
 <script setup lang="ts">
-import { Search } from 'lucide-vue-next';
-import type { Component } from 'vue';
-import { Button } from './ui/button';
-import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from './ui/empty';
+import { Search } from 'lucide-vue-next'
+import type { Component } from 'vue'
+import { Button } from './ui/button'
+import {
+	Empty,
+	EmptyContent,
+	EmptyDescription,
+	EmptyHeader,
+	EmptyMedia,
+	EmptyTitle,
+} from './ui/empty'
 
 type Props = {
-    title: string
-    description: string
-    icon?: Component
-    button?: string
+	title: string
+	description: string
+	icon?: Component
+	button?: string
 }
 
 withDefaults(defineProps<Props>(), {
-    icon: Search
-});
+	icon: Search,
+})
 </script>
 
 <template>

@@ -2,16 +2,14 @@
 
 namespace App\Providers;
 
-use App\Models\Marketplace\DealerDemand;
-use App\Models\Marketplace\FarmerSupply;
+use App\Models\Marketplace\Post;
 use App\Models\Product\Variety;
 use App\Models\Profiles\DealerProfile;
 use App\Models\Profiles\FarmerProfile;
 use App\Observers\VarietyObserver;
 use App\Policies\Profiles\DealerPolicy;
 use App\Policies\Profiles\FarmerPolicy;
-use App\Policies\Marketplace\DemandPolicy;
-use App\Policies\Marketplace\SupplyPolicy;
+use App\Policies\Marketplace\PostPolicy;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Date;
@@ -39,8 +37,7 @@ class AppServiceProvider extends ServiceProvider
         Model::automaticallyEagerLoadRelationships();
         Gate::policy(FarmerProfile::class, FarmerPolicy::class);
         Gate::policy(DealerProfile::class, DealerPolicy::class);
-        Gate::policy(FarmerSupply::class, SupplyPolicy::class);
-        Gate::policy(DealerDemand::class, DemandPolicy::class);
+        Gate::policy(Post::class, PostPolicy::class);
         Variety::observe(VarietyObserver::class);
     }
 

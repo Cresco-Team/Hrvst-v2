@@ -3,36 +3,33 @@
 namespace App\Actions\Supply;
 
 use App\Enums\PostPriceFlag;
-use App\Enums\PostStatus;
-use App\Models\Marketplace\FarmerSupply;
+use App\Enums\PostType;
+use App\Models\Marketplace\Post;
 use App\Models\Product\Variety;
 use App\Models\Profiles\FarmerProfile;
 use Illuminate\Http\UploadedFile;
 
 final class CreateSupplyAction
 {
-    public function __invoke(FarmerProfile $farmer, array $validated, ?UploadedFile $image = null): FarmerSupply
+    public function handle(FarmerProfile $farmer, array $validated, ?UploadedFile $image = null): Post
     {
         $variety = Variety::with('latestPrice')->findOrFail($validated['variety_id']);
 
-        $supply = FarmerSupply::create([
-            'farmer_id'       => $farmer->id,
-            'expiration_date' => $validated['expiration_date'],
+        /** @var Post $post */
+        $post = Post::create([
+            'user_id'        => $farmer->user_id,
+            'variety_id'     => $validated['variety_id'],
+            'type'           => PostType::Supply,
+            'quantity_kg'    => $validated['quantity_kg'],
+            'offered_price'  => $validated['offered_price'],
+            'price_flag'     => PostPriceFlag::fromMarketPrice($validated['offered_price'], $variety->latestPrice),
+            'scheduled_date' => $validated['scheduled_date'],
         ]);
 
         if ($image !== null) {
-            $supply->addMedia($image)->toMediaCollection('supply_image');
+            $post->addMedia($image)->toMediaCollection('post_image');
         }
 
-        $supply->post()->create([
-            'user_id'       => $farmer->user_id,
-            'variety_id'    => $validated['variety_id'],
-            'quantity_kg'   => $validated['quantity_kg'],
-            'offered_price' => $validated['offered_price'],
-            'price_flag'    => PostPriceFlag::fromMarketPrice($validated['offered_price'], $variety->latestPrice),
-            'status'        => PostStatus::Ongoing,
-        ]);
-
-        return $supply->load('post');
+        return $post->load('variety');
     }
 }

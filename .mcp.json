@@ -1,20 +1,15 @@
 {
-    "mcpServers": {
-        "laravel-boost": {
-            "command": "php",
-            "args": [
-                "artisan",
-                "boost:mcp"
-            ]
-        },
-        "herd": {
-            "command": "php",
-            "args": [
-                "C:/Users/user/.config/herd/bin/herd-mcp.phar"
-            ],
-            "env": {
-                "SITE_PATH": "C:\\Users\\user\\Herd\\Hrvst-v2"
-            }
-        }
-    }
+	"mcpServers": {
+		"laravel-boost": {
+			"command": "php",
+			"args": ["artisan", "boost:mcp"]
+		},
+		"herd": {
+			"command": "php",
+			"args": ["C:/Users/user/.config/herd/bin/herd-mcp.phar"],
+			"env": {
+				"SITE_PATH": "C:\\Users\\user\\Herd\\Hrvst-v2"
+			}
+		}
+	}
 }

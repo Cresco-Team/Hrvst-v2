@@ -1,5 +1,4 @@
 <script setup lang="ts">
-
 import { watch } from 'vue'
 import { toast } from 'vue-sonner'
 import { Toaster } from '@/components/ui/sonner'
@@ -8,24 +7,28 @@ import AppLayout from '@/layouts/app/AppHeaderLayout.vue'
 import type { BreadcrumbItem } from '@/types'
 
 type Props = {
-    breadcrumbs?: BreadcrumbItem[]
+	breadcrumbs?: BreadcrumbItem[]
 }
 
 withDefaults(defineProps<Props>(), {
-    breadcrumbs: () => [],
+	breadcrumbs: () => [],
 })
 
 const { flash } = useFlash()
 
-watch(() => flash.value, (newFlash) => {
-    if (newFlash?.message) {
-        if (newFlash.type === 'error') {
-            toast.error(newFlash.message)
-        } else {
-            toast.success(newFlash.message)
-        }
-    }
-}, { deep: true, immediate: true })
+watch(
+	() => flash.value,
+	(newFlash) => {
+		if (newFlash?.message) {
+			if (newFlash.type === 'error') {
+				toast.error(newFlash.message)
+			} else {
+				toast.success(newFlash.message)
+			}
+		}
+	},
+	{ deep: true, immediate: true },
+)
 </script>
 
 <template>

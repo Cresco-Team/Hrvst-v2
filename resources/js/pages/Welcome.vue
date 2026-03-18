@@ -1,48 +1,89 @@
 <script setup lang="ts">
 import { Head, Link, usePage } from '@inertiajs/vue3'
-import { ArrowRight, Sprout, Store, TrendingUp, MapPin, ShieldCheck, Package, BarChart3 } from 'lucide-vue-next'
+import {
+	ArrowRight,
+	BarChart3,
+	MapPin,
+	Package,
+	ShieldCheck,
+	Sprout,
+	Store,
+	TrendingUp,
+} from 'lucide-vue-next'
 import AppLogoIcon from '@/components/AppLogoIcon.vue'
 import { dashboard, login, logout, register } from '@/routes'
 
 withDefaults(
-    defineProps<{
-        canRegister: boolean
-    }>(),
-    { canRegister: true }
+	defineProps<{
+		canRegister: boolean
+	}>(),
+	{ canRegister: true },
 )
 
 const page = usePage()
 
 const farmerBenefits = [
-    { icon: Sprout, title: 'List Your Produce', desc: 'Post your harvest with quantity, price, and photos in minutes.' },
-    { icon: TrendingUp, title: 'Track Market Prices', desc: 'See real-time demand trends and price flags to sell smarter.' },
-    { icon: MapPin, title: 'Connect Locally', desc: 'Find verified dealers in your area — no middlemen, no guesswork.' },
-    { icon: ShieldCheck, title: 'Verified Buyers', desc: 'Trade confidently with admin-approved dealer profiles.' },
+	{
+		icon: Sprout,
+		title: 'List Your Produce',
+		desc: 'Post your harvest with quantity, price, and photos in minutes.',
+	},
+	{
+		icon: TrendingUp,
+		title: 'Track Market Prices',
+		desc: 'See real-time demand trends and price flags to sell smarter.',
+	},
+	{
+		icon: MapPin,
+		title: 'Connect Locally',
+		desc: 'Find verified dealers in your area — no middlemen, no guesswork.',
+	},
+	{
+		icon: ShieldCheck,
+		title: 'Verified Buyers',
+		desc: 'Trade confidently with admin-approved dealer profiles.',
+	},
 ]
 
 const dealerBenefits = [
-    { icon: Package, title: 'Source Fresh Supply', desc: 'Browse farmer listings by crop, location, and availability.' },
-    { icon: BarChart3, title: 'Post Your Demand', desc: 'Publish buy requests so the right farmers come to you.' },
-    { icon: MapPin, title: 'Supply Map', desc: 'Visualise nearby supply geographically — plan your pickups.' },
-    { icon: ShieldCheck, title: 'Verified Farmers', desc: 'Work with approved profiles backed by full harvest history.' },
+	{
+		icon: Package,
+		title: 'Source Fresh Supply',
+		desc: 'Browse farmer listings by crop, location, and availability.',
+	},
+	{
+		icon: BarChart3,
+		title: 'Post Your Demand',
+		desc: 'Publish buy requests so the right farmers come to you.',
+	},
+	{
+		icon: MapPin,
+		title: 'Supply Map',
+		desc: 'Visualise nearby supply geographically — plan your pickups.',
+	},
+	{
+		icon: ShieldCheck,
+		title: 'Verified Farmers',
+		desc: 'Work with approved profiles backed by full harvest history.',
+	},
 ]
 
 const steps = [
-    {
-        step: '01',
-        title: 'Create your account',
-        desc: 'Register as a farmer or dealer. Our admin team verifies and approves your profile before you go live.',
-    },
-    {
-        step: '02',
-        title: 'Post or browse',
-        desc: 'Farmers list their harvest with price and quantity. Dealers post their demand. Both discover each other in one feed.',
-    },
-    {
-        step: '03',
-        title: 'Trade directly',
-        desc: 'Connect, negotiate, and close deals — no intermediaries taking a cut, no pricing opacity.',
-    },
+	{
+		step: '01',
+		title: 'Create your account',
+		desc: 'Register as a farmer or dealer. Our admin team verifies and approves your profile before you go live.',
+	},
+	{
+		step: '02',
+		title: 'Post or browse',
+		desc: 'Farmers list their harvest with price and quantity. Dealers post their demand. Both discover each other in one feed.',
+	},
+	{
+		step: '03',
+		title: 'Trade directly',
+		desc: 'Connect, negotiate, and close deals — no intermediaries taking a cut, no pricing opacity.',
+	},
 ]
 </script>
 

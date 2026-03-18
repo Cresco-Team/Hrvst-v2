@@ -1,134 +1,141 @@
 <script setup lang="ts">
-
-import { Leaf, DollarSign } from 'lucide-vue-next'
+import { DollarSign, Leaf } from 'lucide-vue-next'
 import { computed } from 'vue'
 import DialogForm from '@/components/DialogForm.vue'
 import ImageUpload from '@/components/shared/media/ImageUpload.vue'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select'
+import {
+	Select,
+	SelectContent,
+	SelectGroup,
+	SelectItem,
+	SelectLabel,
+	SelectTrigger,
+	SelectValue,
+} from '@/components/ui/select'
 import { useDialogForm } from '@/composables/useDialogForm'
 import type { Variety } from '@/types/admin/vegetable-varieties'
 
 interface VegetableOptions {
-  [categoryName: string]: { [vegetableId: number]: string }
+	[categoryName: string]: { [vegetableId: number]: string }
 }
 
 interface VarietyFormData {
-  vegetable_id: string
-  name: string
-  image: File | null
-  price_min: string
-  price_max: string
+	vegetable_id: string
+	name: string
+	image: File | null
+	price_min: string
+	price_max: string
 }
 
 const props = defineProps<{
-  open: boolean
-  variety: Variety | null
-  vegetableOptions: VegetableOptions
-  isSubmitting: boolean
+	open: boolean
+	variety: Variety | null
+	vegetableOptions: VegetableOptions
+	isSubmitting: boolean
 }>()
 
 const emit = defineEmits<{
-  'update:open': [value: boolean]
-  submit: [payload: FormData]
+	'update:open': [value: boolean]
+	submit: [payload: FormData]
 }>()
 
 const { form, errors, isEditMode, validateForm } = useDialogForm<Variety, VarietyFormData>({
-  item: () => props.variety,
-  open: () => props.open,
-  mapToForm: (variety) => ({
-    vegetable_id: variety?.vegetable?.id?.toString() ?? '',
-    name: variety?.name ?? '',
-    image: null,
-    price_min: '',
-    price_max: '',
-  }),
-  validate: (data) => {
-    const errs: Record<string, string> = {}
+	item: () => props.variety,
+	open: () => props.open,
+	mapToForm: (variety) => ({
+		vegetable_id: variety?.vegetable?.id?.toString() ?? '',
+		name: variety?.name ?? '',
+		image: null,
+		price_min: '',
+		price_max: '',
+	}),
+	validate: (data) => {
+		const errs: Record<string, string> = {}
 
-    if (!data.name.trim()) {
-      errs.name = 'Variety name is required'
-    }
-    if (!data.vegetable_id) {
-      errs.vegetable_id = 'Please select a parent vegetable'
-    }
-    if (!isEditMode.value && !data.image) {
-      errs.image = 'Image is required for new varieties'
-    }
+		if (!data.name.trim()) {
+			errs.name = 'Variety name is required'
+		}
+		if (!data.vegetable_id) {
+			errs.vegetable_id = 'Please select a parent vegetable'
+		}
+		if (!isEditMode.value && !data.image) {
+			errs.image = 'Image is required for new varieties'
+		}
 
-    if (!isEditMode.value) {
-      const min = parseFloat(data.price_min)
-      const max = parseFloat(data.price_max)
+		if (!isEditMode.value) {
+			const min = parseFloat(data.price_min)
+			const max = parseFloat(data.price_max)
 
-      if (!data.price_min || isNaN(min)) {
-        errs.price_min = 'Minimum price is required'
-      } else if (min < 0) {
-        errs.price_min = 'Price cannot be negative'
-      } else if (min > 9999.99) {
-        errs.price_min = 'Price cannot exceed ₱9,999.99'
-      }
+			if (!data.price_min || isNaN(min)) {
+				errs.price_min = 'Minimum price is required'
+			} else if (min < 0) {
+				errs.price_min = 'Price cannot be negative'
+			} else if (min > 9999.99) {
+				errs.price_min = 'Price cannot exceed ₱9,999.99'
+			}
 
-      if (!data.price_max || isNaN(max)) {
-        errs.price_max = 'Maximum price is required'
-      } else if (max < 0) {
-        errs.price_max = 'Price cannot be negative'
-      } else if (max > 9999.99) {
-        errs.price_max = 'Price cannot exceed ₱9,999.99'
-      }
+			if (!data.price_max || isNaN(max)) {
+				errs.price_max = 'Maximum price is required'
+			} else if (max < 0) {
+				errs.price_max = 'Price cannot be negative'
+			} else if (max > 9999.99) {
+				errs.price_max = 'Price cannot exceed ₱9,999.99'
+			}
 
-      if (!errs.price_min && !errs.price_max && max < min) {
-        errs.price_max = 'Maximum price must be greater than or equal to minimum price'
-      }
-    }
+			if (!errs.price_min && !errs.price_max && max < min) {
+				errs.price_max = 'Maximum price must be greater than or equal to minimum price'
+			}
+		}
 
-    return errs
-  },
+		return errs
+	},
 })
 
 const title = computed(() => (isEditMode.value ? 'Edit Variety' : 'Add New Variety'))
 const description = computed(() =>
-  isEditMode.value
-    ? 'Update the variety details. Use the "Update Price" action to record a new price.'
-    : 'Create a new variety for a vegetable type.',
+	isEditMode.value
+		? 'Update the variety details. Use the "Update Price" action to record a new price.'
+		: 'Create a new variety for a vegetable type.',
 )
 
 const selectedVegetableName = computed(() => {
-  if (!form.value.vegetable_id) return null
-  for (const vegetables of Object.values(props.vegetableOptions)) {
-    const name = vegetables[Number(form.value.vegetable_id)]
-    if (name) return name
-  }
-  return null
+	if (!form.value.vegetable_id) return null
+	for (const vegetables of Object.values(props.vegetableOptions)) {
+		const name = vegetables[Number(form.value.vegetable_id)]
+		if (name) return name
+	}
+	return null
 })
 
 const existingImageUrl = computed(() => props.variety?.image_url ?? null)
 
 const priceRange = computed(() => {
-  const min = parseFloat(form.value.price_min)
-  const max = parseFloat(form.value.price_max)
-  if (isNaN(min) || isNaN(max)) return null
-  return `₱${min.toFixed(2)} – ₱${max.toFixed(2)} (avg: ₱${((min + max) / 2).toFixed(2)})`
+	const min = parseFloat(form.value.price_min)
+	const max = parseFloat(form.value.price_max)
+	if (isNaN(min) || isNaN(max)) return null
+	return `₱${min.toFixed(2)} – ₱${max.toFixed(2)} (avg: ₱${((min + max) / 2).toFixed(2)})`
 })
 
 function handleSubmit() {
-  if (!validateForm()) return
+	if (!validateForm()) return
 
-  const payload = new FormData()
-  payload.append('vegetable_id', form.value.vegetable_id)
-  payload.append('name', form.value.name.trim())
+	const payload = new FormData()
+	payload.append('vegetable_id', form.value.vegetable_id)
+	payload.append('name', form.value.name.trim())
 
-  if (form.value.image) {
-    payload.append('image', form.value.image)
-  }
+	if (form.value.image) {
+		payload.append('image', form.value.image)
+	}
 
-  if (!isEditMode.value) {
-    payload.append('price_min', parseFloat(form.value.price_min).toFixed(2))
-    payload.append('price_max', parseFloat(form.value.price_max).toFixed(2))
-  }
+	if (!isEditMode.value) {
+		payload.append('price_min', parseFloat(form.value.price_min).toFixed(2))
+		payload.append('price_max', parseFloat(form.value.price_max).toFixed(2))
+	}
 
-  emit('submit', payload)
+	emit('submit', payload)
 }
 </script>
 

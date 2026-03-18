@@ -5,22 +5,22 @@ import type { AdminVariety, VegetableOptions } from '@/types/product/variety'
 export type { AdminVariety as Variety, VegetableOptions }
 
 export interface Summary {
-    total_varieties: number
-    total_vegetables: number
-    price_stats: {
-        updated_week: number
-        updated_month: number
-        stale: number
-        no_price: number
-    }
+	total_varieties: number
+	total_vegetables: number
+	price_stats: {
+		updated_week: number
+		updated_month: number
+		stale: number
+		no_price: number
+	}
 }
 
 export interface Props {
-    varieties?: PaginatedResponse<AdminVariety>
-    summary?: Summary
-    vegetableOptions?: VegetableOptions
-    filters: {
-        price_filter: string | null
-        search?: string | null
-    }
+	varieties?: PaginatedResponse<AdminVariety>
+	summary?: Summary
+	vegetableOptions?: VegetableOptions
+	filters: {
+		price_filter: string | null
+		search?: string | null
+	}
 }

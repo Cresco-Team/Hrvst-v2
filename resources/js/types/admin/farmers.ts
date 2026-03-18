@@ -1,112 +1,112 @@
-import type { User } from "../users/user"
+import type { User } from '../users/user'
 
 /* filters */
 export interface Filters {
-    search?: string | null
-    municipalities: Municipality[]
-    offerings: OfferingsByCategory
+	search?: string | null
+	municipalities: Municipality[]
+	offerings: OfferingsByCategory
 }
 
 interface Municipality {
-    id: number
-    label: string
-    name: string
-    province: string
+	id: number
+	label: string
+	name: string
+	province: string
 }
 
 interface OfferingsByCategory {
-    [category: string]: OfferingOption[]
+	[category: string]: OfferingOption[]
 }
 
 interface OfferingOption {
-    id: number
-    name: string
-    category: string
+	id: number
+	name: string
+	category: string
 }
 
 interface Coordinates {
-    lat: number
-    lng: number
+	lat: number
+	lng: number
 }
 
 export interface Location {
-    barangay: string
-    municipality: string
-    province: string
-    full_address?: string
-    coordinates: Coordinates
+	barangay: string
+	municipality: string
+	province: string
+	full_address?: string
+	coordinates: Coordinates
 }
 
 export interface FarmerSupply {
-    id: number
-    variety: {
-        id: number
-        name: string
-        category: string
-        image_url: string
-    }
-    image_url: string | null
-    offered_price: number
-    price_flag: 'Low' | 'Fair' | 'High'
-    quantity_kg: number
-    expiration_date: string
-    days_until_expiration: number
-    status: 'Ongoing' | 'Archived' | 'Fulfilled'
-    created_at: string
-    created_at_human: string
+	id: number
+	variety: {
+		id: number
+		name: string
+		category: string
+		image_url: string
+	}
+	image_url: string | null
+	offered_price: number
+	price_flag: 'Low' | 'Fair' | 'High'
+	quantity_kg: number
+	expiration_date: string
+	days_until_expiration: number
+	status: 'Ongoing' | 'Archived' | 'Fulfilled'
+	created_at: string
+	created_at_human: string
 }
 
 export interface Farmer {
-    id: number
-    user: User
-    location: Location
-    farm_url: string | null
-    ongoing_supplies_count: number
-    supplies: FarmerSupply[]
-    joined_at: string
-    joined_at_human: string
+	id: number
+	user: User
+	location: Location
+	farm_url: string | null
+	ongoing_supplies_count: number
+	supplies: FarmerSupply[]
+	joined_at: string
+	joined_at_human: string
 }
 
 /* summary */
 export interface Summary {
-    total_farmers: number
-    new_farmers_this_month: number
-    total_supplies: number
-    new_supplies_this_month: number
+	total_farmers: number
+	new_farmers_this_month: number
+	total_supplies: number
+	new_supplies_this_month: number
 }
 
 export interface MarkerData {
-    id: number
-    coordinates: {
-        lat: number
-        lng: number
-    }
-    farmer_name: string
-    municipality: string
-    ongoing_supplies_count: number
-    supplies_summary: Array<{
-        vegetable: string
-        count: number
-        varieties: string[]
-    }>
+	id: number
+	coordinates: {
+		lat: number
+		lng: number
+	}
+	farmer_name: string
+	municipality: string
+	ongoing_supplies_count: number
+	supplies_summary: Array<{
+		vegetable: string
+		count: number
+		varieties: string[]
+	}>
 }
 
 export interface Detail {
-    id: number
-    user: User
-    location: Location
-    farm_url: string | null
-    supplies: FarmerSupply[]
-    joined_at: string
-    joined_at_human: string
+	id: number
+	user: User
+	location: Location
+	farm_url: string | null
+	supplies: FarmerSupply[]
+	joined_at: string
+	joined_at_human: string
 }
 
 export interface ShowFarmer {
-    id: number
-    user: User
-    location: Location
-    farm_url: string | null
-    supplies: FarmerSupply[]
-    joined_at: string
-    joined_at_human: string
+	id: number
+	user: User
+	location: Location
+	farm_url: string | null
+	supplies: FarmerSupply[]
+	joined_at: string
+	joined_at_human: string
 }

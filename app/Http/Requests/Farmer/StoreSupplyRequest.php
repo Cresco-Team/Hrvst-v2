@@ -17,37 +17,35 @@ class StoreSupplyRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'variety_id'    => ['required', 'integer', 'exists:varieties,id'],
-            'quantity_kg'   => ['required', 'numeric', 'min:0.1', 'max:99999'],
-            'offered_price' => ['numeric', 'min:0', 'max:9999.99'],
-            'price_flag'    => [Rule::enum(PostPriceFlag::class)],
-
-            'expiration_date'   => ['required', 'date', 'after:today', 'before:' . now()->addMonths(3)->toDateString()],
-            'image'             => ['image', 'mimes:jpeg,jpg,png,webp', 'max:5120'],
+            'variety_id'     => ['required', 'integer', 'exists:varieties,id'],
+            'quantity_kg'    => ['required', 'numeric', 'min:0.1', 'max:99999'],
+            'offered_price'  => ['required', 'numeric', 'min:0', 'max:9999.99'],
+            'price_flag'     => ['sometimes', Rule::enum(PostPriceFlag::class)],
+            'scheduled_date' => ['required', 'date', 'after:today', 'before:' . now()->addMonths(3)->toDateString()],
+            'image'          => ['required', 'image', 'mimes:jpeg,jpg,png,webp', 'max:5120'],
         ];
     }
 
     public function messages(): array
     {
         return [
-            'variety_id.required'   => 'Variety is required.',
-
-            'quantity_kg.required'  => 'Quantity is required',
-            'quantity_kg.numeric'   => 'Quantity must be a number',
-            'quantity_kg.min'       => 'Quantity is too low',
-            'quantity_kg.max'       => 'Quantity is too high',
-
-            'offered_price.numeric' => 'Price must be a number',
-            'offered_price.min'     => 'Price is too low',
-            'offered_price.max'     => 'Price is too high',
-
-            'expiration_date.required'  => 'Expiration date is required',
-            'expiration_date.date'      => 'Expiration date must be a vald date',
-            'expiration_date.after'     => 'Expiration date must be in the future',
-            'expiration_date.before'    => 'Expiration date cannot be more than 3 months away',
-
-            'image.mimes'   => 'Image should be of type jpeg, jpg, png, web',
-            'image.max'     => 'Image cannot exceed 5MB',
+            'variety_id.required'      => 'Variety is required.',
+            'variety_id.exists'        => 'Selected variety does not exist.',
+            'quantity_kg.required'     => 'Quantity is required.',
+            'quantity_kg.numeric'      => 'Quantity must be a number.',
+            'quantity_kg.min'          => 'Quantity is too low.',
+            'quantity_kg.max'          => 'Quantity is too high.',
+            'offered_price.required'   => 'Price is required.',
+            'offered_price.numeric'    => 'Price must be a number.',
+            'offered_price.min'        => 'Price is too low.',
+            'offered_price.max'        => 'Price is too high.',
+            'scheduled_date.required'  => 'Availability date is required.',
+            'scheduled_date.date'      => 'Availability date must be a valid date.',
+            'scheduled_date.after'     => 'Availability date must be in the future.',
+            'scheduled_date.before'    => 'Availability date cannot be more than 3 months away.',
+            'image.required'           => 'An image is required.',
+            'image.mimes'              => 'Image must be JPEG, PNG, or WebP.',
+            'image.max'                => 'Image cannot exceed 5 MB.',
         ];
     }
 }

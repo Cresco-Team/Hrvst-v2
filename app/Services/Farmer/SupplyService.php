@@ -3,60 +3,40 @@
 namespace App\Services\Farmer;
 
 use App\Enums\PostStatus;
-use App\Models\Marketplace\FarmerSupply;
+use App\Models\Marketplace\Post;
 use App\Models\Product\Variety;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class SupplyService
 {
-    public function summary(int $farmerId): array
+    public function summary(int $userId): array
     {
-        $query = FarmerSupply::query()->where('farmer_id', $farmerId);
-
-        $totalOngoing = (clone $query)
-            ->whereHas('post', fn ($q) => $q->where('status', PostStatus::Ongoing))
-            ->count();
-
-        $totalFulfilled = (clone $query)
-            ->whereHas('post', fn ($q) => $q->where('status', PostStatus::Fulfilled))
-            ->count();
-
-        $totalArchived = (clone $query)
-            ->whereHas('post', fn ($q) => $q->where('status', PostStatus::Archived))
-            ->count();
-
-        $expiringThisWeek = (clone $query)
-            ->whereHas('post', fn ($q) => $q->where('status', PostStatus::Ongoing))
-            ->whereBetween('expiration_date', [now(), now()->addWeek()])
-            ->count();
+        $query = Post::supply()->where('user_id', $userId);
 
         return [
-            'total_ongoing'      => $totalOngoing,
-            'total_fulfilled'    => $totalFulfilled,
-            'total_archived'     => $totalArchived,
-            'expiring_this_week' => $expiringThisWeek,
+            'total_ongoing'      => (clone $query)->ongoing()->count(),
+            'total_fulfilled'    => (clone $query)->fulfilled()->count(),
+            'total_archived'     => (clone $query)->archived()->count(),
+            'expiring_this_week' => (clone $query)
+                ->ongoing()
+                ->whereBetween('scheduled_date', [now(), now()->addWeek()])
+                ->count(),
         ];
     }
 
-    public function paginated(int $farmerId, PostStatus $status, int $perPage = 20): LengthAwarePaginator
+    public function paginated(int $userId, PostStatus $status, int $perPage = 20): LengthAwarePaginator
     {
-        $query = FarmerSupply::with([
-            'farmer.user',
-            'media',
-            'post.variety.media',
-            'post.variety.vegetable.category',
-            'post.variety.latestPrice',
-        ])->where('farmer_id', $farmerId);
+        $query = Post::supply()
+            ->where('user_id', $userId)
+            ->with(['media', 'variety.media', 'variety.vegetable.category', 'variety.latestPrice']);
 
         match ($status) {
-            PostStatus::Ongoing   => $query->whereHas('post', fn ($q) => $q->ongoing()),
-            PostStatus::Archived  => $query->whereHas('post', fn ($q) => $q->archived()),
-            PostStatus::Fulfilled => $query->whereHas('post', fn ($q) => $q->fulfilled()),
+            PostStatus::Ongoing   => $query->ongoing(),
+            PostStatus::Archived  => $query->archived(),
+            PostStatus::Fulfilled => $query->fulfilled(),
         };
 
-        return $query
-            ->orderBy('expiration_date', 'desc')
-            ->paginate($perPage);
+        return $query->orderBy('scheduled_date', 'desc')->paginate($perPage);
     }
 
     public function varietyOptions(): array
@@ -67,8 +47,8 @@ class SupplyService
                 ->get()
                 ->groupBy(fn ($variety) => $variety->vegetable->category->name)
                 ->map(fn ($varieties) => $varieties->map(fn ($variety) => [
-                    'id'               => $variety->id,
-                    'name'             => $variety->vegetable->name.' '.$variety->name,
+                    'id'   => $variety->id,
+                    'name' => $variety->vegetable->name . ' ' . $variety->name,
                 ])->values()->toArray())
                 ->toArray()
         );

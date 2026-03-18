@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Farmer;
 
 use App\Http\Controllers\Controller;
-use App\Models\Marketplace\FarmerSupply;
+use App\Models\Marketplace\Post;
 use App\Services\Marketplace\SupplyMapService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -19,27 +19,27 @@ class SupplyMapController extends Controller
 
     public function index(): Response
     {
-        Gate::authorize('viewAny', FarmerSupply::class);
+        Gate::authorize('viewAny', Post::class);
 
         return Inertia::render('farmer/supply-map/Index', [
-            'mapConfig'     => $this->supplyMapService->mapConfig(),
+            'mapConfig' => $this->supplyMapService->mapConfig(),
             'filterOptions' => Inertia::defer(fn () => $this->supplyMapService->filterOptions()),
         ]);
     }
 
     public function markers(Request $request): JsonResponse
     {
-        Gate::authorize('viewAny', FarmerSupply::class);
+        Gate::authorize('viewAny', Post::class);
 
         $validated = $request->validate([
             'category_id' => 'nullable|integer|exists:categories,id',
-            'variety_id'  => 'nullable|integer|exists:varieties,id',
+            'variety_id' => 'nullable|integer|exists:varieties,id',
         ]);
 
         return response()->json([
             'markers' => $this->supplyMapService->markers(
                 categoryId: $validated['category_id'] ?? null,
-                varietyId:  $validated['variety_id'] ?? null,
+                varietyId: $validated['variety_id'] ?? null,
             ),
         ]);
     }

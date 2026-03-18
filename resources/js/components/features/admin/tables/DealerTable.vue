@@ -1,55 +1,67 @@
 <script setup lang="ts">
-import type { ColumnDef } from '@tanstack/vue-table';
-import { Phone, Mail, Package, ChevronDownIcon, ChevronRightIcon, ClipboardList } from 'lucide-vue-next';
-import DataTable from '@/components/shared/tables/DataTable.vue';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
-import { Item, ItemContent, ItemDescription, ItemMedia, ItemTitle } from '@/components/ui/item';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { getInitials } from '@/composables/useInitials';
-import type { Dealer } from '@/types/admin/dealers';
-import type { PaginatedResponse } from '@/types/pagination';
+import type { ColumnDef } from '@tanstack/vue-table'
+import {
+	ChevronDownIcon,
+	ChevronRightIcon,
+	ClipboardList,
+	Mail,
+	Package,
+	Phone,
+} from 'lucide-vue-next'
+import DataTable from '@/components/shared/tables/DataTable.vue'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Button } from '@/components/ui/button'
+import { Item, ItemContent, ItemDescription, ItemMedia, ItemTitle } from '@/components/ui/item'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+import { getInitials } from '@/composables/useInitials'
+import type { Dealer } from '@/types/admin/dealers'
+import type { PaginatedResponse } from '@/types/pagination'
 
 defineProps<{
-    dealers: PaginatedResponse<Dealer>;
-    searchQuery?: string;
-}>();
+	dealers: PaginatedResponse<Dealer>
+	searchQuery?: string
+}>()
 
 defineEmits<{
-    'view-dealer': [dealer: Dealer];
-    'page-change': [page: number];
-    search: [query: string];
-}>();
+	'view-dealer': [dealer: Dealer]
+	'page-change': [page: number]
+	search: [query: string]
+}>()
 
 /* -- column definitions -- */
 const columns: ColumnDef<Dealer>[] = [
-    {
-        id: 'expander',
-        header: '',
-    }, {
-        id: 'image',
-        header: 'Image',
-    }, {
-        id: 'dealer',
-        header: 'Dealer',
-        accessorFn: (row) => row.user.name,
-        enableSorting: true,
-    }, {
-        id: 'ongoing_demands_count',
-        header: 'Demands',
-        accessorFn: (row) => row.ongoing_demands_count,
-        enableSorting: true,
-    }, {
-        id: 'joined_at',
-        header: 'Joined',
-        accessorFn: (row) => row.joined_at,
-        enableSorting: true,
-    }, {
-        id: 'actions',
-        header: 'Actions',
-        enableSorting: false,
-    },
-];
+	{
+		id: 'expander',
+		header: '',
+	},
+	{
+		id: 'image',
+		header: 'Image',
+	},
+	{
+		id: 'dealer',
+		header: 'Dealer',
+		accessorFn: (row) => row.user.name,
+		enableSorting: true,
+	},
+	{
+		id: 'ongoing_demands_count',
+		header: 'Demands',
+		accessorFn: (row) => row.ongoing_demands_count,
+		enableSorting: true,
+	},
+	{
+		id: 'joined_at',
+		header: 'Joined',
+		accessorFn: (row) => row.joined_at,
+		enableSorting: true,
+	},
+	{
+		id: 'actions',
+		header: 'Actions',
+		enableSorting: false,
+	},
+]
 </script>
 
 <template>

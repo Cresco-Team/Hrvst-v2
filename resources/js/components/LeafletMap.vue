@@ -1,38 +1,38 @@
 <script setup lang="ts">
-import { watch, nextTick } from 'vue'
-import { useLeafletMap, type MapMarker } from '@/composables/useLeafletMap'
+import { nextTick, watch } from 'vue'
+import { type MapMarker, useLeafletMap } from '@/composables/useLeafletMap'
 
 type Props = {
-  lat: number
-  lng: number
-  zoom?: number
-  markers?: MapMarker[]
-  class?: string
+	lat: number
+	lng: number
+	zoom?: number
+	markers?: MapMarker[]
+	class?: string
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  zoom: 14,
-  markers: () => [],
+	zoom: 14,
+	markers: () => [],
 })
 
 const { container, init, destroy } = useLeafletMap({ zoom: props.zoom })
 
 watch(
-  () => [props.lat, props.lng] as const,
-  async ([lat, lng]) => {
-    await nextTick()
-    await init(lat, lng, props.markers)
-  },
-  { immediate: true },
+	() => [props.lat, props.lng] as const,
+	async ([lat, lng]) => {
+		await nextTick()
+		await init(lat, lng, props.markers)
+	},
+	{ immediate: true },
 )
 
 watch(
-  () => props.markers,
-  async () => {
-    await nextTick()
-    await init(props.lat, props.lng, props.markers)
-  },
-  { deep: true },
+	() => props.markers,
+	async () => {
+		await nextTick()
+		await init(props.lat, props.lng, props.markers)
+	},
+	{ deep: true },
 )
 
 defineExpose({ destroy })

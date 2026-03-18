@@ -1,35 +1,35 @@
 <script setup lang="ts">
-import Badge from '@/components/ui/badge/Badge.vue';
-import Card from '@/components/ui/card/Card.vue';
-import CardContent from '@/components/ui/card/CardContent.vue';
-import CardDescription from '@/components/ui/card/CardDescription.vue';
-import CardHeader from '@/components/ui/card/CardHeader.vue';
-import CardTitle from '@/components/ui/card/CardTitle.vue';
-import type { Component } from 'vue';
+import type { Component } from 'vue'
+import Badge from '@/components/ui/badge/Badge.vue'
+import Card from '@/components/ui/card/Card.vue'
+import CardContent from '@/components/ui/card/CardContent.vue'
+import CardDescription from '@/components/ui/card/CardDescription.vue'
+import CardHeader from '@/components/ui/card/CardHeader.vue'
+import CardTitle from '@/components/ui/card/CardTitle.vue'
 
 const props = withDefaults(
-    defineProps<{
-        title?: string;
-        value?: number;
-        subtext?: string;
-        change?: string;
-        badge?: Component | Record<string, any> | null;
-        trendColor?: string | null;
-        cardClass?: string | null;
-        icon?: Component;
-        iconColor?: string;
-    }>(),
-    {
-        title: 'Card Title',
-        value: 0,
-        subtext: '',
-        change: '',
-        badge: null,
-        trendColor: null,
-        cardClass: "grid-span-1",
-        icon: undefined,
-        iconColor: 'text-primary',
-    }
+	defineProps<{
+		title?: string
+		value?: number
+		subtext?: string
+		change?: string
+		badge?: Component | Record<string, any> | null
+		trendColor?: string | null
+		cardClass?: string | null
+		icon?: Component
+		iconColor?: string
+	}>(),
+	{
+		title: 'Card Title',
+		value: 0,
+		subtext: '',
+		change: '',
+		badge: null,
+		trendColor: null,
+		cardClass: 'grid-span-1',
+		icon: undefined,
+		iconColor: 'text-primary',
+	},
 )
 </script>
 

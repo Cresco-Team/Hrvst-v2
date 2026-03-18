@@ -8,37 +8,30 @@ class UpdateDemandRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()->hasRole('dealer') 
-            && $this->user()->dealerProfile->is_approved;
+        return $this->user()->hasRole('dealer')
+            && $this->user()->dealerProfile?->is_approved;
     }
 
     public function rules(): array
     {
         return [
-            'variety_id'      => ['sometimes', 'integer', 'exists:varieties,id'],
-            'quantity_kg'     => ['sometimes', 'numeric', 'min:0.01'],
-            'offered_price'   => ['sometimes', 'numeric', 'min:0'],
-            
-            'transaction_date' => ['sometimes', 'nullable', 'date', 'after:today'],
+            'variety_id'     => ['sometimes', 'integer', 'exists:varieties,id'],
+            'quantity_kg'    => ['sometimes', 'numeric', 'min:0.01', 'max:99999'],
+            'offered_price'  => ['sometimes', 'nullable', 'numeric', 'min:0', 'max:9999.99'],
+            'scheduled_date' => ['sometimes', 'nullable', 'date', 'after:today', 'before:' . now()->addMonths(3)->toDateString()],
         ];
     }
 
     public function messages(): array
     {
         return [
-            'variety_id.exists'   => 'Variety is required.',
-
-            'quantity_kg.numeric'   => 'Quantity must be a number',
-            'quantity_kg.min'       => 'Quantity is too low',
-            'quantity_kg.max'       => 'Quantity is too high',
-
-            'offered_price.numeric' => 'Price must be a number',
-            'offered_price.min'     => 'Price is too low',
-            'offered_price.max'     => 'Price is too high',
-
-            'transaction_date.date'      => 'Expiration date must be a vald date',
-            'transaction_date.after'     => 'Expiration date must be in the future',
-            'transaction_date.before'    => 'Expiration date cannot be more than 3 months away',
+            'quantity_kg.numeric'      => 'Quantity must be a number.',
+            'quantity_kg.min'          => 'Quantity is too low.',
+            'offered_price.numeric'    => 'Budget must be a number.',
+            'offered_price.min'        => 'Budget is too low.',
+            'scheduled_date.date'      => 'Transaction date must be a valid date.',
+            'scheduled_date.after'     => 'Transaction date must be in the future.',
+            'scheduled_date.before'    => 'Transaction date cannot be more than 3 months away.',
         ];
     }
 }

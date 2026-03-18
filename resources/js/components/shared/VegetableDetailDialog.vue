@@ -1,117 +1,135 @@
 <script setup lang="ts">
-
-import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler, type ChartOptions } from 'chart.js'
-import { Leaf, AlertCircle } from 'lucide-vue-next'
+import {
+	CategoryScale,
+	Chart as ChartJS,
+	type ChartOptions,
+	Filler,
+	Legend,
+	LinearScale,
+	LineElement,
+	PointElement,
+	Title,
+	Tooltip,
+} from 'chart.js'
+import { AlertCircle, Leaf } from 'lucide-vue-next'
 import { computed } from 'vue'
 import { Line } from 'vue-chartjs'
 import { Badge } from '@/components/ui/badge'
-import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog'
 import { Separator } from '@/components/ui/separator'
 import type { CatalogVariety } from '@/types/shared/vegetables'
 
 ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-  Filler,
+	CategoryScale,
+	LinearScale,
+	PointElement,
+	LineElement,
+	Title,
+	Tooltip,
+	Legend,
+	Filler,
 )
 
 const props = defineProps<{
-  open: boolean
-  variety: CatalogVariety | null
+	open: boolean
+	variety: CatalogVariety | null
 }>()
 
 defineEmits<{
-  'update:open': [value: boolean]
+	'update:open': [value: boolean]
 }>()
 
 const freshnessConfig = {
-  recent: { label: 'Recently Updated', class: 'bg-green-500/10 text-green-700 dark:text-green-400 border-green-500/20' },
-  stable: { label: 'Stable', class: 'bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20' },
-  'very stable': { label: 'Older Price', class: 'bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20' },
-  stale: { label: 'Stale Price', class: 'bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/20' },
+	recent: {
+		label: 'Recently Updated',
+		class: 'bg-green-500/10 text-green-700 dark:text-green-400 border-green-500/20',
+	},
+	stable: {
+		label: 'Stable',
+		class: 'bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20',
+	},
+	'very stable': {
+		label: 'Older Price',
+		class: 'bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20',
+	},
+	stale: {
+		label: 'Stale Price',
+		class: 'bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/20',
+	},
 } as const
 
 // recent_prices arrive oldest → newest from the service (sorted ascending)
 const chartData = computed(() => {
-  if (!props.variety?.recent_prices?.length) return null
+	if (!props.variety?.recent_prices?.length) return null
 
-  const prices = props.variety.recent_prices
+	const prices = props.variety.recent_prices
 
-  return {
-    labels: prices.map((p) => p.recorded_at),
-    datasets: [
-      {
-        label: 'Max (₱/kg)',
-        data: prices.map((p) => p.price_max),
-        borderColor: 'rgb(99, 102, 241)',
-        backgroundColor: 'rgba(99, 102, 241, 0.08)',
-        fill: true,
-        tension: 0.4,
-        pointRadius: 3,
-        pointHoverRadius: 5,
-      },
-      {
-        label: 'Min (₱/kg)',
-        data: prices.map((p) => p.price_min),
-        borderColor: 'rgb(34, 197, 94)',
-        backgroundColor: 'rgba(34, 197, 94, 0.08)',
-        fill: true,
-        tension: 0.4,
-        pointRadius: 3,
-        pointHoverRadius: 5,
-      },
-    ],
-  }
+	return {
+		labels: prices.map((p) => p.recorded_at),
+		datasets: [
+			{
+				label: 'Max (₱/kg)',
+				data: prices.map((p) => p.price_max),
+				borderColor: 'rgb(99, 102, 241)',
+				backgroundColor: 'rgba(99, 102, 241, 0.08)',
+				fill: true,
+				tension: 0.4,
+				pointRadius: 3,
+				pointHoverRadius: 5,
+			},
+			{
+				label: 'Min (₱/kg)',
+				data: prices.map((p) => p.price_min),
+				borderColor: 'rgb(34, 197, 94)',
+				backgroundColor: 'rgba(34, 197, 94, 0.08)',
+				fill: true,
+				tension: 0.4,
+				pointRadius: 3,
+				pointHoverRadius: 5,
+			},
+		],
+	}
 })
 
 const chartOptions: ChartOptions<'line'> = {
-  responsive: true,
-  maintainAspectRatio: true,
-  interaction: {
-    mode: 'index',
-    intersect: false,
-  },
-  plugins: {
-    legend: {
-      position: 'top',
-      labels: {
-        boxWidth: 12,
-        padding: 16,
-        font: { size: 12 },
-      },
-    },
-    tooltip: {
-      callbacks: {
-        label: (ctx) => ` ₱${(ctx.raw as number).toFixed(2)}`,
-      },
-    },
-  },
-  scales: {
-    x: {
-      grid: { display: false },
-      ticks: { font: { size: 11 }, maxRotation: 45 },
-    },
-    y: {
-      grid: { color: 'rgba(0,0,0,0.05)' },
-      ticks: {
-        font: { size: 11 },
-        callback: (value) => `₱${value}`,
-      },
-    },
-  },
+	responsive: true,
+	maintainAspectRatio: true,
+	interaction: {
+		mode: 'index',
+		intersect: false,
+	},
+	plugins: {
+		legend: {
+			position: 'top',
+			labels: {
+				boxWidth: 12,
+				padding: 16,
+				font: { size: 12 },
+			},
+		},
+		tooltip: {
+			callbacks: {
+				label: (ctx) => ` ₱${(ctx.raw as number).toFixed(2)}`,
+			},
+		},
+	},
+	scales: {
+		x: {
+			grid: { display: false },
+			ticks: { font: { size: 11 }, maxRotation: 45 },
+		},
+		y: {
+			grid: { color: 'rgba(0,0,0,0.05)' },
+			ticks: {
+				font: { size: 11 },
+				callback: (value) => `₱${value}`,
+			},
+		},
+	},
 }
 
 // Table shows newest → oldest (reverse of chart)
-const tableRows = computed(() =>
-  props.variety
-    ? [...props.variety.recent_prices].reverse()
-    : [],
-)
+const tableRows = computed(() => (props.variety ? [...props.variety.recent_prices].reverse() : []))
 </script>
 
 <template>

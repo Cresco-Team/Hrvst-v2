@@ -1,7 +1,14 @@
 <script setup lang="ts">
-
 import type { ColumnDef } from '@tanstack/vue-table'
-import { ChevronDownIcon, ChevronRightIcon, MapPin, Phone, Mail, Package, ClipboardList } from 'lucide-vue-next'
+import {
+	ChevronDownIcon,
+	ChevronRightIcon,
+	ClipboardList,
+	Mail,
+	MapPin,
+	Package,
+	Phone,
+} from 'lucide-vue-next'
 import DataTable from '@/components/shared/tables/DataTable.vue'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
@@ -12,50 +19,54 @@ import type { Farmer } from '@/types/admin/farmers'
 import type { PaginatedResponse } from '@/types/pagination'
 
 defineProps<{
-    farmers: PaginatedResponse<Farmer>
-    searchQuery?: string
+	farmers: PaginatedResponse<Farmer>
+	searchQuery?: string
 }>()
 
 defineEmits<{
-    'view-farmer': [farmer: Farmer]
-    'page-change': [page: number]
-    'search': [query: string]
+	'view-farmer': [farmer: Farmer]
+	'page-change': [page: number]
+	search: [query: string]
 }>()
 
 /* -- column definitions -- */
 const columns: ColumnDef<Farmer>[] = [
-    {
-        id: 'expander',
-        header: '',
-    }, {
-        id: 'image',
-        header: 'Image',
-    }, {
-        id: 'farmer',
-        header: 'Farmer',
-        accessorFn: (row) => row.user.name,
-        enableSorting: true,
-    }, {
-        id: 'ongoing_supplies_count',
-        header: 'Supplies',
-        accessorFn: (row) => row.ongoing_supplies_count
-    }, {
-        id: 'location',
-        header: 'Address',
-        accessorFn: (row) => `${row.location.barangay}, ${row.location.municipality}`,
-        enableSorting: true,
-    },
-    {
-        id: 'joined',
-        header: 'Joined',
-        accessorFn: (row) => row.joined_at,
-        enableSorting: true,
-    },
-    {
-        id: 'actions',
-        header: 'Actions',
-        enableSorting: false,
-    },
+	{
+		id: 'expander',
+		header: '',
+	},
+	{
+		id: 'image',
+		header: 'Image',
+	},
+	{
+		id: 'farmer',
+		header: 'Farmer',
+		accessorFn: (row) => row.user.name,
+		enableSorting: true,
+	},
+	{
+		id: 'ongoing_supplies_count',
+		header: 'Supplies',
+		accessorFn: (row) => row.ongoing_supplies_count,
+	},
+	{
+		id: 'location',
+		header: 'Address',
+		accessorFn: (row) => `${row.location.barangay}, ${row.location.municipality}`,
+		enableSorting: true,
+	},
+	{
+		id: 'joined',
+		header: 'Joined',
+		accessorFn: (row) => row.joined_at,
+		enableSorting: true,
+	},
+	{
+		id: 'actions',
+		header: 'Actions',
+		enableSorting: false,
+	},
 ]
 </script>
 

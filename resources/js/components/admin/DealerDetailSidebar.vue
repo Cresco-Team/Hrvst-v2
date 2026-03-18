@@ -1,7 +1,6 @@
 <script setup lang="ts">
-
 import { router } from '@inertiajs/vue3'
-import { Mail, Trash, Info, Calendar1, Wheat, Phone } from 'lucide-vue-next'
+import { Calendar1, Info, Mail, Phone, Trash, Wheat } from 'lucide-vue-next'
 import { ref } from 'vue'
 import { destroy, show } from '@/actions/App/Http/Controllers/Admin/DealerController'
 import ConfirmationDialog from '@/components/ConfirmationDialog.vue'
@@ -16,26 +15,26 @@ import { useInitials } from '@/composables/useInitials'
 import type { Detail } from '@/types/admin/dealers'
 
 const props = defineProps<{
-    open: boolean
-    dealer: Detail | null
-    loading: boolean
+	open: boolean
+	dealer: Detail | null
+	loading: boolean
 }>()
 
 defineEmits<{
-    close: []
+	close: []
 }>()
 
 /* Dialog states */
 const isDeleteDialogOpen = ref(false)
 
 const openDeleteDialog = () => {
-    isDeleteDialogOpen.value = true
+	isDeleteDialogOpen.value = true
 }
 
 const handleDelete = () => {
-    if (!props.dealer) return
+	if (!props.dealer) return
 
-    router.delete(destroy(props.dealer.id).url)
+	router.delete(destroy(props.dealer.id).url)
 }
 
 const { getInitials } = useInitials()

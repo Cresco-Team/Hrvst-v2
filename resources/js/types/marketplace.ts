@@ -1,47 +1,80 @@
-import type { Variety } from "./product"
+/* --- Enums --------------- */
 
-/* ---------------Dealer Marketplace--------------- */
-export interface MarketplaceFilters {
-    search?: string | null
-    category_id?: number | null
-    variety_id?: number | null
-    municipality_id?: number | null
+export type PostType = 'supply' | 'demand'
+export type PostStatus = 'Ongoing' | 'Archived' | 'Fulfilled'
+export type PostPriceFlag = 'Low' | 'Fair' | 'High'
+
+/* --- Shared sub-shapes --------------- */
+
+export interface PostVariety {
+	id: number
+	name: string
+	vegetable: string | null
+	category: string | null
+	image_url: string
+}
+
+export interface VarietyOption {
+	id: number
+	name: string
+	current_price: { min: number; max: number } | null
 }
 
 export interface CategoryOption {
-    id: number
-    name: string
-  }
-
-  export interface MunicipalityOption {
-    id: number
-    name: string
-    province: string
-    label: string
-  }
-
-export interface Supply {
-    id: number
-    variety: Variety
-    image_url?: string
-    quantity_kg: number
-    offered_price: number
-    price_flag?: 'Low' | 'Fair' | 'High'
-    status?: 'Ongoing' | 'Archived' | 'Fulfilled'
-    expiration_date: string
-    days_until_expiration?: number
-    created_at?: string
-    created_at_human?: string
+	id: number
+	name: string
 }
 
+export interface MarketplaceFilters {
+	search?: string | null
+	category_id?: number | null
+	variety_id?: number | null
+	municipality_id?: number | null
+}
+
+/* --- Supply (Farmer post) --------------- */
+
+export interface Supply {
+	id: number
+	scheduled_date: string
+	days_until_expiration: number | null
+	created_at: string
+	created_at_human: string
+	image_url: string
+	quantity_kg: number
+	offered_price: number
+	price_flag: PostPriceFlag
+	status: PostStatus
+	variety: PostVariety
+}
+
+/* --- Demand (Dealer post) --------------- */
+
 export interface Demand {
-    id: number
-    variety: Variety
-    quantity_kg: number
-    offered_price: number
-    price_flag?: 'Low' | 'Fair' | 'High'
-    status?: 'Ongoing' | 'Archived' | 'Fulfilled'
-    transaction_date: string
-    created_at?: string
-    created_at_human?: string
+	id: number
+	scheduled_date: string
+	days_until_transaction: number | null
+	created_at: string
+	created_at_human: string
+	quantity_kg: number
+	offered_price: number
+	price_flag: PostPriceFlag
+	status: PostStatus
+	variety: PostVariety
+}
+
+/* --- Summaries --------------- */
+
+export interface SupplySummary {
+	total_ongoing: number
+	total_fulfilled: number
+	total_archived: number
+	scheduled_this_week: number
+}
+
+export interface DemandSummary {
+	total_ongoing: number
+	total_fulfilled: number
+	total_archived: number
+	scheduled_this_week: number
 }

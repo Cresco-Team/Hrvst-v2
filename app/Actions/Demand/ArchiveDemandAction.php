@@ -2,12 +2,12 @@
 
 namespace App\Actions\Demand;
 
-use App\Models\Marketplace\DealerDemand;
+use App\Models\Marketplace\Post;
 
 final class ArchiveDemandAction
 {
-    public function __invoke(DealerDemand $demand): void
+    public function handle(Post $post): void
     {
-        $demand->post->markAsArchived();
+        $post->markAsArchived();
     }
 }
