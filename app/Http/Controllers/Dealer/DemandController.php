@@ -8,6 +8,7 @@ use App\Actions\Demand\DeleteDemandAction;
 use App\Actions\Demand\FulfillDemandAction;
 use App\Actions\Demand\UpdateDemandAction;
 use App\Enums\PostStatus;
+use App\Enums\PostType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Dealer\StoreDemandRequest;
 use App\Http\Requests\Dealer\UpdateDemandRequest;
@@ -22,7 +23,7 @@ use Inertia\Response;
 
 class DemandController extends Controller
 {
-    public function __construct (
+    public function __construct(
         private DemandService $demandService
     ) {}
 
@@ -34,10 +35,10 @@ class DemandController extends Controller
         $status = PostStatus::tryFrom($request->query('status', PostStatus::Ongoing->value));
 
         return Inertia::render('dealer/demands/Index', [
-            'filters'        => ['status' => $status],
-            'summary'        => Inertia::defer(fn () => $this->demandService->summary($userId)),
+            'filters' => ['status' => $status],
+            'summary' => Inertia::defer(fn () => $this->demandService->summary($userId)),
             'varietyOptions' => Inertia::defer(fn () => $this->demandService->varietyOptions()),
-            'demands'        => Inertia::defer(fn () => DealerDemandResource::collection(
+            'demands' => Inertia::defer(fn () => DealerDemandResource::collection(
                 $this->demandService->paginated(userId: $userId, status: $status)
             )),
         ]);
@@ -45,10 +46,10 @@ class DemandController extends Controller
 
     public function store(StoreDemandRequest $request, CreateDemandAction $createDemand): RedirectResponse
     {
-        Gate::authorize('create', Post::class);
+        Gate::authorize('create', [Post::class, PostType::Demand]);
 
         $createDemand->handle(
-            dealer:    $request->user()->dealerProfile,
+            dealer: $request->user()->dealerProfile,
             validated: $request->validated(),
         );
 
@@ -61,7 +62,7 @@ class DemandController extends Controller
         Gate::authorize('update', $demand);
 
         $updateDemand->handle(
-            post: $demand, 
+            post: $demand,
             validated: $request->validated()
         );
 
