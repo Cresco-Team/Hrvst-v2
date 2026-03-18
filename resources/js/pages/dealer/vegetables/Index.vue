@@ -10,11 +10,11 @@ import VegetableDetailDialog from '@/components/shared/VegetableDetailDialog.vue
 import { Button } from '@/components/ui/button'
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group'
 import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
 import AppLayout from '@/layouts/AppLayout.vue'
@@ -23,9 +23,9 @@ import type { PaginatedResponse } from '@/types/pagination'
 import type { CatalogFilters, CatalogVariety, CategoryOption } from '@/types/shared/vegetables'
 
 interface Props {
-	filters: CatalogFilters
-	varieties?: PaginatedResponse<CatalogVariety>
-	categoryOptions?: CategoryOption[]
+  filters: CatalogFilters
+  varieties?: PaginatedResponse<CatalogVariety>
+  categoryOptions?: CategoryOption[]
 }
 
 const props = defineProps<Props>()
@@ -37,68 +37,66 @@ const searchQuery = ref(props.filters.search ?? '')
 let searchDebounce: ReturnType<typeof setTimeout> | null = null
 
 const breadcrumbs = [
-	{ title: 'Dealer', href: dealer.demands.index().url },
-	{ title: 'Vegetables', href: dealer.vegetables.index().url },
+  { title: 'Dealer', href: dealer.demands.index().url },
+  { title: 'Vegetables', href: dealer.vegetables.index().url },
 ]
 
 function openDetail(variety: CatalogVariety) {
-	selectedVariety.value = variety
-	dialogOpen.value = true
+  selectedVariety.value = variety
+  dialogOpen.value = true
 }
 
 function handleSearch() {
-	if (searchDebounce) clearTimeout(searchDebounce)
+  if (searchDebounce) clearTimeout(searchDebounce)
 
-	searchDebounce = setTimeout(() => {
-		router.visit(dealer.vegetables.index().url, {
-			data: {
-				search: searchQuery.value || undefined,
-				category_id: props.filters.category_id || undefined,
-			},
-			preserveState: true,
-			preserveScroll: true,
-			only: ['varieties'],
-		})
-	}, 300)
+  searchDebounce = setTimeout(() => {
+    router.visit(dealer.vegetables.index().url, {
+      data: {
+        search: searchQuery.value || undefined,
+        category_id: props.filters.category_id || undefined,
+      },
+      preserveState: true,
+      preserveScroll: true,
+      only: ['varieties'],
+    })
+  }, 300)
 }
 
 function handleCategoryFilter(value: AcceptableValue) {
-	const category = value === 'all' || value == null ? undefined : String(value)
+  const category = value === 'all' || value == null ? undefined : String(value)
 
-	router.visit(dealer.vegetables.index().url, {
-		data: {
-			search: props.filters.search || undefined,
-			category_id: category,
-		},
-		preserveState: true,
-		preserveScroll: true,
-		only: ['varieties'],
-	})
+  router.visit(dealer.vegetables.index().url, {
+    data: {
+      search: props.filters.search || undefined,
+      category_id: category,
+    },
+    preserveState: true,
+    preserveScroll: true,
+    only: ['varieties'],
+  })
 }
 
 function handlePageChange(page: number) {
-	router.visit(dealer.vegetables.index().url, {
-		data: {
-			page,
-			search: props.filters.search || undefined,
-			category_id: props.filters.category_id || undefined,
-		},
-		preserveScroll: true,
-	})
+  router.visit(dealer.vegetables.index().url, {
+    data: {
+      page,
+      search: props.filters.search || undefined,
+      category_id: props.filters.category_id || undefined,
+    },
+    preserveScroll: true,
+  })
 }
 </script>
 
 <template>
+
   <Head title="Vegetables" />
 
   <AppLayout :breadcrumbs="breadcrumbs">
     <div class="flex h-full flex-col gap-6 p-4 lg:p-6">
 
       <!-- Header -->
-      <Heading
-        title="Vegetables"
-        description="Browse all available varieties and their current market prices."
-      />
+      <Heading title="Vegetables" description="Browse all available varieties and their current market prices." />
 
       <!-- Filters -->
       <div class="flex flex-wrap gap-3">
@@ -106,11 +104,7 @@ function handlePageChange(page: number) {
           <InputGroupAddon>
             <Search class="size-4 text-muted-foreground" />
           </InputGroupAddon>
-          <InputGroupInput
-            v-model="searchQuery"
-            placeholder="Search varieties..."
-            @input="handleSearch"
-          />
+          <InputGroupInput v-model="searchQuery" placeholder="Search varieties..." @input="handleSearch" />
           <InputGroupAddon align="inline-end">
             {{ varieties?.meta.total }} results
           </InputGroupAddon>
@@ -121,20 +115,13 @@ function handlePageChange(page: number) {
             <Skeleton class="h-9 w-40" />
           </template>
 
-          <Select
-            :model-value="String(filters.category_id ?? 'all')"
-            @update:model-value="handleCategoryFilter"
-          >
+          <Select :model-value="String(filters.category_id ?? 'all')" @update:model-value="handleCategoryFilter">
             <SelectTrigger class="w-40">
               <SelectValue placeholder="All categories" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All categories</SelectItem>
-              <SelectItem
-                v-for="cat in categoryOptions"
-                :key="cat.id"
-                :value="String(cat.id)"
-              >
+              <SelectItem v-for="cat in categoryOptions" :key="cat.id" :value="String(cat.id)">
                 {{ cat.name }}
               </SelectItem>
             </SelectContent>
@@ -150,47 +137,26 @@ function handlePageChange(page: number) {
           </div>
         </template>
 
-        <EmptyState
-          v-if="!varieties?.data.length"
-          title="No varieties found"
-          description="Try adjusting your search or category filter."
-        />
+        <EmptyState v-if="!varieties?.data.length" title="No varieties found"
+          description="Try adjusting your search or category filter." />
 
-        <div
-          v-else
-          class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
-        >
-          <VegetableCatalogCard
-            v-for="variety in varieties.data"
-            :key="variety.id"
-            :variety="variety"
-            @select="openDetail"
-          />
+        <div v-else class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+          <VegetableCatalogCard v-for="variety in varieties.data" :key="variety.id" :variety="variety"
+            @select="openDetail" />
         </div>
       </Deferred>
 
       <!-- Pagination -->
-      <div
-        v-if="varieties && varieties.meta.last_page > 1"
-        class="flex items-center justify-between border-t pt-4"
-      >
-        <Button
-          variant="outline"
-          size="sm"
-          :disabled="varieties.meta.current_page === 1"
-          @click="handlePageChange(varieties.meta.current_page - 1)"
-        >
+      <div v-if="varieties && varieties.meta.last_page > 1" class="flex items-center justify-between border-t pt-4">
+        <Button variant="outline" size="sm" :disabled="varieties.meta.current_page === 1"
+          @click="handlePageChange(varieties.meta.current_page - 1)">
           Previous
         </Button>
         <span class="text-sm text-muted-foreground">
           Page {{ varieties.meta.current_page }} of {{ varieties.meta.last_page }}
         </span>
-        <Button
-          variant="outline"
-          size="sm"
-          :disabled="varieties.meta.current_page === varieties.meta.last_page"
-          @click="handlePageChange(varieties.meta.current_page + 1)"
-        >
+        <Button variant="outline" size="sm" :disabled="varieties.meta.current_page === varieties.meta.last_page"
+          @click="handlePageChange(varieties.meta.current_page + 1)">
           Next
         </Button>
       </div>
@@ -199,9 +165,5 @@ function handlePageChange(page: number) {
   </AppLayout>
 
   <!-- Detail dialog — lives outside AppLayout to avoid stacking context issues -->
-  <VegetableDetailDialog
-    :open="dialogOpen"
-    :variety="selectedVariety"
-    @update:open="dialogOpen = $event"
-  />
+  <VegetableDetailDialog :open="dialogOpen" :variety="selectedVariety" @update:open="dialogOpen = $event" />
 </template>
