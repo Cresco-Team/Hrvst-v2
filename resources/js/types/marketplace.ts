@@ -19,6 +19,7 @@ export interface Post {
 	id: number
 	scheduled_date: string
 	time_slot: PostTimeSlot | null
+	time_slot_label: string | null
 	days_until_expiration: number | null
 	created_at: string
 	created_at_human: string
