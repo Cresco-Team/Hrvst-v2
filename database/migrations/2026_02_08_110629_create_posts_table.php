@@ -20,6 +20,7 @@ return new class extends Migration
 
             $table->enum('price_flag', ['Low', 'Fair', 'High'])->default('Fair');
             $table->date('scheduled_date')->nullable();
+            $table->enum('time_slot', ['morning', 'afternoon', 'evening'])->nullable();
             $table->timestamps();
 
             $table->index(['status']);
