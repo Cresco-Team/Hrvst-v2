@@ -20,17 +20,17 @@ import type { Detail, Farmer, Filters, MarkerData, Summary } from '@/types/admin
 import type { PaginatedResponse } from '@/types/pagination'
 
 interface Props {
-	view: 'list' | 'map'
-	filters: Filters
-	mapConfig: {
-		center: {
-			lat: number
-			lng: number
-		}
-		defaultZoom: number
-	}
-	farmers: PaginatedResponse<Farmer>
-	summary: Summary
+    view: 'list' | 'map'
+    filters: Filters
+    mapConfig: {
+        center: {
+            lat: number
+            lng: number
+        }
+        defaultZoom: number
+    }
+    farmers: PaginatedResponse<Farmer>
+    summary: Summary
 }
 
 const props = defineProps<Props>()
@@ -45,10 +45,10 @@ const sidebarOpen = ref(false)
 const selectedFarmer = ref<Detail | null>(null)
 const loadingFarmer = ref(false)
 const mapBounds = ref<{
-	north: number
-	south: number
-	east: number
-	west: number
+    north: number
+    south: number
+    east: number
+    west: number
 } | null>(null)
 
 /* -- Computed -- */
@@ -56,125 +56,125 @@ const isListView = computed(() => currentView.value === 'list')
 const isMapView = computed(() => currentView.value === 'map')
 
 const totalVisiblePlantings = computed(() => {
-	return markers.value.reduce((sum, m) => sum + m.ongoing_supplies_count, 0)
+    return markers.value.reduce((sum, m) => sum + m.ongoing_supplies_count, 0)
 })
 
 const breadcrumbs = [
-	{ title: 'Admin', href: admin.dashboard().url },
-	{ title: 'Farmers', href: admin.farmers.index().url },
+    { title: 'Admin', href: admin.dashboard().url },
+    { title: 'Farmers', href: admin.farmers.index().url },
 ]
 
 const searchQuery = ref(props.filters?.search ?? '')
 
 /* -- View Toggle -- */
 function switchView(newView: 'list' | 'map') {
-	if (newView === currentView.value) return
+    if (newView === currentView.value) return
 
-	localStorage.setItem('farmers_view', newView)
+    localStorage.setItem('farmers_view', newView)
 
-	router.visit(admin.farmers.index().url, {
-		data: { view: newView },
-		preserveState: true,
-		preserveScroll: true,
-		only: newView === 'list' ? ['farmers', 'summary'] : [],
-		onSuccess: () => {
-			currentView.value = newView
-		},
-	})
+    router.visit(admin.farmers.index().url, {
+        data: { view: newView },
+        preserveState: true,
+        preserveScroll: true,
+        only: newView === 'list' ? ['farmers', 'summary'] : [],
+        onSuccess: () => {
+            currentView.value = newView
+        },
+    })
 }
 
 /* -- Data Fetching -- */
 async function fetchMarkers() {
-	loadingMarkers.value = true
-	try {
-		const params: any = {}
+    loadingMarkers.value = true
+    try {
+        const params: any = {}
 
-		if (selectedMunicipality.value) params.municipality_id = selectedMunicipality.value
-		if (selectedVariety.value) params.variety_id = selectedVariety.value
-		if (mapBounds.value) params.bounds = mapBounds.value
+        if (selectedMunicipality.value) params.municipality_id = selectedMunicipality.value
+        if (selectedVariety.value) params.variety_id = selectedVariety.value
+        if (mapBounds.value) params.bounds = mapBounds.value
 
-		const response = await axios.get('/admin/farmers/api/markers', { params })
-		markers.value = response.data.markers
-	} catch (error: any) {
-		toast.error('Error loading markers', {
-			description: error.response?.data?.message || 'Failed to load farmer markers',
-		})
-	} finally {
-		loadingMarkers.value = false
-	}
+        const response = await axios.get('/admin/farmers/api/markers', { params })
+        markers.value = response.data.markers
+    } catch (error: any) {
+        toast.error('Error loading markers', {
+            description: error.response?.data?.message || 'Failed to load farmer markers',
+        })
+    } finally {
+        loadingMarkers.value = false
+    }
 }
 
 async function loadFarmerDetails(farmerId: number) {
-	loadingFarmer.value = true
-	sidebarOpen.value = true
-	selectedFarmer.value = null
+    loadingFarmer.value = true
+    sidebarOpen.value = true
+    selectedFarmer.value = null
 
-	try {
-		const response = await axios.get(`/admin/farmers/api/${farmerId}/details`)
-		selectedFarmer.value = response.data
-	} catch (error: any) {
-		toast.error('Error loading farmer details', {
-			description: error.response?.data?.error || 'Failed to load farmer information',
-		})
-		sidebarOpen.value = false
-	} finally {
-		loadingFarmer.value = false
-	}
+    try {
+        const response = await axios.get(`/admin/farmers/api/${farmerId}/details`)
+        selectedFarmer.value = response.data
+    } catch (error: any) {
+        toast.error('Error loading farmer details', {
+            description: error.response?.data?.error || 'Failed to load farmer information',
+        })
+        sidebarOpen.value = false
+    } finally {
+        loadingFarmer.value = false
+    }
 }
 
 /* -- Event Handlers -- */
 function openFarmerSidebar(farmerId: number) {
-	loadFarmerDetails(farmerId)
+    loadFarmerDetails(farmerId)
 }
 
 function closeSidebar() {
-	sidebarOpen.value = false
-	selectedFarmer.value = null
+    sidebarOpen.value = false
+    selectedFarmer.value = null
 }
 
 function handleSearch(query: string) {
-	searchQuery.value = query
-	router.visit(index().url, {
-		data: {
-			search: query || undefined,
-		},
-		preserveState: true,
-		preserveScroll: true,
-		only: ['farmers', 'filters'],
-	})
+    searchQuery.value = query
+    router.visit(index().url, {
+        data: {
+            search: query || undefined,
+        },
+        preserveState: true,
+        preserveScroll: true,
+        only: ['farmers', 'filters'],
+    })
 }
 
 function handlePageChange(page: number) {
-	router.visit(admin.farmers.index().url, {
-		data: { page, view: 'list', search: searchQuery.value || undefined },
-		preserveState: true,
-		preserveScroll: true,
-	})
+    router.visit(admin.farmers.index().url, {
+        data: { page, view: 'list', search: searchQuery.value || undefined },
+        preserveState: true,
+        preserveScroll: true,
+    })
 }
 
 function handleBoundsChange(bounds: { north: number; south: number; east: number; west: number }) {
-	mapBounds.value = bounds
+    mapBounds.value = bounds
 }
 
 function handleClearFilters() {
-	selectedMunicipality.value = null
-	selectedVariety.value = null
+    selectedMunicipality.value = null
+    selectedVariety.value = null
 }
 
 /* -- Watchers -- */
 watch(
-	[currentView, selectedMunicipality, selectedVariety, mapBounds],
-	() => {
-		if (currentView.value === 'map') {
-			fetchMarkers()
-		}
-	},
-	{ immediate: true },
+    [currentView, selectedMunicipality, selectedVariety, mapBounds],
+    () => {
+        if (currentView.value === 'map') {
+            fetchMarkers()
+        }
+    },
+    { immediate: true },
 )
 
 const storedView = localStorage.getItem('farmers_view') as 'list' | 'map' | null
 if (storedView && storedView !== props.view) {
-	switchView(storedView)
+    switchView(storedView)
 }
 </script>
 
@@ -220,8 +220,8 @@ if (storedView && storedView !== props.view) {
                     <LargeCard title="Total Supplies" :value="summary.total_supplies" subtext="all supplies posted"
                         :icon="Package"
                         card-class="col-span-1 bg-linear-to-br from-orange-500/10 via-amber-500/10 to-yellow-500/30" />
-                    <LargeCard title="New Supplies" :value="summary.new_supplies_this_month" subtext="posted supplies this month"
-                        :icon="PackagePlus"
+                    <LargeCard title="New Supplies" :value="summary.new_supplies_this_month"
+                        subtext="posted supplies this month" :icon="PackagePlus"
                         card-class="col-span-1 bg-linear-to-br from-orange-500/10 via-amber-500/10 to-yellow-500/30" />
                 </div>
             </Deferred>
@@ -238,21 +238,13 @@ if (storedView && storedView !== props.view) {
                         </div>
                     </template>
 
-                    <FarmerTable
-                        v-if="farmers" 
-                        :farmers="farmers"
-                        :search-query="searchQuery"
-                        @view-farmer="openFarmerSidebar($event.id)"
-                        @page-change="handlePageChange" 
-                        @search="handleSearch"
-                    />
+                    <FarmerTable v-if="farmers" :farmers="farmers" :search-query="searchQuery"
+                        @view-farmer="openFarmerSidebar($event.id)" @page-change="handlePageChange"
+                        @search="handleSearch" />
 
-                    <EmptyState
-                        v-else
-                        title="No Farmers Yet"
+                    <EmptyState v-else title="No Farmers Yet"
                         description="Please wait for farmers to register or check for pending farmers."
-                        :icon="SearchX"
-                    />
+                        :icon="SearchX" />
                 </Deferred>
             </div>
 
@@ -275,8 +267,7 @@ if (storedView && storedView !== props.view) {
 
                     <!-- Map Component -->
                     <FarmerMap :markers="markers" :center="mapConfig.center" :zoom="mapConfig.defaultZoom"
-                        @marker-click="openFarmerSidebar"
-                        @bounds-change="handleBoundsChange" />
+                        @marker-click="openFarmerSidebar" @bounds-change="handleBoundsChange" />
                 </div>
 
                 <!-- Right Sidebar: Filters & Legend -->
@@ -343,6 +334,5 @@ if (storedView && storedView !== props.view) {
     </AppLayout>
 
     <!-- Farmer Details Sidebar -->
-    <FarmerDetailSidebar :open="sidebarOpen" :farmer="selectedFarmer" :loading="loadingFarmer"
-        @close="closeSidebar" />
+    <FarmerDetailSidebar :open="sidebarOpen" :farmer="selectedFarmer" :loading="loadingFarmer" @close="closeSidebar" />
 </template>
