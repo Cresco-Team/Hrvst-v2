@@ -123,7 +123,7 @@ const mainNavItems = computed<NavItem[]>(() => {
             },
             {
                 title: 'My Supplies',
-                href: farmer.garden.index(),
+                href: farmer.supplies.index(),
                 icon: Package,
             },
         )
