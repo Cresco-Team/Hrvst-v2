@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import type { ColumnDef } from '@tanstack/vue-table'
 import {
-	ChevronDownIcon,
-	ChevronRightIcon,
-	ClipboardList,
-	Mail,
-	Package,
-	Phone,
+    ChevronDownIcon,
+    ChevronRightIcon,
+    ClipboardList,
+    Mail,
+    Package,
+    Phone,
 } from 'lucide-vue-next'
 import DataTable from '@/components/shared/tables/DataTable.vue'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -18,49 +18,49 @@ import type { Dealer } from '@/types/admin/dealers'
 import type { PaginatedResponse } from '@/types/pagination'
 
 defineProps<{
-	dealers: PaginatedResponse<Dealer>
-	searchQuery?: string
+    dealers: PaginatedResponse<Dealer>
+    searchQuery?: string
 }>()
 
 defineEmits<{
-	'view-dealer': [dealer: Dealer]
-	'page-change': [page: number]
-	search: [query: string]
+    'view-dealer': [dealer: Dealer]
+    'page-change': [page: number]
+    search: [query: string]
 }>()
 
 /* -- column definitions -- */
 const columns: ColumnDef<Dealer>[] = [
-	{
-		id: 'expander',
-		header: '',
-	},
-	{
-		id: 'image',
-		header: 'Image',
-	},
-	{
-		id: 'dealer',
-		header: 'Dealer',
-		accessorFn: (row) => row.user.name,
-		enableSorting: true,
-	},
-	{
-		id: 'ongoing_demands_count',
-		header: 'Demands',
-		accessorFn: (row) => row.ongoing_demands_count,
-		enableSorting: true,
-	},
-	{
-		id: 'joined_at',
-		header: 'Joined',
-		accessorFn: (row) => row.joined_at,
-		enableSorting: true,
-	},
-	{
-		id: 'actions',
-		header: 'Actions',
-		enableSorting: false,
-	},
+    {
+        id: 'expander',
+        header: '',
+    },
+    {
+        id: 'image',
+        header: 'Image',
+    },
+    {
+        id: 'dealer',
+        header: 'Dealer',
+        accessorFn: (row) => row.user.name,
+        enableSorting: true,
+    },
+    {
+        id: 'ongoing_demands_count',
+        header: 'Demands',
+        accessorFn: (row) => row.ongoing_demands_count,
+        enableSorting: true,
+    },
+    {
+        id: 'joined_at',
+        header: 'Joined',
+        accessorFn: (row) => row.joined_at,
+        enableSorting: true,
+    },
+    {
+        id: 'actions',
+        header: 'Actions',
+        enableSorting: false,
+    },
 ]
 </script>
 
@@ -70,8 +70,8 @@ const columns: ColumnDef<Dealer>[] = [
         @page-change="$emit('page-change', $event)" @search="$emit('search', $event)">
         <!-- Expander -->
         <template #cell-expander="{ row, cell }">
-            <Button v-if="row.ongoing_demands_count > 0" @click="cell.row.toggleExpanded()"
-                variant="ghost" size="icon-sm" class="text-muted-foreground">
+            <Button v-if="row.ongoing_demands_count > 0" @click="cell.row.toggleExpanded()" variant="ghost"
+                size="icon-sm" class="text-muted-foreground">
                 <ChevronDownIcon v-if="cell.row.getIsExpanded()" class="size-4" />
                 <ChevronRightIcon v-else class="size-4" />
             </Button>
@@ -111,7 +111,7 @@ const columns: ColumnDef<Dealer>[] = [
             <div class="flex items-center gap-2">
                 <Package class="size-4 text-muted-foreground" />
                 <span class="font-mono font-medium">
-                    {{ row.demands.length }}
+                    {{ row.ongoing_demands_count }}
                 </span>
             </div>
         </template>
@@ -162,16 +162,13 @@ const columns: ColumnDef<Dealer>[] = [
                         <div class="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-4">
                             <Item v-for="demand in row.demands" :key="demand.id" variant="outline">
                                 <ItemMedia variant="image">
-                                    <img
-                                        v-if="demand.variety.image_url"
-                                        :src="demand.variety.image_url"
-                                        :alt="demand.variety.name"
-                                    >
+                                    <img v-if="demand.variety.image_url" :src="demand.variety.image_url"
+                                        :alt="demand.variety.name">
                                 </ItemMedia>
 
                                 <ItemContent>
                                     <ItemTitle class="line-clamp-1">
-                                        {{ demand.variety.name }} - <span class="text-muted-foreground">{{ demand.variety.category }}</span>
+                                        {{ demand.variety.vegetable }} {{ demand.variety.name }}
                                     </ItemTitle>
                                     <ItemDescription>{{ demand.quantity_kg.toFixed(2) }} kg</ItemDescription>
                                 </ItemContent>
