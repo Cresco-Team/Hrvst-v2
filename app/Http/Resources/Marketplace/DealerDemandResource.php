@@ -10,30 +10,31 @@ class DealerDemandResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id'                     => $this->id,
-            'scheduled_date'         => $this->scheduled_date?->format('M d, Y'),
+            'id' => $this->id,
+            'scheduled_date' => $this->scheduled_date?->format('M d, Y'),
+            'time_slot' => $this->time_slot?->value,
             'days_until_transaction' => $this->scheduled_date
                 ? (int) now()->diffInDays($this->scheduled_date, false)
                 : null,
-            'created_at'             => $this->created_at->format('M d, Y'),
-            'created_at_human'       => $this->created_at->diffForHumans(),
+            'created_at' => $this->created_at->format('M d, Y'),
+            'created_at_human' => $this->created_at->diffForHumans(),
 
-            'quantity_kg'   => (float) $this->quantity_kg,
+            'quantity_kg' => (float) $this->quantity_kg,
             'offered_price' => (float) $this->offered_price,
-            'price_flag'    => $this->price_flag,
-            'status'        => $this->status,
+            'price_flag' => $this->price_flag,
+            'status' => $this->status,
 
             /* with('variety.vegetable.category', 'variety.media') */
             'variety' => $this->whenLoaded('variety', function () {
                 $variety = $this->variety;
 
                 return [
-                    'id'        => $variety->id,
-                    'name'      => $variety->name,
+                    'id' => $variety->id,
+                    'name' => $variety->name,
                     'vegetable' => $variety->relationLoaded('vegetable')
                         ? $variety->vegetable->name
                         : null,
-                    'category'  => $variety->relationLoaded('vegetable') && $variety->vegetable->relationLoaded('category')
+                    'category' => $variety->relationLoaded('vegetable') && $variety->vegetable->relationLoaded('category')
                         ? $variety->vegetable->category->name
                         : null,
                     'image_url' => $variety->getFirstMediaUrl('variety_image'),
