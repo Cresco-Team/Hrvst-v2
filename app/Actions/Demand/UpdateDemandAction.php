@@ -16,7 +16,7 @@ final class UpdateDemandAction
         }
 
         $fields = array_intersect_key($validated, array_flip([
-            'variety_id', 'quantity_kg', 'offered_price', 'scheduled_date',
+            'variety_id', 'quantity_kg', 'offered_price', 'scheduled_date', 'time_slot',
         ]));
 
         if (isset($fields['offered_price'])) {
