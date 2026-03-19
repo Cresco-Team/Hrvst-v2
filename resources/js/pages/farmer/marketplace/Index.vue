@@ -3,8 +3,8 @@ import { Deferred, Head, router } from '@inertiajs/vue3'
 import { Search } from 'lucide-vue-next'
 import { ref } from 'vue'
 import EmptyState from '@/components/EmptyState.vue'
-import MarketplaceCard from '@/components/farmer/MarketplaceCard.vue'
 import Heading from '@/components/Heading.vue'
+import MarketplaceCard from '@/components/shared/cards/MarketplaceCard.vue'
 import { Button } from '@/components/ui/button'
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group'
 import {
@@ -17,13 +17,14 @@ import {
 import { Skeleton } from '@/components/ui/skeleton'
 import AppLayout from '@/layouts/AppLayout.vue'
 import farmer from '@/routes/farmer'
-import type { DealerDemand, DemandFilters } from '@/types/farmer/marketplace'
+import type { DemandFilters } from '@/types/farmer/marketplace'
+import type { Post } from '@/types/marketplace'
 import type { PaginatedResponse } from '@/types/pagination'
 import type { CategoryOption } from '@/types/product/category'
 
 interface Props {
   filters: DemandFilters
-  demands?: PaginatedResponse<DealerDemand>
+  demands?: PaginatedResponse<Post>
   categoryOptions?: CategoryOption[]
 }
 
@@ -143,7 +144,7 @@ const breadcrumbs = [
           description="Try adjusting your filters or check back later" />
 
         <div v-else class="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-          <MarketplaceCard v-for="demand in demands?.data" :key="demand.id" :demand="demand" />
+          <MarketplaceCard v-for="demand in demands?.data" :key="demand.id" :post="demand" />
         </div>
       </Deferred>
 

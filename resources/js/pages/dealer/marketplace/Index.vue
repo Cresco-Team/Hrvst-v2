@@ -2,9 +2,9 @@
 import { Deferred, Head, router } from '@inertiajs/vue3'
 import { Search } from 'lucide-vue-next'
 import { computed, ref } from 'vue'
-import MarketplaceCard from '@/components/dealer/MarketplaceCard.vue'
 import EmptyState from '@/components/EmptyState.vue'
 import Heading from '@/components/Heading.vue'
+import MarketplaceCard from '@/components/shared/cards/MarketplaceCard.vue'
 import { Button } from '@/components/ui/button'
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group'
 import {
@@ -18,12 +18,12 @@ import { Skeleton } from '@/components/ui/skeleton'
 import AppLayout from '@/layouts/AppLayout.vue'
 import dealer from '@/routes/dealer'
 import type { MarketplaceFilters } from '@/types/dealer/marketplace'
-import type { CategoryOption, Supply } from '@/types/marketplace'
+import type { CategoryOption, Post } from '@/types/marketplace'
 import type { PaginatedResponse } from '@/types/pagination'
 
 interface Props {
   filters: MarketplaceFilters
-  supplies?: PaginatedResponse<Supply>
+  supplies?: PaginatedResponse<Post>
   categoryOptions?: CategoryOption[]
 }
 
@@ -142,7 +142,7 @@ const breadcrumbs = [
           description="Try adjusting your search filters" :icon="Search" />
 
         <div v-else class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          <MarketplaceCard v-for="supply in supplies?.data" :key="supply.id" :supply="supply" />
+          <MarketplaceCard v-for="supply in supplies?.data" :key="supply.id" :post="supply" />
         </div>
       </Deferred>
 
