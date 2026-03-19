@@ -30,11 +30,11 @@ class FarmerController extends Controller
         $view = $request->query('view', 'list');
 
         return Inertia::render('admin/farmers/Index', [
-            'view'      => $view,
-            'filters'   => [
-                'search'            => $request->query('search', null),
-                'municipalities'    => $this->farmerMapService->getMunicipalityOptions(),
-                'supplies'          => $this->farmerMapService->getSupplyOptions(),
+            'view' => $view,
+            'filters' => [
+                'search' => $request->query('search', null),
+                'municipalities' => $this->farmerMapService->getMunicipalityOptions(),
+                'supplies' => $this->farmerMapService->getSupplyOptions(),
             ],
             'mapConfig' => [
                 'center' => [
@@ -43,7 +43,7 @@ class FarmerController extends Controller
                 ],
                 'defaultZoom' => 13,
             ],
-            'farmers' => $view === 'list' 
+            'farmers' => $view === 'list'
                 ? Inertia::defer(fn () => FarmerResource::collection(
                     $this->farmerService->paginated(
                         perPage: 20,
@@ -61,18 +61,18 @@ class FarmerController extends Controller
 
         $validated = $request->validate([
             'municipality_id' => 'nullable|exists:municipalities,id',
-            'variety_id'      => 'nullable|exists:varieties,id',
-            'bounds'          => 'nullable|array',
-            'bounds.north'    => 'required_with:bounds|numeric',
-            'bounds.south'    => 'required_with:bounds|numeric',
-            'bounds.east'     => 'required_with:bounds|numeric',
-            'bounds.west'     => 'required_with:bounds|numeric',
+            'variety_id' => 'nullable|exists:varieties,id',
+            'bounds' => 'nullable|array',
+            'bounds.north' => 'required_with:bounds|numeric',
+            'bounds.south' => 'required_with:bounds|numeric',
+            'bounds.east' => 'required_with:bounds|numeric',
+            'bounds.west' => 'required_with:bounds|numeric',
         ]);
 
         $farmers = $this->farmerMapService->getFarmersForMap(
             municipalityId: $validated['municipality_id'] ?? null,
-            varietyId:      $validated['variety_id'] ?? null,
-            bounds:         $validated['bounds'] ?? null
+            varietyId: $validated['variety_id'] ?? null,
+            bounds: $validated['bounds'] ?? null
         );
 
         return response()->json([
@@ -84,7 +84,7 @@ class FarmerController extends Controller
     public function details(FarmerProfile $farmer): JsonResponse
     {
         Gate::authorize('view', $farmer);
-        
+
         return response()->json(
             (new FarmerResource($this->farmerService->details($farmer)))->resolve()
         );
@@ -95,8 +95,7 @@ class FarmerController extends Controller
         Gate::authorize('view', $farmer);
 
         return Inertia::render('admin/farmers/Show', [
-            'farmer' => Inertia::defer(fn () =>
-                (new FarmerResource($this->farmerService->show($farmer)))->resolve()
+            'farmer' => Inertia::defer(fn () => (new FarmerResource($this->farmerService->show($farmer)))->resolve()
             ),
         ]);
     }
@@ -118,8 +117,8 @@ class FarmerController extends Controller
 
         return back()
             ->with('flash', [
-                'type' => 'success', 
-                'message' => 'Farmer Approved.'
+                'type' => 'success',
+                'message' => 'Farmer Approved.',
             ]);
     }
 
@@ -131,8 +130,8 @@ class FarmerController extends Controller
 
         return back()
             ->with('flash', [
-                'type' => 'success', 
-                'message' => 'Farmer Rejected and Deleted.'
+                'type' => 'success',
+                'message' => 'Farmer Rejected and Deleted.',
             ]);
     }
 
