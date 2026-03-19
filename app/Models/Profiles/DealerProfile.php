@@ -3,7 +3,6 @@
 namespace App\Models\Profiles;
 
 use App\Enums\PostType;
-use App\Models\Marketplace\DealerDemand;
 use App\Models\Marketplace\Post;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
@@ -37,7 +36,7 @@ class DealerProfile extends Model implements HasMedia
         return $this->belongsTo(User::class);
     }
 
-    public function post(): HasMany
+    public function posts(): HasMany
     {
         return $this->hasMany(Post::class, 'user_id', 'user_id')
             ->where('type', PostType::Demand);
