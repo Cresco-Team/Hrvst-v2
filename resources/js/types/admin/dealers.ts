@@ -12,6 +12,7 @@ export interface DealerDemand {
 	variety: {
 		id: number
 		name: string
+		vegetable: string
 		category: string
 		image_url: string
 	}
