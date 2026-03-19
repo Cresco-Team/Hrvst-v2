@@ -14,6 +14,20 @@ export interface PostVariety {
 	image_url: string
 }
 
+export interface Post {
+	id: number
+	scheduled_date: string
+	days_until_expiration: number | null
+	created_at: string
+	created_at_human: string
+	image_url?: string
+	quantity_kg: number
+	offered_price: number
+	price_flag: PostPriceFlag
+	status: PostStatus
+	variety: PostVariety
+}
+
 export interface VarietyOption {
 	id: number
 	name: string
@@ -30,37 +44,6 @@ export interface MarketplaceFilters {
 	category_id?: number | null
 	variety_id?: number | null
 	municipality_id?: number | null
-}
-
-/* --- Supply (Farmer post) --------------- */
-
-export interface Supply {
-	id: number
-	scheduled_date: string
-	days_until_expiration: number | null
-	created_at: string
-	created_at_human: string
-	image_url: string
-	quantity_kg: number
-	offered_price: number
-	price_flag: PostPriceFlag
-	status: PostStatus
-	variety: PostVariety
-}
-
-/* --- Demand (Dealer post) --------------- */
-
-export interface Demand {
-	id: number
-	scheduled_date: string
-	days_until_transaction: number | null
-	created_at: string
-	created_at_human: string
-	quantity_kg: number
-	offered_price: number
-	price_flag: PostPriceFlag
-	status: PostStatus
-	variety: PostVariety
 }
 
 /* --- Summaries --------------- */
