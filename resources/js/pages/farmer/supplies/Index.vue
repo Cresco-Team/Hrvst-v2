@@ -4,10 +4,10 @@ import { Archive, CalendarClock, PackageCheck, Plus, Sprout, Wheat } from 'lucid
 import { computed, ref } from 'vue'
 import ConfirmationDialog from '@/components/ConfirmationDialog.vue'
 import EmptyState from '@/components/EmptyState.vue'
-import SupplyCard from '@/components/farmer/cards/SupplyCard.vue'
 import SupplyForm from '@/components/farmer/SupplyForm.vue'
 import Heading from '@/components/Heading.vue'
 import LargeCard from '@/components/shared/cards/LargeCard.vue'
+import MyPostCard from '@/components/shared/cards/MyPostCard.vue'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -207,9 +207,8 @@ const breadcrumbs = [
           :icon="Sprout" button="Add Offering" />
 
         <div v-else class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          <SupplyCard v-for="supply in supplies!.data" :key="supply.id" :supply="supply"
-            :variety-options="varietyOptions" @edit="openEdit" @archive="openArchive" @fulfill="openFulfill"
-            @delete="openDelete" />
+          <MyPostCard v-for="supply in supplies!.data" :key="supply.id" :post="supply" @edit="openEdit"
+            @archive="openArchive" @fulfill="openFulfill" @delete="openDelete" />
         </div>
       </Deferred>
 

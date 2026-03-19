@@ -10,11 +10,11 @@ import {
 } from 'lucide-vue-next'
 import { computed, ref } from 'vue'
 import ConfirmationDialog from '@/components/ConfirmationDialog.vue'
-import DemandCard from '@/components/dealer/DemandCard.vue'
 import DemandForm from '@/components/dealer/DemandForm.vue'
 import EmptyState from '@/components/EmptyState.vue'
 import Heading from '@/components/Heading.vue'
 import LargeCard from '@/components/shared/cards/LargeCard.vue'
+import MyPostCard from '@/components/shared/cards/MyPostCard.vue'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -210,7 +210,7 @@ function handlePageChange(page: number) {
           :icon="Package" />
 
         <div v-else class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <DemandCard v-for="demand in demands!.data" :key="demand.id" :demand="demand" @edit="openEdit"
+          <MyPostCard v-for="demand in demands!.data" :key="demand.id" :post="demand" @edit="openEdit"
             @archive="openToArchive" @fulfill="openFulfill" @delete="openDelete" />
         </div>
       </Deferred>
