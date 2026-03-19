@@ -13,15 +13,15 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import AppLayout from '@/layouts/AppLayout.vue'
 import farmer from '@/routes/farmer'
-import { archive, destroy, fulfill, index } from '@/routes/farmer/garden'
 import type { Supply, SupplySummary, VarietyOption } from '@/types/marketplace'
 import type { PaginatedResponse } from '@/types/pagination'
+import { archive, destroy, fulfill, index } from '@/routes/farmer/supplies'
 
 interface Props {
-	filters: { status: string }
-	summary?: SupplySummary
-	varietyOptions?: Record<string, VarietyOption[]>
-	supplies?: PaginatedResponse<Supply>
+  filters: { status: string }
+  summary?: SupplySummary
+  varietyOptions?: Record<string, VarietyOption[]>
+  supplies?: PaginatedResponse<Supply>
 }
 
 const props = defineProps<Props>()
@@ -45,116 +45,116 @@ const activeTab = computed(() => props.filters.status ?? 'Ongoing')
 /* --- Actions --------------- */
 
 function handleTabChange(value: string | number) {
-	const routeTarget = index({
-		query: { status: value === 'Ongoing' ? undefined : value },
-	})
+  const routeTarget = index({
+    query: { status: value === 'Ongoing' ? undefined : value },
+  })
 
-	router.visit(routeTarget.url, {
-		preserveState: true,
-		preserveScroll: true,
-		only: ['supplies', 'filters', 'summary'],
-	})
+  router.visit(routeTarget.url, {
+    preserveState: true,
+    preserveScroll: true,
+    only: ['supplies', 'filters', 'summary'],
+  })
 }
 
 function openCreate() {
-	activeSupply.value = null
-	formOpen.value = true
+  activeSupply.value = null
+  formOpen.value = true
 }
 
 function openEdit(supply: Supply) {
-	activeSupply.value = supply
-	formOpen.value = true
+  activeSupply.value = supply
+  formOpen.value = true
 }
 
 function openArchive(supply: Supply) {
-	supplyToArchive.value = supply
-	archiveDialogOpen.value = true
+  supplyToArchive.value = supply
+  archiveDialogOpen.value = true
 }
 
 function openFulfill(supply: Supply) {
-	supplyToFulfill.value = supply
-	fulfillDialogOpen.value = true
+  supplyToFulfill.value = supply
+  fulfillDialogOpen.value = true
 }
 
 function openDelete(supply: Supply) {
-	supplyToDelete.value = supply
-	deleteDialogOpen.value = true
+  supplyToDelete.value = supply
+  deleteDialogOpen.value = true
 }
 
 function handleArchive() {
-	if (!supplyToArchive.value) return
+  if (!supplyToArchive.value) return
 
-	const route = archive(supplyToArchive.value.id)
-	router.post(
-		route.url,
-		{},
-		{
-			preserveScroll: true,
-			onSuccess: () => {
-				archiveDialogOpen.value = false
-				supplyToArchive.value = null
-			},
-		},
-	)
+  const route = archive(supplyToArchive.value.id)
+  router.post(
+    route.url,
+    {},
+    {
+      preserveScroll: true,
+      onSuccess: () => {
+        archiveDialogOpen.value = false
+        supplyToArchive.value = null
+      },
+    },
+  )
 }
 
 const handleFulfill = () => {
-	if (!supplyToFulfill.value) return
+  if (!supplyToFulfill.value) return
 
-	const route = fulfill(supplyToFulfill.value.id)
-	router.post(
-		route.url,
-		{},
-		{
-			preserveScroll: true,
-			onSuccess: () => {
-				fulfillDialogOpen.value = false
-				supplyToFulfill.value = null
-			},
-		},
-	)
+  const route = fulfill(supplyToFulfill.value.id)
+  router.post(
+    route.url,
+    {},
+    {
+      preserveScroll: true,
+      onSuccess: () => {
+        fulfillDialogOpen.value = false
+        supplyToFulfill.value = null
+      },
+    },
+  )
 }
 
 function handleDelete() {
-	if (!supplyToDelete.value) return
+  if (!supplyToDelete.value) return
 
-	const routeTarget = destroy(supplyToDelete.value.id)
+  const routeTarget = destroy(supplyToDelete.value.id)
 
-	router.visit(routeTarget.url, {
-		method: 'delete',
-		preserveScroll: true,
-		onSuccess: () => {
-			deleteDialogOpen.value = false
-			supplyToDelete.value = null
-		},
-	})
+  router.visit(routeTarget.url, {
+    method: 'delete',
+    preserveScroll: true,
+    onSuccess: () => {
+      deleteDialogOpen.value = false
+      supplyToDelete.value = null
+    },
+  })
 }
 
 function handlePageChange(page: number) {
-	router.visit(farmer.garden.index().url, {
-		data: {
-			page,
-			search: props.filters.status || undefined,
-		},
-		preserveScroll: true,
-	})
+  router.visit(farmer.supplies.index().url, {
+    data: {
+      page,
+      search: props.filters.status || undefined,
+    },
+    preserveScroll: true,
+  })
 }
 
 const breadcrumbs = [
-	{ title: 'Farmer', href: farmer.garden.index().url },
-	{ title: 'Garden', href: farmer.garden.index().url },
+  { title: 'Farmer', href: farmer.supplies.index().url },
+  { title: 'Supplies', href: farmer.supplies.index().url },
 ]
 </script>
 
 <template>
 
-  <Head title="My Garden" />
+  <Head title="My Supplies" />
 
   <AppLayout :breadcrumbs="breadcrumbs">
     <div class="flex h-full flex-col gap-6 p-4 lg:p-6">
       <!-- Header -->
       <div class="flex items-end justify-between">
-        <Heading title="My Garden" description="Manage your vegetable posts for dealers." />
+        <Heading title="My Supplies" description="Manage your vegetable posts for dealers." />
 
         <Button @click="openCreate" class="gap-2">
           <Plus class="size-4" />

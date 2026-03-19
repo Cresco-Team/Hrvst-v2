@@ -13,15 +13,15 @@ import farmer from '@/routes/farmer'
 import type { BarangayMarker, FilterOptions, MapConfig, MapFilters } from '@/types/supply-map'
 
 interface Props {
-	mapConfig: MapConfig
-	filterOptions?: FilterOptions
+  mapConfig: MapConfig
+  filterOptions?: FilterOptions
 }
 
 defineProps<Props>()
 
 const breadcrumbs = [
-	{ title: 'Farmer', href: farmer.garden.index().url },
-	{ title: 'Supply Map', href: farmer.supplyMap.index().url },
+  { title: 'Farmer', href: farmer.supplies.index().url },
+  { title: 'Supply Map', href: farmer.supplyMap.index().url },
 ]
 
 /* ── State ───────────────────────────────────────────── */
@@ -32,8 +32,8 @@ const selectedMarker = ref<BarangayMarker | null>(null)
 const dialogOpen = ref(false)
 
 const filters = ref<MapFilters>({
-	category_id: null,
-	variety_id: null,
+  category_id: null,
+  variety_id: null,
 })
 
 /* ── Computed ────────────────────────────────────────── */
@@ -43,40 +43,40 @@ const totalSupplies = computed(() => markers.value.reduce((sum, m) => sum + m.su
 /* ── Data Fetching ───────────────────────────────────── */
 
 async function fetchMarkers(): Promise<void> {
-	loading.value = true
-	try {
-		const params: Record<string, number> = {}
-		if (filters.value.category_id) params.category_id = filters.value.category_id
-		if (filters.value.variety_id) params.variety_id = filters.value.variety_id
+  loading.value = true
+  try {
+    const params: Record<string, number> = {}
+    if (filters.value.category_id) params.category_id = filters.value.category_id
+    if (filters.value.variety_id) params.variety_id = filters.value.variety_id
 
-		const { data } = await axios.get(farmer.supplyMap.markers().url, {
-			params,
-		})
-		markers.value = data.markers
-	} catch (error: any) {
-		toast.error('Failed to load map data', {
-			description: error.response?.data?.message ?? 'Please try again.',
-		})
-	} finally {
-		loading.value = false
-	}
+    const { data } = await axios.get(farmer.supplyMap.markers().url, {
+      params,
+    })
+    markers.value = data.markers
+  } catch (error: any) {
+    toast.error('Failed to load map data', {
+      description: error.response?.data?.message ?? 'Please try again.',
+    })
+  } finally {
+    loading.value = false
+  }
 }
 
 /* ── Event Handlers ──────────────────────────────────── */
 
 function handleMarkerClick(marker: BarangayMarker): void {
-	selectedMarker.value = marker
-	dialogOpen.value = true
+  selectedMarker.value = marker
+  dialogOpen.value = true
 }
 
 function handleFilterUpdate(updated: MapFilters): void {
-	filters.value = updated
+  filters.value = updated
 }
 
 function handleClearFilters(): void {
-	filters.value = { category_id: null, variety_id: null }
-	selectedMarker.value = null
-	dialogOpen.value = false
+  filters.value = { category_id: null, variety_id: null }
+  selectedMarker.value = null
+  dialogOpen.value = false
 }
 
 /* ── Watchers ────────────────────────────────────────── */
@@ -85,6 +85,7 @@ watch(filters, fetchMarkers, { deep: true, immediate: true })
 </script>
 
 <template>
+
   <Head title="Supply Map" />
 
   <AppLayout :breadcrumbs="breadcrumbs">
@@ -92,10 +93,8 @@ watch(filters, fetchMarkers, { deep: true, immediate: true })
 
       <!-- Header -->
       <div class="flex items-end justify-between">
-        <Heading
-          title="Supply Distribution Map"
-          description="See where vegetable supplies are active across municipalities and barangays."
-        />
+        <Heading title="Supply Distribution Map"
+          description="See where vegetable supplies are active across municipalities and barangays." />
       </div>
 
       <!-- Content -->
@@ -105,16 +104,11 @@ watch(filters, fetchMarkers, { deep: true, immediate: true })
         <div class="relative min-h-[580px] rounded-lg border shadow-sm overflow-hidden">
 
           <!-- Loading overlay -->
-          <Transition
-            enter-active-class="transition-opacity duration-200"
-            leave-active-class="transition-opacity duration-200"
-            enter-from-class="opacity-0"
-            leave-to-class="opacity-0"
-          >
-            <div
-              v-if="loading"
-              class="absolute inset-0 z-30 flex items-center justify-center bg-background/80 backdrop-blur-sm"
-            >
+          <Transition enter-active-class="transition-opacity duration-200"
+            leave-active-class="transition-opacity duration-200" enter-from-class="opacity-0"
+            leave-to-class="opacity-0">
+            <div v-if="loading"
+              class="absolute inset-0 z-30 flex items-center justify-center bg-background/80 backdrop-blur-sm">
               <div class="flex items-center gap-2 rounded-lg border bg-card px-4 py-3 shadow-lg">
                 <Loader2 class="size-4 animate-spin" />
                 <span class="text-sm font-medium">Loading supply data…</span>
@@ -123,16 +117,11 @@ watch(filters, fetchMarkers, { deep: true, immediate: true })
           </Transition>
 
           <!-- Empty state overlay -->
-          <Transition
-            enter-active-class="transition-opacity duration-200"
-            leave-active-class="transition-opacity duration-200"
-            enter-from-class="opacity-0"
-            leave-to-class="opacity-0"
-          >
-            <div
-              v-if="!loading && markers.length === 0"
-              class="absolute inset-0 z-20 flex items-center justify-center bg-background/60 backdrop-blur-sm pointer-events-none"
-            >
+          <Transition enter-active-class="transition-opacity duration-200"
+            leave-active-class="transition-opacity duration-200" enter-from-class="opacity-0"
+            leave-to-class="opacity-0">
+            <div v-if="!loading && markers.length === 0"
+              class="absolute inset-0 z-20 flex items-center justify-center bg-background/60 backdrop-blur-sm pointer-events-none">
               <div class="flex flex-col items-center gap-2 rounded-lg border bg-card px-6 py-5 shadow-lg text-center">
                 <Map class="size-8 text-muted-foreground" />
                 <p class="text-sm font-medium">No supplies found</p>
@@ -141,43 +130,24 @@ watch(filters, fetchMarkers, { deep: true, immediate: true })
             </div>
           </Transition>
 
-          <SupplyMap
-            :markers="markers"
-            :config="mapConfig"
-            @marker-click="handleMarkerClick"
-          />
+          <SupplyMap :markers="markers" :config="mapConfig" @marker-click="handleMarkerClick" />
         </div>
 
         <!-- Right panel: filters -->
         <div class="flex flex-col gap-4">
           <Deferred data="filterOptions">
             <template #fallback>
-              <SupplyMapFilters
-                :filters="filters"
-                :options="null"
-                :total-markers="markers.length"
-                :total-supplies="totalSupplies"
-                @update:filters="handleFilterUpdate"
-                @clear="handleClearFilters"
-              />
+              <SupplyMapFilters :filters="filters" :options="null" :total-markers="markers.length"
+                :total-supplies="totalSupplies" @update:filters="handleFilterUpdate" @clear="handleClearFilters" />
             </template>
-            <SupplyMapFilters
-              :filters="filters"
-              :options="filterOptions ?? null"
-              :total-markers="markers.length"
-              :total-supplies="totalSupplies"
-              @update:filters="handleFilterUpdate"
-              @clear="handleClearFilters"
-            />
+            <SupplyMapFilters :filters="filters" :options="filterOptions ?? null" :total-markers="markers.length"
+              :total-supplies="totalSupplies" @update:filters="handleFilterUpdate" @clear="handleClearFilters" />
           </Deferred>
         </div>
       </div>
 
       <!-- Supply breakdown dialog -->
-      <SupplyMapDialog
-        v-model:open="dialogOpen"
-        :marker="selectedMarker"
-      />
+      <SupplyMapDialog v-model:open="dialogOpen" :marker="selectedMarker" />
 
     </div>
   </AppLayout>

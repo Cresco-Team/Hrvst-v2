@@ -34,7 +34,7 @@ class SupplyController extends Controller
         $userId = $request->user()->id;
         $status = PostStatus::tryFrom($request->query('status', PostStatus::Ongoing->value));
 
-        return Inertia::render('farmer/garden/Index', [
+        return Inertia::render('farmer/supplies/Index', [
             'filters' => ['status' => $status],
             'summary' => Inertia::defer(fn () => $this->supplyService->summary($userId)),
             'varietyOptions' => Inertia::defer(fn () => $this->supplyService->varietyOptions()),
@@ -54,7 +54,7 @@ class SupplyController extends Controller
             image: $request->file('image')
         );
 
-        return redirect()->route('farmer.garden.index')
+        return redirect()->route('farmer.supplies.index')
             ->with('flash', ['type' => 'success', 'message' => 'Supply posted successfully!']);
     }
 
@@ -68,7 +68,7 @@ class SupplyController extends Controller
             image: $request->file('image')
         );
 
-        return redirect()->route('farmer.garden.index')
+        return redirect()->route('farmer.supplies.index')
             ->with('flash', ['type' => 'success', 'message' => 'Post updated successfully!']);
     }
 
@@ -77,7 +77,7 @@ class SupplyController extends Controller
         Gate::authorize('archive', $supply);
         $archiveSupply->handle($supply);
 
-        return redirect()->route('farmer.garden.index')
+        return redirect()->route('farmer.supplies.index')
             ->with('flash', ['type' => 'success', 'message' => 'Post archived.']);
     }
 
@@ -86,7 +86,7 @@ class SupplyController extends Controller
         Gate::authorize('fulfill', $supply);
         $fulfillSupply->handle($supply);
 
-        return redirect()->route('farmer.garden.index')
+        return redirect()->route('farmer.supplies.index')
             ->with('flash', ['type' => 'success', 'message' => 'Post marked as fulfilled!']);
     }
 
@@ -95,7 +95,7 @@ class SupplyController extends Controller
         Gate::authorize('delete', $supply);
         $deleteSupply->handle($supply);
 
-        return redirect()->route('farmer.garden.index')
+        return redirect()->route('farmer.supplies.index')
             ->with('flash', ['type' => 'success', 'message' => 'Post deleted.']);
     }
 }
