@@ -21,13 +21,13 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import AppLayout from '@/layouts/AppLayout.vue'
 import dealer from '@/routes/dealer'
 import { archive, destroy, fulfill, index } from '@/routes/dealer/demands'
-import type { Demand, DemandSummary, VarietyOption } from '@/types/marketplace'
+import type { Post, DemandSummary, VarietyOption } from '@/types/marketplace'
 import type { PaginatedResponse } from '@/types/pagination'
 
 interface Props {
   summary?: DemandSummary
   filters: { status: string | null }
-  demands?: PaginatedResponse<Demand>
+  demands?: PaginatedResponse<Post>
   varietyOptions?: Record<string, VarietyOption[]>
 }
 
@@ -40,10 +40,10 @@ const archiveDialogOpen = ref(false)
 const fulfillDialogOpen = ref(false)
 
 /* Active items */
-const activeDemand = ref<Demand | null>(null)
-const demandToArchive = ref<Demand | null>(null)
-const demandToFulfill = ref<Demand | null>(null)
-const demandToDelete = ref<Demand | null>(null)
+const activeDemand = ref<Post | null>(null)
+const demandToArchive = ref<Post | null>(null)
+const demandToFulfill = ref<Post | null>(null)
+const demandToDelete = ref<Post | null>(null)
 
 const activeTab = computed(() => props.filters.status || 'Ongoing')
 
@@ -69,22 +69,22 @@ function openCreate() {
   formOpen.value = true
 }
 
-function openEdit(demand: Demand) {
+function openEdit(demand: Post) {
   activeDemand.value = demand
   formOpen.value = true
 }
 
-function openToArchive(demand: Demand) {
+function openToArchive(demand: Post) {
   demandToArchive.value = demand
   archiveDialogOpen.value = true
 }
 
-function openFulfill(demand: Demand) {
+function openFulfill(demand: Post) {
   demandToFulfill.value = demand
   fulfillDialogOpen.value = true
 }
 
-function openDelete(demand: Demand) {
+function openDelete(demand: Post) {
   demandToDelete.value = demand
   deleteDialogOpen.value = true
 }

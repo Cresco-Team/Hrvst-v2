@@ -13,7 +13,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import AppLayout from '@/layouts/AppLayout.vue'
 import farmer from '@/routes/farmer'
-import type { Supply, SupplySummary, VarietyOption } from '@/types/marketplace'
+import type { Post, SupplySummary, VarietyOption } from '@/types/marketplace'
 import type { PaginatedResponse } from '@/types/pagination'
 import { archive, destroy, fulfill, index } from '@/routes/farmer/supplies'
 
@@ -21,7 +21,7 @@ interface Props {
   filters: { status: string }
   summary?: SupplySummary
   varietyOptions?: Record<string, VarietyOption[]>
-  supplies?: PaginatedResponse<Supply>
+  supplies?: PaginatedResponse<Post>
 }
 
 const props = defineProps<Props>()
@@ -29,14 +29,14 @@ const props = defineProps<Props>()
 /* --- State --------------- */
 
 const formOpen = ref(false)
-const activeSupply = ref<Supply | null>(null)
+const activeSupply = ref<Post | null>(null)
 
 const archiveDialogOpen = ref(false)
 const fulfillDialogOpen = ref(false)
 const deleteDialogOpen = ref(false)
-const supplyToArchive = ref<Supply | null>(null)
-const supplyToFulfill = ref<Supply | null>(null)
-const supplyToDelete = ref<Supply | null>(null)
+const supplyToArchive = ref<Post | null>(null)
+const supplyToFulfill = ref<Post | null>(null)
+const supplyToDelete = ref<Post | null>(null)
 
 /* --- Computed --------------- */
 
@@ -61,22 +61,22 @@ function openCreate() {
   formOpen.value = true
 }
 
-function openEdit(supply: Supply) {
+function openEdit(supply: Post) {
   activeSupply.value = supply
   formOpen.value = true
 }
 
-function openArchive(supply: Supply) {
+function openArchive(supply: Post) {
   supplyToArchive.value = supply
   archiveDialogOpen.value = true
 }
 
-function openFulfill(supply: Supply) {
+function openFulfill(supply: Post) {
   supplyToFulfill.value = supply
   fulfillDialogOpen.value = true
 }
 
-function openDelete(supply: Supply) {
+function openDelete(supply: Post) {
   supplyToDelete.value = supply
   deleteDialogOpen.value = true
 }
