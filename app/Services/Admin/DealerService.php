@@ -59,7 +59,7 @@ class DealerService
     {
         return $dealer->load([
             'user.media',
-            'demands' => fn ($q) => $q
+            'posts' => fn ($q) => $q
                 ->ongoing()
                 ->with(['variety.media', 'variety.vegetable.category'])
                 ->orderBy('scheduled_date', 'asc'),
@@ -68,11 +68,13 @@ class DealerService
 
     public function show(DealerProfile $dealer): DealerProfile
     {
+        $dealer->document_url = route('admin.dealers.document', $dealer->id);
+
         return $dealer->load([
             'user.media',
-            'demands',
-            'demands.variety.media',
-            'demands.variety.vegetable.category',
+            'posts',
+            'posts.variety.media',
+            'posts.variety.vegetable.category',
         ]);
     }
 
