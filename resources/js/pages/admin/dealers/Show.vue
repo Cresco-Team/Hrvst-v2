@@ -8,12 +8,12 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import {
-	Item,
-	ItemContent,
-	ItemDescription,
-	ItemGroup,
-	ItemMedia,
-	ItemTitle,
+    Item,
+    ItemContent,
+    ItemDescription,
+    ItemGroup,
+    ItemMedia,
+    ItemTitle,
 } from '@/components/ui/item'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { getInitials } from '@/composables/useInitials'
@@ -22,51 +22,51 @@ import admin from '@/routes/admin'
 import type { DealerDemand, Show } from '@/types/admin/dealers'
 
 interface Props {
-	dealer: Show
+    dealer: Show
 }
 
 const props = defineProps<Props>()
 
 /* Demand groups */
 const ongoingDemands = computed<DealerDemand[]>(
-	() => props.dealer?.demands.filter((s) => s.status === 'Ongoing') ?? [],
+    () => props.dealer?.demands.filter((s) => s.status === 'Ongoing') ?? [],
 )
 
 const archivedDemands = computed<DealerDemand[]>(
-	() => props.dealer?.demands.filter((s) => s.status === 'Archived') ?? [],
+    () => props.dealer?.demands.filter((s) => s.status === 'Archived') ?? [],
 )
 
 const fulfilledDemands = computed<DealerDemand[]>(
-	() => props.dealer?.demands.filter((s) => s.status === 'Fulfilled') ?? [],
+    () => props.dealer?.demands.filter((s) => s.status === 'Fulfilled') ?? [],
 )
 
 /* ---------- Stats ---------- */
 const totalDemands = computed(() => props.dealer?.demands.length ?? 0)
 const totalQuantity = computed(
-	() => props.dealer?.demands.reduce((sum, s) => sum + s.quantity_kg, 0) ?? 0,
+    () => props.dealer?.demands.reduce((sum, s) => sum + s.quantity_kg, 0) ?? 0,
 )
 const totalOngoing = computed(() => ongoingDemands.value.length)
 const totalOngoingQuantity = computed(() =>
-	ongoingDemands.value.reduce((sum, s) => sum + s.quantity_kg, 0),
+    ongoingDemands.value.reduce((sum, s) => sum + s.quantity_kg, 0),
 )
 
 const breadcrumbs = computed(() => [
-	{ title: 'Admin', href: admin.dashboard().url },
-	{ title: 'Dealers', href: admin.dealers.index().url },
-	...(props.dealer
-		? [
-				{
-					title: props.dealer.user.name,
-					href: admin.dealers.show(props.dealer.id).url,
-				},
-			]
-		: []),
+    { title: 'Admin', href: admin.dashboard().url },
+    { title: 'Dealers', href: admin.dealers.index().url },
+    ...(props.dealer
+        ? [
+            {
+                title: props.dealer.user.name,
+                href: admin.dealers.show(props.dealer.id).url,
+            },
+        ]
+        : []),
 ])
 
 function priceFlagVariant(flag: 'Low' | 'Fair' | 'High' | undefined) {
-	if (flag === 'Low') return 'secondary'
-	if (flag === 'High') return 'destructive'
-	return 'outline'
+    if (flag === 'Low') return 'secondary'
+    if (flag === 'High') return 'destructive'
+    return 'outline'
 }
 </script>
 
@@ -83,7 +83,7 @@ function priceFlagVariant(flag: 'Low' | 'Fair' | 'High' | undefined) {
                     <div></div>
                 </template>
                 <div class="grid grid-cols-12 gap-5">
-                    <div class="col-span-12 lg:col-span-3">
+                    <div class="col-span-12 lg:col-span-3 space-y-4">
                         <Card class="p-5 space-y-5">
                             <div class="flex flex-col items-start gap-3">
                                 <Avatar class="size-16">
@@ -113,6 +113,10 @@ function priceFlagVariant(flag: 'Low' | 'Fair' | 'High' | undefined) {
                                     <span>Joined {{ dealer?.joined_at_human }}</span>
                                 </div>
                             </div>
+                        </Card>
+
+                        <Card class="p-0 aspect-video">
+                            <img :src="dealer.document_image" alt="Document">
                         </Card>
                     </div>
 
@@ -169,7 +173,7 @@ function priceFlagVariant(flag: 'Low' | 'Fair' | 'High' | undefined) {
                                                 <ItemContent class="min-w-0">
                                                     <ItemTitle class="line-clamp-1 text-sm">{{ demand.variety.name }} —
                                                         {{
-                                                        demand.variety.category }}</ItemTitle>
+                                                            demand.variety.category }}</ItemTitle>
                                                     <ItemDescription class="flex items-center gap-1.5 mt-0.5">
                                                         <span class="text-sm font-medium text-foreground">₱{{
                                                             demand.offered_price.toFixed(2) }}</span>
@@ -198,7 +202,7 @@ function priceFlagVariant(flag: 'Low' | 'Fair' | 'High' | undefined) {
                                                 <ItemContent class="min-w-0">
                                                     <ItemTitle class="line-clamp-1 text-sm">{{ demand.variety.name }} —
                                                         {{
-                                                        demand.variety.category }}</ItemTitle>
+                                                            demand.variety.category }}</ItemTitle>
                                                     <ItemDescription class="flex items-center gap-1.5 mt-0.5">
                                                         <span class="text-sm font-medium text-foreground">₱{{
                                                             demand.offered_price.toFixed(2) }}</span>
@@ -227,7 +231,7 @@ function priceFlagVariant(flag: 'Low' | 'Fair' | 'High' | undefined) {
                                                 <ItemContent class="min-w-0">
                                                     <ItemTitle class="line-clamp-1 text-sm">{{ demand.variety.name }} —
                                                         {{
-                                                        demand.variety.category }}</ItemTitle>
+                                                            demand.variety.category }}</ItemTitle>
                                                     <ItemDescription class="flex items-center gap-1.5 mt-0.5">
                                                         <span class="text-sm font-medium text-foreground">₱{{
                                                             demand.offered_price.toFixed(2) }}</span>
