@@ -9,100 +9,100 @@ import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
-	Select,
-	SelectContent,
-	SelectGroup,
-	SelectItem,
-	SelectLabel,
-	SelectTrigger,
-	SelectValue,
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
 } from '@/components/ui/select'
-import type { Supply, VarietyOption } from '@/types/marketplace'
+import type { Post, VarietyOption } from '@/types/marketplace'
 
 interface Props {
-	open: boolean
-	supply?: Supply | null
-	varietyOptions?: Record<string, VarietyOption[]>
+  open: boolean
+  supply?: Post | null
+  varietyOptions?: Record<string, VarietyOption[]>
 }
 
 const props = withDefaults(defineProps<Props>(), {
-	supply: null,
+  supply: null,
 })
 
 const emit = defineEmits<{
-	'update:open': [value: boolean]
-	submit: []
+  'update:open': [value: boolean]
+  submit: []
 }>()
 
 const form = useForm({
-	variety_id: '',
-	quantity_kg: '',
-	offered_price: '',
-	scheduled_date: '',
-	image: null as File | null,
+  variety_id: '',
+  quantity_kg: '',
+  offered_price: '',
+  scheduled_date: '',
+  image: null as File | null,
 })
 
 watch(
-	() => props.supply,
-	(s) => {
-		form.variety_id = String(s?.variety?.id ?? '')
-		form.quantity_kg = String(s?.quantity_kg ?? '')
-		form.offered_price = String(s?.offered_price ?? '')
-		form.scheduled_date = s?.scheduled_date ?? ''
-		form.image = null
-	},
-	{ immediate: true },
+  () => props.supply,
+  (s) => {
+    form.variety_id = String(s?.variety?.id ?? '')
+    form.quantity_kg = String(s?.quantity_kg ?? '')
+    form.offered_price = String(s?.offered_price ?? '')
+    form.scheduled_date = s?.scheduled_date ?? ''
+    form.image = null
+  },
+  { immediate: true },
 )
 
 const isEditMode = computed(() => !!props.supply)
 
 const minDate = computed(() => {
-	const tomorrow = new Date()
-	tomorrow.setDate(tomorrow.getDate() + 1)
-	return tomorrow.toISOString().split('T')[0]
+  const tomorrow = new Date()
+  tomorrow.setDate(tomorrow.getDate() + 1)
+  return tomorrow.toISOString().split('T')[0]
 })
 
 const maxDate = computed(() => {
-	const threeMonths = new Date()
-	threeMonths.setMonth(threeMonths.getMonth() + 3)
-	return threeMonths.toISOString().split('T')[0]
+  const threeMonths = new Date()
+  threeMonths.setMonth(threeMonths.getMonth() + 3)
+  return threeMonths.toISOString().split('T')[0]
 })
 
 function handleSubmit() {
-	const routeData = props.supply ? update(props.supply.id) : store()
+  const routeData = props.supply ? update(props.supply.id) : store()
 
-	form
-		.transform((data) => {
-			const payload: Record<string, unknown> = { ...data }
+  form
+    .transform((data) => {
+      const payload: Record<string, unknown> = { ...data }
 
-			if (props.supply) {
-				payload._method = 'PUT'
-				if (!payload.image) {
-					delete payload.image
-				}
-			}
+      if (props.supply) {
+        payload._method = 'PUT'
+        if (!payload.image) {
+          delete payload.image
+        }
+      }
 
-			return payload
-		})
-		.post(routeData.url, {
-			forceFormData: true,
-			preserveScroll: true,
-			onSuccess: () => {
-				emit('update:open', false)
-				form.reset()
-			},
-		})
+      return payload
+    })
+    .post(routeData.url, {
+      forceFormData: true,
+      preserveScroll: true,
+      onSuccess: () => {
+        emit('update:open', false)
+        form.reset()
+      },
+    })
 }
 
 // Reset form when dialog closes
 watch(
-	() => props.open,
-	(isOpen) => {
-		if (!isOpen) {
-			form.reset()
-			form.clearErrors()
-		}
-	},
+  () => props.open,
+  (isOpen) => {
+    if (!isOpen) {
+      form.reset()
+      form.clearErrors()
+    }
+  },
 )
 </script>
 
