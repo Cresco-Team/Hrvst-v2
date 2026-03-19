@@ -3,6 +3,7 @@
 export type PostType = 'supply' | 'demand'
 export type PostStatus = 'Ongoing' | 'Archived' | 'Fulfilled'
 export type PostPriceFlag = 'Low' | 'Fair' | 'High'
+export type PostTimeSlot = 'morning' | 'afternoon' | 'evening'
 
 /* --- Shared sub-shapes --------------- */
 
@@ -17,6 +18,7 @@ export interface PostVariety {
 export interface Post {
 	id: number
 	scheduled_date: string
+	time_slot: PostTimeSlot | null
 	days_until_expiration: number | null
 	created_at: string
 	created_at_human: string
