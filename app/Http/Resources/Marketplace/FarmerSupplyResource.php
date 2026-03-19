@@ -13,6 +13,7 @@ class FarmerSupplyResource extends JsonResource
             'id' => $this->id,
             'scheduled_date' => $this->scheduled_date?->format('M d, Y'),
             'time_slot' => $this->time_slot?->value,
+            'time_slot_label' => $this->time_slot?->label(),
             'days_until_expiration' => $this->scheduled_date
                 ? (int) now()->diffInDays($this->scheduled_date, false)
                 : null,
