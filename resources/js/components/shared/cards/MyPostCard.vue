@@ -90,7 +90,7 @@ const slotConfig = computed(() => getConfig(post.time_slot))
                     <PhilippinePeso :size="15" />
                     Price:
                 </div>
-                <span>{{ post.offered_price.toLocaleString('en-PH', { style: 'currency', currency: 'PHP' }) }}/kg</span>
+                <span class="text-sm">₱{{ post.offered_price.toFixed(2) }}/kg</span>
             </div>
 
             <div class="flex justify-between">
@@ -98,7 +98,7 @@ const slotConfig = computed(() => getConfig(post.time_slot))
                     <Weight :size="15" />
                     Kg:
                 </div>
-                <span>{{ post.quantity_kg.toFixed(2) }} kg</span>
+                <span class="text-sm">{{ post.quantity_kg.toFixed(2) }} kg</span>
             </div>
 
             <div class="flex justify-between">
@@ -106,10 +106,7 @@ const slotConfig = computed(() => getConfig(post.time_slot))
                     <SquareEqual :size="15" />
                     Total:
                 </div>
-                <span>{{ (post.quantity_kg * post.offered_price).toLocaleString('en-PH', {
-                    style: 'currency', currency:
-                        'PHP'
-                }) }}</span>
+                <span class="text-sm">₱{{ (post.quantity_kg * post.offered_price).toFixed(2) }}</span>
             </div>
 
             <div class="flex justify-between">
@@ -117,7 +114,7 @@ const slotConfig = computed(() => getConfig(post.time_slot))
                     <CalendarClock :size="15" />
                     Schedule:
                 </div>
-                <span>{{ post.scheduled_date }}</span>
+                <span class="text-sm">{{ post.scheduled_date }}</span>
             </div>
 
             <!-- Time Slot -->
@@ -125,7 +122,7 @@ const slotConfig = computed(() => getConfig(post.time_slot))
                 <div class="flex items-center text-xs text-muted-foreground gap-2">
                     <component :is="slotConfig.icon" :size="20" :class="slotConfig.color" />
                 </div>
-                {{ post.time_slot_label }}
+                <span class="text-sm">{{ post.time_slot_label }}</span>
             </div>
         </CardContent>
     </Card>
