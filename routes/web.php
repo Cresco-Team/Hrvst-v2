@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Controllers\AddressController;
-use App\Http\Controllers\Announcement\ReactionController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -32,15 +31,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         return Inertia::render('Welcome');
     })->name('dashboard');
-});
-
-/* Announcement System - Shared Routes */
-Route::middleware(['auth', 'verified'])->group(function () {
-    // Reactions (toggle)
-    Route::post('/reactions/toggle', [ReactionController::class, 'toggle'])
-        ->name('reactions.toggle');
-    Route::get('/reactions', [ReactionController::class, 'show'])
-        ->name('reactions.show');
 });
 
 /* Development only */
