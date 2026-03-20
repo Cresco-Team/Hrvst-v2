@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Farmer;
+namespace App\Http\Controllers\Dealer;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Product\VarietyResource;
@@ -9,15 +9,15 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
-class VegetablesController extends Controller
+class VegetableController extends Controller
 {
     public function __construct(
-        private VarietyService $varietyService,
+        private VarietyService $varietyService
     ) {}
 
     public function index(Request $request): Response
     {
-        return Inertia::render('farmer/vegetables/Index', [
+        return Inertia::render('dealer/vegetables/Index', [
             'filters' => [
                 'search' => $request->query('search'),
                 'category_id' => $request->integer('category_id') ?: null,

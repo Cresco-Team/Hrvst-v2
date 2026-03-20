@@ -3,12 +3,12 @@
 use App\Http\Controllers\Farmer\MarketplaceController;
 use App\Http\Controllers\Farmer\SupplyController;
 use App\Http\Controllers\Farmer\SupplyMapController;
-use App\Http\Controllers\Farmer\VegetablesController;
+use App\Http\Controllers\Farmer\VegetableController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'verified', 'farmer'])->prefix('farmer')->name('farmer.')->group(function () {
 
-    Route::get('/vegetables', [VegetablesController::class, 'index'])->name('vegetables.index');
+    Route::get('/vegetables', [VegetableController::class, 'index'])->name('vegetables.index');
 
     Route::prefix('supplies')->name('supplies.')->group(function () {
         Route::get('/', [SupplyController::class, 'index'])->name('index');

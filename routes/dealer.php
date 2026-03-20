@@ -3,12 +3,12 @@
 use App\Http\Controllers\Dealer\DemandController;
 use App\Http\Controllers\Dealer\MarketplaceController;
 use App\Http\Controllers\Dealer\SupplyMapController;
-use App\Http\Controllers\Dealer\VegetablesController;
+use App\Http\Controllers\Dealer\VegetableController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'verified', 'dealer'])->prefix('dealer')->name('dealer.')->group(function () {
-    
-    Route::get('/vegetables', [VegetablesController::class, 'index'])->name('vegetables.index');
+
+    Route::get('/vegetables', [VegetableController::class, 'index'])->name('vegetables.index');
 
     Route::prefix('demands')->name('demands.')->group(function () {
         Route::get('/', [DemandController::class, 'index'])->name('index');
