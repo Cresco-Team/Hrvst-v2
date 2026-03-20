@@ -16,7 +16,10 @@ class PostObserver
         }
 
         $newStatus = $post->status;
-        $oldStatus = PostStatus::tryFrom($post->getOriginal('status'));
+        $rawOldStatus = $post->getOriginal('status');
+        $oldStatus = $rawOldStatus instanceof PostStatus
+            ? $rawOldStatus
+            : PostStatus::tryFrom($rawOldStatus);
 
         if ($newStatus === PostStatus::Ongoing) {
             return;
