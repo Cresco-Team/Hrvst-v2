@@ -28,12 +28,13 @@ class PostObserver
             return;
         }
 
-        $this->upsertRow($post->variety_id, (int) $post->created_at->year, (int) $post->created_at->month);
+        $periodDate = $post->created_at->startOfMonth()->toDateString();
+
+        $this->upsertRow($post->variety_id, $periodDate);
 
         DB::table('variety_monthly_stats')
             ->where('variety_id', $post->variety_id)
-            ->where('year', $post->created_at->year)
-            ->where('month', $post->created_at->month)
+            ->where('period_date', $periodDate)
             ->increment($newColumn, (float) $post->quantity_kg);
 
         if ($oldStatus !== null && $oldStatus !== PostStatus::Ongoing) {
@@ -42,8 +43,7 @@ class PostObserver
             if ($oldColumn !== null) {
                 DB::table('variety_monthly_stats')
                     ->where('variety_id', $post->variety_id)
-                    ->where('year', $post->created_at->year)
-                    ->where('month', $post->created_at->month)
+                    ->where('period_date', $periodDate)
                     ->update([
                         $oldColumn => DB::raw("GREATEST(0, {$oldColumn} - {$post->quantity_kg})"),
                     ]);
@@ -63,10 +63,11 @@ class PostObserver
             return;
         }
 
+        $periodDate = $post->created_at->startOfMonth()->toDateString();
+
         $exists = DB::table('variety_monthly_stats')
             ->where('variety_id', $post->variety_id)
-            ->where('year', $post->created_at->year)
-            ->where('month', $post->created_at->month)
+            ->where('period_date', $periodDate)
             ->exists();
 
         if (! $exists) {
@@ -75,8 +76,7 @@ class PostObserver
 
         DB::table('variety_monthly_stats')
             ->where('variety_id', $post->variety_id)
-            ->where('year', $post->created_at->year)
-            ->where('month', $post->created_at->month)
+            ->where('period_date', $periodDate)
             ->update([
                 $column => DB::raw("GREATEST(0, {$column} - {$post->quantity_kg})"),
             ]);
@@ -93,13 +93,12 @@ class PostObserver
         };
     }
 
-    private function upsertRow(int $varietyId, int $year, int $month): void
+    private function upsertRow(int $varietyId, string $periodDate): void
     {
         DB::table('variety_monthly_stats')->upsert(
             [[
                 'variety_id' => $varietyId,
-                'year' => $year,
-                'month' => $month,
+                'period_date' => $periodDate,
                 'supply_archived_kg' => 0,
                 'supply_fulfilled_kg' => 0,
                 'demand_archived_kg' => 0,
@@ -107,7 +106,7 @@ class PostObserver
                 'created_at' => now(),
                 'updated_at' => now(),
             ]],
-            ['variety_id', 'year', 'month'],
+            ['variety_id', 'period_date'],
             ['updated_at'],
         );
     }
