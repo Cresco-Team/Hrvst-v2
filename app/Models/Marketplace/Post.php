@@ -6,6 +6,7 @@ use App\Enums\PostPriceFlag;
 use App\Enums\PostStatus;
 use App\Enums\PostTimeSlot;
 use App\Enums\PostType;
+use App\Models\Interaction\PostHeart;
 use App\Models\Product\Variety;
 use App\Models\Profiles\DealerProfile;
 use App\Models\Profiles\FarmerProfile;
@@ -14,6 +15,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
@@ -58,6 +60,11 @@ class Post extends Model implements HasMedia
     public function variety(): BelongsTo
     {
         return $this->belongsTo(Variety::class);
+    }
+
+    public function hearts(): HasMany
+    {
+        return $this->hasMany(PostHeart::class);
     }
 
     public function farmerProfile(): HasOneThrough

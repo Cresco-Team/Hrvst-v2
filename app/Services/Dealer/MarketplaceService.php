@@ -9,15 +9,20 @@ use Illuminate\Database\Eloquent\Builder;
 
 class MarketplaceService
 {
-    public function paginated(array $filters = [], int $perPage = 20): LengthAwarePaginator
+    public function paginated(array $filters = [], int $perPage = 20, ?int $userId = null): LengthAwarePaginator
     {
         $query = Post::supply()
             ->ongoing()
             ->with(['media', 'variety.media', 'variety.vegetable.category', 'variety.latestPrice', 'farmerProfile.municipality']);
 
+        if ($userId) {
+            $query->withExists([
+                'hearts as is_hearted' => fn (Builder $q) => $q->where('user_id', $userId),
+            ]);
+        }
+
         if (! empty($filters['category_id'])) {
-            $query->whereHas('variety.vegetable', fn (Builder $q) =>
-                $q->where('category_id', $filters['category_id'])
+            $query->whereHas('variety.vegetable', fn (Builder $q) => $q->where('category_id', $filters['category_id'])
             );
         }
 
@@ -26,8 +31,7 @@ class MarketplaceService
         }
 
         if (! empty($filters['municipality_id'])) {
-            $query->whereHas('farmerProfile', fn (Builder $q) =>
-                $q->where('municipality_id', $filters['municipality_id'])
+            $query->whereHas('farmerProfile', fn (Builder $q) => $q->where('municipality_id', $filters['municipality_id'])
             );
         }
 

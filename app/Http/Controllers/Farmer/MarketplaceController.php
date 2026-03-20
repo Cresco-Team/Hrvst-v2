@@ -27,7 +27,12 @@ class MarketplaceController extends Controller
         return Inertia::render('farmer/marketplace/Index', [
             'filters' => $validated,
             'categoryOptions' => Inertia::defer(fn () => $this->marketplaceService->categoryOptions(), 'options'),
-            'demands' => Inertia::defer(fn () => DealerDemandResource::collection($this->marketplaceService->paginated($validated)), 'demands'),
+            'demands' => Inertia::defer(fn () => DealerDemandResource::collection(
+                $this->marketplaceService->paginated(
+                    filters: $validated,
+                    userId: $request->user()->id,
+                )
+            ), 'demands'),
         ]);
     }
 }

@@ -9,25 +9,28 @@ use Illuminate\Database\Eloquent\Builder;
 
 class MarketplaceService
 {
-    public function paginated(array $filters = [], int $perPage = 20): LengthAwarePaginator
+    public function paginated(array $filters = [], int $perPage = 20, ?int $userId = null): LengthAwarePaginator
     {
         $query = Post::demand()
             ->ongoing()
             ->with(['variety.media', 'variety.vegetable.category', 'variety.latestPrice']);
 
+        if ($userId) {
+            $query->withExists([
+                'hearts as is_hearted' => fn (Builder $q) => $q->where('user_id', $userId),
+            ]);
+        }
+
         if (! empty($filters['search'])) {
             $search = $filters['search'];
-            $query->whereHas('variety', fn (Builder $q) =>
-                $q->where('name', 'LIKE', "%{$search}%")
-                    ->orWhereHas('vegetable', fn (Builder $vq) =>
-                        $vq->where('name', 'LIKE', "%{$search}%")
-                    )
+            $query->whereHas('variety', fn (Builder $q) => $q->where('name', 'LIKE', "%{$search}%")
+                ->orWhereHas('vegetable', fn (Builder $vq) => $vq->where('name', 'LIKE', "%{$search}%")
+                )
             );
         }
 
         if (! empty($filters['category_id'])) {
-            $query->whereHas('variety.vegetable', fn (Builder $q) =>
-                $q->where('category_id', $filters['category_id'])
+            $query->whereHas('variety.vegetable', fn (Builder $q) => $q->where('category_id', $filters['category_id'])
             );
         }
 
