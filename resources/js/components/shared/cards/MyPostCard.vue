@@ -85,24 +85,24 @@ const slotConfig = computed(() => getConfig(post.time_slot))
         </div>
 
         <CardContent class="p-5 pt-2 grid gap-2">
-            <div class="flex justify-between text-sm">
-                <div class="flex items-center text-muted-foreground gap-2">
+            <div class="flex justify-between">
+                <div class="flex items-center text-xs text-muted-foreground gap-2">
                     <PhilippinePeso :size="15" />
                     Price:
                 </div>
                 <span>{{ post.offered_price.toLocaleString('en-PH', { style: 'currency', currency: 'PHP' }) }}/kg</span>
             </div>
 
-            <div class="flex justify-between text-sm">
-                <div class="flex items-center text-muted-foreground gap-2">
+            <div class="flex justify-between">
+                <div class="flex items-center text-xs text-muted-foreground gap-2">
                     <Weight :size="15" />
                     Kg:
                 </div>
                 <span>{{ post.quantity_kg.toFixed(2) }} kg</span>
             </div>
 
-            <div class="flex justify-between text-sm">
-                <div class="flex items-center text-muted-foreground gap-2">
+            <div class="flex justify-between">
+                <div class="flex items-center text-xs text-muted-foreground gap-2">
                     <SquareEqual :size="15" />
                     Total:
                 </div>
@@ -112,8 +112,8 @@ const slotConfig = computed(() => getConfig(post.time_slot))
                 }) }}</span>
             </div>
 
-            <div class="flex justify-between text-sm">
-                <div class="flex items-center text-muted-foreground gap-2">
+            <div class="flex justify-between">
+                <div class="flex items-center text-xs text-muted-foreground gap-2">
                     <CalendarClock :size="15" />
                     Schedule:
                 </div>
@@ -121,9 +121,9 @@ const slotConfig = computed(() => getConfig(post.time_slot))
             </div>
 
             <!-- Time Slot -->
-            <div v-if="post.time_slot" class="flex justify-between items-center text-sm pt-0.5">
-                <div class="flex items-center text-muted-foreground gap-2">
-                    <component :is="slotConfig.icon" :size="15" :class="slotConfig.color" />
+            <div v-if="post.time_slot" class="flex justify-between">
+                <div class="flex items-center text-xs text-muted-foreground gap-2">
+                    <component :is="slotConfig.icon" :size="20" :class="slotConfig.color" />
                 </div>
                 {{ post.time_slot_label }}
             </div>
