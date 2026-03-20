@@ -1,7 +1,7 @@
 <?php
 
 use App\Http\Controllers\AddressController;
-use App\Http\Controllers\Announcement\ReactionController;
+use App\Http\Controllers\VarietyHeartController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -16,6 +16,8 @@ Route::get('/', function () {
 Route::get('/address/barangays', [AddressController::class, 'barangays'])->name('address.barangays');
 
 Route::middleware(['auth', 'verified'])->group(function () {
+    Route::post('varieties/{variety}/heart', [VarietyHeartController::class, 'toggle'])->name('varieties.heart.toggle');
+
     Route::get('dashboard', function () {
         $user = Auth::user();
         if ($user->hasRole('admin')) {
@@ -32,15 +34,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         return Inertia::render('Welcome');
     })->name('dashboard');
-});
-
-/* Announcement System - Shared Routes */
-Route::middleware(['auth', 'verified'])->group(function () {
-    // Reactions (toggle)
-    Route::post('/reactions/toggle', [ReactionController::class, 'toggle'])
-        ->name('reactions.toggle');
-    Route::get('/reactions', [ReactionController::class, 'show'])
-        ->name('reactions.show');
 });
 
 /* Development only */

@@ -27,6 +27,7 @@ class VegetableController extends Controller
                     perPage: 20,
                     search: $request->query('search'),
                     categoryId: $request->integer('category_id') ?: null,
+                    userId: $request->user()->id,
                 )
             )),
             'categoryOptions' => Inertia::defer(fn () => $this->varietyService->categoryOptions()),

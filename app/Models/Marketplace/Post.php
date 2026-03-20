@@ -6,7 +6,6 @@ use App\Enums\PostPriceFlag;
 use App\Enums\PostStatus;
 use App\Enums\PostTimeSlot;
 use App\Enums\PostType;
-use App\Models\Interaction\Reaction;
 use App\Models\Product\Variety;
 use App\Models\Profiles\DealerProfile;
 use App\Models\Profiles\FarmerProfile;
@@ -15,7 +14,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
@@ -60,11 +58,6 @@ class Post extends Model implements HasMedia
     public function variety(): BelongsTo
     {
         return $this->belongsTo(Variety::class);
-    }
-
-    public function reactions(): HasMany
-    {
-        return $this->hasMany(Reaction::class);
     }
 
     public function farmerProfile(): HasOneThrough
@@ -174,14 +167,4 @@ class Post extends Model implements HasMedia
             ->height(400)
             ->nonQueued();
     }
-
-    /* public function reactionCounts(): Attribute
-    {
-        return Attribute::make(
-            get: fn () => [
-                'thumbs_up' => $this->reactions->where('reaction_type', 'thumbs_up')->count(),
-                'thumbs_down' => $this->reactions->where('reaction_type', 'thumbs_down')->count(),
-            ]
-        );
-    } */
 }

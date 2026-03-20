@@ -13,6 +13,7 @@ return new class extends Migration
             $table->foreignId('vegetable_id')->constrained();
 
             $table->string('name');
+            $table->unsignedInteger('hearts_count')->default(0);
 
             $table->timestamps();
 

@@ -32,10 +32,6 @@ export interface DealerRequest {
 	total_quantity: number
 	created_at?: string
 	created_at_human: string
-	reaction_counts?: {
-		thumbs_up: number
-		thumbs_down: number
-	}
 }
 
 export interface FarmerOffering {
@@ -67,13 +63,6 @@ export interface FarmerOffering {
 	status: 'active' | 'expired' | 'archived'
 	created_at?: string
 	created_at_human: string
-	reaction_counts?: Record<string, number>
-}
-
-export interface AnnouncementReaction {
-	reactionable_type: 'DealerRequest' | 'FarmerOffering'
-	reactionable_id: number
-	reaction_type: string
 }
 
 // Filter types

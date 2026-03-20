@@ -11,18 +11,20 @@ class VarietyResource extends JsonResource
     {
         return [
             /* Always present */
-            'id'               => $this->id,
-            'name'             => $this->name,
-            'image_url'        => $this->getFirstMediaUrl('variety_image'),
+            'id' => $this->id,
+            'name' => $this->name,
+            'image_url' => $this->getFirstMediaUrl('variety_image'),
+            'hearts_count' => $this->hearts_count,
+            'is_hearted' => (bool) ($this->is_hearted ?? false),
 
             /* with('vegetable.category') */
             'vegetable' => $this->whenLoaded('vegetable', function () {
                 return [
-                    'id'   => $this->vegetable->id,
+                    'id' => $this->vegetable->id,
                     'name' => $this->vegetable->name,
                     'category' => $this->vegetable->relationLoaded('category')
                         ? [
-                            'id'   => $this->vegetable->category->id,
+                            'id' => $this->vegetable->category->id,
                             'name' => $this->vegetable->category->name,
                         ]
                         : null,
@@ -30,8 +32,7 @@ class VarietyResource extends JsonResource
             }),
 
             /* Full display label */
-            'display_name' => $this->whenLoaded('vegetable', fn () =>
-                "{$this->vegetable->name} {$this->name}"
+            'display_name' => $this->whenLoaded('vegetable', fn () => "{$this->vegetable->name} {$this->name}"
             ),
 
             /* with('latestPrice) */
@@ -42,11 +43,9 @@ class VarietyResource extends JsonResource
             }),
 
             /* Computed when latestPrice is loaded */
-            'price_updated_human' => $this->whenLoaded('latestPrice', fn () =>
-                $this->latestPrice?->recorded_at->diffForHumans()
+            'price_updated_human' => $this->whenLoaded('latestPrice', fn () => $this->latestPrice?->recorded_at->diffForHumans()
             ),
-            'price_updated_date' => $this->whenLoaded('latestPrice', fn () =>
-                $this->latestPrice?->recorded_at->format('M d, Y')
+            'price_updated_date' => $this->whenLoaded('latestPrice', fn () => $this->latestPrice?->recorded_at->format('M d, Y')
             ),
 
             /* with('recentPrices) */

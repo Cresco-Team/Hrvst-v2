@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Models\Interaction\Reaction;
 use App\Models\Marketplace\Post;
 use App\Models\Profiles\DealerProfile;
 use App\Models\Profiles\FarmerProfile;
@@ -19,7 +18,7 @@ use Spatie\MediaLibrary\InteractsWithMedia;
 
 class User extends Authenticatable implements HasMedia
 {
-    use HasFactory, Notifiable, TwoFactorAuthenticatable, InteractsWithMedia;
+    use HasFactory, InteractsWithMedia, Notifiable, TwoFactorAuthenticatable;
 
     protected $fillable = [
         'name',
@@ -66,11 +65,6 @@ class User extends Authenticatable implements HasMedia
     public function posts(): HasMany
     {
         return $this->hasMany(Post::class);
-    }
-
-    public function reactions(): HasMany
-    {
-        return $this->hasMany(Reaction::class);
     }
 
     /* ---------- methods ---------- */

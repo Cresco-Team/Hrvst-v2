@@ -138,14 +138,19 @@ class VarietyService
         return $variety->load(['vegetable.category', 'latestPrice', 'recentPrices', 'media']);
     }
 
-    public function forCatalog(int $perPage = 20, ?string $search = null, ?int $categoryId = null): LengthAwarePaginator
+    public function forCatalog(int $perPage = 20, ?string $search = null, ?int $categoryId = null, ?int $userId = null): LengthAwarePaginator
     {
         return Variety::with(['vegetable.category', 'latestPrice', 'recentPrices', 'media'])
             ->when($search, fn (Builder $q) => $q
                 ->where('name', 'like', "%{$search}%")
                 ->orWhereHas('vegetable', fn (Builder $q) => $q->where('name', 'like', "%{$search}%"))
             )
-            ->when($categoryId, fn (Builder $q) => $q->whereHas('vegetable', fn ($q) => $q->where('category_id', $categoryId)))
+            ->when($categoryId, fn (Builder $q) => $q->whereHas(
+                'vegetable', fn ($q) => $q->where('category_id', $categoryId)
+            ))
+            ->when($userId, fn (Builder $q) => $q->withExists([
+                'hearts as is_hearted' => fn (Builder $q) => $q->where('user_id', $userId),
+            ]))
             ->orderBy('name')
             ->paginate($perPage);
     }
