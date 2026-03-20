@@ -24,8 +24,9 @@ export interface CatalogVariety {
 		}
 	}
 	latest_price: LatestPrice | null
-	// Sorted oldest → newest — ready for chart consumption
 	recent_prices: PriceEntry[]
+	hearts_count: number
+	is_hearted: boolean
 }
 
 export interface CategoryOption {
