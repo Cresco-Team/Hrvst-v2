@@ -21,9 +21,7 @@ return new class extends Migration
 
             $table->timestamps();
 
-            $table->unique(['variety_id', 'year', 'month']);
-
-            $table->index(['variety_id', 'period_date'], 'idx_vms_variety_period');
+            $table->unique(['variety_id', 'period_date']);
         });
     }
 
