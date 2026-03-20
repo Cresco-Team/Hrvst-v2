@@ -167,8 +167,7 @@ const freshnessConfig = {
                         <div class="rounded-xl border bg-muted/30 p-4">
                             <p class="text-xs text-muted-foreground mb-1">Min Price</p>
                             <p class="font-mono text-xl font-bold text-green-600 dark:text-green-400">
-                                {{ variety.latest_price ? `₱${Number(variety.latest_price.price_min).toFixed(2)}` : '—'
-                                }}
+                                {{ variety.latest_price ? `₱${variety.latest_price.price_min.toFixed(2)}` : '—' }}
                             </p>
                         </div>
 
@@ -176,8 +175,7 @@ const freshnessConfig = {
                         <div class="rounded-xl border bg-muted/30 p-4">
                             <p class="text-xs text-muted-foreground mb-1">Max Price</p>
                             <p class="font-mono text-xl font-bold text-indigo-600 dark:text-indigo-400">
-                                {{ variety.latest_price ? `₱${Number(variety.latest_price.price_max).toFixed(2)}` : '—'
-                                }}
+                                {{ variety.latest_price ? `₱${variety.latest_price.price_max.toFixed(2)}` : '—' }}
                             </p>
                         </div>
 
@@ -253,15 +251,14 @@ const freshnessConfig = {
                                             </td>
                                             <td
                                                 class="px-3 py-2 text-right font-mono text-xs text-green-700 dark:text-green-400">
-                                                {{ Number(entry.price_min).toFixed(2) }}
+                                                {{ entry.price_min.toFixed(2) }}
                                             </td>
                                             <td
                                                 class="px-3 py-2 text-right font-mono text-xs text-indigo-700 dark:text-indigo-400">
-                                                {{ Number(entry.price_max).toFixed(2) }}
+                                                {{ entry.price_max.toFixed(2) }}
                                             </td>
                                             <td class="px-3 py-2 text-right font-mono text-xs text-foreground">
-                                                {{ ((Number(entry.price_min) + Number(entry.price_max)) / 2).toFixed(2)
-                                                }}
+                                                {{ ((entry.price_min + entry.price_max) / 2).toFixed(2) }}
                                             </td>
                                         </tr>
                                     </tbody>

@@ -1,301 +1,256 @@
 <script setup lang="ts">
 import { Deferred, Head } from '@inertiajs/vue3'
-import {
-    CategoryScale, Chart as ChartJS, type ChartOptions, Filler, Legend, LinearScale, LineElement, PointElement, Title, Tooltip,
-} from 'chart.js'
-import { AlertCircle, Heart, MapPin, Minus, Package, TrendingDown, TrendingUp } from 'lucide-vue-next'
+import { Archive, CalendarDays, Mail, Package, PackageCheck, Phone } from 'lucide-vue-next'
 import { computed } from 'vue'
-import { Line } from 'vue-chartjs'
 import Heading from '@/components/Heading.vue'
+import SmallCard from '@/components/shared/cards/SmallCard.vue'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Skeleton } from '@/components/ui/skeleton'
+import { Card, CardContent } from '@/components/ui/card'
+import {
+    Item,
+    ItemContent,
+    ItemDescription,
+    ItemGroup,
+    ItemMedia,
+    ItemTitle,
+} from '@/components/ui/item'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { getInitials } from '@/composables/useInitials'
 import AppLayout from '@/layouts/AppLayout.vue'
-import dealer from '@/routes/dealer'
-import type { ShowVariety } from '@/types/shared/vegetables'
-
-ChartJS.register(
-    CategoryScale,
-    LinearScale,
-    PointElement,
-    LineElement,
-    Title,
-    Tooltip,
-    Legend,
-    Filler,
-)
+import admin from '@/routes/admin'
+import type { DealerDemand, Show } from '@/types/admin/dealers'
 
 interface Props {
-    variety?: ShowVariety | null
+    dealer: Show
 }
 
 const props = defineProps<Props>()
 
+/* Demand groups */
+const ongoingDemands = computed<DealerDemand[]>(
+    () => props.dealer?.demands.filter((s) => s.status === 'Ongoing') ?? [],
+)
+
+const archivedDemands = computed<DealerDemand[]>(
+    () => props.dealer?.demands.filter((s) => s.status === 'Archived') ?? [],
+)
+
+const fulfilledDemands = computed<DealerDemand[]>(
+    () => props.dealer?.demands.filter((s) => s.status === 'Fulfilled') ?? [],
+)
+
+/* ---------- Stats ---------- */
+const totalDemands = computed(() => props.dealer?.demands.length ?? 0)
+const totalQuantity = computed(
+    () => props.dealer?.demands.reduce((sum, s) => sum + s.quantity_kg, 0) ?? 0,
+)
+const totalOngoing = computed(() => ongoingDemands.value.length)
+const totalOngoingQuantity = computed(() =>
+    ongoingDemands.value.reduce((sum, s) => sum + s.quantity_kg, 0),
+)
+
 const breadcrumbs = computed(() => [
-    { title: 'Dealer', href: dealer.demands.index().url },
-    { title: 'Vegetables', href: dealer.vegetables.index().url },
-    ...(props.variety
-        ? [{ title: props.variety.display_name ?? props.variety.name, href: dealer.vegetables.show(props.variety.id).url }]
+    { title: 'Admin', href: admin.dashboard().url },
+    { title: 'Dealers', href: admin.dealers.index().url },
+    ...(props.dealer
+        ? [
+            {
+                title: props.dealer.user.name,
+                href: admin.dealers.show(props.dealer.id).url,
+            },
+        ]
         : []),
 ])
 
-const chartData = computed(() => {
-    if (!props.variety?.recent_prices?.length) return null
-
-    const prices = [...props.variety.recent_prices].sort(
-        (a, b) => new Date(a.recorded_at).getTime() - new Date(b.recorded_at).getTime()
-    )
-
-    return {
-        labels: prices.map((p) => p.recorded_at),
-        datasets: [
-            {
-                label: 'Max (₱/kg)',
-                data: prices.map((p) => p.price_max),
-                borderColor: 'rgb(99, 102, 241)',
-                backgroundColor: 'rgba(99, 102, 241, 0.08)',
-                fill: true,
-                tension: 0.4,
-                pointRadius: 3,
-                pointHoverRadius: 5,
-            },
-            {
-                label: 'Min (₱/kg)',
-                data: prices.map((p) => p.price_min),
-                borderColor: 'rgb(34, 197, 94)',
-                backgroundColor: 'rgba(34, 197, 94, 0.08)',
-                fill: true,
-                tension: 0.4,
-                pointRadius: 3,
-                pointHoverRadius: 5,
-            },
-        ],
-    }
-})
-
-const chartOptions: ChartOptions<'line'> = {
-    responsive: true,
-    maintainAspectRatio: true,
-    interaction: { mode: 'index', intersect: false },
-    plugins: {
-        legend: {
-            position: 'top',
-            labels: { boxWidth: 12, padding: 16, font: { size: 12 } },
-        },
-        tooltip: {
-            callbacks: { label: (ctx) => ` ₱${(ctx.raw as number).toFixed(2)}` },
-        },
-    },
-    scales: {
-        x: {
-            grid: { display: false },
-            ticks: { font: { size: 11 }, maxRotation: 45 },
-        },
-        y: {
-            grid: { color: 'rgba(0,0,0,0.05)' },
-            ticks: { font: { size: 11 }, callback: (value) => `₱${value}` },
-        },
-    },
+function priceFlagVariant(flag: 'Low' | 'Fair' | 'High' | undefined) {
+    if (flag === 'Low') return 'secondary'
+    if (flag === 'High') return 'destructive'
+    return 'outline'
 }
-
-const tableRows = computed(() =>
-    props.variety?.recent_prices?.length
-        ? [...props.variety.recent_prices].sort(
-            (a, b) => new Date(b.recorded_at).getTime() - new Date(a.recorded_at).getTime()
-        )
-        : []
-)
-
-const trendConfig = computed(() => {
-    if (!props.variety) return null
-    const rp = props.variety.recent_prices
-    if (!rp?.length || rp.length < 2) return null
-    const sorted = [...rp].sort((a, b) => new Date(b.recorded_at).getTime() - new Date(a.recorded_at).getTime())
-    const latest = sorted[0].price_max
-    const previous = sorted[1].price_max
-    if (latest > previous) return { icon: TrendingUp, label: 'Trending up', class: 'text-red-500' }
-    if (latest < previous) return { icon: TrendingDown, label: 'Trending down', class: 'text-green-600' }
-    return { icon: Minus, label: 'Stable', class: 'text-muted-foreground' }
-})
-
-const freshnessConfig = {
-    recent: { label: 'Recently Updated', class: 'bg-green-500/10 text-green-700 dark:text-green-400 border-green-500/20' },
-    stable: { label: 'Stable', class: 'bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20' },
-    'very stable': { label: 'Older Price', class: 'bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20' },
-    stale: { label: 'Stale Price', class: 'bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/20' },
-} as const
 </script>
 
 <template>
 
-    <Head :title="variety?.display_name ?? 'Vegetable Detail'" />
+    <Head :title="dealer?.user.name ?? 'Dealer'" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex flex-col gap-6 p-4 lg:p-6">
+            <Heading :title="dealer?.user.name ?? 'Dealer'" description="Dealer profile and demand history" />
 
-            <Deferred data="variety">
+            <Deferred data="dealer">
                 <template #fallback>
-                    <div class="flex flex-col gap-6">
-                        <Skeleton class="h-8 w-64" />
-                        <div class="grid grid-cols-2 gap-4 sm:grid-cols-4">
-                            <Skeleton v-for="i in 4" :key="i" class="h-24 rounded-xl" />
-                        </div>
-                        <Skeleton class="h-72 w-full rounded-xl" />
-                        <Skeleton class="h-64 w-full rounded-xl" />
-                    </div>
+                    <div></div>
                 </template>
+                <div class="grid grid-cols-12 gap-5">
+                    <div class="col-span-12 lg:col-span-3 space-y-4">
+                        <Card class="p-5 space-y-5">
+                            <div class="flex flex-col items-start gap-3">
+                                <Avatar class="size-16">
+                                    <AvatarImage v-if="dealer?.user.avatar_url" :src="dealer?.user.avatar_url"
+                                        :alt="dealer?.user.name" />
+                                    <AvatarFallback class="bg-primary/10 text-base font-semibold text-primary">
+                                        {{ getInitials(dealer?.user.name) }}
+                                    </AvatarFallback>
+                                </Avatar>
 
-                <template v-if="variety">
-                    <!-- Header -->
-                    <div class="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
-                        <Heading :title="variety.display_name ?? variety.name"
-                            :description="variety.vegetable.category.name" />
-                        <div class="flex items-center gap-2">
-                            <Badge v-if="variety.latest_price" variant="outline"
-                                :class="freshnessConfig[variety.latest_price.freshness]?.class">
-                                {{ freshnessConfig[variety.latest_price.freshness]?.label }}
-                            </Badge>
-                            <span class="flex items-center gap-1 text-sm text-muted-foreground">
-                                <Heart class="size-3.5" />
-                                {{ variety.hearts_count }}
-                            </span>
-                        </div>
-                    </div>
-
-                    <!-- KPI row -->
-                    <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                        <div class="rounded-xl border bg-muted/30 p-4">
-                            <p class="text-xs text-muted-foreground mb-1">Min Price</p>
-                            <p class="font-mono text-xl font-bold text-green-600 dark:text-green-400">
-                                {{ variety.latest_price ? `₱${Number(variety.latest_price.price_min).toFixed(2)}` : '—'
-                                }}
-                            </p>
-                        </div>
-
-                        <div class="rounded-xl border bg-muted/30 p-4">
-                            <p class="text-xs text-muted-foreground mb-1">Max Price</p>
-                            <p class="font-mono text-xl font-bold text-indigo-600 dark:text-indigo-400">
-                                {{ variety.latest_price ? `₱${Number(variety.latest_price.price_max).toFixed(2)}` : '—'
-                                }}
-                            </p>
-                        </div>
-
-                        <div class="rounded-xl border bg-muted/30 p-4">
-                            <p class="text-xs text-muted-foreground mb-1">Active Supplies</p>
-                            <div class="flex items-baseline gap-2">
-                                <p class="text-xl font-bold tabular-nums">{{ variety.supply_count }}</p>
-                                <Package class="size-4 text-muted-foreground" />
-                            </div>
-                        </div>
-
-                        <div class="rounded-xl border bg-muted/30 p-4">
-                            <p class="text-xs text-muted-foreground mb-1">Active Demands</p>
-                            <div class="flex items-baseline gap-2">
-                                <p class="text-xl font-bold tabular-nums">{{ variety.demand_count }}</p>
-                                <component v-if="trendConfig" :is="trendConfig.icon" class="size-4"
-                                    :class="trendConfig.class" />
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Price trend chart -->
-                    <Card>
-                        <CardHeader>
-                            <CardTitle class="text-sm font-semibold">Price History</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <div v-if="chartData" class="rounded-lg border p-3">
-                                <Line :data="chartData" :options="chartOptions" />
-                            </div>
-                            <div v-else
-                                class="flex items-center gap-2 rounded-lg border border-dashed p-6 text-sm text-muted-foreground">
-                                <AlertCircle class="size-4 shrink-0" />
-                                No price history available for this variety.
-                            </div>
-                        </CardContent>
-                    </Card>
-
-                    <!-- Price history table -->
-                    <Card>
-                        <CardHeader>
-                            <CardTitle class="text-sm font-semibold">
-                                Price Records
-                                <span class="ml-1.5 font-normal text-muted-foreground">(last {{ tableRows.length
-                                    }})</span>
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <div v-if="tableRows.length" class="overflow-hidden rounded-lg border">
-                                <table class="w-full text-sm">
-                                    <thead class="bg-muted/50">
-                                        <tr>
-                                            <th class="px-3 py-2 text-left text-xs font-medium text-muted-foreground">
-                                                Date</th>
-                                            <th class="px-3 py-2 text-right text-xs font-medium text-muted-foreground">
-                                                Min (₱/kg)</th>
-                                            <th class="px-3 py-2 text-right text-xs font-medium text-muted-foreground">
-                                                Max (₱/kg)</th>
-                                            <th class="px-3 py-2 text-right text-xs font-medium text-muted-foreground">
-                                                Avg (₱/kg)</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="divide-y">
-                                        <tr v-for="(entry, index) in tableRows" :key="index"
-                                            class="transition-colors hover:bg-muted/30"
-                                            :class="{ 'bg-primary/5': index === 0 }">
-                                            <td class="px-3 py-2 text-xs text-muted-foreground">
-                                                {{ entry.recorded_at }}
-                                                <span v-if="index === 0"
-                                                    class="ml-1.5 rounded bg-primary/10 px-1 py-0.5 text-[10px] font-medium text-primary">latest</span>
-                                            </td>
-                                            <td
-                                                class="px-3 py-2 text-right font-mono text-xs text-green-700 dark:text-green-400">
-                                                {{ Number(entry.price_min).toFixed(2) }}
-                                            </td>
-                                            <td
-                                                class="px-3 py-2 text-right font-mono text-xs text-indigo-700 dark:text-indigo-400">
-                                                {{ Number(entry.price_max).toFixed(2) }}
-                                            </td>
-                                            <td class="px-3 py-2 text-right font-mono text-xs text-foreground">
-                                                {{ ((Number(entry.price_min) + Number(entry.price_max)) / 2).toFixed(2)
-                                                }}
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                            <div v-else
-                                class="flex items-center gap-2 rounded-lg border border-dashed p-6 text-sm text-muted-foreground">
-                                <AlertCircle class="size-4 shrink-0" />
-                                No price records found.
-                            </div>
-                        </CardContent>
-                    </Card>
-
-                    <!-- Supply by municipality -->
-                    <Card v-if="variety.supply_municipalities.length">
-                        <CardHeader>
-                            <CardTitle class="flex items-center gap-2 text-sm font-semibold">
-                                <MapPin class="size-4 text-primary" />
-                                Supply by Municipality
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <div class="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
-                                <div v-for="entry in variety.supply_municipalities" :key="entry.name"
-                                    class="flex items-center justify-between rounded-lg border bg-muted/30 px-4 py-3">
-                                    <span class="truncate text-sm font-medium">{{ entry.name }}</span>
-                                    <Badge variant="secondary" class="ml-2 shrink-0 font-mono text-xs">
-                                        {{ entry.total_kg.toLocaleString() }} kg
-                                    </Badge>
+                                <div>
+                                    <p class="text-sm font-semibold leading-snug">{{ dealer?.user.name }}</p>
                                 </div>
                             </div>
-                        </CardContent>
-                    </Card>
 
-                </template>
+                            <div class="space-y-2.5 text-sm text-muted-foreground">
+                                <div class="flex items-center gap-2">
+                                    <Mail class="size-4 shrink-0" />
+                                    <span class="truncate">{{ dealer?.user.email }}</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <Phone class="size-4 shrink-0" />
+                                    <span>{{ dealer?.user.phone_number }}</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <CalendarDays class="size-4 shrink-0" />
+                                    <span>Joined {{ dealer?.joined_at_human }}</span>
+                                </div>
+                            </div>
+                        </Card>
+
+                        <Card class="p-0 aspect-video">
+                            <img :src="dealer.document_image" alt="Document">
+                        </Card>
+                    </div>
+
+                    <!-- Main Content -->
+                    <div class="col-span-12 lg:col-span-9 space-y-4">
+                        <!-- Stats -->
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                            <SmallCard title="Total demands" :value="totalDemands" />
+                            <SmallCard title="Total Quantity" :value="totalQuantity" subtext="kg" />
+                            <SmallCard title="Ongoing demands" :value="totalOngoing" />
+                            <SmallCard title="Ongoing Quantity" :value="totalOngoingQuantity" subtext="kg" />
+                        </div>
+
+                        <!-- Demands (Tabbed) -->
+                        <Card>
+                            <CardContent class="pt-4">
+                                <Tabs default-value="ongoing">
+                                    <TabsList class="mb-4">
+                                        <TabsTrigger value="ongoing" class="gap-1.5">
+                                            <Package class="size-4" />
+                                            Ongoing
+                                            <Badge variant="secondary" class="ml-1 px-1.5 py-0 text-xs">
+                                                {{ ongoingDemands.length }}
+                                            </Badge>
+                                        </TabsTrigger>
+                                        <TabsTrigger value="archived" class="gap-1.5">
+                                            <Archive class="size-4" />
+                                            Archived
+                                            <Badge variant="secondary" class="ml-1 px-1.5 py-0 text-xs">
+                                                {{ archivedDemands.length }}
+                                            </Badge>
+                                        </TabsTrigger>
+                                        <TabsTrigger value="fulfilled" class="gap-1.5">
+                                            <PackageCheck class="size-4" />
+                                            Fulfilled
+                                            <Badge variant="secondary" class="ml-1 px-1.5 py-0 text-xs">
+                                                {{ fulfilledDemands.length }}
+                                            </Badge>
+                                        </TabsTrigger>
+                                    </TabsList>
+
+                                    <!-- Ongoing -->
+                                    <TabsContent value="ongoing">
+                                        <div v-if="ongoingDemands.length === 0"
+                                            class="flex items-center justify-center h-24 text-sm text-muted-foreground">
+                                            No ongoing demands
+                                        </div>
+                                        <ItemGroup v-else class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                            <Item v-for="demand in ongoingDemands" :key="demand.id" variant="outline">
+                                                <ItemMedia variant="image">
+                                                    <img :src="demand.variety.image_url || demand.variety.image_url"
+                                                        :alt="demand.variety.name" />
+                                                </ItemMedia>
+                                                <ItemContent class="min-w-0">
+                                                    <ItemTitle class="line-clamp-1 text-sm">{{ demand.variety.name }} —
+                                                        {{
+                                                            demand.variety.category }}</ItemTitle>
+                                                    <ItemDescription class="flex items-center gap-1.5 mt-0.5">
+                                                        <span class="text-sm font-medium text-foreground">₱{{
+                                                            demand.offered_price.toFixed(2) }}</span>
+                                                        <Badge :variant="priceFlagVariant(demand.price_flag)"
+                                                            class="text-xs px-1.5 py-0">
+                                                            {{ demand.price_flag }}
+                                                        </Badge>
+                                                    </ItemDescription>
+                                                </ItemContent>
+                                            </Item>
+                                        </ItemGroup>
+                                    </TabsContent>
+
+                                    <!-- Archived -->
+                                    <TabsContent value="archived">
+                                        <div v-if="archivedDemands.length === 0"
+                                            class="flex items-center justify-center h-24 text-sm text-muted-foreground">
+                                            No archived demands
+                                        </div>
+                                        <ItemGroup v-else class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                            <Item v-for="demand in archivedDemands" :key="demand.id" variant="outline">
+                                                <ItemMedia variant="image">
+                                                    <img :src="demand.variety.image_url || demand.variety.image_url"
+                                                        :alt="demand.variety.name" />
+                                                </ItemMedia>
+                                                <ItemContent class="min-w-0">
+                                                    <ItemTitle class="line-clamp-1 text-sm">{{ demand.variety.name }} —
+                                                        {{
+                                                            demand.variety.category }}</ItemTitle>
+                                                    <ItemDescription class="flex items-center gap-1.5 mt-0.5">
+                                                        <span class="text-sm font-medium text-foreground">₱{{
+                                                            demand.offered_price.toFixed(2) }}</span>
+                                                        <Badge :variant="priceFlagVariant(demand.price_flag)"
+                                                            class="text-xs px-1.5 py-0">
+                                                            {{ demand.price_flag }}
+                                                        </Badge>
+                                                    </ItemDescription>
+                                                </ItemContent>
+                                            </Item>
+                                        </ItemGroup>
+                                    </TabsContent>
+
+                                    <!-- Fulfilled -->
+                                    <TabsContent value="fulfilled">
+                                        <div v-if="fulfilledDemands.length === 0"
+                                            class="flex items-center justify-center h-24 text-sm text-muted-foreground">
+                                            No fulfilled demands
+                                        </div>
+                                        <ItemGroup v-else class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                            <Item v-for="demand in fulfilledDemands" :key="demand.id" variant="outline">
+                                                <ItemMedia variant="image">
+                                                    <img :src="demand.variety.image_url || demand.variety.image_url"
+                                                        :alt="demand.variety.name" />
+                                                </ItemMedia>
+                                                <ItemContent class="min-w-0">
+                                                    <ItemTitle class="line-clamp-1 text-sm">{{ demand.variety.name }} —
+                                                        {{
+                                                            demand.variety.category }}</ItemTitle>
+                                                    <ItemDescription class="flex items-center gap-1.5 mt-0.5">
+                                                        <span class="text-sm font-medium text-foreground">₱{{
+                                                            demand.offered_price.toFixed(2) }}</span>
+                                                        <Badge :variant="priceFlagVariant(demand.price_flag)"
+                                                            class="text-xs px-1.5 py-0">
+                                                            {{ demand.price_flag }}
+                                                        </Badge>
+                                                    </ItemDescription>
+                                                </ItemContent>
+                                            </Item>
+                                        </ItemGroup>
+                                    </TabsContent>
+
+                                </Tabs>
+                            </CardContent>
+                        </Card>
+                    </div>
+                </div>
             </Deferred>
-
         </div>
     </AppLayout>
 </template>
