@@ -11,6 +11,13 @@ export interface LatestPrice {
 	freshness: 'recent' | 'stable' | 'very stable' | 'stale'
 }
 
+export type PriceTrend = 'up' | 'down' | 'flat' | null
+
+export interface MunicipalitySupply {
+	name: string
+	total_kg: number
+}
+
 export interface CatalogVariety {
 	id: number
 	name: string
@@ -24,9 +31,36 @@ export interface CatalogVariety {
 		}
 	}
 	latest_price: LatestPrice | null
-	recent_prices: PriceEntry[]
+	price_trend: PriceTrend
+	price_updated_human: string | null
+	supply_count: number
+	demand_count: number
+	recent_prices?: PriceEntry[]
 	hearts_count: number
 	is_hearted: boolean
+}
+
+export interface ShowVariety {
+	id: number
+	name: string
+	display_name: string
+	image_url: string | null
+	vegetable: {
+		id: number
+		name: string
+		category: {
+			id: number
+			name: string
+		}
+	}
+	latest_price: LatestPrice | null
+	price_updated_human: string | null
+	price_updated_date: string | null
+	supply_count: number
+	demand_count: number
+	hearts_count: number
+	is_hearted: boolean
+	supply_municipalities: MunicipalitySupply[]
 }
 
 export interface CategoryOption {
