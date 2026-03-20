@@ -17,13 +17,14 @@ final class CreateSupplyAction
 
         /** @var Post $post */
         $post = Post::create([
-            'user_id'        => $farmer->user_id,
-            'variety_id'     => $validated['variety_id'],
-            'type'           => PostType::Supply,
-            'quantity_kg'    => $validated['quantity_kg'],
-            'offered_price'  => $validated['offered_price'],
-            'price_flag'     => PostPriceFlag::fromMarketPrice($validated['offered_price'], $variety->latestPrice),
+            'user_id' => $farmer->user_id,
+            'variety_id' => $validated['variety_id'],
+            'type' => PostType::Supply,
+            'quantity_kg' => $validated['quantity_kg'],
+            'offered_price' => $validated['offered_price'],
+            'price_flag' => PostPriceFlag::fromMarketPrice($validated['offered_price'], $variety->latestPrice),
             'scheduled_date' => $validated['scheduled_date'],
+            'time_slot' => $validated['time_slot'],
         ]);
 
         if ($image !== null) {

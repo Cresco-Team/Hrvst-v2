@@ -14,13 +14,13 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { store, update } from '@/routes/dealer/demands'
-import type { Demand, VarietyOption } from '@/types/marketplace'
+import type { Post, PostTimeSlot, VarietyOption } from '@/types/marketplace'
 import DialogForm from '../DialogForm.vue'
 import { Badge } from '../ui/badge'
 
 interface Props {
   open: boolean
-  demand?: Demand | null
+  demand?: Post | null
   varietyOptions: Record<string, VarietyOption[]>
 }
 
@@ -33,11 +33,18 @@ const emit = defineEmits<{
   submit: []
 }>()
 
+const TIME_SLOT_OPTIONS: { value: PostTimeSlot; label: string }[] = [
+  { value: 'morning', label: 'Morning (6 AM – 12 PM)' },
+  { value: 'afternoon', label: 'Afternoon (12 PM – 6 PM)' },
+  { value: 'evening', label: 'Evening (6 PM – 10 PM)' },
+]
+
 const form = useForm({
   variety_id: null as number | null,
   quantity_kg: 0,
   offered_price: 0,
   scheduled_date: '',
+  time_slot: 'morning' as PostTimeSlot | '',
 })
 
 const minDate = computed(() => {
@@ -63,6 +70,7 @@ watch(
         form.quantity_kg = props.demand.quantity_kg
         form.offered_price = props.demand.offered_price
         form.scheduled_date = props.demand.scheduled_date
+        form.time_slot = props.demand.time_slot ?? 'morning'
       } else {
         form.reset()
       }
@@ -164,7 +172,7 @@ const handleSubmit = () => {
 
     <div class="space-y-2">
       <Label for="transaction" class="flex items-center gap-1.5">
-        Transaction Date
+        Scheduled Date
         <Badge variant="secondary" class="text-xs font-normal">Required</Badge>
       </Label>
       <Input id="scheduled" v-model="form.scheduled_date" type="date" :min="minDate" :max="maxDate"
@@ -174,6 +182,30 @@ const handleSubmit = () => {
       </p>
       <p v-else class="text-xs text-muted-foreground">
         Demand will auto-archived after this date (max 3 months)
+      </p>
+    </div>
+
+    <!-- Time Slot -->
+    <div class="space-y-2">
+      <Label for="time_slot" class="flex items-center gap-1.5">
+        Preferred Time Slot
+        <Badge variant="secondary" class="text-xs font-normal">Required</Badge>
+      </Label>
+      <Select v-model="form.time_slot">
+        <SelectTrigger id="time_slot" :class="{ 'border-destructive': form.errors.time_slot }">
+          <SelectValue placeholder="Select a time slot..." />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem v-for="option in TIME_SLOT_OPTIONS" :key="option.value" :value="option.value">
+            {{ option.label }}
+          </SelectItem>
+        </SelectContent>
+      </Select>
+      <p v-if="form.errors.time_slot" class="text-xs text-destructive">
+        {{ form.errors.time_slot }}
+      </p>
+      <p v-else class="text-xs text-muted-foreground">
+        When are you available for the pickup?
       </p>
     </div>
   </DialogForm>

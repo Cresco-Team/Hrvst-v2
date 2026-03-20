@@ -1,15 +1,20 @@
 <script setup lang="ts">
-import { CalendarClock, PhilippinePeso, SquareEqual, Weight } from 'lucide-vue-next';
-import { AspectRatio } from '@/components/ui/aspect-ratio';
+import { CalendarClock, PhilippinePeso, SquareEqual, Weight } from 'lucide-vue-next'
+import { computed } from 'vue'
+import { AspectRatio } from '@/components/ui/aspect-ratio'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Separator } from '@/components/ui/separator';
-import type { Post } from '@/types/marketplace';
+import { Separator } from '@/components/ui/separator'
+import { useTimeSlot } from '@/composables/useTimeSlot'
+import type { Post } from '@/types/marketplace'
 
 interface Props {
     post: Post
 }
 
 const { post } = defineProps<Props>()
+
+const { getConfig } = useTimeSlot()
+const slotConfig = computed(() => getConfig(post.time_slot))
 </script>
 
 <template>
@@ -38,38 +43,44 @@ const { post } = defineProps<Props>()
         </div>
 
         <CardContent class="p-5 pt-2 grid gap-2">
-            <div class="flex justify-between text-sm">
-                <div class="flex items-center text-muted-foreground gap-2">
+            <div class="flex justify-between">
+                <div class="flex items-center text-xs text-muted-foreground gap-2">
                     <PhilippinePeso :size="15" />
                     Price:
                 </div>
-                <span>₱{{ post.offered_price.toFixed(2) }}/kg</span>
+                <span class="text-sm">₱{{ post.offered_price.toFixed(2) }}/kg</span>
             </div>
 
-            <div class="flex justify-between text-sm">
-                <div class="flex items-center text-muted-foreground gap-2">
+            <div class="flex justify-between">
+                <div class="flex items-center text-xs text-muted-foreground gap-2">
                     <Weight :size="15" />
                     Kg:
                 </div>
-                <span>{{ post.quantity_kg.toFixed(2) }} kg</span>
+                <span class="text-sm">{{ post.quantity_kg.toFixed(2) }} kg</span>
             </div>
 
-            <div class="flex justify-between text-sm">
-                <div class="flex items-center text-muted-foreground gap-2">
+            <div class="flex justify-between">
+                <div class="flex items-center text-xs text-muted-foreground gap-2">
                     <SquareEqual :size="15" />
                     Total:
                 </div>
-                <span>₱{{ (post.quantity_kg * post.offered_price).toFixed(2) }}</span>
+                <span class="text-sm">₱{{ (post.quantity_kg * post.offered_price).toFixed(2) }}</span>
             </div>
 
-            <div class="flex justify-between text-sm">
-                <div class="flex items-center text-muted-foreground gap-2">
+            <div class="flex justify-between">
+                <div class="flex items-center text-xs text-muted-foreground gap-2">
                     <CalendarClock :size="15" />
                     Schedule:
                 </div>
-                <p>
-                    {{ post.scheduled_date }}
-                </p>
+                <span class="text-sm">{{ post.scheduled_date }}</span>
+            </div>
+
+            <!-- Time Slot -->
+            <div v-if="post.time_slot" class="flex justify-between">
+                <div class="flex items-center text-xs text-muted-foreground gap-2">
+                    <component :is="slotConfig.icon" :size="20" :class="slotConfig.color" />
+                </div>
+                <span class="text-sm">{{ post.time_slot_label }}</span>
             </div>
         </CardContent>
     </Card>

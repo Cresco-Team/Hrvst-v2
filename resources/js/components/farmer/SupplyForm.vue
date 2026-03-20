@@ -9,100 +9,110 @@ import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
-	Select,
-	SelectContent,
-	SelectGroup,
-	SelectItem,
-	SelectLabel,
-	SelectTrigger,
-	SelectValue,
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
 } from '@/components/ui/select'
-import type { Supply, VarietyOption } from '@/types/marketplace'
+import type { Post, PostTimeSlot, VarietyOption } from '@/types/marketplace'
 
 interface Props {
-	open: boolean
-	supply?: Supply | null
-	varietyOptions?: Record<string, VarietyOption[]>
+  open: boolean
+  supply?: Post | null
+  varietyOptions?: Record<string, VarietyOption[]>
 }
 
 const props = withDefaults(defineProps<Props>(), {
-	supply: null,
+  supply: null,
 })
 
 const emit = defineEmits<{
-	'update:open': [value: boolean]
-	submit: []
+  'update:open': [value: boolean]
+  submit: []
 }>()
 
+const TIME_SLOT_OPTIONS: { value: PostTimeSlot; label: string }[] = [
+  { value: 'morning', label: 'Morning (6 AM – 12 PM)' },
+  { value: 'afternoon', label: 'Afternoon (12 PM – 6 PM)' },
+  { value: 'evening', label: 'Evening (6 PM – 10 PM)' },
+]
+
+
+
 const form = useForm({
-	variety_id: '',
-	quantity_kg: '',
-	offered_price: '',
-	scheduled_date: '',
-	image: null as File | null,
+  variety_id: '',
+  quantity_kg: '',
+  offered_price: '',
+  scheduled_date: '',
+  time_slot: 'morning' as PostTimeSlot | '',
+  image: null as File | null,
 })
 
 watch(
-	() => props.supply,
-	(s) => {
-		form.variety_id = String(s?.variety?.id ?? '')
-		form.quantity_kg = String(s?.quantity_kg ?? '')
-		form.offered_price = String(s?.offered_price ?? '')
-		form.scheduled_date = s?.scheduled_date ?? ''
-		form.image = null
-	},
-	{ immediate: true },
+  () => props.supply,
+  (s) => {
+    form.variety_id = String(s?.variety?.id ?? '')
+    form.quantity_kg = String(s?.quantity_kg ?? '')
+    form.offered_price = String(s?.offered_price ?? '')
+    form.scheduled_date = s?.scheduled_date ?? ''
+    form.time_slot = s?.time_slot ?? 'morning'
+    form.image = null
+  },
+  { immediate: true },
 )
 
 const isEditMode = computed(() => !!props.supply)
 
 const minDate = computed(() => {
-	const tomorrow = new Date()
-	tomorrow.setDate(tomorrow.getDate() + 1)
-	return tomorrow.toISOString().split('T')[0]
+  const tomorrow = new Date()
+  tomorrow.setDate(tomorrow.getDate() + 1)
+  return tomorrow.toISOString().split('T')[0]
 })
 
 const maxDate = computed(() => {
-	const threeMonths = new Date()
-	threeMonths.setMonth(threeMonths.getMonth() + 3)
-	return threeMonths.toISOString().split('T')[0]
+  const threeMonths = new Date()
+  threeMonths.setMonth(threeMonths.getMonth() + 3)
+  return threeMonths.toISOString().split('T')[0]
 })
 
 function handleSubmit() {
-	const routeData = props.supply ? update(props.supply.id) : store()
+  const routeData = props.supply ? update(props.supply.id) : store()
 
-	form
-		.transform((data) => {
-			const payload: Record<string, unknown> = { ...data }
+  form
+    .transform((data) => {
+      const payload: Record<string, unknown> = { ...data }
 
-			if (props.supply) {
-				payload._method = 'PUT'
-				if (!payload.image) {
-					delete payload.image
-				}
-			}
+      if (props.supply) {
+        payload._method = 'PUT'
+        if (!payload.image) {
+          delete payload.image
+        }
+      }
 
-			return payload
-		})
-		.post(routeData.url, {
-			forceFormData: true,
-			preserveScroll: true,
-			onSuccess: () => {
-				emit('update:open', false)
-				form.reset()
-			},
-		})
+      return payload
+    })
+    .post(routeData.url, {
+      forceFormData: true,
+      preserveScroll: true,
+      onSuccess: () => {
+        emit('update:open', false)
+        form.reset()
+      },
+    })
 }
 
 // Reset form when dialog closes
 watch(
-	() => props.open,
-	(isOpen) => {
-		if (!isOpen) {
-			form.reset()
-			form.clearErrors()
-		}
-	},
+  () => props.open,
+  (isOpen) => {
+    if (!isOpen) {
+      form.reset()
+      form.clearErrors()
+    }
+  },
 )
 </script>
 
@@ -198,6 +208,30 @@ watch(
           Post will auto-archived after this date (max 3 months)
         </p>
       </div>
+    </div>
+
+    <!-- Time Slot -->
+    <div class="space-y-2">
+      <Label for="time_slot" class="flex items-center gap-1.5">
+        Preferred Time Slot
+        <Badge variant="secondary" class="text-xs font-normal">Required</Badge>
+      </Label>
+      <Select v-model="form.time_slot">
+        <SelectTrigger id="time_slot" :class="{ 'border-destructive': form.errors.time_slot }">
+          <SelectValue placeholder="Select a time slot..." />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem v-for="option in TIME_SLOT_OPTIONS" :key="option.value" :value="option.value">
+            {{ option.label }}
+          </SelectItem>
+        </SelectContent>
+      </Select>
+      <p v-if="form.errors.time_slot" class="text-xs text-destructive">
+        {{ form.errors.time_slot }}
+      </p>
+      <p v-else class="text-xs text-muted-foreground">
+        When are you available for delivery?
+      </p>
     </div>
   </DialogForm>
 </template>

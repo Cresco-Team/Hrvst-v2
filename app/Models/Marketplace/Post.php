@@ -4,6 +4,7 @@ namespace App\Models\Marketplace;
 
 use App\Enums\PostPriceFlag;
 use App\Enums\PostStatus;
+use App\Enums\PostTimeSlot;
 use App\Enums\PostType;
 use App\Models\Interaction\Reaction;
 use App\Models\Product\Variety;
@@ -23,7 +24,7 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
 class Post extends Model implements HasMedia
 {
     use InteractsWithMedia;
-    
+
     protected $fillable = [
         'user_id',
         'variety_id',
@@ -33,6 +34,7 @@ class Post extends Model implements HasMedia
         'offered_price',
         'price_flag',
         'scheduled_date',
+        'time_slot',
     ];
 
     protected function casts(): array
@@ -44,6 +46,7 @@ class Post extends Model implements HasMedia
             'type' => PostType::class,
             'status' => PostStatus::class,
             'scheduled_date' => 'date',
+            'time_slot' => PostTimeSlot::class,
         ];
     }
 
