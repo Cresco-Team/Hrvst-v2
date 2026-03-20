@@ -1,0 +1,31 @@
+<script setup lang="ts">
+import { AlertCircle } from 'lucide-vue-next'
+import { Bar } from 'vue-chartjs'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { useMonthlyVolumeChart } from '@/composables/useMonthlyVolumeChart'
+import type { MonthlyActivity } from '@/types/shared/vegetables'
+
+const props = defineProps<{
+    monthlyActivity: MonthlyActivity[]
+}>()
+
+const { chartData, chartOptions } = useMonthlyVolumeChart(() => props.monthlyActivity)
+</script>
+
+<template>
+    <Card>
+        <CardHeader>
+            <CardTitle class="text-sm font-semibold">Monthly Market Volume</CardTitle>
+        </CardHeader>
+        <CardContent>
+            <div v-if="chartData" class="rounded-lg border p-3">
+                <Bar :data="chartData" :options="chartOptions" />
+            </div>
+            <div v-else
+                class="flex items-center gap-2 rounded-lg border border-dashed p-6 text-sm text-muted-foreground">
+                <AlertCircle class="size-4 shrink-0" />
+                No completed market activity recorded for this variety.
+            </div>
+        </CardContent>
+    </Card>
+</template>

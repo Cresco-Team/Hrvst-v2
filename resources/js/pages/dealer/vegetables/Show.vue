@@ -1,29 +1,18 @@
 <script setup lang="ts">
 import { Deferred, Head } from '@inertiajs/vue3'
-import {
-    CategoryScale, Chart as ChartJS, type ChartOptions, Filler, Legend, LinearScale, LineElement, PointElement, Title, Tooltip,
-} from 'chart.js'
+
 import { AlertCircle, Heart, MapPin, Minus, Package, TrendingDown, TrendingUp } from 'lucide-vue-next'
 import { computed } from 'vue'
-import { Line } from 'vue-chartjs'
+
 import Heading from '@/components/Heading.vue'
+import VegetableMonthlyChart from '@/components/shared/charts/VegetableMonthlyChart.vue'
+import VegetablePriceChart from '@/components/shared/charts/VegetablePriceChart.vue'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import AppLayout from '@/layouts/AppLayout.vue'
 import dealer from '@/routes/dealer'
 import type { ShowVariety } from '@/types/shared/vegetables'
-
-ChartJS.register(
-    CategoryScale,
-    LinearScale,
-    PointElement,
-    LineElement,
-    Title,
-    Tooltip,
-    Legend,
-    Filler,
-)
 
 interface Props {
     variety?: ShowVariety | null
@@ -38,65 +27,6 @@ const breadcrumbs = computed(() => [
         ? [{ title: props.variety.display_name ?? props.variety.name, href: dealer.vegetables.show(props.variety.id).url }]
         : []),
 ])
-
-const chartData = computed(() => {
-    if (!props.variety?.recent_prices?.length) return null
-
-    const prices = [...props.variety.recent_prices].sort(
-        (a, b) => new Date(a.recorded_at).getTime() - new Date(b.recorded_at).getTime()
-    )
-
-    return {
-        labels: prices.map((p) => p.recorded_at),
-        datasets: [
-            {
-                label: 'Max (₱/kg)',
-                data: prices.map((p) => p.price_max),
-                borderColor: 'rgb(99, 102, 241)',
-                backgroundColor: 'rgba(99, 102, 241, 0.08)',
-                fill: true,
-                tension: 0.4,
-                pointRadius: 3,
-                pointHoverRadius: 5,
-            },
-            {
-                label: 'Min (₱/kg)',
-                data: prices.map((p) => p.price_min),
-                borderColor: 'rgb(34, 197, 94)',
-                backgroundColor: 'rgba(34, 197, 94, 0.08)',
-                fill: true,
-                tension: 0.4,
-                pointRadius: 3,
-                pointHoverRadius: 5,
-            },
-        ],
-    }
-})
-
-const chartOptions: ChartOptions<'line'> = {
-    responsive: true,
-    maintainAspectRatio: true,
-    interaction: { mode: 'index', intersect: false },
-    plugins: {
-        legend: {
-            position: 'top',
-            labels: { boxWidth: 12, padding: 16, font: { size: 12 } },
-        },
-        tooltip: {
-            callbacks: { label: (ctx) => ` ₱${(ctx.raw as number).toFixed(2)}` },
-        },
-    },
-    scales: {
-        x: {
-            grid: { display: false },
-            ticks: { font: { size: 11 }, maxRotation: 45 },
-        },
-        y: {
-            grid: { color: 'rgba(0,0,0,0.05)' },
-            ticks: { font: { size: 11 }, callback: (value) => `₱${value}` },
-        },
-    },
-}
 
 const tableRows = computed(() =>
     props.variety ? [...props.variety.recent_prices].sort(
@@ -195,21 +125,7 @@ const freshnessConfig = {
                     </div>
 
                     <!-- Price trend chart -->
-                    <Card>
-                        <CardHeader>
-                            <CardTitle class="text-sm font-semibold">Price History</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <div v-if="chartData" class="rounded-lg border p-3">
-                                <Line :data="chartData" :options="chartOptions" />
-                            </div>
-                            <div v-else
-                                class="flex items-center gap-2 rounded-lg border border-dashed p-6 text-sm text-muted-foreground">
-                                <AlertCircle class="size-4 shrink-0" />
-                                No price history available for this variety.
-                            </div>
-                        </CardContent>
-                    </Card>
+                    <VegetablePriceChart :recent-prices="variety.recent_prices" />
 
                     <!-- Price history table -->
                     <Card>
@@ -217,7 +133,7 @@ const freshnessConfig = {
                             <CardTitle class="text-sm font-semibold">
                                 Price Records
                                 <span class="ml-1.5 font-normal text-muted-foreground">(last {{ tableRows.length
-                                    }})</span>
+                                }})</span>
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
@@ -266,6 +182,9 @@ const freshnessConfig = {
                             </div>
                         </CardContent>
                     </Card>
+
+                    <!-- Monthly market volume chart (last 12 months, closed posts only) -->
+                    <VegetableMonthlyChart :monthly-activity="variety.monthly_activity" />
 
                     <!-- Supply by municipality -->
                     <Card v-if="variety.supply_municipalities.length">

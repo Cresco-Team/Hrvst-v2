@@ -27,7 +27,8 @@ class DatabaseSeeder extends Seeder
             VegetableSeeder::class,
             VarietySeeder::class,
             PriceHistorySeeder::class,
-            
+            VarietyMonthlyStatsSeeder::class,
+
             AdminSeeder::class,
             FarmerSeeder::class,
             DealerSeeder::class,

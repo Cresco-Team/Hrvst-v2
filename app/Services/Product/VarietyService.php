@@ -7,6 +7,7 @@ use App\Enums\PostType;
 use App\Models\Product\Category;
 use App\Models\Product\Variety;
 use App\Models\Product\Vegetable;
+use Carbon\Carbon;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
@@ -160,6 +161,8 @@ class VarietyService
             ->values()
             ->toArray();
 
+        $variety->monthly_activity = $this->buildMonthlyActivity($variety->id);
+
         return $variety;
     }
 
@@ -169,9 +172,7 @@ class VarietyService
             return Vegetable::with('category')
                 ->get()
                 ->groupBy('category.name')
-                ->map(function ($vegetables) {
-                    return $vegetables->pluck('name', 'id')->toArray();
-                })
+                ->map(fn ($vegetables) => $vegetables->pluck('name', 'id')->toArray())
                 ->toArray();
         });
     }
@@ -188,5 +189,36 @@ class VarietyService
     public function detailed(Variety $variety): Variety
     {
         return $variety->load(['vegetable.category', 'latestPrice', 'recentPrices', 'media']);
+    }
+
+    private function buildMonthlyActivity(int $varietyId): array
+    {
+        $start = now()->startOfMonth()->subMonths(11)->toDateString();
+        $end = now()->startOfMonth()->toDateString();
+
+        $rows = DB::table('variety_monthly_stats')
+            ->where('variety_id', $varietyId)
+            ->whereBetween('period_date', [$start, $end])
+            ->get()
+            ->keyBy(fn ($row) => Carbon::parse($row->period_date)->format('Y-m'));
+
+        $result = [];
+
+        for ($i = 11; $i >= 0; $i--) {
+            $date = now()->startOfMonth()->subMonths($i);
+            $key = $date->format('Y-m');
+            $row = $rows->get($key);
+
+            $result[] = [
+                'month' => $key,
+                'label' => $date->format('M Y'),
+                'supply_archived_kg' => $row ? (float) $row->supply_archived_kg : 0.0,
+                'supply_fulfilled_kg' => $row ? (float) $row->supply_fulfilled_kg : 0.0,
+                'demand_archived_kg' => $row ? (float) $row->demand_archived_kg : 0.0,
+                'demand_fulfilled_kg' => $row ? (float) $row->demand_fulfilled_kg : 0.0,
+            ];
+        }
+
+        return $result;
     }
 }

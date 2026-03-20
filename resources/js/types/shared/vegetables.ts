@@ -18,6 +18,15 @@ export interface MunicipalitySupply {
 	total_kg: number
 }
 
+export interface MonthlyActivity {
+	month: string
+	label: string
+	supply_archived_kg: number
+	supply_fulfilled_kg: number
+	demand_archived_kg: number
+	demand_fulfilled_kg: number
+}
+
 export interface CatalogVariety {
 	id: number
 	name: string
@@ -62,6 +71,8 @@ export interface ShowVariety {
 	hearts_count: number
 	is_hearted: boolean
 	supply_municipalities: MunicipalitySupply[]
+	// 12-entry array of monthly closed market volume; oldest → newest
+	monthly_activity: MonthlyActivity[]
 }
 
 export interface CategoryOption {
