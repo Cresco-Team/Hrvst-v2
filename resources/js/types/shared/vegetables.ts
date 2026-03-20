@@ -35,9 +35,9 @@ export interface CatalogVariety {
 	price_updated_human: string | null
 	supply_count: number
 	demand_count: number
-	recent_prices?: PriceEntry[]
 	hearts_count: number
 	is_hearted: boolean
+	recent_prices?: PriceEntry[]
 }
 
 export interface ShowVariety {
@@ -56,6 +56,7 @@ export interface ShowVariety {
 	latest_price: LatestPrice | null
 	price_updated_human: string | null
 	price_updated_date: string | null
+	recent_prices: PriceEntry[]
 	supply_count: number
 	demand_count: number
 	hearts_count: number
@@ -71,12 +72,4 @@ export interface CategoryOption {
 export interface CatalogFilters {
 	search?: string | null
 	category_id?: number | null
-}
-
-export interface CatalogPaginatedResponse {
-	data: CatalogVariety[]
-	current_page: number
-	last_page: number
-	per_page: number
-	total: number
 }
