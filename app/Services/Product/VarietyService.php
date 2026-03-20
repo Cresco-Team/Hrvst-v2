@@ -110,7 +110,59 @@ class VarietyService
             });
     }
 
-    /* Admin Options for creating variety */
+    public function forCatalog(int $perPage = 20, ?string $search = null, ?int $categoryId = null, ?int $userId = null): LengthAwarePaginator
+    {
+        return Variety::with(['vegetable.category', 'latestPrice', 'lastTwoPrices', 'media'])
+            ->withCount([
+                'posts as supply_count' => fn (Builder $q) => $q->supply()->ongoing(),
+                'posts as demand_count' => fn (Builder $q) => $q->demand()->ongoing(),
+            ])
+            ->when($search, fn (Builder $q) => $q
+                ->where('name', 'like', "%{$search}%")
+                ->orWhereHas('vegetable', fn (Builder $q) => $q->where('name', 'like', "%{$search}%"))
+            )
+            ->when($categoryId, fn (Builder $q) => $q->whereHas(
+                'vegetable', fn ($q) => $q->where('category_id', $categoryId)
+            ))
+            ->when($userId, fn (Builder $q) => $q->withExists([
+                'hearts as is_hearted' => fn (Builder $q) => $q->where('user_id', $userId),
+            ]))
+            ->orderBy('name')
+            ->paginate($perPage);
+    }
+
+    public function show(Variety $variety): Variety
+    {
+        $variety->load(['vegetable.category', 'latestPrice', 'recentPrices', 'media'])
+            ->loadCount([
+                'posts as supply_count' => fn (Builder $q) => $q->supply()->ongoing(),
+                'posts as demand_count' => fn (Builder $q) => $q->demand()->ongoing(),
+            ]);
+
+        $variety->supply_municipalities = DB::table('posts')
+            ->join('users', 'posts.user_id', '=', 'users.id')
+            ->join('farmer_profiles', 'users.id', '=', 'farmer_profiles.user_id')
+            ->join('municipalities', 'farmer_profiles.municipality_id', '=', 'municipalities.id')
+            ->where('posts.variety_id', $variety->id)
+            ->where('posts.type', PostType::Supply->value)
+            ->where('posts.status', PostStatus::Ongoing->value)
+            ->groupBy('municipalities.id', 'municipalities.name')
+            ->select(
+                'municipalities.name as municipality_name',
+                DB::raw('SUM(posts.quantity_kg) as total_kg'),
+            )
+            ->get()
+            ->map(fn ($row) => [
+                'name' => $row->municipality_name,
+                'total_kg' => (float) $row->total_kg,
+            ])
+            ->sortByDesc('total_kg')
+            ->values()
+            ->toArray();
+
+        return $variety;
+    }
+
     public function vegetableOptions(): array
     {
         return cache()->remember('vegetable_options', 3600, function () {
@@ -136,22 +188,5 @@ class VarietyService
     public function detailed(Variety $variety): Variety
     {
         return $variety->load(['vegetable.category', 'latestPrice', 'recentPrices', 'media']);
-    }
-
-    public function forCatalog(int $perPage = 20, ?string $search = null, ?int $categoryId = null, ?int $userId = null): LengthAwarePaginator
-    {
-        return Variety::with(['vegetable.category', 'latestPrice', 'recentPrices', 'media'])
-            ->when($search, fn (Builder $q) => $q
-                ->where('name', 'like', "%{$search}%")
-                ->orWhereHas('vegetable', fn (Builder $q) => $q->where('name', 'like', "%{$search}%"))
-            )
-            ->when($categoryId, fn (Builder $q) => $q->whereHas(
-                'vegetable', fn ($q) => $q->where('category_id', $categoryId)
-            ))
-            ->when($userId, fn (Builder $q) => $q->withExists([
-                'hearts as is_hearted' => fn (Builder $q) => $q->where('user_id', $userId),
-            ]))
-            ->orderBy('name')
-            ->paginate($perPage);
     }
 }

@@ -8,7 +8,10 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'verified', 'farmer'])->prefix('farmer')->name('farmer.')->group(function () {
 
-    Route::get('/vegetables', [VegetableController::class, 'index'])->name('vegetables.index');
+    Route::prefix('vegetables')->name('vegetables.')->group(function () {
+        Route::get('/', [VegetableController::class, 'index'])->name('index');
+        Route::get('/{variety}', [VegetableController::class, 'show'])->name('show');
+    });
 
     Route::prefix('supplies')->name('supplies.')->group(function () {
         Route::get('/', [SupplyController::class, 'index'])->name('index');
