@@ -7,6 +7,7 @@ use App\Enums\PostType;
 use App\Models\Product\Category;
 use App\Models\Product\Variety;
 use App\Models\Product\Vegetable;
+use Carbon\Carbon;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
@@ -171,9 +172,7 @@ class VarietyService
             return Vegetable::with('category')
                 ->get()
                 ->groupBy('category.name')
-                ->map(function ($vegetables) {
-                    return $vegetables->pluck('name', 'id')->toArray();
-                })
+                ->map(fn ($vegetables) => $vegetables->pluck('name', 'id')->toArray())
                 ->toArray();
         });
     }
@@ -194,34 +193,20 @@ class VarietyService
 
     private function buildMonthlyActivity(int $varietyId): array
     {
-        $start = now()->startOfMonth()->subMonths(11);
+        $start = now()->startOfMonth()->subMonths(11)->toDateString();
+        $end = now()->startOfMonth()->toDateString();
 
         $rows = DB::table('variety_monthly_stats')
             ->where('variety_id', $varietyId)
-            ->where(function ($q) use ($start) {
-                $q->where('year', '>', $start->year)
-                    ->orWhere(function ($q2) use ($start) {
-                        $q2->where('year', $start->year)
-                            ->where('month', '>=', $start->month);
-                    });
-            })
-            ->where(function ($q) {
-                $now = now();
-                $q->where('year', '<', $now->year)
-                    ->orWhere(function ($q2) use ($now) {
-                        $q2->where('year', $now->year)
-                            ->where('month', '<=', $now->month);
-                    });
-            })
+            ->whereBetween('period_date', [$start, $end])
             ->get()
-            ->keyBy(fn ($row) => sprintf('%04d-%02d', $row->year, $row->month));
+            ->keyBy(fn ($row) => Carbon::parse($row->period_date)->format('Y-m'));
 
         $result = [];
 
         for ($i = 11; $i >= 0; $i--) {
             $date = now()->startOfMonth()->subMonths($i);
             $key = $date->format('Y-m');
-
             $row = $rows->get($key);
 
             $result[] = [
