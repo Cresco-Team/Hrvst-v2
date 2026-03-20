@@ -160,6 +160,8 @@ class VarietyService
             ->values()
             ->toArray();
 
+        $variety->monthly_activity = $this->buildMonthlyActivity($variety->id);
+
         return $variety;
     }
 
@@ -188,5 +190,50 @@ class VarietyService
     public function detailed(Variety $variety): Variety
     {
         return $variety->load(['vegetable.category', 'latestPrice', 'recentPrices', 'media']);
+    }
+
+    private function buildMonthlyActivity(int $varietyId): array
+    {
+        $start = now()->startOfMonth()->subMonths(11);
+
+        $rows = DB::table('variety_monthly_stats')
+            ->where('variety_id', $varietyId)
+            ->where(function ($q) use ($start) {
+                $q->where('year', '>', $start->year)
+                    ->orWhere(function ($q2) use ($start) {
+                        $q2->where('year', $start->year)
+                            ->where('month', '>=', $start->month);
+                    });
+            })
+            ->where(function ($q) {
+                $now = now();
+                $q->where('year', '<', $now->year)
+                    ->orWhere(function ($q2) use ($now) {
+                        $q2->where('year', $now->year)
+                            ->where('month', '<=', $now->month);
+                    });
+            })
+            ->get()
+            ->keyBy(fn ($row) => sprintf('%04d-%02d', $row->year, $row->month));
+
+        $result = [];
+
+        for ($i = 11; $i >= 0; $i--) {
+            $date = now()->startOfMonth()->subMonths($i);
+            $key = $date->format('Y-m');
+
+            $row = $rows->get($key);
+
+            $result[] = [
+                'month' => $key,
+                'label' => $date->format('M Y'),
+                'supply_archived_kg' => $row ? (float) $row->supply_archived_kg : 0.0,
+                'supply_fulfilled_kg' => $row ? (float) $row->supply_fulfilled_kg : 0.0,
+                'demand_archived_kg' => $row ? (float) $row->demand_archived_kg : 0.0,
+                'demand_fulfilled_kg' => $row ? (float) $row->demand_fulfilled_kg : 0.0,
+            ];
+        }
+
+        return $result;
     }
 }
