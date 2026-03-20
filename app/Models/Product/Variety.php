@@ -2,6 +2,7 @@
 
 namespace App\Models\Product;
 
+use App\Models\Interaction\VarietyHeart;
 use App\Models\Marketplace\Post;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -19,6 +20,7 @@ class Variety extends Model implements HasMedia
     protected $fillable = [
         'vegetable_id',
         'name',
+        'hearts_count',
     ];
 
     /* ---------- relations ---------- */
@@ -48,6 +50,11 @@ class Variety extends Model implements HasMedia
     public function posts(): HasMany
     {
         return $this->hasMany(Post::class);
+    }
+
+    public function hearts(): HasMany
+    {
+        return $this->hasMany(VarietyHeart::class);
     }
 
     /* ---------- media ---------- */
