@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AddressController;
+use App\Http\Controllers\PostHeartController;
 use App\Http\Controllers\VarietyHeartController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -17,6 +18,7 @@ Route::get('/address/barangays', [AddressController::class, 'barangays'])->name(
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('varieties/{variety}/heart', [VarietyHeartController::class, 'toggle'])->name('varieties.heart.toggle');
+    Route::post('posts/{post}/heart', [PostHeartController::class, 'toggle'])->name('posts.heart.toggle');
 
     Route::get('dashboard', function () {
         $user = Auth::user();
