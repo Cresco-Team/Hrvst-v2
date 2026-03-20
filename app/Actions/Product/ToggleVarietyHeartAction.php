@@ -23,7 +23,7 @@ final class ToggleVarietyHeartAction
 
                 return [
                     'hearted' => false,
-                    'hearts_count' => max(0, $variety->hearts_count - 1),
+                    'hearts_count' => max(0, $variety->hearts_count),
                 ];
             }
 
@@ -36,7 +36,7 @@ final class ToggleVarietyHeartAction
 
             return [
                 'hearted' => true,
-                'hearts_count' => $variety->hearts_count + 1,
+                'hearts_count' => $variety->hearts_count,
             ];
         });
     }
