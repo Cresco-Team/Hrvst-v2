@@ -12,8 +12,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('variety_id')->constrained()->cascadeOnDelete();
 
-            $table->unsignedSmallInteger('year');
-            $table->unsignedTinyInteger('month');
+            $table->date('period_date');
 
             $table->decimal('supply_archived_kg', 10, 2)->default(0);
             $table->decimal('supply_fulfilled_kg', 10, 2)->default(0);
@@ -24,7 +23,7 @@ return new class extends Migration
 
             $table->unique(['variety_id', 'year', 'month']);
 
-            $table->index(['variety_id', 'year', 'month'], 'idx_vms_variety_year_month');
+            $table->index(['variety_id', 'period_date'], 'idx_vms_variety_period');
         });
     }
 
