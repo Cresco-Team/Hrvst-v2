@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import { Deferred, Head } from '@inertiajs/vue3'
 
-import { AlertCircle, Heart, MapPin, Package, TrendingDown, TrendingUp, Minus } from 'lucide-vue-next'
+import { Heart, Wheat, ShoppingCart } from 'lucide-vue-next'
 import { computed } from 'vue'
 
 import Heading from '@/components/Heading.vue'
+import SmallCard from '@/components/shared/cards/SmallCard.vue'
 import VegetableMonthlyChart from '@/components/shared/charts/VegetableMonthlyChart.vue'
 import VegetablePriceChart from '@/components/shared/charts/VegetablePriceChart.vue'
 import { Badge } from '@/components/ui/badge'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import AppLayout from '@/layouts/AppLayout.vue'
 import farmer from '@/routes/farmer'
@@ -27,25 +27,6 @@ const breadcrumbs = computed(() => [
         ? [{ title: props.variety.display_name ?? props.variety.name, href: farmer.vegetables.show(props.variety.id).url }]
         : []),
 ])
-
-const tableRows = computed(() =>
-    props.variety ? [...props.variety.recent_prices].sort(
-        (a, b) => new Date(b.recorded_at).getTime() - new Date(a.recorded_at).getTime()
-    ) : []
-)
-
-const trendConfig = computed(() => {
-    if (!props.variety) return null
-    const lp = props.variety.latest_price
-    const rp = props.variety.recent_prices
-    if (!lp || rp.length < 2) return null
-    const sorted = [...rp].sort((a, b) => new Date(b.recorded_at).getTime() - new Date(a.recorded_at).getTime())
-    const latest = sorted[0].price_max
-    const previous = sorted[1].price_max
-    if (latest > previous) return { icon: TrendingUp, label: 'Trending up', class: 'text-red-500' }
-    if (latest < previous) return { icon: TrendingDown, label: 'Trending down', class: 'text-green-600' }
-    return { icon: Minus, label: 'Stable', class: 'text-muted-foreground' }
-})
 
 const freshnessConfig = {
     recent: { label: 'Recently Updated', class: 'bg-green-500/10 text-green-700 dark:text-green-400 border-green-500/20' },
@@ -93,128 +74,26 @@ const freshnessConfig = {
 
                     <!-- KPI row -->
                     <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                        <!-- Min price -->
-                        <div class="rounded-xl border bg-muted/30 p-4">
-                            <p class="text-xs text-muted-foreground mb-1">Min Price</p>
-                            <p class="font-mono text-xl font-bold text-green-600 dark:text-green-400">
-                                {{ variety.latest_price ? `₱${variety.latest_price.price_min.toFixed(2)}` : '—' }}
-                            </p>
-                        </div>
+                        <SmallCard title="Min Price"
+                            :value="variety.latest_price ? `₱${variety.latest_price.price_min.toFixed(2)}` : '—'"
+                            value-class="text-green-600 dark:text-green-400" subtext="sugested minimum" />
 
-                        <!-- Max price -->
-                        <div class="rounded-xl border bg-muted/30 p-4">
-                            <p class="text-xs text-muted-foreground mb-1">Max Price</p>
-                            <p class="font-mono text-xl font-bold text-indigo-600 dark:text-indigo-400">
-                                {{ variety.latest_price ? `₱${variety.latest_price.price_max.toFixed(2)}` : '—' }}
-                            </p>
-                        </div>
+                        <SmallCard title="Max Price"
+                            :value="variety.latest_price ? `₱${variety.latest_price.price_max.toFixed(2)}` : '—'"
+                            value-class="text-indigo-600 dark:text-indigo-400" subtext="sugested maximum" />
 
-                        <!-- Active supplies -->
-                        <div class="rounded-xl border bg-muted/30 p-4">
-                            <p class="text-xs text-muted-foreground mb-1">Active Supplies</p>
-                            <div class="flex items-baseline gap-2">
-                                <p class="text-xl font-bold tabular-nums">{{ variety.supply_count }}</p>
-                                <Package class="size-4 text-muted-foreground" />
-                            </div>
-                        </div>
+                        <SmallCard title="Active Supplies" :value="variety.supply_count" :icon="Wheat" />
 
-                        <!-- Active demands -->
-                        <div class="rounded-xl border bg-muted/30 p-4">
-                            <p class="text-xs text-muted-foreground mb-1">Active Demands</p>
-                            <div class="flex items-baseline gap-2">
-                                <p class="text-xl font-bold tabular-nums">{{ variety.demand_count }}</p>
-                                <component v-if="trendConfig" :is="trendConfig.icon" class="size-4"
-                                    :class="trendConfig.class" />
-                            </div>
-                        </div>
+                        <SmallCard title="Active Demands" :value="variety.demand_count" :icon="ShoppingCart" />
                     </div>
 
                     <!-- Price trend chart -->
                     <VegetablePriceChart :recent-prices="variety.recent_prices" />
 
-                    <!-- Price history table -->
-                    <Card>
-                        <CardHeader>
-                            <CardTitle class="text-sm font-semibold">
-                                Price Records
-                                <span class="ml-1.5 font-normal text-muted-foreground">(last {{ tableRows.length
-                                }})</span>
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <div v-if="tableRows.length" class="overflow-hidden rounded-lg border">
-                                <table class="w-full text-sm">
-                                    <thead class="bg-muted/50">
-                                        <tr>
-                                            <th class="px-3 py-2 text-left text-xs font-medium text-muted-foreground">
-                                                Date</th>
-                                            <th class="px-3 py-2 text-right text-xs font-medium text-muted-foreground">
-                                                Min (₱/kg)</th>
-                                            <th class="px-3 py-2 text-right text-xs font-medium text-muted-foreground">
-                                                Max (₱/kg)</th>
-                                            <th class="px-3 py-2 text-right text-xs font-medium text-muted-foreground">
-                                                Avg (₱/kg)</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="divide-y">
-                                        <tr v-for="(entry, index) in tableRows" :key="index"
-                                            class="transition-colors hover:bg-muted/30"
-                                            :class="{ 'bg-primary/5': index === 0 }">
-                                            <td class="px-3 py-2 text-xs text-muted-foreground">
-                                                {{ entry.recorded_at }}
-                                                <span v-if="index === 0"
-                                                    class="ml-1.5 rounded bg-primary/10 px-1 py-0.5 text-[10px] font-medium text-primary">latest</span>
-                                            </td>
-                                            <td
-                                                class="px-3 py-2 text-right font-mono text-xs text-green-700 dark:text-green-400">
-                                                {{ entry.price_min.toFixed(2) }}
-                                            </td>
-                                            <td
-                                                class="px-3 py-2 text-right font-mono text-xs text-indigo-700 dark:text-indigo-400">
-                                                {{ entry.price_max.toFixed(2) }}
-                                            </td>
-                                            <td class="px-3 py-2 text-right font-mono text-xs text-foreground">
-                                                {{ ((entry.price_min + entry.price_max) / 2).toFixed(2) }}
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                            <div v-else
-                                class="flex items-center gap-2 rounded-lg border border-dashed p-6 text-sm text-muted-foreground">
-                                <AlertCircle class="size-4 shrink-0" />
-                                No price records found.
-                            </div>
-                        </CardContent>
-                    </Card>
-
                     <!-- Monthly market volume chart (last 12 months, closed posts only) -->
                     <VegetableMonthlyChart :monthly-activity="variety.monthly_activity" />
-
-                    <!-- Supply by municipality -->
-                    <Card v-if="variety.supply_municipalities.length">
-                        <CardHeader>
-                            <CardTitle class="flex items-center gap-2 text-sm font-semibold">
-                                <MapPin class="size-4 text-primary" />
-                                Supply by Municipality
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <div class="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
-                                <div v-for="entry in variety.supply_municipalities" :key="entry.name"
-                                    class="flex items-center justify-between rounded-lg border bg-muted/30 px-4 py-3">
-                                    <span class="truncate text-sm font-medium">{{ entry.name }}</span>
-                                    <Badge variant="secondary" class="ml-2 shrink-0 font-mono text-xs">
-                                        {{ entry.total_kg.toLocaleString() }} kg
-                                    </Badge>
-                                </div>
-                            </div>
-                        </CardContent>
-                    </Card>
-
                 </template>
             </Deferred>
-
         </div>
     </AppLayout>
 </template>
