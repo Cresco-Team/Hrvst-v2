@@ -5,13 +5,7 @@ import { computed, watch } from 'vue'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
+  Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue,
 } from '@/components/ui/select'
 import { store, update } from '@/routes/dealer/demands'
 import type { Post, PostTimeSlot, VarietyOption } from '@/types/marketplace'
@@ -75,26 +69,21 @@ watch(
         form.reset()
       }
       form.clearErrors()
+    } else {
+      form.reset()
+      form.clearErrors()
     }
   },
 )
 
 const handleSubmit = () => {
-  if (props.demand) {
-    form.put(update(props.demand.id).url, {
-      preserveScroll: true,
-      onSuccess: () => {
-        emit('update:open', false)
-      },
-    })
-  } else {
-    form.post(store().url, {
-      preserveScroll: true,
-      onSuccess: () => {
-        emit('update:open', false)
-      },
-    })
-  }
+  const url = props.demand ? update(props.demand.id).url : store().url
+  const method = props.demand ? 'put' : 'post'
+
+  form[method](url, {
+    preserveScroll: true,
+    onSuccess: () => emit('update:open', false),
+  })
 }
 </script>
 
