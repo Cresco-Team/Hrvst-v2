@@ -97,8 +97,11 @@ const isFulfilled = computed(() => post.status === 'Fulfilled')
 
                 <div class="bg-primary/10 p-3 rounded-md">
                     <span class="text-xs tracking-wider block mb-1">TOTAL</span>
-                    <span class="font-body font-semibold text-primary">₱{{ (post.quantity_kg *
-                        post.offered_price).toFixed(2) }}</span>
+                    <span class="font-body font-semibold text-primary">
+                        {{ (post.quantity_kg * post.offered_price).toLocaleString('en-PH', {
+                            style: 'currency',
+                            currency: 'PHP'
+                        }) }}</span>
                 </div>
             </div>
 
