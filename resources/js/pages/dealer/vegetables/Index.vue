@@ -164,6 +164,7 @@ function handlePageChange(page: number) {
     </div>
   </AppLayout>
 
-  <!-- Detail dialog — lives outside AppLayout to avoid stacking context issues -->
-  <VegetableDetailDialog :open="dialogOpen" :variety="selectedVariety" @update:open="dialogOpen = $event" />
+  <VegetableDetailDialog :open="dialogOpen" :variety="selectedVariety"
+    :view-href="selectedVariety ? dealer.vegetables.show(selectedVariety.id).url : undefined"
+    @update:open="dialogOpen = $event" />
 </template>
