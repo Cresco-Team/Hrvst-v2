@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 withDefaults(
 	defineProps<{
 		title?: string
-		value?: number
+		value?: number | string
 		valueClass?: string
 		subtext?: string | null
 		icon?: Component
@@ -28,8 +28,10 @@ withDefaults(
 			<CardDescription class="text-xs line-clamp-1">{{ title }}</CardDescription>
 		</CardContent>
 		<CardHeader class="px-6 flex items-end justify-between">
-			<CardTitle :class="valueClass" class="text-2xl">
-				{{ value }}
+			<CardTitle :class="valueClass" class="text-xl space-x-1">
+				<span class="font-mono">
+					{{ value }}
+				</span>
 				<span class="text-muted-foreground font-light text-xs truncate">
 					{{ subtext }}
 				</span>
