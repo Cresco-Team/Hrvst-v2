@@ -9,13 +9,7 @@ import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
+  Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue,
 } from '@/components/ui/select'
 import type { Post, PostTimeSlot, VarietyOption } from '@/types/marketplace'
 
@@ -50,19 +44,6 @@ const form = useForm({
   time_slot: 'morning' as PostTimeSlot | '',
   image: null as File | null,
 })
-
-watch(
-  () => props.supply,
-  (s) => {
-    form.variety_id = String(s?.variety?.id ?? '')
-    form.quantity_kg = String(s?.quantity_kg ?? '')
-    form.offered_price = String(s?.offered_price ?? '')
-    form.scheduled_date = s?.scheduled_date ?? ''
-    form.time_slot = s?.time_slot ?? 'morning'
-    form.image = null
-  },
-  { immediate: true },
-)
 
 const isEditMode = computed(() => !!props.supply)
 
@@ -104,11 +85,19 @@ function handleSubmit() {
     })
 }
 
-// Reset form when dialog closes
 watch(
   () => props.open,
   (isOpen) => {
-    if (!isOpen) {
+    if (isOpen) {
+      const s = props.supply
+      form.variety_id = String(s?.variety?.id ?? '')
+      form.quantity_kg = String(s?.quantity_kg ?? '')
+      form.offered_price = String(s?.offered_price ?? '')
+      form.scheduled_date = s?.scheduled_date ?? ''
+      form.time_slot = (s?.time_slot ?? 'morning') as PostTimeSlot | ''
+      form.image = null
+      form.clearErrors()
+    } else {
       form.reset()
       form.clearErrors()
     }
