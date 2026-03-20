@@ -8,11 +8,10 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+#[Fillable(['user_id', 'variety_id'])]
 class VarietyHeart extends Model
 {
     public $timestamps = false;
-
-    #[Fillable(['user_id', 'variety_id'])]
 
     /* ---------- relationships ---------- */
 
