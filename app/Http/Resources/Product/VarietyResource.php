@@ -32,9 +32,9 @@ class VarietyResource extends JsonResource
             }),
 
             /* with('latestPrice) */
-            'latest_price' => $this->whenLoaded('latestPrice', function () {
+            'latest_price' => $this->whenLoaded('latestPrice', function () use ($request) {
                 return $this->latestPrice
-                    ? new PriceHistoryResource($this->latestPrice)
+                    ? (new PriceHistoryResource($this->latestPrice))->toArray($request)
                     : null;
             }),
 
@@ -63,10 +63,12 @@ class VarietyResource extends JsonResource
             }),
 
             /* with('recentPrices) */
-            'recent_prices' => $this->whenLoaded('recentPrices', function () {
-                return PriceHistoryResource::collection(
-                    $this->recentPrices->sortBy('recorded_at')->values()
-                );
+            'recent_prices' => $this->whenLoaded('recentPrices', function () use ($request) {
+                return $this->recentPrices
+                    ->sortBy('recorded_at')
+                    ->values()
+                    ->map(fn ($price) => (new PriceHistoryResource($price))->toArray($request))
+                    ->all();
             }),
 
             /* withCount([...]) */
