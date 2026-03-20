@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Dealer;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Product\VarietyResource;
+use App\Models\Product\Variety;
 use App\Services\Product\VarietyService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -31,6 +32,15 @@ class VegetableController extends Controller
                 )
             )),
             'categoryOptions' => Inertia::defer(fn () => $this->varietyService->categoryOptions()),
+        ]);
+    }
+
+    public function show(Variety $variety): Response
+    {
+        return Inertia::render('farmer/vegetables/Show', [
+            'variety' => Inertia::defer(
+                fn () => (new VarietyResource($this->varietyService->show($variety)))->resolve()
+            ),
         ]);
     }
 }
