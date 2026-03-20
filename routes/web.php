@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AddressController;
+use App\Http\Controllers\VarietyHeartController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -15,6 +16,8 @@ Route::get('/', function () {
 Route::get('/address/barangays', [AddressController::class, 'barangays'])->name('address.barangays');
 
 Route::middleware(['auth', 'verified'])->group(function () {
+    Route::post('varieties/{variety}/heart', [VarietyHeartController::class, 'toggle'])->name('varieties.heart.toggle');
+
     Route::get('dashboard', function () {
         $user = Auth::user();
         if ($user->hasRole('admin')) {
