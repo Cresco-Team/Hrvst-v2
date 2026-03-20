@@ -47,6 +47,13 @@ class Variety extends Model implements HasMedia
             ->limit(12);
     }
 
+    public function lastTwoPrices(): HasMany
+    {
+        return $this->hasMany(PriceHistory::class)
+            ->latest('recorded_at')
+            ->limit(2);
+    }
+
     public function posts(): HasMany
     {
         return $this->hasMany(Post::class);
