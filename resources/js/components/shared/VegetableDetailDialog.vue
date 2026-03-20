@@ -95,11 +95,11 @@ const trendConfig = computed(() => {
           <p class="text-xs text-muted-foreground mb-1">Market Price</p>
           <div v-if="variety.latest_price" class="flex items-baseline gap-1">
             <span class="font-mono text-sm font-semibold text-green-600 dark:text-green-400">
-              ₱{{ variety.latest_price.price_min.toFixed(2) }}
+              ₱{{ Number(variety.latest_price.price_min).toFixed(2) }}
             </span>
             <span class="text-xs text-muted-foreground">–</span>
             <span class="font-mono text-sm font-semibold text-indigo-600 dark:text-indigo-400">
-              ₱{{ variety.latest_price.price_max.toFixed(2) }}
+              ₱{{ Number(variety.latest_price.price_max).toFixed(2) }}
             </span>
           </div>
           <p v-else class="text-sm text-muted-foreground">No data</p>
