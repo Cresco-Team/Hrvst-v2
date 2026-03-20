@@ -1,14 +1,8 @@
 <script setup lang="ts">
 import { Link, usePage } from '@inertiajs/vue3'
 import {
-    MapPinned,
-    Menu,
-    Package,
-    PackageSearch,
-    ShoppingBag,
-    Sprout,
-    Store,
-    Truck,
+    MapPinned, Menu, Package, PackageSearch, ShoppingBag, Store,
+    Vegan,
 } from 'lucide-vue-next'
 import { computed } from 'vue'
 import AppLogo from '@/components/AppLogo.vue'
@@ -17,15 +11,10 @@ import Breadcrumbs from '@/components/Breadcrumbs.vue'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuTrigger,
+    DropdownMenu, DropdownMenuContent, DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import {
-    NavigationMenu,
-    NavigationMenuItem,
-    NavigationMenuList,
-    navigationMenuTriggerStyle,
+    NavigationMenu, NavigationMenuItem, NavigationMenuList, navigationMenuTriggerStyle,
 } from '@/components/ui/navigation-menu'
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
@@ -69,7 +58,7 @@ const mainNavItems = computed<NavItem[]>(() => {
             {
                 title: 'Farmers',
                 href: admin.farmers.index(),
-                icon: Sprout,
+                icon: Vegan,
             },
             {
                 title: 'Dealers',
@@ -84,7 +73,7 @@ const mainNavItems = computed<NavItem[]>(() => {
             {
                 title: 'Vegetables',
                 href: dealer.vegetables.index(),
-                icon: Sprout,
+                icon: Vegan,
             },
             {
                 title: 'Supply Distribution',
@@ -109,7 +98,7 @@ const mainNavItems = computed<NavItem[]>(() => {
             {
                 title: 'Vegetables',
                 href: farmer.vegetables.index(),
-                icon: Sprout,
+                icon: Vegan,
             },
             {
                 title: 'Supply Distribution',
@@ -119,7 +108,7 @@ const mainNavItems = computed<NavItem[]>(() => {
             {
                 title: 'Marketplace',
                 href: farmer.marketplace.index(),
-                icon: Truck,
+                icon: Store,
             },
             {
                 title: 'My Supplies',
@@ -223,7 +212,7 @@ const rightNavItems = computed<NavItem[]>(() => {
                                                 <a :href="toUrl(item.href)" target="_blank" rel="noopener noreferrer">
                                                     <span class="sr-only">{{
                                                         item.title
-                                                    }}</span>
+                                                        }}</span>
                                                     <component :is="item.icon"
                                                         class="size-5 opacity-80 group-hover:opacity-100" />
                                                 </a>
