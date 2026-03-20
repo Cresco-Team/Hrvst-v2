@@ -23,7 +23,7 @@ const breadcrumbs = computed(() => [
     { title: 'Dealer', href: dealer.demands.index().url },
     { title: 'Vegetables', href: dealer.vegetables.index().url },
     ...(props.variety
-        ? [{ title: props.variety.display_name ?? props.variety.vegetable.name + " " + props.variety.name, href: dealer.vegetables.show(props.variety.id).url }]
+        ? [{ title: props.variety.vegetable.name + " " + props.variety.name, href: dealer.vegetables.show(props.variety.id).url }]
         : []),
 ])
 

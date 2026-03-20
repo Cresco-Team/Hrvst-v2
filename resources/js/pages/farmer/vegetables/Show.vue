@@ -24,7 +24,7 @@ const breadcrumbs = computed(() => [
     { title: 'Farmer', href: farmer.supplies.index().url },
     { title: 'Vegetables', href: farmer.vegetables.index().url },
     ...(props.variety
-        ? [{ title: props.variety.display_name ?? props.variety.name, href: farmer.vegetables.show(props.variety.id).url }]
+        ? [{ title: props.variety.vegetable.name + " " + props.variety.name, href: farmer.vegetables.show(props.variety.id).url }]
         : []),
 ])
 
@@ -38,7 +38,7 @@ const freshnessConfig = {
 
 <template>
 
-    <Head :title="variety?.display_name ?? 'Vegetable Detail'" />
+    <Head :title="variety?.vegetable.name + ' ' + variety?.name" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex flex-col gap-6 p-4 lg:p-6">
@@ -58,7 +58,7 @@ const freshnessConfig = {
                 <template v-if="variety">
                     <!-- Header -->
                     <div class="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
-                        <Heading :title="variety.display_name ?? variety.name"
+                        <Heading :title="variety.vegetable.name + ' ' + variety.name"
                             :description="variety.vegetable.category.name" />
                         <div class="flex items-center gap-2">
                             <Badge v-if="variety.latest_price" variant="outline"
