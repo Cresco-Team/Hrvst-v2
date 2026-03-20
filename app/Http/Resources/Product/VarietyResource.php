@@ -31,10 +31,6 @@ class VarietyResource extends JsonResource
                 ];
             }),
 
-            /* Full display label */
-            'display_name' => $this->whenLoaded('vegetable', fn () => "{$this->vegetable->name} {$this->name}"
-            ),
-
             /* with('latestPrice) */
             'latest_price' => $this->whenLoaded('latestPrice', function () {
                 return $this->latestPrice
@@ -47,6 +43,24 @@ class VarietyResource extends JsonResource
             ),
             'price_updated_date' => $this->whenLoaded('latestPrice', fn () => $this->latestPrice?->recorded_at->format('M d, Y')
             ),
+
+            /* with('lastTwoPrices) */
+            'price_trend' => $this->whenLoaded('lastTwoPrices', function () {
+                $prices = $this->lastTwoPrices;
+
+                if ($prices->count() < 2) {
+                    return null;
+                }
+
+                $latest = (float) $prices->first()->price_max;
+                $previous = (float) $prices->last()->price_max;
+
+                return match (true) {
+                    $latest > $previous => 'up',
+                    $latest < $previous => 'down',
+                    default => 'flat',
+                };
+            }),
 
             /* with('recentPrices) */
             'recent_prices' => $this->whenLoaded('recentPrices', function () {
