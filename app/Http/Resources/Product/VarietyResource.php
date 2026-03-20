@@ -80,6 +80,11 @@ class VarietyResource extends JsonResource
                 isset($this->resource->supply_municipalities),
                 fn () => $this->supply_municipalities
             ),
+
+            'monthly_activity' => $this->when(
+                isset($this->resource->monthly_activity),
+                fn () => $this->monthly_activity
+            ),
         ];
     }
 }
