@@ -37,7 +37,7 @@ class VegetableController extends Controller
 
     public function show(Variety $variety): Response
     {
-        return Inertia::render('farmer/vegetables/Show', [
+        return Inertia::render('dealer/vegetables/Show', [
             'variety' => Inertia::defer(
                 fn () => (new VarietyResource($this->varietyService->show($variety)))->resolve()
             ),
