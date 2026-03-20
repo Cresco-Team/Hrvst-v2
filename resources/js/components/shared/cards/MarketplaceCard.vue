@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import { AlarmClockCheck, Calendar } from 'lucide-vue-next'
-import { computed } from 'vue'
+import axios from 'axios'
+import { AlarmClockCheck, Calendar, Heart } from 'lucide-vue-next'
+import { ref } from 'vue'
 import { AspectRatio } from '@/components/ui/aspect-ratio'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
+import { cn } from '@/lib/utils'
 import type { Post } from '@/types/marketplace'
 
 interface Props {
@@ -13,6 +15,33 @@ interface Props {
 
 const { post } = defineProps<Props>()
 
+const localHearted = ref(post.is_hearted)
+const localCount = ref(post.hearts_count)
+const isPending = ref(false)
+
+async function toggleHeart(event: MouseEvent): Promise<void> {
+    event.stopPropagation()
+
+    if (isPending.value) return
+
+    const wasHearted = localHearted.value
+    localHearted.value = !wasHearted
+    localCount.value += wasHearted ? -1 : 1
+    isPending.value = true
+
+    try {
+        const { data } = await axios.post<{ hearted: boolean; hearts_count: number }>(
+            `/posts/${post.id}/heart`
+        )
+        localHearted.value = data.hearted
+        localCount.value = data.hearts_count
+    } catch {
+        localHearted.value = wasHearted
+        localCount.value += wasHearted ? 1 : -1
+    } finally {
+        isPending.value = false
+    }
+}
 </script>
 
 <template>
@@ -25,8 +54,8 @@ const { post } = defineProps<Props>()
                 {{ post.offered_price.toLocaleString('en-PH', { style: 'currency', currency: 'PHP' }) }}/kg
             </Badge>
 
-            <div class=" absolute bottom-0 right-0 rounded-tl-lg bg-black/60 px-3 py-1 text-xs font-medium text-white
-                backdrop-blur-sm">
+            <div
+                class="absolute bottom-0 right-0 rounded-tl-lg bg-black/60 px-3 py-1 text-xs font-medium text-white backdrop-blur-sm">
                 {{ post.price_flag }} Price
             </div>
         </AspectRatio>
@@ -53,8 +82,12 @@ const { post } = defineProps<Props>()
 
                 <div class="bg-primary/10 p-3 rounded-md">
                     <span class="text-xs tracking-wider block mb-1">TOTAL</span>
-                    <span class="font-body font-semibold text-primary">{{ (post.quantity_kg *
-                        post.offered_price).toLocaleString('en-PH', { style: 'currency', currency: 'PHP' }) }}</span>
+                    <span class="font-body font-semibold text-primary">
+                        {{ (post.quantity_kg * post.offered_price).toLocaleString('en-PH', {
+                            style: 'currency',
+                            currency: 'PHP'
+                        }) }}
+                    </span>
                 </div>
             </div>
 
@@ -63,10 +96,19 @@ const { post } = defineProps<Props>()
                 <span class="text-xs">{{ post.scheduled_date }}</span>
             </div>
 
-            <!-- Time Slot -->
             <div v-if="post.time_slot" class="flex items-center gap-2">
                 <AlarmClockCheck :size="20" class="text-muted-foreground" />
                 <span class="text-xs">{{ post.time_slot_label }}</span>
+            </div>
+
+            <div class="flex items-center justify-end pt-1">
+                <button
+                    class="flex items-center gap-1.5 text-sm text-muted-foreground cursor-pointer transition-colors hover:text-rose-500 disabled:pointer-events-none disabled:opacity-50"
+                    :disabled="isPending" @click="toggleHeart">
+                    <Heart class="size-4 transition-all"
+                        :class="cn(localHearted ? 'fill-rose-500 text-rose-500 scale-110' : 'fill-none')" />
+                    <span class="tabular-nums">{{ localCount }}</span>
+                </button>
             </div>
         </CardContent>
     </Card>
