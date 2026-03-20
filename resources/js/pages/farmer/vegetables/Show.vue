@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { Deferred, Head } from '@inertiajs/vue3'
 import {
-    BarElement, CategoryScale, Chart as ChartJS, type ChartOptions, Filler, Legend, LinearScale, LineElement, PointElement, Title, Tooltip,
+    CategoryScale, Chart as ChartJS, type ChartOptions, Filler, Legend, LinearScale, LineElement, PointElement, Title, Tooltip,
 } from 'chart.js'
 import { AlertCircle, Heart, MapPin, Package, TrendingDown, TrendingUp, Minus } from 'lucide-vue-next'
 import { computed } from 'vue'
-import { Bar, Line } from 'vue-chartjs'
+import { Line } from 'vue-chartjs'
 import Heading from '@/components/Heading.vue'
+import VegetableMonthlyChart from '@/components/shared/charts/VegetableMonthlyChart.vue'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -15,7 +16,6 @@ import farmer from '@/routes/farmer'
 import type { ShowVariety } from '@/types/shared/vegetables'
 
 ChartJS.register(
-    BarElement,
     CategoryScale,
     LinearScale,
     PointElement,
@@ -96,86 +96,6 @@ const chartOptions: ChartOptions<'line'> = {
         y: {
             grid: { color: 'rgba(0,0,0,0.05)' },
             ticks: { font: { size: 11 }, callback: (value) => `₱${value}` },
-        },
-    },
-}
-
-const monthlyChartData = computed(() => {
-    if (!props.variety?.monthly_activity?.length) return null
-
-    return {
-        labels: props.variety.monthly_activity.map((m) => m.label),
-        datasets: [
-            {
-                label: 'Supply — Archived',
-                data: props.variety.monthly_activity.map((m) => m.supply_archived_kg),
-                backgroundColor: 'rgba(34, 197, 94, 0.5)',
-                borderColor: 'rgb(34, 197, 94)',
-                borderWidth: 1,
-                borderRadius: 4,
-                stack: 'supply',
-            },
-            {
-                label: 'Supply — Fulfilled',
-                data: props.variety.monthly_activity.map((m) => m.supply_fulfilled_kg),
-                backgroundColor: 'rgba(34, 197, 94, 0.9)',
-                borderColor: 'rgb(34, 197, 94)',
-                borderWidth: 1,
-                borderRadius: 4,
-                stack: 'supply',
-            },
-            {
-                label: 'Demand — Archived',
-                data: props.variety.monthly_activity.map((m) => m.demand_archived_kg),
-                backgroundColor: 'rgba(99, 102, 241, 0.5)',
-                borderColor: 'rgb(99, 102, 241)',
-                borderWidth: 1,
-                borderRadius: 4,
-                stack: 'demand',
-            },
-            {
-                label: 'Demand — Fulfilled',
-                data: props.variety.monthly_activity.map((m) => m.demand_fulfilled_kg),
-                backgroundColor: 'rgba(99, 102, 241, 0.9)',
-                borderColor: 'rgb(99, 102, 241)',
-                borderWidth: 1,
-                borderRadius: 4,
-                stack: 'demand',
-            },
-        ],
-    }
-})
-
-const monthlyChartOptions: ChartOptions<'bar'> = {
-    responsive: true,
-    maintainAspectRatio: true,
-    interaction: { mode: 'index', intersect: false },
-    plugins: {
-        legend: {
-            position: 'top',
-            labels: { boxWidth: 12, padding: 16, font: { size: 12 } },
-        },
-        tooltip: {
-            callbacks: {
-                label: (ctx) =>
-                    ` ${ctx.dataset.label}: ${(ctx.raw as number).toLocaleString()} kg`,
-            },
-        },
-    },
-    scales: {
-        x: {
-            stacked: true,
-            grid: { display: false },
-            ticks: { font: { size: 11 }, maxRotation: 45 },
-        },
-        y: {
-            stacked: true,
-            beginAtZero: true,
-            grid: { color: 'rgba(0,0,0,0.05)' },
-            ticks: {
-                font: { size: 11 },
-                callback: (value) => `${value} kg`,
-            },
         },
     },
 }
@@ -355,21 +275,7 @@ const freshnessConfig = {
                     </Card>
 
                     <!-- Monthly market volume chart (last 12 months, closed posts only) -->
-                    <Card>
-                        <CardHeader>
-                            <CardTitle class="text-sm font-semibold">Monthly Market Volume</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <div v-if="monthlyChartData" class="rounded-lg border p-3">
-                                <Bar :data="monthlyChartData" :options="monthlyChartOptions" />
-                            </div>
-                            <div v-else
-                                class="flex items-center gap-2 rounded-lg border border-dashed p-6 text-sm text-muted-foreground">
-                                <AlertCircle class="size-4 shrink-0" />
-                                No completed market activity recorded for this variety.
-                            </div>
-                        </CardContent>
-                    </Card>
+                    <VegetableMonthlyChart :monthly-activity="variety.monthly_activity" />
 
                     <!-- Supply by municipality -->
                     <Card v-if="variety.supply_municipalities.length">
