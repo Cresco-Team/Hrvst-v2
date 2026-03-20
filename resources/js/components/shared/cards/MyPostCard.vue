@@ -9,7 +9,6 @@ import {
     DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import Separator from '@/components/ui/separator/Separator.vue'
-import { useTimeSlot } from '@/composables/useTimeSlot'
 import type { Post } from '@/types/marketplace'
 
 interface Props {
@@ -29,8 +28,6 @@ const isOngoing = computed(() => post.status === 'Ongoing')
 const isArchived = computed(() => post.status === 'Archived')
 const isFulfilled = computed(() => post.status === 'Fulfilled')
 
-const { getConfig } = useTimeSlot()
-const slotConfig = computed(() => getConfig(post.time_slot))
 </script>
 
 <template>
@@ -45,7 +42,7 @@ const slotConfig = computed(() => getConfig(post.time_slot))
             </div>
 
             <Badge class="absolute top-2 left-4 tracking-wider font-mono font-semibold">
-                ₱{{ post.offered_price.toFixed(2) }}/kg
+                {{ post.offered_price.toLocaleString('en-PH', { style: 'currency', currency: 'PHP' }) }}/kg
             </Badge>
 
             <DropdownMenu>

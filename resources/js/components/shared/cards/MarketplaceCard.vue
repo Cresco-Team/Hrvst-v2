@@ -2,9 +2,9 @@
 import { AlarmClockCheck, Calendar } from 'lucide-vue-next'
 import { computed } from 'vue'
 import { AspectRatio } from '@/components/ui/aspect-ratio'
+import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
-import { useTimeSlot } from '@/composables/useTimeSlot'
 import type { Post } from '@/types/marketplace'
 
 interface Props {
@@ -13,8 +13,6 @@ interface Props {
 
 const { post } = defineProps<Props>()
 
-const { getConfig } = useTimeSlot()
-const slotConfig = computed(() => getConfig(post.time_slot))
 </script>
 
 <template>
@@ -22,6 +20,10 @@ const slotConfig = computed(() => getConfig(post.time_slot))
         <AspectRatio :ratio="16 / 9" class="relative overflow-hidden bg-primary/10 flex items-center justify-center">
             <img v-if="post.image_url" :src="post.image_url" :alt="`${post.variety.name} image`">
             <img v-else :src="post.variety.image_url" :alt="`${post.variety.name} image`">
+
+            <Badge class="absolute top-2 left-4 tracking-wider font-mono font-semibold">
+                {{ post.offered_price.toLocaleString('en-PH', { style: 'currency', currency: 'PHP' }) }}/kg
+            </Badge>
 
             <div class=" absolute bottom-0 right-0 rounded-tl-lg bg-black/60 px-3 py-1 text-xs font-medium text-white
                 backdrop-blur-sm">
@@ -51,8 +53,8 @@ const slotConfig = computed(() => getConfig(post.time_slot))
 
                 <div class="bg-primary/10 p-3 rounded-md">
                     <span class="text-xs tracking-wider block mb-1">TOTAL</span>
-                    <span class="font-body font-semibold text-primary">₱{{ (post.quantity_kg *
-                        post.offered_price).toFixed(2) }}</span>
+                    <span class="font-body font-semibold text-primary">{{ (post.quantity_kg *
+                        post.offered_price).toLocaleString('en-PH', { style: 'currency', currency: 'PHP' }) }}</span>
                 </div>
             </div>
 
