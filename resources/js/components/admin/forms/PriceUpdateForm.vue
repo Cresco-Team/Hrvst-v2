@@ -67,11 +67,14 @@ const handleClose = () => {
       </div>
 
       <div class="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end px-6 sm:p-0 pb-6 sm:pb-0">
-        <Button type="button" @click="reset(); clearErrors(); handleClose();" :disabled="processing"
-          variant="outline">Cancel</Button>
-        <Button type="submit" :disabled="processing">
+        <Button type="button" @click="reset(); clearErrors(); handleClose();" :disabled="processing" variant="outline"
+          class="cursor-pointer">
+          Cancel
+        </Button>
+        <Button type="submit" :disabled="processing" class="cursor-pointer">
           <Spinner v-if="processing" />
-          <Plus v-else />Update
+          <Plus v-else />
+          Update
         </Button>
       </div>
     </Form>
