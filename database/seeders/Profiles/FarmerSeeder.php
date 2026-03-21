@@ -17,10 +17,10 @@ class FarmerSeeder extends Seeder
         $user = User::firstOrCreate(
             ['email' => 'farmer@hrvst.com'],
             [
-                'name'              => 'Farmer Jane',
-                'phone_number'      => '09123456789',
+                'name' => 'Farmer Jane',
+                'phone_number' => '09123456789',
                 'email_verified_at' => now(),
-                'password'          => Hash::make('password'),
+                'password' => Hash::make('password'),
             ]
         );
 
@@ -29,15 +29,17 @@ class FarmerSeeder extends Seeder
         FarmerProfile::firstOrCreate(
             ['user_id' => $user->id],
             [
-                'is_approved'     => true,
-                'province_id'     => 1,
+                'is_approved' => true,
+                'province_id' => 1,
                 'municipality_id' => 1,
-                'barangay_id'     => 1,
-                'latitude'        => 16.4023,
-                'longitude'       => 120.5960,
+                'barangay_id' => 1,
+                'latitude' => 16.4023,
+                'longitude' => 120.5960,
             ]
         );
 
         $this->command->info('✓ Farmer seeded: farmer@hrvst.com / password');
+
+        FarmerProfile::factory(10)->create();
     }
 }
