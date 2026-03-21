@@ -67,7 +67,7 @@ async function toggleHeart(event: MouseEvent): Promise<void> {
 </script>
 
 <template>
-  <Card class="py-0 gap-2 cursor-pointer transition-all hover:shadow-lg hover:-translate-y-0.5"
+  <Card class="py-0 gap-2 overflow-hidden cursor-pointer transition-all hover:shadow-lg hover:-translate-y-0.5"
     @click="$emit('select', variety)">
     <!-- Image -->
     <AspectRatio :ratio="16 / 9" class="relative overflow-hidden bg-primary/10 flex items-center justify-center">
