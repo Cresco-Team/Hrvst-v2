@@ -1,133 +1,79 @@
 <script setup lang="ts">
-import { useForm } from '@inertiajs/vue3'
-import { TrendingUp } from 'lucide-vue-next'
-import { computed, ref, watch } from 'vue'
-import DialogForm from '@/components/DialogForm.vue'
-import { Badge } from '@/components/ui/badge'
-import { Input } from '@/components/ui/input'
+import { Form } from '@inertiajs/vue3'
+import { PhilippinePeso, Plus } from 'lucide-vue-next'
+import { store } from '@/actions/App/Http/Controllers/Admin/VarietyPriceController'
+import ResponsiveModal from '@/components/templates/ResponsiveModal.vue'
+import { Button } from '@/components/ui/button'
+import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group'
 import { Label } from '@/components/ui/label'
-import { store } from '@/routes/admin/vegetables/prices'
+import Spinner from '@/components/ui/spinner/Spinner.vue'
 import type { Variety } from '@/types/admin/vegetable-varieties'
 
-interface PriceForm {
-	price_min: number
-	price_max: number
-}
-
 const props = defineProps<{
-	open: boolean
-	variety: Variety
-	isSubmitting: boolean
+  open: boolean
+  variety: Variety
+  isSubmitting: boolean
 }>()
 
 const emit = defineEmits<{
-	'update:open': [value: boolean]
-	submit: [payload: FormData]
+  'update:open': [value: boolean]
+  submit: [payload: FormData]
 }>()
 
-const form = useForm({
-	price_min: 0,
-	price_max: 0,
-})
-
-const errors = ref<Partial<PriceForm>>({})
-
-// Seed fields with the current price when the dialog opens
-watch(
-	() => [props.open, props.variety] as const,
-	(isOpen) => {
-		if (!isOpen) return
-
-		form.price_min = props.variety?.latest_price?.price_min
-		form.price_max = props.variety?.latest_price?.price_max
-
-		form.clearErrors()
-	},
-)
-
-const priceRange = computed(() => {
-	const min = parseFloat(form.price_min)
-	const max = parseFloat(form.price_max)
-	if (isNaN(min) || isNaN(max)) return null
-	return `₱${min.toFixed(2)} – ₱${max.toFixed(2)} (avg: ₱${((min + max) / 2).toFixed(2)})`
-})
-
-function handleSubmit() {
-	form.post(store(props.variety.id).url, {
-		preserveScroll: true,
-		onSuccess: () => {
-			emit('update:open', false)
-		},
-	})
+const handleClose = () => {
+  emit('update:open', false)
 }
+
 </script>
 
 <template>
-  <DialogForm
-    :open="open"
-    title="Update Price"
-    :description="`Record today's market price for ${variety?.vegetable.name} ${variety?.name}.`"
-    submit-label="Save Price"
-    :is-submitting="isSubmitting"
-    max-width="sm"
-    @update:open="$emit('update:open', $event)"
-    @submit="handleSubmit"
-  >
-    <template #icon>
-      <TrendingUp class="size-5 text-primary" />
-    </template>
+  <ResponsiveModal :open="open" title="Update Price"
+    :description="`Suggested pricing for ${variety?.vegetable.name} ${variety?.name}.`">
 
-    <div class="flex flex-col gap-5">
-      <div class="grid grid-cols-2 gap-3">
-        <!-- Min -->
-        <div class="flex flex-col gap-2">
-          <Label for="ph_price_min" class="flex items-center gap-1.5">
-            Minimum (₱)
-            <Badge variant="secondary" class="text-xs font-normal">Required</Badge>
-          </Label>
-          <Input
-            id="ph_price_min"
-            v-model="form.price_min"
-            type="number"
-            step="0.01"
-            min="0"
-            max="9999.99"
-            placeholder="0.00"
-            :class="{ 'border-destructive': errors.price_min }"
-          />
-          <p v-if="errors.price_min" class="text-xs text-destructive">
-            {{ errors.price_min }}
-          </p>
+    <Form :action="store(props.variety.id)" method="post" :data="{ price_min: 0, price_max: 0 }"
+      #default="{ reset, clearErrors, errors, processing }" :options="{ preserveScroll: true, preserveState: true }"
+      @success="handleClose" reset-on-success class="space-y-4">
+
+      <div class="grid grid-cols-2 gap-5">
+        <div class="space-y-2">
+          <Label for="ph_price_min">Minimum Price</Label>
+          <InputGroup>
+            <InputGroupAddon>
+              <PhilippinePeso />
+            </InputGroupAddon>
+
+            <InputGroupInput id="ph_price_min" name="price_min" type="text"
+              :default-value="variety.latest_price?.price_min" :disabled="processing" class="font-mono font-semibold">
+            </InputGroupInput>
+          </InputGroup>
+
+          <div v-if="errors.price_min" class="text-xs text-red-500">{{ errors.price_min }}</div>
         </div>
 
-        <!-- Max -->
-        <div class="flex flex-col gap-2">
-          <Label for="ph_price_max" class="flex items-center gap-1.5">
-            Maximum (₱)
-            <Badge variant="secondary" class="text-xs font-normal">Required</Badge>
-          </Label>
-          <Input
-            id="ph_price_max"
-            v-model="form.price_max"
-            type="number"
-            step="0.01"
-            min="0"
-            max="9999.99"
-            placeholder="0.00"
-            :class="{ 'border-destructive': errors.price_max }"
-          />
-          <p v-if="errors.price_max" class="text-xs text-destructive">
-            {{ errors.price_max }}
-          </p>
+        <div class="space-y-2">
+          <Label for="ph_price_max">Maximum Price</Label>
+          <InputGroup>
+            <InputGroupAddon>
+              <PhilippinePeso />
+            </InputGroupAddon>
+
+            <InputGroupInput id="ph_price_max" name="price_max" type="text"
+              :default-value="variety.latest_price?.price_max" :disabled="processing" class="font-mono font-semibold">
+            </InputGroupInput>
+          </InputGroup>
+
+          <div v-if="errors.price_max" class="text-xs text-red-500">{{ errors.price_max }}</div>
         </div>
       </div>
 
-      <div v-if="priceRange" class="flex items-center gap-2">
-        <Badge variant="secondary" class="font-mono text-xs">{{ priceRange }}</Badge>
+      <div class="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end px-6 sm:p-0 pb-6 sm:pb-0">
+        <Button type="button" @click="reset(); clearErrors(); handleClose();" :disabled="processing"
+          variant="outline">Cancel</Button>
+        <Button type="submit" :disabled="processing">
+          <Spinner v-if="processing" />
+          <Plus v-else />Update
+        </Button>
       </div>
-      <p v-else class="text-xs text-muted-foreground">
-        Enter today's market price range per kilogram.
-      </p>
-    </div>
-  </DialogForm>
+    </Form>
+  </ResponsiveModal>
 </template>
