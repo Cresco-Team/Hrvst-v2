@@ -23,6 +23,8 @@ class Variety extends Model implements HasMedia
         'hearts_count',
     ];
 
+    protected $with = ['vegetable.category'];
+
     /* ---------- relations ---------- */
 
     public function vegetable(): BelongsTo
