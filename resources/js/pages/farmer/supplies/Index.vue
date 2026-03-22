@@ -18,9 +18,14 @@ import type {
   BreadcrumbItem,
   FarmerSuppliesProps,
   FarmerSupplyResource,
-  SupplyVarietyOption,
+  DealerDemandResource,
   VarietyOptionsByCategory,
+  SupplyVarietyOption,
 } from '@/types'
+
+// Union emitted by MyPostCard — handlers must accept both sides of the union.
+// This page only ever passes FarmerSupplyResource instances so the cast is safe.
+type PostItem = FarmerSupplyResource | DealerDemandResource
 
 const props = defineProps<FarmerSuppliesProps>()
 
@@ -52,23 +57,23 @@ function openCreate() {
   formOpen.value = true
 }
 
-function openEdit(supply: FarmerSupplyResource) {
-  activeSupply.value = supply
+function openEdit(post: PostItem) {
+  activeSupply.value = post as FarmerSupplyResource
   formOpen.value = true
 }
 
-function openArchive(supply: FarmerSupplyResource) {
-  supplyToArchive.value = supply
+function openArchive(post: PostItem) {
+  supplyToArchive.value = post as FarmerSupplyResource
   archiveDialogOpen.value = true
 }
 
-function openFulfill(supply: FarmerSupplyResource) {
-  supplyToFulfill.value = supply
+function openFulfill(post: PostItem) {
+  supplyToFulfill.value = post as FarmerSupplyResource
   fulfillDialogOpen.value = true
 }
 
-function openDelete(supply: FarmerSupplyResource) {
-  supplyToDelete.value = supply
+function openDelete(post: PostItem) {
+  supplyToDelete.value = post as FarmerSupplyResource
   deleteDialogOpen.value = true
 }
 
@@ -206,7 +211,7 @@ const breadcrumbs: BreadcrumbItem[] = [
   </AppLayout>
 
   <SupplyForm :open="formOpen" :supply="activeSupply"
-    :variety-options="(varietyOptions as VarietyOptionsByCategory<SupplyVarietyOption>)"
+    :variety-options="(varietyOptions as VarietyOptionsByCategory<SupplyVarietyOption> | undefined)"
     @update:open="formOpen = $event" />
 
   <ConfirmationDialog v-model:open="archiveDialogOpen" title="Archive Post"

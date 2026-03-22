@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Deferred, Head, router } from '@inertiajs/vue3'
 import { Search } from 'lucide-vue-next'
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 import EmptyState from '@/components/EmptyState.vue'
 import Heading from '@/components/Heading.vue'
 import MarketplaceCard from '@/components/shared/cards/MarketplaceCard.vue'
@@ -17,31 +17,23 @@ import {
 import { Skeleton } from '@/components/ui/skeleton'
 import AppLayout from '@/layouts/AppLayout.vue'
 import dealer from '@/routes/dealer'
-import type { MarketplaceFilters } from '@/types/dealer/marketplace'
-import type { CategoryOption, Post } from '@/types/marketplace'
-import type { PaginatedResponse } from '@/types/pagination'
+import type { BreadcrumbItem, DealerMarketplaceProps } from '@/types'
 
-interface Props {
-  filters: MarketplaceFilters
-  supplies?: PaginatedResponse<Post>
-  categoryOptions?: CategoryOption[]
-}
+const props = defineProps<DealerMarketplaceProps>()
 
-const props = defineProps<Props>()
-
-const searchQuery = ref(props.filters.search || '')
-const searchDebounce = ref<ReturnType<typeof setTimeout> | null>(null)
-
-const isLoadingFilters = computed(() => !props.categoryOptions)
+const searchQuery = ref(props.filters.search ?? '')
+let searchDebounce: ReturnType<typeof setTimeout> | null = null
 
 function handleSearch() {
-  if (searchDebounce.value) clearTimeout(searchDebounce.value)
+  if (searchDebounce) clearTimeout(searchDebounce)
 
-  searchDebounce.value = setTimeout(() => {
+  searchDebounce = setTimeout(() => {
     router.visit(dealer.marketplace.index().url, {
       data: {
         search: searchQuery.value || undefined,
         category_id: props.filters.category_id || undefined,
+        variety_id: props.filters.variety_id || undefined,
+        municipality_id: props.filters.municipality_id || undefined,
       },
       preserveState: true,
       preserveScroll: true,
@@ -50,24 +42,17 @@ function handleSearch() {
   }, 300)
 }
 
-function handleFilter(type: 'category' | 'municipality', value: string) {
-  const filters: Record<string, string | undefined> = {
-    search: searchQuery.value || undefined,
-    category_id: undefined,
-    municipality_id: undefined,
-  }
-
-  if (type === 'category') {
-    filters.category_id = value === 'all' ? undefined : value
-  } else {
-    filters.category_id = props.filters.category_id?.toString()
-  }
-
+function handleCategoryFilter(value: string) {
   router.visit(dealer.marketplace.index().url, {
-    data: filters,
+    data: {
+      search: props.filters.search || undefined,
+      category_id: value === 'all' ? undefined : value,
+      variety_id: undefined,          // reset when category changes
+      municipality_id: props.filters.municipality_id || undefined,
+    },
     preserveState: true,
     preserveScroll: true,
-    only: ['supplies'],
+    only: ['supplies', 'filters'],
   })
 }
 
@@ -75,73 +60,77 @@ function handlePageChange(page: number) {
   router.visit(dealer.marketplace.index().url, {
     data: {
       page,
-      search: searchQuery.value || undefined,
+      search: props.filters.search || undefined,
       category_id: props.filters.category_id || undefined,
+      variety_id: props.filters.variety_id || undefined,
+      municipality_id: props.filters.municipality_id || undefined,
     },
     preserveScroll: true,
   })
 }
 
-const breadcrumbs = [
-  { title: 'Dealer', href: dealer.marketplace.index().url },
-  { title: 'Marketplace', href: dealer.marketplace.index().url },
+const breadcrumbs: BreadcrumbItem[] = [
+  { title: 'Dealer', href: dealer.demands.index().url },
+  { title: 'Farmer Posts', href: dealer.marketplace.index().url },
 ]
 </script>
 
 <template>
 
-  <Head title="Marketplace" />
+  <Head title="Farmer Posts" />
 
   <AppLayout :breadcrumbs="breadcrumbs">
     <div class="flex h-full flex-col gap-6 p-4 lg:p-6">
-      <!-- Header -->
-      <Heading title="Marketplace"
-        description="Access real-time supplies to find the best produce at the right price." />
+
+      <Heading title="Farmer Posts" description="Browse active supply offerings from farmers and find what you need." />
 
       <!-- Filters -->
-      <div class="flex flex-wrap gap-3">
-        <InputGroup class="w-full sm:max-w-xs">
-          <InputGroupAddon>
-            <Search />
-          </InputGroupAddon>
-          <InputGroupInput v-model="searchQuery" type="search" @input="handleSearch"
-            placeholder="Search vegetables (e.g., Cabbage, Lettuce)..." />
-          <InputGroupAddon align="inline-end">
-            {{ supplies?.meta.total }} results
-          </InputGroupAddon>
-        </InputGroup>
+      <Deferred data="categoryOptions">
+        <template #fallback>
+          <Skeleton class="h-9 w-80" />
+        </template>
 
-        <Select :model-value="filters.category_id?.toString() || 'all'" :disabled="isLoadingFilters"
-          @update:model-value="(v) => handleFilter('category', v as string)">
-          <SelectTrigger class="w-full md:w-48">
-            <SelectValue placeholder="All Categories" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Categories</SelectItem>
-            <SelectItem v-for="category in categoryOptions" :key="category.id" :value="category.id.toString()">
-              {{ category.name }}
-            </SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
+        <div class="flex flex-wrap gap-3">
+          <InputGroup class="w-full sm:max-w-xs">
+            <InputGroupAddon>
+              <Search class="size-4 text-muted-foreground" />
+            </InputGroupAddon>
+            <InputGroupInput v-model="searchQuery" type="search"
+              placeholder="Search vegetables (e.g., Cabbage, Lettuce)..." @input="handleSearch" />
+          </InputGroup>
 
-      <!-- Results count -->
+          <Select :model-value="filters.category_id?.toString() ?? 'all'"
+            @update:model-value="(v) => handleCategoryFilter(v as string)">
+            <SelectTrigger class="w-full sm:w-48">
+              <SelectValue placeholder="All Categories" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Categories</SelectItem>
+              <SelectItem v-for="category in categoryOptions" :key="category.id" :value="category.id.toString()">
+                {{ category.name }}
+              </SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </Deferred>
+
+      <!-- Supplies grid -->
       <Deferred data="supplies">
         <template #fallback>
           <p class="text-sm text-muted-foreground">Loading...</p>
-
-          <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            <Skeleton v-for="i in 8" :key="i" class="h-96 rounded-lg" />
+          <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <Skeleton v-for="i in 6" :key="i" class="h-80 rounded-lg" />
           </div>
         </template>
 
-        <p class="text-sm text-muted-foreground">Showing {{ supplies?.data.length }} of {{ supplies?.meta.total }}
-          supplies</p>
+        <p class="text-sm text-muted-foreground">
+          Showing {{ supplies?.data.length }} of {{ supplies?.meta.total }} posts
+        </p>
 
-        <EmptyState v-if="supplies?.data.length === 0" title="No Offerings Found"
-          description="Try adjusting your search filters" :icon="Search" />
+        <EmptyState v-if="supplies?.data.length === 0" title="No Posts Found"
+          description="Try adjusting your filters or check back later." />
 
-        <div v-else class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div v-else class="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
           <MarketplaceCard v-for="supply in supplies?.data" :key="supply.id" :post="supply" />
         </div>
       </Deferred>
