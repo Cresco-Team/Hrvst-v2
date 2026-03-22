@@ -3,7 +3,7 @@
 use App\Http\Controllers\Farmer\MarketplaceController;
 use App\Http\Controllers\Farmer\SupplyController;
 use App\Http\Controllers\Farmer\SupplyMapController;
-use App\Http\Controllers\Farmer\VegetableController;
+use App\Http\Controllers\Marketplace\VegetableController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'verified', 'farmer'])->prefix('farmer')->name('farmer.')->group(function () {
