@@ -12,27 +12,27 @@ import { Item, ItemContent, ItemDescription, ItemMedia, ItemTitle } from '@/comp
 import { Separator } from '@/components/ui/separator'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useInitials } from '@/composables/useInitials'
-import type { Detail } from '@/types/admin/farmers'
+import type { FarmerResource } from '@/types'
 
 const props = defineProps<{
-	open: boolean
-	farmer: Detail | null
-	loading: boolean
+    open: boolean
+    farmer: FarmerResource | null
+    loading: boolean
 }>()
 
 defineEmits<{
-	close: []
+    close: []
 }>()
 
 const isDeleteDialogOpen = ref(false)
 
 const openDeleteDialog = () => {
-	isDeleteDialogOpen.value = true
+    isDeleteDialogOpen.value = true
 }
 
 const handleDelete = () => {
-	if (!props.farmer) return
-	router.delete(destroy(props.farmer.id).url)
+    if (!props.farmer) return
+    router.delete(destroy(props.farmer.id).url)
 }
 
 const { getInitials } = useInitials()
@@ -70,22 +70,18 @@ const { getInitials } = useInitials()
 
         <!-- Farmer Details -->
         <div v-else-if="farmer" class="space-y-6">
-            <!-- User Info -->
             <Item variant="outline">
                 <ItemMedia>
                     <Avatar class="size-16">
-                        <AvatarImage
-                            v-if="farmer.user.avatar_url"
-                            :src="farmer.user.avatar_url"
-                            :alt="farmer.user.name"
-                        />
+                        <AvatarImage v-if="farmer.user?.avatar_url" :src="farmer.user.avatar_url"
+                            :alt="farmer.user.name" />
                         <AvatarFallback class="bg-primary/10 text-lg font-semibold text-primary">
-                            {{ getInitials(farmer.user.name) }}
+                            {{ getInitials(farmer.user?.name) }}
                         </AvatarFallback>
                     </Avatar>
                 </ItemMedia>
                 <ItemContent>
-                    <ItemTitle class="text-base font-semibold truncate">{{ farmer.user.name }}</ItemTitle>
+                    <ItemTitle class="text-base font-semibold truncate">{{ farmer.user?.name }}</ItemTitle>
                     <ItemDescription class="flex items-center gap-3">
                         <Calendar1 class="size-4" />
                         Joined {{ farmer.joined_at_human }}
@@ -93,34 +89,32 @@ const { getInitials } = useInitials()
                 </ItemContent>
             </Item>
 
-            <!-- Contact & Location -->
             <div class="space-y-2">
                 <div class="flex justify-between text-sm">
                     <div class="flex items-center gap-1.5">
                         <Mail class="size-3.5 text-primary" />
                         <span>Email</span>
                     </div>
-                    <p class="text-muted-foreground">{{ farmer.user.email }}</p>
+                    <p class="text-muted-foreground">{{ farmer.user?.email }}</p>
                 </div>
                 <div class="flex justify-between text-sm">
                     <div class="flex items-center gap-1.5">
                         <MapPinHouse class="size-3.5 text-primary" />
                         <span>Address</span>
                     </div>
-                    <p class="text-muted-foreground">{{ farmer.location.full_address }}</p>
+                    <p class="text-muted-foreground">{{ farmer.location?.full_address }}</p>
                 </div>
                 <div class="flex justify-between text-sm">
                     <div class="flex items-center gap-1.5">
                         <Phone class="size-3.5 text-primary" />
                         <span>Phone Number</span>
                     </div>
-                    <p class="text-muted-foreground">{{ farmer.user.phone_number }}</p>
+                    <p class="text-muted-foreground">{{ farmer.user?.phone_number }}</p>
                 </div>
             </div>
 
             <Separator />
 
-            <!-- Ongoing Supplies -->
             <Item>
                 <ItemMedia variant="icon" class="bg-primary/10 text-primary">
                     <Wheat />
@@ -128,15 +122,11 @@ const { getInitials } = useInitials()
                 <ItemContent>
                     <ItemTitle class="flex justify-between w-full">
                         <p>Ongoing Supplies</p>
-                        <Badge>{{ farmer.supplies.length }}</Badge>
+                        <Badge>{{ farmer.supplies?.length ?? 0 }}</Badge>
                     </ItemTitle>
                     <ItemDescription class="space-x-2 truncate">
-                        <Badge
-                            v-for="supply in farmer.supplies"
-                            :key="supply.id"
-                            class="bg-amber-300"
-                        >
-                            {{ supply.variety.name }}
+                        <Badge v-for="supply in farmer.supplies" :key="supply.id" class="bg-amber-300">
+                            {{ supply.variety?.name }}
                         </Badge>
                     </ItemDescription>
                 </ItemContent>
@@ -148,11 +138,11 @@ const { getInitials } = useInitials()
                 <Skeleton />
             </template>
             <div v-else-if="farmer" class="flex justify-end gap-3">
-                <Button @click="router.visit(show(farmer.id).url)" class="cursor-pointer">
+                <Button class="cursor-pointer" @click="router.visit(show(farmer.id).url)">
                     <Info />
                     More Details
                 </Button>
-                <Button @click="openDeleteDialog" variant="destructive" class="cursor-pointer">
+                <Button variant="destructive" class="cursor-pointer" @click="openDeleteDialog">
                     <Trash />
                     Delete
                 </Button>
@@ -160,11 +150,7 @@ const { getInitials } = useInitials()
         </template>
     </DetailSheet>
 
-    <ConfirmationDialog
-        v-model:open="isDeleteDialogOpen"
-        title="Delete Farmer"
-        :description="`Are you sure you want to delete ${farmer?.user.name}?`"
-        @action="handleDelete"
-        variant="destructive"
-    />
+    <ConfirmationDialog v-model:open="isDeleteDialogOpen" title="Delete Farmer"
+        :description="`Are you sure you want to delete ${farmer?.user?.name}?`" @action="handleDelete"
+        variant="destructive" />
 </template>

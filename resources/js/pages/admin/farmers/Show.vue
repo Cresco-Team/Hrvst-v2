@@ -9,80 +9,64 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import {
-	Item,
-	ItemContent,
-	ItemDescription,
-	ItemGroup,
-	ItemMedia,
-	ItemTitle,
+    Item, ItemContent, ItemDescription, ItemGroup, ItemMedia, ItemTitle,
 } from '@/components/ui/item'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { getInitials } from '@/composables/useInitials'
 import AppLayout from '@/layouts/AppLayout.vue'
 import admin from '@/routes/admin'
-import type { FarmerSupply, ShowFarmer } from '@/types/admin/farmers'
+import type { BreadcrumbItem, FarmerResource, FarmerSupplyResource, PostPriceFlag } from '@/types'
 
-interface Props {
-	farmer: ShowFarmer | null
-}
+const props = defineProps<{
+    farmer?: FarmerResource
+}>()
 
-const props = defineProps<Props>()
-
-/* ---------- Supply groups ---------- */
-const ongoingSupplies = computed<FarmerSupply[]>(
-	() => props.farmer?.supplies.filter((s) => s.status === 'Ongoing') ?? [],
+const ongoingSupplies = computed<FarmerSupplyResource[]>(
+    () => props.farmer?.supplies?.filter((s) => s.status === 'Ongoing') ?? [],
 )
-const archivedSupplies = computed<FarmerSupply[]>(
-	() => props.farmer?.supplies.filter((s) => s.status === 'Archived') ?? [],
+const archivedSupplies = computed<FarmerSupplyResource[]>(
+    () => props.farmer?.supplies?.filter((s) => s.status === 'Archived') ?? [],
 )
-const fulfilledSupplies = computed<FarmerSupply[]>(
-	() => props.farmer?.supplies.filter((s) => s.status === 'Fulfilled') ?? [],
+const fulfilledSupplies = computed<FarmerSupplyResource[]>(
+    () => props.farmer?.supplies?.filter((s) => s.status === 'Fulfilled') ?? [],
 )
 
-/* ---------- Stats ---------- */
-const totalSupplies = computed(() => props.farmer?.supplies.length ?? 0)
+const totalSupplies = computed(() => props.farmer?.supplies?.length ?? 0)
 const totalQuantity = computed(
-	() => props.farmer?.supplies.reduce((sum, s) => sum + s.quantity_kg, 0) ?? 0,
+    () => props.farmer?.supplies?.reduce((sum, s) => sum + s.quantity_kg, 0) ?? 0,
 )
 const totalOngoing = computed(() => ongoingSupplies.value.length)
 const totalOngoingQuantity = computed(() =>
-	ongoingSupplies.value.reduce((sum, s) => sum + s.quantity_kg, 0),
+    ongoingSupplies.value.reduce((sum, s) => sum + s.quantity_kg, 0),
 )
 
-/* ---------- Breadcrumbs — stable fallback until farmer loads ---------- */
-const breadcrumbs = computed(() => [
-	{ title: 'Admin', href: admin.dashboard().url },
-	{ title: 'Farmers', href: admin.farmers.index().url },
-	...(props.farmer
-		? [
-				{
-					title: props.farmer.user.name,
-					href: admin.farmers.show(props.farmer.id).url,
-				},
-			]
-		: []),
+const breadcrumbs = computed<BreadcrumbItem[]>(() => [
+    { title: 'Admin', href: admin.dashboard().url },
+    { title: 'Farmers', href: admin.farmers.index().url },
+    ...(props.farmer
+        ? [{
+            title: props.farmer.user?.name ?? 'Farmer',
+            href: admin.farmers.show(props.farmer.id).url,
+        }]
+        : []),
 ])
 
-function priceFlagVariant(flag: 'Low' | 'Fair' | 'High') {
-	if (flag === 'Low') return 'secondary'
-	if (flag === 'High') return 'destructive'
-	return 'outline'
+function priceFlagVariant(flag: PostPriceFlag | undefined) {
+    if (flag === 'Low') return 'secondary'
+    if (flag === 'High') return 'destructive'
+    return 'outline'
 }
 </script>
 
 <template>
-    <!-- Title updates reactively once farmer loads -->
-    <Head :title="farmer?.user.name ?? 'Farmer'" />
+
+    <Head :title="farmer?.user?.name ?? 'Farmer'" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex flex-col gap-6 p-4 lg:p-6">
 
-            <!-- Heading: stable label before load, real name after -->
-            <Heading
-                :title="farmer?.user.name ?? 'Farmer'"
-                description="Farmer profile and supply history"
-            />
+            <Heading :title="farmer?.user?.name ?? 'Farmer'" description="Farmer profile and supply history" />
 
             <Deferred data="farmer">
                 <template #fallback>
@@ -120,30 +104,28 @@ function priceFlagVariant(flag: 'Low' | 'Fair' | 'High') {
                         <Card class="p-5 space-y-5">
                             <div class="flex flex-col items-start gap-3">
                                 <Avatar class="size-16">
-                                    <AvatarImage
-                                        v-if="farmer.user.avatar_url"
-                                        :src="farmer.user.avatar_url"
-                                        :alt="farmer.user.name"
-                                    />
+                                    <AvatarImage v-if="farmer.user?.avatar_url" :src="farmer.user.avatar_url"
+                                        :alt="farmer.user.name" />
                                     <AvatarFallback class="bg-primary/10 text-base font-semibold text-primary">
-                                        {{ getInitials(farmer.user.name) }}
+                                        {{ getInitials(farmer.user?.name) }}
                                     </AvatarFallback>
                                 </Avatar>
 
                                 <div>
-                                    <p class="text-sm font-semibold leading-snug">{{ farmer.user.name }}</p>
-                                    <p class="text-xs text-muted-foreground mt-0.5">{{ farmer.location.full_address }}</p>
+                                    <p class="text-sm font-semibold leading-snug">{{ farmer.user?.name }}</p>
+                                    <p class="text-xs text-muted-foreground mt-0.5">{{ farmer.location?.full_address }}
+                                    </p>
                                 </div>
                             </div>
 
                             <div class="space-y-2.5 text-sm text-muted-foreground">
                                 <div class="flex items-center gap-2">
                                     <Mail class="size-4 shrink-0" />
-                                    <span class="truncate">{{ farmer.user.email }}</span>
+                                    <span class="truncate">{{ farmer.user?.email }}</span>
                                 </div>
                                 <div class="flex items-center gap-2">
                                     <Phone class="size-4 shrink-0" />
-                                    <span>{{ farmer.user.phone_number }}</span>
+                                    <span>{{ farmer.user?.phone_number }}</span>
                                 </div>
                                 <div class="flex items-center gap-2">
                                     <CalendarDays class="size-4 shrink-0" />
@@ -162,15 +144,12 @@ function priceFlagVariant(flag: 'Low' | 'Fair' | 'High') {
                                 <MapPin class="size-4 text-primary" />
                                 <p class="text-sm font-medium">Location</p>
                             </CardContent>
-                            <LeafletMap
-                                :lat="farmer.location.coordinates.lat"
-                                :lng="farmer.location.coordinates.lng"
-                                :markers="[{
+                            <LeafletMap v-if="farmer.location" :lat="farmer.location.coordinates.lat"
+                                :lng="farmer.location.coordinates.lng" :markers="[{
                                     lat: farmer.location.coordinates.lat,
                                     lng: farmer.location.coordinates.lng,
-                                    popup: farmer.location.full_address
-                                }]"
-                            />
+                                    popup: farmer.location.full_address,
+                                }]" />
                         </Card>
 
                         <!-- Stats -->
@@ -209,21 +188,27 @@ function priceFlagVariant(flag: 'Low' | 'Fair' | 'High') {
                                         </TabsTrigger>
                                     </TabsList>
 
-                                    <!-- Ongoing -->
                                     <TabsContent value="ongoing">
-                                        <div v-if="ongoingSupplies.length === 0" class="flex items-center justify-center h-24 text-sm text-muted-foreground">
+                                        <div v-if="ongoingSupplies.length === 0"
+                                            class="flex items-center justify-center h-24 text-sm text-muted-foreground">
                                             No ongoing supplies
                                         </div>
                                         <ItemGroup v-else class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                             <Item v-for="supply in ongoingSupplies" :key="supply.id" variant="outline">
                                                 <ItemMedia variant="image">
-                                                    <img :src="supply.image_url || supply.variety.image_url" :alt="supply.variety.name" />
+                                                    <img :src="supply.image_url || supply.variety?.image_url"
+                                                        :alt="supply.variety?.name" />
                                                 </ItemMedia>
                                                 <ItemContent class="min-w-0">
-                                                    <ItemTitle class="line-clamp-1 text-sm">{{ supply.variety.name }} — {{ supply.variety.category }}</ItemTitle>
+                                                    <ItemTitle class="line-clamp-1 text-sm">
+                                                        {{ supply.variety?.name }} — {{ supply.variety?.category }}
+                                                    </ItemTitle>
                                                     <ItemDescription class="flex items-center gap-1.5 mt-0.5">
-                                                        <span class="text-sm font-medium text-foreground">₱{{ supply.offered_price.toFixed(2) }}</span>
-                                                        <Badge :variant="priceFlagVariant(supply.price_flag)" class="text-xs px-1.5 py-0">
+                                                        <span class="text-sm font-medium text-foreground">
+                                                            ₱{{ supply.offered_price.toFixed(2) }}
+                                                        </span>
+                                                        <Badge :variant="priceFlagVariant(supply.price_flag)"
+                                                            class="text-xs px-1.5 py-0">
                                                             {{ supply.price_flag }}
                                                         </Badge>
                                                     </ItemDescription>
@@ -232,21 +217,27 @@ function priceFlagVariant(flag: 'Low' | 'Fair' | 'High') {
                                         </ItemGroup>
                                     </TabsContent>
 
-                                    <!-- Archived -->
                                     <TabsContent value="archived">
-                                        <div v-if="archivedSupplies.length === 0" class="flex items-center justify-center h-24 text-sm text-muted-foreground">
+                                        <div v-if="archivedSupplies.length === 0"
+                                            class="flex items-center justify-center h-24 text-sm text-muted-foreground">
                                             No archived supplies
                                         </div>
                                         <ItemGroup v-else class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                             <Item v-for="supply in archivedSupplies" :key="supply.id" variant="outline">
                                                 <ItemMedia variant="image">
-                                                    <img :src="supply.image_url || supply.variety.image_url" :alt="supply.variety.name" />
+                                                    <img :src="supply.image_url || supply.variety?.image_url"
+                                                        :alt="supply.variety?.name" />
                                                 </ItemMedia>
                                                 <ItemContent class="min-w-0">
-                                                    <ItemTitle class="line-clamp-1 text-sm">{{ supply.variety.name }} — {{ supply.variety.category }}</ItemTitle>
+                                                    <ItemTitle class="line-clamp-1 text-sm">
+                                                        {{ supply.variety?.name }} — {{ supply.variety?.category }}
+                                                    </ItemTitle>
                                                     <ItemDescription class="flex items-center gap-1.5 mt-0.5">
-                                                        <span class="text-sm font-medium text-foreground">₱{{ supply.offered_price.toFixed(2) }}</span>
-                                                        <Badge :variant="priceFlagVariant(supply.price_flag)" class="text-xs px-1.5 py-0">
+                                                        <span class="text-sm font-medium text-foreground">
+                                                            ₱{{ supply.offered_price.toFixed(2) }}
+                                                        </span>
+                                                        <Badge :variant="priceFlagVariant(supply.price_flag)"
+                                                            class="text-xs px-1.5 py-0">
                                                             {{ supply.price_flag }}
                                                         </Badge>
                                                     </ItemDescription>
@@ -255,21 +246,28 @@ function priceFlagVariant(flag: 'Low' | 'Fair' | 'High') {
                                         </ItemGroup>
                                     </TabsContent>
 
-                                    <!-- Fulfilled -->
                                     <TabsContent value="fulfilled">
-                                        <div v-if="fulfilledSupplies.length === 0" class="flex items-center justify-center h-24 text-sm text-muted-foreground">
+                                        <div v-if="fulfilledSupplies.length === 0"
+                                            class="flex items-center justify-center h-24 text-sm text-muted-foreground">
                                             No fulfilled supplies
                                         </div>
                                         <ItemGroup v-else class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                            <Item v-for="supply in fulfilledSupplies" :key="supply.id" variant="outline">
+                                            <Item v-for="supply in fulfilledSupplies" :key="supply.id"
+                                                variant="outline">
                                                 <ItemMedia variant="image">
-                                                    <img :src="supply.image_url || supply.variety.image_url" :alt="supply.variety.name" />
+                                                    <img :src="supply.image_url || supply.variety?.image_url"
+                                                        :alt="supply.variety?.name" />
                                                 </ItemMedia>
                                                 <ItemContent class="min-w-0">
-                                                    <ItemTitle class="line-clamp-1 text-sm">{{ supply.variety.name }} — {{ supply.variety.category }}</ItemTitle>
+                                                    <ItemTitle class="line-clamp-1 text-sm">
+                                                        {{ supply.variety?.name }} — {{ supply.variety?.category }}
+                                                    </ItemTitle>
                                                     <ItemDescription class="flex items-center gap-1.5 mt-0.5">
-                                                        <span class="text-sm font-medium text-foreground">₱{{ supply.offered_price.toFixed(2) }}</span>
-                                                        <Badge :variant="priceFlagVariant(supply.price_flag)" class="text-xs px-1.5 py-0">
+                                                        <span class="text-sm font-medium text-foreground">
+                                                            ₱{{ supply.offered_price.toFixed(2) }}
+                                                        </span>
+                                                        <Badge :variant="priceFlagVariant(supply.price_flag)"
+                                                            class="text-xs px-1.5 py-0">
                                                             {{ supply.price_flag }}
                                                         </Badge>
                                                     </ItemDescription>
@@ -277,7 +275,6 @@ function priceFlagVariant(flag: 'Low' | 'Fair' | 'High') {
                                             </Item>
                                         </ItemGroup>
                                     </TabsContent>
-
                                 </Tabs>
                             </CardContent>
                         </Card>

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Deferred, Head, router } from '@inertiajs/vue3'
 import axios from 'axios'
-import { List, Loader2, Map, Package, PackagePlus, SearchX, UserPlus, Users } from 'lucide-vue-next'
+import { List, Loader2, MapIcon, Package, PackagePlus, SearchX, UserPlus, Users } from 'lucide-vue-next'
 import { computed, ref, watch } from 'vue'
 import { toast } from 'vue-sonner'
 import FarmerDetailSidebar from '@/components/admin/FarmerDetailSidebar.vue'
@@ -16,33 +16,18 @@ import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import AppLayout from '@/layouts/AppLayout.vue'
 import admin from '@/routes/admin'
 import { index } from '@/routes/admin/farmers'
-import type { Detail, Farmer, Filters, MarkerData, Summary } from '@/types/admin/farmers'
-import type { PaginatedResponse } from '@/types/pagination'
+import type { AdminFarmersProps, BreadcrumbItem, FarmerMarker, FarmerResource } from '@/types'
 
-interface Props {
-    view: 'list' | 'map'
-    filters: Filters
-    mapConfig: {
-        center: {
-            lat: number
-            lng: number
-        }
-        defaultZoom: number
-    }
-    farmers: PaginatedResponse<Farmer>
-    summary: Summary
-}
-
-const props = defineProps<Props>()
+const props = defineProps<AdminFarmersProps>()
 
 /* -- State -- */
 const currentView = ref<'list' | 'map'>(props.view)
-const markers = ref<MarkerData[]>([])
+const markers = ref<FarmerMarker[]>([])
 const selectedMunicipality = ref<string | null>(null)
 const selectedVariety = ref<string | null>(null)
 const loadingMarkers = ref(false)
 const sidebarOpen = ref(false)
-const selectedFarmer = ref<Detail | null>(null)
+const selectedFarmer = ref<FarmerResource | null>(null)
 const loadingFarmer = ref(false)
 const mapBounds = ref<{
     north: number
@@ -55,11 +40,11 @@ const mapBounds = ref<{
 const isListView = computed(() => currentView.value === 'list')
 const isMapView = computed(() => currentView.value === 'map')
 
-const totalVisiblePlantings = computed(() => {
-    return markers.value.reduce((sum, m) => sum + m.ongoing_supplies_count, 0)
-})
+const totalVisiblePlantings = computed(() =>
+    markers.value.reduce((sum, m) => sum + m.ongoing_supplies_count, 0),
+)
 
-const breadcrumbs = [
+const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Admin', href: admin.dashboard().url },
     { title: 'Farmers', href: admin.farmers.index().url },
 ]
@@ -87,18 +72,20 @@ function switchView(newView: 'list' | 'map') {
 async function fetchMarkers() {
     loadingMarkers.value = true
     try {
-        const params: any = {}
+        const params: Record<string, unknown> = {}
 
         if (selectedMunicipality.value) params.municipality_id = selectedMunicipality.value
         if (selectedVariety.value) params.variety_id = selectedVariety.value
         if (mapBounds.value) params.bounds = mapBounds.value
 
-        const response = await axios.get('/admin/farmers/api/markers', { params })
-        markers.value = response.data.markers
-    } catch (error: any) {
-        toast.error('Error loading markers', {
-            description: error.response?.data?.message || 'Failed to load farmer markers',
-        })
+        const { data } = await axios.get<{ markers: FarmerMarker[]; total: number }>(
+            '/admin/farmers/api/markers',
+            { params },
+        )
+        markers.value = data.markers
+    } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : 'Failed to load farmer markers'
+        toast.error('Error loading markers', { description: message })
     } finally {
         loadingMarkers.value = false
     }
@@ -110,12 +97,11 @@ async function loadFarmerDetails(farmerId: number) {
     selectedFarmer.value = null
 
     try {
-        const response = await axios.get(`/admin/farmers/api/${farmerId}/details`)
-        selectedFarmer.value = response.data
-    } catch (error: any) {
-        toast.error('Error loading farmer details', {
-            description: error.response?.data?.error || 'Failed to load farmer information',
-        })
+        const { data } = await axios.get<FarmerResource>(`/admin/farmers/api/${farmerId}/details`)
+        selectedFarmer.value = data
+    } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : 'Failed to load farmer information'
+        toast.error('Error loading farmer details', { description: message })
         sidebarOpen.value = false
     } finally {
         loadingFarmer.value = false
@@ -135,9 +121,7 @@ function closeSidebar() {
 function handleSearch(query: string) {
     searchQuery.value = query
     router.visit(index().url, {
-        data: {
-            search: query || undefined,
-        },
+        data: { search: query || undefined },
         preserveState: true,
         preserveScroll: true,
         only: ['farmers', 'filters'],
@@ -189,14 +173,13 @@ if (storedView && storedView !== props.view) {
             <div class="flex items-end justify-between">
                 <Heading title="Farmers" description="Manage farmers and their active plantings." />
 
-                <!-- View Toggle -->
                 <ToggleGroup :model-value="currentView" variant="outline" type="single">
                     <ToggleGroupItem value="list" aria-label="List view" @click="switchView('list')">
                         <List class="size-4" />
                         <span class="hidden sm:inline">List</span>
                     </ToggleGroupItem>
                     <ToggleGroupItem value="map" aria-label="Map view" @click="switchView('map')">
-                        <Map class="size-4" />
+                        <MapIcon class="size-4" />
                         <span class="hidden sm:inline">Map</span>
                     </ToggleGroupItem>
                 </ToggleGroup>
@@ -250,9 +233,7 @@ if (storedView && storedView !== props.view) {
 
             <!-- MAP VIEW -->
             <div v-if="isMapView" class="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_320px]">
-                <!-- Map Container -->
                 <div class="relative h-full min-h-[600px] w-full overflow-hidden rounded-lg border shadow-sm">
-                    <!-- Loading Overlay -->
                     <Transition enter-active-class="transition-opacity duration-200"
                         leave-active-class="transition-opacity duration-200" enter-from-class="opacity-0"
                         leave-to-class="opacity-0">
@@ -265,19 +246,16 @@ if (storedView && storedView !== props.view) {
                         </div>
                     </Transition>
 
-                    <!-- Map Component -->
-                    <FarmerMap :markers="markers" :center="mapConfig.center" :zoom="mapConfig.defaultZoom"
+                    <FarmerMap :markers="markers" :center="mapConfig.center" :zoom="mapConfig.defaultZoom ?? 13"
                         @marker-click="openFarmerSidebar" @bounds-change="handleBoundsChange" />
                 </div>
 
-                <!-- Right Sidebar: Filters & Legend -->
                 <div class="flex flex-col gap-4">
-                    <FarmerMapFilters :municipalities="filters.municipalities" :plantings="filters.offerings"
+                    <FarmerMapFilters :municipalities="filters.municipalities" :plantings="filters.supplies"
                         :selected-municipality="selectedMunicipality" :selected-variety="selectedVariety"
                         @update:selected-municipality="selectedMunicipality = $event"
                         @update:selected-variety="selectedVariety = $event" @clear="handleClearFilters" />
 
-                    <!-- Map Stats -->
                     <div class="rounded-lg border bg-card p-4">
                         <p class="mb-3 text-sm font-semibold">Map Statistics</p>
                         <div class="space-y-2 text-sm">
@@ -292,7 +270,6 @@ if (storedView && storedView !== props.view) {
                         </div>
                     </div>
 
-                    <!-- Map Legend -->
                     <div class="rounded-lg border bg-card p-4">
                         <p class="mb-3 text-sm font-semibold">Legend</p>
                         <div class="space-y-2 text-xs">
@@ -319,7 +296,6 @@ if (storedView && storedView !== props.view) {
                         </div>
                     </div>
 
-                    <!-- Instructions -->
                     <div class="rounded-lg border border-dashed bg-muted/30 p-4">
                         <p class="mb-2 text-xs font-medium">How to use</p>
                         <ul class="space-y-1 text-xs text-muted-foreground">
@@ -333,6 +309,5 @@ if (storedView && storedView !== props.view) {
         </div>
     </AppLayout>
 
-    <!-- Farmer Details Sidebar -->
     <FarmerDetailSidebar :open="sidebarOpen" :farmer="selectedFarmer" :loading="loadingFarmer" @close="closeSidebar" />
 </template>
