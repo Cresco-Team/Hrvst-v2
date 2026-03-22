@@ -14,6 +14,7 @@ use App\Services\Product\VarietyService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Inertia\Response;
 
 class VegetableController extends Controller
 {
@@ -27,9 +28,9 @@ class VegetableController extends Controller
             'summary' => Inertia::defer(fn () => $this->varietyService->summary()),
             'filters' => [
                 'price_filter' => $request->query('price_filter', null),
-                'search'       => $request->query('search', null),
+                'search' => $request->query('search', null),
             ],
-             'varieties' => Inertia::defer(fn () => VarietyResource::collection(
+            'varieties' => Inertia::defer(fn () => VarietyResource::collection(
                 $this->varietyService->paginated(
                     perPage: 20,
                     priceFilter: $request->query('price_filter', null),
@@ -45,6 +46,15 @@ class VegetableController extends Controller
         return response()->json(
             (new VarietyResource($this->varietyService->detailed($variety)))->resolve()
         );
+    }
+
+    public function show(Variety $variety): Response
+    {
+        return Inertia::render('admin/vegetables/Show', [
+            'variety' => Inertia::defer(
+                fn () => (new VarietyResource($this->varietyService->show($variety)))->resolve()
+            ),
+        ]);
     }
 
     public function store(StoreVarietyRequest $request, CreateVarietyAction $createVariety)
