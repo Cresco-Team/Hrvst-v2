@@ -8,13 +8,15 @@ use App\Http\Controllers\Admin\VegetableController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.')->group(function () {
-    
+
     Route::get('/dashboard', DashboardController::class)
         ->name('dashboard');
 
     Route::prefix('vegetables')->name('vegetables.')->group(function () {
         Route::get('/', [VegetableController::class, 'index'])->name('index');
         Route::get('/{variety}/details', [VegetableController::class, 'details'])->name('details');
+        // show must come after the static /details segment to avoid "details" being matched as a variety ID
+        Route::get('/{variety}', [VegetableController::class, 'show'])->name('show');
         Route::post('/', [VegetableController::class, 'store'])->name('store');
         Route::put('/{variety}', [VegetableController::class, 'update'])->name('update');
         Route::post('/{variety}/prices', [VarietyPriceController::class, 'store'])->name('prices.store');
@@ -37,7 +39,7 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
         Route::post('/{farmer}/approve', [FarmerController::class, 'approve'])->name('approve');
         Route::post('/{farmer}/reject', [FarmerController::class, 'reject'])->name('reject');
     });
-    
+
     Route::prefix('dealers')->name('dealers.')->group(function () {
         Route::get('/', [DealerController::class, 'index'])->name('index');
 
@@ -49,7 +51,7 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
         Route::get('/{dealer}', [DealerController::class, 'show'])->name('show');
         Route::get('/{dealer}/document', [DealerController::class, 'document'])->name('document');
         Route::delete('/{dealer}', [DealerController::class, 'destroy'])->name('destroy');
-        
+
         Route::post('/{dealer}/approve', [DealerController::class, 'approve'])->name('approve');
         Route::post('/{dealer}/reject', [DealerController::class, 'reject'])->name('reject');
     });
