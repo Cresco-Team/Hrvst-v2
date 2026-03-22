@@ -2,7 +2,7 @@
 import { Deferred, Head, router } from '@inertiajs/vue3'
 import axios from 'axios'
 import { AlertTriangle, Leaf, Sprout, TrendingUp } from 'lucide-vue-next'
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 import { toast } from 'vue-sonner'
 import PriceUpdateForm from '@/components/admin/forms/PriceUpdateForm.vue'
 import VarietyForm from '@/components/admin/forms/VarietyForm.vue'
@@ -16,12 +16,17 @@ import VegetableDetailDialog from '@/components/shared/VegetableDetailDialog.vue
 import { Skeleton } from '@/components/ui/skeleton'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { dashboard } from '@/routes/admin'
-import { destroy, details as varietyDetails, index, show as varietyShow, store, update } from '@/routes/admin/vegetables'
-import type { BreadcrumbItem } from '@/types'
-import type { Props, Variety } from '@/types/admin/vegetable-varieties'
-import type { CatalogVariety } from '@/types/shared/vegetables'
+import {
+  destroy,
+  index,
+  store,
+  update,
+  details as varietyDetails,
+  show as varietyShow,
+} from '@/routes/admin/vegetables'
+import type { AdminVegetablesProps, BreadcrumbItem, VarietyResource } from '@/types'
 
-const props = withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<AdminVegetablesProps>(), {
   varieties: undefined,
   summary: undefined,
   vegetableOptions: undefined,
@@ -37,17 +42,17 @@ const searchQuery = ref(props.filters?.search ?? '')
 /* -- Variety CRUD state -- */
 const formOpen = ref(false)
 const deleteOpen = ref(false)
-const activeVariety = ref<Variety | null>(null)
+const activeVariety = ref<VarietyResource | null>(null)
 const isSubmitting = ref(false)
 
 /* -- Update Price state -- */
 const priceOpen = ref(false)
-const priceVariety = ref<Variety | null>(null)
+const priceVariety = ref<VarietyResource | null>(null)
 const isPriceSubmitting = ref(false)
 
 /* -- Detail dialog state -- */
 const detailOpen = ref(false)
-const detailVariety = ref<CatalogVariety | null>(null)
+const detailVariety = ref<VarietyResource | null>(null)
 const loadingDetail = ref(false)
 
 function openCreate() {
@@ -55,28 +60,28 @@ function openCreate() {
   formOpen.value = true
 }
 
-function openEdit(variety: Variety) {
+function openEdit(variety: VarietyResource) {
   activeVariety.value = variety
   formOpen.value = true
 }
 
-function openDelete(variety: Variety) {
+function openDelete(variety: VarietyResource) {
   activeVariety.value = variety
   deleteOpen.value = true
 }
 
-function openUpdatePrice(variety: Variety) {
+function openUpdatePrice(variety: VarietyResource) {
   priceVariety.value = variety
   priceOpen.value = true
 }
 
-async function openView(variety: Variety) {
+async function openView(variety: VarietyResource) {
   loadingDetail.value = true
   detailVariety.value = null
   detailOpen.value = true
 
   try {
-    const { data } = await axios.get(varietyDetails(variety.id).url)
+    const { data } = await axios.get<VarietyResource>(varietyDetails(variety.id).url)
     detailVariety.value = data
   } catch {
     toast.error('Failed to load variety details')
@@ -153,9 +158,6 @@ function handlePageChange(page: number) {
     { preserveScroll: true },
   )
 }
-
-const isLoadingSummary = computed(() => !props.summary)
-const isLoadingVarieties = computed(() => !props.varieties)
 </script>
 
 <template>
@@ -175,7 +177,7 @@ const isLoadingVarieties = computed(() => !props.varieties)
       <!-- Summary cards -->
       <Deferred data="summary">
         <template #fallback>
-          <div v-if="isLoadingSummary" class="grid gap-4 md:grid-cols-3">
+          <div class="grid gap-4 md:grid-cols-3">
             <Skeleton class="h-33" />
             <Skeleton class="h-33" />
             <Skeleton class="h-33" />
@@ -196,7 +198,7 @@ const isLoadingVarieties = computed(() => !props.varieties)
       <!-- Table -->
       <Deferred data="varieties">
         <template #fallback>
-          <div v-if="isLoadingVarieties" class="flex flex-col gap-4">
+          <div class="flex flex-col gap-4">
             <div class="flex items-center justify-between">
               <Skeleton class="h-9 w-64" />
               <Skeleton class="h-9 w-32" />
@@ -226,14 +228,14 @@ const isLoadingVarieties = computed(() => !props.varieties)
 
   <!-- Delete confirm -->
   <ConfirmationDialog v-model:open="deleteOpen" title="Delete Variety"
-    :description="`Are you sure you want to delete ${activeVariety?.vegetable} ${activeVariety?.name}?`"
+    :description="`Are you sure you want to delete ${activeVariety?.vegetable?.name} ${activeVariety?.name}?`"
     @action="handleDelete" />
 
   <!-- Update price -->
-  <PriceUpdateForm :open="priceOpen" :variety="priceVariety" :is-submitting="isPriceSubmitting"
+  <PriceUpdateForm v-if="priceVariety" :open="priceOpen" :variety="priceVariety" :is-submitting="isPriceSubmitting"
     @update:open="priceOpen = $event" />
 
-  <!-- Detail dialog — view-href links through to the full Show page -->
+  <!-- Detail dialog -->
   <VegetableDetailDialog :open="detailOpen" :variety="detailVariety"
     :view-href="detailVariety ? varietyShow(detailVariety.id).url : undefined" @update:open="detailOpen = $event" />
 </template>

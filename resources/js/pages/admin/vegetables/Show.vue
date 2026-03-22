@@ -15,26 +15,24 @@ import {
 import AppLayout from '@/layouts/AppLayout.vue'
 import { dashboard } from '@/routes/admin'
 import { index as vegetablesIndex, show as vegetablesShow } from '@/routes/admin/vegetables'
-import type { ShowVariety } from '@/types/shared/vegetables'
+import type { BreadcrumbItem, PriceFreshness, VarietyResource } from '@/types'
 
-interface Props {
-    variety?: ShowVariety | null
-}
+const props = defineProps<{
+    variety?: VarietyResource
+}>()
 
-const props = defineProps<Props>()
-
-const breadcrumbs = computed(() => [
+const breadcrumbs = computed<BreadcrumbItem[]>(() => [
     { title: 'Admin', href: dashboard().url },
     { title: 'Vegetables', href: vegetablesIndex().url },
     ...(props.variety
         ? [{
-            title: `${props.variety.vegetable.name} ${props.variety.name}`,
+            title: `${props.variety.vegetable?.name} ${props.variety.name}`,
             href: vegetablesShow(props.variety.id).url,
         }]
         : []),
 ])
 
-const freshnessConfig = {
+const freshnessConfig: Record<PriceFreshness, { label: string; class: string }> = {
     recent: {
         label: 'Recently Updated',
         class: 'bg-green-500/10 text-green-700 dark:text-green-400 border-green-500/20',
@@ -51,12 +49,12 @@ const freshnessConfig = {
         label: 'Stale Price',
         class: 'bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/20',
     },
-} as const
+}
 </script>
 
 <template>
 
-    <Head :title="variety ? `${variety.vegetable.name} ${variety.name}` : 'Variety'" />
+    <Head :title="variety ? `${variety.vegetable?.name} ${variety.name}` : 'Variety'" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex flex-col gap-6 p-4 lg:p-6">
@@ -77,8 +75,8 @@ const freshnessConfig = {
                 <template v-if="variety">
 
                     <div class="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
-                        <Heading :title="`${variety.vegetable.name} ${variety.name}`"
-                            :description="variety.vegetable.category.name" />
+                        <Heading :title="`${variety.vegetable?.name} ${variety.name}`"
+                            :description="variety.vegetable?.category?.name" />
 
                         <div class="flex items-center gap-2">
                             <Badge v-if="variety.latest_price" variant="outline"
@@ -104,7 +102,7 @@ const freshnessConfig = {
                         <SmallCard title="Active Demands" :value="variety.demand_count" :icon="ShoppingCart" />
                     </div>
 
-                    <VegetablePriceChart :recent-prices="variety.recent_prices" />
+                    <VegetablePriceChart v-if="variety.recent_prices" :recent-prices="variety.recent_prices" />
 
                     <Card v-if="variety.supply_municipalities?.length">
                         <CardHeader>
@@ -133,7 +131,8 @@ const freshnessConfig = {
                         </CardContent>
                     </Card>
 
-                    <VegetableMonthlyChart :monthly-activity="variety.monthly_activity" />
+                    <VegetableMonthlyChart v-if="variety.monthly_activity"
+                        :monthly-activity="variety.monthly_activity" />
 
                 </template>
             </Deferred>
