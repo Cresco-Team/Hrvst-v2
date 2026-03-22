@@ -7,17 +7,23 @@ import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { cn } from '@/lib/utils'
-import type { Post } from '@/types/marketplace'
+import type { DealerDemandResource, FarmerSupplyResource } from '@/types'
 
-interface Props {
-    post: Post
-}
+// Used by both farmer/marketplace (viewing DealerDemandResource) and
+// dealer/marketplace (viewing FarmerSupplyResource). Both shapes share all
+// fields this component reads.
+type PostItem = FarmerSupplyResource | DealerDemandResource
 
-const { post } = defineProps<Props>()
+const { post } = defineProps<{
+    post: PostItem
+}>()
 
 const localHearted = ref(post.is_hearted)
 const localCount = ref(post.hearts_count)
 const isPending = ref(false)
+
+// image_url only on FarmerSupplyResource (supply posts carry an image)
+const displayImageUrl = 'image_url' in post ? post.image_url : undefined
 
 async function toggleHeart(event: MouseEvent): Promise<void> {
     event.stopPropagation()
@@ -31,7 +37,7 @@ async function toggleHeart(event: MouseEvent): Promise<void> {
 
     try {
         const { data } = await axios.post<{ hearted: boolean; hearts_count: number }>(
-            `/posts/${post.id}/heart`
+            `/posts/${post.id}/heart`,
         )
         localHearted.value = data.hearted
         localCount.value = data.hearts_count
@@ -47,8 +53,9 @@ async function toggleHeart(event: MouseEvent): Promise<void> {
 <template>
     <Card class="py-0 gap-2 overflow-hidden transition-all hover:shadow-lg">
         <AspectRatio :ratio="16 / 9" class="relative overflow-hidden bg-primary/10 flex items-center justify-center">
-            <img v-if="post.image_url" :src="post.image_url" :alt="`${post.variety.name} image`">
-            <img v-else :src="post.variety.image_url" :alt="`${post.variety.name} image`">
+            <img v-if="displayImageUrl" :src="displayImageUrl" :alt="`${post.variety?.name} image`" />
+            <img v-else-if="post.variety?.image_url" :src="post.variety.image_url"
+                :alt="`${post.variety?.name} image`" />
 
             <Badge class="absolute top-2 left-4 tracking-wider font-mono font-semibold">
                 {{ post.offered_price.toLocaleString('en-PH', { style: 'currency', currency: 'PHP' }) }}/kg
@@ -62,10 +69,10 @@ async function toggleHeart(event: MouseEvent): Promise<void> {
 
         <CardHeader class="p-5 py-2">
             <CardTitle class="line-clamp-1">
-                {{ post.variety.vegetable }} {{ post.variety.name }}
+                {{ post.variety?.vegetable }} {{ post.variety?.name }}
             </CardTitle>
             <CardDescription class="ml-2 line-clamp-1">
-                <p>{{ post.variety.category }}</p>
+                {{ post.variety?.category }}
             </CardDescription>
         </CardHeader>
 
@@ -79,13 +86,12 @@ async function toggleHeart(event: MouseEvent): Promise<void> {
                     <span class="text-xs tracking-wider block mb-1">QUANTITY</span>
                     <span class="font-body font-semibold text-primary">{{ post.quantity_kg }} kg</span>
                 </div>
-
                 <div class="bg-primary/10 p-3 rounded-md">
                     <span class="text-xs tracking-wider block mb-1">TOTAL</span>
                     <span class="font-body font-semibold text-primary">
                         {{ (post.quantity_kg * post.offered_price).toLocaleString('en-PH', {
                             style: 'currency',
-                            currency: 'PHP'
+                            currency: 'PHP',
                         }) }}
                     </span>
                 </div>

@@ -19,29 +19,22 @@ import {
 import { Skeleton } from '@/components/ui/skeleton'
 import AppLayout from '@/layouts/AppLayout.vue'
 import farmer from '@/routes/farmer'
-import type { PaginatedResponse } from '@/types/pagination'
-import type { CatalogFilters, CatalogVariety, CategoryOption } from '@/types/shared/vegetables'
+import type { BreadcrumbItem, FarmerVegetablesProps, VarietyResource } from '@/types'
 
-interface Props {
-  filters: CatalogFilters
-  varieties?: PaginatedResponse<CatalogVariety>
-  categoryOptions?: CategoryOption[]
-}
+const props = defineProps<FarmerVegetablesProps>()
 
-const props = defineProps<Props>()
-
-const selectedVariety = ref<CatalogVariety | null>(null)
+const selectedVariety = ref<VarietyResource | null>(null)
 const dialogOpen = ref(false)
 
 const searchQuery = ref(props.filters.search ?? '')
 let searchDebounce: ReturnType<typeof setTimeout> | null = null
 
-const breadcrumbs = [
+const breadcrumbs: BreadcrumbItem[] = [
   { title: 'Farmer', href: farmer.supplies.index().url },
   { title: 'Vegetables', href: farmer.vegetables.index().url },
 ]
 
-function openDetail(variety: CatalogVariety) {
+function openDetail(variety: VarietyResource) {
   selectedVariety.value = variety
   dialogOpen.value = true
 }
@@ -95,7 +88,6 @@ function handlePageChange(page: number) {
   <AppLayout :breadcrumbs="breadcrumbs">
     <div class="flex h-full flex-col gap-6 p-4 lg:p-6">
 
-      <!-- Header -->
       <Heading title="Vegetables" description="Browse all available varieties and their current market prices." />
 
       <!-- Filters -->

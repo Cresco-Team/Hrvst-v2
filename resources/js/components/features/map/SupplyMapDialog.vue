@@ -3,27 +3,27 @@ import { MapPin, Package, Weight } from 'lucide-vue-next'
 import { computed } from 'vue'
 import { Badge } from '@/components/ui/badge'
 import {
-	Dialog,
-	DialogDescription,
-	DialogHeader,
-	DialogScrollContent,
-	DialogTitle,
+  Dialog,
+  DialogDescription,
+  DialogHeader,
+  DialogScrollContent,
+  DialogTitle,
 } from '@/components/ui/dialog'
 import { Separator } from '@/components/ui/separator'
-import type { BarangayMarker } from '@/types/supply-map'
+import type { SupplyMarker } from '@/types'
 
 const props = defineProps<{
-	open: boolean
-	marker: BarangayMarker | null
+  open: boolean
+  marker: SupplyMarker | null
 }>()
 
 const emit = defineEmits<{
-	'update:open': [value: boolean]
+  'update:open': [value: boolean]
 }>()
 
 const sortedBreakdown = computed(() => {
-	if (!props.marker) return []
-	return [...props.marker.supply_breakdown].sort((a, b) => b.count - a.count)
+  if (!props.marker) return []
+  return [...props.marker.supply_breakdown].sort((a, b) => b.count - a.count)
 })
 </script>
 
@@ -68,11 +68,8 @@ const sortedBreakdown = computed(() => {
             Breakdown by Vegetable
           </p>
 
-          <div
-            v-for="item in sortedBreakdown"
-            :key="item.vegetable"
-            class="rounded-lg border bg-muted/30 p-3 space-y-2"
-          >
+          <div v-for="item in sortedBreakdown" :key="item.vegetable"
+            class="rounded-lg border bg-muted/30 p-3 space-y-2">
             <div class="flex items-start justify-between gap-2">
               <div class="flex items-center gap-2 min-w-0">
                 <span class="text-sm font-medium truncate">{{ item.vegetable }}</span>
@@ -88,21 +85,13 @@ const sortedBreakdown = computed(() => {
             </p>
 
             <div v-if="item.varieties.length" class="flex flex-wrap gap-1">
-              <Badge
-                v-for="variety in item.varieties"
-                :key="variety"
-                variant="outline"
-                class="text-xs font-normal"
-              >
+              <Badge v-for="variety in item.varieties" :key="variety" variant="outline" class="text-xs font-normal">
                 {{ variety }}
               </Badge>
             </div>
           </div>
 
-          <p
-            v-if="!sortedBreakdown.length"
-            class="py-4 text-center text-sm text-muted-foreground"
-          >
+          <p v-if="!sortedBreakdown.length" class="py-4 text-center text-sm text-muted-foreground">
             No active supplies in this area.
           </p>
         </div>

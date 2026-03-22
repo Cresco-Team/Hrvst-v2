@@ -6,46 +6,45 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import {
-	Select,
-	SelectContent,
-	SelectGroup,
-	SelectItem,
-	SelectLabel,
-	SelectTrigger,
-	SelectValue,
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
 } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
-import type { FilterOptions, MapFilters } from '@/types/supply-map'
+import type { SupplyMapFilterOptions, SupplyMapFilters } from '@/types'
 
 const props = defineProps<{
-	filters: MapFilters
-	options: FilterOptions | null
-	totalMarkers: number
-	totalSupplies: number
+  filters: SupplyMapFilters
+  options: SupplyMapFilterOptions | null
+  totalMarkers: number
+  totalSupplies: number
 }>()
 
 const emit = defineEmits<{
-	'update:filters': [filters: MapFilters]
-	clear: []
+  'update:filters': [filters: SupplyMapFilters]
+  clear: []
 }>()
 
 const hasActiveFilters = computed(
-	() => props.filters.category_id !== null || props.filters.variety_id !== null,
+  () => props.filters.category_id !== null || props.filters.variety_id !== null,
 )
 
 function handleCategoryChange(value: AcceptableValue) {
-	emit('update:filters', {
-		category_id: value === 'all' ? null : Number(value),
-		// reset variety when category changes
-		variety_id: null,
-	})
+  emit('update:filters', {
+    category_id: value === 'all' ? null : Number(value),
+    variety_id: null, // reset variety when category changes
+  })
 }
 
 function handleVarietyChange(value: AcceptableValue) {
-	emit('update:filters', {
-		...props.filters,
-		variety_id: value === 'all' ? null : Number(value),
-	})
+  emit('update:filters', {
+    ...props.filters,
+    variety_id: value === 'all' ? null : Number(value),
+  })
 }
 </script>
 
@@ -58,13 +57,8 @@ function handleVarietyChange(value: AcceptableValue) {
         <span class="text-sm font-semibold">Filters</span>
         <Badge v-if="hasActiveFilters" variant="default" class="text-xs h-5">Active</Badge>
       </div>
-      <Button
-        v-if="hasActiveFilters"
-        variant="ghost"
-        size="sm"
-        class="h-7 gap-1 text-xs text-muted-foreground"
-        @click="emit('clear')"
-      >
+      <Button v-if="hasActiveFilters" variant="ghost" size="sm" class="h-7 gap-1 text-xs text-muted-foreground"
+        @click="emit('clear')">
         <X class="size-3" />
         Clear
       </Button>
@@ -77,21 +71,14 @@ function handleVarietyChange(value: AcceptableValue) {
         <template v-if="!options">
           <Skeleton class="h-9 w-full" />
         </template>
-        <Select
-          v-else
-          :model-value="filters.category_id?.toString() ?? 'all'"
-          @update:model-value="handleCategoryChange"
-        >
+        <Select v-else :model-value="filters.category_id?.toString() ?? 'all'"
+          @update:model-value="handleCategoryChange">
           <SelectTrigger class="h-9 text-sm">
             <SelectValue placeholder="All categories" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All categories</SelectItem>
-            <SelectItem
-              v-for="cat in options.categories"
-              :key="cat.id"
-              :value="cat.id.toString()"
-            >
+            <SelectItem v-for="cat in options.categories" :key="cat.id" :value="cat.id.toString()">
               {{ cat.name }}
             </SelectItem>
           </SelectContent>
@@ -104,26 +91,15 @@ function handleVarietyChange(value: AcceptableValue) {
         <template v-if="!options">
           <Skeleton class="h-9 w-full" />
         </template>
-        <Select
-          v-else
-          :model-value="filters.variety_id?.toString() ?? 'all'"
-          @update:model-value="handleVarietyChange"
-        >
+        <Select v-else :model-value="filters.variety_id?.toString() ?? 'all'" @update:model-value="handleVarietyChange">
           <SelectTrigger class="h-9 text-sm">
             <SelectValue placeholder="All varieties" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All varieties</SelectItem>
-            <SelectGroup
-              v-for="(varieties, category) in options.varieties"
-              :key="category"
-            >
+            <SelectGroup v-for="(varieties, category) in options.varieties" :key="category">
               <SelectLabel>{{ category }}</SelectLabel>
-              <SelectItem
-                v-for="variety in varieties"
-                :key="variety.id"
-                :value="variety.id.toString()"
-              >
+              <SelectItem v-for="variety in varieties" :key="variety.id" :value="variety.id.toString()">
                 {{ variety.name }}
               </SelectItem>
             </SelectGroup>
@@ -148,9 +124,7 @@ function handleVarietyChange(value: AcceptableValue) {
 
       <!-- Legend -->
       <div class="space-y-2">
-        <p class="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-          Legend
-        </p>
+        <p class="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Legend</p>
         <div class="space-y-1.5 text-xs text-muted-foreground">
           <div class="flex items-center gap-2">
             <div class="size-3 shrink-0 rounded-full bg-blue-500" />

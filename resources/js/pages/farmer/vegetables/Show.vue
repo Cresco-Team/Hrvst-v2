@@ -1,9 +1,7 @@
 <script setup lang="ts">
 import { Deferred, Head } from '@inertiajs/vue3'
-
-import { Heart, Wheat, ShoppingCart } from 'lucide-vue-next'
+import { Heart, ShoppingCart, Wheat } from 'lucide-vue-next'
 import { computed } from 'vue'
-
 import Heading from '@/components/Heading.vue'
 import SmallCard from '@/components/shared/cards/SmallCard.vue'
 import VegetableMonthlyChart from '@/components/shared/charts/VegetableMonthlyChart.vue'
@@ -12,33 +10,46 @@ import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import AppLayout from '@/layouts/AppLayout.vue'
 import farmer from '@/routes/farmer'
-import type { ShowVariety } from '@/types/shared/vegetables'
+import type { BreadcrumbItem, PriceFreshness, VarietyResource } from '@/types'
 
-interface Props {
-    variety?: ShowVariety | null
-}
+const props = defineProps<{
+    variety?: VarietyResource
+}>()
 
-const props = defineProps<Props>()
-
-const breadcrumbs = computed(() => [
+const breadcrumbs = computed<BreadcrumbItem[]>(() => [
     { title: 'Farmer', href: farmer.supplies.index().url },
     { title: 'Vegetables', href: farmer.vegetables.index().url },
     ...(props.variety
-        ? [{ title: props.variety.vegetable.name + " " + props.variety.name, href: farmer.vegetables.show(props.variety.id).url }]
+        ? [{
+            title: `${props.variety.vegetable?.name} ${props.variety.name}`,
+            href: farmer.vegetables.show(props.variety.id).url,
+        }]
         : []),
 ])
 
-const freshnessConfig = {
-    recent: { label: 'Recently Updated', class: 'bg-green-500/10 text-green-700 dark:text-green-400 border-green-500/20' },
-    stable: { label: 'Stable', class: 'bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20' },
-    'very stable': { label: 'Older Price', class: 'bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20' },
-    stale: { label: 'Stale Price', class: 'bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/20' },
-} as const
+const freshnessConfig: Record<PriceFreshness, { label: string; class: string }> = {
+    recent: {
+        label: 'Recently Updated',
+        class: 'bg-green-500/10 text-green-700 dark:text-green-400 border-green-500/20',
+    },
+    stable: {
+        label: 'Stable',
+        class: 'bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20',
+    },
+    'very stable': {
+        label: 'Older Price',
+        class: 'bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20',
+    },
+    stale: {
+        label: 'Stale Price',
+        class: 'bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/20',
+    },
+}
 </script>
 
 <template>
 
-    <Head :title="variety?.vegetable.name + ' ' + variety?.name" />
+    <Head :title="variety ? `${variety.vegetable?.name} ${variety.name}` : 'Variety'" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex flex-col gap-6 p-4 lg:p-6">
@@ -56,10 +67,10 @@ const freshnessConfig = {
                 </template>
 
                 <template v-if="variety">
-                    <!-- Header -->
+
                     <div class="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
-                        <Heading :title="variety.vegetable.name + ' ' + variety.name"
-                            :description="variety.vegetable.category.name" />
+                        <Heading :title="`${variety.vegetable?.name} ${variety.name}`"
+                            :description="variety.vegetable?.category?.name" />
                         <div class="flex items-center gap-2">
                             <Badge v-if="variety.latest_price" variant="outline"
                                 :class="freshnessConfig[variety.latest_price.freshness]?.class">
@@ -72,28 +83,25 @@ const freshnessConfig = {
                         </div>
                     </div>
 
-                    <!-- KPI row -->
                     <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
                         <SmallCard title="Min Price"
                             :value="variety.latest_price ? `₱${variety.latest_price.price_min.toFixed(2)}` : '—'"
-                            value-class="text-green-600 dark:text-green-400" subtext="sugested minimum" />
-
+                            value-class="text-green-600 dark:text-green-400" subtext="suggested minimum" />
                         <SmallCard title="Max Price"
                             :value="variety.latest_price ? `₱${variety.latest_price.price_max.toFixed(2)}` : '—'"
-                            value-class="text-indigo-600 dark:text-indigo-400" subtext="sugested maximum" />
-
+                            value-class="text-indigo-600 dark:text-indigo-400" subtext="suggested maximum" />
                         <SmallCard title="Active Supplies" :value="variety.supply_count" :icon="Wheat" />
-
                         <SmallCard title="Active Demands" :value="variety.demand_count" :icon="ShoppingCart" />
                     </div>
 
-                    <!-- Price trend chart -->
-                    <VegetablePriceChart :recent-prices="variety.recent_prices" />
+                    <VegetablePriceChart v-if="variety.recent_prices" :recent-prices="variety.recent_prices" />
 
-                    <!-- Monthly market volume chart (last 12 months, closed posts only) -->
-                    <VegetableMonthlyChart :monthly-activity="variety.monthly_activity" />
+                    <VegetableMonthlyChart v-if="variety.monthly_activity"
+                        :monthly-activity="variety.monthly_activity" />
+
                 </template>
             </Deferred>
+
         </div>
     </AppLayout>
 </template>

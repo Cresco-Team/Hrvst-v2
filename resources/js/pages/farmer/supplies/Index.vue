@@ -13,43 +13,34 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import AppLayout from '@/layouts/AppLayout.vue'
 import farmer from '@/routes/farmer'
-import type { Post, SupplySummary, VarietyOption } from '@/types/marketplace'
-import type { PaginatedResponse } from '@/types/pagination'
 import { archive, destroy, fulfill, index } from '@/routes/farmer/supplies'
+import type {
+  BreadcrumbItem,
+  FarmerSuppliesProps,
+  FarmerSupplyResource,
+  SupplyVarietyOption,
+  VarietyOptionsByCategory,
+} from '@/types'
 
-interface Props {
-  filters: { status: string }
-  summary?: SupplySummary
-  varietyOptions?: Record<string, VarietyOption[]>
-  supplies?: PaginatedResponse<Post>
-}
+const props = defineProps<FarmerSuppliesProps>()
 
-const props = defineProps<Props>()
-
-/* --- State --------------- */
-
+/* --- State --- */
 const formOpen = ref(false)
-const activeSupply = ref<Post | null>(null)
+const activeSupply = ref<FarmerSupplyResource | null>(null)
 
 const archiveDialogOpen = ref(false)
 const fulfillDialogOpen = ref(false)
 const deleteDialogOpen = ref(false)
-const supplyToArchive = ref<Post | null>(null)
-const supplyToFulfill = ref<Post | null>(null)
-const supplyToDelete = ref<Post | null>(null)
+const supplyToArchive = ref<FarmerSupplyResource | null>(null)
+const supplyToFulfill = ref<FarmerSupplyResource | null>(null)
+const supplyToDelete = ref<FarmerSupplyResource | null>(null)
 
-/* --- Computed --------------- */
-
+/* --- Computed --- */
 const activeTab = computed(() => props.filters.status ?? 'Ongoing')
 
-/* --- Actions --------------- */
-
+/* --- Actions --- */
 function handleTabChange(value: string | number) {
-  const routeTarget = index({
-    query: { status: value === 'Ongoing' ? undefined : value },
-  })
-
-  router.visit(routeTarget.url, {
+  router.visit(index({ query: { status: value === 'Ongoing' ? undefined : value } }).url, {
     preserveState: true,
     preserveScroll: true,
     only: ['supplies', 'filters', 'summary'],
@@ -61,32 +52,30 @@ function openCreate() {
   formOpen.value = true
 }
 
-function openEdit(supply: Post) {
+function openEdit(supply: FarmerSupplyResource) {
   activeSupply.value = supply
   formOpen.value = true
 }
 
-function openArchive(supply: Post) {
+function openArchive(supply: FarmerSupplyResource) {
   supplyToArchive.value = supply
   archiveDialogOpen.value = true
 }
 
-function openFulfill(supply: Post) {
+function openFulfill(supply: FarmerSupplyResource) {
   supplyToFulfill.value = supply
   fulfillDialogOpen.value = true
 }
 
-function openDelete(supply: Post) {
+function openDelete(supply: FarmerSupplyResource) {
   supplyToDelete.value = supply
   deleteDialogOpen.value = true
 }
 
 function handleArchive() {
   if (!supplyToArchive.value) return
-
-  const route = archive(supplyToArchive.value.id)
   router.post(
-    route.url,
+    archive(supplyToArchive.value.id).url,
     {},
     {
       preserveScroll: true,
@@ -98,12 +87,10 @@ function handleArchive() {
   )
 }
 
-const handleFulfill = () => {
+function handleFulfill() {
   if (!supplyToFulfill.value) return
-
-  const route = fulfill(supplyToFulfill.value.id)
   router.post(
-    route.url,
+    fulfill(supplyToFulfill.value.id).url,
     {},
     {
       preserveScroll: true,
@@ -117,10 +104,7 @@ const handleFulfill = () => {
 
 function handleDelete() {
   if (!supplyToDelete.value) return
-
-  const routeTarget = destroy(supplyToDelete.value.id)
-
-  router.visit(routeTarget.url, {
+  router.visit(destroy(supplyToDelete.value.id).url, {
     method: 'delete',
     preserveScroll: true,
     onSuccess: () => {
@@ -132,15 +116,12 @@ function handleDelete() {
 
 function handlePageChange(page: number) {
   router.visit(farmer.supplies.index().url, {
-    data: {
-      page,
-      search: props.filters.status || undefined,
-    },
+    data: { page, status: props.filters.status },
     preserveScroll: true,
   })
 }
 
-const breadcrumbs = [
+const breadcrumbs: BreadcrumbItem[] = [
   { title: 'Farmer', href: farmer.supplies.index().url },
   { title: 'Supplies', href: farmer.supplies.index().url },
 ]
@@ -152,11 +133,10 @@ const breadcrumbs = [
 
   <AppLayout :breadcrumbs="breadcrumbs">
     <div class="flex h-full flex-col gap-6 p-4 lg:p-6">
-      <!-- Header -->
+
       <div class="flex items-end justify-between">
         <Heading title="My Supplies" description="Manage your vegetable posts for dealers." />
-
-        <Button @click="openCreate" class="gap-2">
+        <Button class="gap-2" @click="openCreate">
           <Plus class="size-4" />
           New Post
         </Button>
@@ -173,14 +153,11 @@ const breadcrumbs = [
         <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-2">
           <LargeCard title="Ongoing Posts" :value="summary?.total_ongoing" subtext="all available offers" :icon="Wheat"
             card-class="from-emerald-50 to-green-50 dark:from-emerald-950/20 dark:to-green-950/20" />
-
           <LargeCard title="Fulfilled Posts" :value="summary?.total_fulfilled" subtext="all fulfilled offers"
             :icon="PackageCheck" card-class="from-zinc-100 to-zinc-100 dark:from-zinc-950/20 dark:to-zinc-950/20" />
-
           <LargeCard title="Archived Posts" :value="summary?.total_archived" subtext="all archived offers"
             :icon="Archive" card-class="from-amber-50 to-orange-50 dark:from-emerald-950/20 dark:to-green-950/20" />
-
-          <LargeCard title="Expiring Posts" :value="summary?.scheduled_this_week" subtext="expiring this week"
+          <LargeCard title="Expiring Posts" :value="summary?.expiring_this_week" subtext="expiring this week"
             :icon="CalendarClock"
             card-class="from-emerald-50 to-green-50 dark:from-emerald-950/20 dark:to-green-950/20" />
         </div>
@@ -195,7 +172,7 @@ const breadcrumbs = [
         </TabsList>
       </Tabs>
 
-      <!-- supplies Grid -->
+      <!-- Supplies Grid -->
       <Deferred data="supplies">
         <template #fallback>
           <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -203,7 +180,7 @@ const breadcrumbs = [
           </div>
         </template>
 
-        <EmptyState v-if="supplies?.data.length === 0" title="No Posted supplies Yet." description="Post an offering"
+        <EmptyState v-if="supplies?.data.length === 0" title="No Posted Supplies Yet." description="Post an offering"
           :icon="Sprout" button="Add Offering" />
 
         <div v-else class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -228,21 +205,19 @@ const breadcrumbs = [
     </div>
   </AppLayout>
 
-  <!-- Offering Form Dialog -->
-  <SupplyForm :open="formOpen" :supply="activeSupply" :variety-options="varietyOptions!"
+  <SupplyForm :open="formOpen" :supply="activeSupply"
+    :variety-options="(varietyOptions as VarietyOptionsByCategory<SupplyVarietyOption>)"
     @update:open="formOpen = $event" />
 
-  <!-- Archive Confirmation -->
   <ConfirmationDialog v-model:open="archiveDialogOpen" title="Archive Post"
-    :description="`Are you sure you want to archive ${supplyToArchive?.variety.vegetable} ${supplyToArchive?.variety.name}?`"
+    :description="`Are you sure you want to archive ${supplyToArchive?.variety?.vegetable} ${supplyToArchive?.variety?.name}?`"
     variant="destructive" @action="handleArchive" />
 
   <ConfirmationDialog v-model:open="fulfillDialogOpen" title="Fulfill Post"
-    :description="`Are you sure you want to set ${supplyToFulfill?.variety.vegetable} ${supplyToFulfill?.variety.name} post as fulfilled?`"
+    :description="`Are you sure you want to set ${supplyToFulfill?.variety?.vegetable} ${supplyToFulfill?.variety?.name} post as fulfilled?`"
     @action="handleFulfill" />
 
-  <!-- Delete Confirmation -->
   <ConfirmationDialog v-model:open="deleteDialogOpen" title="Delete Post"
-    :description="`Are you sure you want to delete ${supplyToDelete?.variety.vegetable} ${supplyToDelete?.variety.name}`"
+    :description="`Are you sure you want to delete ${supplyToDelete?.variety?.vegetable} ${supplyToDelete?.variety?.name}?`"
     @action="handleDelete" />
 </template>

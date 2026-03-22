@@ -9,14 +9,25 @@ import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
-  Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue,
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
 } from '@/components/ui/select'
-import type { Post, PostTimeSlot, VarietyOption } from '@/types/marketplace'
+import type {
+  FarmerSupplyResource,
+  PostTimeSlot,
+  SupplyVarietyOption,
+  VarietyOptionsByCategory,
+} from '@/types'
 
 interface Props {
   open: boolean
-  supply?: Post | null
-  varietyOptions?: Record<string, VarietyOption[]>
+  supply?: FarmerSupplyResource | null
+  varietyOptions?: VarietyOptionsByCategory<SupplyVarietyOption>
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -25,7 +36,6 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<{
   'update:open': [value: boolean]
-  submit: []
 }>()
 
 const TIME_SLOT_OPTIONS: { value: PostTimeSlot; label: string }[] = [
@@ -33,8 +43,6 @@ const TIME_SLOT_OPTIONS: { value: PostTimeSlot; label: string }[] = [
   { value: 'afternoon', label: 'Afternoon (12 PM – 6 PM)' },
   { value: 'evening', label: 'Evening (6 PM – 10 PM)' },
 ]
-
-
 
 const form = useForm({
   variety_id: '',
@@ -109,7 +117,7 @@ watch(
   <DialogForm :open="open" :title="isEditMode ? 'Edit Offering' : 'Create Offering'"
     :description="isEditMode ? 'Update your supply details' : 'Post a new supply for dealers'"
     :is-submitting="form.processing" :submit-label="isEditMode ? 'Update Supply' : 'Post Supply'" max-width="2xl"
-    @update:open="emit('update:open', $event)" @submit=handleSubmit>
+    @update:open="emit('update:open', $event)" @submit="handleSubmit">
     <template #icon>
       <Sprout class="size-5 text-primary" />
     </template>
@@ -147,7 +155,7 @@ watch(
       </div>
 
       <!-- Image Upload -->
-      <ImageUpload v-model="form.image" :existing-image-url="supply?.image_url" :error="form.errors.image"
+      <ImageUpload v-model="form.image" :existing-image-url="supply?.image_url ?? null" :error="form.errors.image"
         :required="!isEditMode" />
 
       <!-- Quantity -->
@@ -194,33 +202,34 @@ watch(
           {{ form.errors.scheduled_date }}
         </p>
         <p v-else class="text-xs text-muted-foreground">
-          Post will auto-archived after this date (max 3 months)
+          Post will auto-archive after this date (max 3 months)
         </p>
       </div>
-    </div>
 
-    <!-- Time Slot -->
-    <div class="space-y-2">
-      <Label for="time_slot" class="flex items-center gap-1.5">
-        Preferred Time Slot
-        <Badge variant="secondary" class="text-xs font-normal">Required</Badge>
-      </Label>
-      <Select v-model="form.time_slot">
-        <SelectTrigger id="time_slot" :class="{ 'border-destructive': form.errors.time_slot }">
-          <SelectValue placeholder="Select a time slot..." />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem v-for="option in TIME_SLOT_OPTIONS" :key="option.value" :value="option.value">
-            {{ option.label }}
-          </SelectItem>
-        </SelectContent>
-      </Select>
-      <p v-if="form.errors.time_slot" class="text-xs text-destructive">
-        {{ form.errors.time_slot }}
-      </p>
-      <p v-else class="text-xs text-muted-foreground">
-        When are you available for delivery?
-      </p>
+      <!-- Time Slot -->
+      <div class="space-y-2">
+        <Label for="time_slot" class="flex items-center gap-1.5">
+          Preferred Time Slot
+          <Badge variant="secondary" class="text-xs font-normal">Required</Badge>
+        </Label>
+        <Select v-model="form.time_slot">
+          <SelectTrigger id="time_slot" :class="{ 'border-destructive': form.errors.time_slot }">
+            <SelectValue placeholder="Select a time slot..." />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem v-for="option in TIME_SLOT_OPTIONS" :key="option.value" :value="option.value">
+              {{ option.label }}
+            </SelectItem>
+          </SelectContent>
+        </Select>
+        <p v-if="form.errors.time_slot" class="text-xs text-destructive">
+          {{ form.errors.time_slot }}
+        </p>
+        <p v-else class="text-xs text-muted-foreground">
+          When are you available for delivery?
+        </p>
+      </div>
+
     </div>
   </DialogForm>
 </template>
