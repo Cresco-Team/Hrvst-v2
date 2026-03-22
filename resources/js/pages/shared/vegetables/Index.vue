@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Deferred, Head, router } from '@inertiajs/vue3'
+import { Deferred, Head, router, usePage } from '@inertiajs/vue3'
 import { Search } from 'lucide-vue-next'
 import type { AcceptableValue } from 'reka-ui'
 import { ref } from 'vue'
@@ -18,6 +18,8 @@ import {
 } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
 import AppLayout from '@/layouts/AppLayout.vue'
+import dealer from '@/routes/dealer'
+import farmer from '@/routes/farmer'
 import type { BreadcrumbItem } from '@/types'
 import type { PaginatedResponse } from '@/types/pagination'
 import type { CatalogFilters, CatalogVariety, CategoryOption } from '@/types/shared/vegetables'
@@ -26,9 +28,6 @@ import type { CatalogFilters, CatalogVariety, CategoryOption } from '@/types/sha
 // All navigation and breadcrumb URLs are injected by the controller so this
 // component has zero knowledge of which role is viewing it.
 interface Props {
-    backHref: string
-    backLabel: string
-    indexHref: string
     filters: CatalogFilters
     varieties?: PaginatedResponse<CatalogVariety>
     categoryOptions?: CategoryOption[]
@@ -44,9 +43,15 @@ const searchQuery = ref(props.filters.search ?? '')
 let searchDebounce: ReturnType<typeof setTimeout> | null = null
 
 // ─── Breadcrumbs ─────────────────────────────────────────────────────────────
+const page = usePage()
+const isFarmer = page.props.auth.user.roles.includes('farmer')
+
+const backHref = isFarmer ? farmer.supplies.index().url : dealer.demands.index().url
+const indexHref = isFarmer ? farmer.vegetables.index().url : dealer.vegetables.index().url
+
 const breadcrumbs: BreadcrumbItem[] = [
-    { title: props.backLabel, href: props.backHref },
-    { title: 'Vegetables', href: props.indexHref },
+    { title: isFarmer ? 'Farmer' : 'Dealer', href: backHref },
+    { title: 'Vegetables', href: indexHref },
 ]
 
 // ─── Handlers ─────────────────────────────────────────────────────────────────
@@ -59,7 +64,7 @@ function handleSearch() {
     if (searchDebounce) clearTimeout(searchDebounce)
 
     searchDebounce = setTimeout(() => {
-        router.visit(props.indexHref, {
+        router.visit(indexHref, {
             data: {
                 search: searchQuery.value || undefined,
                 category_id: props.filters.category_id || undefined,
@@ -74,7 +79,7 @@ function handleSearch() {
 function handleCategoryFilter(value: AcceptableValue) {
     const category = value === 'all' || value == null ? undefined : String(value)
 
-    router.visit(props.indexHref, {
+    router.visit(indexHref, {
         data: {
             search: props.filters.search || undefined,
             category_id: category,
@@ -86,7 +91,7 @@ function handleCategoryFilter(value: AcceptableValue) {
 }
 
 function handlePageChange(page: number) {
-    router.visit(props.indexHref, {
+    router.visit(indexHref, {
         data: {
             page,
             search: props.filters.search || undefined,

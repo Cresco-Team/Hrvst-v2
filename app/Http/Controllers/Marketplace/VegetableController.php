@@ -18,12 +18,7 @@ class VegetableController extends Controller
 
     public function index(Request $request): Response
     {
-        ['backHref' => $backHref, 'backLabel' => $backLabel, 'indexHref' => $indexHref] = $this->resolveHrefs($request);
-
         return Inertia::render('shared/vegetables/Index', [
-            'backHref' => $backHref,
-            'backLabel' => $backLabel,
-            'indexHref' => $indexHref,
             'filters' => [
                 'search' => $request->query('search'),
                 'category_id' => $request->integer('category_id') ?: null,
@@ -42,32 +37,10 @@ class VegetableController extends Controller
 
     public function show(Request $request, Variety $variety): Response
     {
-        ['backHref' => $backHref, 'backLabel' => $backLabel, 'indexHref' => $indexHref] = $this->resolveHrefs($request);
-
         return Inertia::render('shared/vegetables/Show', [
-            'backHref' => $backHref,
-            'backLabel' => $backLabel,
-            'indexHref' => $indexHref,
             'variety' => Inertia::defer(
                 fn () => (new VarietyResource($this->varietyService->show($variety)))->resolve()
             ),
         ]);
-    }
-
-    private function resolveHrefs(Request $request): array
-    {
-        if ($request->user()->hasRole('farmer')) {
-            return [
-                'backHref' => route('farmer.supplies.index'),
-                'backLabel' => 'Farmer',
-                'indexHref' => route('farmer.vegetables.index'),
-            ];
-        }
-
-        return [
-            'backHref' => route('dealer.demands.index'),
-            'backLabel' => 'Dealer',
-            'indexHref' => route('dealer.vegetables.index'),
-        ];
     }
 }

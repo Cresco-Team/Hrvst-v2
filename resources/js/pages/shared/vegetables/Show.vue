@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Deferred, Head } from '@inertiajs/vue3'
+import { Deferred, Head, usePage } from '@inertiajs/vue3'
 import { Heart, ShoppingCart, Wheat } from 'lucide-vue-next'
 import { computed } from 'vue'
 import Heading from '@/components/Heading.vue'
@@ -9,6 +9,8 @@ import VegetablePriceChart from '@/components/shared/charts/VegetablePriceChart.
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import AppLayout from '@/layouts/AppLayout.vue'
+import dealer from '@/routes/dealer'
+import farmer from '@/routes/farmer'
 import type { BreadcrumbItem } from '@/types'
 import type { ShowVariety } from '@/types/shared/vegetables'
 
@@ -17,22 +19,25 @@ import type { ShowVariety } from '@/types/shared/vegetables'
 // indexHref: vegetables index URL for the mid-level breadcrumb
 // Both injected by the controller — this component is role-agnostic.
 interface Props {
-    backHref: string
-    backLabel: string
-    indexHref: string
     variety?: ShowVariety | null
 }
 
 const props = defineProps<Props>()
 
 // ─── Breadcrumbs — reactive so variety name appears once deferred prop loads ──
+const page = usePage()
+const isFarmer = page.props.auth.user.roles.includes('farmer')
+
+const backHref = isFarmer ? farmer.supplies.index().url : dealer.demands.index().url
+const indexHref = isFarmer ? farmer.vegetables.index().url : dealer.vegetables.index().url
+
 const breadcrumbs = computed<BreadcrumbItem[]>(() => [
-    { title: props.backLabel, href: props.backHref },
-    { title: 'Vegetables', href: props.indexHref },
+    { title: isFarmer ? 'Farmer' : 'Dealer', href: backHref },
+    { title: 'Vegetables', href: indexHref },
     ...(props.variety
         ? [{
             title: `${props.variety.vegetable.name} ${props.variety.name}`,
-            href: `${props.indexHref}/${props.variety.id}`,
+            href: `${indexHref}/${props.variety.id}`,
         }]
         : []
     ),
