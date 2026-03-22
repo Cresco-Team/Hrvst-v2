@@ -111,6 +111,43 @@ class VarietyService
             });
     }
 
+    public function detailed(Variety $variety): Variety
+    {
+        $variety->load(['vegetable.category', 'latestPrice', 'lastTwoPrices', 'recentPrices', 'media']);
+
+        $startOfMonth = now()->startOfMonth();
+
+        $stats = DB::table('posts')
+            ->where('variety_id', $variety->id)
+            ->selectRaw('
+            SUM(CASE WHEN type = ? AND status IN (?, ?) THEN quantity_kg ELSE 0 END) as supply_closed_kg,
+            SUM(CASE WHEN type = ? AND status IN (?, ?) THEN quantity_kg ELSE 0 END) as demand_closed_kg,
+            SUM(CASE WHEN type = ? AND status = ? AND updated_at >= ? THEN quantity_kg ELSE 0 END) as supply_fulfilled_month_kg,
+            SUM(CASE WHEN type = ? AND status = ? AND updated_at >= ? THEN quantity_kg ELSE 0 END) as demand_fulfilled_month_kg,
+            SUM(CASE WHEN type = ? AND status = ? AND created_at >= ? THEN quantity_kg ELSE 0 END) as supply_ongoing_month_kg,
+            SUM(CASE WHEN type = ? AND status = ? AND created_at >= ? THEN quantity_kg ELSE 0 END) as demand_ongoing_month_kg
+        ', [
+                PostType::Supply->value, PostStatus::Archived->value, PostStatus::Fulfilled->value,
+                PostType::Demand->value, PostStatus::Archived->value, PostStatus::Fulfilled->value,
+                PostType::Supply->value, PostStatus::Fulfilled->value, $startOfMonth,
+                PostType::Demand->value, PostStatus::Fulfilled->value, $startOfMonth,
+                PostType::Supply->value, PostStatus::Ongoing->value, $startOfMonth,
+                PostType::Demand->value, PostStatus::Ongoing->value, $startOfMonth,
+            ])
+            ->first();
+
+        $variety->quantity_stats = [
+            'supply_closed_kg' => (float) ($stats->supply_closed_kg ?? 0),
+            'demand_closed_kg' => (float) ($stats->demand_closed_kg ?? 0),
+            'supply_fulfilled_month_kg' => (float) ($stats->supply_fulfilled_month_kg ?? 0),
+            'demand_fulfilled_month_kg' => (float) ($stats->demand_fulfilled_month_kg ?? 0),
+            'supply_ongoing_month_kg' => (float) ($stats->supply_ongoing_month_kg ?? 0),
+            'demand_ongoing_month_kg' => (float) ($stats->demand_ongoing_month_kg ?? 0),
+        ];
+
+        return $variety;
+    }
+
     public function forCatalog(int $perPage = 20, ?string $search = null, ?int $categoryId = null, ?int $userId = null): LengthAwarePaginator
     {
         return Variety::with(['vegetable.category', 'latestPrice', 'lastTwoPrices', 'media'])
@@ -184,11 +221,6 @@ class VarietyService
                 ->get(['id', 'name'])
                 ->toArray();
         });
-    }
-
-    public function detailed(Variety $variety): Variety
-    {
-        return $variety->load(['vegetable.category', 'latestPrice', 'recentPrices', 'media']);
     }
 
     private function buildMonthlyActivity(int $varietyId): array
