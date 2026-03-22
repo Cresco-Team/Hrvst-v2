@@ -17,19 +17,15 @@ class VarietyResource extends JsonResource
             'hearts_count' => $this->hearts_count,
             'is_hearted' => (bool) ($this->is_hearted ?? false),
 
-            /* with('vegetable.category') */
-            'vegetable' => $this->whenLoaded('vegetable', function () {
-                return [
-                    'id' => $this->vegetable->id,
-                    'name' => $this->vegetable->name,
-                    'category' => $this->vegetable->relationLoaded('category')
-                        ? [
-                            'id' => $this->vegetable->category->id,
-                            'name' => $this->vegetable->category->name,
-                        ]
-                        : null,
-                ];
-            }),
+            /* Automatically available via $with in Model */
+            'vegetable' => [
+                'id' => $this->vegetable->id,
+                'name' => $this->vegetable->name,
+                'category' => [
+                    'id' => $this->vegetable->category->id,
+                    'name' => $this->vegetable->category->name,
+                ],
+            ],
 
             /* with('latestPrice) */
             'latest_price' => $this->whenLoaded('latestPrice', function () use ($request) {
@@ -84,6 +80,11 @@ class VarietyResource extends JsonResource
             'monthly_activity' => $this->when(
                 isset($this->resource->monthly_activity),
                 fn () => $this->monthly_activity
+            ),
+
+            'quantity_stats' => $this->when(
+                isset($this->resource->quantity_stats),
+                fn () => $this->quantity_stats
             ),
         ];
     }
