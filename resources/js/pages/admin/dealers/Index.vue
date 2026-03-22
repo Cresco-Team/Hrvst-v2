@@ -11,69 +11,62 @@ import LargeCard from '@/components/shared/cards/LargeCard.vue'
 import { Skeleton } from '@/components/ui/skeleton'
 import AppLayout from '@/layouts/AppLayout.vue'
 import admin from '@/routes/admin'
-import type { BreadcrumbItem } from '@/types'
-import type { Dealer, Detail, Summary } from '@/types/admin/dealers'
-import type { PaginatedResponse } from '@/types/pagination'
+import type { AdminDealersProps, BreadcrumbItem, DealerResource } from '@/types'
 
-const props = defineProps<{
-	summary: Summary
-	dealers: PaginatedResponse<Dealer>
-	filters: { search: string | null }
-}>()
+const props = defineProps<AdminDealersProps>()
 
-const selectedDealer = ref<Detail | null>(null)
+const selectedDealer = ref<DealerResource | null>(null)
 const sidebarOpen = ref(false)
 const loadingDealer = ref(false)
 
 const breadcrumbs: BreadcrumbItem[] = [
-	{ title: 'Admin', href: admin.dashboard().url },
-	{ title: 'Dealers', href: admin.dealers.index().url },
+    { title: 'Admin', href: admin.dashboard().url },
+    { title: 'Dealers', href: admin.dealers.index().url },
 ]
 
 const searchQuery = ref(props.filters?.search ?? '')
 
 async function loadDealerDetails(dealerId: number) {
-	loadingDealer.value = true
-	selectedDealer.value = null
-	sidebarOpen.value = true
-	try {
-		const response = await axios.get(`/admin/dealers/api/${dealerId}/details`)
-		selectedDealer.value = response.data
-	} catch (error: any) {
-		toast.error('Error loading dealer details', {
-			description: error.response?.data?.error || 'Failed to load dealer information',
-		})
-		sidebarOpen.value = false
-	} finally {
-		loadingDealer.value = false
-	}
+    loadingDealer.value = true
+    selectedDealer.value = null
+    sidebarOpen.value = true
+    try {
+        const { data } = await axios.get<DealerResource>(`/admin/dealers/api/${dealerId}/details`)
+        selectedDealer.value = data
+    } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : 'Failed to load dealer information'
+        toast.error('Error loading dealer details', { description: message })
+        sidebarOpen.value = false
+    } finally {
+        loadingDealer.value = false
+    }
 }
 
 function openDealerSidebar(dealerId: number) {
-	loadDealerDetails(dealerId)
+    loadDealerDetails(dealerId)
 }
 
 function closeSidebar() {
-	sidebarOpen.value = false
-	selectedDealer.value = null
+    sidebarOpen.value = false
+    selectedDealer.value = null
 }
 
 function handlePageChange(page: number) {
-	router.visit(admin.dealers.index(), {
-		data: { page, search: searchQuery.value || undefined },
-		preserveState: true,
-		preserveScroll: true,
-	})
+    router.visit(admin.dealers.index(), {
+        data: { page, search: searchQuery.value || undefined },
+        preserveState: true,
+        preserveScroll: true,
+    })
 }
 
 function handleSearch(query: string) {
-	searchQuery.value = query
-	router.visit(admin.dealers.index().url, {
-		data: { search: query || undefined },
-		preserveState: true,
-		preserveScroll: true,
-		only: ['dealers', 'filters'],
-	})
+    searchQuery.value = query
+    router.visit(admin.dealers.index().url, {
+        data: { search: query || undefined },
+        preserveState: true,
+        preserveScroll: true,
+        only: ['dealers', 'filters'],
+    })
 }
 </script>
 
@@ -83,7 +76,7 @@ function handleSearch(query: string) {
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex h-full flex-col gap-6 p-4 lg:p-6">
-            <!-- Header -->
+
             <div class="flex items-end justify-between">
                 <Heading title="Dealers" description="Manage approved dealers and their activity metrics" />
             </div>
@@ -128,6 +121,5 @@ function handleSearch(query: string) {
         </div>
     </AppLayout>
 
-    <!-- Dealer Details Sidebar -->
     <DealerDetailSidebar :open="sidebarOpen" :dealer="selectedDealer" :loading="loadingDealer" @close="closeSidebar" />
 </template>
