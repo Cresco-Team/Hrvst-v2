@@ -1,22 +1,34 @@
-# Centralized Digital System of La Trinidad Vegetable Trading Post
+# The Digital Agricultural Exchange
+### Solving Market Blindness at the La Trinidad Vegetable Trading Post
+
 ---
-### Problem
- This project aims to solve the problem of:
- * Farmers not able to sell all their vegetables due to lack of connections with dealers leading to cheap offers.
- * Dealers not able to get the best deal before going to Trading Post leading to unbalanced prices.
+
+## 🚩 Problem: The Crisis of Market Blindness
+Currently, the La Trinidad Vegetable Trading Post operates on Information Asymmetry. Farmers and dealers operate in "blind" silos, leading to two critical systemic failures.
+1. **The Oversupply Cycle:** Farmers often harvest based on current high prices without knowing ow many other farmers are doing the same. This leads to "glut" days where supply far outstripe demand, forcing farmers to sell at a loss or waste their crops.
+2. **Under-Demand & Scarcity:** Dealers may arrive at the trading post only to find a shortage of the specific crops they need because there was no way to communicate their demand to the farming community in advance.
+3. **Logistical Chaos:** Without a coordinated schedule, the trading post experience unpredictable "peak" hours that strain resources and cause unneccessary delays for all stakeholders.
+
 ---
-### Features
- * Product posting of farmers to let the dealers know what's available.
- * Product posting of vegetable the dealers need to notify the farmers.
- * Transparent vegetable pricing with data analytics (Price history graph).
-#### The whole point of this system is to provide Users with the best planning and decision they could take before going to trading post to avoid any potential waste of time and money.
+
+### 🎯 The Goal: Market Synchronization
+Hrvst aims to transform the Trading Post from a chaotic marketplace into a **Just-in-time (JIT) Supply Chain**. The goal of this project is to provide the digital infrastructure necessary to:
+ * **Align Supply with Real-Time Demand:** Allow farmers to time their deliveries to match the specific windows when dealers are scheduled to arrive.
+ * **Enable Production Intelligence:** Move farmers away from reactive planting and toward proactive, data-driven crop selection using historical trends.
+ * **Reduce Post-Harvest Waste:** Ensure that every kilo of produce brought to the Trading Post has a higher probability of being sold at a fair market price.
+
 ---
-### Users
- * Admin (Trading Post Manager)
- * Farmer
- * Dealer
+
+## ✨ Key Features & Economic Impact
+| Feature | Technical Function | Economic Significance |
+----------|--------------------|-----------------------|
+| **Demand-Driven Scheduling** | Farmers and Dealers schedule arrivals. | **Load Balancing:** Prevents "glut" days by spreading deliveries across whe week. |
+| **Market Intelligence (Analytics)** | Price and supply history vesualization. | **Strategic Planting:** Stops the cycle of surpluses by showing farmers what to plant before the market is saturated. |
+| **Transparent Marketplace** | Mutual posting of available stock and dealer needs. | **Reduced Search Costs:** Connects farmers directly to the demand, ensuring a "guaranteed exit" for their crops. |
+
 ---
-### Tech Stack
+
+### 🛠️ Tech Stack
 ![Static Badge](https://img.shields.io/badge/Laravel-%23F54927?style=for-the-badge&logo=laravel&logoColor=%23F54927&label=PHP&labelColor=black)
 ![Static Badge](https://img.shields.io/badge/Vue-%2323CC78?style=for-the-badge&logo=vuedotjs&logoColor=%2323CC78&label=TS&labelColor=black)
 ![Static Badge](https://img.shields.io/badge/SQLite-%2325A2DB?style=for-the-badge&logo=sqlite&logoColor=%2325A2DB&label=SQL&labelColor=black)
@@ -30,13 +42,15 @@
 ![Static Badge](https://img.shields.io/badge/Gemini-%238652FF?style=for-the-badge&logo=googlegemini&logoColor=%238652FF&label=AI&labelColor=black)
 
 ---
-### Steps to Run
- * Run `git clone https://github.com/Cresco-Team/Hrvst-v2.git`
- * Run `cd Hrvst-v2`
- * Run `composer install` and `npm install`
- * Run `cp .env.example mv .env`
- * Run `php artisan key:generate`
- * Run `php storage:link`
- * Run `php artisan migrate --seed`
- * Run `composer run dev` if you're not using Herd
- * Create a new terminal and run `npm run dev`
+### 🚀 Getting Started
+ 1. **Clone the Repo:** `git clone https://github.com/Cresco-Team/Hrvst-v2.git` then `cd Hrvst-v2`
+ 2. **Install Dependencies:** `composer install` then `npm install`
+ 3. **Environment Setup:** `cp .env.example mv .env` then `php artisan key:generate`
+ 4. **Database & Storage:** `php artisan migrate --seed` then `php storage:link`
+ 8. **Run Development Server:** `php artisan serve` (or `composer run dev` for Herd)
+    * Terminal 2: `npm run dev`
+
+---
+
+**Developed by Team Cresco**
+*Lead Developer:* Jerdon M. Litaoen
