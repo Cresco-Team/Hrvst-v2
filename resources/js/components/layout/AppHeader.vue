@@ -5,9 +5,11 @@ import {
     Vegan,
 } from 'lucide-vue-next'
 import { computed } from 'vue'
-import AppLogo from '@/components/AppLogo.vue'
-import AppLogoIcon from '@/components/AppLogoIcon.vue'
-import Breadcrumbs from '@/components/Breadcrumbs.vue'
+import PendingApprovalSheet from '@/components/admin/PendingApprovalSheet.vue'
+import AppLogo from '@/components/layout/AppLogo.vue'
+import AppLogoIcon from '@/components/layout/AppLogoIcon.vue'
+import Breadcrumbs from '@/components/layout/Breadcrumbs.vue'
+import UserMenuContent from '@/components/layout/UserMenuContent.vue'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import {
@@ -18,7 +20,6 @@ import {
 } from '@/components/ui/navigation-menu'
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import UserMenuContent from '@/components/UserMenuContent.vue'
 import { useCurrentUrl } from '@/composables/useCurrentUrl'
 import { getInitials } from '@/composables/useInitials'
 import { toUrl } from '@/lib/utils'
@@ -27,7 +28,6 @@ import admin from '@/routes/admin'
 import dealer from '@/routes/dealer'
 import farmer from '@/routes/farmer'
 import type { BreadcrumbItem, NavItem } from '@/types'
-import PendingApprovalSheet from './admin/PendingApprovalSheet.vue'
 
 type Props = {
     breadcrumbs?: BreadcrumbItem[]

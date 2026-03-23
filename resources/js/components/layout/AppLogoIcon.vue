@@ -1,25 +1,20 @@
 <script setup lang="ts">
 import type { HTMLAttributes } from 'vue'
-import logoRaw from '../../images/app-logo.svg?raw' // Adjust path as needed
+import logoRaw from '@/../images/app-logo.svg?raw' // Adjust path as needed
 
 defineOptions({
-	inheritAttrs: false,
+    inheritAttrs: false,
 })
 
 type Props = {
-	className?: HTMLAttributes['class']
+    className?: HTMLAttributes['class']
 }
 
 defineProps<Props>()
 </script>
 
 <template>
-    <span 
-        :class="className" 
-        v-bind="$attrs" 
-        v-html="logoRaw"
-        class="inline-block"
-    ></span>
+    <span :class="className" v-bind="$attrs" v-html="logoRaw" class="inline-block"></span>
 </template>
 
 <style scoped>
