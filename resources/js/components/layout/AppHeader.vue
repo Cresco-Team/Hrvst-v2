@@ -5,6 +5,7 @@ import {
     Vegan,
 } from 'lucide-vue-next'
 import { computed } from 'vue'
+import PendingApprovalSheet from '@/components/features/admin/dialogs/PendingApprovalSheet.vue'
 import AppLogo from '@/components/layout/AppLogo.vue'
 import AppLogoIcon from '@/components/layout/AppLogoIcon.vue'
 import Breadcrumbs from '@/components/layout/Breadcrumbs.vue'
@@ -27,7 +28,6 @@ import admin from '@/routes/admin'
 import dealer from '@/routes/dealer'
 import farmer from '@/routes/farmer'
 import type { BreadcrumbItem, NavItem } from '@/types'
-import PendingApprovalSheet from '@/components/features/admin/diaogs/PendingApprovalSheet.vue'
 
 type Props = {
     breadcrumbs?: BreadcrumbItem[]
@@ -212,7 +212,7 @@ const rightNavItems = computed<NavItem[]>(() => {
                                                 <a :href="toUrl(item.href)" target="_blank" rel="noopener noreferrer">
                                                     <span class="sr-only">{{
                                                         item.title
-                                                        }}</span>
+                                                    }}</span>
                                                     <component :is="item.icon"
                                                         class="size-5 opacity-80 group-hover:opacity-100" />
                                                 </a>
