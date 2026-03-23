@@ -7,11 +7,11 @@ import { Button } from '@/components/ui/button'
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group'
 import { Label } from '@/components/ui/label'
 import Spinner from '@/components/ui/spinner/Spinner.vue'
-import type { Variety } from '@/types/admin/vegetable-varieties'
+import type { VarietyResource } from '@/types'
 
 const props = defineProps<{
   open: boolean
-  variety: Variety
+  variety: VarietyResource
   isSubmitting: boolean
 }>()
 
@@ -28,7 +28,7 @@ const handleClose = () => {
 
 <template>
   <ResponsiveModal :open="open" title="Update Price"
-    :description="`Suggested pricing for ${variety?.vegetable.name} ${variety?.name}.`">
+    :description="`Suggested pricing for ${variety.vegetable?.name} ${variety?.name}.`">
 
     <Form :action="store(props.variety.id)" method="post" :data="{ price_min: 0, price_max: 0 }"
       #default="{ reset, clearErrors, errors, processing }" :options="{ preserveScroll: true, preserveState: true }"
