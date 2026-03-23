@@ -6,55 +6,47 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { getInitials } from '@/composables/useInitials'
-import type { PendingDealer, PendingFarmer } from '@/types/admin/pending-approvals'
+import type { PendingDealer, PendingFarmer } from '@/types/resources/profile'
 import ActionDialog from '../ActionDialog.vue'
 
-type Props = {
-	open: boolean
-	item: PendingFarmer | PendingDealer | null
-	type: 'farmer' | 'dealer'
-}
-
-const props = defineProps<Props>()
+const props = defineProps<{
+  open: boolean
+  item: PendingFarmer | PendingDealer | null
+  type: 'farmer' | 'dealer'
+}>()
 
 const emit = defineEmits<{
-	'update:open': [value: boolean]
-	approve: [id: number]
-	reject: [id: number]
+  'update:open': [value: boolean]
+  approve: [id: number]
+  reject: [id: number]
 }>()
 
 function isFarmer(item: PendingFarmer | PendingDealer): item is PendingFarmer {
-	return props.type === 'farmer'
+  return props.type === 'farmer'
 }
 
 function onApprove() {
-	if (!props.item) return
-	emit('approve', props.item.id)
-	emit('update:open', false)
+  if (!props.item) return
+  emit('approve', props.item.id)
+  emit('update:open', false)
 }
 
 function onReject() {
-	if (!props.item) return
-	emit('reject', props.item.id)
-	emit('update:open', false)
+  if (!props.item) return
+  emit('reject', props.item.id)
+  emit('update:open', false)
 }
 </script>
 
 <template>
-  <ActionDialog
-    :title="`${type === 'farmer' ? 'Farmer' : 'Dealer'} Application`"
-    description="Review all details before accepting or rejecting this application."
-    :open="open" @update:open="emit('update:open', $event)"
-  >
+  <ActionDialog :title="`${type === 'farmer' ? 'Farmer' : 'Dealer'} Application`"
+    description="Review all details before accepting or rejecting this application." :open="open"
+    @update:open="emit('update:open', $event)">
     <template v-if="item">
       <!-- User identity -->
       <div class="flex items-center gap-4">
         <Avatar class="size-14">
-          <AvatarImage
-            v-if="item.user.image_path"
-            :src="item.user.image_path"
-            :alt="item.user.name"
-          />
+          <AvatarImage v-if="item.user.image_path" :src="item.user.image_path" :alt="item.user.name" />
           <AvatarFallback class="bg-neutral-200 font-semibold text-black dark:bg-neutral-700 dark:text-white">
             {{ getInitials(item.user.name) }}
           </AvatarFallback>
@@ -90,18 +82,14 @@ function onReject() {
             <span>{{ item.location.full_address }}</span>
           </div>
 
-          <LeafletMap
-            :lat="item.location.coordinates.lat"
-            :lng="item.location.coordinates.lng"
-            :markers="[{ lat: item.location.coordinates.lat, lng: item.location.coordinates.lng, popup: item.location.full_address }]"
-          />
+          <LeafletMap :lat="item.location.coordinates.lat" :lng="item.location.coordinates.lng" :markers="[{
+            lat: item.location.coordinates.lat,
+            lng: item.location.coordinates.lng,
+            popup: item.location.full_address,
+          }]" />
 
           <div v-if="item.farm_image" class="overflow-hidden rounded-md border">
-            <img
-              :src="item.farm_image"
-              alt="Farm photo"
-              class="h-48 w-full object-cover"
-            />
+            <img :src="item.farm_image" alt="Farm photo" class="h-48 w-full object-cover" />
           </div>
           <p v-else class="text-sm italic text-muted-foreground">No farm image provided.</p>
         </div>
@@ -114,11 +102,8 @@ function onReject() {
         <div class="flex flex-col gap-2">
           <p class="text-sm font-medium">Business Document</p>
           <div v-if="(item as PendingDealer).document_image" class="overflow-hidden rounded-md border">
-            <img
-              :src="(item as PendingDealer).document_image!"
-              alt="Business document"
-              class="h-48 w-full object-cover"
-            />
+            <img :src="(item as PendingDealer).document_image!" alt="Business document"
+              class="h-48 w-full object-cover" />
           </div>
           <p v-else class="text-sm italic text-muted-foreground">No document image provided.</p>
         </div>

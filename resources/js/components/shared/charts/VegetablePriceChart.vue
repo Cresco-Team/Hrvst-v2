@@ -3,10 +3,10 @@ import { AlertCircle } from 'lucide-vue-next'
 import { Line } from 'vue-chartjs'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { usePriceHistoryChart } from '@/composables/usePriceHistoryChart'
-import type { PriceEntry } from '@/types/shared/vegetables'
+import type { PriceHistoryResource } from '@/types/resources/product'
 
 const props = defineProps<{
-    recentPrices: PriceEntry[]
+    recentPrices: PriceHistoryResource[]
 }>()
 
 const { chartData, chartOptions } = usePriceHistoryChart(() => props.recentPrices)

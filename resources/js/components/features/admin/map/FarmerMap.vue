@@ -5,7 +5,7 @@ import 'leaflet/dist/leaflet.css'
 import 'leaflet.markercluster/dist/MarkerCluster.css'
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css'
 import 'leaflet.markercluster'
-import type { MarkerData } from '@/types/admin/farmers'
+import type { FarmerMarker } from '@/types/resources/marketplace'
 
 interface MapCenter {
 	lat: number
@@ -13,7 +13,7 @@ interface MapCenter {
 }
 
 const props = defineProps<{
-	markers: MarkerData[]
+	markers: FarmerMarker[]
 	center: MapCenter
 	zoom: number
 }>()
@@ -53,42 +53,42 @@ const vegetableColors: Record<string, string> = {
 	'Butternut Squash': '#ea580c',
 }
 
-const getMarkerColor = (offerings: MarkerData['supplies_summary']): string => {
-	if (offerings.length === 0) return '#6b7280'
-	const dominant = offerings.reduce((prev, current) =>
+const getMarkerColor = (summary: FarmerMarker['supplies_summary']): string => {
+	if (summary.length === 0) return '#6b7280'
+	const dominant = summary.reduce((prev, current) =>
 		prev.count > current.count ? prev : current,
 	)
 	return vegetableColors[dominant.vegetable] || '#6b7280'
 }
 
-const createCustomMarker = (markers: MarkerData): L.DivIcon => {
-	const color = getMarkerColor(markers.supplies_summary)
+const createCustomMarker = (marker: FarmerMarker): L.DivIcon => {
+	const color = getMarkerColor(marker.supplies_summary)
 
 	return L.divIcon({
 		className: 'custom-marker',
 		html: `
-            <div style="
-                width: 36px;
-                height: 36px;
-                background-color: ${color};
-                border: 3px solid white;
-                border-radius: 50%;
-                box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                color: white;
-                font-weight: bold;
-                font-size: 13px;
-                cursor: pointer;
-                transition: transform 0.2s;
-            "
-            onmouseover="this.style.transform='scale(1.2)'"
-            onmouseout="this.style.transform='scale(1)'"
-            >
-                ${markers.ongoing_supplies_count}
-            </div>
-        `,
+      <div style="
+        width: 36px;
+        height: 36px;
+        background-color: ${color};
+        border: 3px solid white;
+        border-radius: 50%;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        font-size: 13px;
+        cursor: pointer;
+        transition: transform 0.2s;
+      "
+      onmouseover="this.style.transform='scale(1.2)'"
+      onmouseout="this.style.transform='scale(1)'"
+      >
+        ${marker.ongoing_supplies_count}
+      </div>
+    `,
 		iconSize: [36, 36],
 		iconAnchor: [18, 18],
 	})
@@ -160,23 +160,23 @@ onUnmounted(() => {
 </script>
 
 <template>
-    <div ref="mapContainer" class="h-full w-full rounded-lg overflow-hidden" />
+	<div ref="mapContainer" class="h-full w-full rounded-lg overflow-hidden" />
 </template>
 
 <style scoped>
 :deep(.custom-marker),
 :deep(.marker-cluster-custom) {
-    background: transparent !important;
-    border: none !important;
+	background: transparent !important;
+	border: none !important;
 }
 
 /* Ensure map stays below overlays */
 :deep(.leaflet-pane) {
-    z-index: 1 !important;
+	z-index: 1 !important;
 }
 
 :deep(.leaflet-top),
 :deep(.leaflet-bottom) {
-    z-index: 2 !important;
+	z-index: 2 !important;
 }
 </style>

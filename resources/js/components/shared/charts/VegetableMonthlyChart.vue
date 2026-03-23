@@ -3,7 +3,7 @@ import { AlertCircle } from 'lucide-vue-next'
 import { Bar } from 'vue-chartjs'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useMonthlyVolumeChart } from '@/composables/useMonthlyVolumeChart'
-import type { MonthlyActivity } from '@/types/shared/vegetables'
+import type { MonthlyActivity } from '@/types/resources/product'
 
 const props = defineProps<{
     monthlyActivity: MonthlyActivity[]
