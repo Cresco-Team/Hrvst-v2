@@ -5,16 +5,12 @@ import type { AcceptableValue } from 'reka-ui'
 import { ref } from 'vue'
 import EmptyState from '@/components/EmptyState.vue'
 import Heading from '@/components/Heading.vue'
-import VegetableCatalogCard from '@/components/shared/VegetableCatalogCard.vue'
+import VegetableCatalogCard from '@/components/shared/cards/VegetableCatalogCard.vue'
 import VegetableDetailDialog from '@/components/shared/VegetableDetailDialog.vue'
 import { Button } from '@/components/ui/button'
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group'
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
 import AppLayout from '@/layouts/AppLayout.vue'
