@@ -4,7 +4,6 @@ import { Archive, CalendarClock, PackageCheck, Plus, Sprout, Wheat } from 'lucid
 import { computed, ref } from 'vue'
 import ConfirmationDialog from '@/components/dialogs/ConfirmationDialog.vue'
 import EmptyState from '@/components/EmptyState.vue'
-import SupplyForm from '@/components/farmer/SupplyForm.vue'
 import Heading from '@/components/Heading.vue'
 import LargeCard from '@/components/shared/cards/LargeCard.vue'
 import MyPostCard from '@/components/shared/cards/MyPostCard.vue'
@@ -17,6 +16,7 @@ import { archive, destroy, fulfill, index } from '@/routes/farmer/supplies'
 import type {
   BreadcrumbItem, FarmerSuppliesProps, FarmerSupplyResource, DealerDemandResource, VarietyOptionsByCategory, SupplyVarietyOption,
 } from '@/types'
+import SupplyForm from '@/components/featured/farmer/SupplyForm.vue'
 
 // Union emitted by MyPostCard — handlers must accept both sides of the union.
 // This page only ever passes FarmerSupplyResource instances so the cast is safe.
