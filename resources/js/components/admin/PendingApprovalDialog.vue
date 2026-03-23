@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Check, Mail, MapPin, Phone, X } from 'lucide-vue-next'
+import ActionDialog from '@/components/dialogs/ActionDialog.vue'
 import LeafletMap from '@/components/LeafletMap.vue'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
@@ -7,7 +8,6 @@ import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { getInitials } from '@/composables/useInitials'
 import type { PendingDealer, PendingFarmer } from '@/types/resources/profile'
-import ActionDialog from '../ActionDialog.vue'
 
 const props = defineProps<{
   open: boolean

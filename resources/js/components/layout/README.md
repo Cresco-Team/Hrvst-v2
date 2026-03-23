@@ -1,0 +1,1 @@
+Everything that composes app shell lives here.

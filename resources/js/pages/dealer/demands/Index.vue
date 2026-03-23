@@ -2,8 +2,8 @@
 import { Deferred, Head, router } from '@inertiajs/vue3'
 import { Archive, CalendarClock, PackageCheck, Plus, ShoppingBag, Sprout } from 'lucide-vue-next'
 import { computed, ref } from 'vue'
-import ConfirmationDialog from '@/components/ConfirmationDialog.vue'
 import DemandForm from '@/components/dealer/DemandForm.vue'
+import ConfirmationDialog from '@/components/dialogs/ConfirmationDialog.vue'
 import EmptyState from '@/components/EmptyState.vue'
 import Heading from '@/components/Heading.vue'
 import LargeCard from '@/components/shared/cards/LargeCard.vue'
@@ -15,12 +15,7 @@ import AppLayout from '@/layouts/AppLayout.vue'
 import dealer from '@/routes/dealer'
 import { archive, destroy, fulfill, index } from '@/routes/dealer/demands'
 import type {
-  BreadcrumbItem,
-  DealerDemandsProps,
-  DealerDemandResource,
-  DemandVarietyOption,
-  FarmerSupplyResource,
-  VarietyOptionsByCategory,
+  BreadcrumbItem, DealerDemandsProps, DealerDemandResource, DemandVarietyOption, FarmerSupplyResource, VarietyOptionsByCategory,
 } from '@/types'
 
 // Union emitted by MyPostCard — handlers must accept both sides of the union.

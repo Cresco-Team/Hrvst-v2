@@ -1,19 +1,13 @@
 <script setup lang="ts">
 import { DollarSign, Leaf } from 'lucide-vue-next'
 import { computed } from 'vue'
-import DialogForm from '@/components/DialogForm.vue'
+import DialogForm from '@/components/dialogs/DialogForm.vue'
 import ImageUpload from '@/components/shared/media/ImageUpload.vue'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
+  Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue,
 } from '@/components/ui/select'
 import { useDialogForm } from '@/composables/useDialogForm'
 import type { VarietyResource, VegetableOptions } from '@/types/resources/product'

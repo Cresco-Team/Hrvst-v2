@@ -3,25 +3,16 @@ import { useForm } from '@inertiajs/vue3'
 import { Sprout } from 'lucide-vue-next'
 import { computed, watch } from 'vue'
 import { store, update } from '@/actions/App/Http/Controllers/Farmer/SupplyController'
-import DialogForm from '@/components/DialogForm.vue'
+import DialogForm from '@/components/dialogs/DialogForm.vue'
 import ImageUpload from '@/components/shared/media/ImageUpload.vue'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
+  Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue,
 } from '@/components/ui/select'
 import type {
-  FarmerSupplyResource,
-  PostTimeSlot,
-  SupplyVarietyOption,
-  VarietyOptionsByCategory,
+  FarmerSupplyResource, PostTimeSlot, SupplyVarietyOption, VarietyOptionsByCategory,
 } from '@/types'
 
 interface Props {
