@@ -2,7 +2,7 @@
 import { DollarSign, Leaf } from 'lucide-vue-next'
 import { computed } from 'vue'
 import DialogForm from '@/components/dialogs/DialogForm.vue'
-import ImageUpload from '@/components/shared/media/ImageUpload.vue'
+import ImageUpload from '@/components/forms/ImageUpload.vue'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
