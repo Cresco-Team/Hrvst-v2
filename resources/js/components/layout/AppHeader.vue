@@ -5,7 +5,6 @@ import {
     Vegan,
 } from 'lucide-vue-next'
 import { computed } from 'vue'
-import PendingApprovalSheet from '@/components/admin/PendingApprovalSheet.vue'
 import AppLogo from '@/components/layout/AppLogo.vue'
 import AppLogoIcon from '@/components/layout/AppLogoIcon.vue'
 import Breadcrumbs from '@/components/layout/Breadcrumbs.vue'
@@ -28,6 +27,7 @@ import admin from '@/routes/admin'
 import dealer from '@/routes/dealer'
 import farmer from '@/routes/farmer'
 import type { BreadcrumbItem, NavItem } from '@/types'
+import PendingApprovalSheet from '@/components/features/admin/diaogs/PendingApprovalSheet.vue'
 
 type Props = {
     breadcrumbs?: BreadcrumbItem[]

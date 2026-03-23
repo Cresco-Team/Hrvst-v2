@@ -4,11 +4,11 @@ import axios from 'axios'
 import { AlertTriangle, Leaf, Sprout, TrendingUp } from 'lucide-vue-next'
 import { ref } from 'vue'
 import { toast } from 'vue-sonner'
-import PriceUpdateForm from '@/components/admin/forms/PriceUpdateForm.vue'
-import VarietyForm from '@/components/admin/forms/VarietyForm.vue'
 import ConfirmationDialog from '@/components/dialogs/ConfirmationDialog.vue'
 import EmptyState from '@/components/EmptyState.vue'
 import PriceFreshnessFilter from '@/components/features/admin/filters/PriceFreshnessFilter.vue'
+import PriceUpdateForm from '@/components/features/admin/forms/PriceUpdateForm.vue'
+import VarietyForm from '@/components/features/admin/forms/VarietyForm.vue'
 import VarietyTable from '@/components/features/admin/tables/VarietyTable.vue'
 import Heading from '@/components/Heading.vue'
 import LargeCard from '@/components/shared/cards/LargeCard.vue'
@@ -17,12 +17,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { dashboard } from '@/routes/admin'
 import {
-  destroy,
-  index,
-  store,
-  update,
-  details as varietyDetails,
-  show as varietyShow,
+  destroy, index, store, update, details as varietyDetails, show as varietyShow,
 } from '@/routes/admin/vegetables'
 import type { AdminVegetablesProps, BreadcrumbItem, VarietyResource } from '@/types'
 
