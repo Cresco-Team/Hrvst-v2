@@ -10,33 +10,33 @@ import VegetableDetailDialog from '@/components/shared/VegetableDetailDialog.vue
 import { Button } from '@/components/ui/button'
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group'
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
+    Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
 import AppLayout from '@/layouts/AppLayout.vue'
 import dealer from '@/routes/dealer'
 import farmer from '@/routes/farmer'
 import type { BreadcrumbItem } from '@/types'
-import type { PaginatedResponse } from '@/types/pagination'
-import type { CatalogFilters, CatalogVariety, CategoryOption } from '@/types/shared/vegetables'
+import type { Paginated } from '@/types/index'
+import type { CategoryOption, VarietyResource } from '@/types/resources/product'
 
-// ─── Props ────────────────────────────────────────────────────────────────────
-// All navigation and breadcrumb URLs are injected by the controller so this
-// component has zero knowledge of which role is viewing it.
+// Identical shape for both farmer and dealer vegetable index routes.
+// Kept local so this page remains role-agnostic.
+interface VegetablesFilters {
+    search: string | null
+    category_id: number | null
+}
+
 interface Props {
-    filters: CatalogFilters
-    varieties?: PaginatedResponse<CatalogVariety>
-    categoryOptions?: CategoryOption[]
+    filters: VegetablesFilters
+    varieties?: Paginated<VarietyResource>      // Inertia::defer
+    categoryOptions?: CategoryOption[]           // Inertia::defer
 }
 
 const props = defineProps<Props>()
 
 // ─── State ────────────────────────────────────────────────────────────────────
-const selectedVariety = ref<CatalogVariety | null>(null)
+const selectedVariety = ref<VarietyResource | null>(null)
 const dialogOpen = ref(false)
 
 const searchQuery = ref(props.filters.search ?? '')
@@ -55,7 +55,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 ]
 
 // ─── Handlers ─────────────────────────────────────────────────────────────────
-function openDetail(variety: CatalogVariety) {
+function openDetail(variety: VarietyResource) {
     selectedVariety.value = variety
     dialogOpen.value = true
 }
@@ -180,7 +180,7 @@ function handlePageChange(page: number) {
         </div>
     </AppLayout>
 
-    <!-- indexHref + variety ID builds the show URL without needing role-aware wayfinder imports -->
+    <!-- indexHref + variety ID builds the show URL without role-specific wayfinder imports -->
     <VegetableDetailDialog :open="dialogOpen" :variety="selectedVariety"
         :view-href="selectedVariety ? `${indexHref}/${selectedVariety.id}` : undefined"
         @update:open="dialogOpen = $event" />

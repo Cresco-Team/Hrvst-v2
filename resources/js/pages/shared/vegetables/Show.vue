@@ -12,14 +12,10 @@ import AppLayout from '@/layouts/AppLayout.vue'
 import dealer from '@/routes/dealer'
 import farmer from '@/routes/farmer'
 import type { BreadcrumbItem } from '@/types'
-import type { ShowVariety } from '@/types/shared/vegetables'
+import type { VarietyResource } from '@/types/resources/product'
 
-// ─── Props ────────────────────────────────────────────────────────────────────
-// backHref/backLabel: role home (farmer → supplies, dealer → demands)
-// indexHref: vegetables index URL for the mid-level breadcrumb
-// Both injected by the controller — this component is role-agnostic.
 interface Props {
-    variety?: ShowVariety | null
+    variety?: VarietyResource | null  // Inertia::defer
 }
 
 const props = defineProps<Props>()
@@ -36,7 +32,7 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => [
     { title: 'Vegetables', href: indexHref },
     ...(props.variety
         ? [{
-            title: `${props.variety.vegetable.name} ${props.variety.name}`,
+            title: `${props.variety.vegetable?.name} ${props.variety.name}`,
             href: `${indexHref}/${props.variety.id}`,
         }]
         : []
@@ -66,7 +62,7 @@ const freshnessConfig = {
 
 <template>
 
-    <Head :title="variety ? `${variety.vegetable.name} ${variety.name}` : 'Variety'" />
+    <Head :title="variety ? `${variety.vegetable?.name} ${variety.name}` : 'Variety'" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex flex-col gap-6 p-4 lg:p-6">
@@ -87,8 +83,8 @@ const freshnessConfig = {
 
                     <!-- ── Header ──────────────────────────────────────────────────────── -->
                     <div class="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
-                        <Heading :title="`${variety.vegetable.name} ${variety.name}`"
-                            :description="variety.vegetable.category.name" />
+                        <Heading :title="`${variety.vegetable?.name} ${variety.name}`"
+                            :description="variety.vegetable?.category?.name" />
 
                         <div class="flex items-center gap-2">
                             <Badge v-if="variety.latest_price" variant="outline"
@@ -116,10 +112,10 @@ const freshnessConfig = {
                     </div>
 
                     <!-- ── Price history chart ─────────────────────────────────────────── -->
-                    <VegetablePriceChart :recent-prices="variety.recent_prices" />
+                    <VegetablePriceChart :recent-prices="variety.recent_prices ?? []" />
 
                     <!-- ── Monthly market volume chart ────────────────────────────────── -->
-                    <VegetableMonthlyChart :monthly-activity="variety.monthly_activity" />
+                    <VegetableMonthlyChart :monthly-activity="variety.monthly_activity ?? []" />
 
                 </template>
             </Deferred>
