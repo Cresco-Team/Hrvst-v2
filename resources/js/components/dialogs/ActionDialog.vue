@@ -1,23 +1,18 @@
 <script setup lang="ts">
 import {
-	Dialog,
-	DialogContent,
-	DialogDescription,
-	DialogFooter,
-	DialogHeader,
-	DialogTitle,
-} from './ui/dialog'
+    Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
+} from '@/components/ui/dialog'
 
 type Props = {
-	open: boolean
-	title: string
-	description: string
+    open: boolean
+    title: string
+    description: string
 }
 
 defineProps<Props>()
 
 defineEmits<{
-	'update:open': [value: boolean]
+    'update:open': [value: boolean]
 }>()
 </script>
 
