@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Deferred, Head, router } from '@inertiajs/vue3'
-import { Archive, CalendarClock, PackageCheck, Plus, ShoppingBag, Sprout } from 'lucide-vue-next'
+import { Archive, PackageCheck, Plus, ShoppingBag, Sprout } from 'lucide-vue-next'
 import { computed, ref } from 'vue'
 import ConfirmationDialog from '@/components/dialogs/ConfirmationDialog.vue'
 import EmptyState from '@/components/EmptyState.vue'
@@ -15,7 +15,12 @@ import AppLayout from '@/layouts/AppLayout.vue'
 import dealer from '@/routes/dealer'
 import { archive, destroy, fulfill, index } from '@/routes/dealer/demands'
 import type {
-  BreadcrumbItem, DealerDemandsProps, DealerDemandResource, DemandVarietyOption, FarmerSupplyResource, VarietyOptionsByCategory,
+  BreadcrumbItem,
+  DealerDemandResource,
+  DealerDemandsProps,
+  DemandVarietyOption,
+  FarmerSupplyResource,
+  VarietyOptionsByCategory,
 } from '@/types'
 
 // Union emitted by MyPostCard — handlers must accept both sides of the union.
@@ -52,23 +57,23 @@ function openCreate() {
   formOpen.value = true
 }
 
-function openEdit(post: PostItem) {
-  activeDemand.value = post as DealerDemandResource
+function openEdit(demand: PostItem) {
+  activeDemand.value = demand as DealerDemandResource
   formOpen.value = true
 }
 
-function openArchive(post: PostItem) {
-  demandToArchive.value = post as DealerDemandResource
+function openArchive(demand: PostItem) {
+  demandToArchive.value = demand as DealerDemandResource
   archiveDialogOpen.value = true
 }
 
-function openFulfill(post: PostItem) {
-  demandToFulfill.value = post as DealerDemandResource
+function openFulfill(demand: PostItem) {
+  demandToFulfill.value = demand as DealerDemandResource
   fulfillDialogOpen.value = true
 }
 
-function openDelete(post: PostItem) {
-  demandToDelete.value = post as DealerDemandResource
+function openDelete(demand: PostItem) {
+  demandToDelete.value = demand as DealerDemandResource
   deleteDialogOpen.value = true
 }
 
@@ -135,10 +140,10 @@ const breadcrumbs: BreadcrumbItem[] = [
     <div class="flex h-full flex-col gap-6 p-4 lg:p-6">
 
       <div class="flex items-end justify-between">
-        <Heading title="My Demands" description="Manage your purchase requests for farmers." />
+        <Heading title="My Demands" description="Schedule your demands for pick-up." />
         <Button class="gap-2" @click="openCreate">
           <Plus class="size-4" />
-          New Post
+          New Demand
         </Button>
       </div>
 
@@ -150,15 +155,14 @@ const breadcrumbs: BreadcrumbItem[] = [
           </div>
         </template>
 
-        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-2">
-          <LargeCard title="Ongoing Posts" :value="summary?.total_ongoing" subtext="all available requests"
-            :icon="ShoppingBag" card-class="from-sky-50 to-blue-50 dark:from-sky-950/20 dark:to-blue-950/20" />
-          <LargeCard title="Fulfilled Posts" :value="summary?.total_fulfilled" subtext="all fulfilled requests"
-            :icon="PackageCheck" card-class="from-zinc-100 to-zinc-100 dark:from-zinc-950/20 dark:to-zinc-950/20" />
-          <LargeCard title="Archived Posts" :value="summary?.total_archived" subtext="all archived requests"
-            :icon="Archive" card-class="from-amber-50 to-orange-50 dark:from-amber-950/20 dark:to-orange-950/20" />
-          <LargeCard title="Upcoming Transactions" :value="summary?.upcoming_transactions" subtext="scheduled this week"
-            :icon="CalendarClock" card-class="from-sky-50 to-blue-50 dark:from-sky-950/20 dark:to-blue-950/20" />
+        <div class="grid md:grid-cols-3 gap-4">
+          <LargeCard title="Ongoing Demands" :value="summary?.total_ongoing" subtext="not yet picked-up"
+            :icon="ShoppingBag" card-class="bg-green-50 dark:bg-green-950/20" />
+          <LargeCard title="Archived Demands" :value="summary?.total_archived" subtext="picked-up from trading post"
+            :icon="Archive" card-class="bg-green-50 dark:bg-green-950/20" />
+          <LargeCard title="Fulfilled Demands" :value="summary?.total_fulfilled" subtext="marked as successful"
+            :icon="PackageCheck" card-class="bg-green-50 dark:bg-green-950/20" />
+
         </div>
       </Deferred>
 
@@ -179,8 +183,8 @@ const breadcrumbs: BreadcrumbItem[] = [
           </div>
         </template>
 
-        <EmptyState v-if="demands?.data.length === 0" title="No Posted Demands Yet."
-          description="Post a purchase request for farmers." :icon="Sprout" button="Add Request" />
+        <EmptyState v-if="demands?.data.length === 0" title="No Demands Yet."
+          description="Post a demand to be picked-up." :icon="Sprout" button="Add Request" />
 
         <div v-else class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           <MyPostCard v-for="demand in demands!.data" :key="demand.id" :post="demand" @edit="openEdit"
@@ -208,15 +212,15 @@ const breadcrumbs: BreadcrumbItem[] = [
     :variety-options="(varietyOptions as VarietyOptionsByCategory<DemandVarietyOption>)"
     @update:open="formOpen = $event" />
 
-  <ConfirmationDialog v-model:open="archiveDialogOpen" title="Archive Post"
+  <ConfirmationDialog v-model:open="archiveDialogOpen" title="Archive Demand"
     :description="`Are you sure you want to archive ${demandToArchive?.variety?.vegetable} ${demandToArchive?.variety?.name}?`"
     variant="destructive" @action="handleArchive" />
 
-  <ConfirmationDialog v-model:open="fulfillDialogOpen" title="Fulfill Post"
-    :description="`Are you sure you want to set ${demandToFulfill?.variety?.vegetable} ${demandToFulfill?.variety?.name} post as fulfilled?`"
+  <ConfirmationDialog v-model:open="fulfillDialogOpen" title="Fulfill Demand"
+    :description="`Are you sure you want to set ${demandToFulfill?.variety?.vegetable} ${demandToFulfill?.variety?.name} as fulfilled?`"
     @action="handleFulfill" />
 
-  <ConfirmationDialog v-model:open="deleteDialogOpen" title="Delete Post"
+  <ConfirmationDialog v-model:open="deleteDialogOpen" title="Delete Demand"
     :description="`Are you sure you want to delete ${demandToDelete?.variety?.vegetable} ${demandToDelete?.variety?.name}?`"
     @action="handleDelete" />
 </template>

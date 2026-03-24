@@ -14,13 +14,9 @@ class SupplyService
         $query = Post::supply()->where('user_id', $userId);
 
         return [
-            'total_ongoing'      => (clone $query)->ongoing()->count(),
-            'total_fulfilled'    => (clone $query)->fulfilled()->count(),
-            'total_archived'     => (clone $query)->archived()->count(),
-            'expiring_this_week' => (clone $query)
-                ->ongoing()
-                ->whereBetween('scheduled_date', [now(), now()->addWeek()])
-                ->count(),
+            'total_ongoing' => (clone $query)->ongoing()->count(),
+            'total_fulfilled' => (clone $query)->fulfilled()->count(),
+            'total_archived' => (clone $query)->archived()->count(),
         ];
     }
 
@@ -31,8 +27,8 @@ class SupplyService
             ->with(['media', 'variety.media', 'variety.vegetable.category', 'variety.latestPrice']);
 
         match ($status) {
-            PostStatus::Ongoing   => $query->ongoing(),
-            PostStatus::Archived  => $query->archived(),
+            PostStatus::Ongoing => $query->ongoing(),
+            PostStatus::Archived => $query->archived(),
             PostStatus::Fulfilled => $query->fulfilled(),
         };
 
@@ -41,16 +37,15 @@ class SupplyService
 
     public function varietyOptions(): array
     {
-        return cache()->remember('farmer_supply_variety_options', 3600, fn () =>
-            Variety::with('vegetable.category')
-                ->orderBy('name')
-                ->get()
-                ->groupBy(fn ($variety) => $variety->vegetable->category->name)
-                ->map(fn ($varieties) => $varieties->map(fn ($variety) => [
-                    'id'   => $variety->id,
-                    'name' => $variety->vegetable->name . ' ' . $variety->name,
-                ])->values()->toArray())
-                ->toArray()
+        return cache()->remember('farmer_supply_variety_options', 3600, fn () => Variety::with('vegetable.category')
+            ->orderBy('name')
+            ->get()
+            ->groupBy(fn ($variety) => $variety->vegetable->category->name)
+            ->map(fn ($varieties) => $varieties->map(fn ($variety) => [
+                'id' => $variety->id,
+                'name' => $variety->vegetable->name.' '.$variety->name,
+            ])->values()->toArray())
+            ->toArray()
         );
     }
 }
