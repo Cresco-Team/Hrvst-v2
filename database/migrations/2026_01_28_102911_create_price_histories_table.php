@@ -19,7 +19,7 @@ return new class extends Migration
 
             $table->timestamps();
 
-            $table->index(['variety_id', 'recorded_at', 'idx_variety_recorded']);
+            $table->index(['variety_id', 'recorded_at'], 'idx_variety_recorded');
             $table->index('recorded_at', 'idx_recorded_at');
             $table->unique(['variety_id', 'recorded_at']);
         });
