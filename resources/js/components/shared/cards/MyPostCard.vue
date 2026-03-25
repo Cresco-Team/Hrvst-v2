@@ -1,18 +1,17 @@
 <script setup lang="ts">
-import { AlarmClockCheck, Archive, Calendar, MoreVertical, PackageCheck, Pencil, Trash } from 'lucide-vue-next'
+import {
+    AlarmClockCheck, Calendar, MoreVertical, PackageCheck, Pencil, Trash,
+} from 'lucide-vue-next'
 import { computed } from 'vue'
 import { AspectRatio } from '@/components/ui/aspect-ratio'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
+    DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Separator } from '@/components/ui/separator'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import type { DealerDemandResource, FarmerSupplyResource } from '@/types'
 
 // This card is used by both farmer/supplies/Index and dealer/demands/Index.
@@ -32,12 +31,9 @@ const emit = defineEmits<{
 
 const isOngoing = computed(() => post.status === 'Ongoing')
 const isArchived = computed(() => post.status === 'Archived')
-const isFulfilled = computed(() => post.status === 'Fulfilled')
 
 // image_url only exists on FarmerSupplyResource (supply posts carry an image)
-const imageUrl = computed(() =>
-    'image_url' in post ? post.image_url : undefined,
-)
+const imageUrl = computed(() => ('image_url' in post ? post.image_url : undefined))
 </script>
 
 <template>
@@ -49,7 +45,19 @@ const imageUrl = computed(() =>
 
             <div
                 class="absolute bottom-0 right-0 rounded-tl-lg bg-black/60 px-3 py-1 text-xs font-medium text-white backdrop-blur-sm">
-                {{ post.created_at_human }}
+                <TooltipProvider :delay-duration="200">
+                    <Tooltip>
+                        <TooltipTrigger as-child>
+                            <div class="cursor-help">
+                                {{ post.created_at_human }}
+                            </div>
+                        </TooltipTrigger>
+
+                        <TooltipContent>
+                            Joined on: {{ post.created_at }}
+                        </TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
             </div>
 
             <Badge class="absolute top-2 left-4 tracking-wider font-mono font-semibold">
@@ -68,11 +76,6 @@ const imageUrl = computed(() =>
                         Edit Details
                     </DropdownMenuItem>
                     <DropdownMenuSeparator v-if="isOngoing" />
-                    <DropdownMenuItem v-if="isOngoing || isFulfilled" class="text-orange-600 dark:text-orange-400"
-                        @click="emit('archive', post)">
-                        <Archive class="mr-2 size-4" />
-                        Archive
-                    </DropdownMenuItem>
                     <DropdownMenuItem v-if="isOngoing || isArchived" class="text-green-500 dark:text-green-400"
                         @click="emit('fulfill', post)">
                         <PackageCheck class="mr-2 size-4" />

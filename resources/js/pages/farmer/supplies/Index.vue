@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Deferred, Head, router } from '@inertiajs/vue3'
-import { Archive, CalendarClock, PackageCheck, Plus, Sprout, Wheat } from 'lucide-vue-next'
+import { Archive, PackageCheck, Plus, Sprout, Wheat } from 'lucide-vue-next'
 import { computed, ref } from 'vue'
 import ConfirmationDialog from '@/components/dialogs/ConfirmationDialog.vue'
 import EmptyState from '@/components/EmptyState.vue'
@@ -15,7 +15,12 @@ import AppLayout from '@/layouts/AppLayout.vue'
 import farmer from '@/routes/farmer'
 import { archive, destroy, fulfill, index } from '@/routes/farmer/supplies'
 import type {
-  BreadcrumbItem, FarmerSuppliesProps, FarmerSupplyResource, DealerDemandResource, VarietyOptionsByCategory, SupplyVarietyOption,
+  BreadcrumbItem,
+  DealerDemandResource,
+  FarmerSuppliesProps,
+  FarmerSupplyResource,
+  SupplyVarietyOption,
+  VarietyOptionsByCategory,
 } from '@/types'
 
 // Union emitted by MyPostCard — handlers must accept both sides of the union.
@@ -52,23 +57,23 @@ function openCreate() {
   formOpen.value = true
 }
 
-function openEdit(post: PostItem) {
-  activeSupply.value = post as FarmerSupplyResource
+function openEdit(supply: PostItem) {
+  activeSupply.value = supply as FarmerSupplyResource
   formOpen.value = true
 }
 
-function openArchive(post: PostItem) {
-  supplyToArchive.value = post as FarmerSupplyResource
+function openArchive(supply: PostItem) {
+  supplyToArchive.value = supply as FarmerSupplyResource
   archiveDialogOpen.value = true
 }
 
-function openFulfill(post: PostItem) {
-  supplyToFulfill.value = post as FarmerSupplyResource
+function openFulfill(supply: PostItem) {
+  supplyToFulfill.value = supply as FarmerSupplyResource
   fulfillDialogOpen.value = true
 }
 
-function openDelete(post: PostItem) {
-  supplyToDelete.value = post as FarmerSupplyResource
+function openDelete(supply: PostItem) {
+  supplyToDelete.value = supply as FarmerSupplyResource
   deleteDialogOpen.value = true
 }
 
@@ -135,10 +140,10 @@ const breadcrumbs: BreadcrumbItem[] = [
     <div class="flex h-full flex-col gap-6 p-4 lg:p-6">
 
       <div class="flex items-end justify-between">
-        <Heading title="My Supplies" description="Manage your vegetable posts for dealers." />
+        <Heading title="My Supplies" description="Schedule your supplies for delivery." />
         <Button class="gap-2" @click="openCreate">
           <Plus class="size-4" />
-          New Post
+          New Supply
         </Button>
       </div>
 
@@ -150,16 +155,13 @@ const breadcrumbs: BreadcrumbItem[] = [
           </div>
         </template>
 
-        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-2">
-          <LargeCard title="Ongoing Posts" :value="summary?.total_ongoing" subtext="all available offers" :icon="Wheat"
-            card-class="from-emerald-50 to-green-50 dark:from-emerald-950/20 dark:to-green-950/20" />
-          <LargeCard title="Fulfilled Posts" :value="summary?.total_fulfilled" subtext="all fulfilled offers"
-            :icon="PackageCheck" card-class="from-zinc-100 to-zinc-100 dark:from-zinc-950/20 dark:to-zinc-950/20" />
-          <LargeCard title="Archived Posts" :value="summary?.total_archived" subtext="all archived offers"
-            :icon="Archive" card-class="from-amber-50 to-orange-50 dark:from-emerald-950/20 dark:to-green-950/20" />
-          <LargeCard title="Expiring Posts" :value="summary?.expiring_this_week" subtext="expiring this week"
-            :icon="CalendarClock"
-            card-class="from-emerald-50 to-green-50 dark:from-emerald-950/20 dark:to-green-950/20" />
+        <div class="grid md:grid-cols-3 gap-4">
+          <LargeCard title="Ongoing Supplies" :value="summary?.total_ongoing" subtext="not yet harvested" :icon="Wheat"
+            card-class="bg-green-50 dark:bg-green-950/20" />
+          <LargeCard title="Archived Supplies" :value="summary?.total_archived" subtext="delivered to trading post"
+            :icon="Archive" card-class="bg-green-50 dark:bg-green-950/20" />
+          <LargeCard title="Fulfilled Supplies" :value="summary?.total_fulfilled" subtext="marked as successful"
+            :icon="PackageCheck" card-class="bg-green-50 dark:bg-green-950/20" />
         </div>
       </Deferred>
 
@@ -180,8 +182,8 @@ const breadcrumbs: BreadcrumbItem[] = [
           </div>
         </template>
 
-        <EmptyState v-if="supplies?.data.length === 0" title="No Posted Supplies Yet." description="Post an offering"
-          :icon="Sprout" button="Add Offering" />
+        <EmptyState v-if="supplies?.data.length === 0" title="No Supplies Yet."
+          description="Post a supply to be delivered" :icon="Sprout" />
 
         <div v-else class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           <MyPostCard v-for="supply in supplies!.data" :key="supply.id" :post="supply" @edit="openEdit"
@@ -209,15 +211,15 @@ const breadcrumbs: BreadcrumbItem[] = [
     :variety-options="(varietyOptions as VarietyOptionsByCategory<SupplyVarietyOption> | undefined)"
     @update:open="formOpen = $event" />
 
-  <ConfirmationDialog v-model:open="archiveDialogOpen" title="Archive Post"
+  <ConfirmationDialog v-model:open="archiveDialogOpen" title="Archive Supply"
     :description="`Are you sure you want to archive ${supplyToArchive?.variety?.vegetable} ${supplyToArchive?.variety?.name}?`"
     variant="destructive" @action="handleArchive" />
 
-  <ConfirmationDialog v-model:open="fulfillDialogOpen" title="Fulfill Post"
-    :description="`Are you sure you want to set ${supplyToFulfill?.variety?.vegetable} ${supplyToFulfill?.variety?.name} post as fulfilled?`"
+  <ConfirmationDialog v-model:open="fulfillDialogOpen" title="Fulfill Supply"
+    :description="`Are you sure you want to set ${supplyToFulfill?.variety?.vegetable} ${supplyToFulfill?.variety?.name} as fulfilled?`"
     @action="handleFulfill" />
 
-  <ConfirmationDialog v-model:open="deleteDialogOpen" title="Delete Post"
+  <ConfirmationDialog v-model:open="deleteDialogOpen" title="Delete Supply"
     :description="`Are you sure you want to delete ${supplyToDelete?.variety?.vegetable} ${supplyToDelete?.variety?.name}?`"
     @action="handleDelete" />
 </template>

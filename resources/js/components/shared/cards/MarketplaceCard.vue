@@ -6,6 +6,7 @@ import { AspectRatio } from '@/components/ui/aspect-ratio'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { cn } from '@/lib/utils'
 import type { DealerDemandResource, FarmerSupplyResource } from '@/types'
 
@@ -58,12 +59,31 @@ async function toggleHeart(event: MouseEvent): Promise<void> {
                 :alt="`${post.variety?.name} image`" />
 
             <Badge class="absolute top-2 left-4 tracking-wider font-mono font-semibold">
-                {{ post.offered_price.toLocaleString('en-PH', { style: 'currency', currency: 'PHP' }) }}/kg
+                <TooltipProvider :delay-duration="200">
+                    <Tooltip>
+                        <TooltipTrigger as-child>
+                            <span class="cursor-help">{{ post.offered_price.toLocaleString('en-PH', {
+                                style: 'currency',
+                                currency: 'PHP'
+                            }) }}/kg</span>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                            {{ post.price_flag }} Price
+                        </TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
             </Badge>
 
             <div
                 class="absolute bottom-0 right-0 rounded-tl-lg bg-black/60 px-3 py-1 text-xs font-medium text-white backdrop-blur-sm">
-                {{ post.price_flag }} Price
+                <TooltipProvider :delay-duration="200">
+                    <Tooltip>
+                        <TooltipTrigger as-child>
+                            <div class="cursor-help">{{ post.created_at_human }}</div>
+                        </TooltipTrigger>
+                        <TooltipContent>{{ post.created_at }}</TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
             </div>
         </AspectRatio>
 
