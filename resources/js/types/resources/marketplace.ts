@@ -1,20 +1,29 @@
 // Mirrors:
 //   app/Http/Resources/Marketplace/FarmerSupplyResource.php
 //   app/Http/Resources/Marketplace/DealerDemandResource.php
+//   app/Http/Resources/Marketplace/MarketplacePostResource.php
+//   app/Services/Marketplace/VarietyCalendarService.php
 
 import type { PostStatus, PostPriceFlag, PostTimeSlot } from '../enums'
 import type { Coordinates } from '../shared'
 
 // ─── Embedded variety shape (both supply + demand resources) ──────────────────
 
-// Flattened variety snapshot embedded in post resources.
-// Loaded via with('variety.vegetable.category', 'variety.media')
 export interface PostVarietySnapshot {
   id: number
   name: string
-  vegetable: string | null   // vegetable.name — null when relation not loaded
-  category: string | null    // vegetable.category.name — null when relation not loaded
+  vegetable: string | null
+  category: string | null
   image_url: string
+}
+
+export interface MarketplacePostVariety extends PostVarietySnapshot {
+  latest_price: {
+    price_min: number
+    price_max: number
+    recorded_at: string
+    freshness: 'recent' | 'stable' | 'very stable' | 'stale'
+  } | null
 }
 
 // ─── FarmerSupplyResource ─────────────────────────────────────────────────────
@@ -25,19 +34,15 @@ export interface FarmerSupplyResource {
   offered_price: number
   price_flag: PostPriceFlag
   status: PostStatus
-  scheduled_date: string | null         // formatted 'M d, Y'
+  scheduled_date: string | null
   time_slot: PostTimeSlot | null
   time_slot_label: string | null
-  days_until_expiration: number | null  // negative = already past
+  days_until_expiration: number | null
   hearts_count: number
   is_hearted: boolean
-  created_at: string                    // 'M d, Y'
+  created_at: string
   created_at_human: string
-
-  // with('media')
   image_url?: string
-
-  // with('variety.vegetable.category', 'variety.media')
   variety?: PostVarietySnapshot
 }
 
@@ -49,22 +54,77 @@ export interface DealerDemandResource {
   offered_price: number
   price_flag: PostPriceFlag
   status: PostStatus
-  scheduled_date: string | null          // formatted 'M d, Y'
+  scheduled_date: string | null
   time_slot: PostTimeSlot | null
   time_slot_label: string | null
-  days_until_transaction: number | null  // negative = already past
+  days_until_transaction: number | null
   hearts_count: number
   is_hearted: boolean
-  created_at: string                     // 'M d, Y'
+  created_at: string
   created_at_human: string
-
-  // with('variety.vegetable.category', 'variety.media')
   variety?: PostVarietySnapshot
+}
+
+// ─── MarketplacePost ──────────────────────────────────────────────────────────
+
+export interface MarketplacePost {
+  id: number
+  type: 'supply' | 'demand'
+  status: PostStatus
+  quantity_kg: number
+  offered_price: number | null
+  price_flag: PostPriceFlag | null
+  scheduled_date: string | null
+  scheduled_date_iso: string | null
+  time_slot: PostTimeSlot | null
+  time_slot_label: string | null
+  days_until_transaction: number | null
+  hearts_count: number
+  is_hearted: boolean
+  is_own: boolean
+  image_url: string | null
+  municipality: string | null
+  created_at: string
+  created_at_human: string
+  variety: MarketplacePostVariety
+}
+
+// ─── Variety Calendar ─────────────────────────────────────────────────────────
+// Mirrors app/Services/Marketplace/VarietyCalendarService::forMonth()
+//
+// 'unscheduled' is a backend-only bucket for posts where time_slot IS NULL.
+// It is intentionally NOT part of the PostTimeSlot enum — that enum reflects
+// real DB column values, and NULL is not one of them. This is purely a
+// frontend display concept to prevent NULL posts silently disappearing.
+
+export type CalendarTimeSlot = PostTimeSlot | 'unscheduled'
+
+export interface VarietyCalendarEntry {
+  type: 'supply' | 'demand'
+  total_kg: number
+  posts_count: number
+}
+
+/** Slot → entries for one calendar day */
+export type VarietyDaySchedule = Partial<Record<CalendarTimeSlot, VarietyCalendarEntry[]>>
+
+/** ISO date string "YYYY-MM-DD" → day schedule */
+export type VarietyMonthSchedule = Record<string, VarietyDaySchedule>
+
+export interface VarietyCalendarSummary {
+  total_supply_kg: number
+  total_demand_kg: number
+  active_days: number
+  total_posts: number
+}
+
+export interface VarietyCalendarFilters {
+  year: number
+  month: number
 }
 
 // ─── Map Markers ──────────────────────────────────────────────────────────────
 
-// SupplyMapService::markers() — grouped by barangay
 export interface SupplyMarker {
   barangay_id: number
   barangay: string
@@ -84,7 +144,6 @@ export interface SupplyBreakdown {
   varieties: string[]
 }
 
-// FarmerMapService::getFarmersForMap() — one marker per farmer
 export interface FarmerMarker {
   id: number
   coordinates: Coordinates
@@ -94,7 +153,6 @@ export interface FarmerMarker {
   supplies_summary: FarmerMarkerVegetableSummary[]
 }
 
-// Per-vegetable breakdown nested inside FarmerMarker — distinct from FarmerSupplySummary in profile.ts
 export interface FarmerMarkerVegetableSummary {
   vegetable: string
   count: number
@@ -103,43 +161,37 @@ export interface FarmerMarkerVegetableSummary {
 
 // ─── Option Bag Types ─────────────────────────────────────────────────────────
 
-// SupplyService::varietyOptions() + DemandService::varietyOptions()
-// Grouped by category name
 export type SupplyVarietyOption = {
   id: number
-  name: string                                          // "Vegetable Variety"
+  name: string
 }
 
 export type DemandVarietyOption = SupplyVarietyOption & {
-  current_price: { min: number; max: number } | null    // variety.latestPrice
+  current_price: { min: number; max: number } | null
 }
 
 export type VarietyOptionsByCategory<T extends SupplyVarietyOption = SupplyVarietyOption> =
   Record<string, T[]>
 
-// SupplyMapService::filterOptions()
 export interface SupplyMapFilterOptions {
   categories: Array<{ id: number; name: string }>
   varieties: Record<string, Array<{ id: number; name: string }>>
 }
 
-// Local UI state for supply-map filter controls — not a backend response type.
-// Drives the axios params sent to SupplyMapService::markers().
 export interface SupplyMapFilters {
   category_id: number | null
   variety_id: number | null
 }
 
-// FarmerMapService helpers surfaced to admin/farmers/Index
 export interface MunicipalityOption {
   id: number
   name: string
   province: string
-  label: string   // "Municipality, Province"
+  label: string
 }
 
 export interface SupplyOption {
   id: number
-  name: string    // "Vegetable Variety"
+  name: string
   category: string
 }
