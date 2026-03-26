@@ -10,6 +10,7 @@ use App\Models\Profiles\Role;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Laravel\Fortify\Contracts\CreatesNewUsers;
@@ -22,11 +23,11 @@ class CreateNewUser implements CreatesNewUsers
     {
         $this->validateInput($input);
 
-        $profileImage  = $input['profile_image'] instanceof UploadedFile
+        $profileImage = $input['profile_image'] instanceof UploadedFile
             ? $input['profile_image']
             : null;
 
-        $farmImage     = isset($input['farm_image']) && $input['farm_image'] instanceof UploadedFile
+        $farmImage = isset($input['farm_image']) && $input['farm_image'] instanceof UploadedFile
             ? $input['farm_image']
             : null;
 
@@ -53,21 +54,21 @@ class CreateNewUser implements CreatesNewUsers
         $role = $input['role'] ?? null;
 
         $rules = [
-            'role'          => ['required', 'string', Rule::in(['farmer', 'dealer'])],
+            'role' => ['required', 'string', Rule::in(['farmer', 'dealer'])],
             ...$this->profileRules(),
-            'phone_number'  => $this->phoneNumberRules(),
-            'password'      => $this->passwordRules(),
+            'phone_number' => $this->phoneNumberRules(),
+            'password' => $this->passwordRules(),
             'profile_image' => ['nullable', 'image', 'mimes:jpeg,jpg,png,webp', 'max:5120'],
         ];
 
         if ($role === 'farmer') {
             $rules += [
-                'province_id'     => ['required', 'integer', Rule::exists('provinces', 'id')],
+                'province_id' => ['required', 'integer', Rule::exists('provinces', 'id')],
                 'municipality_id' => ['required', 'integer', Rule::exists('municipalities', 'id')],
-                'barangay_id'     => ['required', 'integer', Rule::exists('barangays', 'id')],
-                'latitude'        => ['required', 'numeric', 'between:-90,90'],
-                'longitude'       => ['required', 'numeric', 'between:-180,180'],
-                'farm_image'      => ['required', 'image', 'mimes:jpeg,jpg,png,webp', 'max:5120'],
+                'barangay_id' => ['required', 'integer', Rule::exists('barangays', 'id')],
+                'latitude' => ['required', 'numeric', 'between:-90,90'],
+                'longitude' => ['required', 'numeric', 'between:-180,180'],
+                'farm_image' => ['required', 'image', 'mimes:jpeg,jpg,png,webp', 'max:5120'],
             ];
         }
 
@@ -76,19 +77,19 @@ class CreateNewUser implements CreatesNewUsers
         }
 
         Validator::make($input, $rules, [
-            'phone_number.regex'          => 'Phone number must be a valid PH mobile number (e.g. 09171234567).',
-            'phone_number.unique'         => 'This phone number is already registered.',
-            'farm_image.required'         => 'A farm photo is required as proof of your farm.',
-            'document_image.required'     => 'A document photo is required for dealer verification.',
+            'phone_number.regex' => 'Phone number must be a valid PH mobile number (e.g. 09171234567).',
+            'phone_number.unique' => 'This phone number is already registered.',
+            'farm_image.required' => 'A farm photo is required as proof of your farm.',
+            'document_image.required' => 'A document photo is required for dealer verification.',
         ])->validate();
     }
 
     private function createUser(array $input, ?UploadedFile $profileImage): User
     {
         $user = User::create([
-            'name'         => $input['name'],
-            'email'        => $input['email'],
-            'password'     => $input['password'],
+            'name' => $input['name'],
+            'email' => $input['email'],
+            'password' => Hash::make($input['password']),
             'phone_number' => $input['phone_number'],
         ]);
 
@@ -108,12 +109,12 @@ class CreateNewUser implements CreatesNewUsers
     private function createFarmerProfile(User $user, array $input, ?UploadedFile $farmImage): void
     {
         $farmer = FarmerProfile::create([
-            'user_id'         => $user->id,
-            'province_id'     => $input['province_id'],
+            'user_id' => $user->id,
+            'province_id' => $input['province_id'],
             'municipality_id' => $input['municipality_id'],
-            'barangay_id'     => $input['barangay_id'],
-            'latitude'        => $input['latitude'],
-            'longitude'       => $input['longitude'],
+            'barangay_id' => $input['barangay_id'],
+            'latitude' => $input['latitude'],
+            'longitude' => $input['longitude'],
         ]);
 
         if ($farmImage !== null) {
