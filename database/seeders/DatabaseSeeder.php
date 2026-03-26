@@ -12,6 +12,7 @@ use Database\Seeders\Product\VegetableSeeder;
 use Database\Seeders\Profiles\AdminSeeder;
 use Database\Seeders\Profiles\DealerSeeder;
 use Database\Seeders\Profiles\FarmerSeeder;
+use Database\Seeders\Profiles\RoleSeeder;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -28,6 +29,7 @@ class DatabaseSeeder extends Seeder
             VarietySeeder::class,
             // PriceHistorySeeder::class,
             // VarietyMonthlyStatsSeeder::class,
+            RoleSeeder::class,
 
             AdminSeeder::class,
             // FarmerSeeder::class,
