@@ -13,8 +13,8 @@ return new class extends Migration
             $table->foreignId('province_id')->constrained();
 
             $table->string('name');
-            $table->decimal('latitude', 10, 8);
-            $table->decimal('longitude', 10, 8);
+            $table->decimal('latitude', 10, 7);
+            $table->decimal('longitude', 11, 8);
 
             $table->index(['name']);
         });
