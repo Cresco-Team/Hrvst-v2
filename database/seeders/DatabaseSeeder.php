@@ -26,12 +26,12 @@ class DatabaseSeeder extends Seeder
             CategorySeeder::class,
             VegetableSeeder::class,
             VarietySeeder::class,
-            PriceHistorySeeder::class,
-            VarietyMonthlyStatsSeeder::class,
+            // PriceHistorySeeder::class,
+            // VarietyMonthlyStatsSeeder::class,
 
             AdminSeeder::class,
-            FarmerSeeder::class,
-            DealerSeeder::class,
+            // FarmerSeeder::class,
+            // DealerSeeder::class,
         ]);
     }
 }
