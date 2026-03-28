@@ -47,14 +47,9 @@ class VegetableController extends Controller
         $year = (int) ($validated['year'] ?? now()->year);
         $month = (int) ($validated['month'] ?? now()->month);
 
-        return Inertia::render($this->resolveView($request), [
+        return Inertia::render('shared/vegetables/Show', [
             'variety' => Inertia::defer(
-                fn () => new VarietyResource($variety->load([
-                    'vegetable.category',
-                    'media',
-                    'latestPrice',
-                    'prices',
-                ]))
+                fn () => (new VarietyResource($this->varietyService->show($variety)))->resolve()
             ),
 
             'varietyCalendar' => Inertia::defer(
@@ -80,21 +75,5 @@ class VegetableController extends Controller
                 'month' => $month,
             ],
         ]);
-    }
-
-    private function resolveView(Request $request): string
-    {
-        $user = $request->user();
-
-        if ($user->hasRole('farmer')) {
-            return 'farmer/vegetables/Show';
-        }
-
-        if ($user->hasRole('dealer')) {
-            return 'dealer/vegetables/Show';
-        }
-
-        // Admin fallback — adjust if you have a dedicated admin view
-        return 'shared/vegetables/Show';
     }
 }
