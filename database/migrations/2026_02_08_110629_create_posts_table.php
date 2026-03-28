@@ -23,6 +23,7 @@ return new class extends Migration
             $table->enum('time_slot', ['morning', 'afternoon', 'evening'])->nullable();
 
             $table->unsignedInteger('hearts_count')->default(0);
+            $table->softDeletes();
             $table->timestamps();
 
             $table->index(['status']);
