@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Marketplace;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Product\VarietyResource;
 use App\Models\Product\Variety;
-use App\Services\Marketplace\VarietyCalendarService;
 use App\Services\Product\VarietyService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -15,7 +14,6 @@ class VegetableController extends Controller
 {
     public function __construct(
         private VarietyService $varietyService,
-        private VarietyCalendarService $calendarService,
     ) {}
 
     public function index(Request $request): Response
@@ -49,25 +47,9 @@ class VegetableController extends Controller
 
         return Inertia::render('shared/vegetables/Show', [
             'variety' => Inertia::defer(
-                fn () => (new VarietyResource($this->varietyService->show($variety)))->resolve()
-            ),
-
-            'varietyCalendar' => Inertia::defer(
-                fn () => $this->calendarService->forMonth(
-                    varietyId: $variety->id,
-                    year: $year,
-                    month: $month,
-                ),
-                group: 'calendar',
-            ),
-
-            'calendarSummary' => Inertia::defer(
-                fn () => $this->calendarService->summaryForMonth(
-                    varietyId: $variety->id,
-                    year: $year,
-                    month: $month,
-                ),
-                group: 'calendar',
+                fn () => (new VarietyResource(
+                    $this->varietyService->show($variety, $year, $month)
+                ))->resolve()
             ),
 
             'calendarFilters' => [

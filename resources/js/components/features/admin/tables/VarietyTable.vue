@@ -1,58 +1,59 @@
 <script setup lang="ts">
+import { Link } from '@inertiajs/vue3'
 import type { ColumnDef } from '@tanstack/vue-table'
 import {
-    ChevronDown,
-    ChevronRight,
-    ClipboardList,
-    ClipboardPenLine,
-    ClipboardPlus,
-    ClipboardX,
-    Clock,
-    MapPin,
-    Plus,
+	ChevronDown,
+	ChevronRight,
+	ClipboardList,
+	ClipboardPenLine,
+	ClipboardPlus,
+	ClipboardX,
+	Clock,
+	MapPin,
+	Plus,
 } from 'lucide-vue-next'
 import DataTable from '@/components/shared/tables/DataTable.vue'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+import { show as varietyShow } from '@/routes/admin/vegetables'
 import type { Paginated, VarietyResource } from '@/types'
 
 defineProps<{
-    varieties: Paginated<VarietyResource>
-    searchQuery?: string
+	varieties: Paginated<VarietyResource>
+	searchQuery?: string
 }>()
 
 defineEmits<{
-    'open-create': []
-    'open-view': [variety: VarietyResource]
-    'open-edit': [variety: VarietyResource]
-    'open-delete': [variety: VarietyResource]
-    'open-update-price': [variety: VarietyResource]
-    'page-change': [page: number]
-    search: [query: string]
+	'open-create': []
+	'open-edit': [variety: VarietyResource]
+	'open-delete': [variety: VarietyResource]
+	'open-update-price': [variety: VarietyResource]
+	'page-change': [page: number]
+	search: [query: string]
 }>()
 
 const columns: ColumnDef<VarietyResource>[] = [
-    { id: 'expand', header: '' },
-    { id: 'image', header: 'Image', enableSorting: false },
-    {
-        id: 'name',
-        header: 'Variety',
-        accessorFn: (row) => `${row.vegetable?.name ?? ''} ${row.name}`,
-        enableSorting: true,
-    },
-    {
-        id: 'price_range',
-        header: 'Price Range',
-        accessorFn: (row) =>
-            row.latest_price
-                ? `₱${row.latest_price.price_min} – ₱${row.latest_price.price_max}`
-                : 'No price data',
-        enableSorting: false,
-    },
-    { id: 'activity', header: 'Activity', enableSorting: false },
-    { id: 'actions', header: 'Actions', enableSorting: false, enableHiding: true },
+	{ id: 'expand', header: '' },
+	{ id: 'image', header: 'Image', enableSorting: false },
+	{
+		id: 'name',
+		header: 'Variety',
+		accessorFn: (row) => `${row.vegetable?.name ?? ''} ${row.name}`,
+		enableSorting: true,
+	},
+	{
+		id: 'price_range',
+		header: 'Price Range',
+		accessorFn: (row) =>
+			row.latest_price
+				? `₱${row.latest_price.price_min} – ₱${row.latest_price.price_max}`
+				: 'No price data',
+		enableSorting: false,
+	},
+	{ id: 'activity', header: 'Activity', enableSorting: false },
+	{ id: 'actions', header: 'Actions', enableSorting: false, enableHiding: true },
 ]
 </script>
 
@@ -165,8 +166,10 @@ const columns: ColumnDef<VarietyResource>[] = [
                     <Tooltip>
                         <TooltipTrigger as-child>
                             <Button variant="ghost" size="icon-sm" class="text-muted-foreground hover:text-foreground"
-                                @click="$emit('open-view', row)">
-                                <ClipboardList class="size-4" />
+                                as-child>
+                                <Link :href="varietyShow(row.id).url">
+                                    <ClipboardList class="size-4" />
+                                </Link>
                             </Button>
                         </TooltipTrigger>
                         <TooltipContent>

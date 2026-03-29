@@ -6,11 +6,14 @@ import { ref } from 'vue'
 import EmptyState from '@/components/EmptyState.vue'
 import Heading from '@/components/Heading.vue'
 import VegetableCatalogCard from '@/components/shared/cards/VegetableCatalogCard.vue'
-import VegetableDetailDialog from '@/components/shared/VegetableDetailDialog.vue'
 import { Button } from '@/components/ui/button'
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group'
 import {
-    Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
 } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
 import AppLayout from '@/layouts/AppLayout.vue'
@@ -23,22 +26,19 @@ import type { CategoryOption, VarietyResource } from '@/types/resources/product'
 // Identical shape for both farmer and dealer vegetable index routes.
 // Kept local so this page remains role-agnostic.
 interface VegetablesFilters {
-    search: string | null
-    category_id: number | null
+	search: string | null
+	category_id: number | null
 }
 
 interface Props {
-    filters: VegetablesFilters
-    varieties?: Paginated<VarietyResource>      // Inertia::defer
-    categoryOptions?: CategoryOption[]           // Inertia::defer
+	filters: VegetablesFilters
+	varieties?: Paginated<VarietyResource> // Inertia::defer
+	categoryOptions?: CategoryOption[] // Inertia::defer
 }
 
 const props = defineProps<Props>()
 
 // ─── State ────────────────────────────────────────────────────────────────────
-const selectedVariety = ref<VarietyResource | null>(null)
-const dialogOpen = ref(false)
-
 const searchQuery = ref(props.filters.search ?? '')
 let searchDebounce: ReturnType<typeof setTimeout> | null = null
 
@@ -50,55 +50,50 @@ const backHref = isFarmer ? farmer.supplies.index().url : dealer.demands.index()
 const indexHref = isFarmer ? farmer.vegetables.index().url : dealer.vegetables.index().url
 
 const breadcrumbs: BreadcrumbItem[] = [
-    { title: isFarmer ? 'Farmer' : 'Dealer', href: backHref },
-    { title: 'Vegetables', href: indexHref },
+	{ title: isFarmer ? 'Farmer' : 'Dealer', href: backHref },
+	{ title: 'Vegetables', href: indexHref },
 ]
 
 // ─── Handlers ─────────────────────────────────────────────────────────────────
-function openDetail(variety: VarietyResource) {
-    selectedVariety.value = variety
-    dialogOpen.value = true
-}
-
 function handleSearch() {
-    if (searchDebounce) clearTimeout(searchDebounce)
+	if (searchDebounce) clearTimeout(searchDebounce)
 
-    searchDebounce = setTimeout(() => {
-        router.visit(indexHref, {
-            data: {
-                search: searchQuery.value || undefined,
-                category_id: props.filters.category_id || undefined,
-            },
-            preserveState: true,
-            preserveScroll: true,
-            only: ['varieties'],
-        })
-    }, 300)
+	searchDebounce = setTimeout(() => {
+		router.visit(indexHref, {
+			data: {
+				search: searchQuery.value || undefined,
+				category_id: props.filters.category_id || undefined,
+			},
+			preserveState: true,
+			preserveScroll: true,
+			only: ['varieties'],
+		})
+	}, 300)
 }
 
 function handleCategoryFilter(value: AcceptableValue) {
-    const category = value === 'all' || value == null ? undefined : String(value)
+	const category = value === 'all' || value == null ? undefined : String(value)
 
-    router.visit(indexHref, {
-        data: {
-            search: props.filters.search || undefined,
-            category_id: category,
-        },
-        preserveState: true,
-        preserveScroll: true,
-        only: ['varieties'],
-    })
+	router.visit(indexHref, {
+		data: {
+			search: props.filters.search || undefined,
+			category_id: category,
+		},
+		preserveState: true,
+		preserveScroll: true,
+		only: ['varieties'],
+	})
 }
 
 function handlePageChange(page: number) {
-    router.visit(indexHref, {
-        data: {
-            page,
-            search: props.filters.search || undefined,
-            category_id: props.filters.category_id || undefined,
-        },
-        preserveScroll: true,
-    })
+	router.visit(indexHref, {
+		data: {
+			page,
+			search: props.filters.search || undefined,
+			category_id: props.filters.category_id || undefined,
+		},
+		preserveScroll: true,
+	})
 }
 </script>
 
@@ -156,8 +151,12 @@ function handlePageChange(page: number) {
                     description="Try adjusting your search or category filter." />
 
                 <div v-else class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-                    <VegetableCatalogCard v-for="variety in varieties.data" :key="variety.id" :variety="variety"
-                        @select="openDetail" />
+                    <VegetableCatalogCard
+                        v-for="variety in varieties.data"
+                        :key="variety.id"
+                        :variety="variety"
+                        :href="`${indexHref}/${variety.id}`"
+                    />
                 </div>
             </Deferred>
 
@@ -179,9 +178,4 @@ function handlePageChange(page: number) {
 
         </div>
     </AppLayout>
-
-    <!-- indexHref + variety ID builds the show URL without role-specific wayfinder imports -->
-    <VegetableDetailDialog :open="dialogOpen" :variety="selectedVariety"
-        :view-href="selectedVariety ? `${indexHref}/${selectedVariety.id}` : undefined"
-        @update:open="dialogOpen = $event" />
 </template>

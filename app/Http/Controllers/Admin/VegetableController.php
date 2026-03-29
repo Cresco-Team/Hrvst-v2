@@ -48,12 +48,27 @@ class VegetableController extends Controller
         );
     }
 
-    public function show(Variety $variety): Response
+    public function show(Request $request, Variety $variety): Response
     {
-        return Inertia::render('admin/vegetables/Show', [
+        $validated = $request->validate([
+            'year' => ['sometimes', 'integer', 'min:2020', 'max:2035'],
+            'month' => ['sometimes', 'integer', 'min:1', 'max:12'],
+        ]);
+
+        $year = (int) ($validated['year'] ?? now()->year);
+        $month = (int) ($validated['month'] ?? now()->month);
+
+        return Inertia::render('shared/vegetables/Show', [
             'variety' => Inertia::defer(
-                fn () => (new VarietyResource($this->varietyService->show($variety)))->resolve()
+                fn () => (new VarietyResource(
+                    $this->varietyService->show($variety, $year, $month)
+                ))->resolve()
             ),
+
+            'calendarFilters' => [
+                'year' => $year,
+                'month' => $month,
+            ],
         ]);
     }
 

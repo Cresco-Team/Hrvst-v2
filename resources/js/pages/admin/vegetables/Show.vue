@@ -10,7 +10,12 @@ import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import {
-    Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
+	Table,
+	TableBody,
+	TableCell,
+	TableHead,
+	TableHeader,
+	TableRow,
 } from '@/components/ui/table'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { dashboard } from '@/routes/admin'
@@ -18,37 +23,39 @@ import { index as vegetablesIndex, show as vegetablesShow } from '@/routes/admin
 import type { BreadcrumbItem, PriceFreshness, VarietyResource } from '@/types'
 
 const props = defineProps<{
-    variety?: VarietyResource
+	variety?: VarietyResource
 }>()
 
 const breadcrumbs = computed<BreadcrumbItem[]>(() => [
-    { title: 'Admin', href: dashboard().url },
-    { title: 'Vegetables', href: vegetablesIndex().url },
-    ...(props.variety
-        ? [{
-            title: `${props.variety.vegetable?.name} ${props.variety.name}`,
-            href: vegetablesShow(props.variety.id).url,
-        }]
-        : []),
+	{ title: 'Admin', href: dashboard().url },
+	{ title: 'Vegetables', href: vegetablesIndex().url },
+	...(props.variety
+		? [
+				{
+					title: `${props.variety.vegetable?.name} ${props.variety.name}`,
+					href: vegetablesShow(props.variety.id).url,
+				},
+			]
+		: []),
 ])
 
 const freshnessConfig: Record<PriceFreshness, { label: string; class: string }> = {
-    recent: {
-        label: 'Recently Updated',
-        class: 'bg-green-500/10 text-green-700 dark:text-green-400 border-green-500/20',
-    },
-    stable: {
-        label: 'Stable',
-        class: 'bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20',
-    },
-    'very stable': {
-        label: 'Older Price',
-        class: 'bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20',
-    },
-    stale: {
-        label: 'Stale Price',
-        class: 'bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/20',
-    },
+	recent: {
+		label: 'Recently Updated',
+		class: 'bg-green-500/10 text-green-700 dark:text-green-400 border-green-500/20',
+	},
+	stable: {
+		label: 'Stable',
+		class: 'bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20',
+	},
+	'very stable': {
+		label: 'Older Price',
+		class: 'bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20',
+	},
+	stale: {
+		label: 'Stale Price',
+		class: 'bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/20',
+	},
 }
 </script>
 

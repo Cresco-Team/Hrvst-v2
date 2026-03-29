@@ -53,9 +53,7 @@ export interface VarietyResource {
   image_url: string
   hearts_count: number
   is_hearted: boolean
-
-  // with('vegetable.category')
-  vegetable?: VarietyVegetable
+  vegetable: VarietyVegetable
 
   // with('latestPrice')
   latest_price?: PriceHistoryResource | null
@@ -73,11 +71,16 @@ export interface VarietyResource {
   // withCount(['posts as demand_count' => demand scope])
   demand_count?: number
 
+  monthly_supply_kg?: number
+  monthly_demand_kg?: number
+
   // Set manually on Variety model in VarietyService::paginated() and ::show()
   supply_municipalities?: SupplyMunicipality[]
 
   // Set manually on Variety model in VarietyService::show()
   monthly_activity?: MonthlyActivity[]
+
+  variety_calendar?: Record<string, Record<string, { type: 'supply' | 'demand'; total_kg: number; posts_count: number }[]>>
 }
 
 // ─── Option Bag Types (from VarietyService) ───────────────────────────────────
