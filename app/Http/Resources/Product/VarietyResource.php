@@ -71,6 +71,16 @@ class VarietyResource extends JsonResource
             'supply_count' => $this->whenCounted('supply_count'),
             'demand_count' => $this->whenCounted('demand_count'),
 
+            'monthly_supply_kg' => $this->when(
+                isset($this->resource->monthly_supply_kg),
+                fn () => (float) ($this->monthly_supply_kg ?? 0)
+            ),
+
+            'monthly_demand_kg' => $this->when(
+                isset($this->resource->monthly_demand_kg),
+                fn () => (float) ($this->monthly_demand_kg ?? 0)
+            ),
+
             /* Admin paginated only */
             'supply_municipalities' => $this->when(
                 isset($this->resource->supply_municipalities),
