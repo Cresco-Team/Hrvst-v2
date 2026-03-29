@@ -96,6 +96,16 @@ class VarietyResource extends JsonResource
                 isset($this->resource->quantity_stats),
                 fn () => $this->quantity_stats
             ),
+
+            'variety_calendar' => $this->when(
+                isset($this->resource->variety_calendar),
+                fn () => $this->variety_calendar
+            ),
+
+            'calendar_summary' => $this->when(
+                isset($this->resource->calendar_summary),
+                fn () => $this->calendar_summary
+            ),
         ];
     }
 }
