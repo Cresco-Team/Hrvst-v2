@@ -8,38 +8,30 @@ import Heading from '@/components/Heading.vue'
 import SmallCard from '@/components/shared/cards/SmallCard.vue'
 import VegetableMonthlyChart from '@/components/shared/charts/VegetableMonthlyChart.vue'
 import VegetablePriceChart from '@/components/shared/charts/VegetablePriceChart.vue'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from '@/components/ui/sheet'
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { Skeleton } from '@/components/ui/skeleton'
 import AppLayout from '@/layouts/AppLayout.vue'
 import dealer from '@/routes/dealer'
 import farmer from '@/routes/farmer'
 import type {
-  BreadcrumbItem,
-  CalendarTimeSlot,
-  PriceFreshness,
-  VarietyCalendarEntry,
-  VarietyCalendarFilters,
-  VarietyCalendarSummary,
-  VarietyDaySchedule,
-  VarietyMonthSchedule,
+	BreadcrumbItem,
+	CalendarTimeSlot,
+	PriceFreshness,
+	VarietyCalendarEntry,
+	VarietyCalendarFilters,
+	VarietyDaySchedule,
+	VarietyMonthSchedule,
 } from '@/types'
 import type { VarietyResource } from '@/types/resources/product'
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 
 interface Props {
-  variety?: VarietyResource | null
-  varietyCalendar?: VarietyMonthSchedule
-  calendarSummary?: VarietyCalendarSummary
-  calendarFilters: VarietyCalendarFilters
+	variety?: VarietyResource | null
+	varietyCalendar?: VarietyMonthSchedule
+	calendarFilters: VarietyCalendarFilters
 }
 
 const props = defineProps<Props>()
@@ -53,20 +45,37 @@ const backHref = isFarmer ? farmer.supplies.index().url : dealer.demands.index()
 const indexHref = isFarmer ? farmer.vegetables.index().url : dealer.vegetables.index().url
 
 const breadcrumbs = computed<BreadcrumbItem[]>(() => [
-  { title: isFarmer ? 'Farmer' : 'Dealer', href: backHref },
-  { title: 'Vegetables', href: indexHref },
-  ...(props.variety
-    ? [{ title: `${props.variety.vegetable?.name} ${props.variety.name}`, href: `${indexHref}/${props.variety.id}` }]
-    : []),
+	{ title: isFarmer ? 'Farmer' : 'Dealer', href: backHref },
+	{ title: 'Vegetables', href: indexHref },
+	...(props.variety
+		? [
+				{
+					title: `${props.variety.vegetable?.name} ${props.variety.name}`,
+					href: `${indexHref}/${props.variety.id}`,
+				},
+			]
+		: []),
 ])
 
 // ─── Freshness badge config ───────────────────────────────────────────────────
 
 const freshnessConfig: Record<PriceFreshness, { label: string; class: string }> = {
-  recent: { label: 'Recently Updated', class: 'bg-green-500/10 text-green-700 dark:text-green-400 border-green-500/20' },
-  stable: { label: 'Stable', class: 'bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20' },
-  'very stable': { label: 'Older Price', class: 'bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20' },
-  stale: { label: 'Stale Price', class: 'bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/20' },
+	recent: {
+		label: 'Recently Updated',
+		class: 'bg-green-500/10 text-green-700 dark:text-green-400 border-green-500/20',
+	},
+	stable: {
+		label: 'Stable',
+		class: 'bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20',
+	},
+	'very stable': {
+		label: 'Older Price',
+		class: 'bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20',
+	},
+	stale: {
+		label: 'Stale Price',
+		class: 'bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/20',
+	},
 }
 
 // ─── Calendar — month navigation ──────────────────────────────────────────────
@@ -77,64 +86,57 @@ const calendarMonth = computed(() => props.calendarFilters.month)
 const calendarPage = computed(() => ({ year: calendarYear.value, month: calendarMonth.value }))
 
 const monthLabel = computed(() =>
-  new Date(calendarYear.value, calendarMonth.value - 1, 1)
-    .toLocaleString('en-PH', { month: 'long', year: 'numeric' }),
+	new Date(calendarYear.value, calendarMonth.value - 1, 1).toLocaleString('en-PH', {
+		month: 'long',
+		year: 'numeric',
+	}),
 )
 
 function navigateMonth(direction: 1 | -1): void {
-  let month = calendarMonth.value + direction
-  let year = calendarYear.value
+	let month = calendarMonth.value + direction
+	let year = calendarYear.value
 
-  if (month > 12) { month = 1; year++ }
-  if (month < 1) { month = 12; year-- }
+	if (month > 12) {
+		month = 1
+		year++
+	}
+	if (month < 1) {
+		month = 12
+		year--
+	}
 
-  router.visit(`${indexHref}/${props.variety?.id}`, {
-    data: { year, month },
-    preserveState: true,
-    preserveScroll: true,
-    only: ['varietyCalendar', 'calendarSummary', 'calendarFilters'],
-  })
+	router.visit(`${indexHref}/${props.variety?.id}`, {
+		data: { year, month },
+		preserveState: true,
+		preserveScroll: true,
+		only: ['varietyCalendar', 'calendarSummary', 'calendarFilters'],
+	})
 }
 
 function goToToday(): void {
-  const now = new Date()
-  router.visit(`${indexHref}/${props.variety?.id}`, {
-    data: { year: now.getFullYear(), month: now.getMonth() + 1 },
-    preserveState: true,
-    preserveScroll: true,
-    only: ['varietyCalendar', 'calendarSummary', 'calendarFilters'],
-  })
+	const now = new Date()
+	router.visit(`${indexHref}/${props.variety?.id}`, {
+		data: { year: now.getFullYear(), month: now.getMonth() + 1 },
+		preserveState: true,
+		preserveScroll: true,
+		only: ['varietyCalendar', 'calendarSummary', 'calendarFilters'],
+	})
 }
 
 // ─── Calendar — VCalendar attributes ─────────────────────────────────────────
 
 const calendarAttributes = computed(() => {
-  if (!props.varietyCalendar) return []
+	if (!props.variety?.variety_calendar) return []
 
-  return Object.entries(props.varietyCalendar).map(([dateStr, daySchedule]) => {
-    const date = new Date(`${dateStr}T00:00:00`)
+	return Object.entries(props.variety.variety_calendar).map(([dateStr, daySchedule]) => {
+		const date = new Date(`${dateStr}T00:00:00`)
 
-    let hasSupply = false
-    let hasDemand = false
-
-    for (const entries of Object.values(daySchedule)) {
-      for (const entry of entries) {
-        if (entry.type === 'supply') hasSupply = true
-        if (entry.type === 'demand') hasDemand = true
-      }
-    }
-
-    const dots: Array<{ color: string }> = []
-    if (hasSupply) dots.push({ color: 'green' })
-    if (hasDemand) dots.push({ color: 'yellow' })
-
-    return {
-      key: dateStr,
-      dot: dots.length === 1 ? dots[0] : dots,
-      dates: date,
-      customData: { dateStr, daySchedule },
-    }
-  })
+		return {
+			key: dateStr,
+			dates: [date],
+			customData: { dateStr, daySchedule },
+		}
+	})
 })
 
 // ─── Calendar — day detail sheet ─────────────────────────────────────────────
@@ -144,39 +146,79 @@ const selectedDateStr = ref<string | null>(null)
 const selectedSchedule = ref<VarietyDaySchedule | null>(null)
 
 const selectedDateLabel = computed(() => {
-  if (!selectedDateStr.value) return ''
-  return new Date(`${selectedDateStr.value}T00:00:00`).toLocaleDateString('en-PH', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  })
+	if (!selectedDateStr.value) return ''
+	return new Date(`${selectedDateStr.value}T00:00:00`).toLocaleDateString('en-PH', {
+		weekday: 'long',
+		year: 'numeric',
+		month: 'long',
+		day: 'numeric',
+	})
 })
 
-function handleDayClick(day: { attributes: Array<{ customData?: { dateStr: string; daySchedule: VarietyDaySchedule } }> }): void {
-  const attr = day.attributes?.find(a => a.customData?.dateStr)
-  if (!attr?.customData) return
+function handleDayClick(day: {
+	attributes: Array<{ customData?: { dateStr: string; daySchedule: VarietyDaySchedule } }>
+}): void {
+	const attr = day.attributes?.find((a) => a.customData?.dateStr)
+	if (!attr?.customData) return
 
-  selectedDateStr.value = attr.customData.dateStr
-  selectedSchedule.value = attr.customData.daySchedule
-  sheetOpen.value = true
+	selectedDateStr.value = attr.customData.dateStr
+	selectedSchedule.value = attr.customData.daySchedule
+	sheetOpen.value = true
 }
 
 // ─── Calendar — time slot config ─────────────────────────────────────────────
 
 const TIME_SLOTS: Array<{ key: CalendarTimeSlot; label: string; dotClass: string }> = [
-  { key: 'morning', label: 'Morning (6 AM – 12 PM)', dotClass: 'bg-amber-400' },
-  { key: 'afternoon', label: 'Afternoon (12 PM – 6 PM)', dotClass: 'bg-emerald-500' },
-  { key: 'evening', label: 'Evening (6 PM – 10 PM)', dotClass: 'bg-indigo-500' },
-  { key: 'unscheduled', label: 'No time slot', dotClass: 'bg-slate-400' },
+	{ key: 'morning', label: 'Morning (6 AM – 12 PM)', dotClass: 'bg-amber-400' },
+	{ key: 'afternoon', label: 'Afternoon (12 PM – 6 PM)', dotClass: 'bg-emerald-500' },
+	{ key: 'evening', label: 'Evening (6 PM – 10 PM)', dotClass: 'bg-indigo-500' },
+	{ key: 'unscheduled', label: 'No time slot', dotClass: 'bg-slate-400' },
 ]
 
 function totalKgForSlot(entries: VarietyCalendarEntry[]): number {
-  return entries.reduce((sum, e) => sum + e.total_kg, 0)
+	return entries.reduce((sum, e) => sum + e.total_kg, 0)
 }
 
 function formatKg(kg: number): string {
-  return `${kg.toLocaleString('en-PH', { minimumFractionDigits: 0, maximumFractionDigits: 2 })} kg`
+	return `${kg.toLocaleString('en-PH', { minimumFractionDigits: 0, maximumFractionDigits: 2 })} kg`
+}
+
+// ─── Calendar — inline day totals ─────────────────────────────────────────────
+
+const dailyTotals = computed(() => {
+	const map: Record<string, { supplyKg: number; demandKg: number }> = {}
+	if (!props.variety?.variety_calendar) return map
+
+	for (const [dateStr, daySchedule] of Object.entries(props.variety.variety_calendar)) {
+		let supplyKg = 0
+		let demandKg = 0
+		for (const entries of Object.values(daySchedule)) {
+			for (const entry of entries) {
+				if (entry.type === 'supply') supplyKg += entry.total_kg
+				else if (entry.type === 'demand') demandKg += entry.total_kg
+			}
+		}
+		if (supplyKg > 0 || demandKg > 0) map[dateStr] = { supplyKg, demandKg }
+	}
+	return map
+})
+
+const maxDailyKg = computed(() => {
+	let max = 0
+	for (const { supplyKg, demandKg } of Object.values(dailyTotals.value)) {
+		if (supplyKg > max) max = supplyKg
+		if (demandKg > max) max = demandKg
+	}
+	return max || 1 // avoid division by zero
+})
+
+function barPct(kg: number): string {
+	return `${Math.round((kg / maxDailyKg.value) * 100)}%`
+}
+
+function formatKgShort(kg: number): string {
+	if (kg >= 1000) return `${(kg / 1000).toFixed(1)}t`
+	return kg % 1 === 0 ? `${kg}` : `${kg.toFixed(1)}`
 }
 </script>
 
@@ -185,8 +227,6 @@ function formatKg(kg: number): string {
 
   <AppLayout :breadcrumbs="breadcrumbs">
     <div class="flex flex-col gap-6 p-4 lg:p-6">
-
-      <!-- ─── Variety detail ──────────────────────────────────────────────── -->
       <Deferred data="variety">
         <template #fallback>
           <div class="flex flex-col gap-6">
@@ -199,140 +239,148 @@ function formatKg(kg: number): string {
           </div>
         </template>
 
-        <template v-if="variety">
-          <div class="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
-            <Heading
-              :title="`${variety.vegetable?.name} ${variety.name}`"
-              :description="variety.vegetable?.category?.name"
-            />
-            <div class="flex items-center gap-2">
-              <Badge
-                v-if="variety.latest_price"
-                variant="outline"
-                :class="freshnessConfig[variety.latest_price.freshness]?.class"
-              >
-                {{ freshnessConfig[variety.latest_price.freshness]?.label }}
-              </Badge>
-              <span class="flex items-center gap-1 text-sm text-muted-foreground">
-                <Heart class="size-3.5" />
-                {{ variety.hearts_count }}
-              </span>
-            </div>
-          </div>
-
+        <Heading
+          :title="`${variety?.vegetable?.name} ${variety?.name}`"
+          :description="variety?.vegetable?.category?.name"
+        />
           <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
             <SmallCard
               title="Min Price"
-              :value="variety.latest_price ? `₱${variety.latest_price.price_min.toFixed(2)}` : '—'"
+              :value="variety?.latest_price ? `₱${variety?.latest_price.price_min.toFixed(2)}` : '—'"
               value-class="text-green-600 dark:text-green-400"
               subtext="suggested minimum"
             />
             <SmallCard
               title="Max Price"
-              :value="variety.latest_price ? `₱${variety.latest_price.price_max.toFixed(2)}` : '—'"
+              :value="variety?.latest_price ? `₱${variety?.latest_price.price_max.toFixed(2)}` : '—'"
               value-class="text-indigo-600 dark:text-indigo-400"
               subtext="suggested maximum"
             />
-            <SmallCard title="Active Supplies" :value="variety.supply_count" :icon="Wheat" />
-            <SmallCard title="Active Demands" :value="variety.demand_count" :icon="ShoppingCart" />
+            <SmallCard 
+              title="Monthly Supply" 
+              :value="formatKg(variety?.monthly_supply_kg ?? 0)"
+            />
+            <SmallCard 
+              title="Monthly Demand" 
+              :value="formatKg(variety?.monthly_demand_kg ?? 0)"
+            />
           </div>
 
-          <VegetablePriceChart v-if="variety.recent_prices?.length" :recent-prices="variety.recent_prices" />
-
-          <VegetableMonthlyChart v-if="variety.monthly_activity?.length" :monthly-activity="variety.monthly_activity" />
-        </template>
+          <!-- Charts: side-by-side on large screens -->
+          <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
+            <VegetablePriceChart v-if="variety?.recent_prices?.length" :recent-prices="variety?.recent_prices" />
+            <VegetableMonthlyChart v-if="variety?.monthly_activity?.length" :monthly-activity="variety?.monthly_activity" />
+          </div>
       </Deferred>
 
       <!-- ─── Market Calendar ───────────────────────────────────────────────── -->
-      <div class="flex flex-col gap-4">
-        <div class="flex flex-col gap-0.5">
-          <h2 class="text-base font-medium">Market Calendar</h2>
-          <p class="text-sm text-muted-foreground">
-            All scheduled supply and demand posts for this variety by date.
-          </p>
-        </div>
+      <div class="grid grid-cols-1 gap-4 lg:grid-cols-[220px_1fr]">
 
-        <!-- Calendar summary stats — deferred with calendar group -->
-        <Deferred data="calendarSummary">
-          <template #fallback>
-            <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
-              <Skeleton v-for="i in 4" :key="i" class="h-16 rounded-xl" />
-            </div>
-          </template>
-
-          <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <div class="rounded-xl border bg-card px-4 py-3">
-              <p class="text-xs text-muted-foreground">Supply</p>
-              <p class="text-lg font-semibold text-emerald-600 dark:text-emerald-400 tabular-nums">
-                {{ formatKg(calendarSummary?.total_supply_kg ?? 0) }}
-              </p>
-            </div>
-            <div class="rounded-xl border bg-card px-4 py-3">
-              <p class="text-xs text-muted-foreground">Demand</p>
-              <p class="text-lg font-semibold text-amber-600 dark:text-amber-400 tabular-nums">
-                {{ formatKg(calendarSummary?.total_demand_kg ?? 0) }}
-              </p>
-            </div>
-            <div class="rounded-xl border bg-card px-4 py-3">
-              <p class="text-xs text-muted-foreground">Active Days</p>
-              <p class="text-lg font-semibold tabular-nums">{{ calendarSummary?.active_days ?? 0 }}</p>
-            </div>
-            <div class="rounded-xl border bg-card px-4 py-3">
-              <p class="text-xs text-muted-foreground">Total Posts</p>
-              <p class="text-lg font-semibold tabular-nums">{{ calendarSummary?.total_posts ?? 0 }}</p>
-            </div>
+        <!-- Sidebar: heading + nav + legend -->
+        <div class="flex flex-col gap-4">
+          <div class="flex flex-col gap-0.5">
+            <h2 class="text-base font-medium">Market Calendar</h2>
+            <p class="text-sm text-muted-foreground">
+              All scheduled supply and demand posts for this variety by date.
+            </p>
           </div>
-        </Deferred>
 
-        <!-- Month navigation — always rendered, calendarFilters is never deferred -->
-        <div class="flex items-center gap-2">
-          <Button variant="outline" size="icon" aria-label="Previous month" @click="navigateMonth(-1)">
-            <ChevronLeft class="size-4" />
-          </Button>
-          <span class="min-w-[10rem] text-center text-sm font-semibold tabular-nums">
-            {{ monthLabel }}
-          </span>
-          <Button variant="outline" size="icon" aria-label="Next month" @click="navigateMonth(1)">
-            <ChevronRight class="size-4" />
-          </Button>
-          <Button variant="ghost" size="sm" class="text-xs text-muted-foreground" @click="goToToday">
+          <!-- Month navigation -->
+          <div class="flex items-center gap-2">
+            <Button variant="outline" size="icon" aria-label="Previous month" @click="navigateMonth(-1)">
+              <ChevronLeft class="size-4" />
+            </Button>
+            <span class="min-w-[5rem] text-center text-sm font-semibold tabular-nums">
+              {{ monthLabel }}
+            </span>
+            <Button variant="outline" size="icon" aria-label="Next month" @click="navigateMonth(1)">
+              <ChevronRight class="size-4" />
+            </Button>
+          </div>
+          <Button variant="ghost" size="sm" class="w-fit text-xs text-muted-foreground" @click="goToToday">
             Today
           </Button>
+
+          <!-- Legend -->
+          <div class="flex flex-col gap-2 text-xs text-muted-foreground">
+            <div class="flex items-center gap-1.5">
+              <span class="h-2 w-2 rounded-full bg-emerald-500" />
+              Supply
+            </div>
+            <div class="flex items-center gap-1.5">
+              <span class="h-2 w-2 rounded-full bg-yellow-400" />
+              Demand
+            </div>
+            <Separator class="my-1" />
+            <div v-for="slot in TIME_SLOTS" :key="slot.key" class="flex items-center gap-1.5">
+              <span class="h-2 w-2 rounded-full" :class="slot.dotClass" />
+              {{ slot.label }}
+            </div>
+          </div>
         </div>
 
-        <!-- Calendar grid — deferred with calendar group -->
-        <Deferred data="varietyCalendar">
+        <!-- Calendar grid — deferred -->
+        <Deferred data="variety">
           <template #fallback>
             <Skeleton class="h-72 w-full rounded-xl" />
           </template>
 
-          <div class="rounded-xl border bg-card p-4">
+          <div class="rounded-xl border bg-card p-2 sm:p-4">
             <Calendar
               :key="`${calendarYear}-${calendarMonth}`"
               :attributes="calendarAttributes"
               :initial-page="calendarPage"
               expanded
               @dayclick="handleDayClick"
-            />
+            >
+              <template #day-content="{ day }">
+                <div
+                  class="vc-day-tile flex h-full w-full cursor-pointer flex-col p-1"
+                  :class="{ 'opacity-30': !day.inMonth }"
+                >
+                  <!-- Day number -->
+                  <span class="mb-auto text-xs font-semibold leading-none">{{ day.label }}</span>
+
+                  <!-- Bars + labels -->
+                  <template v-if="dailyTotals[day.id]">
+                    <div class="mt-1 flex flex-col gap-0.5">
+                      <!-- Supply bar -->
+                      <template v-if="dailyTotals[day.id].supplyKg">
+                        <div class="flex items-center gap-1">
+                          <div class="relative h-1.5 flex-1 overflow-hidden rounded-full bg-emerald-100 dark:bg-emerald-950">
+                            <div
+                              class="absolute inset-y-0 left-0 rounded-full bg-emerald-500"
+                              :style="{ width: barPct(dailyTotals[day.id].supplyKg) }"
+                            />
+                          </div>
+                        </div>
+                        <span class="text-[9px] leading-none text-emerald-600 dark:text-emerald-400">
+                          S {{ formatKgShort(dailyTotals[day.id].supplyKg) }}kg
+                        </span>
+                      </template>
+
+                      <!-- Demand bar -->
+                      <template v-if="dailyTotals[day.id].demandKg">
+                        <div class="flex items-center gap-1">
+                          <div class="relative h-1.5 flex-1 overflow-hidden rounded-full bg-amber-100 dark:bg-amber-950">
+                            <div
+                              class="absolute inset-y-0 left-0 rounded-full bg-amber-500"
+                              :style="{ width: barPct(dailyTotals[day.id].demandKg) }"
+                            />
+                          </div>
+                        </div>
+                        <span class="text-[9px] leading-none text-amber-600 dark:text-amber-400">
+                          D {{ formatKgShort(dailyTotals[day.id].demandKg) }}kg
+                        </span>
+                      </template>
+                    </div>
+                  </template>
+                </div>
+              </template>
+            </Calendar>
           </div>
         </Deferred>
 
-        <!-- Legend -->
-        <div class="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
-          <div class="flex items-center gap-1.5">
-            <span class="h-2 w-2 rounded-full bg-emerald-500" />
-            Supply
-          </div>
-          <div class="flex items-center gap-1.5">
-            <span class="h-2 w-2 rounded-full bg-yellow-400" />
-            Demand
-          </div>
-          <Separator orientation="vertical" class="h-4" />
-          <div v-for="slot in TIME_SLOTS" :key="slot.key" class="flex items-center gap-1.5">
-            <span class="h-2 w-2 rounded-full" :class="slot.dotClass" />
-            {{ slot.label }}
-          </div>
-        </div>
       </div>
 
     </div>
@@ -392,3 +440,46 @@ function formatKg(kg: number): string {
     </SheetContent>
   </Sheet>
 </template>
+
+<style scoped>
+/* ── Square day tiles ─────────────────────────────────────────────────────── */
+
+/* Remove the default circle button — our slot content fills the cell */
+:deep(.vc-day-content) {
+  display: none;
+}
+
+/* Hide default dot indicators — data is shown inline */
+:deep(.vc-dots),
+:deep(.vc-highlights) {
+  display: none;
+}
+
+/* Fixed-height square-ish tile per day */
+:deep(.vc-day) {
+  min-height: 5rem;
+  border: 1px solid hsl(var(--border) / 0.4);
+  border-radius: 0.375rem;
+  background-color: hsl(var(--muted) / 0.2);
+  padding: 0;
+  overflow: hidden;
+  transition: background-color 0.15s;
+}
+
+:deep(.vc-day:hover) {
+  background-color: hsl(var(--muted) / 0.5);
+}
+
+/* Today highlight */
+:deep(.vc-day.is-today) {
+  border-color: hsl(var(--primary) / 0.6);
+  background-color: hsl(var(--primary) / 0.06);
+}
+
+/* Tighten the grid gaps */
+:deep(.vc-week),
+:deep(.vc-weeks) {
+  gap: 3px;
+  padding: 0;
+}
+</style>
