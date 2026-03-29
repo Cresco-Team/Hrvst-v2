@@ -5,6 +5,7 @@ import { CalendarSync, Heart, Minus, TrendingDown, TrendingUp } from 'lucide-vue
 import { computed, ref } from 'vue'
 import AppTooltip from '@/components/templates/AppTooltip.vue'
 import { AspectRatio } from '@/components/ui/aspect-ratio'
+import Button from '@/components/ui/button/Button.vue'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { cn } from '@/lib/utils'
@@ -82,26 +83,29 @@ const trendConfig = computed<TrendConfig | null>(() => {
     <CardContent class="flex flex-col gap-2 p-4">
       <div class="flex items-center gap-2 font-mono">
         <component :is="trendConfig?.icon" :size="20" class="text-muted-foreground" />
-        <AppTooltip :content="variety.latest_price?.freshness">
-          <span class="text-sm">₱{{ variety.latest_price?.price_min.toFixed(2) }} - ₱{{ variety.latest_price?.price_max.toFixed(2) }}</span>
+        <AppTooltip :content="` ${variety.latest_price?.freshness} price since ${variety.price_updated_date}`">
+          <span class="text-sm cursor-help">₱{{ variety.latest_price?.price_min.toFixed(2) }} - ₱{{ variety.latest_price?.price_max.toFixed(2) }}</span>
         </AppTooltip>
       </div>
 
       <div class="flex items-center gap-2">
         <CalendarSync :size="20" class="text-muted-foreground" />
         <AppTooltip :content="variety.price_updated_date">
-          <span class="text-xs">{{ variety.price_updated_human }}</span>          
+          <span class="text-xs cursor-help">{{ variety.price_updated_human }}</span>          
         </AppTooltip>
       </div>
 
-      <div class="flex items-center justify-between pt-1">
-        <button
-          class="flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-rose-500 disabled:pointer-events-none disabled:opacity-50"
+      <div class="flex items-center justify-end pt-1">
+        <Button
+          variant="ghost" size="icon"
+          class="hover:text-rose-500 disabled:pointer-events-none disabled:opacity-50 cursor-pointer"
           :disabled="isPending" @click="toggleHeart">
           <Heart class="size-4 transition-all"
             :class="cn(localHearted ? 'fill-rose-500 text-rose-500 scale-110' : 'fill-none')" />
-          <span class="tabular-nums">{{ localCount }}</span>
-        </button>
+        </Button>
+        <AppTooltip content="Likes">
+          <span class="tabular-nums cursor-help">{{ localCount }}</span>  
+        </AppTooltip>      
       </div>
     </CardContent>
   </Card>
