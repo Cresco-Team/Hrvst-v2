@@ -12,24 +12,28 @@ import VarietyForm from '@/components/features/admin/forms/VarietyForm.vue'
 import VarietyTable from '@/components/features/admin/tables/VarietyTable.vue'
 import Heading from '@/components/Heading.vue'
 import LargeCard from '@/components/shared/cards/LargeCard.vue'
-import VegetableDetailDialog from '@/components/shared/VegetableDetailDialog.vue'
 import { Skeleton } from '@/components/ui/skeleton'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { dashboard } from '@/routes/admin'
 import {
-  destroy, index, store, update, details as varietyDetails, show as varietyShow,
+	destroy,
+	index,
+	store,
+	update,
+	details as varietyDetails,
+	show as varietyShow,
 } from '@/routes/admin/vegetables'
 import type { AdminVegetablesProps, BreadcrumbItem, VarietyResource } from '@/types'
 
 const props = withDefaults(defineProps<AdminVegetablesProps>(), {
-  varieties: undefined,
-  summary: undefined,
-  vegetableOptions: undefined,
+	varieties: undefined,
+	summary: undefined,
+	vegetableOptions: undefined,
 })
 
 const breadcrumbs: BreadcrumbItem[] = [
-  { title: 'Admin', href: dashboard().url },
-  { title: 'Vegetables', href: index().url },
+	{ title: 'Admin', href: dashboard().url },
+	{ title: 'Vegetables', href: index().url },
 ]
 
 const searchQuery = ref(props.filters?.search ?? '')
@@ -45,113 +49,92 @@ const priceOpen = ref(false)
 const priceVariety = ref<VarietyResource | null>(null)
 const isPriceSubmitting = ref(false)
 
-/* -- Detail dialog state -- */
-const detailOpen = ref(false)
-const detailVariety = ref<VarietyResource | null>(null)
-const loadingDetail = ref(false)
-
 function openCreate() {
-  activeVariety.value = null
-  formOpen.value = true
+	activeVariety.value = null
+	formOpen.value = true
 }
 
 function openEdit(variety: VarietyResource) {
-  activeVariety.value = variety
-  formOpen.value = true
+	activeVariety.value = variety
+	formOpen.value = true
 }
 
 function openDelete(variety: VarietyResource) {
-  activeVariety.value = variety
-  deleteOpen.value = true
+	activeVariety.value = variety
+	deleteOpen.value = true
 }
 
 function openUpdatePrice(variety: VarietyResource) {
-  priceVariety.value = variety
-  priceOpen.value = true
-}
-
-async function openView(variety: VarietyResource) {
-  loadingDetail.value = true
-  detailVariety.value = null
-  detailOpen.value = true
-
-  try {
-    const { data } = await axios.get<VarietyResource>(varietyDetails(variety.id).url)
-    detailVariety.value = data
-  } catch {
-    toast.error('Failed to load variety details')
-    detailOpen.value = false
-  } finally {
-    loadingDetail.value = false
-  }
+	priceVariety.value = variety
+	priceOpen.value = true
 }
 
 /* -- Filtering -- */
 function handleFilterChange(filter: string | null) {
-  router.get(index().url, { price_filter: filter }, { preserveScroll: true, preserveState: true })
+	router.get(index().url, { price_filter: filter }, { preserveScroll: true, preserveState: true })
 }
 
 function handleSearch(query: string) {
-  searchQuery.value = query
-  router.visit(index().url, {
-    data: {
-      search: query || undefined,
-      price_filter: props.filters.price_filter || undefined,
-    },
-    preserveState: true,
-    preserveScroll: true,
-    only: ['varieties', 'filters'],
-  })
+	searchQuery.value = query
+	router.visit(index().url, {
+		data: {
+			search: query || undefined,
+			price_filter: props.filters.price_filter || undefined,
+		},
+		preserveState: true,
+		preserveScroll: true,
+		only: ['varieties', 'filters'],
+	})
 }
 
 /* -- Variety CRUD -- */
 function handleSubmit(formData: FormData) {
-  isSubmitting.value = true
+	isSubmitting.value = true
 
-  if (activeVariety.value) {
-    formData.append('_method', 'PUT')
-    router.post(update({ variety: activeVariety.value.id }).url, formData, {
-      onSuccess() {
-        formOpen.value = false
-        isSubmitting.value = false
-      },
-      onError() {
-        isSubmitting.value = false
-      },
-    })
-  } else {
-    router.post(store().url, formData, {
-      onSuccess() {
-        formOpen.value = false
-        isSubmitting.value = false
-      },
-      onError() {
-        isSubmitting.value = false
-      },
-    })
-  }
+	if (activeVariety.value) {
+		formData.append('_method', 'PUT')
+		router.post(update({ variety: activeVariety.value.id }).url, formData, {
+			onSuccess() {
+				formOpen.value = false
+				isSubmitting.value = false
+			},
+			onError() {
+				isSubmitting.value = false
+			},
+		})
+	} else {
+		router.post(store().url, formData, {
+			onSuccess() {
+				formOpen.value = false
+				isSubmitting.value = false
+			},
+			onError() {
+				isSubmitting.value = false
+			},
+		})
+	}
 }
 
 function handleDelete() {
-  if (!activeVariety.value) return
-  router.delete(destroy({ variety: activeVariety.value.id }).url, {
-    onSuccess() {
-      deleteOpen.value = false
-      activeVariety.value = null
-    },
-  })
+	if (!activeVariety.value) return
+	router.delete(destroy({ variety: activeVariety.value.id }).url, {
+		onSuccess() {
+			deleteOpen.value = false
+			activeVariety.value = null
+		},
+	})
 }
 
 function handlePageChange(page: number) {
-  router.get(
-    index().url,
-    {
-      page,
-      price_filter: props.filters.price_filter,
-      search: searchQuery.value || undefined,
-    },
-    { preserveScroll: true },
-  )
+	router.get(
+		index().url,
+		{
+			page,
+			price_filter: props.filters.price_filter,
+			search: searchQuery.value || undefined,
+		},
+		{ preserveScroll: true },
+	)
 }
 </script>
 
@@ -207,7 +190,7 @@ function handlePageChange(page: number) {
         </template>
 
         <VarietyTable v-if="varieties" :varieties="varieties" :search-query="searchQuery" @open-create="openCreate"
-          @open-view="openView" @open-edit="openEdit" @open-delete="openDelete" @open-update-price="openUpdatePrice"
+          @open-edit="openEdit" @open-delete="openDelete" @open-update-price="openUpdatePrice"
           @page-change="handlePageChange" @search="handleSearch" />
 
         <EmptyState v-else title="No Vegetables Yet" description="Create a vegetable variety to display."
@@ -229,8 +212,4 @@ function handlePageChange(page: number) {
   <!-- Update price -->
   <PriceUpdateForm v-if="priceVariety" :open="priceOpen" :variety="priceVariety" :is-submitting="isPriceSubmitting"
     @update:open="priceOpen = $event" />
-
-  <!-- Detail dialog -->
-  <VegetableDetailDialog :open="detailOpen" :variety="detailVariety"
-    :view-href="detailVariety ? varietyShow(detailVariety.id).url : undefined" @update:open="detailOpen = $event" />
 </template>

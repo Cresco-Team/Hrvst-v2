@@ -1,21 +1,18 @@
 <script setup lang="ts">
+import { Link } from '@inertiajs/vue3'
 import axios from 'axios'
-import { CalendarSync, Heart, Minus, PhilippinePeso, TrendingDown, TrendingUp } from 'lucide-vue-next'
+import { CalendarSync, Heart, Minus, TrendingDown, TrendingUp } from 'lucide-vue-next'
 import { computed, ref } from 'vue'
+import AppTooltip from '@/components/templates/AppTooltip.vue'
 import { AspectRatio } from '@/components/ui/aspect-ratio'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
-import { Tooltip, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { cn } from '@/lib/utils'
-import type { PriceFreshness, PriceTrend, VarietyResource } from '@/types'
-import AppTooltip from '@/components/templates/AppTooltip.vue'
+import type { PriceTrend, VarietyResource } from '@/types'
 
 const props = defineProps<{
-  variety: VarietyResource
-}>()
-
-defineEmits<{
-  select: [variety: VarietyResource]
+	variety: VarietyResource
+	href: string
 }>()
 
 const localHearted = ref(props.variety.is_hearted)
@@ -23,46 +20,46 @@ const localCount = ref(props.variety.hearts_count)
 const isPending = ref(false)
 
 async function toggleHeart(event: MouseEvent): Promise<void> {
-  event.stopPropagation()
+	event.stopPropagation()
 
-  if (isPending.value) return
+	if (isPending.value) return
 
-  const wasHearted = localHearted.value
-  localHearted.value = !wasHearted
-  localCount.value += wasHearted ? -1 : 1
-  isPending.value = true
+	const wasHearted = localHearted.value
+	localHearted.value = !wasHearted
+	localCount.value += wasHearted ? -1 : 1
+	isPending.value = true
 
-  try {
-    const { data } = await axios.post<{ hearted: boolean; hearts_count: number }>(
-      `/varieties/${props.variety.id}/heart`,
-    )
-    localHearted.value = data.hearted
-    localCount.value = data.hearts_count
-  } catch {
-    localHearted.value = wasHearted
-    localCount.value += wasHearted ? 1 : -1
-  } finally {
-    isPending.value = false
-  }
+	try {
+		const { data } = await axios.post<{ hearted: boolean; hearts_count: number }>(
+			`/varieties/${props.variety.id}/heart`,
+		)
+		localHearted.value = data.hearted
+		localCount.value = data.hearts_count
+	} catch {
+		localHearted.value = wasHearted
+		localCount.value += wasHearted ? 1 : -1
+	} finally {
+		isPending.value = false
+	}
 }
 
 type TrendConfig = { icon: typeof TrendingUp; label: string; class: string }
 
 const trendConfigMap: Record<NonNullable<PriceTrend>, TrendConfig> = {
-    up: { icon: TrendingUp, label: 'Rising', class: 'text-red-500 dark:text-red-400' },
-  down: { icon: TrendingDown, label: 'Falling', class: 'text-green-600 dark:text-green-400' },
-  flat: { icon: Minus, label: 'Stable', class: 'text-muted-foreground' },
+	up: { icon: TrendingUp, label: 'Rising', class: 'text-red-500 dark:text-red-400' },
+	down: { icon: TrendingDown, label: 'Falling', class: 'text-green-600 dark:text-green-400' },
+	flat: { icon: Minus, label: 'Stable', class: 'text-muted-foreground' },
 }
 
 const trendConfig = computed<TrendConfig | null>(() => {
-  const trend = props.variety.price_trend
-  return trend ? (trendConfigMap[trend] ?? null) : null
+	const trend = props.variety.price_trend
+	return trend ? (trendConfigMap[trend] ?? null) : null
 })
 </script>
 
 <template>
-  <Card class="py-0 gap-2 overflow-hidden cursor-pointer transition-all hover:shadow-lg hover:-translate-y-0.5"
-    @click="$emit('select', variety)">
+  <Card as="div" class="py-0 gap-2 overflow-hidden transition-all hover:shadow-lg hover:-translate-y-0.5">
+    <Link :href="href" class="block">
     <AspectRatio :ratio="16 / 9" class="relative overflow-hidden bg-primary/10 flex items-center justify-center">
       <img v-if="variety.image_url" :src="variety.image_url"
         :alt="`${variety.vegetable?.name} ${variety.name} image`" />
@@ -80,6 +77,7 @@ const trendConfig = computed<TrendConfig | null>(() => {
     <div class="px-7">
           <Separator />
       </div>
+    </Link>
 
     <CardContent class="flex flex-col gap-2 p-4">
       <div class="flex items-center gap-2 font-mono">
