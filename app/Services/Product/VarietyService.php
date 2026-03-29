@@ -175,7 +175,15 @@ class VarietyService
             ->loadCount([
                 'posts as supply_count' => fn (Builder $q) => $q->supply()->ongoing(),
                 'posts as demand_count' => fn (Builder $q) => $q->demand()->ongoing(),
-            ]);
+            ])
+            ->loadSum([
+                'posts as monthly_supply_kg' => fn (Builder $q) => $q
+                    ->where('type', PostType::Supply->value)
+                    ->where('created_at', '>=', now()->startOfMonth()),
+                'posts as monthly_demand_kg' => fn (Builder $q) => $q
+                    ->where('type', PostType::Demand->value)
+                    ->where('created_at', '>=', now()->startOfMonth()),
+            ], 'quantity_kg');
 
         $variety->supply_municipalities = DB::table('posts')
             ->join('users', 'posts.user_id', '=', 'users.id')
