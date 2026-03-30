@@ -18,7 +18,6 @@ import farmer from '@/routes/farmer'
 import type {
 	BreadcrumbItem,
 	CalendarTimeSlot,
-	PriceFreshness,
 	VarietyCalendarEntry,
 	VarietyCalendarFilters,
 	VarietyDaySchedule,
@@ -56,27 +55,6 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => [
 			]
 		: []),
 ])
-
-// ─── Freshness badge config ───────────────────────────────────────────────────
-
-const freshnessConfig: Record<PriceFreshness, { label: string; class: string }> = {
-	recent: {
-		label: 'Recently Updated',
-		class: 'bg-green-500/10 text-green-700 dark:text-green-400 border-green-500/20',
-	},
-	stable: {
-		label: 'Stable',
-		class: 'bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20',
-	},
-	'very stable': {
-		label: 'Older Price',
-		class: 'bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20',
-	},
-	stale: {
-		label: 'Stale Price',
-		class: 'bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/20',
-	},
-}
 
 // ─── Calendar — month navigation ──────────────────────────────────────────────
 
