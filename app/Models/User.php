@@ -6,6 +6,8 @@ use App\Models\Marketplace\Post;
 use App\Models\Profiles\DealerProfile;
 use App\Models\Profiles\FarmerProfile;
 use App\Models\Profiles\Role;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -16,23 +18,11 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 
+#[Fillable(['name', 'email', 'password', 'phone_number', 'must_change_pin'])]
+#[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]
 class User extends Authenticatable implements HasMedia
 {
     use HasFactory, InteractsWithMedia, Notifiable, TwoFactorAuthenticatable;
-
-    protected $fillable = [
-        'name',
-        'email',
-        'password',
-        'phone_number',
-    ];
-
-    protected $hidden = [
-        'password',
-        'two_factor_secret',
-        'two_factor_recovery_codes',
-        'remember_token',
-    ];
 
     protected function casts(): array
     {
@@ -40,6 +30,7 @@ class User extends Authenticatable implements HasMedia
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'two_factor_confirmed_at' => 'datetime',
+            'must_change_pin' => 'boolean',
         ];
     }
 
