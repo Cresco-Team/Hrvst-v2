@@ -12,13 +12,8 @@ class EnsureUserIsFarmer
     {
         $user = $request->user();
 
-        if (!$user || !$user->hasRole('farmer')) {
+        if (! $user || ! $user->hasRole('farmer')) {
             abort(403, 'Access denied. Farmers only.');
-        }
-
-        // Ensure farmer has an approved profile
-        if (!$user->farmerProfile || !$user->farmerProfile->is_approved) {
-            abort(403, 'Your farmer profile is pending approval.');
         }
 
         return $next($request);

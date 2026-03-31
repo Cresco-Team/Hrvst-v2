@@ -16,11 +16,6 @@ class EnsureUserIsDealer
             abort(403, 'Access denied. Dealers only.');
         }
 
-        // Ensure dealer has an approved profile
-        if (!$user->dealerProfile || !$user->dealerProfile->is_approved) {
-            abort(403, 'Your dealer profile is pending approval.');
-        }
-
         return $next($request);
     }
 }
