@@ -12,7 +12,7 @@ class EnsureUserIsDealer
     {
         $user = $request->user();
 
-        if (!$user || !$user->hasRole('dealer')) {
+        if (! $user || ! $user->hasRole('dealer')) {
             abort(403, 'Access denied. Dealers only.');
         }
 
