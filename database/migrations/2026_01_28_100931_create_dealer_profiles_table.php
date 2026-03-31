@@ -12,11 +12,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
 
-            $table->boolean('is_approved')->default(false);
-
             $table->timestamps();
-
-            $table->index('is_approved');
         });
     }
 
