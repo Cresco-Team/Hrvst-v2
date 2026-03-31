@@ -13,13 +13,13 @@ class DashboardService
         private VarietyService $varietyService,
         private FarmerService $farmerService,
         private DealerService $dealerService,
-        ){}
+    ) {}
 
     public function getKPIs(): array
     {
         return [
-            'farmers'  => $this->getFarmerKPIs(),
-            'dealers'  => $this->getDealerKPIs(),
+            'farmers' => $this->getFarmerKPIs(),
+            'dealers' => $this->getDealerKPIs(),
             'varieties' => $this->getVarietyKPIs(),
         ];
     }
@@ -28,19 +28,19 @@ class DashboardService
     {
         $current = $this->farmerService->summary();
 
-        $previousTotal    = FarmerProfile::approved()->where('created_at', '<', now()->subDays(30))->count();
+        $previousTotal = FarmerProfile::where('created_at', '<', now()->subDays(30))->count();
         $previousSupplies = Post::supply()->where('created_at', '<', now()->subDays(30))->count();
 
         return [
             'total_farmers' => [
-                'value'  => $current['total_farmers'],
+                'value' => $current['total_farmers'],
                 'change' => self::calculatePercentageChange($previousTotal, $current['total_farmers']),
-                'trend'  => self::getTrend($previousTotal, $current['total_farmers']),
+                'trend' => self::getTrend($previousTotal, $current['total_farmers']),
             ],
             'total_supplies' => [
-                'value'  => $current['total_supplies'],
+                'value' => $current['total_supplies'],
                 'change' => self::calculatePercentageChange($previousSupplies, $current['total_supplies']),
-                'trend'  => self::getTrend($previousSupplies, $current['total_supplies']),
+                'trend' => self::getTrend($previousSupplies, $current['total_supplies']),
             ],
         ];
     }
@@ -49,19 +49,19 @@ class DashboardService
     {
         $current = $this->dealerService->summary();
 
-        $previousTotal   = DealerProfile::approved()->where('created_at', '<', now()->subDays(30))->count();
+        $previousTotal = DealerProfile::where('created_at', '<', now()->subDays(30))->count();
         $previousDemands = Post::demand()->where('created_at', '<', now()->subDays(30))->count();
 
         return [
             'total_dealers' => [
-                'value'  => $current['total_dealers'],
+                'value' => $current['total_dealers'],
                 'change' => self::calculatePercentageChange($previousTotal, $current['total_dealers']),
-                'trend'  => self::getTrend($previousTotal, $current['total_dealers']),
+                'trend' => self::getTrend($previousTotal, $current['total_dealers']),
             ],
             'total_demands' => [
-                'value'  => $current['total_demands'],
+                'value' => $current['total_demands'],
                 'change' => self::calculatePercentageChange($previousDemands, $current['total_demands']),
-                'trend'  => self::getTrend($previousDemands, $current['total_demands']),
+                'trend' => self::getTrend($previousDemands, $current['total_demands']),
             ],
         ];
     }
@@ -87,7 +87,10 @@ class DashboardService
 
     private static function calculatePercentageChange(int $previous, int $current): float
     {
-        if ($previous === 0) return $current > 0 ? 100.0 : 0.0;
+        if ($previous === 0) {
+            return $current > 0 ? 100.0 : 0.0;
+        }
+
         return round((($current - $previous) / $previous) * 100, 1);
     }
 
@@ -96,7 +99,7 @@ class DashboardService
         return match (true) {
             $current > $previous => 'up',
             $current < $previous => 'down',
-            default              => 'flat',
+            default => 'flat',
         };
     }
 }
