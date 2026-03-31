@@ -19,7 +19,6 @@ class DealerProfile extends Model implements HasMedia
 
     protected $fillable = [
         'user_id',
-        'is_approved',
     ];
 
     protected function casts(): array

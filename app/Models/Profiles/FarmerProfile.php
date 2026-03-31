@@ -25,7 +25,6 @@ class FarmerProfile extends Model implements HasMedia
         'province_id',
         'municipality_id',
         'barangay_id',
-        'is_approved',
         'latitude',
         'longitude',
     ];
