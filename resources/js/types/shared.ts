@@ -4,7 +4,6 @@ import type { KpiTrend } from './enums'
 
 // ─── Inertia ──────────────────────────────────────────────────────────────────
 
-// Mirrors HandleInertiaRequests::share()
 export interface SharedProps {
   name: string
   auth: {
@@ -14,7 +13,6 @@ export interface SharedProps {
   flash: FlashMessage | null
 }
 
-// Minimal user shape shared on every Inertia response (not the full UserResource)
 export interface AuthUser {
   id: number
   name: string
@@ -25,15 +23,16 @@ export interface AuthUser {
 
 // ─── Flash ────────────────────────────────────────────────────────────────────
 
-// Set via ->with('flash', ['type' => '...', 'message' => '...']) in controllers
+// Matches the shape controllers send via ->with('flash', [...])
 export interface FlashMessage {
-  type: 'success' | 'error' | 'warning' | 'info'
+  type: 'success' | 'error' | 'warning' | 'info' | 'pin'
   message: string
+  /** Only present when type === 'pin'. Display in a modal, never log or toast. */
+  pin?: string
 }
 
 // ─── Pagination ───────────────────────────────────────────────────────────────
 
-// Shape produced by LengthAwarePaginator passed through Inertia (resource collection)
 export interface Paginated<T> {
   data: T[]
   links: {
@@ -69,16 +68,12 @@ export interface Coordinates {
 
 export interface MapConfig {
   center: Coordinates
-  zoom?: number        // SupplyMapService
-  defaultZoom?: number // FarmerController (admin)
+  zoom?: number
+  defaultZoom?: number
 }
 
 // ─── KPI ──────────────────────────────────────────────────────────────────────
 
-// Single KPI stat shape used throughout DashboardService.
-// change/trend are optional because variety KPIs don't carry trend data —
-// DashboardService only computes them for farmer/dealer counts.
-// formatChange() and getTrendIcon() in Dashboard.vue already guard for undefined.
 export interface KpiStat {
   value: number
   change?: number
