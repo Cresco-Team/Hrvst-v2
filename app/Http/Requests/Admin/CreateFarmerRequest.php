@@ -23,7 +23,7 @@ class CreateFarmerRequest extends FormRequest
                 Rule::unique('users', 'phone_number'),
             ],
             'email' => ['nullable', 'string', 'email', 'max:255', Rule::unique('users', 'email')],
-            'province_id' => ['required', 'integer', Rule::exists('provinces', 'id')],
+            'province_id' => ['sometimes'],  // derived from municipality_id in the action
             'municipality_id' => ['required', 'integer', Rule::exists('municipalities', 'id')],
             'barangay_id' => ['required', 'integer', Rule::exists('barangays', 'id')],
             'latitude' => ['nullable', 'numeric', 'between:-90,90'],
