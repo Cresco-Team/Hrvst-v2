@@ -16,7 +16,6 @@ class DealerProfileFactory extends Factory
         return [
             // user_id resolved in configure()
             'user_id' => null,
-            'is_approved' => true,
         ];
     }
 
@@ -30,10 +29,5 @@ class DealerProfileFactory extends Factory
             $role = Role::firstOrCreate(['name' => 'dealer']);
             $profile->user->roles()->syncWithoutDetaching($role->id);
         });
-    }
-
-    public function pending(): static
-    {
-        return $this->state(['is_approved' => false]);
     }
 }

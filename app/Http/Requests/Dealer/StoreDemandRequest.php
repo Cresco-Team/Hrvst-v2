@@ -11,8 +11,7 @@ class StoreDemandRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()->hasRole('dealer')
-            && $this->user()->dealerProfile?->is_approved;
+        return $this->user()->hasRole('dealer');
     }
 
     public function rules(): array

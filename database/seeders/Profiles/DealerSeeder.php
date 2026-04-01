@@ -28,7 +28,6 @@ class DealerSeeder extends Seeder
 
         DealerProfile::firstOrCreate(
             ['user_id' => $user->id],
-            ['is_approved' => true]
         );
 
         $this->command->info('✓ Dealer seeded: dealer@hrvst.com / password');

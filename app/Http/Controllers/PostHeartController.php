@@ -11,15 +11,6 @@ class PostHeartController extends Controller
 {
     public function toggle(Request $request, Post $post, TogglePostHeartAction $action): JsonResponse
     {
-        $user = $request->user();
-
-        $canHeart = $user->farmerProfile?->is_approved === true
-            || $user->dealerProfile?->is_approved === true;
-
-        if (! $canHeart) {
-            abort(403, 'Only approved farmers and dealers can react to posts.');
-        }
-
-        return response()->json($action->handle($user, $post));
+        return response()->json($action->handle($request->user, $post));
     }
 }

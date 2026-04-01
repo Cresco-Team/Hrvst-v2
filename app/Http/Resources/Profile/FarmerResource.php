@@ -13,7 +13,6 @@ class FarmerResource extends JsonResource
         return [
             /* Always present */
             'id' => $this->id,
-            'is_approved' => $this->is_approved,
             'joined_at' => $this->created_at->format('M d, Y'),
             'joined_at_human' => $this->created_at->diffForHumans(),
 

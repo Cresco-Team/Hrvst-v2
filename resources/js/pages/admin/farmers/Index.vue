@@ -226,7 +226,7 @@ if (storedView && storedView !== props.view) {
                         @search="handleSearch" />
 
                     <EmptyState v-else title="No Farmers Yet"
-                        description="Please wait for farmers to register or check for pending farmers."
+                        description="Please register some farmers to see them listed here."
                         :icon="SearchX" />
                 </Deferred>
             </div>
