@@ -7,33 +7,34 @@ import AppLayout from '@/layouts/app/AppHeaderLayout.vue'
 import type { BreadcrumbItem } from '@/types'
 
 type Props = {
-	breadcrumbs?: BreadcrumbItem[]
+  breadcrumbs?: BreadcrumbItem[]
 }
 
 withDefaults(defineProps<Props>(), {
-	breadcrumbs: () => [],
+  breadcrumbs: () => [],
 })
 
 const { flash } = useFlash()
 
 watch(
-	() => flash.value,
-	(newFlash) => {
-		if (newFlash?.message) {
-			if (newFlash.type === 'error') {
-				toast.error(newFlash.message)
-			} else {
-				toast.success(newFlash.message)
-			}
-		}
-	},
-	{ deep: true, immediate: true },
+  () => flash.value,
+  (newFlash) => {
+    // 'pin' type is handled by the page that triggers it — never toast a PIN
+    if (!newFlash?.message || newFlash.type === 'pin') return
+
+    if (newFlash.type === 'error') {
+      toast.error(newFlash.message)
+    } else {
+      toast.success(newFlash.message)
+    }
+  },
+  { deep: true, immediate: true },
 )
 </script>
 
 <template>
-    <AppLayout :breadcrumbs="breadcrumbs">
-        <slot />
-        <Toaster richColors position="top-right" />
-    </AppLayout>
+  <AppLayout :breadcrumbs="breadcrumbs">
+    <slot />
+    <Toaster richColors position="top-right" />
+  </AppLayout>
 </template>
