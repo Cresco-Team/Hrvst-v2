@@ -41,7 +41,9 @@ class UserController extends Controller
             farmPhoto: $request->file('farm_photo'),
         );
 
-        return redirect()->route('admin.farmers.index')
+        // Redirect back to the create form — the page watches for flash.type === 'pin'
+        // and shows a modal with the PIN. Admin stays ready for the next registration.
+        return redirect()->route('admin.users.farmers.create')
             ->with('flash', [
                 'type' => 'pin',
                 'message' => 'Farmer created successfully.',
@@ -67,7 +69,7 @@ class UserController extends Controller
             document: $request->file('document'),
         );
 
-        return redirect()->route('admin.dealers.index')
+        return redirect()->route('admin.users.dealers.create')
             ->with('flash', [
                 'type' => 'pin',
                 'message' => 'Dealer created successfully.',
