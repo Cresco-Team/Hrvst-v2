@@ -2,28 +2,31 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class ChangePinRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
-        return false;
+        return $this->user() !== null;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
         return [
-            //
+            'pin' => ['required', 'string', 'digits:4', 'confirmed'],
+            'pin_confirmation' => ['required', 'string', 'digits:4'],
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'pin.required' => 'A new PIN is required.',
+            'pin.digits' => 'PIN must be exactly 4 digits.',
+            'pin.confirmed' => 'PIN confirmation does not match.',
+            'pin_confirmation.required' => 'Please confirm your new PIN.',
+            'pin_confirmation.digits' => 'PIN confirmation must be exactly 4 digits.',
         ];
     }
 }
