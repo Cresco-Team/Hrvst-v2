@@ -12,13 +12,7 @@ export * from './shared'
 export * from './ui'
 
 import type { Auth } from './auth'
-
-export type FlashMessage = {
-	success: string | null
-	error: string | null
-	warning: string | null
-	info: string | null
-}
+import { FlashMessage } from './shared'
 
 export type AppPageProps<T extends Record<string, unknown> = Record<string, unknown>> = T & {
 	name: string
