@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 
-#[Fillable('user_id')]
+#[Fillable(['user_id'])]
 class DealerProfile extends Model implements HasMedia
 {
     use HasFactory, InteractsWithMedia;
