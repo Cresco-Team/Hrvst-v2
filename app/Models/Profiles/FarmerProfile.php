@@ -16,7 +16,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 
-#[Fillable('user_id', 'province_id', 'municipality_id', 'barangay_id', 'latitude', 'longitude')]
+#[Fillable(['user_id', 'province_id', 'municipality_id', 'barangay_id', 'latitude', 'longitude'])]
 class FarmerProfile extends Model implements HasMedia
 {
     use HasFactory, InteractsWithMedia;
