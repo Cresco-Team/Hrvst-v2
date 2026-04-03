@@ -13,8 +13,6 @@ class Barangay extends Model
 {
     public $timestamps = false;
 
-    protected $fillable = ['name'];
-
     /* ---------- relations ---------- */
 
     public function municipality(): BelongsTo
