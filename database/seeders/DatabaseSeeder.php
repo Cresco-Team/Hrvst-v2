@@ -23,17 +23,33 @@ class DatabaseSeeder extends Seeder
             ProvinceSeeder::class,
             MunicipalitySeeder::class,
             BarangaySeeder::class,
+        ]);
 
+        $this->call([
             CategorySeeder::class,
             VegetableSeeder::class,
             VarietySeeder::class,
-            // PriceHistorySeeder::class,
-            // VarietyMonthlyStatsSeeder::class,
-            RoleSeeder::class,
-
-            AdminSeeder::class,
-            // FarmerSeeder::class,
-            // DealerSeeder::class,
         ]);
+
+        if (app()->environment('local', 'development')) {
+            $this->call([
+                PriceHistorySeeder::class,
+                VarietyMonthlyStatsSeeder::class,
+            ]);
+        }
+
+        $this->call([
+            RoleSeeder::class,
+            AdminSeeder::class,
+        ]);
+
+        if (app()->environment('local', 'development')) {
+            $this->call([
+                FarmerSeeder::class,
+                DealerSeeder::class,
+            ]);
+        }
+
+        $this->command->info('Database seeded successfully!');
     }
 }
