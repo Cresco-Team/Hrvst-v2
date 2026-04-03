@@ -2,6 +2,7 @@
 
 namespace App\Actions\Admin;
 
+use App\Models\Address\Municipality;
 use App\Models\Profiles\FarmerProfile;
 use App\Models\Profiles\Role;
 use App\Models\User;
@@ -32,9 +33,11 @@ final class CreateFarmerAction
             $role = Role::where('name', 'farmer')->firstOrFail();
             $user->roles()->attach($role);
 
+            $municipality = Municipality::findOrFail($validated['municipality_id']);
+
             $farmer = FarmerProfile::create([
                 'user_id' => $user->id,
-                'province_id' => $validated['province_id'],
+                'province_id' => $municipality->province_id,
                 'municipality_id' => $validated['municipality_id'],
                 'barangay_id' => $validated['barangay_id'],
                 'latitude' => $validated['latitude'] ?? null,

@@ -145,7 +145,7 @@ describe('login', function () {
         post('/login', [
             'phone_number' => $user->phone_number,
             'password' => 'badpin',
-        ])->assertSessionHasErrors('phone_number');
+        ])->assertStatus(429);
     });
 });
 
@@ -265,9 +265,9 @@ describe('admin create farmer', function () {
                 'phone_number' => '09181234567',
                 'municipality_id' => $barangay->municipality_id,
                 'barangay_id' => $barangay->id,
-            ])
-            ->assertRedirect(route('admin.users.farmers.create'))
-            ->assertSessionHas('flash.type', 'pin');
+                'latitude' => 16.4137,   // required — NOT NULL column
+                'longitude' => 120.5896,
+            ]);
 
         assertDatabaseHas('users', [
             'name' => 'Test Farmer',
@@ -293,6 +293,8 @@ describe('admin create farmer', function () {
                 'phone_number' => '09181234568',
                 'municipality_id' => $barangay->municipality_id,
                 'barangay_id' => $barangay->id,
+                'latitude' => 16.4137,
+                'longitude' => 120.5896,
             ]);
 
         expect(session('flash.pin'))

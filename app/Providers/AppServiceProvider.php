@@ -32,6 +32,8 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        Model::preventSilentlyDiscardingAttributes(! app()->isProduction());
+
         URL::forceScheme('https');
         $this->configureDefaults();
         Model::automaticallyEagerLoadRelationships();
