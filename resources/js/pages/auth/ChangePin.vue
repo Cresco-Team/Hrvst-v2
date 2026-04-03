@@ -5,64 +5,54 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Spinner } from '@/components/ui/spinner'
-import AuthBase from '@/layouts/AuthLayout.vue'
-import { store } from '@/routes/login'
-
-defineProps<{
-  status?: string
-}>()
+import AuthLayout from '@/layouts/AuthLayout.vue'
 </script>
 
 <template>
-  <AuthBase
-    title="Sign in to Hrvst"
-    description="Enter your phone number and PIN to continue"
+  <AuthLayout
+    title="Set your PIN"
+    description="Your account was set up with a temporary PIN. Choose a new 4-digit PIN before continuing."
   >
-    <Head title="Sign in" />
-
-    <div
-      v-if="status"
-      class="mb-4 text-center text-sm font-medium text-green-600"
-    >
-      {{ status }}
-    </div>
+    <Head title="Set your PIN" />
 
     <Form
-      v-bind="{ action: store.url(), method: 'post' }"
-      :reset-on-success="['password']"
+      action="/change-pin"
+      method="post"
       v-slot="{ errors, processing }"
       class="flex flex-col gap-6"
     >
       <div class="grid gap-6">
         <div class="grid gap-2">
-          <Label for="phone_number">Phone Number</Label>
+          <Label for="pin">New PIN</Label>
           <Input
-            id="phone_number"
-            type="tel"
-            name="phone_number"
+            id="pin"
+            type="password"
+            name="pin"
             required
             autofocus
             :tabindex="1"
-            autocomplete="tel"
-            placeholder="09171234567"
-          />
-          <InputError :message="errors.phone_number" />
-        </div>
-
-        <div class="grid gap-2">
-          <Label for="password">PIN</Label>
-          <Input
-            id="password"
-            type="password"
-            name="password"
-            required
-            :tabindex="2"
-            autocomplete="current-password"
+            autocomplete="new-password"
             placeholder="••••"
             inputmode="numeric"
             maxlength="4"
           />
-          <InputError :message="errors.password" />
+          <InputError :message="errors.pin" />
+        </div>
+
+        <div class="grid gap-2">
+          <Label for="pin_confirmation">Confirm PIN</Label>
+          <Input
+            id="pin_confirmation"
+            type="password"
+            name="pin_confirmation"
+            required
+            :tabindex="2"
+            autocomplete="new-password"
+            placeholder="••••"
+            inputmode="numeric"
+            maxlength="4"
+          />
+          <InputError :message="errors.pin_confirmation" />
         </div>
 
         <Button
@@ -70,12 +60,12 @@ defineProps<{
           class="mt-4 w-full"
           :tabindex="3"
           :disabled="processing"
-          data-test="login-button"
+          data-test="change-pin-button"
         >
           <Spinner v-if="processing" />
-          Sign in
+          Set PIN &amp; Continue
         </Button>
       </div>
     </Form>
-  </AuthBase>
+  </AuthLayout>
 </template>

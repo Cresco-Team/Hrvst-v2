@@ -29,7 +29,6 @@ class FarmerSeeder extends Seeder
         FarmerProfile::firstOrCreate(
             ['user_id' => $user->id],
             [
-                'is_approved' => true,
                 'province_id' => 1,
                 'municipality_id' => 1,
                 'barangay_id' => 1,

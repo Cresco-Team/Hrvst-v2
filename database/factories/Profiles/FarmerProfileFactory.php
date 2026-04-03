@@ -22,7 +22,6 @@ class FarmerProfileFactory extends Factory
             // Benguet bounding box: lat 16.2–16.7, lng 120.5–120.8
             'latitude' => fake()->randomFloat(6, 16.2, 16.7),
             'longitude' => fake()->randomFloat(6, 120.5, 120.8),
-            'is_approved' => true,
         ];
     }
 
@@ -38,10 +37,5 @@ class FarmerProfileFactory extends Factory
             $role = Role::firstOrCreate(['name' => 'farmer']);
             $profile->user->roles()->syncWithoutDetaching($role->id);
         });
-    }
-
-    public function pending(): static
-    {
-        return $this->state(['is_approved' => false]);
     }
 }

@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Actions\Dealer\ApproveDealerAction;
-use App\Actions\Dealer\RejectDealerAction;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Profile\DealerResource;
 use App\Models\Profiles\DealerProfile;
@@ -19,7 +17,7 @@ use Symfony\Component\HttpFoundation\Response as HttpFoundationResponse;
 class DealerController extends Controller
 {
     public function __construct(
-        private DealerService $dealerService
+        private DealerService $dealerService,
     ) {}
 
     public function index(Request $request): Response
@@ -30,7 +28,7 @@ class DealerController extends Controller
             'summary' => Inertia::defer(fn () => $this->dealerService->summary()),
             'dealers' => Inertia::defer(fn () => DealerResource::collection(
                 $this->dealerService->paginated(
-                search: $request->query('search', null),
+                    search: $request->query('search', null),
                 )
             )),
             'filters' => [
@@ -42,9 +40,9 @@ class DealerController extends Controller
     public function details(DealerProfile $dealer): JsonResponse
     {
         Gate::authorize('view', $dealer);
-        
+
         return response()->json(
-            (new DealerResource(($this->dealerService->details($dealer))))->resolve()
+            (new DealerResource($this->dealerService->details($dealer)))->resolve()
         );
     }
 
@@ -53,45 +51,10 @@ class DealerController extends Controller
         Gate::authorize('view', $dealer);
 
         return Inertia::render('admin/dealers/Show', [
-            'dealer' => Inertia::defer(fn () =>
-                (new DealerResource($this->dealerService->show($dealer)))->resolve()
+            'dealer' => Inertia::defer(
+                fn () => (new DealerResource($this->dealerService->show($dealer)))->resolve()
             ),
         ]);
-    }
-
-    public function pending(): JsonResponse
-    {
-        Gate::authorize('viewAny', DealerProfile::class);
-
-        return response()->json(
-            DealerResource::collection($this->dealerService->pending())->resolve()
-        );
-    }
-
-    public function approve(DealerProfile $dealer, ApproveDealerAction $approveDealer): RedirectResponse
-    {
-        Gate::authorize('approve', DealerProfile::class);
-
-        $approveDealer($dealer);
-
-        return back()
-            ->with('flash', [
-                'type' => 'success',
-                'message' => 'Dealer Approved.',
-            ]);
-    }
-
-    public function reject(DealerProfile $dealer, RejectDealerAction $rejectDealer): RedirectResponse
-    {
-        Gate::authorize('reject', DealerProfile::class);
-
-        $rejectDealer($dealer);
-
-        return back()
-            ->with('flash', [
-                'type' => 'success',
-                'message' => 'Dealer Rejected and Deleted.',
-            ]);
     }
 
     public function destroy(DealerProfile $dealerProfile): RedirectResponse

@@ -13,7 +13,6 @@ class FarmerMapService
     public function getMunicipalityOptions(): array
     {
         return Municipality::query()
-            ->whereHas('farmers', fn ($q) => $q->where('is_approved', true))
             ->with('province')
             ->orderBy('name')
             ->get()
@@ -50,8 +49,7 @@ class FarmerMapService
                 'user',
                 'municipality',
                 'posts' => fn ($q) => $q->ongoing()->with('variety.vegetable'),
-            ])
-            ->where('is_approved', true);
+            ]);
 
         if ($municipalityId) {
             $query->where('municipality_id', $municipalityId);

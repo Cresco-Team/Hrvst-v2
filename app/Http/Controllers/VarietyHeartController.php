@@ -11,15 +11,6 @@ class VarietyHeartController extends Controller
 {
     public function toggle(Request $request, Variety $variety, ToggleVarietyHeartAction $action): JsonResponse
     {
-        $user = $request->user();
-
-        $canHeart = $user->farmerProfile?->is_approved === true
-            || $user->dealerProfile?->is_approved === true;
-
-        if (! $canHeart) {
-            abort(403, 'Only approved farmers and dealers can react to varieties.');
-        }
-
-        return response()->json($action->handle($user, $variety));
+        return response()->json($action->handle($request->user, $variety));
     }
 }

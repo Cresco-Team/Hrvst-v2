@@ -6,17 +6,14 @@ use App\Models\Marketplace\Post;
 use App\Models\Profiles\DealerProfile;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Collection;
 
 class DealerService
 {
     public function summary(): array
     {
         return [
-            'total_dealers' => DealerProfile::approved()->count(),
-            'new_dealers_this_month' => DealerProfile::approved()
-                ->where('created_at', '>=', now()->startOfMonth())
-                ->count(),
+            'total_dealers' => DealerProfile::count(),
+            'new_dealers_this_month' => DealerProfile::where('created_at', '>=', now()->startOfMonth())->count(),
             'total_demands' => Post::demand()->count(),
             'new_demands_this_month' => Post::demand()
                 ->where('created_at', '>=', now()->startOfMonth())
@@ -35,8 +32,7 @@ class DealerService
         ])
             ->withCount([
                 'posts as ongoing_demands_count' => fn (Builder $q) => $q->ongoing(),
-            ])
-            ->approved();
+            ]);
 
         if ($search) {
             $query->whereHas('user', function (Builder $q) use ($search) {
@@ -76,18 +72,5 @@ class DealerService
             'posts.variety.media',
             'posts.variety.vegetable.category',
         ]);
-    }
-
-    public function pending(): Collection
-    {
-        $dealers = DealerProfile::with(['user.media'])
-            ->pending()
-            ->orderBy('created_at', 'asc')
-            ->get();
-
-        $dealers->each(fn (DealerProfile $dealer) => $dealer->document_url = route('admin.dealers.document', $dealer->id)
-        );
-
-        return $dealers;
     }
 }

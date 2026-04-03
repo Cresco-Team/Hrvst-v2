@@ -1,20 +1,27 @@
 <?php
 
 use App\Http\Controllers\AddressController;
+use App\Http\Controllers\ChangePinController;
 use App\Http\Controllers\PostHeartController;
 use App\Http\Controllers\VarietyHeartController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
-use Laravel\Fortify\Features;
 
 Route::get('/', function () {
-    return Inertia::render('Welcome', [
-        'canRegister' => Features::enabled(Features::registration()),
-    ]);
+    return Inertia::render('Welcome');
 })->name('home');
 
 Route::get('/address/barangays', [AddressController::class, 'barangays'])->name('address.barangays');
+
+/* ---------- change PIN (must be accessible before is_verified check) ---------- */
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('change-pin', [ChangePinController::class, 'show'])->name('change-pin.show');
+    Route::post('change-pin', [ChangePinController::class, 'update'])->name('change-pin.update');
+});
+
+/* ---------- authenticated & verified ---------- */
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('varieties/{variety}/heart', [VarietyHeartController::class, 'toggle'])->name('varieties.heart.toggle');
@@ -22,15 +29,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('dashboard', function () {
         $user = Auth::user();
+
         if ($user->hasRole('admin')) {
             return redirect()->route('admin.dashboard');
         }
 
-        if ($user->hasRole('dealer') && $user->dealerProfile?->is_approved === true) {
+        if ($user->hasRole('dealer') && $user->dealerProfile !== null) {
             return redirect()->route('dealer.marketplace.index');
         }
 
-        if ($user->hasRole('farmer') && $user->farmerProfile?->is_approved === true) {
+        if ($user->hasRole('farmer') && $user->farmerProfile !== null) {
             return redirect()->route('farmer.marketplace.index');
         }
 
@@ -38,7 +46,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('dashboard');
 });
 
-/* Development only */
+/* ---------- development only ---------- */
+
 if (app()->environment('local', 'development')) {
     Route::prefix('dev')->name('dev.')->group(function () {
         Route::get('login/admin', function () {

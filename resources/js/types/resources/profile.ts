@@ -19,7 +19,6 @@ export interface FarmerLocation {
 export interface FarmerResource {
 	// Always present
 	id: number
-	is_approved: boolean
 	joined_at: string // 'M d, Y'
 	joined_at_human: string
 
@@ -44,7 +43,6 @@ export interface FarmerResource {
 export interface DealerResource {
 	// Always present
 	id: number
-	is_approved: boolean
 	joined_at: string // 'M d, Y'
 	joined_at_human: string
 
@@ -92,39 +90,4 @@ export interface DealerDemandSummary {
 	total_ongoing: number
 	total_fulfilled: number
 	total_archived: number
-}
-
-// ─── Pending Approval Types ───────────────────────────────────────────────────
-// Mirrors app/Http/Resources/Profile/FarmerResource.php and DealerResource.php
-// as returned by the pending() methods in FarmerService / DealerService.
-
-export interface PendingUser {
-	id: number
-	name: string
-	email: string
-	phone_number: string
-	image_path: string | null
-}
-
-export interface PendingFarmer {
-	id: number
-	user: PendingUser
-	location: {
-		province: string
-		municipality: string
-		barangay: string
-		full_address: string
-		coordinates: { lat: number; lng: number }
-	}
-	farm_image: string | null
-	submitted_at: string
-	submitted_at_human: string
-}
-
-export interface PendingDealer {
-	id: number
-	user: PendingUser
-	document_image: string | null
-	submitted_at: string
-	submitted_at_human: string
 }

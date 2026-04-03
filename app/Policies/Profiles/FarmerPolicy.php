@@ -7,16 +7,14 @@ use App\Models\User;
 
 class FarmerPolicy
 {
-    public function viewAny(User $user): bool
+    public function viewAny(): bool
     {
-        return $user->hasRole('admin')
-            || $user->farmerProfile?->is_approved
-        ;
+        return true;
     }
 
-    public function view(User $user, FarmerProfile $farmerProfile): bool
+    public function view(): bool
     {
-        return $this->viewAny($user);
+        return true;
     }
 
     public function update(User $user, FarmerProfile $farmerProfile): bool
@@ -25,22 +23,12 @@ class FarmerPolicy
             || $user->farmerProfile?->id === $farmerProfile->id;
     }
 
-    public function approve(User $user): bool
-    {
-        return $user->hasRole('admin');
-    }
-
-    public function reject(User $user): bool
-    {
-        return $user->hasRole('admin');
-    }
-
     public function delete(User $user, FarmerProfile $farmerProfile): bool
     {
         return $this->update($user, $farmerProfile);
     }
 
-    public function restore(User $user, FarmerProfile $farmerProfile): bool
+    public function restore(User $user): bool
     {
         return $user->hasRole('admin');
     }

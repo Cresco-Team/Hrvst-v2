@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Actions\Farmer\ApproveFarmerAction;
-use App\Actions\Farmer\RejectFarmerAction;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Profile\FarmerResource;
 use App\Models\Profiles\FarmerProfile;
@@ -20,7 +18,7 @@ class FarmerController extends Controller
 {
     public function __construct(
         private FarmerService $farmerService,
-        private FarmerMapService $farmerMapService
+        private FarmerMapService $farmerMapService,
     ) {}
 
     public function index(Request $request): Response
@@ -37,10 +35,7 @@ class FarmerController extends Controller
                 'supplies' => $this->farmerMapService->getSupplyOptions(),
             ],
             'mapConfig' => [
-                'center' => [
-                    'lat' => 16.4137,
-                    'lng' => 120.5896,
-                ],
+                'center' => ['lat' => 16.4137, 'lng' => 120.5896],
                 'defaultZoom' => 13,
             ],
             'farmers' => $view === 'list'
@@ -72,7 +67,7 @@ class FarmerController extends Controller
         $farmers = $this->farmerMapService->getFarmersForMap(
             municipalityId: $validated['municipality_id'] ?? null,
             varietyId: $validated['variety_id'] ?? null,
-            bounds: $validated['bounds'] ?? null
+            bounds: $validated['bounds'] ?? null,
         );
 
         return response()->json([
@@ -95,44 +90,10 @@ class FarmerController extends Controller
         Gate::authorize('view', $farmer);
 
         return Inertia::render('admin/farmers/Show', [
-            'farmer' => Inertia::defer(fn () => (new FarmerResource($this->farmerService->show($farmer)))->resolve()
+            'farmer' => Inertia::defer(
+                fn () => (new FarmerResource($this->farmerService->show($farmer)))->resolve()
             ),
         ]);
-    }
-
-    public function pending(): JsonResponse
-    {
-        Gate::authorize('viewAny', FarmerProfile::class);
-
-        return response()->json(
-            FarmerResource::collection($this->farmerService->pending())->resolve()
-        );
-    }
-
-    public function approve(FarmerProfile $farmer, ApproveFarmerAction $approveFarmer): RedirectResponse
-    {
-        Gate::authorize('approve', FarmerProfile::class);
-
-        $approveFarmer($farmer);
-
-        return back()
-            ->with('flash', [
-                'type' => 'success',
-                'message' => 'Farmer Approved.',
-            ]);
-    }
-
-    public function reject(FarmerProfile $farmer, RejectFarmerAction $rejectFarmer): RedirectResponse
-    {
-        Gate::authorize('reject', FarmerProfile::class);
-
-        $rejectFarmer($farmer);
-
-        return back()
-            ->with('flash', [
-                'type' => 'success',
-                'message' => 'Farmer Rejected and Deleted.',
-            ]);
     }
 
     public function destroy(FarmerProfile $farmerProfile): RedirectResponse

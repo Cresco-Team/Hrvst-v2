@@ -6,17 +6,14 @@ use App\Models\Marketplace\Post;
 use App\Models\Profiles\FarmerProfile;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Collection;
 
 class FarmerService
 {
     public function summary(): array
     {
         return [
-            'total_farmers' => FarmerProfile::approved()->count(),
-            'new_farmers_this_month' => FarmerProfile::approved()
-                ->where('created_at', '>=', now()->startOfMonth())
-                ->count(),
+            'total_farmers' => FarmerProfile::count(),
+            'new_farmers_this_month' => FarmerProfile::where('created_at', '>=', now()->startOfMonth())->count(),
             'total_supplies' => Post::supply()->count(),
             'new_supplies_this_month' => Post::supply()
                 ->where('created_at', '>=', now()->startOfMonth())
@@ -39,8 +36,7 @@ class FarmerService
         ])
             ->withCount([
                 'posts as ongoing_supplies_count' => fn (Builder $q) => $q->ongoing(),
-            ])
-            ->approved();
+            ]);
 
         if ($search) {
             $query->whereHas('user', fn (Builder $q) => $q->where('name', 'like', "%{$search}%")
@@ -61,7 +57,7 @@ class FarmerService
             'posts' => fn ($q) => $q
                 ->ongoing()
                 ->with(['media', 'variety.media', 'variety.vegetable.category'])
-                ->orderBy('sheduled_date', 'asc'),
+                ->orderBy('scheduled_date', 'asc'),
         ]);
     }
 
@@ -75,19 +71,5 @@ class FarmerService
             'barangay',
             'posts' => fn ($q) => $q->with(['media', 'variety.vegetable.category']),
         ]);
-    }
-
-    public function pending(): Collection
-    {
-        return FarmerProfile::with([
-            'user.media',
-            'media',
-            'province',
-            'municipality',
-            'barangay',
-        ])
-            ->pending()
-            ->orderBy('created_at', 'asc')
-            ->get();
     }
 }

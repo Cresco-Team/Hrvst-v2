@@ -15,15 +15,12 @@ return new class extends Migration
             $table->foreignId('municipality_id')->constrained();
             $table->foreignId('barangay_id')->constrained();
 
-            $table->boolean('is_approved')->default(false);
-
             $table->double('latitude');
             $table->double('longitude');
 
             $table->string('farm_image')->nullable();
-            
+
             $table->timestamps();
-            $table->index('is_approved');
         });
     }
 

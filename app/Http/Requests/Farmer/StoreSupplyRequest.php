@@ -11,8 +11,7 @@ class StoreSupplyRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()->hasRole('farmer')
-            && $this->user()->farmerProfile?->is_approved;
+        return $this->user()->hasRole('farmer');
     }
 
     public function rules(): array

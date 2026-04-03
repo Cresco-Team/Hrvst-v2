@@ -8,7 +8,7 @@ use App\Models\Address\Municipality;
 use App\Models\Address\Province;
 use App\Models\Marketplace\Post;
 use App\Models\User;
-use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -16,26 +16,10 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 
+#[Fillable(['user_id', 'province_id', 'municipality_id', 'barangay_id', 'latitude', 'longitude'])]
 class FarmerProfile extends Model implements HasMedia
 {
     use HasFactory, InteractsWithMedia;
-
-    protected $fillable = [
-        'user_id',
-        'province_id',
-        'municipality_id',
-        'barangay_id',
-        'is_approved',
-        'latitude',
-        'longitude',
-    ];
-
-    protected function casts(): array
-    {
-        return [
-            'is_approved' => 'boolean',
-        ];
-    }
 
     /* ---------- relations ---------- */
 
@@ -63,33 +47,6 @@ class FarmerProfile extends Model implements HasMedia
     public function barangay(): BelongsTo
     {
         return $this->belongsTo(Barangay::class);
-    }
-
-    /* ---------- scopes ---------- */
-
-    public function scopeApproved(Builder $query): Builder
-    {
-        return $query->where('is_approved', true);
-    }
-
-    public function scopePending(Builder $query): Builder
-    {
-        return $query->where('is_approved', false);
-    }
-
-    /* ---------- actions ---------- */
-
-    public function approveAccount(): void
-    {
-        $this->is_approved = true;
-        $this->save();
-    }
-
-    public function rejectAccount(): void
-    {
-        $user = $this->user;
-        $this->delete();
-        $user->delete();
     }
 
     /* ---------- media ---------- */
