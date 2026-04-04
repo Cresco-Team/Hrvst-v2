@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { Deferred, Head, router } from '@inertiajs/vue3'
+import { Deferred, Head, Link, router } from '@inertiajs/vue3'
 import axios from 'axios'
-import { Package, PackagePlus, PartyPopper, Users } from 'lucide-vue-next'
+import { Package, PackagePlus, PartyPopper, UserRoundPlus, Users } from 'lucide-vue-next'
 import { ref } from 'vue'
 import { toast } from 'vue-sonner'
 import DealerDetailSidebar from '@/components/features/admin/dialogs/DealerDetailSidebar.vue'
@@ -12,6 +12,8 @@ import { Skeleton } from '@/components/ui/skeleton'
 import AppLayout from '@/layouts/AppLayout.vue'
 import admin from '@/routes/admin'
 import type { AdminDealersProps, BreadcrumbItem, DealerResource } from '@/types'
+import { Button } from '@/components/ui/button'
+import users from '@/routes/admin/users'
 
 const props = defineProps<AdminDealersProps>()
 
@@ -79,6 +81,13 @@ function handleSearch(query: string) {
 
             <div class="flex items-end justify-between">
                 <Heading title="Dealers" description="Manage approved dealers and their activity metrics" />
+
+                <Button as-child variant="outline">
+                    <Link :href="users.dealers.create()">
+                        <UserRoundPlus :size="20" />
+                        Register Dealer
+                    </Link>
+                </Button>
             </div>
 
             <!-- Summary Cards -->

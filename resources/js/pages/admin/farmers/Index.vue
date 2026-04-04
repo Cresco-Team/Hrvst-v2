@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { Deferred, Head, router } from '@inertiajs/vue3'
+import { Deferred, Head, Link, router } from '@inertiajs/vue3'
 import axios from 'axios'
-import { List, Loader2, MapIcon, Package, PackagePlus, SearchX, UserPlus, Users } from 'lucide-vue-next'
+import { List, Loader2, MapIcon, Package, PackagePlus, SearchX, UserPlus, UserRoundPlus, Users } from 'lucide-vue-next'
 import { computed, ref, watch } from 'vue'
 import { toast } from 'vue-sonner'
 import EmptyState from '@/components/EmptyState.vue'
@@ -17,6 +17,8 @@ import AppLayout from '@/layouts/AppLayout.vue'
 import admin from '@/routes/admin'
 import { index } from '@/routes/admin/farmers'
 import type { AdminFarmersProps, BreadcrumbItem, FarmerMarker, FarmerResource } from '@/types'
+import users from '@/routes/admin/users'
+import { Button } from '@/components/ui/button'
 
 const props = defineProps<AdminFarmersProps>()
 
@@ -173,16 +175,25 @@ if (storedView && storedView !== props.view) {
             <div class="flex items-end justify-between">
                 <Heading title="Farmers" description="Manage farmers and their active plantings." />
 
-                <ToggleGroup :model-value="currentView" variant="outline" type="single">
-                    <ToggleGroupItem value="list" aria-label="List view" @click="switchView('list')">
-                        <List class="size-4" />
-                        <span class="hidden sm:inline">List</span>
-                    </ToggleGroupItem>
-                    <ToggleGroupItem value="map" aria-label="Map view" @click="switchView('map')">
-                        <MapIcon class="size-4" />
-                        <span class="hidden sm:inline">Map</span>
-                    </ToggleGroupItem>
-                </ToggleGroup>
+                <div class="flex items-center gap-2">
+                    <Button as-child variant="outline">
+                        <Link :href="users.farmers.create()">
+                            <UserRoundPlus :size="20" />
+                            Register Farmer
+                        </Link>
+                    </Button>
+
+                    <ToggleGroup :model-value="currentView" variant="outline" type="single">
+                        <ToggleGroupItem value="list" aria-label="List view" @click="switchView('list')">
+                            <List class="size-4" />
+                            <span class="hidden sm:inline">List</span>
+                        </ToggleGroupItem>
+                        <ToggleGroupItem value="map" aria-label="Map view" @click="switchView('map')">
+                            <MapIcon class="size-4" />
+                            <span class="hidden sm:inline">Map</span>
+                        </ToggleGroupItem>
+                    </ToggleGroup>
+                </div>
             </div>
 
             <!-- Summary Cards -->
