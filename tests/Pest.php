@@ -1,29 +1,37 @@
 <?php
 
+use App\Enums\PostStatus;
+use App\Enums\PostTimeSlot;
+use App\Enums\PostType;
+use App\Models\Address\Barangay;
+use App\Models\Address\Municipality;
+use App\Models\Address\Province;
+use App\Models\Marketplace\Post;
+use App\Models\Product\Category;
+use App\Models\Product\Variety;
+use App\Models\Product\Vegetable;
+use App\Models\Profiles\DealerProfile;
+use App\Models\Profiles\FarmerProfile;
+use App\Models\Profiles\Role;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Tests\TestCase;
+
 /*
 |--------------------------------------------------------------------------
 | Test Case
 |--------------------------------------------------------------------------
-|
-| The closure you provide to your test functions is always bound to a specific PHPUnit test
-| case class. By default, that class is "PHPUnit\Framework\TestCase". Of course, you may
-| need to change it using the "pest()" function to bind a different classes or traits.
-|
 */
 
-pest()->extend(Tests\TestCase::class)
-    ->use(Illuminate\Foundation\Testing\RefreshDatabase::class)
+pest()->extend(TestCase::class)
+    ->use(RefreshDatabase::class)
     ->in('Feature');
 
 /*
 |--------------------------------------------------------------------------
 | Expectations
 |--------------------------------------------------------------------------
-|
-| When you're writing tests, you often need to check that values meet certain conditions. The
-| "expect()" function gives you access to a set of "expectations" methods that you can use
-| to assert different things. Of course, you may extend the Expectation API at any time.
-|
 */
 
 expect()->extend('toBeOne', function () {
@@ -32,16 +40,158 @@ expect()->extend('toBeOne', function () {
 
 /*
 |--------------------------------------------------------------------------
-| Functions
+| Shared Helpers
 |--------------------------------------------------------------------------
 |
-| While Pest is very powerful out-of-the-box, you may have some testing code specific to your
-| project that you don't want to repeat in every file. Here you can also expose helpers as
-| global functions to help you to reduce the number of lines of code in your test files.
+| All test helper functions live here so they are declared exactly once
+| across the entire suite. Declaring them in individual test files causes
+| PHP "Cannot redeclare function" errors when multiple files are loaded in
+| the same process.
 |
 */
 
-function something()
+// ─── Address ─────────────────────────────────────────────────────────────────
+
+/**
+ * Creates a fresh Province → Municipality → Barangay chain.
+ * RefreshDatabase wipes these tables; there are no factories for them
+ * because the data is normally loaded from CSV seeders in production.
+ */
+function createBarangay(
+    string $provinceName = 'Benguet',
+    string $municipalityName = 'La Trinidad',
+    string $barangayName = 'Poblacion',
+): Barangay {
+    $province = Province::create(['name' => $provinceName]);
+    $municipality = Municipality::create([
+        'province_id' => $province->id,
+        'name' => $municipalityName,
+        'latitude' => 16.4617,
+        'longitude' => 120.5885,
+    ]);
+
+    return Barangay::create([
+        'municipality_id' => $municipality->id,
+        'name' => $barangayName,
+    ]);
+}
+
+// ─── Users ───────────────────────────────────────────────────────────────────
+
+function createAdminUser(array $overrides = []): User
 {
-    // ..
+    $user = User::factory()->create(array_merge([
+        'email_verified_at' => now(),
+        'must_change_pin' => false,
+    ], $overrides));
+
+    $user->roles()->attach(Role::firstOrCreate(['name' => 'admin']));
+
+    return $user;
+}
+
+function createFarmerUser(?Barangay $barangay = null, array $overrides = []): User
+{
+    $barangay ??= createBarangay();
+
+    $user = User::factory()->create(array_merge([
+        'email_verified_at' => now(),
+        'must_change_pin' => false,
+    ], $overrides));
+
+    $user->roles()->attach(Role::firstOrCreate(['name' => 'farmer']));
+
+    FarmerProfile::create([
+        'user_id' => $user->id,
+        'province_id' => $barangay->municipality->province_id,
+        'municipality_id' => $barangay->municipality_id,
+        'barangay_id' => $barangay->id,
+        'latitude' => 16.4137,
+        'longitude' => 120.5960,
+    ]);
+
+    return $user;
+}
+
+function createDealerUser(array $overrides = []): User
+{
+    $user = User::factory()->create(array_merge([
+        'email_verified_at' => now(),
+        'must_change_pin' => false,
+    ], $overrides));
+
+    $user->roles()->attach(Role::firstOrCreate(['name' => 'dealer']));
+    DealerProfile::create(['user_id' => $user->id]);
+
+    return $user;
+}
+
+// ─── Products ────────────────────────────────────────────────────────────────
+
+function createVariety(
+    string $categoryName = 'Test Category',
+    string $vegetableName = 'Test Vegetable',
+    string $varietyName = 'Test Variety',
+): Variety {
+    $category = Category::create(['name' => $categoryName]);
+    $vegetable = Vegetable::create(['category_id' => $category->id, 'name' => $vegetableName]);
+
+    return Variety::create(['vegetable_id' => $vegetable->id, 'name' => $varietyName]);
+}
+
+// ─── Posts ───────────────────────────────────────────────────────────────────
+
+function createSupplyPost(User $farmer, Variety $variety, array $overrides = []): Post
+{
+    return Post::create(array_merge([
+        'user_id' => $farmer->id,
+        'variety_id' => $variety->id,
+        'type' => PostType::Supply,
+        'status' => PostStatus::Ongoing,
+        'quantity_kg' => 100,
+        'offered_price' => 50.00,
+        'price_flag' => 'Fair',
+        'scheduled_date' => now()->addDays(7)->toDateString(),
+        'time_slot' => PostTimeSlot::Morning,
+    ], $overrides));
+}
+
+function createDemandPost(User $dealer, Variety $variety, array $overrides = []): Post
+{
+    return Post::create(array_merge([
+        'user_id' => $dealer->id,
+        'variety_id' => $variety->id,
+        'type' => PostType::Demand,
+        'status' => PostStatus::Ongoing,
+        'quantity_kg' => 50,
+        'offered_price' => 45.00,
+        'price_flag' => 'Fair',
+        'scheduled_date' => now()->addDays(5)->toDateString(),
+        'time_slot' => PostTimeSlot::Afternoon,
+    ], $overrides));
+}
+
+// ─── Payloads ────────────────────────────────────────────────────────────────
+
+function supplyPostPayload(Variety $variety): array
+{
+    return [
+        'variety_id' => $variety->id,
+        'quantity_kg' => 100,
+        'offered_price' => 50.00,
+        'scheduled_date' => now()->addDays(7)->toDateString(),
+        'time_slot' => PostTimeSlot::Morning->value,
+        'image' => UploadedFile::fake()->image('supply.jpg'),
+    ];
+}
+
+function demandPostPayload(Variety $variety): array
+{
+    return [
+        'variety_id' => $variety->id,
+        'quantity_kg' => 50,
+        'offered_price' => 45.00,
+        'scheduled_date' => now()->addDays(5)->toDateString(),
+        'time_slot' => PostTimeSlot::Afternoon->value,
+    ];
 }
