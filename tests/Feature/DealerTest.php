@@ -4,7 +4,6 @@ use App\Enums\PostStatus;
 use App\Models\Profiles\DealerProfile;
 use App\Models\Profiles\Role;
 use App\Models\User;
-use Illuminate\Http\UploadedFile;
 use Inertia\Testing\AssertableInertia as Assert;
 
 use function Pest\Laravel\actingAs;
@@ -30,13 +29,6 @@ describe('admin dealer access control', function () {
         $dealer = createDealerUser();
 
         get(route('admin.dealers.show', $dealer->dealerProfile))
-            ->assertRedirect(route('login'));
-    });
-
-    it('redirects guest to login on document endpoint', function () {
-        $dealer = createDealerUser();
-
-        get(route('admin.dealers.document', $dealer->dealerProfile))
             ->assertRedirect(route('login'));
     });
 
@@ -164,59 +156,6 @@ describe('admin dealer destroy', function () {
 
         actingAs(createDealerUser())
             ->delete(route('admin.dealers.destroy', $target->dealerProfile))
-            ->assertForbidden();
-    });
-});
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// DOCUMENT
-// ═══════════════════════════════════════════════════════════════════════════════
-
-describe('admin dealer document', function () {
-    it('returns 404 when the dealer has no document attached', function () {
-        $dealer = createDealerUser();
-
-        actingAs(createAdminUser())
-            ->get(route('admin.dealers.document', $dealer->dealerProfile))
-            ->assertNotFound();
-    });
-
-    it('serves the document file when one is attached', function () {
-        $dealer = createDealerUser();
-        $profile = $dealer->dealerProfile;
-
-        $profile
-            ->addMedia(UploadedFile::fake()->image('permit.jpg'))
-            ->toMediaCollection('document');
-
-        actingAs(createAdminUser())
-            ->get(route('admin.dealers.document', $profile))
-            ->assertSuccessful();
-    });
-
-    it('farmer cannot access a dealer document — admin middleware blocks', function () {
-        $dealer = createDealerUser();
-        $profile = $dealer->dealerProfile;
-
-        $profile
-            ->addMedia(UploadedFile::fake()->image('permit.jpg'))
-            ->toMediaCollection('document');
-
-        actingAs(createFarmerUser())
-            ->get(route('admin.dealers.document', $profile))
-            ->assertForbidden();
-    });
-
-    it('dealer cannot access their own document via admin route', function () {
-        $dealer = createDealerUser();
-        $profile = $dealer->dealerProfile;
-
-        $profile
-            ->addMedia(UploadedFile::fake()->image('permit.jpg'))
-            ->toMediaCollection('document');
-
-        actingAs($dealer)
-            ->get(route('admin.dealers.document', $profile))
             ->assertForbidden();
     });
 });

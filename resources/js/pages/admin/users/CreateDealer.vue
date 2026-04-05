@@ -31,7 +31,6 @@ const form = useForm({
   name: '',
   phone_number: '',
   email: '',
-  document: null as File | null,
 })
 
 // ─── PIN modal ────────────────────────────────────────────────────────────────
@@ -71,7 +70,7 @@ function submit() {
     <div class="flex flex-col gap-6 p-4 lg:p-6">
       <Heading
         title="Add Dealer"
-        description="Verify the dealer's physical ID and business documents before registering their account."
+        description="Verify the dealer's physical ID before registering their account."
       />
 
       <form class="max-w-xl space-y-6" @submit.prevent="submit">
@@ -114,27 +113,6 @@ function submit() {
             placeholder="maria@example.com"
           />
           <InputError :message="form.errors.email" />
-        </div>
-
-        <!-- Business document (optional) -->
-        <div class="grid gap-2">
-          <Label for="document">
-            Supporting Document
-            <span class="text-muted-foreground font-normal">(optional)</span>
-          </Label>
-          <Input
-            id="document"
-            type="file"
-            accept="image/jpeg,image/jpg,image/png,image/webp"
-            @change="(e: Event) => {
-              const input = e.target as HTMLInputElement
-              form.document = input.files?.[0] ?? null
-            }"
-          />
-          <p class="text-xs text-muted-foreground">
-            Business permit, valid ID, or any verification document. Max 5 MB.
-          </p>
-          <InputError :message="form.errors.document" />
         </div>
 
         <div class="flex gap-3">

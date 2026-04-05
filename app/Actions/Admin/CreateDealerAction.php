@@ -5,7 +5,6 @@ namespace App\Actions\Admin;
 use App\Models\Profiles\DealerProfile;
 use App\Models\Profiles\Role;
 use App\Models\User;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 
 final class CreateDealerAction
@@ -13,11 +12,11 @@ final class CreateDealerAction
     /**
      * @return array{user: User, plain_pin: string}
      */
-    public function handle(array $validated, ?UploadedFile $document = null): array
+    public function handle(array $validated): array
     {
         $plainPin = $this->generatePin();
 
-        $user = DB::transaction(function () use ($validated, $plainPin, $document): User {
+        $user = DB::transaction(function () use ($validated, $plainPin): User {
             $user = User::create([
                 'name' => $validated['name'],
                 'phone_number' => $validated['phone_number'],
@@ -29,11 +28,7 @@ final class CreateDealerAction
             $role = Role::where('name', 'dealer')->firstOrFail();
             $user->roles()->attach($role);
 
-            $dealer = DealerProfile::create(['user_id' => $user->id]);
-
-            if ($document !== null) {
-                $dealer->addMedia($document)->toMediaCollection('document');
-            }
+            DealerProfile::create(['user_id' => $user->id]);
 
             return $user;
         });

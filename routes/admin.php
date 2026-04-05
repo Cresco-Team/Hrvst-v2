@@ -54,7 +54,6 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     Route::prefix('dealers')->name('dealers.')->group(function () {
         Route::get('/', [DealerController::class, 'index'])->name('index');
         Route::get('/{dealer}', [DealerController::class, 'show'])->name('show');
-        Route::get('/{dealer}/document', [DealerController::class, 'document'])->name('document');
         Route::delete('/{dealer}', [DealerController::class, 'destroy'])->name('destroy');
 
         Route::prefix('api')->name('api.')->group(function () {

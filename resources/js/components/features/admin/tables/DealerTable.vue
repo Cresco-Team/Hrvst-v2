@@ -64,16 +64,6 @@ const columns: ColumnDef<DealerResource>[] = [
             </Button>
         </template>
 
-        <template #cell-image="{ row }">
-            <Avatar class="size-12 rounded-md">
-                <!-- document_url is served via admin route, not a direct media URL -->
-                <AvatarImage v-if="row.document_url" :src="row.document_url" :alt="row.user?.name" />
-                <AvatarFallback class="rounded-md bg-primary/10 text-primary font-semibold">
-                    {{ getInitials(row.user?.name) }}
-                </AvatarFallback>
-            </Avatar>
-        </template>
-
         <template #cell-dealer="{ row }">
             <div class="flex flex-col gap-0.5">
                 <span class="font-medium">{{ row.user?.name }}</span>

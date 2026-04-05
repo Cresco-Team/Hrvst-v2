@@ -12,7 +12,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 use Inertia\Response;
-use Symfony\Component\HttpFoundation\Response as HttpFoundationResponse;
 
 class DealerController extends Controller
 {
@@ -70,18 +69,5 @@ class DealerController extends Controller
                 'type' => 'success',
                 'message' => 'Dealer deleted successfully.',
             ]);
-    }
-
-    public function document(DealerProfile $dealer): HttpFoundationResponse
-    {
-        Gate::authorize('viewAny', DealerProfile::class);
-
-        $media = $dealer->getFirstMedia('document');
-
-        if (! $media) {
-            abort(404, 'Document not found.');
-        }
-
-        return $media->toResponse(request());
     }
 }

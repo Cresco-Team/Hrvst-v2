@@ -23,7 +23,6 @@ class CreateDealerRequest extends FormRequest
                 Rule::unique('users', 'phone_number'),
             ],
             'email' => ['nullable', 'string', 'email', 'max:255', Rule::unique('users', 'email')],
-            'document' => ['nullable', 'image', 'mimes:jpeg,jpg,png,webp', 'max:5120'],
         ];
     }
 

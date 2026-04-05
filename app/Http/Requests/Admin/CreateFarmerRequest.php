@@ -28,7 +28,6 @@ class CreateFarmerRequest extends FormRequest
             'barangay_id' => ['required', 'integer', Rule::exists('barangays', 'id')],
             'latitude' => ['nullable', 'numeric', 'between:-90,90'],
             'longitude' => ['nullable', 'numeric', 'between:-180,180'],
-            'farm_photo' => ['nullable', 'image', 'mimes:jpeg,jpg,png,webp', 'max:5120'],
         ];
     }
 

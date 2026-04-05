@@ -37,12 +37,9 @@ class UserController extends Controller
         Gate::authorize('viewAny', FarmerProfile::class);
 
         ['plain_pin' => $pin] = $createFarmer->handle(
-            validated: $request->safe()->except('farm_photo'),
-            farmPhoto: $request->file('farm_photo'),
+            validated: $request->safe()->all(),
         );
 
-        // Redirect back to the create form — the page watches for flash.type === 'pin'
-        // and shows a modal with the PIN. Admin stays ready for the next registration.
         return redirect()->route('admin.users.farmers.create')
             ->with('flash', [
                 'type' => 'pin',
@@ -65,8 +62,7 @@ class UserController extends Controller
         Gate::authorize('viewAny', DealerProfile::class);
 
         ['plain_pin' => $pin] = $createDealer->handle(
-            validated: $request->safe()->except('document'),
-            document: $request->file('document'),
+            validated: $request->safe()->all(),
         );
 
         return redirect()->route('admin.users.dealers.create')

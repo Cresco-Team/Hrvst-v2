@@ -45,7 +45,6 @@ beforeEach(function () {
     // attempts to remove files from disk. Without faking both disks,
     // any test that deletes a HasMedia model will receive a 500.
     Storage::fake('public');
-    Storage::fake('documents');
 });
 
 /*

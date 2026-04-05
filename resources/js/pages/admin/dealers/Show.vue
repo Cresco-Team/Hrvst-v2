@@ -102,10 +102,6 @@ function priceFlagVariant(flag: PostPriceFlag | undefined) {
                                 </div>
                             </div>
                         </Card>
-
-                        <Card v-if="dealer.document_url" class="p-0 aspect-video overflow-hidden">
-                            <img :src="dealer.document_url" alt="Business document" class="size-full object-cover" />
-                        </Card>
                     </div>
 
                     <!-- Main Content -->

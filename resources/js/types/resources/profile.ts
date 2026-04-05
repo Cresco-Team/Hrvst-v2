@@ -28,9 +28,6 @@ export interface FarmerResource {
 	// with('province', 'municipality', 'barangay') — all three must be loaded
 	location?: FarmerLocation
 
-	// with('media')
-	farm_url?: string
-
 	// with('posts.*') — posts relation on FarmerProfile is scoped to PostType::Supply
 	supplies?: FarmerSupplyResource[]
 
@@ -54,10 +51,6 @@ export interface DealerResource {
 
 	// withCount(['posts as ongoing_demands_count' => ongoing scope])
 	ongoing_demands_count?: number
-
-	// Set manually in DealerService (admin only): $dealer->document_url = route(...)
-	// Served via GET /admin/dealers/{dealer}/document (DealerController::document)
-	document_url?: string
 }
 
 // ─── Service Summary Shapes ───────────────────────────────────────────────────
