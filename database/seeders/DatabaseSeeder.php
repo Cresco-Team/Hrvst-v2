@@ -2,9 +2,8 @@
 
 namespace Database\Seeders;
 
-use Database\Seeders\Address\BarangaySeeder;
-use Database\Seeders\Address\MunicipalitySeeder;
-use Database\Seeders\Address\ProvinceSeeder;
+use App\Models\Profiles\DealerProfile;
+use App\Models\Profiles\FarmerProfile;
 use Database\Seeders\Product\CategorySeeder;
 use Database\Seeders\Product\PriceHistorySeeder;
 use Database\Seeders\Product\VarietySeeder;
@@ -20,9 +19,7 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
-            ProvinceSeeder::class,
-            MunicipalitySeeder::class,
-            BarangaySeeder::class,
+            AddressSeeder::class,
         ]);
 
         $this->call([
@@ -30,12 +27,14 @@ class DatabaseSeeder extends Seeder
             VegetableSeeder::class,
             VarietySeeder::class,
         ]);
+        $this->command->info('✓ Products seeded');
 
         if (app()->environment('local', 'development')) {
             $this->call([
                 PriceHistorySeeder::class,
                 VarietyMonthlyStatsSeeder::class,
             ]);
+            $this->command->info('✓ Product stats seeded');
         }
 
         $this->call([
@@ -49,6 +48,12 @@ class DatabaseSeeder extends Seeder
                 DealerSeeder::class,
             ]);
         }
+
+        $this->call([
+            FarmerProfile::factory(10)->create(),
+            DealerProfile::factory(5)->create(),
+        ]);
+        $this->command->info('✓ Profiles seeded');
 
         $this->command->info('Database seeded successfully!');
     }
