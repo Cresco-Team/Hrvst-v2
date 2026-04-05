@@ -8,11 +8,11 @@ import MarketplaceCard from '@/components/shared/cards/MarketplaceCard.vue'
 import { Button } from '@/components/ui/button'
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group'
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
 } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
 import AppLayout from '@/layouts/AppLayout.vue'
@@ -25,53 +25,53 @@ const searchQuery = ref(props.filters.search ?? '')
 let searchDebounce: ReturnType<typeof setTimeout> | null = null
 
 function handleSearch() {
-  if (searchDebounce) clearTimeout(searchDebounce)
+	if (searchDebounce) clearTimeout(searchDebounce)
 
-  searchDebounce = setTimeout(() => {
-    router.visit(dealer.marketplace.index().url, {
-      data: {
-        search: searchQuery.value || undefined,
-        category_id: props.filters.category_id || undefined,
-        variety_id: props.filters.variety_id || undefined,
-        municipality_id: props.filters.municipality_id || undefined,
-      },
-      preserveState: true,
-      preserveScroll: true,
-      only: ['supplies'],
-    })
-  }, 300)
+	searchDebounce = setTimeout(() => {
+		router.visit(dealer.marketplace.index().url, {
+			data: {
+				search: searchQuery.value || undefined,
+				category_id: props.filters.category_id || undefined,
+				variety_id: props.filters.variety_id || undefined,
+				municipality_id: props.filters.municipality_id || undefined,
+			},
+			preserveState: true,
+			preserveScroll: true,
+			only: ['supplies'],
+		})
+	}, 300)
 }
 
 function handleCategoryFilter(value: string) {
-  router.visit(dealer.marketplace.index().url, {
-    data: {
-      search: props.filters.search || undefined,
-      category_id: value === 'all' ? undefined : value,
-      variety_id: undefined,          // reset when category changes
-      municipality_id: props.filters.municipality_id || undefined,
-    },
-    preserveState: true,
-    preserveScroll: true,
-    only: ['supplies', 'filters'],
-  })
+	router.visit(dealer.marketplace.index().url, {
+		data: {
+			search: props.filters.search || undefined,
+			category_id: value === 'all' ? undefined : value,
+			variety_id: undefined, // reset when category changes
+			municipality_id: props.filters.municipality_id || undefined,
+		},
+		preserveState: true,
+		preserveScroll: true,
+		only: ['supplies', 'filters'],
+	})
 }
 
 function handlePageChange(page: number) {
-  router.visit(dealer.marketplace.index().url, {
-    data: {
-      page,
-      search: props.filters.search || undefined,
-      category_id: props.filters.category_id || undefined,
-      variety_id: props.filters.variety_id || undefined,
-      municipality_id: props.filters.municipality_id || undefined,
-    },
-    preserveScroll: true,
-  })
+	router.visit(dealer.marketplace.index().url, {
+		data: {
+			page,
+			search: props.filters.search || undefined,
+			category_id: props.filters.category_id || undefined,
+			variety_id: props.filters.variety_id || undefined,
+			municipality_id: props.filters.municipality_id || undefined,
+		},
+		preserveScroll: true,
+	})
 }
 
 const breadcrumbs: BreadcrumbItem[] = [
-  { title: 'Dealer', href: dealer.demands.index().url },
-  { title: 'Farmer Posts', href: dealer.marketplace.index().url },
+	{ title: 'Dealer', href: dealer.demands.index().url },
+	{ title: 'Marketplace Supplies', href: dealer.marketplace.index().url },
 ]
 </script>
 
@@ -82,7 +82,7 @@ const breadcrumbs: BreadcrumbItem[] = [
   <AppLayout :breadcrumbs="breadcrumbs">
     <div class="flex h-full flex-col gap-6 p-4 lg:p-6">
 
-      <Heading title="Farmer Posts" description="Browse active supply offerings from farmers and find what you need." />
+      <Heading title="Marketplace Supplies" description="Browse supplies and find what you need." />
 
       <!-- Filters -->
       <Deferred data="categoryOptions">
@@ -96,7 +96,7 @@ const breadcrumbs: BreadcrumbItem[] = [
               <Search class="size-4 text-muted-foreground" />
             </InputGroupAddon>
             <InputGroupInput v-model="searchQuery" type="search"
-              placeholder="Search vegetables (e.g., Cabbage, Lettuce)..." @input="handleSearch" />
+              placeholder="Search vegetables" @input="handleSearch" />
           </InputGroup>
 
           <Select :model-value="filters.category_id?.toString() ?? 'all'"
@@ -127,7 +127,7 @@ const breadcrumbs: BreadcrumbItem[] = [
           Showing {{ supplies?.data.length }} of {{ supplies?.meta.total }} posts
         </p>
 
-        <EmptyState v-if="supplies?.data.length === 0" title="No Posts Found"
+        <EmptyState v-if="supplies?.data.length === 0" title="No Supplies Found"
           description="Try adjusting your filters or check back later." />
 
         <div v-else class="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
