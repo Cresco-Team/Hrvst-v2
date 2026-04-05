@@ -43,12 +43,7 @@ class DealerService
         }
 
         return $query->orderBy('created_at', 'desc')
-            ->paginate($perPage)
-            ->through(function (DealerProfile $dealer) {
-                $dealer->document_url = route('admin.dealers.document', $dealer->id);
-
-                return $dealer;
-            });
+            ->paginate($perPage);
     }
 
     public function details(DealerProfile $dealer): DealerProfile
@@ -64,8 +59,6 @@ class DealerService
 
     public function show(DealerProfile $dealer): DealerProfile
     {
-        $dealer->document_url = route('admin.dealers.document', $dealer->id);
-
         return $dealer->load([
             'user.media',
             'posts',

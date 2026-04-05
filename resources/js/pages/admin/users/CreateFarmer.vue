@@ -60,7 +60,6 @@ const form = useForm({
   barangay_id: '' as string | number,
   latitude: null as number | null,
   longitude: null as number | null,
-  farm_photo: null as File | null,
 })
 
 // ─── Cascading address ────────────────────────────────────────────────────────
@@ -236,24 +235,6 @@ function submit() {
             :lng-error="form.errors.longitude"
             @update:model-value="({ lat, lng }) => { form.latitude = lat; form.longitude = lng }"
           />
-        </div>
-
-        <!-- Farm photo (optional) -->
-        <div class="grid gap-2">
-          <Label for="farm_photo">
-            Farm Photo
-            <span class="text-muted-foreground font-normal">(optional)</span>
-          </Label>
-          <Input
-            id="farm_photo"
-            type="file"
-            accept="image/jpeg,image/jpg,image/png,image/webp"
-            @change="(e: Event) => {
-              const input = e.target as HTMLInputElement
-              form.farm_photo = input.files?.[0] ?? null
-            }"
-          />
-          <InputError :message="form.errors.farm_photo" />
         </div>
 
         <div class="flex gap-3">

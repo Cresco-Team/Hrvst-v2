@@ -30,7 +30,6 @@ defineEmits<{
 
 const columns: ColumnDef<FarmerResource>[] = [
     { id: 'expander', header: '' },
-    { id: 'image', header: 'Image' },
     {
         id: 'farmer',
         header: 'Farmer',
@@ -68,15 +67,6 @@ const columns: ColumnDef<FarmerResource>[] = [
                 <ChevronDownIcon v-if="cell.row.getIsExpanded()" class="size-4" />
                 <ChevronRightIcon v-else class="size-4" />
             </Button>
-        </template>
-
-        <template #cell-image="{ row }">
-            <Avatar class="size-12 rounded-md">
-                <AvatarImage v-if="row.farm_url" :src="row.farm_url" :alt="row.user?.name" />
-                <AvatarFallback class="rounded-md bg-primary/10 text-primary font-semibold">
-                    {{ getInitials(row.user?.name) }}
-                </AvatarFallback>
-            </Avatar>
         </template>
 
         <template #cell-farmer="{ row }">

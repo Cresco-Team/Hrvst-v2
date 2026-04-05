@@ -48,13 +48,4 @@ class FarmerProfile extends Model implements HasMedia
     {
         return $this->belongsTo(Barangay::class);
     }
-
-    /* ---------- media ---------- */
-
-    public function registerMediaCollections(): void
-    {
-        $this->addMediaCollection('farm_photo')
-            ->singleFile()
-            ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/webp']);
-    }
 }

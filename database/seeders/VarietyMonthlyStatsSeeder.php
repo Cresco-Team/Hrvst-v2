@@ -12,8 +12,6 @@ class VarietyMonthlyStatsSeeder extends Seeder
 {
     public function run(): void
     {
-        $this->command->info('Backfilling variety_monthly_stats from existing posts…');
-
         $posts = DB::table('posts')
             ->whereIn('status', [PostStatus::Archived->value, PostStatus::Fulfilled->value])
             ->select(['variety_id', 'type', 'status', 'quantity_kg', 'created_at'])
@@ -46,7 +44,7 @@ class VarietyMonthlyStatsSeeder extends Seeder
         }
 
         if (empty($grouped)) {
-            $this->command->info('No archived/fulfilled posts found. Nothing to backfill.');
+            $this->command->info('✓ No archived/fulfilled posts found. Nothing to backfill.');
 
             return;
         }
@@ -60,7 +58,8 @@ class VarietyMonthlyStatsSeeder extends Seeder
         }
 
         $total = DB::table('variety_monthly_stats')->count();
-        $this->command->info("Done. {$total} rows in variety_monthly_stats.");
+
+        $this->command->info("✓ {$total} rows in variety_monthly_stats seeded.");
     }
 
     private function resolveColumn(string $type, string $status): ?string

@@ -6,7 +6,6 @@ use App\Models\Address\Municipality;
 use App\Models\Profiles\FarmerProfile;
 use App\Models\Profiles\Role;
 use App\Models\User;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 
 final class CreateFarmerAction
@@ -17,11 +16,11 @@ final class CreateFarmerAction
      *
      * @return array{user: User, plain_pin: string}
      */
-    public function handle(array $validated, ?UploadedFile $farmPhoto = null): array
+    public function handle(array $validated): array
     {
         $plainPin = $this->generatePin();
 
-        $user = DB::transaction(function () use ($validated, $plainPin, $farmPhoto): User {
+        $user = DB::transaction(function () use ($validated, $plainPin): User {
             $user = User::create([
                 'name' => $validated['name'],
                 'phone_number' => $validated['phone_number'],
@@ -35,7 +34,7 @@ final class CreateFarmerAction
 
             $municipality = Municipality::findOrFail($validated['municipality_id']);
 
-            $farmer = FarmerProfile::create([
+            FarmerProfile::create([
                 'user_id' => $user->id,
                 'province_id' => $municipality->province_id,
                 'municipality_id' => $validated['municipality_id'],
@@ -43,10 +42,6 @@ final class CreateFarmerAction
                 'latitude' => $validated['latitude'] ?? null,
                 'longitude' => $validated['longitude'] ?? null,
             ]);
-
-            if ($farmPhoto !== null) {
-                $farmer->addMedia($farmPhoto)->toMediaCollection('farm_photo');
-            }
 
             return $user;
         });

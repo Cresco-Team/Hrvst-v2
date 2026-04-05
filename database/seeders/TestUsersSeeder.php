@@ -1,17 +1,19 @@
 <?php
 
-namespace Database\Seeders\Profiles;
+namespace Database\Seeders;
 
+use App\Models\Profiles\DealerProfile;
 use App\Models\Profiles\FarmerProfile;
 use App\Models\Profiles\Role;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
-class FarmerSeeder extends Seeder
+class TestUsersSeeder extends Seeder
 {
     public function run(): void
     {
+        /* Farmer Jane */
         $farmerRole = Role::firstOrCreate(['name' => 'farmer']);
 
         $user = User::firstOrCreate(
@@ -37,8 +39,25 @@ class FarmerSeeder extends Seeder
             ]
         );
 
-        $this->command->info('✓ Farmer seeded: farmer@hrvst.com / password');
+        /* Dealer John */
+        $dealerRole = Role::firstOrCreate(['name' => 'dealer']);
 
-        FarmerProfile::factory(10)->create();
+        $user = User::firstOrCreate(
+            ['email' => 'dealer@hrvst.com'],
+            [
+                'name' => 'Dealer John',
+                'phone_number' => '09171234567',
+                'email_verified_at' => now(),
+                'password' => Hash::make('password'),
+            ]
+        );
+
+        $user->roles()->syncWithoutDetaching([$dealerRole->id]);
+
+        DealerProfile::firstOrCreate(
+            ['user_id' => $user->id],
+        );
+
+        $this->command->info('✓ Test users seeded:');
     }
 }

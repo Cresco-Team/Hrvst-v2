@@ -37,10 +37,6 @@ class FarmerResource extends JsonResource
                 ]
             ),
 
-            /* with('media') */
-            'farm_url' => $this->whenLoaded('media', fn () => $this->getFirstMediaUrl('farm_photo')
-            ),
-
             /* with('supplies.*') */
             'supplies' => $this->whenLoaded('posts', fn () => $this->posts
                 ->map(fn ($supply) => (new FarmerSupplyResource($supply))->toArray($request))

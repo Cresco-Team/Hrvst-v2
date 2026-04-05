@@ -48,7 +48,12 @@ class PostObserver
                     ->where('variety_id', $post->variety_id)
                     ->where('period_date', $periodDate)
                     ->update([
-                        $oldColumn => DB::raw("GREATEST(0, {$oldColumn} - {$post->quantity_kg})"),
+                        $oldColumn => DB::raw(
+                            "CASE WHEN {$oldColumn} > {$post->quantity_kg}
+                             THEN {$oldColumn} - {$post->quantity_kg}
+                             ELSE 0
+                             END"
+                        ),
                     ]);
             }
         }
@@ -81,7 +86,12 @@ class PostObserver
             ->where('variety_id', $post->variety_id)
             ->where('period_date', $periodDate)
             ->update([
-                $column => DB::raw("GREATEST(0, {$column} - {$post->quantity_kg})"),
+                $column => DB::raw(
+                    "CASE WHEN {$column} > {$post->quantity_kg}
+                     THEN {$column} - {$post->quantity_kg}
+                     ELSE 0
+                     END"
+                ),
             ]);
     }
 

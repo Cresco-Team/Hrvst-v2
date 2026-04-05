@@ -29,12 +29,6 @@ class DealerResource extends JsonResource
 
             /* withCount(['demands as ongoing_demands_count' => ...]) */
             'ongoing_demands_count' => $this->whenCounted('ongoing_demands_count'),
-
-            /* Admin-only: set $dealer->document_url = route('admin.dealers.document', $dealer->id) in service */
-            'document_url' => $this->when(
-                isset($this->resource->document_url),
-                fn () => $this->document_url
-            ),
         ];
     }
 }

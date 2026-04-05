@@ -1,22 +1,78 @@
 <?php
 
-namespace Database\Seeders\Product;
+namespace Database\Seeders;
 
+use App\Models\Product\Category;
 use App\Models\Product\Variety;
 use App\Models\Product\Vegetable;
 use Illuminate\Database\Seeder;
 
-class VarietySeeder extends Seeder
+class ProductSeeder extends Seeder
 {
     public function run(): void
     {
-        /**
-         * Images are managed via laravel-medialibrary (spatie/laravel-medialibrary).
-         * Upload variety images through the admin panel after seeding.
-         *
-         * Sources: BSU Extension publications, DA-CAR Regional Crop Production
-         * Guide, BAPTC commodity records, PCARRD variety registry.
-         */
+        $categories = [
+            'Leafy Vegetables',
+            'Root Vegetables',
+            'Fruiting Vegetables',
+            'Bean Vegetables',
+        ];
+
+        foreach ($categories as $name) {
+            Category::firstOrCreate(['name' => $name]);
+        }
+
+        $data = [
+            'Leafy Vegetables' => [
+                'Lettuce',
+                'Cabbage Scorpio',
+                'Cabbage Wonderball',
+                'Cabbage Rareball',
+                'Pechay',
+                'Celery',
+                'Broccoli',
+                'Cauliflower',
+                'Spinach',
+            ],
+            'Root Vegetables' => [
+                'Carrot',
+                'Potato Granola',
+                'Potato LBR',
+                'Radish Long',
+                'Sayote',
+                'Turnip',
+                'Beet',
+            ],
+            'Fruiting Vegetables' => [
+                'Tomato',
+                'Eggplant',
+                'Cucumber',
+                'Bell Pepper',
+                'Lemon',
+                'Chayote',
+            ],
+            'Bean Vegetables' => [
+                'Snap Beans',
+                'Garden Peas',
+                'String Beans',
+                'Green Beans',
+                'Sugar Snap Peas',
+                'Chicharo',
+                'Broad Beans',
+            ],
+        ];
+
+        foreach ($data as $categoryName => $vegetables) {
+            $category = Category::where('name', $categoryName)->firstOrFail();
+
+            foreach ($vegetables as $vegetableName) {
+                Vegetable::firstOrCreate([
+                    'category_id' => $category->id,
+                    'name' => $vegetableName,
+                ]);
+            }
+        }
+
         $data = [
             // ── Leafy Vegetables ─────────────────────────────────────────────
             'Lettuce' => [
@@ -133,7 +189,7 @@ class VarietySeeder extends Seeder
                 ['name' => 'Dongxin (Red) Medium'],
                 ['name' => 'Sultan Big'],
                 ['name' => 'Sultan Medium'],
-                ],
+            ],
             'Lemon' => [
                 ['name' => 'Green'],
                 ['name' => 'Yelow'],
@@ -187,5 +243,7 @@ class VarietySeeder extends Seeder
                 );
             }
         }
+
+        $this->command->info('✓ Products seeded');
     }
 }
