@@ -4,7 +4,6 @@ namespace Database\Seeders\Product;
 
 use App\Models\Product\PriceHistory;
 use App\Models\Product\Variety;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class PriceHistorySeeder extends Seeder
@@ -24,8 +23,8 @@ class PriceHistorySeeder extends Seeder
                     'price_min' => $min,
                     'price_max' => fake()->randomFloat(2, $min + 5, 90),
                     'recorded_at' => $start->copy()->addWeeks($i),
-                    'created_at'  => now(),
-                    'updated_at'  => now(),
+                    'created_at' => now(),
+                    'updated_at' => now(),
                 ];
             }
         }
@@ -37,5 +36,7 @@ class PriceHistorySeeder extends Seeder
                 ['price_min', 'price_max', 'updated_at'],
             );
         });
+
+        $this->command->info('✓ Price history seeded');
     }
 }

@@ -26,13 +26,10 @@ class DatabaseSeeder extends Seeder
                 PriceHistorySeeder::class,
                 VarietyMonthlyStatsSeeder::class,
             ]);
-        }
 
-        $this->call([
-            FarmerProfile::factory(10)->create(),
-            DealerProfile::factory(5)->create(),
-        ]);
-        $this->command->info('✓ Profiles seeded');
+            FarmerProfile::factory(10)->create();
+            DealerProfile::factory(5)->create();
+        }
 
         $this->command->info('Database seeded successfully!');
     }
