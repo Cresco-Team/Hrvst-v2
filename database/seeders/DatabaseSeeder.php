@@ -6,8 +6,6 @@ use App\Models\Profiles\DealerProfile;
 use App\Models\Profiles\FarmerProfile;
 use Database\Seeders\Product\PriceHistorySeeder;
 use Database\Seeders\Profiles\AdminSeeder;
-use Database\Seeders\Profiles\DealerSeeder;
-use Database\Seeders\Profiles\FarmerSeeder;
 use Database\Seeders\Profiles\RoleSeeder;
 use Illuminate\Database\Seeder;
 
@@ -24,10 +22,9 @@ class DatabaseSeeder extends Seeder
 
         if (app()->environment('local', 'development')) {
             $this->call([
+                TestUsersSeeder::class,
                 PriceHistorySeeder::class,
                 VarietyMonthlyStatsSeeder::class,
-                FarmerSeeder::class,
-                DealerSeeder::class,
             ]);
         }
 
