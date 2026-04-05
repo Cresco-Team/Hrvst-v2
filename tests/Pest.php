@@ -16,6 +16,7 @@ use App\Models\Profiles\Role;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 /*
@@ -27,6 +28,25 @@ use Tests\TestCase;
 pest()->extend(TestCase::class)
     ->use(RefreshDatabase::class)
     ->in('Feature');
+
+/*
+|--------------------------------------------------------------------------
+| Global Hooks
+|--------------------------------------------------------------------------
+|
+| A top-level beforeEach() is guaranteed to run before every Feature test.
+| The chained ->beforeEach() on pest() has inconsistent execution order in
+| some Pest 4 configurations — this form is definitive.
+|
+*/
+
+beforeEach(function () {
+    // Spatie MediaLibrary fires a model observer on every delete that
+    // attempts to remove files from disk. Without faking both disks,
+    // any test that deletes a HasMedia model will receive a 500.
+    Storage::fake('public');
+    Storage::fake('documents');
+});
 
 /*
 |--------------------------------------------------------------------------
