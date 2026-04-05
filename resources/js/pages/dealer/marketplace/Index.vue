@@ -77,7 +77,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 <template>
 
-  <Head title="Farmer Posts" />
+  <Head title="Marketplace Supplies" />
 
   <AppLayout :breadcrumbs="breadcrumbs">
     <div class="flex h-full flex-col gap-6 p-4 lg:p-6">
