@@ -13,18 +13,24 @@ class AdminSeeder extends Seeder
     {
         $adminRole = Role::firstOrCreate(['name' => 'admin']);
 
+        $password = 'password';
+
+        if (app()->environment('production')) {
+            $password = env('ADMIN_PASSWORD');
+        }
+
         $user = User::firstOrCreate(
             ['email' => 'admin@hrvst.com'],
             [
-                'name'              => 'Admin Joe',
-                'phone_number'      => '09303997215',
+                'name' => 'Admin Joe',
+                'phone_number' => '09303997215',
                 'email_verified_at' => now(),
-                'password'          => Hash::make('password'),
+                'password' => Hash::make($password),
             ]
         );
 
         $user->roles()->syncWithoutDetaching([$adminRole->id]);
 
-        $this->command->info('✓ Admin seeded: admin@hrvst.com / password');
+        $this->command->info('✓ Admin seeded');
     }
 }

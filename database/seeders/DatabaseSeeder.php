@@ -18,23 +18,14 @@ class DatabaseSeeder extends Seeder
         $this->call([
             AddressSeeder::class,
             ProductSeeder::class,
-        ]);
-
-        if (app()->environment('local', 'development')) {
-            $this->call([
-                PriceHistorySeeder::class,
-                VarietyMonthlyStatsSeeder::class,
-            ]);
-            $this->command->info('✓ Product stats seeded');
-        }
-
-        $this->call([
             RoleSeeder::class,
             AdminSeeder::class,
         ]);
 
         if (app()->environment('local', 'development')) {
             $this->call([
+                PriceHistorySeeder::class,
+                VarietyMonthlyStatsSeeder::class,
                 FarmerSeeder::class,
                 DealerSeeder::class,
             ]);
