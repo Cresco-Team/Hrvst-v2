@@ -4,10 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Profiles\DealerProfile;
 use App\Models\Profiles\FarmerProfile;
-use Database\Seeders\Product\CategorySeeder;
 use Database\Seeders\Product\PriceHistorySeeder;
-use Database\Seeders\Product\VarietySeeder;
-use Database\Seeders\Product\VegetableSeeder;
 use Database\Seeders\Profiles\AdminSeeder;
 use Database\Seeders\Profiles\DealerSeeder;
 use Database\Seeders\Profiles\FarmerSeeder;
@@ -20,14 +17,8 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             AddressSeeder::class,
+            ProductSeeder::class,
         ]);
-
-        $this->call([
-            CategorySeeder::class,
-            VegetableSeeder::class,
-            VarietySeeder::class,
-        ]);
-        $this->command->info('✓ Products seeded');
 
         if (app()->environment('local', 'development')) {
             $this->call([
