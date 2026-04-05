@@ -81,7 +81,7 @@ const breadcrumbs: BreadcrumbItem[] = [
     <div class="flex h-full flex-col gap-6 p-4 lg:p-6">
 
       <Heading title="Marketplace Demands"
-        description="Browse active purchase requests from dealers and find opportunities." />
+        description="Browse demands and find opportunities." />
 
       <!-- Filters -->
       <Deferred data="categoryOptions">
