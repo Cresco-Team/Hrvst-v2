@@ -1,34 +1,49 @@
 <script setup lang="ts">
-import { Form, Head, Link, usePage } from '@inertiajs/vue3'
+import { Form, Head, useForm, usePage } from '@inertiajs/vue3'
+import { Camera, Phone } from 'lucide-vue-next'
+import { ref } from 'vue'
 import ProfileController from '@/actions/App/Http/Controllers/Settings/ProfileController'
 import DeleteUser from '@/components/DeleteUser.vue'
 import Heading from '@/components/Heading.vue'
 import InputError from '@/components/InputError.vue'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Separator } from '@/components/ui/separator'
+import { getInitials } from '@/composables/useInitials'
 import AppLayout from '@/layouts/AppLayout.vue'
 import SettingsLayout from '@/layouts/settings/Layout.vue'
 import { edit } from '@/routes/profile'
-/* import { send } from '@/routes/verification' */
 import type { BreadcrumbItem } from '@/types'
 
-type Props = {
-	mustVerifyEmail: boolean
-	status?: string
-}
-
-defineProps<Props>()
-
-const breadcrumbItems: BreadcrumbItem[] = [
-	{
-		title: 'Profile settings',
-		href: edit().url,
-	},
-]
+const breadcrumbItems: BreadcrumbItem[] = [{ title: 'Profile settings', href: edit().url }]
 
 const page = usePage()
 const user = page.props.auth.user
+
+// ── Avatar ────────────────────────────────────────────────────────────────────
+
+const avatarInput = ref<HTMLInputElement | null>(null)
+const avatarPreview = ref<string | null>(user.avatar ?? null)
+const avatarForm = useForm({ avatar: null as File | null })
+
+function handleAvatarChange(event: Event): void {
+	const file = (event.target as HTMLInputElement).files?.[0]
+	if (!file) return
+
+	avatarForm.avatar = file
+	avatarPreview.value = URL.createObjectURL(file)
+
+	avatarForm.post(ProfileController.updateAvatar.url(), {
+		forceFormData: true,
+		onSuccess: () => avatarForm.reset(),
+		onError: () => {
+			avatarPreview.value = user.avatar ?? null
+			avatarForm.reset()
+		},
+	})
+}
 </script>
 
 <template>
@@ -38,93 +53,128 @@ const user = page.props.auth.user
         <h1 class="sr-only">Profile Settings</h1>
 
         <SettingsLayout>
-            <div class="flex flex-col space-y-6">
-                <Heading
-                    variant="small"
-                    title="Profile information"
-                    description="Update your name and email address"
-                />
+            <div class="flex flex-col space-y-10">
 
-                <!-- <Form
-                    v-bind="ProfileController.update.form()"
-                    class="space-y-6"
-                    v-slot="{ errors, processing, recentlySuccessful }"
-                >
-                    <div class="grid gap-2">
-                        <Label for="name">Name</Label>
-                        <Input
-                            id="name"
-                            class="mt-1 block w-full"
-                            name="name"
-                            :default-value="user.name"
-                            required
-                            autocomplete="name"
-                            placeholder="Full name"
-                        />
-                        <InputError class="mt-2" :message="errors.name" />
-                    </div>
+                <!-- Avatar -->
+                <div class="space-y-4">
+                    <Heading
+                        variant="small"
+                        title="Avatar"
+                        description="Click your avatar to upload a new photo"
+                    />
 
-                    <div class="grid gap-2">
-                        <Label for="email">Email address</Label>
-                        <Input
-                            id="email"
-                            type="email"
-                            class="mt-1 block w-full"
-                            name="email"
-                            :default-value="user.email"
-                            required
-                            autocomplete="username"
-                            placeholder="Email address"
-                        />
-                        <InputError class="mt-2" :message="errors.email" />
-                    </div>
+                    <button
+                        type="button"
+                        class="group relative size-20 cursor-pointer rounded-full"
+                        :disabled="avatarForm.processing"
+                        @click="avatarInput?.click()"
+                    >
+                        <Avatar class="size-20">
+                            <AvatarImage
+                                v-if="avatarPreview"
+                                :src="avatarPreview"
+                                :alt="user.name"
+                            />
+                            <AvatarFallback class="text-xl font-semibold">
+                                {{ getInitials(user.name) }}
+                            </AvatarFallback>
+                        </Avatar>
 
-                    <div v-if="mustVerifyEmail && !user.email_verified_at">
-                        <p class="-mt-4 text-sm text-muted-foreground">
-                            Your email address is unverified.
-                            <Link
-                                :href="send()"
-                                as="button"
-                                class="text-foreground underline decoration-neutral-300 underline-offset-4 transition-colors duration-300 ease-out hover:decoration-current! dark:decoration-neutral-500"
-                            >
-                                Click here to resend the verification email.
-                            </Link>
-                        </p>
-
-                        <div
-                            v-if="status === 'verification-link-sent'"
-                            class="mt-2 text-sm font-medium text-green-600"
-                        >
-                            A new verification link has been sent to your email
-                            address.
+                        <div class="absolute inset-0 flex items-center justify-center rounded-full bg-black/50 opacity-0 transition-opacity group-hover:opacity-100">
+                            <Camera class="size-6 text-white" />
                         </div>
-                    </div>
+                    </button>
 
-                    <div class="flex items-center gap-4">
-                        <Button
-                            :disabled="processing"
-                            data-test="update-profile-button"
-                            >Save</Button
-                        >
+                    <input
+                        ref="avatarInput"
+                        type="file"
+                        class="hidden"
+                        accept="image/jpeg,image/jpg,image/png,image/webp"
+                        @change="handleAvatarChange"
+                    />
 
-                        <Transition
-                            enter-active-class="transition ease-in-out"
-                            enter-from-class="opacity-0"
-                            leave-active-class="transition ease-in-out"
-                            leave-to-class="opacity-0"
-                        >
-                            <p
-                                v-show="recentlySuccessful"
-                                class="text-sm text-neutral-600"
-                            >
-                                Saved.
+                    <InputError :message="avatarForm.errors.avatar" />
+                </div>
+
+                <Separator />
+
+                <!-- Profile info -->
+                <div class="space-y-4">
+                    <Heading
+                        variant="small"
+                        title="Profile information"
+                        description="Update your name and email address"
+                    />
+
+                    <Form
+                        v-bind="ProfileController.update.form()"
+                        class="space-y-4"
+                        :options="{ preserveScroll: true }"
+                        v-slot="{ errors, processing, recentlySuccessful }"
+                    >
+                        <div class="grid gap-2">
+                            <Label for="name">Name</Label>
+                            <Input
+                                id="name"
+                                name="name"
+                                type="text"
+                                :default-value="user.name"
+                                autocomplete="name"
+                                placeholder="Your full name"
+                                required
+                            />
+                            <InputError :message="errors.name" />
+                        </div>
+
+                        <div class="grid gap-2">
+                            <Label for="email">
+                                Email
+                                <span class="text-muted-foreground font-normal text-xs">(optional)</span>
+                            </Label>
+                            <Input
+                                id="email"
+                                name="email"
+                                type="email"
+                                :default-value="user.email ?? ''"
+                                autocomplete="email"
+                                placeholder="your@email.com"
+                            />
+                            <InputError :message="errors.email" />
+                        </div>
+
+                        <div class="grid gap-2">
+                            <Label>Phone number</Label>
+                            <div class="flex h-9 items-center gap-2 rounded-md border bg-muted/40 px-3 text-sm text-muted-foreground">
+                                <Phone class="size-4 shrink-0" />
+                                {{ user.phone_number ?? '—' }}
+                            </div>
+                            <p class="text-xs text-muted-foreground">
+                                Contact your administrator to change your phone number.
                             </p>
-                        </Transition>
-                    </div>
-                </Form> -->
-            </div>
+                        </div>
 
-            <DeleteUser />
+                        <div class="flex items-center gap-4">
+                            <Button :disabled="processing">Save</Button>
+
+                            <Transition
+                                enter-active-class="transition ease-in-out"
+                                enter-from-class="opacity-0"
+                                leave-active-class="transition ease-in-out"
+                                leave-to-class="opacity-0"
+                            >
+                                <p v-show="recentlySuccessful" class="text-sm text-muted-foreground">
+                                    Saved.
+                                </p>
+                            </Transition>
+                        </div>
+                    </Form>
+                </div>
+
+                <Separator />
+
+                <!-- Delete account -->
+                <DeleteUser />
+            </div>
         </SettingsLayout>
     </AppLayout>
 </template>
