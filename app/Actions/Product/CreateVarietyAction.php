@@ -4,6 +4,7 @@ namespace App\Actions\Product;
 
 use App\Models\Product\Variety;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 
 class CreateVarietyAction
 {
@@ -16,12 +17,19 @@ class CreateVarietyAction
         $variety = Variety::create($validated);
 
         if ($image !== null) {
-            $variety->addMedia($image)->toMediaCollection('variety_image');
-        };
+            $tmpPath = $image->store('tmp/varieties', 'local');
+
+            try {
+                $variety->addMediaFromDisk($tmpPath, 'local')
+                    ->toMediaCollection('variety_image');
+            } finally {
+                Storage::disk('local')->delete($tmpPath);
+            }
+        }
 
         $variety->prices()->create([
-            'price_min'   => $priceMin,
-            'price_max'   => $priceMax,
+            'price_min' => $priceMin,
+            'price_max' => $priceMax,
             'recorded_at' => now()->startOfWeek(),
         ]);
 
