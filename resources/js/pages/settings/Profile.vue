@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label'
 import AppLayout from '@/layouts/AppLayout.vue'
 import SettingsLayout from '@/layouts/settings/Layout.vue'
 import { edit } from '@/routes/profile'
-import { send } from '@/routes/verification'
+/* import { send } from '@/routes/verification' */
 import type { BreadcrumbItem } from '@/types'
 
 type Props = {
@@ -45,7 +45,7 @@ const user = page.props.auth.user
                     description="Update your name and email address"
                 />
 
-                <Form
+                <!-- <Form
                     v-bind="ProfileController.update.form()"
                     class="space-y-6"
                     v-slot="{ errors, processing, recentlySuccessful }"
@@ -121,7 +121,7 @@ const user = page.props.auth.user
                             </p>
                         </Transition>
                     </div>
-                </Form>
+                </Form> -->
             </div>
 
             <DeleteUser />
