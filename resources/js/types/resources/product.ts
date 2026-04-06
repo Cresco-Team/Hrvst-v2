@@ -106,3 +106,18 @@ export interface VarietySummary {
     no_price: number
   }
 }
+
+export interface Table {
+  id: number
+  name: string
+  is_variety: boolean
+  category?: { id: number; name: string }
+  varieties_count?: number
+  image_url?: string | null
+  latest_price?: { price_min: number; price_max: number; recorded_at: string; freshness: PriceFreshness } | null
+  price_updated_human?: string | null
+  price_trend?: PriceTrend | null
+  supply_count?: number
+  demand_count?: number
+  subRows?: Table[]
+}
