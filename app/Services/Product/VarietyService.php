@@ -10,6 +10,7 @@ use App\Models\Product\Vegetable;
 use Carbon\Carbon;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\DB;
 
 class VarietyService
@@ -49,6 +50,122 @@ class VarietyService
         ];
     }
 
+    public function table(?string $search = null, ?string $priceFilter = null): array
+    {
+        $query = Vegetable::with([
+            'category',
+            'varieties' => function (HasMany $q) use ($search, $priceFilter): void {
+                $q->with(['latestPrice', 'lastTwoPrices', 'media'])
+                    ->withCount([
+                        'posts as supply_count' => fn (Builder $q) => $q->supply(),
+                        'posts as demand_count' => fn (Builder $q) => $q->demand(),
+                    ])->orderBy('name');
+
+                if ($search) {
+                    $q->where('name', 'like', "%{$search}%");
+                }
+
+                if ($priceFilter) {
+                    if ($priceFilter === 'no_price') {
+                        $q->whereDoesntHave('latestPrice');
+                    } else {
+                        $q->whereHas('latestPrice', function (Builder $q) use ($priceFilter) {
+                            $this->applyPriceFilter($q, $priceFilter);
+                        });
+                    }
+                }
+            },
+        ])
+            ->withCount('varieties')
+            ->orderBy('name');
+
+        if ($search) {
+            $query->where(function (Builder $q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhereHas('varieties', fn (Builder $q) => $q->where('name', 'like', "%{$search}%"));
+            });
+        }
+
+        if ($priceFilter) {
+            if ($priceFilter === 'no_price') {
+                $query->whereHas('varieties', fn (Builder $q) => $q->whereDoesntHave('latestPrice'));
+            } else {
+                $query->whereHas('varieties', function (Builder $q) use ($priceFilter): void {
+                    $q->whereHas('latestPrice', function (Builder $q) use ($priceFilter) {
+                        $this->applyPriceFilter($q, $priceFilter);
+                    });
+                });
+            }
+        }
+
+        return $query->get()
+            ->map(fn (Vegetable $vegetable) => $this->serializeVegetableRow($vegetable))
+            ->all();
+    }
+
+    private function serializeVegetableRow(Vegetable $vegetable): array
+    {
+        return [
+            'id' => $vegetable->id,
+            'name' => $vegetable->name,
+            'is_variety' => false,
+            'category' => $vegetable->category ? [
+                'id' => $vegetable->category->id,
+                'name' => $vegetable->category->name,
+            ] : null,
+            'varieties_count' => $vegetable->varieties_count,
+            'subRows' => $vegetable->varieties
+                ->map(fn (Variety $variety) => $this->serializeVarietyRow($variety))
+                ->all(),
+        ];
+    }
+
+    private function serializeVarietyRow(Variety $variety): array
+    {
+        $latestPrice = $variety->latestPrice;
+        $lastTwo = $variety->lastTwoPrices;
+
+        $freshness = null;
+        if ($latestPrice) {
+            $daysOld = $latestPrice->recorded_at->diffInDays(now());
+            $freshness = match (true) {
+                $daysOld <= 7 => 'recent',
+                $daysOld <= 30 => 'stable',
+                $daysOld <= 90 => 'very stable',
+                default => 'stale',
+            };
+        }
+
+        $priceTrend = null;
+        if ($lastTwo->count() >= 2) {
+            $latest = (float) $lastTwo->first()->price_max;
+            $previous = (float) $lastTwo->last()->price_max;
+            $priceTrend = match (true) {
+                $latest > $previous => 'up',
+                $latest < $previous => 'down',
+                default => 'flat',
+            };
+        }
+
+        return [
+            'id' => $variety->id,
+            'name' => $variety->name,
+            'is_variety' => true,
+            'image_url' => $variety->getFirstMediaUrl('variety_image'),
+            'latest_price' => $latestPrice ? [
+                'price_min' => (float) $latestPrice->price_min,
+                'price_max' => (float) $latestPrice->price_max,
+                'recorded_at' => $latestPrice->recorded_at->format('M d, Y'),
+                'freshness' => $freshness,
+            ] : null,
+            'price_updated_human' => $latestPrice?->recorded_at->diffForHumans(),
+            'price_trend' => $priceTrend,
+            'supply_count' => $variety->supply_count ?? 0,
+            'demand_count' => $variety->demand_count ?? 0,
+            'subRows' => [],
+        ];
+    }
+
     public function paginated(int $perPage = 20, ?string $priceFilter = null, ?string $search = null): LengthAwarePaginator
     {
         $query = Variety::with([
@@ -61,14 +178,13 @@ class VarietyService
         ]);
 
         if ($priceFilter) {
-            $query->whereHas('latestPrice', function (Builder $q) use ($priceFilter) {
-                match ($priceFilter) {
-                    'week' => $q->where('recorded_at', '>=', now()->subWeek()),
-                    'month' => $q->where('recorded_at', '>=', now()->subMonth()),
-                    'stale' => $q->where('recorded_at', '<', now()->subMonth()),
-                    default => null,
-                };
-            });
+            if ($priceFilter === 'no_price') {
+                $query->whereDoesntHave('latestPrice');
+            } else {
+                $query->whereHas('latestPrice', function (Builder $q) use ($priceFilter) {
+                    $this->applyPriceFilter($q, $priceFilter);
+                });
+            }
         }
 
         if ($search) {
@@ -231,6 +347,20 @@ class VarietyService
                 ->get(['id', 'name'])
                 ->toArray();
         });
+    }
+
+    // FIX 4: Extracted applyPriceFilter — the same match block was duplicated 4 times
+    // across table(), paginated(), and their nested closures. One change point now.
+    // 'no_price' is handled via whereDoesntHave() at the call site since it targets
+    // the absence of a relation, not a condition on one.
+    private function applyPriceFilter(Builder $q, string $filter): void
+    {
+        match ($filter) {
+            'week' => $q->where('recorded_at', '>=', now()->subWeek()),
+            'month' => $q->where('recorded_at', '>=', now()->subMonth()),
+            'stale' => $q->where('recorded_at', '<', now()->subMonth()),
+            default => null,
+        };
     }
 
     private function buildMonthlyActivity(int $varietyId): array
