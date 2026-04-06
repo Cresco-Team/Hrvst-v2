@@ -7,6 +7,8 @@ use App\Http\Controllers\VarietyHeartController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use Laravel\Fortify\Http\Controllers\PasswordController;
+use Laravel\Fortify\Http\Controllers\ProfileInformationController;
 
 Route::get('/', function () {
     return Inertia::render('Welcome');
@@ -34,14 +36,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
             return redirect()->route('admin.dashboard');
         }
 
-        if ($user->hasRole('dealer') && $user->dealerProfile !== null) {
-            return redirect()->route('dealer.marketplace.index');
-        }
-
-        if ($user->hasRole('farmer') && $user->farmerProfile !== null) {
-            return redirect()->route('farmer.marketplace.index');
-        }
-
         return Inertia::render('Welcome');
     })->name('dashboard');
 });
@@ -59,16 +53,22 @@ if (app()->environment('local', 'development')) {
         Route::get('login/farmer', function () {
             Auth::loginUsingId(2);
 
-            return redirect()->route('farmer.supplies.index');
+            return redirect()->route('home');
         })->name('login.farmer');
 
         Route::get('login/dealer', function () {
             Auth::loginUsingId(3);
 
-            return redirect()->route('dealer.marketplace.index');
+            return redirect()->route('home');
         })->name('login.dealer');
     });
 }
+
+Route::put('/user/password', [PasswordController::class, 'update'])
+    ->name('user-password.update-password');
+
+Route::put('/user/profile-information', [ProfileInformationController::class, 'update'])
+    ->name('user-profile.update-info');
 
 require __DIR__.'/settings.php';
 require __DIR__.'/admin.php';

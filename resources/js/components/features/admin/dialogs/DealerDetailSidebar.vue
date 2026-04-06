@@ -1,41 +1,64 @@
 <script setup lang="ts">
-import { router } from '@inertiajs/vue3'
-import { Calendar1, Info, Mail, Phone, Trash, Wheat } from 'lucide-vue-next'
-import { ref } from 'vue'
+import { router, usePage } from '@inertiajs/vue3'
+import { Calendar1, Info, KeyRound, Mail, Phone, Trash, Wheat } from 'lucide-vue-next'
+import { ref, watch } from 'vue'
 import { destroy, show } from '@/actions/App/Http/Controllers/Admin/DealerController'
+import { resetPin } from '@/actions/App/Http/Controllers/Admin/UserController'
 import ConfirmationDialog from '@/components/dialogs/ConfirmationDialog.vue'
 import DetailSheet from '@/components/dialogs/DetailSheet.vue'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogHeader,
+	DialogTitle,
+} from '@/components/ui/dialog'
 import { Item, ItemContent, ItemDescription, ItemMedia, ItemTitle } from '@/components/ui/item'
 import { Separator } from '@/components/ui/separator'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useInitials } from '@/composables/useInitials'
-import type { DealerResource } from '@/types'
+import type { DealerResource, FlashMessage } from '@/types'
 
 const props = defineProps<{
-    open: boolean
-    dealer: DealerResource | null
-    loading: boolean
+	open: boolean
+	dealer: DealerResource | null
+	loading: boolean
 }>()
 
 defineEmits<{
-    close: []
+	close: []
 }>()
 
-const isDeleteDialogOpen = ref(false)
+const { getInitials } = useInitials()
 
-const openDeleteDialog = () => {
-    isDeleteDialogOpen.value = true
+const isDeleteDialogOpen = ref(false)
+const pinModalOpen = ref(false)
+const revealedPin = ref('')
+
+// Watch flash for PIN reset result — reset PIN triggers back() which re-renders this page
+const page = usePage()
+watch(
+	() => page.props.flash as FlashMessage | null,
+	(flash) => {
+		if (flash?.type === 'pin' && flash.pin) {
+			revealedPin.value = flash.pin
+			pinModalOpen.value = true
+		}
+	},
+)
+
+function handleResetPin() {
+	if (!props.dealer) return
+	router.post(resetPin(props.dealer.user?.id ?? 0).url, {}, { preserveScroll: true })
 }
 
 const handleDelete = () => {
-    if (!props.dealer) return
-    router.delete(destroy(props.dealer.id).url)
+	if (!props.dealer) return
+	router.delete(destroy(props.dealer.id).url)
 }
-
-const { getInitials } = useInitials()
 </script>
 
 <template>
@@ -131,11 +154,15 @@ const { getInitials } = useInitials()
                 <Skeleton />
             </template>
             <div v-else-if="dealer" class="flex justify-end gap-3">
-                <Button class="cursor-pointer" @click="router.visit(show(dealer.id).url)">
+                <Button variant="outline" size="sm" class="cursor-pointer" @click="router.visit(show(dealer.id).url)">
                     <Info />
                     More Details
                 </Button>
-                <Button variant="destructive" class="cursor-pointer" @click="openDeleteDialog">
+                <Button variant="outline" size="sm" class="cursor-pointer" @click="handleResetPin">
+                    <KeyRound />
+                    Reset PIN
+                </Button>
+                <Button variant="destructive" class="cursor-pointer" @click="isDeleteDialogOpen = true">
                     <Trash />
                     Delete
                 </Button>
@@ -143,7 +170,33 @@ const { getInitials } = useInitials()
         </template>
     </DetailSheet>
 
-    <ConfirmationDialog v-model:open="isDeleteDialogOpen" title="Delete Dealer"
-        :description="`Are you sure you want to delete ${dealer?.user?.name}?`" @action="handleDelete"
-        variant="destructive" />
+    <ConfirmationDialog 
+        v-model:open="isDeleteDialogOpen" 
+        title="Delete Dealer"
+        :description="`Are you sure you want to delete ${dealer?.user?.name}?`" 
+        @action="handleDelete"
+        variant="destructive" 
+    />
+
+    <!-- PIN reveal after reset -->
+  <Dialog :open="pinModalOpen" @update:open="!$event && (pinModalOpen = false)">
+    <DialogContent class="sm:max-w-sm" @pointer-down-outside.prevent @escape-key-down.prevent>
+      <DialogHeader class="items-center text-center">
+        <DialogTitle>PIN Reset</DialogTitle>
+        <DialogDescription>
+          Share this temporary PIN with the farmer in person. It will not be shown again.
+        </DialogDescription>
+      </DialogHeader>
+
+      <div class="flex flex-col items-center gap-3 py-6">
+        <p class="text-sm text-muted-foreground">Temporary PIN</p>
+        <p class="font-mono text-7xl font-bold tracking-[0.5em]">{{ revealedPin }}</p>
+        <p class="text-xs text-muted-foreground text-center max-w-[220px]">
+          The dealer will be asked to set a new PIN on their next login.
+        </p>
+      </div>
+
+      <Button class="w-full" @click="pinModalOpen = false">Done</Button>
+    </DialogContent>
+  </Dialog>
 </template>

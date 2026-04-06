@@ -8,11 +8,11 @@ import MarketplaceCard from '@/components/shared/cards/MarketplaceCard.vue'
 import { Button } from '@/components/ui/button'
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group'
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
 } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
 import AppLayout from '@/layouts/AppLayout.vue'
@@ -25,63 +25,63 @@ const searchQuery = ref(props.filters.search ?? '')
 let searchDebounce: ReturnType<typeof setTimeout> | null = null
 
 function handleSearch() {
-  if (searchDebounce) clearTimeout(searchDebounce)
+	if (searchDebounce) clearTimeout(searchDebounce)
 
-  searchDebounce = setTimeout(() => {
-    router.visit(farmer.marketplace.index().url, {
-      data: {
-        search: searchQuery.value || undefined,
-        category_id: props.filters.category_id || undefined,
-      },
-      preserveState: true,
-      preserveScroll: true,
-      only: ['demands'],
-    })
-  }, 300)
+	searchDebounce = setTimeout(() => {
+		router.visit(farmer.marketplace.index().url, {
+			data: {
+				search: searchQuery.value || undefined,
+				category_id: props.filters.category_id || undefined,
+			},
+			preserveState: true,
+			preserveScroll: true,
+			only: ['demands'],
+		})
+	}, 300)
 }
 
 function handleFilter(type: 'category', value: string) {
-  const filters: Record<string, string | undefined> = {
-    category_id: undefined,
-  }
+	const filters: Record<string, string | undefined> = {
+		category_id: undefined,
+	}
 
-  if (type === 'category') {
-    filters.category_id = value === 'all' ? undefined : value
-  }
+	if (type === 'category') {
+		filters.category_id = value === 'all' ? undefined : value
+	}
 
-  router.visit(farmer.marketplace.index().url, {
-    data: filters,
-    preserveState: true,
-    preserveScroll: true,
-    only: ['demands'],
-  })
+	router.visit(farmer.marketplace.index().url, {
+		data: filters,
+		preserveState: true,
+		preserveScroll: true,
+		only: ['demands'],
+	})
 }
 
 function handlePageChange(page: number) {
-  router.visit(farmer.marketplace.index().url, {
-    data: {
-      page,
-      category_id: props.filters.category_id || undefined,
-    },
-    preserveScroll: true,
-  })
+	router.visit(farmer.marketplace.index().url, {
+		data: {
+			page,
+			category_id: props.filters.category_id || undefined,
+		},
+		preserveScroll: true,
+	})
 }
 
 const breadcrumbs: BreadcrumbItem[] = [
-  { title: 'Farmer', href: farmer.supplies.index().url },
-  { title: 'Dealer Posts', href: farmer.marketplace.index().url },
+	{ title: 'Farmer', href: farmer.supplies.index().url },
+	{ title: 'Marketplace Demands', href: farmer.marketplace.index().url },
 ]
 </script>
 
 <template>
 
-  <Head title="Dealer Posts" />
+  <Head title="Marketplace Demands" />
 
   <AppLayout :breadcrumbs="breadcrumbs">
     <div class="flex h-full flex-col gap-6 p-4 lg:p-6">
 
-      <Heading title="Dealer Posts"
-        description="Browse active purchase requests from dealers and find opportunities." />
+      <Heading title="Marketplace Demands"
+        description="Browse demands and find opportunities." />
 
       <!-- Filters -->
       <Deferred data="categoryOptions">
@@ -92,7 +92,7 @@ const breadcrumbs: BreadcrumbItem[] = [
         <div class="md:flex justify-between gap-3">
           <InputGroup class="md:w-2/3 lg:w-1/2 xl:w-2/5">
             <InputGroupInput v-model="searchQuery" type="search"
-              placeholder="Search vegetables (e.g., Cabbage, Lettuce)..." @input="handleSearch" />
+              placeholder="Search vegetables" @input="handleSearch" />
             <InputGroupAddon>
               <Search />
             </InputGroupAddon>

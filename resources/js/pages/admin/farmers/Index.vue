@@ -1,7 +1,17 @@
 <script setup lang="ts">
 import { Deferred, Head, Link, router } from '@inertiajs/vue3'
 import axios from 'axios'
-import { List, Loader2, MapIcon, Package, PackagePlus, SearchX, UserPlus, UserRoundPlus, Users } from 'lucide-vue-next'
+import {
+	List,
+	Loader2,
+	MapIcon,
+	Package,
+	PackagePlus,
+	SearchX,
+	UserPlus,
+	UserRoundPlus,
+	Users,
+} from 'lucide-vue-next'
 import { computed, ref, watch } from 'vue'
 import { toast } from 'vue-sonner'
 import EmptyState from '@/components/EmptyState.vue'
@@ -11,14 +21,14 @@ import FarmerMapFilters from '@/components/features/admin/map/FarmerMapFilters.v
 import FarmerTable from '@/components/features/admin/tables/FarmerTable.vue'
 import Heading from '@/components/Heading.vue'
 import LargeCard from '@/components/shared/cards/LargeCard.vue'
+import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import AppLayout from '@/layouts/AppLayout.vue'
 import admin from '@/routes/admin'
 import { index } from '@/routes/admin/farmers'
-import type { AdminFarmersProps, BreadcrumbItem, FarmerMarker, FarmerResource } from '@/types'
 import users from '@/routes/admin/users'
-import { Button } from '@/components/ui/button'
+import type { AdminFarmersProps, BreadcrumbItem, FarmerMarker, FarmerResource } from '@/types'
 
 const props = defineProps<AdminFarmersProps>()
 
@@ -32,10 +42,10 @@ const sidebarOpen = ref(false)
 const selectedFarmer = ref<FarmerResource | null>(null)
 const loadingFarmer = ref(false)
 const mapBounds = ref<{
-    north: number
-    south: number
-    east: number
-    west: number
+	north: number
+	south: number
+	east: number
+	west: number
 } | null>(null)
 
 /* -- Computed -- */
@@ -43,124 +53,124 @@ const isListView = computed(() => currentView.value === 'list')
 const isMapView = computed(() => currentView.value === 'map')
 
 const totalVisiblePlantings = computed(() =>
-    markers.value.reduce((sum, m) => sum + m.ongoing_supplies_count, 0),
+	markers.value.reduce((sum, m) => sum + m.ongoing_supplies_count, 0),
 )
 
 const breadcrumbs: BreadcrumbItem[] = [
-    { title: 'Admin', href: admin.dashboard().url },
-    { title: 'Farmers', href: admin.farmers.index().url },
+	{ title: 'Admin', href: admin.dashboard().url },
+	{ title: 'Farmers', href: admin.farmers.index().url },
 ]
 
 const searchQuery = ref(props.filters?.search ?? '')
 
 /* -- View Toggle -- */
 function switchView(newView: 'list' | 'map') {
-    if (newView === currentView.value) return
+	if (newView === currentView.value) return
 
-    localStorage.setItem('farmers_view', newView)
+	localStorage.setItem('farmers_view', newView)
 
-    router.visit(admin.farmers.index().url, {
-        data: { view: newView },
-        preserveState: true,
-        preserveScroll: true,
-        only: newView === 'list' ? ['farmers', 'summary'] : [],
-        onSuccess: () => {
-            currentView.value = newView
-        },
-    })
+	router.visit(admin.farmers.index().url, {
+		data: { view: newView },
+		preserveState: true,
+		preserveScroll: true,
+		only: newView === 'list' ? ['farmers', 'summary'] : [],
+		onSuccess: () => {
+			currentView.value = newView
+		},
+	})
 }
 
 /* -- Data Fetching -- */
 async function fetchMarkers() {
-    loadingMarkers.value = true
-    try {
-        const params: Record<string, unknown> = {}
+	loadingMarkers.value = true
+	try {
+		const params: Record<string, unknown> = {}
 
-        if (selectedMunicipality.value) params.municipality_id = selectedMunicipality.value
-        if (selectedVariety.value) params.variety_id = selectedVariety.value
-        if (mapBounds.value) params.bounds = mapBounds.value
+		if (selectedMunicipality.value) params.municipality_id = selectedMunicipality.value
+		if (selectedVariety.value) params.variety_id = selectedVariety.value
+		if (mapBounds.value) params.bounds = mapBounds.value
 
-        const { data } = await axios.get<{ markers: FarmerMarker[]; total: number }>(
-            '/admin/farmers/api/markers',
-            { params },
-        )
-        markers.value = data.markers
-    } catch (error: unknown) {
-        const message = error instanceof Error ? error.message : 'Failed to load farmer markers'
-        toast.error('Error loading markers', { description: message })
-    } finally {
-        loadingMarkers.value = false
-    }
+		const { data } = await axios.get<{ markers: FarmerMarker[]; total: number }>(
+			'/admin/farmers/api/markers',
+			{ params },
+		)
+		markers.value = data.markers
+	} catch (error: unknown) {
+		const message = error instanceof Error ? error.message : 'Failed to load farmer markers'
+		toast.error('Error loading markers', { description: message })
+	} finally {
+		loadingMarkers.value = false
+	}
 }
 
 async function loadFarmerDetails(farmerId: number) {
-    loadingFarmer.value = true
-    sidebarOpen.value = true
-    selectedFarmer.value = null
+	loadingFarmer.value = true
+	sidebarOpen.value = true
+	selectedFarmer.value = null
 
-    try {
-        const { data } = await axios.get<FarmerResource>(`/admin/farmers/api/${farmerId}/details`)
-        selectedFarmer.value = data
-    } catch (error: unknown) {
-        const message = error instanceof Error ? error.message : 'Failed to load farmer information'
-        toast.error('Error loading farmer details', { description: message })
-        sidebarOpen.value = false
-    } finally {
-        loadingFarmer.value = false
-    }
+	try {
+		const { data } = await axios.get<FarmerResource>(`/admin/farmers/api/${farmerId}/details`)
+		selectedFarmer.value = data
+	} catch (error: unknown) {
+		const message = error instanceof Error ? error.message : 'Failed to load farmer information'
+		toast.error('Error loading farmer details', { description: message })
+		sidebarOpen.value = false
+	} finally {
+		loadingFarmer.value = false
+	}
 }
 
 /* -- Event Handlers -- */
 function openFarmerSidebar(farmerId: number) {
-    loadFarmerDetails(farmerId)
+	loadFarmerDetails(farmerId)
 }
 
 function closeSidebar() {
-    sidebarOpen.value = false
-    selectedFarmer.value = null
+	sidebarOpen.value = false
+	selectedFarmer.value = null
 }
 
 function handleSearch(query: string) {
-    searchQuery.value = query
-    router.visit(index().url, {
-        data: { search: query || undefined },
-        preserveState: true,
-        preserveScroll: true,
-        only: ['farmers', 'filters'],
-    })
+	searchQuery.value = query
+	router.visit(index().url, {
+		data: { search: query || undefined },
+		preserveState: true,
+		preserveScroll: true,
+		only: ['farmers', 'filters'],
+	})
 }
 
 function handlePageChange(page: number) {
-    router.visit(admin.farmers.index().url, {
-        data: { page, view: 'list', search: searchQuery.value || undefined },
-        preserveState: true,
-        preserveScroll: true,
-    })
+	router.visit(admin.farmers.index().url, {
+		data: { page, view: 'list', search: searchQuery.value || undefined },
+		preserveState: true,
+		preserveScroll: true,
+	})
 }
 
 function handleBoundsChange(bounds: { north: number; south: number; east: number; west: number }) {
-    mapBounds.value = bounds
+	mapBounds.value = bounds
 }
 
 function handleClearFilters() {
-    selectedMunicipality.value = null
-    selectedVariety.value = null
+	selectedMunicipality.value = null
+	selectedVariety.value = null
 }
 
 /* -- Watchers -- */
 watch(
-    [currentView, selectedMunicipality, selectedVariety, mapBounds],
-    () => {
-        if (currentView.value === 'map') {
-            fetchMarkers()
-        }
-    },
-    { immediate: true },
+	[currentView, selectedMunicipality, selectedVariety, mapBounds],
+	() => {
+		if (currentView.value === 'map') {
+			fetchMarkers()
+		}
+	},
+	{ immediate: true },
 )
 
 const storedView = localStorage.getItem('farmers_view') as 'list' | 'map' | null
 if (storedView && storedView !== props.view) {
-    switchView(storedView)
+	switchView(storedView)
 }
 </script>
 
@@ -207,16 +217,16 @@ if (storedView && storedView !== props.view) {
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-2">
                     <LargeCard title="Total Farmers" :value="summary.total_farmers" subtext="all approved farmers"
                         :icon="Users"
-                        card-class="col-span-1 bg-linear-to-br from-orange-500/10 via-amber-500/10 to-yellow-500/30" />
+                    />
                     <LargeCard title="New Farmers" :value="summary.new_farmers_this_month"
-                        subtext="registered farmers this month" :icon="UserPlus"
-                        card-class="col-span-1 bg-linear-to-br from-orange-500/10 via-amber-500/10 to-yellow-500/30" />
+                        subtext="registered this month" :icon="UserPlus"
+                    />
                     <LargeCard title="Total Supplies" :value="summary.total_supplies" subtext="all supplies posted"
                         :icon="Package"
-                        card-class="col-span-1 bg-linear-to-br from-orange-500/10 via-amber-500/10 to-yellow-500/30" />
+                    />
                     <LargeCard title="New Supplies" :value="summary.new_supplies_this_month"
-                        subtext="posted supplies this month" :icon="PackagePlus"
-                        card-class="col-span-1 bg-linear-to-br from-orange-500/10 via-amber-500/10 to-yellow-500/30" />
+                        subtext="supplies this month" :icon="PackagePlus"
+                    />
                 </div>
             </Deferred>
 

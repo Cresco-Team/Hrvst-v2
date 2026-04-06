@@ -40,6 +40,7 @@ export interface FarmerMarketplaceFilters {
 	variety_id: number | null
 	date_from: string | null // ISO date
 	date_to: string | null // ISO date
+	search: string | null
 }
 
 export interface FarmerMarketplaceProps {

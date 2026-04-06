@@ -15,30 +15,30 @@ import farmers from '@/routes/admin/farmers'
 import type { AdminDashboardKPIs, BreadcrumbItem, KpiStat } from '@/types'
 
 defineProps<{
-    kpis?: AdminDashboardKPIs
+	kpis?: AdminDashboardKPIs
 }>()
 
 const breadcrumbs: BreadcrumbItem[] = [
-    { title: 'Admin', href: dashboard().url },
-    { title: 'Dashboard', href: dashboard().url },
+	{ title: 'Admin', href: dashboard().url },
+	{ title: 'Dashboard', href: dashboard().url },
 ]
 
 function getTrendIcon(trend?: KpiStat['trend']) {
-    if (trend === 'up') return TrendingUp
-    if (trend === 'down') return TrendingDown
-    return Minus
+	if (trend === 'up') return TrendingUp
+	if (trend === 'down') return TrendingDown
+	return Minus
 }
 
 function getTrendColor(trend?: KpiStat['trend']) {
-    if (trend === 'up') return 'text-green-600 dark:text-green-500'
-    if (trend === 'down') return 'text-red-600 dark:text-red-500'
-    return 'text-muted-foreground'
+	if (trend === 'up') return 'text-green-600 dark:text-green-500'
+	if (trend === 'down') return 'text-red-600 dark:text-red-500'
+	return 'text-muted-foreground'
 }
 
 function formatChange(change?: number): string {
-    if (change === undefined) return ''
-    const sign = change > 0 ? '+' : ''
-    return `${sign}${change}%`
+	if (change === undefined) return ''
+	const sign = change > 0 ? '+' : ''
+	return `${sign}${change}%`
 }
 </script>
 
@@ -97,7 +97,7 @@ function formatChange(change?: number): string {
                 </CardHeader>
                 <Separator />
                 <CardContent class="grid md:grid-cols-3 gap-4">
-                    <QuickNavItem :href="admin.vegetables.index()" title="Vegetables" description="Manage market"
+                    <QuickNavItem :href="admin.vegetables.varieties.index()" title="Vegetables" description="Manage market"
                         :icon="Tractor" colorClasses="from-green-500/10 to-emerald-500/10"
                         iconClasses="text-green-600 dark:text-green-500" />
                     <QuickNavItem :href="farmers.index()" title="Farmers" description="View all farmers" :icon="Tractor"

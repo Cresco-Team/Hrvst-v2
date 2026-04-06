@@ -1,89 +1,82 @@
 <script setup lang="ts">
 import { Head, Link, usePage } from '@inertiajs/vue3'
 import {
-    ArrowRight,
-    BarChart3,
-    MapPin,
-    Package,
-    ShieldCheck,
-    Sprout,
-    Store,
-    TrendingUp,
+	ArrowRight,
+	BarChart3,
+	MapPin,
+	Package,
+	ShieldCheck,
+	Sprout,
+	Store,
+	TrendingUp,
 } from 'lucide-vue-next'
 import AppLogoIcon from '@/components/layout/AppLogoIcon.vue'
-import { dashboard, login, logout, register } from '@/routes'
-
-withDefaults(
-    defineProps<{
-        canRegister: boolean
-    }>(),
-    { canRegister: true },
-)
+import { dashboard, login, logout } from '@/routes'
 
 const page = usePage()
 
 const farmerBenefits = [
-    {
-        icon: Sprout,
-        title: 'List Your Produce',
-        desc: 'Post your harvest with quantity, price, and photos in minutes.',
-    },
-    {
-        icon: TrendingUp,
-        title: 'Track Market Prices',
-        desc: 'See real-time demand trends and price flags to sell smarter.',
-    },
-    {
-        icon: MapPin,
-        title: 'Connect Locally',
-        desc: 'Find verified dealers in your area — no middlemen, no guesswork.',
-    },
-    {
-        icon: ShieldCheck,
-        title: 'Verified Buyers',
-        desc: 'Trade confidently with admin-approved dealer profiles.',
-    },
+	{
+		icon: Sprout,
+		title: 'List Your Produce',
+		desc: 'Post your harvest with quantity, price, and photos in minutes.',
+	},
+	{
+		icon: TrendingUp,
+		title: 'Track Market Prices',
+		desc: 'See real-time demand trends and price flags to sell smarter.',
+	},
+	{
+		icon: MapPin,
+		title: 'Connect Locally',
+		desc: 'Find verified dealers in your area — no middlemen, no guesswork.',
+	},
+	{
+		icon: ShieldCheck,
+		title: 'Verified Buyers',
+		desc: 'Trade confidently with admin-approved dealer profiles.',
+	},
 ]
 
 const dealerBenefits = [
-    {
-        icon: Package,
-        title: 'Source Fresh Supply',
-        desc: 'Browse farmer listings by crop, location, and availability.',
-    },
-    {
-        icon: BarChart3,
-        title: 'Post Your Demand',
-        desc: 'Publish buy requests so the right farmers come to you.',
-    },
-    {
-        icon: MapPin,
-        title: 'Supply Map',
-        desc: 'Visualise nearby supply geographically — plan your pickups.',
-    },
-    {
-        icon: ShieldCheck,
-        title: 'Verified Farmers',
-        desc: 'Work with approved profiles backed by full harvest history.',
-    },
+	{
+		icon: Package,
+		title: 'Source Fresh Supply',
+		desc: 'Browse farmer listings by crop, location, and availability.',
+	},
+	{
+		icon: BarChart3,
+		title: 'Post Your Demand',
+		desc: 'Publish buy requests so the right farmers come to you.',
+	},
+	{
+		icon: MapPin,
+		title: 'Supply Map',
+		desc: 'Visualise nearby supply geographically — plan your pickups.',
+	},
+	{
+		icon: ShieldCheck,
+		title: 'Verified Farmers',
+		desc: 'Work with approved profiles backed by full harvest history.',
+	},
 ]
 
 const steps = [
-    {
-        step: '01',
-        title: 'Create your account',
-        desc: 'Register as a farmer or dealer. Our admin team verifies and approves your profile before you go live.',
-    },
-    {
-        step: '02',
-        title: 'Post or browse',
-        desc: 'Farmers list their harvest with price and quantity. Dealers post their demand. Both discover each other in one feed.',
-    },
-    {
-        step: '03',
-        title: 'Trade directly',
-        desc: 'Connect, negotiate, and close deals — no intermediaries taking a cut, no pricing opacity.',
-    },
+	{
+		step: '01',
+		title: 'Get registered by an admin',
+		desc: 'An administrator verifies your identity and creates your account. You will receive a temporary PIN to sign in.',
+	},
+	{
+		step: '02',
+		title: 'Post or browse',
+		desc: 'Farmers list their harvest with price and quantity. Dealers post their demand. Both discover each other in one feed.',
+	},
+	{
+		step: '03',
+		title: 'Trade directly',
+		desc: 'Connect, negotiate, and close deals — no intermediaries taking a cut, no pricing opacity.',
+	},
 ]
 </script>
 
@@ -92,7 +85,6 @@ const steps = [
         style="background: var(--background); color: var(--foreground); font-family: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif;">
 
         <Head title="Hrvst — Agricultural Marketplace">
-            <!-- Aleo is declared in --font-serif token but not loaded in app.blade.php — load here -->
             <link rel="preconnect" href="https://fonts.bunny.net" />
             <link href="https://fonts.bunny.net/css?family=aleo:400,600,700,900&display=swap" rel="stylesheet" />
         </Head>
@@ -118,14 +110,10 @@ const steps = [
                         </Link>
                     </template>
                     <template v-else>
-                        <Link :href="login()" class="text-sm font-medium transition-opacity hover:opacity-70"
-                            style="color: var(--muted-foreground);">
-                            Log in
-                        </Link>
-                        <Link v-if="canRegister" :href="register()"
+                        <Link :href="login()"
                             class="rounded-lg px-5 py-2 text-sm font-semibold transition-all hover:opacity-90"
                             style="background: var(--primary); color: var(--primary-foreground);">
-                            Get Started
+                            Sign In
                         </Link>
                     </template>
                 </div>
@@ -135,22 +123,18 @@ const steps = [
         <!-- ═══════════════════════════════════════ HERO ═══ -->
         <section
             class="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6 pt-20 text-center">
-            <!-- On-brand radial green glow -->
             <div class="pointer-events-none absolute inset-0" aria-hidden="true"
                 style="background: radial-gradient(ellipse 70% 55% at 50% 40%, oklch(0.7920 0.2090 151.7110 / 0.12) 0%, transparent 70%);" />
-            <!-- Subtle dot-grid texture -->
             <div class="pointer-events-none absolute inset-0 opacity-[0.03]" aria-hidden="true"
                 style="background-image: radial-gradient(circle, var(--foreground) 1px, transparent 1px); background-size: 32px 32px;" />
 
             <div class="relative z-10 max-w-5xl">
-                <!-- Eyebrow badge -->
                 <div class="hero-badge mb-8 inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-xs font-bold uppercase tracking-widest"
                     style="border-color: oklch(0.7920 0.2090 151.7110 / 0.3); background: oklch(0.7920 0.2090 151.7110 / 0.08); color: oklch(0.5000 0.2090 151.7110);">
                     <Sprout class="size-3.5 shrink-0" />
                     Trading Post · Team Cresco
                 </div>
 
-                <!-- Headline — uses Aleo as declared in --font-serif -->
                 <h1 class="hero-title mb-6 text-5xl font-black leading-[1.05] tracking-tight sm:text-7xl lg:text-[5.5rem]"
                     style="font-family: 'Aleo', ui-serif, serif; color: var(--foreground);">
                     Where Farmers<br>
@@ -159,31 +143,27 @@ const steps = [
 
                 <p class="hero-sub mx-auto mb-10 max-w-xl text-base leading-relaxed sm:text-lg"
                     style="color: var(--muted-foreground);">
-                    Hrvst aims to solve oversupply of vegetables and undersupply of demands
-                    by connecting farmers and dealers through a transparent supply & demand data,
-                    making this website a perfect place for farmers and dealers to gather data analysis
-                    and perform the best decision beforehand — Created and preserved by team Cresco.
+                    Hrvst connects farmers and dealers through transparent supply & demand data,
+                    making it easier to make the best decisions before harvest — Created and preserved by team Cresco.
                 </p>
 
-                <!-- CTAs -->
                 <div class="hero-cta flex flex-wrap items-center justify-center gap-4">
-                    <Link v-if="canRegister && !page.props.auth.user" :href="register()"
-                        class="group flex items-center gap-2 rounded-lg px-7 py-3.5 text-sm font-bold shadow-lg transition-all duration-300 hover:opacity-90 hover:shadow-xl"
-                        style="background: var(--primary); color: var(--primary-foreground);">
-                        Join Hrvst
-                        <ArrowRight class="size-4 transition-transform group-hover:translate-x-0.5" />
-                    </Link>
-                    <Link v-if="canRegister && !page.props.auth.user" :href="login()"
-                        class="rounded-lg border px-7 py-3.5 text-sm font-semibold transition-all hover:opacity-70"
-                        style="border-color: var(--border); color: var(--muted-foreground); background: var(--card);">
-                        Log in
-                    </Link>
-
-                    <Link v-if="page.props.auth.user" :href="dashboard()"
-                        class="group flex items-center gap-2 rounded-lg px-7 py-3.5 text-sm font-bold shadow-lg transition-all duration-300 hover:opacity-90 hover:shadow-xl"
-                        style="background: var(--primary); color: var(--primary-foreground);">
-                        Go to Dashboard
-                    </Link>
+                    <template v-if="page.props.auth.user">
+                        <Link :href="dashboard()"
+                            class="group flex items-center gap-2 rounded-lg px-7 py-3.5 text-sm font-bold shadow-lg transition-all duration-300 hover:opacity-90 hover:shadow-xl"
+                            style="background: var(--primary); color: var(--primary-foreground);">
+                            Go to Dashboard
+                            <ArrowRight class="size-4 transition-transform group-hover:translate-x-0.5" />
+                        </Link>
+                    </template>
+                    <template v-else>
+                        <Link :href="login()"
+                            class="group flex items-center gap-2 rounded-lg px-7 py-3.5 text-sm font-bold shadow-lg transition-all duration-300 hover:opacity-90 hover:shadow-xl"
+                            style="background: var(--primary); color: var(--primary-foreground);">
+                            Sign In
+                            <ArrowRight class="size-4 transition-transform group-hover:translate-x-0.5" />
+                        </Link>
+                    </template>
                 </div>
 
                 <p class="hero-hint mt-6 text-xs" style="color: oklch(0.7920 0.2090 151.7110 / 0.5);">
@@ -191,7 +171,6 @@ const steps = [
                 </p>
             </div>
 
-            <!-- Scroll nudge -->
             <div class="absolute bottom-10 left-1/2 -translate-x-1/2 animate-bounce" aria-hidden="true">
                 <div class="h-10 w-px"
                     style="background: linear-gradient(to bottom, oklch(0.7920 0.2090 151.7110 / 0.5), transparent);" />
@@ -204,8 +183,7 @@ const steps = [
             <div class="mx-auto max-w-7xl">
                 <div class="mb-16 text-center">
                     <p class="mb-3 text-xs font-bold uppercase tracking-widest" style="color: var(--primary);">Built for
-                        both
-                        sides</p>
+                        both sides</p>
                     <h2 class="text-4xl font-black sm:text-5xl"
                         style="font-family: 'Aleo', ui-serif, serif; color: var(--foreground);">
                         One platform. Two roles.
@@ -233,9 +211,8 @@ const steps = [
                             </h3>
 
                             <p class="mb-8 text-sm leading-relaxed" style="color: var(--muted-foreground);">
-                                Turn market transparency into higher profits. See what’s in demand,
+                                Turn market transparency into higher profits. See what's in demand,
                                 list your harvest at your price, and deal directly with verified buyers.
-                                Your hard work, your data, your profit.
                             </p>
 
                             <ul class="space-y-4">
@@ -250,13 +227,6 @@ const steps = [
                                     </span>
                                 </li>
                             </ul>
-
-                            <Link v-if="canRegister && !page.props.auth.user" :href="register()"
-                                class="mt-10 inline-flex items-center gap-1.5 text-sm font-bold transition-all hover:gap-2.5"
-                                style="color: var(--primary);">
-                                Register as a Farmer
-                                <ArrowRight class="size-4" />
-                            </Link>
                         </div>
                     </div>
 
@@ -281,8 +251,7 @@ const steps = [
 
                             <p class="mb-8 text-sm leading-relaxed" style="color: var(--muted-foreground);">
                                 Access real-time supply data to find the best produce at the right price. Connect
-                                directly with
-                                verified farmers and secure your inventory.
+                                directly with verified farmers and secure your inventory.
                             </p>
 
                             <ul class="space-y-4">
@@ -297,13 +266,6 @@ const steps = [
                                     </span>
                                 </li>
                             </ul>
-
-                            <Link v-if="canRegister && !page.props.auth.user" :href="register()"
-                                class="mt-10 inline-flex items-center gap-1.5 text-sm font-bold transition-all hover:gap-2.5"
-                                style="color: var(--primary);">
-                                Register as a Dealer
-                                <ArrowRight class="size-4" />
-                            </Link>
                         </div>
                     </div>
                 </div>
@@ -315,8 +277,7 @@ const steps = [
             <div class="mx-auto max-w-3xl">
                 <div class="mb-16 text-center">
                     <p class="mb-3 text-xs font-bold uppercase tracking-widest" style="color: var(--primary);">Simple by
-                        design
-                    </p>
+                        design</p>
                     <h2 class="text-4xl font-black sm:text-5xl"
                         style="font-family: 'Aleo', ui-serif, serif; color: var(--foreground);">
                         How Hrvst works
@@ -343,30 +304,6 @@ const steps = [
                         </div>
                     </div>
                 </div>
-            </div>
-        </section>
-
-        <!-- ═══════════════════════════════════════ CTA BAND ═══ -->
-        <section v-if="canRegister && !page.props.auth.user" class="relative overflow-hidden px-6 py-28 text-center"
-            style="background: var(--primary);">
-            <div class="pointer-events-none absolute inset-0" aria-hidden="true"
-                style="background: radial-gradient(ellipse 70% 60% at 50% 110%, oklch(0 0 0 / 0.15) 0%, transparent 70%);" />
-
-            <div class="relative mx-auto max-w-2xl">
-                <h2 class="mb-4 text-4xl font-black sm:text-5xl"
-                    style="font-family: 'Aleo', ui-serif, serif; color: var(--primary-foreground);">
-                    Ready to trade<br>the better way?
-                </h2>
-                <p class="mb-10 text-sm leading-relaxed text-background">
-                    Join Hrvst today. Get verified, list your produce or demand, and start trading directly —
-                    no middlemen, no opacity.
-                </p>
-                <Link :href="register()"
-                    class="group inline-flex items-center gap-2 rounded-lg px-8 py-4 text-sm font-bold shadow-lg transition-all hover:shadow-xl"
-                    style="background: oklch(1 0 0); color: oklch(0.3800 0.1500 151.7110);">
-                    Create your account
-                    <ArrowRight class="size-4 transition-transform group-hover:translate-x-0.5" />
-                </Link>
             </div>
         </section>
 

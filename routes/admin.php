@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DealerController;
 use App\Http\Controllers\Admin\FarmerController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\VarietyController;
 use App\Http\Controllers\Admin\VarietyPriceController;
 use App\Http\Controllers\Admin\VegetableController;
 use Illuminate\Support\Facades\Route;
@@ -27,13 +28,20 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     /* ---------- vegetables ---------- */
 
     Route::prefix('vegetables')->name('vegetables.')->group(function () {
-        Route::get('/', [VegetableController::class, 'index'])->name('index');
-        Route::get('/{variety}/details', [VegetableController::class, 'details'])->name('details');
-        Route::get('/{variety}', [VegetableController::class, 'show'])->name('show');
+
         Route::post('/', [VegetableController::class, 'store'])->name('store');
-        Route::put('/{variety}', [VegetableController::class, 'update'])->name('update');
-        Route::post('/{variety}/prices', [VarietyPriceController::class, 'store'])->name('prices.store');
-        Route::delete('/{variety}', [VegetableController::class, 'destroy'])->name('destroy');
+        Route::put('/{vegetable}', [VegetableController::class, 'update'])->name('update');
+        Route::delete('/{vegetable}', [VegetableController::class, 'destroy'])->name('destroy');
+
+        Route::prefix('varieties')->name('varieties.')->group(function () {
+            Route::get('/', [VarietyController::class, 'index'])->name('index');
+            Route::get('/{variety}/details', [VarietyController::class, 'details'])->name('details');
+            Route::get('/{variety}', [VarietyController::class, 'show'])->name('show');
+            Route::post('/', [VarietyController::class, 'store'])->name('store');
+            Route::put('/{variety}', [VarietyController::class, 'update'])->name('update');
+            Route::post('/{variety}/prices', [VarietyPriceController::class, 'store'])->name('prices.store');
+            Route::delete('/{variety}', [VarietyController::class, 'destroy'])->name('destroy');
+        });
     });
 
     /* ---------- farmers ---------- */

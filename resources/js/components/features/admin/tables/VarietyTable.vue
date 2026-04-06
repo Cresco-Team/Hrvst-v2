@@ -1,6 +1,13 @@
 <script setup lang="ts">
-import { Link } from '@inertiajs/vue3'
-import type { ColumnDef } from '@tanstack/vue-table'
+import {
+	type ColumnDef,
+	type ExpandedState,
+	FlexRender,
+	getCoreRowModel,
+	getExpandedRowModel,
+	type Updater,
+	useVueTable,
+} from '@tanstack/vue-table'
 import {
 	ChevronDown,
 	ChevronRight,
@@ -9,248 +16,405 @@ import {
 	ClipboardPlus,
 	ClipboardX,
 	Clock,
-	MapPin,
+	Leaf,
+	Minus,
 	Plus,
+	Search,
+	TrendingDown,
+	TrendingUp,
 } from 'lucide-vue-next'
-import DataTable from '@/components/shared/tables/DataTable.vue'
+import { ref } from 'vue'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import { show as varietyShow } from '@/routes/admin/vegetables'
-import type { Paginated, VarietyResource } from '@/types'
+import type { Table } from '@/types/resources/product'
 
-defineProps<{
-	varieties: Paginated<VarietyResource>
+// ── Props & emits ──────────────────────────────────────────────────────────────
+
+const props = defineProps<{
+	vegetables: Table[]
 	searchQuery?: string
 }>()
 
-defineEmits<{
-	'open-create': []
-	'open-edit': [variety: VarietyResource]
-	'open-delete': [variety: VarietyResource]
-	'open-update-price': [variety: VarietyResource]
-	'page-change': [page: number]
+const emit = defineEmits<{
+	// vegetable actions
+	'open-edit-vegetable': [row: Table]
+	'open-delete-vegetable': [row: Table]
+	// variety actions
+	'open-create-variety': [parentRow: Table]
+	'open-edit-variety': [row: Table]
+	'open-delete-variety': [row: Table]
+	'open-update-price': [row: Table]
+	'open-variety-details': [row: Table]
+	// search
 	search: [query: string]
 }>()
 
-const columns: ColumnDef<VarietyResource>[] = [
-	{ id: 'expand', header: '' },
-	{ id: 'image', header: 'Image', enableSorting: false },
-	{
-		id: 'name',
-		header: 'Variety',
-		accessorFn: (row) => `${row.vegetable?.name ?? ''} ${row.name}`,
-		enableSorting: true,
-	},
-	{
-		id: 'price_range',
-		header: 'Price Range',
-		accessorFn: (row) =>
-			row.latest_price
-				? `₱${row.latest_price.price_min} – ₱${row.latest_price.price_max}`
-				: 'No price data',
-		enableSorting: false,
-	},
+// ── Expand state ───────────────────────────────────────────────────────────────
+
+const expanded = ref<ExpandedState>({})
+
+// ── Column defs ────────────────────────────────────────────────────────────────
+// Columns are defined as a flat list; cells branch on row.depth.
+
+const columns: ColumnDef<Table>[] = [
+	{ id: 'expand', header: '', size: 32 },
+	{ id: 'name', header: 'Name', enableSorting: false },
+	{ id: 'meta', header: 'Category / Price', enableSorting: false },
 	{ id: 'activity', header: 'Activity', enableSorting: false },
-	{ id: 'actions', header: 'Actions', enableSorting: false, enableHiding: true },
+	{ id: 'actions', header: '', enableSorting: false },
 ]
+
+// ── Table instance ─────────────────────────────────────────────────────────────
+
+const table = useVueTable({
+	get data() {
+		return props.vegetables
+	},
+	columns,
+	state: {
+		get expanded() {
+			return expanded.value
+		},
+	},
+	onExpandedChange: (updaterOrValue: Updater<ExpandedState>) => {
+		expanded.value =
+			typeof updaterOrValue === 'function' ? updaterOrValue(expanded.value) : updaterOrValue
+	},
+	getSubRows: (row) => row.subRows ?? [],
+	getCoreRowModel: getCoreRowModel(),
+	getExpandedRowModel: getExpandedRowModel(),
+	manualPagination: true,
+	manualFiltering: true,
+})
+
+// ── Search debounce ────────────────────────────────────────────────────────────
+
+const localSearch = ref(props.searchQuery ?? '')
+let searchTimeout: ReturnType<typeof setTimeout> | null = null
+
+function handleSearchInput(): void {
+	if (searchTimeout) clearTimeout(searchTimeout)
+	searchTimeout = setTimeout(() => emit('search', localSearch.value), 300)
+}
+
+// ── Freshness config ───────────────────────────────────────────────────────────
+
+const freshnessClass: Record<string, string> = {
+	recent: 'bg-amber-400',
+	stable: 'bg-green-400',
+	'very stable': 'bg-sky-500',
+	stale: 'bg-gray-500',
+}
+
+// ── Trend icon ─────────────────────────────────────────────────────────────────
+
+const trendIcon = {
+	up: TrendingUp,
+	down: TrendingDown,
+	flat: Minus,
+} as const
 </script>
 
 <template>
-    <DataTable :data="varieties" :columns="columns" :enable-expand="true" search-placeholder="Search varieties…"
-        entity-name="varieties" @page-change="$emit('page-change', $event)" @search="$emit('search', $event)">
-        <template #toolbar-actions>
-            <Button class="gap-1.5" @click="$emit('open-create')">
-                <Plus class="size-4" />
-                Add Variety
-            </Button>
-        </template>
+  <div class="flex flex-col gap-4">
 
-        <!-- Expand toggle -->
-        <template #cell-expand="{ cell }">
-            <Button variant="ghost" size="icon-sm" class="text-muted-foreground"
-                @click="cell.getContext().row.toggleExpanded()">
-                <ChevronDown v-if="cell.getContext().row.getIsExpanded()" class="size-4 transition-transform" />
-                <ChevronRight v-else class="size-4 transition-transform" />
-            </Button>
-        </template>
+    <!-- Toolbar -->
+    <div class="flex items-center justify-between">
+      <InputGroup class="max-w-xs">
+        <InputGroupInput
+          v-model="localSearch"
+          placeholder="Search vegetables or varieties…"
+          @input="handleSearchInput"
+        />
+        <InputGroupAddon>
+          <Search class="size-4" />
+        </InputGroupAddon>
+      </InputGroup>
 
-        <!-- Image -->
-        <template #cell-image="{ row }">
-            <Avatar class="size-12 rounded-md">
-                <AvatarImage v-if="row.image_url" :src="row.image_url" :alt="row.name" class="object-cover" />
-                <AvatarFallback class="rounded-md bg-primary/10 font-semibold text-primary">
-                    {{ (row.vegetable?.name?.charAt(0) ?? '') }}{{ row.name.charAt(0) }}
-                </AvatarFallback>
-            </Avatar>
-        </template>
+      <slot name="toolbar-actions" />
+    </div>
 
-        <!-- Name + category -->
-        <template #cell-name="{ row }">
-            <div class="flex flex-col gap-0.5">
-                <span class="font-medium">{{ row.vegetable?.name }}: {{ row.name }}</span>
-                <span class="text-xs text-muted-foreground">{{ row.vegetable?.category?.name }}</span>
-            </div>
-        </template>
+    <!-- Table -->
+    <div class="rounded-lg border">
+      <table class="w-full text-sm">
+        <thead class="bg-muted/60">
+          <tr>
+            <th
+              v-for="header in table.getHeaderGroups()[0].headers"
+              :key="header.id"
+              class="px-3 py-3 text-left text-xs font-medium text-muted-foreground"
+            >
+              <FlexRender
+                :render="header.column.columnDef.header"
+                :props="header.getContext()"
+              />
+            </th>
+          </tr>
+        </thead>
 
-        <!-- Price range + freshness dot -->
-        <template #cell-price_range="{ row }">
-            <div v-if="row.latest_price" class="flex flex-col gap-1.5">
+        <tbody>
+          <!-- empty state -->
+          <tr v-if="table.getRowModel().rows.length === 0">
+            <td colspan="5" class="px-4 py-10 text-center text-sm text-muted-foreground">
+              No vegetables found.
+            </td>
+          </tr>
+
+          <tr
+            v-for="row in table.getRowModel().rows"
+            :key="row.id"
+            class="border-t transition-colors"
+            :class="row.depth === 0
+              ? 'hover:bg-muted/30 font-medium'
+              : 'bg-muted/10 hover:bg-muted/20'"
+          >
+            <!-- expand toggle -->
+            <td class="w-8 px-2 py-2">
+              <template v-if="row.depth === 0">
+                <Button
+                  variant="ghost"
+                  size="icon-sm"
+                  class="text-muted-foreground"
+                  @click="row.toggleExpanded()"
+                >
+                  <ChevronDown v-if="row.getIsExpanded()" class="size-4" />
+                  <ChevronRight v-else class="size-4" />
+                </Button>
+              </template>
+            </td>
+
+            <!-- name column -->
+            <td class="px-3 py-2.5">
+              <!-- vegetable parent row -->
+              <template v-if="row.depth === 0">
                 <div class="flex items-center gap-2">
-                    <Badge variant="secondary" class="w-fit font-mono">
-                        ₱{{ row.latest_price.price_min }} – ₱{{ row.latest_price.price_max }}
+                  <Leaf class="size-4 shrink-0 text-primary" />
+                  <span class="font-semibold">{{ row.original.name }}</span>
+                  <span class="text-xs text-muted-foreground tabular-nums">
+                    ({{ row.original.subRows?.length ?? 0 }}
+                    {{ (row.original.subRows?.length ?? 0) === 1 ? 'variety' : 'varieties' }})
+                  </span>
+                </div>
+              </template>
+
+              <!-- variety child row -->
+              <template v-else>
+                <div class="flex items-center gap-2 pl-6">
+                  <Avatar class="size-8 shrink-0 rounded-md">
+                    <AvatarImage
+                      v-if="row.original.image_url"
+                      :src="row.original.image_url"
+                      :alt="row.original.name"
+                      class="object-cover"
+                    />
+                    <AvatarFallback class="rounded-md bg-primary/10 text-xs font-semibold text-primary">
+                      {{ row.original.name.charAt(0) }}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span class="font-medium">{{ row.original.name }}</span>
+                </div>
+              </template>
+            </td>
+
+            <!-- meta column: category (parent) / price (child) -->
+            <td class="px-3 py-2.5">
+              <template v-if="row.depth === 0">
+                <Badge variant="secondary">{{ row.original.category?.name }}</Badge>
+              </template>
+              <template v-else>
+                <div v-if="row.original.latest_price" class="flex flex-col gap-1">
+                  <div class="flex items-center gap-2">
+                    <component
+                      :is="row.original.price_trend ? trendIcon[row.original.price_trend] : Minus"
+                      class="size-3.5 shrink-0 text-muted-foreground"
+                    />
+                    <Badge variant="secondary" class="font-mono text-xs">
+                      ₱{{ row.original.latest_price.price_min.toFixed(2) }} –
+                      ₱{{ row.original.latest_price.price_max.toFixed(2) }}
                     </Badge>
                     <TooltipProvider :delay-duration="200">
-                        <Tooltip>
-                            <TooltipTrigger as-child>
-                                <div class="size-2 cursor-help rounded-full" :class="{
-                                    'bg-amber-400': row.latest_price.freshness === 'recent',
-                                    'bg-green-400': row.latest_price.freshness === 'stable',
-                                    'bg-sky-500': row.latest_price.freshness === 'very stable',
-                                    'bg-gray-500': row.latest_price.freshness === 'stale',
-                                }" />
-                            </TooltipTrigger>
-                            <TooltipContent>
-                                <p class="text-xs capitalize">{{ row.latest_price.freshness }}</p>
-                            </TooltipContent>
-                        </Tooltip>
+                      <Tooltip>
+                        <TooltipTrigger as-child>
+                          <div
+                            class="size-2 shrink-0 cursor-help rounded-full"
+                            :class="freshnessClass[row.original.latest_price.freshness ?? ''] ?? 'bg-gray-400'"
+                          />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p class="text-xs capitalize">{{ row.original.latest_price.freshness }}</p>
+                        </TooltipContent>
+                      </Tooltip>
                     </TooltipProvider>
+                  </div>
+                  <div
+                    v-if="row.original.price_updated_human"
+                    class="flex items-center gap-1 text-xs text-muted-foreground"
+                  >
+                    <Clock class="size-3 shrink-0" />
+                    {{ row.original.price_updated_human }}
+                  </div>
                 </div>
-                <div v-if="row.price_updated_human" class="flex items-center gap-1 text-xs text-muted-foreground">
-                    <Clock class="size-3" />
-                    {{ row.price_updated_human }}
-                </div>
-            </div>
-            <span v-else class="text-xs text-muted-foreground">No price data</span>
-        </template>
+                <span v-else class="text-xs text-muted-foreground">No price data</span>
+              </template>
+            </td>
 
-        <!-- Supply / demand counts -->
-        <template #cell-activity="{ row }">
-            <div class="flex flex-col gap-1.5">
-                <TooltipProvider :delay-duration="200">
+            <!-- activity column -->
+            <td class="px-3 py-2.5">
+              <template v-if="row.depth === 1">
+                <div class="flex flex-col gap-1">
+                  <TooltipProvider :delay-duration="200">
                     <Tooltip>
-                        <TooltipTrigger as-child>
-                            <div class="flex w-fit items-center gap-1.5 text-sm">
-                                <span class="size-2 rounded-full bg-green-500" />
-                                <span class="font-medium tabular-nums">{{ row.supply_count ?? 0 }}</span>
-                                <span class="text-xs text-muted-foreground">supplies</span>
-                            </div>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                            <p class="text-xs">Ongoing farmer supply listings</p>
-                        </TooltipContent>
-                    </Tooltip>
-                </TooltipProvider>
-                <TooltipProvider :delay-duration="200">
-                    <Tooltip>
-                        <TooltipTrigger as-child>
-                            <div class="flex w-fit items-center gap-1.5 text-sm">
-                                <span class="size-2 rounded-full bg-blue-500" />
-                                <span class="font-medium tabular-nums">{{ row.demand_count ?? 0 }}</span>
-                                <span class="text-xs text-muted-foreground">demands</span>
-                            </div>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                            <p class="text-xs">Ongoing dealer demand listings</p>
-                        </TooltipContent>
-                    </Tooltip>
-                </TooltipProvider>
-            </div>
-        </template>
-
-        <!-- Actions -->
-        <template #cell-actions="{ row }">
-            <div class="flex items-center gap-1">
-                <TooltipProvider :delay-duration="200">
-                    <Tooltip>
-                        <TooltipTrigger as-child>
-                            <Button variant="ghost" size="icon-sm" class="text-muted-foreground hover:text-foreground"
-                                as-child>
-                                <Link :href="varietyShow(row.id).url">
-                                    <ClipboardList class="size-4" />
-                                </Link>
-                            </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                            <p class="text-xs">View details</p>
-                        </TooltipContent>
-                    </Tooltip>
-                </TooltipProvider>
-
-                <TooltipProvider :delay-duration="200">
-                    <Tooltip>
-                        <TooltipTrigger as-child>
-                            <Button variant="ghost" size="icon-sm" class="text-muted-foreground hover:text-primary"
-                                @click="$emit('open-update-price', row)">
-                                <ClipboardPlus class="size-4" />
-                            </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                            <p class="text-xs">Update price</p>
-                        </TooltipContent>
-                    </Tooltip>
-                </TooltipProvider>
-
-                <TooltipProvider :delay-duration="200">
-                    <Tooltip>
-                        <TooltipTrigger as-child>
-                            <Button variant="ghost" size="icon-sm" class="text-muted-foreground hover:text-foreground"
-                                @click="$emit('open-edit', row)">
-                                <ClipboardPenLine class="size-4" />
-                            </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                            <p class="text-xs">Edit variety</p>
-                        </TooltipContent>
-                    </Tooltip>
-                </TooltipProvider>
-
-                <TooltipProvider :delay-duration="200">
-                    <Tooltip>
-                        <TooltipTrigger as-child>
-                            <Button variant="ghost" size="icon-sm" class="text-muted-foreground hover:text-destructive"
-                                @click="$emit('open-delete', row)">
-                                <ClipboardX class="size-4" />
-                            </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                            <p class="text-xs">Delete variety</p>
-                        </TooltipContent>
-                    </Tooltip>
-                </TooltipProvider>
-            </div>
-        </template>
-
-        <!-- Expanded municipality breakdown -->
-        <template #expanded-row="{ row, colspan }">
-            <tr class="bg-muted/20">
-                <td :colspan="colspan" class="px-6 py-4">
-                    <div class="flex items-start gap-3">
-                        <MapPin class="mt-0.5 size-4 shrink-0 text-muted-foreground" />
-                        <div class="flex-1">
-                            <p class="mb-3 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                                Supply by Municipality — {{ row.vegetable?.name }} {{ row.name }}
-                            </p>
-
-                            <div v-if="row.supply_municipalities?.length"
-                                class="grid grid-cols-2 gap-x-8 gap-y-1.5 sm:grid-cols-3 lg:grid-cols-4">
-                                <div v-for="entry in row.supply_municipalities" :key="entry.name"
-                                    class="flex items-center justify-between gap-4 rounded-md border bg-background px-3 py-2">
-                                    <span class="truncate text-sm font-medium">{{ entry.name }}</span>
-                                    <Badge variant="secondary" class="shrink-0 font-mono text-xs">
-                                        {{ entry.total_kg.toLocaleString() }} kg
-                                    </Badge>
-                                </div>
-                            </div>
-
-                            <p v-else class="text-sm text-muted-foreground">
-                                No ongoing supplies for this variety.
-                            </p>
+                      <TooltipTrigger as-child>
+                        <div class="flex w-fit cursor-help items-center gap-1.5 text-xs">
+                          <span class="size-1.5 rounded-full bg-green-500" />
+                          <span class="font-medium tabular-nums">{{ row.original.supply_count ?? 0 }}</span>
+                          <span class="text-muted-foreground">supplies</span>
                         </div>
-                    </div>
-                </td>
-            </tr>
-        </template>
-    </DataTable>
+                      </TooltipTrigger>
+                      <TooltipContent><p class="text-xs">Ongoing farmer supply listings</p></TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                  <TooltipProvider :delay-duration="200">
+                    <Tooltip>
+                      <TooltipTrigger as-child>
+                        <div class="flex w-fit cursor-help items-center gap-1.5 text-xs">
+                          <span class="size-1.5 rounded-full bg-blue-500" />
+                          <span class="font-medium tabular-nums">{{ row.original.demand_count ?? 0 }}</span>
+                          <span class="text-muted-foreground">demands</span>
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent><p class="text-xs">Ongoing dealer demand listings</p></TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+              </template>
+            </td>
+
+            <!-- actions column -->
+            <td class="px-3 py-2.5 text-right">
+              <!-- vegetable parent actions -->
+              <template v-if="row.depth === 0">
+                <div class="flex items-center justify-end gap-1">
+                  <TooltipProvider :delay-duration="200">
+                    <Tooltip>
+                      <TooltipTrigger as-child>
+                        <Button
+                          variant="ghost"
+                          size="icon-sm"
+                          class="text-muted-foreground hover:text-primary"
+                          @click="emit('open-create-variety', row.original)"
+                        >
+                          <Plus class="size-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent><p class="text-xs">Add variety</p></TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                  <TooltipProvider :delay-duration="200">
+                    <Tooltip>
+                      <TooltipTrigger as-child>
+                        <Button
+                          variant="ghost"
+                          size="icon-sm"
+                          class="text-muted-foreground hover:text-foreground"
+                          @click="emit('open-edit-vegetable', row.original)"
+                        >
+                          <ClipboardPenLine class="size-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent><p class="text-xs">Edit vegetable</p></TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                  <TooltipProvider :delay-duration="200">
+                    <Tooltip>
+                      <TooltipTrigger as-child>
+                        <Button
+                          variant="ghost"
+                          size="icon-sm"
+                          class="text-muted-foreground hover:text-destructive"
+                          @click="emit('open-delete-vegetable', row.original)"
+                        >
+                          <ClipboardX class="size-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent><p class="text-xs">Delete vegetable</p></TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+              </template>
+
+              <!-- variety child actions -->
+              <template v-else>
+                <div class="flex items-center justify-end gap-1">
+                  <TooltipProvider :delay-duration="200">
+                    <Tooltip>
+                      <TooltipTrigger as-child>
+                        <Button
+                          variant="ghost"
+                          size="icon-sm"
+                          class="text-muted-foreground hover:text-foreground"
+                          @click="emit('open-variety-details', row.original)"
+                        >
+                          <ClipboardList class="size-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent><p class="text-xs">View details</p></TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                  <TooltipProvider :delay-duration="200">
+                    <Tooltip>
+                      <TooltipTrigger as-child>
+                        <Button
+                          variant="ghost"
+                          size="icon-sm"
+                          class="text-muted-foreground hover:text-primary"
+                          @click="emit('open-update-price', row.original)"
+                        >
+                          <ClipboardPlus class="size-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent><p class="text-xs">Update price</p></TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                  <TooltipProvider :delay-duration="200">
+                    <Tooltip>
+                      <TooltipTrigger as-child>
+                        <Button
+                          variant="ghost"
+                          size="icon-sm"
+                          class="text-muted-foreground hover:text-foreground"
+                          @click="emit('open-edit-variety', row.original)"
+                        >
+                          <ClipboardPenLine class="size-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent><p class="text-xs">Edit variety</p></TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                  <TooltipProvider :delay-duration="200">
+                    <Tooltip>
+                      <TooltipTrigger as-child>
+                        <Button
+                          variant="ghost"
+                          size="icon-sm"
+                          class="text-muted-foreground hover:text-destructive"
+                          @click="emit('open-delete-variety', row.original)"
+                        >
+                          <ClipboardX class="size-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent><p class="text-xs">Delete variety</p></TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+              </template>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
 </template>
