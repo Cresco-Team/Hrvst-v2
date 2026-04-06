@@ -33,7 +33,7 @@ class HandleInertiaRequests extends Middleware
                     'name' => $user->name,
                     'email' => $user->email,
                     'roles' => $user->roles->pluck('name'),
-                    'user_image' => $user->user_image,
+                    'avatar' => $user->getFirstMediaUrl('avatar') ?: null,
                 ] : null,
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
