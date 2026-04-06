@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Deferred, Head, router } from '@inertiajs/vue3'
-import { Archive, PackageCheck, Plus, ShoppingBag, Sprout } from 'lucide-vue-next'
+import { CircleCheckBig, Plus, Sprout } from 'lucide-vue-next'
 import { computed, ref } from 'vue'
 import ConfirmationDialog from '@/components/dialogs/ConfirmationDialog.vue'
 import EmptyState from '@/components/EmptyState.vue'
@@ -15,12 +15,12 @@ import AppLayout from '@/layouts/AppLayout.vue'
 import dealer from '@/routes/dealer'
 import { archive, destroy, fulfill, index } from '@/routes/dealer/demands'
 import type {
-  BreadcrumbItem,
-  DealerDemandResource,
-  DealerDemandsProps,
-  DemandVarietyOption,
-  FarmerSupplyResource,
-  VarietyOptionsByCategory,
+	BreadcrumbItem,
+	DealerDemandResource,
+	DealerDemandsProps,
+	DemandVarietyOption,
+	FarmerSupplyResource,
+	VarietyOptionsByCategory,
 } from '@/types'
 
 // Union emitted by MyPostCard — handlers must accept both sides of the union.
@@ -45,90 +45,90 @@ const activeTab = computed(() => props.filters.status ?? 'Ongoing')
 
 /* --- Actions --- */
 function handleTabChange(value: string | number) {
-  router.visit(index({ query: { status: value === 'Ongoing' ? undefined : value } }).url, {
-    preserveState: true,
-    preserveScroll: true,
-    only: ['demands', 'filters', 'summary'],
-  })
+	router.visit(index({ query: { status: value === 'Ongoing' ? undefined : value } }).url, {
+		preserveState: true,
+		preserveScroll: true,
+		only: ['demands', 'filters', 'summary'],
+	})
 }
 
 function openCreate() {
-  activeDemand.value = null
-  formOpen.value = true
+	activeDemand.value = null
+	formOpen.value = true
 }
 
 function openEdit(demand: PostItem) {
-  activeDemand.value = demand as DealerDemandResource
-  formOpen.value = true
+	activeDemand.value = demand as DealerDemandResource
+	formOpen.value = true
 }
 
 function openArchive(demand: PostItem) {
-  demandToArchive.value = demand as DealerDemandResource
-  archiveDialogOpen.value = true
+	demandToArchive.value = demand as DealerDemandResource
+	archiveDialogOpen.value = true
 }
 
 function openFulfill(demand: PostItem) {
-  demandToFulfill.value = demand as DealerDemandResource
-  fulfillDialogOpen.value = true
+	demandToFulfill.value = demand as DealerDemandResource
+	fulfillDialogOpen.value = true
 }
 
 function openDelete(demand: PostItem) {
-  demandToDelete.value = demand as DealerDemandResource
-  deleteDialogOpen.value = true
+	demandToDelete.value = demand as DealerDemandResource
+	deleteDialogOpen.value = true
 }
 
 function handleArchive() {
-  if (!demandToArchive.value) return
-  router.post(
-    archive(demandToArchive.value.id).url,
-    {},
-    {
-      preserveScroll: true,
-      onSuccess: () => {
-        archiveDialogOpen.value = false
-        demandToArchive.value = null
-      },
-    },
-  )
+	if (!demandToArchive.value) return
+	router.post(
+		archive(demandToArchive.value.id).url,
+		{},
+		{
+			preserveScroll: true,
+			onSuccess: () => {
+				archiveDialogOpen.value = false
+				demandToArchive.value = null
+			},
+		},
+	)
 }
 
 function handleFulfill() {
-  if (!demandToFulfill.value) return
-  router.post(
-    fulfill(demandToFulfill.value.id).url,
-    {},
-    {
-      preserveScroll: true,
-      onSuccess: () => {
-        fulfillDialogOpen.value = false
-        demandToFulfill.value = null
-      },
-    },
-  )
+	if (!demandToFulfill.value) return
+	router.post(
+		fulfill(demandToFulfill.value.id).url,
+		{},
+		{
+			preserveScroll: true,
+			onSuccess: () => {
+				fulfillDialogOpen.value = false
+				demandToFulfill.value = null
+			},
+		},
+	)
 }
 
 function handleDelete() {
-  if (!demandToDelete.value) return
-  router.visit(destroy(demandToDelete.value.id).url, {
-    method: 'delete',
-    preserveScroll: true,
-    onSuccess: () => {
-      deleteDialogOpen.value = false
-      demandToDelete.value = null
-    },
-  })
+	if (!demandToDelete.value) return
+	router.visit(destroy(demandToDelete.value.id).url, {
+		method: 'delete',
+		preserveScroll: true,
+		onSuccess: () => {
+			deleteDialogOpen.value = false
+			demandToDelete.value = null
+		},
+	})
 }
 
 function handlePageChange(page: number) {
-  router.visit(dealer.demands.index().url, {
-    data: { page, status: props.filters.status },
-    preserveScroll: true,
-  })
+	router.visit(dealer.demands.index().url, {
+		data: { page, status: props.filters.status },
+		preserveScroll: true,
+	})
 }
 
 const breadcrumbs: BreadcrumbItem[] = [
-  { title: 'Dealer', href: dealer.demands.index().url },
-  { title: 'Demands', href: dealer.demands.index().url },
+	{ title: 'Dealer', href: dealer.demands.index().url },
+	{ title: 'Demands', href: dealer.demands.index().url },
 ]
 </script>
 
@@ -156,12 +156,10 @@ const breadcrumbs: BreadcrumbItem[] = [
         </template>
 
         <div class="grid md:grid-cols-3 gap-4">
-          <LargeCard title="Ongoing Demands" :value="summary?.total_ongoing" subtext="not yet picked-up"
-            :icon="ShoppingBag" card-class="bg-green-50 dark:bg-green-950/20" />
-          <LargeCard title="Archived Demands" :value="summary?.total_archived" subtext="picked-up from trading post"
-            :icon="Archive" card-class="bg-green-50 dark:bg-green-950/20" />
+          <LargeCard title="Ongoing Demands" :value="summary?.total_ongoing" subtext="not yet picked-up" />
+          <LargeCard title="Archived Demands" :value="summary?.total_archived" subtext="picked-up from trading post" />
           <LargeCard title="Fulfilled Demands" :value="summary?.total_fulfilled" subtext="marked as successful"
-            :icon="PackageCheck" card-class="bg-green-50 dark:bg-green-950/20" />
+            :icon="CircleCheckBig" />
 
         </div>
       </Deferred>

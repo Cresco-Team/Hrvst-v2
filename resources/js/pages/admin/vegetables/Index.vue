@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Deferred, Head, router } from '@inertiajs/vue3'
-import { AlertTriangle, Leaf, TrendingUp } from 'lucide-vue-next'
+import { AlertTriangle } from 'lucide-vue-next'
 import { ref } from 'vue'
 import ConfirmationDialog from '@/components/dialogs/ConfirmationDialog.vue'
 import DialogForm from '@/components/dialogs/DialogForm.vue'
@@ -274,18 +274,14 @@ function handleSearch(query: string): void {
         </template>
         <div class="grid gap-4 md:grid-cols-3">
           <LargeCard
-            title="Total Varieties"
-            subtext="available for planting"
+            title="Vegetable Varieties"
+            subtext="total"
             :value="summary?.total_varieties"
-            :icon="Leaf"
-            card-class="md:col-span-1 bg-linear-to-br from-lime-500/10 to-green-500/30"
           />
           <LargeCard
             title="Price Updates"
-            subtext="this week"
+            subtext="updated this week"
             :value="summary?.price_stats.updated_week"
-            :icon="TrendingUp"
-            card-class="md:col-span-1 bg-linear-to-br from-lime-500/10 to-green-500/30"
           />
           <LargeCard
             title="Needs Attention"
@@ -293,7 +289,6 @@ function handleSearch(query: string): void {
             :value="summary?.price_stats.stale"
             :icon="AlertTriangle"
             icon-color="text-orange-500"
-            card-class="md:col-span-1 bg-linear-to-br from-red-500/20 via-green-500/10 to-green-500/30"
           />
         </div>
       </Deferred>

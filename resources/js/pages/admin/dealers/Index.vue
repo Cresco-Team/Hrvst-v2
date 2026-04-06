@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Deferred, Head, Link, router } from '@inertiajs/vue3'
 import axios from 'axios'
-import { Package, PackagePlus, PartyPopper, UserRoundPlus, Users } from 'lucide-vue-next'
+import { Package, PackagePlus, UserPlus, UserRoundPlus, Users } from 'lucide-vue-next'
 import { ref } from 'vue'
 import { toast } from 'vue-sonner'
 import DealerDetailSidebar from '@/components/features/admin/dialogs/DealerDetailSidebar.vue'
@@ -101,16 +101,16 @@ function handleSearch(query: string) {
                 <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4 lg:gap-2">
                     <LargeCard title="Total Dealers" :value="summary.total_dealers" subtext="all approved dealers"
                         :icon="Users"
-                        card-class="col-span-1 bg-linear-to-br from-cyan-500/10 via-sky-500/10 to-blue-500/30" />
-                    <LargeCard title="New Dealers" :value="summary.new_dealers_this_month"
-                        subtext="registered this month" :icon="PartyPopper"
-                        card-class="col-span-1 bg-linear-to-br from-cyan-500/10 via-sky-500/10 to-blue-500/30" />
+                    />
+                    <LargeCard title="New Dealers" :value="summary.new_dealers_this_month" subtext="registered this month" 
+                        :icon="UserPlus"
+                    />
                     <LargeCard title="Total Demands" :value="summary.total_demands" subtext="all demands posts"
                         :icon="Package"
-                        card-class="col-span-1 bg-linear-to-br from-cyan-500/10 via-sky-500/10 to-blue-500/30" />
+                    />
                     <LargeCard title="New Demands" :value="summary.new_demands_this_month" subtext="demands this month"
                         :icon="PackagePlus"
-                        card-class="col-span-1 bg-linear-to-br from-cyan-500/10 via-sky-500/10 to-blue-500/30" />
+                    />
                 </div>
             </Deferred>
 

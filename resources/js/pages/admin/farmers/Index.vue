@@ -217,16 +217,16 @@ if (storedView && storedView !== props.view) {
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-2">
                     <LargeCard title="Total Farmers" :value="summary.total_farmers" subtext="all approved farmers"
                         :icon="Users"
-                        card-class="col-span-1 bg-linear-to-br from-orange-500/10 via-amber-500/10 to-yellow-500/30" />
+                    />
                     <LargeCard title="New Farmers" :value="summary.new_farmers_this_month"
                         subtext="registered this month" :icon="UserPlus"
-                        card-class="col-span-1 bg-linear-to-br from-orange-500/10 via-amber-500/10 to-yellow-500/30" />
+                    />
                     <LargeCard title="Total Supplies" :value="summary.total_supplies" subtext="all supplies posted"
                         :icon="Package"
-                        card-class="col-span-1 bg-linear-to-br from-orange-500/10 via-amber-500/10 to-yellow-500/30" />
+                    />
                     <LargeCard title="New Supplies" :value="summary.new_supplies_this_month"
                         subtext="supplies this month" :icon="PackagePlus"
-                        card-class="col-span-1 bg-linear-to-br from-orange-500/10 via-amber-500/10 to-yellow-500/30" />
+                    />
                 </div>
             </Deferred>
 

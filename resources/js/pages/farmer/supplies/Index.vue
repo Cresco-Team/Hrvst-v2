@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Deferred, Head, router } from '@inertiajs/vue3'
-import { Archive, PackageCheck, Plus, Sprout, Wheat } from 'lucide-vue-next'
+import { Archive, CircleCheckBig, PackageCheck, Plus, Sprout, Wheat } from 'lucide-vue-next'
 import { computed, ref } from 'vue'
 import ConfirmationDialog from '@/components/dialogs/ConfirmationDialog.vue'
 import EmptyState from '@/components/EmptyState.vue'
@@ -15,16 +15,14 @@ import AppLayout from '@/layouts/AppLayout.vue'
 import farmer from '@/routes/farmer'
 import { archive, destroy, fulfill, index } from '@/routes/farmer/supplies'
 import type {
-  BreadcrumbItem,
-  DealerDemandResource,
-  FarmerSuppliesProps,
-  FarmerSupplyResource,
-  SupplyVarietyOption,
-  VarietyOptionsByCategory,
+	BreadcrumbItem,
+	DealerDemandResource,
+	FarmerSuppliesProps,
+	FarmerSupplyResource,
+	SupplyVarietyOption,
+	VarietyOptionsByCategory,
 } from '@/types'
 
-// Union emitted by MyPostCard — handlers must accept both sides of the union.
-// This page only ever passes FarmerSupplyResource instances so the cast is safe.
 type PostItem = FarmerSupplyResource | DealerDemandResource
 
 const props = defineProps<FarmerSuppliesProps>()
@@ -45,90 +43,90 @@ const activeTab = computed(() => props.filters.status ?? 'Ongoing')
 
 /* --- Actions --- */
 function handleTabChange(value: string | number) {
-  router.visit(index({ query: { status: value === 'Ongoing' ? undefined : value } }).url, {
-    preserveState: true,
-    preserveScroll: true,
-    only: ['supplies', 'filters', 'summary'],
-  })
+	router.visit(index({ query: { status: value === 'Ongoing' ? undefined : value } }).url, {
+		preserveState: true,
+		preserveScroll: true,
+		only: ['supplies', 'filters', 'summary'],
+	})
 }
 
 function openCreate() {
-  activeSupply.value = null
-  formOpen.value = true
+	activeSupply.value = null
+	formOpen.value = true
 }
 
 function openEdit(supply: PostItem) {
-  activeSupply.value = supply as FarmerSupplyResource
-  formOpen.value = true
+	activeSupply.value = supply as FarmerSupplyResource
+	formOpen.value = true
 }
 
 function openArchive(supply: PostItem) {
-  supplyToArchive.value = supply as FarmerSupplyResource
-  archiveDialogOpen.value = true
+	supplyToArchive.value = supply as FarmerSupplyResource
+	archiveDialogOpen.value = true
 }
 
 function openFulfill(supply: PostItem) {
-  supplyToFulfill.value = supply as FarmerSupplyResource
-  fulfillDialogOpen.value = true
+	supplyToFulfill.value = supply as FarmerSupplyResource
+	fulfillDialogOpen.value = true
 }
 
 function openDelete(supply: PostItem) {
-  supplyToDelete.value = supply as FarmerSupplyResource
-  deleteDialogOpen.value = true
+	supplyToDelete.value = supply as FarmerSupplyResource
+	deleteDialogOpen.value = true
 }
 
 function handleArchive() {
-  if (!supplyToArchive.value) return
-  router.post(
-    archive(supplyToArchive.value.id).url,
-    {},
-    {
-      preserveScroll: true,
-      onSuccess: () => {
-        archiveDialogOpen.value = false
-        supplyToArchive.value = null
-      },
-    },
-  )
+	if (!supplyToArchive.value) return
+	router.post(
+		archive(supplyToArchive.value.id).url,
+		{},
+		{
+			preserveScroll: true,
+			onSuccess: () => {
+				archiveDialogOpen.value = false
+				supplyToArchive.value = null
+			},
+		},
+	)
 }
 
 function handleFulfill() {
-  if (!supplyToFulfill.value) return
-  router.post(
-    fulfill(supplyToFulfill.value.id).url,
-    {},
-    {
-      preserveScroll: true,
-      onSuccess: () => {
-        fulfillDialogOpen.value = false
-        supplyToFulfill.value = null
-      },
-    },
-  )
+	if (!supplyToFulfill.value) return
+	router.post(
+		fulfill(supplyToFulfill.value.id).url,
+		{},
+		{
+			preserveScroll: true,
+			onSuccess: () => {
+				fulfillDialogOpen.value = false
+				supplyToFulfill.value = null
+			},
+		},
+	)
 }
 
 function handleDelete() {
-  if (!supplyToDelete.value) return
-  router.visit(destroy(supplyToDelete.value.id).url, {
-    method: 'delete',
-    preserveScroll: true,
-    onSuccess: () => {
-      deleteDialogOpen.value = false
-      supplyToDelete.value = null
-    },
-  })
+	if (!supplyToDelete.value) return
+	router.visit(destroy(supplyToDelete.value.id).url, {
+		method: 'delete',
+		preserveScroll: true,
+		onSuccess: () => {
+			deleteDialogOpen.value = false
+			supplyToDelete.value = null
+		},
+	})
 }
 
 function handlePageChange(page: number) {
-  router.visit(farmer.supplies.index().url, {
-    data: { page, status: props.filters.status },
-    preserveScroll: true,
-  })
+	router.visit(farmer.supplies.index().url, {
+		data: { page, status: props.filters.status },
+		preserveScroll: true,
+	})
 }
 
 const breadcrumbs: BreadcrumbItem[] = [
-  { title: 'Farmer', href: farmer.supplies.index().url },
-  { title: 'Supplies', href: farmer.supplies.index().url },
+	{ title: 'Farmer', href: farmer.supplies.index().url },
+	{ title: 'Supplies', href: farmer.supplies.index().url },
 ]
 </script>
 
@@ -156,12 +154,10 @@ const breadcrumbs: BreadcrumbItem[] = [
         </template>
 
         <div class="grid md:grid-cols-3 gap-4">
-          <LargeCard title="Ongoing Supplies" :value="summary?.total_ongoing" subtext="not yet harvested" :icon="Wheat"
-            card-class="bg-green-50 dark:bg-green-950/20" />
-          <LargeCard title="Archived Supplies" :value="summary?.total_archived" subtext="delivered to trading post"
-            :icon="Archive" card-class="bg-green-50 dark:bg-green-950/20" />
+          <LargeCard title="Ongoing Supplies" :value="summary?.total_ongoing" subtext="not yet harvested" />
+          <LargeCard title="Archived Supplies" :value="summary?.total_archived" subtext="delivered to trading post" />
           <LargeCard title="Fulfilled Supplies" :value="summary?.total_fulfilled" subtext="marked as successful"
-            :icon="PackageCheck" card-class="bg-green-50 dark:bg-green-950/20" />
+            :icon="CircleCheckBig" />
         </div>
       </Deferred>
 
