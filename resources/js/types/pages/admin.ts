@@ -3,6 +3,8 @@
 
 import type { MunicipalityOption, SupplyOption } from '../resources/marketplace'
 import type {
+	CategoryOption,
+	Table,
 	VarietyResource,
 	VarietySummary,
 	VegetableOptions,
@@ -48,8 +50,9 @@ export interface AdminVegetablesFilters {
 export interface AdminVegetablesProps {
 	summary: VarietySummary // Inertia::defer
 	filters: AdminVegetablesFilters
-	varieties: Paginated<VarietyResource> // Inertia::defer
+	vegetables: Table[] // Inertia::defer
 	vegetableOptions: VegetableOptions // Inertia::defer
+	categories: CategoryOption[]
 }
 
 // ─── admin/farmers/Index ──────────────────────────────────────────────────────
