@@ -8,12 +8,12 @@ import DealerDetailSidebar from '@/components/features/admin/dialogs/DealerDetai
 import DealerTable from '@/components/features/admin/tables/DealerTable.vue'
 import Heading from '@/components/Heading.vue'
 import LargeCard from '@/components/shared/cards/LargeCard.vue'
+import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import AppLayout from '@/layouts/AppLayout.vue'
 import admin from '@/routes/admin'
-import type { AdminDealersProps, BreadcrumbItem, DealerResource } from '@/types'
-import { Button } from '@/components/ui/button'
 import users from '@/routes/admin/users'
+import type { AdminDealersProps, BreadcrumbItem, DealerResource } from '@/types'
 
 const props = defineProps<AdminDealersProps>()
 
@@ -22,53 +22,53 @@ const sidebarOpen = ref(false)
 const loadingDealer = ref(false)
 
 const breadcrumbs: BreadcrumbItem[] = [
-    { title: 'Admin', href: admin.dashboard().url },
-    { title: 'Dealers', href: admin.dealers.index().url },
+	{ title: 'Admin', href: admin.dashboard().url },
+	{ title: 'Dealers', href: admin.dealers.index().url },
 ]
 
 const searchQuery = ref(props.filters?.search ?? '')
 
 async function loadDealerDetails(dealerId: number) {
-    loadingDealer.value = true
-    selectedDealer.value = null
-    sidebarOpen.value = true
-    try {
-        const { data } = await axios.get<DealerResource>(`/admin/dealers/api/${dealerId}/details`)
-        selectedDealer.value = data
-    } catch (error: unknown) {
-        const message = error instanceof Error ? error.message : 'Failed to load dealer information'
-        toast.error('Error loading dealer details', { description: message })
-        sidebarOpen.value = false
-    } finally {
-        loadingDealer.value = false
-    }
+	loadingDealer.value = true
+	selectedDealer.value = null
+	sidebarOpen.value = true
+	try {
+		const { data } = await axios.get<DealerResource>(`/admin/dealers/api/${dealerId}/details`)
+		selectedDealer.value = data
+	} catch (error: unknown) {
+		const message = error instanceof Error ? error.message : 'Failed to load dealer information'
+		toast.error('Error loading dealer details', { description: message })
+		sidebarOpen.value = false
+	} finally {
+		loadingDealer.value = false
+	}
 }
 
 function openDealerSidebar(dealerId: number) {
-    loadDealerDetails(dealerId)
+	loadDealerDetails(dealerId)
 }
 
 function closeSidebar() {
-    sidebarOpen.value = false
-    selectedDealer.value = null
+	sidebarOpen.value = false
+	selectedDealer.value = null
 }
 
 function handlePageChange(page: number) {
-    router.visit(admin.dealers.index(), {
-        data: { page, search: searchQuery.value || undefined },
-        preserveState: true,
-        preserveScroll: true,
-    })
+	router.visit(admin.dealers.index(), {
+		data: { page, search: searchQuery.value || undefined },
+		preserveState: true,
+		preserveScroll: true,
+	})
 }
 
 function handleSearch(query: string) {
-    searchQuery.value = query
-    router.visit(admin.dealers.index().url, {
-        data: { search: query || undefined },
-        preserveState: true,
-        preserveScroll: true,
-        only: ['dealers', 'filters'],
-    })
+	searchQuery.value = query
+	router.visit(admin.dealers.index().url, {
+		data: { search: query || undefined },
+		preserveState: true,
+		preserveScroll: true,
+		only: ['dealers', 'filters'],
+	})
 }
 </script>
 
@@ -99,16 +99,16 @@ function handleSearch(query: string) {
                 </template>
 
                 <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4 lg:gap-2">
-                    <LargeCard title="Registered Dealers" :value="summary.total_dealers" subtext="approved dealers"
+                    <LargeCard title="Total Dealers" :value="summary.total_dealers" subtext="all approved dealers"
                         :icon="Users"
                         card-class="col-span-1 bg-linear-to-br from-cyan-500/10 via-sky-500/10 to-blue-500/30" />
                     <LargeCard title="New Dealers" :value="summary.new_dealers_this_month"
                         subtext="registered this month" :icon="PartyPopper"
                         card-class="col-span-1 bg-linear-to-br from-cyan-500/10 via-sky-500/10 to-blue-500/30" />
-                    <LargeCard title="Total Request Posted" :value="summary.total_demands" subtext="all request posts"
+                    <LargeCard title="Total Demands" :value="summary.total_demands" subtext="all demands posts"
                         :icon="Package"
                         card-class="col-span-1 bg-linear-to-br from-cyan-500/10 via-sky-500/10 to-blue-500/30" />
-                    <LargeCard title="New Posts" :value="summary.new_demands_this_month" subtext="posts this month"
+                    <LargeCard title="New Demands" :value="summary.new_demands_this_month" subtext="demands this month"
                         :icon="PackagePlus"
                         card-class="col-span-1 bg-linear-to-br from-cyan-500/10 via-sky-500/10 to-blue-500/30" />
                 </div>
