@@ -149,7 +149,7 @@ function handleDelete() {
       <div v-else-if="farmer" class="flex justify-end gap-2">
         <Button variant="outline" size="sm" @click="router.visit(show(farmer.id).url)">
           <Info class="size-4" />
-          Details
+          More Details
         </Button>
         <Button variant="outline" size="sm" @click="handleResetPin">
           <KeyRound class="size-4" />
