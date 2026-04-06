@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import type { ColumnDef } from '@tanstack/vue-table'
 import {
-    ChevronDownIcon,
-    ChevronRightIcon,
-    ClipboardList,
-    Mail,
-    Package,
-    Phone,
+	ChevronDownIcon,
+	ChevronRightIcon,
+	ClipboardList,
+	Mail,
+	Package,
+	Phone,
 } from 'lucide-vue-next'
 import DataTable from '@/components/shared/tables/DataTable.vue'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -17,38 +17,37 @@ import { getInitials } from '@/composables/useInitials'
 import type { DealerResource, Paginated } from '@/types'
 
 defineProps<{
-    dealers: Paginated<DealerResource>
-    searchQuery?: string
+	dealers: Paginated<DealerResource>
+	searchQuery?: string
 }>()
 
 defineEmits<{
-    'view-dealer': [dealer: DealerResource]
-    'page-change': [page: number]
-    search: [query: string]
+	'view-dealer': [dealer: DealerResource]
+	'page-change': [page: number]
+	search: [query: string]
 }>()
 
 const columns: ColumnDef<DealerResource>[] = [
-    { id: 'expander', header: '' },
-    { id: 'image', header: 'Image' },
-    {
-        id: 'dealer',
-        header: 'Dealer',
-        accessorFn: (row) => row.user?.name ?? '',
-        enableSorting: true,
-    },
-    {
-        id: 'ongoing_demands_count',
-        header: 'Demands',
-        accessorFn: (row) => row.ongoing_demands_count ?? 0,
-        enableSorting: true,
-    },
-    {
-        id: 'joined_at',
-        header: 'Joined',
-        accessorFn: (row) => row.joined_at,
-        enableSorting: true,
-    },
-    { id: 'actions', header: 'Actions', enableSorting: false },
+	{ id: 'expander', header: '' },
+	{
+		id: 'dealer',
+		header: 'Dealer',
+		accessorFn: (row) => row.user?.name ?? '',
+		enableSorting: true,
+	},
+	{
+		id: 'ongoing_demands_count',
+		header: 'Demands',
+		accessorFn: (row) => row.ongoing_demands_count ?? 0,
+		enableSorting: true,
+	},
+	{
+		id: 'joined_at',
+		header: 'Joined',
+		accessorFn: (row) => row.joined_at,
+		enableSorting: true,
+	},
+	{ id: 'actions', header: 'Actions', enableSorting: false },
 ]
 </script>
 
