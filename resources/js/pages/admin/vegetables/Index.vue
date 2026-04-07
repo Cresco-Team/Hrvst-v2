@@ -316,7 +316,7 @@ function handleSearch(query: string): void {
           @open-edit-variety="openEditVariety"
           @open-delete-variety="openDeleteVariety"
           @open-update-price="openUpdatePrice"
-          @open-variety-details="(row) => router.visit(`/admin/vegetables/${row.id}`)"
+          @open-variety-details="(row) => router.visit(`/admin/vegetables/varieties/${row.id}`)"
           @search="handleSearch"
         />
       </Deferred>

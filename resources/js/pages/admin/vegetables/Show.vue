@@ -19,7 +19,10 @@ import {
 } from '@/components/ui/table'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { dashboard } from '@/routes/admin'
-import { index as vegetablesIndex, show as vegetablesShow } from '@/routes/admin/vegetables'
+import {
+	index as vegetablesIndex,
+	show as vegetablesShow,
+} from '@/routes/admin/vegetables/varieties'
 import type { BreadcrumbItem, PriceFreshness, VarietyResource } from '@/types'
 
 const props = defineProps<{
