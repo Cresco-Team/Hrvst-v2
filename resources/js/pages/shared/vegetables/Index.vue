@@ -5,8 +5,15 @@ import type { AcceptableValue } from 'reka-ui'
 import { computed, ref } from 'vue'
 import EmptyState from '@/components/EmptyState.vue'
 import Heading from '@/components/Heading.vue'
-import VegetableCatalogCard from '@/components/shared/cards/VegetableCatalogCard.vue'
+import VegetableCard from '@/components/shared/cards/VegetableCard.vue'
 import { Button } from '@/components/ui/button'
+import {
+	Carousel,
+	CarouselContent,
+	CarouselItem,
+	CarouselNext,
+	CarouselPrevious,
+} from '@/components/ui/carousel'
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group'
 import {
 	Select,
@@ -55,13 +62,11 @@ const breadcrumbs: BreadcrumbItem[] = [
 // ─── Derived ─────────────────────────────────────────────────────────────────
 
 // Only render vegetable groups that actually have varieties.
-// The backend may return vegetables with an empty varieties array when a search
-// matches the vegetable name but none of its child varieties.
 const vegetableGroups = computed(() =>
 	(props.vegetables?.data ?? []).filter((veg) => (veg.varieties?.length ?? 0) > 0),
 )
 
-// Flat variety count across all visible groups — shown in the search result badge.
+// Flat variety count across all visible groups.
 const totalVarieties = computed(() =>
 	vegetableGroups.value.reduce((sum, veg) => sum + (veg.varieties?.length ?? 0), 0),
 )
@@ -117,7 +122,7 @@ function handlePageChange(page: number) {
 
             <!-- Header -->
             <Heading title="Vegetables"
-                description="Browse all available varieties and their current market prices." />
+                description="Browse all available vegetables and their current market prices." />
 
             <!-- Filters -->
             <div class="flex flex-wrap gap-3">
@@ -125,7 +130,7 @@ function handlePageChange(page: number) {
                     <InputGroupAddon>
                         <Search class="size-4 text-muted-foreground" />
                     </InputGroupAddon>
-                    <InputGroupInput v-model="searchQuery" placeholder="Search varieties..."
+                    <InputGroupInput v-model="searchQuery" placeholder="Search vegetables..."
                         @input="handleSearch" />
                     <InputGroupAddon align="inline-end">
                         {{ totalVarieties }} results
@@ -153,15 +158,18 @@ function handlePageChange(page: number) {
                 </Deferred>
             </div>
 
-            <!-- Grouped card grid -->
+            <!-- Grouped carousels -->
             <Deferred data="vegetables">
                 <template #fallback>
                     <div class="flex flex-col gap-8">
-                        <!-- Skeleton group × 2 -->
                         <div v-for="g in 2" :key="g" class="flex flex-col gap-3">
                             <Skeleton class="h-5 w-32" />
-                            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-                                <Skeleton v-for="i in 4" :key="i" class="aspect-4/3 rounded-xl" />
+                            <!-- Mirror carousel skeleton: same basis breakpoints -->
+                            <div class="flex gap-4 overflow-hidden">
+                                <Skeleton
+                                    v-for="i in 4" :key="i"
+                                    class="aspect-3/4 shrink-0 rounded-xl
+                                           basis-4/5 sm:basis-1/2 md:basis-1/3 lg:basis-1/4" />
                             </div>
                         </div>
                     </div>
@@ -181,19 +189,41 @@ function handlePageChange(page: number) {
                             </span>
                         </div>
 
-                        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-                            <VegetableCatalogCard
-                                v-for="variety in vegetable.varieties"
-                                :key="variety.id"
-                                :variety="variety"
-                                :href="`${indexHref}/${variety.id}`"
-                            />
-                        </div>
+                        <!--
+                            Carousel per vegetable group.
+                            - Mobile  : ~1 card visible  (basis-4/5)
+                            - sm      : ~2 cards          (basis-1/2)
+                            - md      : ~3 cards          (basis-1/3)
+                            - lg+     : ~4 cards          (basis-1/4)
+                            pl-4 on content + ml-4 on item keeps the prev arrow
+                            from being clipped by the carousel overflow boundary.
+                        -->
+                        <Carousel
+                            :opts="{ align: 'start', loop: false }"
+                            class="relative"
+                        >
+                            <CarouselContent class="-ml-3">
+                                <CarouselItem
+                                    v-for="variety in vegetable.varieties"
+                                    :key="variety.id"
+                                    class="pl-3 basis-4/5 sm:basis-1/2 md:basis-1/3 lg:basis-1/4"
+                                >
+                                    <VegetableCard
+                                        :variety="variety"
+                                        :href="`${indexHref}/${variety.id}`"
+                                    />
+                                </CarouselItem>
+                            </CarouselContent>
+
+                            <!-- Navigation arrows — hidden on touch-only widths, visible md+ -->
+                            <CarouselPrevious class="hidden md:flex -left-4" />
+                            <CarouselNext class="hidden md:flex -right-4" />
+                        </Carousel>
                     </section>
                 </div>
             </Deferred>
 
-            <!-- Pagination (tracks vegetable pages) -->
+            <!-- Pagination -->
             <div v-if="vegetables && vegetables.meta.last_page > 1"
                 class="flex items-center justify-between border-t pt-4">
                 <Button variant="outline" size="sm"
