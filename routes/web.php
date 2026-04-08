@@ -36,6 +36,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
             return redirect()->route('admin.dashboard');
         }
 
+        if ($user->hasRole('farmer')) {
+            return redirect()->route('farmer.vegetables.index');
+        }
+
+        if ($user->hasRole('dealer')) {
+            return redirect()->route('dealer.vegetables.index');
+        }
+
         return Inertia::render('Welcome');
     })->name('dashboard');
 });
@@ -53,13 +61,13 @@ if (app()->environment('local', 'development')) {
         Route::get('login/farmer', function () {
             Auth::loginUsingId(2);
 
-            return redirect()->route('home');
+            return redirect()->route('dashboard');
         })->name('login.farmer');
 
         Route::get('login/dealer', function () {
             Auth::loginUsingId(3);
 
-            return redirect()->route('home');
+            return redirect()->route('dashboard');
         })->name('login.dealer');
     });
 }
