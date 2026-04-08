@@ -205,6 +205,7 @@ function formatKgShort(kg: number): string {
 
   <AppLayout :breadcrumbs="breadcrumbs">
     <div class="flex flex-col gap-6 p-4 lg:p-6">
+
       <Deferred data="variety">
         <template #fallback>
           <div class="flex flex-col gap-6">
@@ -217,10 +218,9 @@ function formatKgShort(kg: number): string {
           </div>
         </template>
 
-        <Heading
-          :title="`${variety?.vegetable?.name} ${variety?.name}`"
-          :description="variety?.vegetable?.category?.name"
-        />
+        <Heading :title="`${variety?.vegetable?.name} ${variety?.name}`"
+          :description="variety?.vegetable?.category?.name" />
+          
           <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
             <SmallCard
               title="Min Price"
