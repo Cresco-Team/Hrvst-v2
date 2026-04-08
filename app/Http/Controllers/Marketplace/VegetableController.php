@@ -23,14 +23,14 @@ class VegetableController extends Controller
                 'search' => $request->query('search'),
                 'category_id' => $request->integer('category_id') ?: null,
             ],
-            'varieties' => Inertia::defer(fn () => VarietyResource::collection(
-                $this->varietyService->forCatalog(
-                    perPage: 20,
-                    search: $request->query('search'),
-                    categoryId: $request->integer('category_id') ?: null,
-                    userId: $request->user()->id,
-                )
+
+            'vegetables' => Inertia::defer(fn () => $this->varietyService->table(
+                search: $request->query('search'),
+                categoryId: $request->integer('category_id') ?: null,
+                userId: $request->user()->id,
+                perPage: 12,
             )),
+
             'categoryOptions' => Inertia::defer(fn () => $this->varietyService->categoryOptions()),
         ]);
     }
