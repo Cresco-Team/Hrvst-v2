@@ -12,7 +12,6 @@ use App\Http\Resources\Product\VarietyResource;
 use App\Models\Product\Category;
 use App\Models\Product\Variety;
 use App\Services\Product\VarietyService;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -38,13 +37,6 @@ class VarietyController extends Controller
             'vegetableOptions' => Inertia::defer(fn () => $this->varietyService->vegetableOptions()),
             'categories' => Inertia::defer(fn () => Category::orderBy('name')->get(['id', 'name'])),
         ]);
-    }
-
-    public function details(Variety $variety): JsonResponse
-    {
-        return response()->json(
-            (new VarietyResource($this->varietyService->detailed($variety)))->resolve()
-        );
     }
 
     public function show(Request $request, Variety $variety): Response
