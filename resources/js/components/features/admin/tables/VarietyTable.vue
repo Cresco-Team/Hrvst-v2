@@ -29,25 +29,25 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import type { Table } from '@/types/resources/product'
+import type { VarietyTableRow } from '@/types/resources/product'
 
 // ── Props & emits ──────────────────────────────────────────────────────────────
 
 const props = defineProps<{
-	vegetables: Table[]
+	vegetables: VarietyTableRow[]
 	searchQuery?: string
 }>()
 
 const emit = defineEmits<{
-	// vegetable actions
-	'open-edit-vegetable': [row: Table]
-	'open-delete-vegetable': [row: Table]
-	// variety actions
-	'open-create-variety': [parentRow: Table]
-	'open-edit-variety': [row: Table]
-	'open-delete-variety': [row: Table]
-	'open-update-price': [row: Table]
-	'open-variety-details': [row: Table]
+	// vegetable actions (is_variety === false rows)
+	'open-edit-vegetable': [row: VarietyTableRow]
+	'open-delete-vegetable': [row: VarietyTableRow]
+	// variety actions (is_variety === true rows)
+	'open-create-variety': [parentRow: VarietyTableRow]
+	'open-edit-variety': [row: VarietyTableRow]
+	'open-delete-variety': [row: VarietyTableRow]
+	'open-update-price': [row: VarietyTableRow]
+	'open-variety-details': [row: VarietyTableRow]
 	// search
 	search: [query: string]
 }>()
@@ -59,7 +59,7 @@ const expanded = ref<ExpandedState>({})
 // ── Column defs ────────────────────────────────────────────────────────────────
 // Columns are defined as a flat list; cells branch on row.depth.
 
-const columns: ColumnDef<Table>[] = [
+const columns: ColumnDef<VarietyTableRow>[] = [
 	{ id: 'expand', header: '', size: 32 },
 	{ id: 'name', header: 'Name', enableSorting: false },
 	{ id: 'meta', header: 'Category / Price', enableSorting: false },
@@ -83,7 +83,8 @@ const table = useVueTable({
 		expanded.value =
 			typeof updaterOrValue === 'function' ? updaterOrValue(expanded.value) : updaterOrValue
 	},
-	getSubRows: (row) => row.subRows ?? [],
+	// getSubRows now types correctly: VarietyTableRow[] → VarietyTableRow[]
+	getSubRows: (row) => row.varieties ?? [],
 	getCoreRowModel: getCoreRowModel(),
 	getExpandedRowModel: getExpandedRowModel(),
 	manualPagination: true,
@@ -194,8 +195,8 @@ const trendIcon = {
                   <Leaf class="size-4 shrink-0 text-primary" />
                   <span class="font-semibold">{{ row.original.name }}</span>
                   <span class="text-xs text-muted-foreground tabular-nums">
-                    ({{ row.original.subRows?.length ?? 0 }}
-                    {{ (row.original.subRows?.length ?? 0) === 1 ? 'variety' : 'varieties' }})
+                    ({{ row.original.varieties?.length ?? 0 }}
+                    {{ (row.original.varieties?.length ?? 0) === 1 ? 'variety' : 'varieties' }})
                   </span>
                 </div>
               </template>
