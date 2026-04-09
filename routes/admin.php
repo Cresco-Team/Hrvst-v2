@@ -35,7 +35,6 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
 
         Route::prefix('varieties')->name('varieties.')->group(function () {
             Route::get('/', [VarietyController::class, 'index'])->name('index');
-            Route::get('/{variety}/details', [VarietyController::class, 'details'])->name('details');
             Route::get('/{variety}', [VarietyController::class, 'show'])->name('show');
             Route::post('/', [VarietyController::class, 'store'])->name('store');
             Route::put('/{variety}', [VarietyController::class, 'update'])->name('update');
