@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Product;
 
+use App\DTOs\Product\VarietyAnalyticsDTO;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -43,6 +44,10 @@ class VarietyDetailResource extends JsonResource
             'supply_municipalities' => $this->supply_municipalities,
             'monthly_activity' => $this->monthly_activity,
             'variety_calendar' => $this->variety_calendar,
+
+            'analytics' => $this->analytics instanceof VarietyAnalyticsDTO
+                ? $this->analytics->toArray()
+                : null,
         ];
     }
 }
