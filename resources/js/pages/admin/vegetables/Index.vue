@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Deferred, Head, router } from '@inertiajs/vue3'
 import { AlertTriangle } from 'lucide-vue-next'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import ConfirmationDialog from '@/components/dialogs/ConfirmationDialog.vue'
 import DialogForm from '@/components/dialogs/DialogForm.vue'
 import PriceFreshnessFilter from '@/components/features/admin/filters/PriceFreshnessFilter.vue'
@@ -32,7 +32,11 @@ import {
 import { destroy, index, store, update } from '@/routes/admin/vegetables/varieties'
 // Keep importing shared types that are stable; only replace AdminVegetablesProps
 import type { BreadcrumbItem, VarietyResource } from '@/types'
-import type { Table } from '@/types/resources/product'
+import {
+	mapVegetablesToTableRows,
+	type VarietyTableRow,
+	type VegetableResource,
+} from '@/types/resources/product'
 
 interface PriceStats {
 	updated_week: number
@@ -61,7 +65,7 @@ interface Filters {
 
 const props = defineProps<{
 	filters: Filters
-	vegetables?: Table[]
+	vegetables?: VegetableResource[]
 	summary?: Summary
 	vegetableOptions?: VegetableOptions
 	categories?: Category[]
@@ -74,12 +78,14 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 const searchQuery = ref(props.filters?.search ?? '')
 
+const tableVegetables = computed(() => mapVegetablesToTableRows(props.vegetables ?? []))
+
 // ── Variety CRUD ───────────────────────────────────────────────────────────────
 
 const varietyFormOpen = ref(false)
 const varietyDeleteOpen = ref(false)
 const activeVariety = ref<VarietyResource | null>(null)
-const varietyDeleteTarget = ref<Table | null>(null)
+const varietyDeleteTarget = ref<VarietyTableRow | null>(null)
 const isVarietySubmitting = ref(false)
 
 function openCreateVariety(): void {
@@ -87,7 +93,7 @@ function openCreateVariety(): void {
 	varietyFormOpen.value = true
 }
 
-function openEditVariety(row: Table): void {
+function openEditVariety(row: VarietyTableRow): void {
 	// Reconstruct a minimal VarietyResource shape VarietyForm accepts
 	activeVariety.value = {
 		id: row.id,
@@ -101,7 +107,7 @@ function openEditVariety(row: Table): void {
 	varietyFormOpen.value = true
 }
 
-function openDeleteVariety(row: Table): void {
+function openDeleteVariety(row: VarietyTableRow): void {
 	varietyDeleteTarget.value = row
 	varietyDeleteOpen.value = true
 }
@@ -145,8 +151,8 @@ const vegFormOpen = ref(false)
 const vegDeleteOpen = ref(false)
 const vegSubmitting = ref(false)
 const vegErrors = ref<VegFormErrors>({})
-const vegEditTarget = ref<Table | null>(null)
-const vegDeleteTarget = ref<Table | null>(null)
+const vegEditTarget = ref<VarietyTableRow | null>(null)
+const vegDeleteTarget = ref<VarietyTableRow | null>(null)
 const vegCategoryId = ref('')
 const vegName = ref('')
 
@@ -158,7 +164,7 @@ function openCreateVegetable(): void {
 	vegFormOpen.value = true
 }
 
-function openEditVegetable(row: Table): void {
+function openEditVegetable(row: VarietyTableRow): void {
 	vegEditTarget.value = row
 	vegCategoryId.value = String(row.category?.id ?? '')
 	vegName.value = row.name
@@ -166,7 +172,7 @@ function openEditVegetable(row: Table): void {
 	vegFormOpen.value = true
 }
 
-function openDeleteVegetable(row: Table): void {
+function openDeleteVegetable(row: VarietyTableRow): void {
 	vegDeleteTarget.value = row
 	vegDeleteOpen.value = true
 }
@@ -210,7 +216,7 @@ function handleDeleteVegetable(): void {
 const priceFormOpen = ref(false)
 const priceVariety = ref<VarietyResource | null>(null)
 
-function openUpdatePrice(row: Table): void {
+function openUpdatePrice(row: VarietyTableRow): void {
 	priceVariety.value = {
 		id: row.id,
 		name: row.name,
@@ -308,7 +314,7 @@ function handleSearch(query: string): void {
 
         <VarietyTable
           v-if="vegetables"
-          :vegetables="vegetables"
+          :vegetables="tableVegetables"
           :search-query="searchQuery"
           @open-edit-vegetable="openEditVegetable"
           @open-delete-vegetable="openDeleteVegetable"
@@ -316,7 +322,7 @@ function handleSearch(query: string): void {
           @open-edit-variety="openEditVariety"
           @open-delete-variety="openDeleteVariety"
           @open-update-price="openUpdatePrice"
-          @open-variety-details="(row) => router.visit(`/admin/vegetables/${row.id}`)"
+          @open-variety-details="(row) => router.visit(`/admin/vegetables/varieties/${row.id}`)"
           @search="handleSearch"
         />
       </Deferred>
@@ -402,12 +408,12 @@ function handleSearch(query: string): void {
   <ConfirmationDialog
     v-model:open="vegDeleteOpen"
     title="Delete Vegetable"
-    :description="(vegDeleteTarget?.subRows?.length ?? 0) > 0
+    :description="(vegDeleteTarget?.varieties?.length ?? 0) > 0
       ? `'${vegDeleteTarget?.name}' still has varieties. Remove them first.`
       : `Are you sure you want to delete '${vegDeleteTarget?.name}'?`"
-    :action-name="(vegDeleteTarget?.subRows?.length ?? 0) > 0 ? 'OK' : 'Delete'"
-    :variant="(vegDeleteTarget?.subRows?.length ?? 0) > 0 ? 'default' : 'destructive'"
-    @action="(vegDeleteTarget?.subRows?.length ?? 0) > 0 ? (vegDeleteOpen = false) : handleDeleteVegetable()"
+    :action-name="(vegDeleteTarget?.varieties?.length ?? 0) > 0 ? 'OK' : 'Delete'"
+    :variant="(vegDeleteTarget?.varieties?.length ?? 0) > 0 ? 'default' : 'destructive'"
+    @action="(vegDeleteTarget?.varieties?.length ?? 0) > 0 ? (vegDeleteOpen = false) : handleDeleteVegetable()"
   />
 
   <!-- Price update -->

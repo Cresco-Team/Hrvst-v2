@@ -13,6 +13,17 @@ export interface PriceHistoryResource {
   freshness: PriceFreshness
 }
 
+// ─── VegetableResource ──────────────────────────────────────────────────────────
+
+export interface VegetableResource {
+  id: number
+  name: string
+  is_variety: boolean
+  category: { id: number; name: string } | null
+  varieties_count?: number
+  varieties: VarietyResource[] | null
+}
+
 // ─── VarietyResource ──────────────────────────────────────────────────────────
 
 // Nested vegetable + category shape (with('vegetable.category'))
@@ -107,17 +118,45 @@ export interface VarietySummary {
   }
 }
 
-export interface Table {
+// ─── VarietyTableRow ──────────────────────────────────────────────────────────
+
+export interface VarietyTableRow {
   id: number
   name: string
   is_variety: boolean
-  category?: { id: number; name: string }
+  // vegetable-level
+  category?: { id: number; name: string } | null
   varieties_count?: number
+  // variety-level
   image_url?: string | null
-  latest_price?: { price_min: number; price_max: number; recorded_at: string; freshness: PriceFreshness } | null
+  latest_price?: PriceHistoryResource | null
   price_updated_human?: string | null
   price_trend?: PriceTrend | null
   supply_count?: number
   demand_count?: number
-  subRows?: Table[]
+  // self-referential sub-rows — satisfies TanStack's getSubRows constraint
+  varieties?: VarietyTableRow[]
+}
+
+// ─── Mapper ───────────────────────────────────────────────────────────────────
+
+export function mapVegetablesToTableRows(vegetables: VegetableResource[]): VarietyTableRow[] {
+  return vegetables.map((veg) => ({
+    id: veg.id,
+    name: veg.name,
+    is_variety: false,
+    category: veg.category,
+    varieties_count: veg.varieties_count,
+    varieties: (veg.varieties ?? []).map((v): VarietyTableRow => ({
+      id: v.id,
+      name: v.name,
+      is_variety: true,
+      image_url: v.image_url,
+      latest_price: v.latest_price ?? null,
+      price_updated_human: v.price_updated_human ?? null,
+      price_trend: v.price_trend ?? null,
+      supply_count: v.supply_count,
+      demand_count: v.demand_count,
+    })),
+  }))
 }

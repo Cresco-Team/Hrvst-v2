@@ -4,6 +4,7 @@ namespace App\Services\Product;
 
 use App\Enums\PostStatus;
 use App\Enums\PostType;
+use App\Http\Resources\Product\VegetableResource;
 use App\Models\Product\Category;
 use App\Models\Product\Variety;
 use App\Models\Product\Vegetable;
@@ -50,16 +51,33 @@ class VarietyService
         ];
     }
 
-    public function table(?string $search = null, ?string $priceFilter = null): array
-    {
+    /**
+     * Vegetable-grouped query used by both:
+     *   - Admin table      → $perPage = null  → returns plain resolved array
+     *   - Marketplace catalog → $perPage = N  → returns paginated envelope array
+     *
+     * When paginating, priceFilter is intentionally excluded — the marketplace
+     * has no price-filter UI. Pass it only from admin callers.
+     */
+    public function table(
+        ?string $search = null,
+        ?string $priceFilter = null,
+        ?int $categoryId = null,
+        ?int $userId = null,
+        ?int $perPage = null,
+    ): array {
         $query = Vegetable::with([
             'category',
-            'varieties' => function (HasMany $q) use ($search, $priceFilter): void {
+            'varieties' => function (HasMany $q) use ($search, $priceFilter, $userId): void {
                 $q->with(['latestPrice', 'lastTwoPrices', 'media'])
                     ->withCount([
                         'posts as supply_count' => fn (Builder $q) => $q->supply(),
                         'posts as demand_count' => fn (Builder $q) => $q->demand(),
-                    ])->orderBy('name');
+                    ])
+                    ->when($userId, fn (Builder $q) => $q->withExists([
+                        'hearts as is_hearted' => fn (Builder $q) => $q->where('user_id', $userId),
+                    ]))
+                    ->orderBy('name');
 
                 if ($search) {
                     $q->where('name', 'like', "%{$search}%");
@@ -76,6 +94,7 @@ class VarietyService
                 }
             },
         ])
+            ->when($categoryId, fn (Builder $q) => $q->where('category_id', $categoryId))
             ->withCount('varieties')
             ->orderBy('name');
 
@@ -98,72 +117,15 @@ class VarietyService
             }
         }
 
-        return $query->get()
-            ->map(fn (Vegetable $vegetable) => $this->serializeVegetableRow($vegetable))
-            ->all();
-    }
+        // Paginated path — marketplace catalog
+        if ($perPage !== null) {
+            $paginator = $query->whereHas('varieties')->paginate($perPage)->withQueryString();
 
-    private function serializeVegetableRow(Vegetable $vegetable): array
-    {
-        return [
-            'id' => $vegetable->id,
-            'name' => $vegetable->name,
-            'is_variety' => false,
-            'category' => $vegetable->category ? [
-                'id' => $vegetable->category->id,
-                'name' => $vegetable->category->name,
-            ] : null,
-            'varieties_count' => $vegetable->varieties_count,
-            'subRows' => $vegetable->varieties
-                ->map(fn (Variety $variety) => $this->serializeVarietyRow($variety))
-                ->all(),
-        ];
-    }
-
-    private function serializeVarietyRow(Variety $variety): array
-    {
-        $latestPrice = $variety->latestPrice;
-        $lastTwo = $variety->lastTwoPrices;
-
-        $freshness = null;
-        if ($latestPrice) {
-            $daysOld = $latestPrice->recorded_at->diffInDays(now());
-            $freshness = match (true) {
-                $daysOld <= 7 => 'recent',
-                $daysOld <= 30 => 'stable',
-                $daysOld <= 90 => 'very stable',
-                default => 'stale',
-            };
+            return VegetableResource::collection($paginator)->response()->getData(true);
         }
 
-        $priceTrend = null;
-        if ($lastTwo->count() >= 2) {
-            $latest = (float) $lastTwo->first()->price_max;
-            $previous = (float) $lastTwo->last()->price_max;
-            $priceTrend = match (true) {
-                $latest > $previous => 'up',
-                $latest < $previous => 'down',
-                default => 'flat',
-            };
-        }
-
-        return [
-            'id' => $variety->id,
-            'name' => $variety->name,
-            'is_variety' => true,
-            'image_url' => $variety->getFirstMediaUrl('variety_image'),
-            'latest_price' => $latestPrice ? [
-                'price_min' => (float) $latestPrice->price_min,
-                'price_max' => (float) $latestPrice->price_max,
-                'recorded_at' => $latestPrice->recorded_at->format('M d, Y'),
-                'freshness' => $freshness,
-            ] : null,
-            'price_updated_human' => $latestPrice?->recorded_at->diffForHumans(),
-            'price_trend' => $priceTrend,
-            'supply_count' => $variety->supply_count ?? 0,
-            'demand_count' => $variety->demand_count ?? 0,
-            'subRows' => [],
-        ];
+        // Flat path — admin table (existing behaviour)
+        return VegetableResource::collection($query->get())->resolve();
     }
 
     public function paginated(int $perPage = 20, ?string $priceFilter = null, ?string $search = null): LengthAwarePaginator
@@ -349,10 +311,6 @@ class VarietyService
         });
     }
 
-    // FIX 4: Extracted applyPriceFilter — the same match block was duplicated 4 times
-    // across table(), paginated(), and their nested closures. One change point now.
-    // 'no_price' is handled via whereDoesntHave() at the call site since it targets
-    // the absence of a relation, not a condition on one.
     private function applyPriceFilter(Builder $q, string $filter): void
     {
         match ($filter) {
