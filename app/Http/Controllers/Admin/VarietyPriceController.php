@@ -13,12 +13,12 @@ class VarietyPriceController extends Controller
     public function store(StorePriceHistoryRequest $request, Variety $variety, AddVarietyPriceAction $addPrice): RedirectResponse
     {
         $addPrice->handle(
-            variety:  $variety,
+            variety: $variety,
             priceMin: (float) $request->validated('price_min'),
             priceMax: (float) $request->validated('price_max'),
         );
 
-        return redirect()->route('admin.vegetables.index')
+        return redirect()->route('admin.vegetables.varieties.index')
             ->with('flash', ['type' => 'success', 'message' => 'Price updated successfully.']);
     }
 }
