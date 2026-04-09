@@ -4,6 +4,7 @@ namespace App\Services\Product;
 
 use App\Enums\PostStatus;
 use App\Enums\PostType;
+use App\Enums\VarietyViewerRole;
 use App\Http\Resources\Product\VegetableResource;
 use App\Models\Product\Category;
 use App\Models\Product\Variety;
@@ -18,6 +19,7 @@ class VarietyService
     public function __construct(
         private VarietyActivityService $activityService,
         private VarietyCalendarService $calendarService,
+        private VarietyAnalyticsService $analyticsService,
     ) {}
 
     public function summary(): array
@@ -153,7 +155,7 @@ class VarietyService
             ->paginate($perPage);
     }
 
-    public function show(Variety $variety, int $year, int $month): Variety
+    public function show(Variety $variety, int $year, int $month, VarietyViewerRole $role): Variety
     {
         $variety->load(['vegetable.category', 'latestPrice', 'recentPrices', 'media'])
             ->loadCount([
@@ -170,8 +172,11 @@ class VarietyService
             ], 'quantity_kg');
 
         $variety->supply_municipalities = $this->resolveSupplyMunicipalities($variety->id);
-        $variety->monthly_activity = $this->activityService->buildMonthlyActivity($variety->id);
+
+        $monthlyActivity = $this->activityService->buildMonthlyActivity($variety->id);
+        $variety->monthly_activity = $monthlyActivity;
         $variety->variety_calendar = $this->calendarService->buildForMonth($variety->id, $year, $month);
+        $variety->analytics = $this->analyticsService->compute($variety, $monthlyActivity, $role);
 
         return $variety;
     }
