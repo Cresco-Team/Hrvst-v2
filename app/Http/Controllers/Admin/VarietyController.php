@@ -8,7 +8,7 @@ use App\Actions\Product\UpdateVarietyAction;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Product\StoreVarietyRequest;
 use App\Http\Requests\Admin\Product\UpdateVarietyRequest;
-use App\Http\Resources\Product\VarietyResource;
+use App\Http\Resources\Product\VarietyDetailResource;
 use App\Models\Product\Category;
 use App\Models\Product\Variety;
 use App\Services\Product\VarietyService;
@@ -51,7 +51,7 @@ class VarietyController extends Controller
 
         return Inertia::render('admin/vegetables/Show', [
             'variety' => Inertia::defer(
-                fn () => (new VarietyResource(
+                fn () => (new VarietyDetailResource(
                     $this->varietyService->show($variety, $year, $month)
                 ))->resolve()
             ),
