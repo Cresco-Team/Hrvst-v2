@@ -2,7 +2,7 @@
 
 namespace App\DTOs\Product;
 
-use App\Enums\ImbalanceBand;
+use App\Enums\Analytics\ImbalanceBand;
 
 readonly class VarietyAnalyticsDTO
 {

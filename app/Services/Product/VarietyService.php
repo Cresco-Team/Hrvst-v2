@@ -2,9 +2,9 @@
 
 namespace App\Services\Product;
 
+use App\Enums\Analytics\VarietyViewerRole;
 use App\Enums\PostStatus;
 use App\Enums\PostType;
-use App\Enums\VarietyViewerRole;
 use App\Http\Resources\Product\VegetableResource;
 use App\Models\Product\Category;
 use App\Models\Product\Variety;

@@ -4,9 +4,9 @@ namespace App\Services\Product;
 
 use App\DTOs\Product\VarietyAnalyticsDTO;
 use App\DTOs\Product\VarietyRecommendationDTO;
-use App\Enums\ImbalanceBand;
-use App\Enums\RecommendationSeverity;
-use App\Enums\VarietyViewerRole;
+use App\Enums\Analytics\ImbalanceBand;
+use App\Enums\Analytics\RecommendationSeverity;
+use App\Enums\Analytics\VarietyViewerRole;
 use App\Models\Product\Variety;
 
 class VarietyAnalyticsService

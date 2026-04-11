@@ -2,7 +2,7 @@
 
 namespace App\DTOs\Product;
 
-use App\Enums\RecommendationSeverity;
+use App\Enums\Analytics\RecommendationSeverity;
 
 readonly class VarietyRecommendationDTO
 {
