@@ -1,8 +1,42 @@
 // Mirrors:
 //   app/Http/Resources/Product/PriceHistoryResource.php
 //   app/Http/Resources/Product/VarietyResource.php
+//   app/Http/Resources/Product/VarietyDetailResource.php
+//   app/DTOs/Product/VarietyAnalyticsDTO.php
+//   app/DTOs/Product/VarietyRecommendationDTO.php
 
 import type { PriceFreshness, PriceTrend } from '../enums'
+
+// ─── Analytics ───────────────────────────────────────────────────────────────
+
+export type ImbalanceBand = 'oversupply' | 'balanced' | 'undersupply'
+
+export type RecommendationSeverity = 'critical' | 'warning' | 'info'
+
+export interface VarietyRecommendation {
+  severity: RecommendationSeverity
+  type: string
+  title: string
+  body: string
+}
+
+export interface VarietyAnalytics {
+  /** Positive = oversupply, negative = undersupply */
+  supply_demand_ratio: number
+  imbalance_band: ImbalanceBand
+  /** 0–1 ratio over last 3 complete months. Null when no volume exists. */
+  supply_fulfillment_rate: number | null
+  demand_fulfillment_rate: number | null
+  /** % change from oldest to newest recorded price. Null when < 2 price records. */
+  price_momentum_pct: number | null
+  /** Weeks since the last price record. Null when no price has ever been set. */
+  price_weeks_stale: number | null
+  /** Month-over-month supply volume % change. Null when prior month has no volume. */
+  supply_volume_mom_pct: number | null
+  demand_volume_mom_pct: number | null
+  /** Pre-sorted: critical → warning → info */
+  recommendations: VarietyRecommendation[]
+}
 
 // ─── PriceHistoryResource ─────────────────────────────────────────────────────
 
@@ -26,11 +60,10 @@ export interface VegetableResource {
 
 // ─── VarietyResource ──────────────────────────────────────────────────────────
 
-// Nested vegetable + category shape (with('vegetable.category'))
 export interface VarietyVegetable {
   id: number
   name: string
-  category: VarietyCategory | null // null when vegetable loaded but category not
+  category: VarietyCategory | null
 }
 
 export interface VarietyCategory {
@@ -38,13 +71,11 @@ export interface VarietyCategory {
   name: string
 }
 
-// Per-municipality ongoing supply summary — admin paginated + show views
 export interface SupplyMunicipality {
   name: string
   total_kg: number
 }
 
-// Per-month activity row — set on VarietyService::show()
 export interface MonthlyActivity {
   month: string              // 'Y-m'
   label: string              // 'M Y'
@@ -54,9 +85,6 @@ export interface MonthlyActivity {
   demand_fulfilled_kg: number
 }
 
-// Full VarietyResource shape.
-// Optional fields are only present when the corresponding relation/count is loaded.
-// See VarietyResource::toArray() for exact whenLoaded / whenCounted guards.
 export interface VarietyResource {
   // Always present
   id: number
@@ -71,42 +99,36 @@ export interface VarietyResource {
   price_updated_human?: string
   price_updated_date?: string
 
-  // with('lastTwoPrices') — null when fewer than 2 price records exist
+  // with('lastTwoPrices')
   price_trend?: PriceTrend | null
 
-  // with('recentPrices')
+  // with('recentPrices') — VarietyDetailResource only
   recent_prices?: PriceHistoryResource[]
 
-  // withCount(['posts as supply_count' => supply scope])
+  // withCount
   supply_count?: number
-  // withCount(['posts as demand_count' => demand scope])
   demand_count?: number
 
+  // VarietyDetailResource only
   monthly_supply_kg?: number
   monthly_demand_kg?: number
-
-  // Set manually on Variety model in VarietyService::paginated() and ::show()
   supply_municipalities?: SupplyMunicipality[]
-
-  // Set manually on Variety model in VarietyService::show()
   monthly_activity?: MonthlyActivity[]
-
   variety_calendar?: Record<string, Record<string, { type: 'supply' | 'demand'; total_kg: number; posts_count: number }[]>>
+
+  // Computed by VarietyAnalyticsService — present when VarietyService::show() is called
+  analytics?: VarietyAnalytics | null
 }
 
-// ─── Option Bag Types (from VarietyService) ───────────────────────────────────
+// ─── Option Bag Types ─────────────────────────────────────────────────────────
 
-// VarietyService::vegetableOptions()
-// Grouped by category name; keys are vegetable IDs (as strings after JSON serialisation)
 export type VegetableOptions = Record<string, Record<string, string>>
 
-// VarietyService::categoryOptions()
 export interface CategoryOption {
   id: number
   name: string
 }
 
-// VarietyService::summary()
 export interface VarietySummary {
   total_varieties: number
   total_vegetables: number
@@ -124,17 +146,14 @@ export interface VarietyTableRow {
   id: number
   name: string
   is_variety: boolean
-  // vegetable-level
   category?: { id: number; name: string } | null
   varieties_count?: number
-  // variety-level
   image_url?: string | null
   latest_price?: PriceHistoryResource | null
   price_updated_human?: string | null
   price_trend?: PriceTrend | null
   supply_count?: number
   demand_count?: number
-  // self-referential sub-rows — satisfies TanStack's getSubRows constraint
   varieties?: VarietyTableRow[]
 }
 
@@ -159,4 +178,15 @@ export function mapVegetablesToTableRows(vegetables: VegetableResource[]): Varie
       demand_count: v.demand_count,
     })),
   }))
+}
+
+// ─── Admin Table shape ────────────────────────────────────────────────────────
+
+export interface Table {
+  id: number
+  name: string
+  is_variety: boolean
+  category: { id: number; name: string } | null
+  varieties_count?: number
+  varieties: VarietyResource[] | null
 }
