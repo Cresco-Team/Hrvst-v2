@@ -1,0 +1,25 @@
+<?php
+
+namespace App\DTOs\Product;
+
+use App\Enums\Analytics\RecommendationSeverity;
+
+readonly class VarietyRecommendationDTO
+{
+    public function __construct(
+        public RecommendationSeverity $severity,
+        public string $type,
+        public string $title,
+        public string $body,
+    ) {}
+
+    public function toArray(): array
+    {
+        return [
+            'severity' => $this->severity->value,
+            'type' => $this->type,
+            'title' => $this->title,
+            'body' => $this->body,
+        ];
+    }
+}

@@ -5,13 +5,15 @@ namespace App\Http\Controllers\Admin;
 use App\Actions\Product\CreateVarietyAction;
 use App\Actions\Product\DeleteVarietyAction;
 use App\Actions\Product\UpdateVarietyAction;
+use App\Enums\Analytics\VarietyViewerRole;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Product\StoreVarietyRequest;
 use App\Http\Requests\Admin\Product\UpdateVarietyRequest;
-use App\Http\Resources\Product\VarietyResource;
+use App\Http\Resources\Product\VarietyDetailResource;
 use App\Models\Product\Category;
 use App\Models\Product\Variety;
 use App\Services\Product\VarietyService;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -22,7 +24,7 @@ class VarietyController extends Controller
         private VarietyService $varietyService
     ) {}
 
-    public function index(Request $request)
+    public function index(Request $request): Response
     {
         return Inertia::render('admin/vegetables/Index', [
             'summary' => Inertia::defer(fn () => $this->varietyService->summary()),
@@ -51,11 +53,10 @@ class VarietyController extends Controller
 
         return Inertia::render('admin/vegetables/Show', [
             'variety' => Inertia::defer(
-                fn () => (new VarietyResource(
-                    $this->varietyService->show($variety, $year, $month)
+                fn () => (new VarietyDetailResource(
+                    $this->varietyService->show($variety, $year, $month, VarietyViewerRole::Admin)
                 ))->resolve()
             ),
-
             'calendarFilters' => [
                 'year' => $year,
                 'month' => $month,
@@ -63,7 +64,7 @@ class VarietyController extends Controller
         ]);
     }
 
-    public function store(StoreVarietyRequest $request, CreateVarietyAction $createVariety)
+    public function store(StoreVarietyRequest $request, CreateVarietyAction $createVariety): RedirectResponse
     {
         $createVariety->handle(
             validated: $request->safe()->except('image'),
@@ -74,7 +75,7 @@ class VarietyController extends Controller
             ->with('flash', ['type' => 'success', 'message' => 'Variety created successfully.']);
     }
 
-    public function update(UpdateVarietyRequest $request, Variety $variety, UpdateVarietyAction $updateVariety)
+    public function update(UpdateVarietyRequest $request, Variety $variety, UpdateVarietyAction $updateVariety): RedirectResponse
     {
         $updateVariety->handle(
             variety: $variety,
@@ -86,7 +87,7 @@ class VarietyController extends Controller
             ->with('flash', ['type' => 'success', 'message' => 'Variety updated successfully.']);
     }
 
-    public function destroy(Variety $variety, DeleteVarietyAction $deleteVariety)
+    public function destroy(Variety $variety, DeleteVarietyAction $deleteVariety): RedirectResponse
     {
         $deleteVariety->handle($variety);
 

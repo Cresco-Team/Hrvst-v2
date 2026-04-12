@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers\Marketplace;
 
+use App\Enums\Analytics\VarietyViewerRole;
 use App\Http\Controllers\Controller;
-use App\Http\Resources\Product\VarietyResource;
+use App\Http\Resources\Product\VarietyDetailResource;
 use App\Models\Product\Variety;
 use App\Services\Product\VarietyService;
 use Illuminate\Http\Request;
@@ -47,8 +48,8 @@ class VegetableController extends Controller
 
         return Inertia::render('shared/vegetables/Show', [
             'variety' => Inertia::defer(
-                fn () => (new VarietyResource(
-                    $this->varietyService->show($variety, $year, $month)
+                fn () => (new VarietyDetailResource(
+                    $this->varietyService->show($variety, $year, $month, VarietyViewerRole::Marketplace)
                 ))->resolve()
             ),
 
