@@ -11,6 +11,6 @@ class VarietyHeartController extends Controller
 {
     public function toggle(Request $request, Variety $variety, ToggleVarietyHeartAction $action): JsonResponse
     {
-        return response()->json($action->handle($request->user, $variety));
+        return response()->json($action->handle($request->user(), $variety));
     }
 }
