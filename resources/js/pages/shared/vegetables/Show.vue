@@ -7,9 +7,9 @@ import 'v-calendar/style.css'
 import Heading from '@/components/Heading.vue'
 import SmallCard from '@/components/shared/cards/SmallCard.vue'
 import VarietyAnalyticsSummary from '@/components/shared/charts/VarietyAnalyticsSummary.vue'
+import VarietyRecommendations from '@/components/shared/charts/VarietyRecommendations.vue'
 import VegetableMonthlyChart from '@/components/shared/charts/VegetableMonthlyChart.vue'
 import VegetablePriceChart from '@/components/shared/charts/VegetablePriceChart.vue'
-import VarietyRecommendations from '@/components/shared/charts/VarietyRecommendations.vue'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
@@ -18,17 +18,17 @@ import AppLayout from '@/layouts/AppLayout.vue'
 import dealer from '@/routes/dealer'
 import farmer from '@/routes/farmer'
 import type {
-  BreadcrumbItem,
-  CalendarTimeSlot,
-  VarietyCalendarEntry,
-  VarietyCalendarFilters,
-  VarietyDaySchedule,
+	BreadcrumbItem,
+	CalendarTimeSlot,
+	VarietyCalendarEntry,
+	VarietyCalendarFilters,
+	VarietyDaySchedule,
 } from '@/types'
 import type { VarietyResource } from '@/types/resources/product'
 
 interface Props {
-  variety?: VarietyResource | null
-  calendarFilters: VarietyCalendarFilters
+	variety?: VarietyResource | null
+	calendarFilters: VarietyCalendarFilters
 }
 
 const props = defineProps<Props>()
@@ -42,14 +42,16 @@ const backHref = isFarmer ? farmer.supplies.index().url : dealer.demands.index()
 const indexHref = isFarmer ? farmer.vegetables.index().url : dealer.vegetables.index().url
 
 const breadcrumbs = computed<BreadcrumbItem[]>(() => [
-  { title: isFarmer ? 'Farmer' : 'Dealer', href: backHref },
-  { title: 'Vegetables', href: indexHref },
-  ...(props.variety
-    ? [{
-        title: `${props.variety.vegetable?.name} ${props.variety.name}`,
-        href: `${indexHref}/${props.variety.id}`,
-      }]
-    : []),
+	{ title: isFarmer ? 'Farmer' : 'Dealer', href: backHref },
+	{ title: 'Vegetables', href: indexHref },
+	...(props.variety
+		? [
+				{
+					title: `${props.variety.vegetable?.name} ${props.variety.name}`,
+					href: `${indexHref}/${props.variety.id}`,
+				},
+			]
+		: []),
 ])
 
 // ─── Calendar — month navigation ──────────────────────────────────────────────
@@ -59,47 +61,53 @@ const calendarMonth = computed(() => props.calendarFilters.month)
 const calendarPage = computed(() => ({ year: calendarYear.value, month: calendarMonth.value }))
 
 const monthLabel = computed(() =>
-  new Date(calendarYear.value, calendarMonth.value - 1, 1).toLocaleString('en-PH', {
-    month: 'long',
-    year: 'numeric',
-  }),
+	new Date(calendarYear.value, calendarMonth.value - 1, 1).toLocaleString('en-PH', {
+		month: 'long',
+		year: 'numeric',
+	}),
 )
 
 function navigateMonth(direction: 1 | -1): void {
-  let month = calendarMonth.value + direction
-  let year = calendarYear.value
+	let month = calendarMonth.value + direction
+	let year = calendarYear.value
 
-  if (month > 12) { month = 1; year++ }
-  if (month < 1) { month = 12; year-- }
+	if (month > 12) {
+		month = 1
+		year++
+	}
+	if (month < 1) {
+		month = 12
+		year--
+	}
 
-  router.visit(`${indexHref}/${props.variety?.id}`, {
-    data: { year, month },
-    preserveState: true,
-    preserveScroll: true,
-    only: ['variety', 'calendarFilters'],
-  })
+	router.visit(`${indexHref}/${props.variety?.id}`, {
+		data: { year, month },
+		preserveState: true,
+		preserveScroll: true,
+		only: ['variety', 'calendarFilters'],
+	})
 }
 
 function goToToday(): void {
-  const now = new Date()
-  router.visit(`${indexHref}/${props.variety?.id}`, {
-    data: { year: now.getFullYear(), month: now.getMonth() + 1 },
-    preserveState: true,
-    preserveScroll: true,
-    only: ['variety', 'calendarFilters'],
-  })
+	const now = new Date()
+	router.visit(`${indexHref}/${props.variety?.id}`, {
+		data: { year: now.getFullYear(), month: now.getMonth() + 1 },
+		preserveState: true,
+		preserveScroll: true,
+		only: ['variety', 'calendarFilters'],
+	})
 }
 
 // ─── Calendar — VCalendar attributes ─────────────────────────────────────────
 
 const calendarAttributes = computed(() => {
-  if (!props.variety?.variety_calendar) return []
+	if (!props.variety?.variety_calendar) return []
 
-  return Object.entries(props.variety.variety_calendar).map(([dateStr, daySchedule]) => ({
-    key: dateStr,
-    dates: [new Date(`${dateStr}T00:00:00`)],
-    customData: { dateStr, daySchedule },
-  }))
+	return Object.entries(props.variety.variety_calendar).map(([dateStr, daySchedule]) => ({
+		key: dateStr,
+		dates: [new Date(`${dateStr}T00:00:00`)],
+		customData: { dateStr, daySchedule },
+	}))
 })
 
 // ─── Calendar — day detail sheet ─────────────────────────────────────────────
@@ -109,79 +117,79 @@ const selectedDateStr = ref<string | null>(null)
 const selectedSchedule = ref<VarietyDaySchedule | null>(null)
 
 const selectedDateLabel = computed(() => {
-  if (!selectedDateStr.value) return ''
-  return new Date(`${selectedDateStr.value}T00:00:00`).toLocaleDateString('en-PH', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  })
+	if (!selectedDateStr.value) return ''
+	return new Date(`${selectedDateStr.value}T00:00:00`).toLocaleDateString('en-PH', {
+		weekday: 'long',
+		year: 'numeric',
+		month: 'long',
+		day: 'numeric',
+	})
 })
 
 function handleDayClick(day: {
-  attributes: Array<{ customData?: { dateStr: string; daySchedule: VarietyDaySchedule } }>
+	attributes: Array<{ customData?: { dateStr: string; daySchedule: VarietyDaySchedule } }>
 }): void {
-  const attr = day.attributes?.find((a) => a.customData?.dateStr)
-  if (!attr?.customData) return
+	const attr = day.attributes?.find((a) => a.customData?.dateStr)
+	if (!attr?.customData) return
 
-  selectedDateStr.value = attr.customData.dateStr
-  selectedSchedule.value = attr.customData.daySchedule
-  sheetOpen.value = true
+	selectedDateStr.value = attr.customData.dateStr
+	selectedSchedule.value = attr.customData.daySchedule
+	sheetOpen.value = true
 }
 
 // ─── Calendar — time slot config ─────────────────────────────────────────────
 
 const TIME_SLOTS: Array<{ key: CalendarTimeSlot; label: string; dotClass: string }> = [
-  { key: 'morning', label: 'Morning (6 AM – 12 PM)', dotClass: 'bg-amber-400' },
-  { key: 'afternoon', label: 'Afternoon (12 PM – 6 PM)', dotClass: 'bg-emerald-500' },
-  { key: 'evening', label: 'Evening (6 PM – 10 PM)', dotClass: 'bg-indigo-500' },
-  { key: 'unscheduled', label: 'No time slot', dotClass: 'bg-slate-400' },
+	{ key: 'morning', label: 'Morning (6 AM – 12 PM)', dotClass: 'bg-amber-400' },
+	{ key: 'afternoon', label: 'Afternoon (12 PM – 6 PM)', dotClass: 'bg-emerald-500' },
+	{ key: 'evening', label: 'Evening (6 PM – 10 PM)', dotClass: 'bg-indigo-500' },
+	{ key: 'unscheduled', label: 'No time slot', dotClass: 'bg-slate-400' },
 ]
 
 function totalKgForSlot(entries: VarietyCalendarEntry[]): number {
-  return entries.reduce((sum, e) => sum + e.total_kg, 0)
+	return entries.reduce((sum, e) => sum + e.total_kg, 0)
 }
 
 function formatKg(kg: number): string {
-  return `${kg.toLocaleString('en-PH', { minimumFractionDigits: 0, maximumFractionDigits: 2 })} kg`
+	return `${kg.toLocaleString('en-PH', { minimumFractionDigits: 0, maximumFractionDigits: 2 })} kg`
 }
 
 // ─── Calendar — inline day totals ─────────────────────────────────────────────
 
 const dailyTotals = computed(() => {
-  const map: Record<string, { supplyKg: number; demandKg: number }> = {}
-  if (!props.variety?.variety_calendar) return map
+	const map: Record<string, { supplyKg: number; demandKg: number }> = {}
+	if (!props.variety?.variety_calendar) return map
 
-  for (const [dateStr, daySchedule] of Object.entries(props.variety.variety_calendar)) {
-    let supplyKg = 0
-    let demandKg = 0
-    for (const entries of Object.values(daySchedule)) {
-      for (const entry of entries) {
-        if (entry.type === 'supply') supplyKg += entry.total_kg
-        else if (entry.type === 'demand') demandKg += entry.total_kg
-      }
-    }
-    if (supplyKg > 0 || demandKg > 0) map[dateStr] = { supplyKg, demandKg }
-  }
-  return map
+	for (const [dateStr, daySchedule] of Object.entries(props.variety.variety_calendar)) {
+		let supplyKg = 0
+		let demandKg = 0
+		for (const entries of Object.values(daySchedule)) {
+			for (const entry of entries) {
+				if (entry.type === 'supply') supplyKg += entry.total_kg
+				else if (entry.type === 'demand') demandKg += entry.total_kg
+			}
+		}
+		if (supplyKg > 0 || demandKg > 0) map[dateStr] = { supplyKg, demandKg }
+	}
+	return map
 })
 
 const maxDailyKg = computed(() => {
-  let max = 0
-  for (const { supplyKg, demandKg } of Object.values(dailyTotals.value)) {
-    if (supplyKg > max) max = supplyKg
-    if (demandKg > max) max = demandKg
-  }
-  return max || 1
+	let max = 0
+	for (const { supplyKg, demandKg } of Object.values(dailyTotals.value)) {
+		if (supplyKg > max) max = supplyKg
+		if (demandKg > max) max = demandKg
+	}
+	return max || 1
 })
 
 function barPct(kg: number): string {
-  return `${Math.round((kg / maxDailyKg.value) * 100)}%`
+	return `${Math.round((kg / maxDailyKg.value) * 100)}%`
 }
 
 function formatKgShort(kg: number): string {
-  if (kg >= 1000) return `${(kg / 1000).toFixed(1)}t`
-  return kg % 1 === 0 ? `${kg}` : `${kg.toFixed(1)}`
+	if (kg >= 1000) return `${(kg / 1000).toFixed(1)}t`
+	return kg % 1 === 0 ? `${kg}` : `${kg.toFixed(1)}`
 }
 </script>
 
@@ -216,30 +224,6 @@ function formatKgShort(kg: number): string {
             :title="`${variety.vegetable?.name} ${variety.name}`"
             :description="variety.vegetable?.category?.name"
           />
-
-          <!-- ── Core KPIs ───────────────────────────────────────────────────── -->
-          <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <SmallCard
-              title="Min Price"
-              :value="variety.latest_price ? `₱${variety.latest_price.price_min.toFixed(2)}` : '—'"
-              value-class="text-green-600 dark:text-green-400"
-              subtext="suggested minimum"
-            />
-            <SmallCard
-              title="Max Price"
-              :value="variety.latest_price ? `₱${variety.latest_price.price_max.toFixed(2)}` : '—'"
-              value-class="text-indigo-600 dark:text-indigo-400"
-              subtext="suggested maximum"
-            />
-            <SmallCard
-              title="Monthly Supply"
-              :value="formatKg(variety.monthly_supply_kg ?? 0)"
-            />
-            <SmallCard
-              title="Monthly Demand"
-              :value="formatKg(variety.monthly_demand_kg ?? 0)"
-            />
-          </div>
 
           <!-- ── Analytics Summary ───────────────────────────────────────────── -->
           <VarietyAnalyticsSummary
