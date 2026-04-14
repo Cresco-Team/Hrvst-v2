@@ -1,36 +1,8 @@
 <svg width="300" height="300" viewBox="0 0 300 300" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path fill-rule="evenodd" clip-rule="evenodd" d="M250 91.2894V91.132L249.921 91.2107L250 91.2894Z" fill="#D9D9D9"/>
-<path fill-rule="evenodd" clip-rule="evenodd" d="M200 249.289V193.711L250 143.711V299.289L200 249.289Z" fill="#13DD5A"/>
-<g filter="url(#filter0_i_6_21)">
-<path fill-rule="evenodd" clip-rule="evenodd" d="M200 249.289V193.711L250 143.711V299.289L200 249.289Z" fill="black" fill-opacity="0.25"/>
-</g>
-<path fill-rule="evenodd" clip-rule="evenodd" d="M100 50L100 105.579L50 155.579L50 0L100 50Z" fill="#13DD5A"/>
-<g filter="url(#filter1_i_6_21)">
-<path fill-rule="evenodd" clip-rule="evenodd" d="M100 50L100 105.579L50 155.579L50 0L100 50Z" fill="black" fill-opacity="0.25"/>
-</g>
-<path fill-rule="evenodd" clip-rule="evenodd" d="M200 193.711L250 143.711V91.2894L249.921 91.2107L249.711 91L200 140.711L134.711 206H187.711L200 193.711Z" fill="#13DD5A"/>
-<path fill-rule="evenodd" clip-rule="evenodd" d="M100 104.289L50 154.289V206.711L50.0787 206.789L50.2893 207L100 157.289L165.289 92H112.289L100 104.289Z" fill="#13DD5A"/>
-<path fill-rule="evenodd" clip-rule="evenodd" d="M200 63.461V0H250V13.461V84.1716L200 134.172L100 234.172V300H50V213L100 163.461L200 63.461Z" fill="#13DD5A"/>
-<defs>
-<filter id="filter0_i_6_21" x="200" y="143.711" width="50" height="165.579" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-<feFlood flood-opacity="0" result="BackgroundImageFix"/>
-<feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
-<feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
-<feOffset dy="10"/>
-<feGaussianBlur stdDeviation="5"/>
-<feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1"/>
-<feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0"/>
-<feBlend mode="normal" in2="shape" result="effect1_innerShadow_6_21"/>
-</filter>
-<filter id="filter1_i_6_21" x="50" y="-10" width="50" height="165.579" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-<feFlood flood-opacity="0" result="BackgroundImageFix"/>
-<feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
-<feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
-<feOffset dy="-10"/>
-<feGaussianBlur stdDeviation="5"/>
-<feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1"/>
-<feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0"/>
-<feBlend mode="normal" in2="shape" result="effect1_innerShadow_6_21"/>
-</filter>
-</defs>
+<path d="M30 208.2V150.5V92.7997C30 85.6529 33.8135 79.0493 40.0035 75.4772L137.586 19.1638L150 12L191.211 35.8793V63.9375L152.869 44.4976L150 43.0431L147.114 44.6901L65.9483 91.0149C59.7117 94.5744 55.8621 101.204 55.8621 108.385V192.615C55.8621 199.796 59.7117 206.426 65.9483 209.985L145.819 255.571C148.41 257.05 151.59 257.05 154.181 255.571L234.052 209.985C240.288 206.426 244.138 199.796 244.138 192.615V96.7716V66.9224L259.692 75.5394C266.053 79.0634 270 85.7622 270 93.0341V208.2C270 215.347 266.187 221.951 259.997 225.523L151.02 288.412C150.389 288.776 149.611 288.776 148.98 288.412L148.66 288.227L40.0035 225.523C33.8135 221.951 30 215.347 30 208.2Z" fill="#13DD5A"/>
+<path d="M189.211 37.0312V60.6807L153.773 42.7139L150.904 41.2598L149.944 40.7725L149.009 41.3057L146.123 42.9531L64.957 89.2783C58.0969 93.1937 53.8624 100.486 53.8623 108.385V192.615C53.8624 200.514 58.0969 207.806 64.957 211.722L144.828 257.308C148.033 259.137 151.967 259.137 155.172 257.308L235.043 211.722C241.903 207.806 246.138 200.514 246.138 192.615V70.3164L258.723 77.2891C264.448 80.4606 268 86.4895 268 93.0342V208.2C268 214.632 264.568 220.576 258.997 223.791L150.02 286.68C150.007 286.686 149.993 286.686 149.98 286.68H149.979L149.659 286.494L41.0029 223.791C35.432 220.576 32 214.632 32 208.2V92.7998C32 86.3677 35.432 80.4239 41.0029 77.209L138.586 20.8965L149.998 14.3105L189.211 37.0312Z" stroke="black" stroke-opacity="0.5" stroke-width="4"/>
+<path d="M198.698 7H235V201.41L198 223L198.698 7Z" fill="#ED5757"/>
+<path d="M153 89H191V224.992L153 246V89Z" fill="#FF9D4C"/>
+<path d="M109 172H147L147 246L109 224.97L109 172Z" fill="#7D88FA"/>
+<path d="M65 133H102V221L65 200.812V133Z" fill="#6CFB65"/>
 </svg>
