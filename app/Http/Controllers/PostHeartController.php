@@ -11,6 +11,6 @@ class PostHeartController extends Controller
 {
     public function toggle(Request $request, Post $post, TogglePostHeartAction $action): JsonResponse
     {
-        return response()->json($action->handle($request->user, $post));
+        return response()->json($action->handle($request->user(), $post));
     }
 }

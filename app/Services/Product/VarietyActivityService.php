@@ -28,10 +28,10 @@ class VarietyActivityService
             $result[] = [
                 'month' => $key,
                 'label' => $date->format('M Y'),
-                'supply_archived_kg' => $row ? (float) $row->supply_archived_kg : 0.0,
                 'supply_fulfilled_kg' => $row ? (float) $row->supply_fulfilled_kg : 0.0,
-                'demand_archived_kg' => $row ? (float) $row->demand_archived_kg : 0.0,
+                'supply_archived_kg' => $row ? (float) $row->supply_archived_kg : 0.0,
                 'demand_fulfilled_kg' => $row ? (float) $row->demand_fulfilled_kg : 0.0,
+                'demand_archived_kg' => $row ? (float) $row->demand_archived_kg : 0.0,
             ];
         }
 

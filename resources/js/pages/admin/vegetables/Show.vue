@@ -2,9 +2,9 @@
 import { Deferred, Head, router } from '@inertiajs/vue3'
 import { ChevronLeft, ChevronRight } from 'lucide-vue-next'
 import { Calendar } from 'v-calendar'
+import 'v-calendar/style.css'
 import { computed, ref } from 'vue'
 import Heading from '@/components/Heading.vue'
-import SmallCard from '@/components/shared/cards/SmallCard.vue'
 import VarietyAnalyticsSummary from '@/components/shared/charts/VarietyAnalyticsSummary.vue'
 import VarietyMonthlyChart from '@/components/shared/charts/VegetableMonthlyChart.vue'
 import VarietyPriceChart from '@/components/shared/charts/VegetablePriceChart.vue'
@@ -93,16 +93,6 @@ const calendarAttributes = computed(() => {
 const sheetOpen = ref(false)
 const selectedDateStr = ref<string | null>(null)
 const selectedSchedule = ref<VarietyDaySchedule | null>(null)
-
-const selectedDateLabel = computed(() => {
-  if (!selectedDateStr.value) return ''
-  return new Date(`${selectedDateStr.value}T00:00:00`).toLocaleDateString('en-PH', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  })
-})
 
 function handleDayClick(day: {
   attributes: Array<{ customData?: { dateStr: string; daySchedule: VarietyDaySchedule } }>
@@ -199,24 +189,6 @@ function formatKgShort(kg: number): string {
             :title="`${variety.vegetable?.name} ${variety.name}`"
             :description="variety.vegetable?.category?.name"
           />
-
-          <!-- ── Core KPIs ───────────────────────────────────────────────────── -->
-          <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <SmallCard
-              title="Min Price"
-              :value="variety.latest_price ? `₱${variety.latest_price.price_min.toFixed(2)}` : '—'"
-              value-class="text-green-600 dark:text-green-400"
-              subtext="suggested minimum"
-            />
-            <SmallCard
-              title="Max Price"
-              :value="variety.latest_price ? `₱${variety.latest_price.price_max.toFixed(2)}` : '—'"
-              value-class="text-indigo-600 dark:text-indigo-400"
-              subtext="suggested maximum"
-            />
-            <SmallCard title="Monthly Supply" :value="variety.monthly_supply_kg" />
-            <SmallCard title="Monthly Demand" :value="variety.monthly_demand_kg" />
-          </div>
 
           <!-- ── Analytics Summary ───────────────────────────────────────────── -->
           <VarietyAnalyticsSummary

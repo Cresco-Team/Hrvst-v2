@@ -8,20 +8,6 @@ use Illuminate\Support\Facades\DB;
 
 class VarietyMonthlyStatsSeeder extends Seeder
 {
-    /**
-     * Generates 12 months of rolling variety_monthly_stats rows per variety.
-     *
-     * Each variety is randomly assigned one of four market archetypes that
-     * control how supply and demand volumes behave over time. This produces
-     * a dataset rich enough to exercise every analytics rule in
-     * VarietyAnalyticsService without hand-crafting individual rows.
-     *
-     * Archetypes:
-     *   oversupply_steady    — supply consistently outpaces demand (saturation risk)
-     *   undersupply_demand   — demand exceeds supply (opportunity signal)
-     *   balanced_healthy     — supply ≈ demand, high fulfillment both sides
-     *   seasonal_spike       — large volume in months 3–5 (mid-window), quiet otherwise
-     */
     public function run(): void
     {
         DB::table('variety_monthly_stats')->truncate();
@@ -29,7 +15,7 @@ class VarietyMonthlyStatsSeeder extends Seeder
         $varieties = Variety::pluck('id');
 
         if ($varieties->isEmpty()) {
-            $this->command->warn('No varieties found. Run VegetableSeeder first.');
+            $this->command->warn('No varieties found. Run ProductSeeder first.');
 
             return;
         }
@@ -37,20 +23,20 @@ class VarietyMonthlyStatsSeeder extends Seeder
         $archetypes = [
             'oversupply_steady',
             'undersupply_demand',
-            'balanced_healthy',
-            'seasonal_spike',
+            'balanced_declining',
+            'post_seasonal_crash',
         ];
 
         $rows = [];
 
-        foreach ($varieties as $varietyId) {
-            $archetype = $archetypes[array_rand($archetypes)];
+        foreach ($varieties as $index => $varietyId) {
+            $archetype = $archetypes[$index % count($archetypes)];
 
-            for ($i = 11; $i >= 0; $i--) {
-                $date = now()->startOfMonth()->subMonths($i);
+            for ($monthsAgo = 11; $monthsAgo >= 0; $monthsAgo--) {
+                $date = now()->startOfMonth()->subMonths($monthsAgo);
 
                 [$supplyFulfilled, $supplyArchived, $demandFulfilled, $demandArchived]
-                    = $this->generateVolumes($archetype, $i);
+                    = $this->volumesFor($archetype, $monthsAgo);
 
                 $rows[] = [
                     'variety_id' => $varietyId,
@@ -65,122 +51,111 @@ class VarietyMonthlyStatsSeeder extends Seeder
             }
         }
 
-        // Insert in chunks — avoids hitting DB placeholder limits on large variety sets
         foreach (array_chunk($rows, 200) as $chunk) {
             DB::table('variety_monthly_stats')->insert($chunk);
         }
 
-        $this->command->info(
-            sprintf(
-                'Seeded %d variety_monthly_stats rows across %d varieties.',
-                count($rows),
-                $varieties->count(),
-            )
-        );
+        $this->command->info(sprintf(
+            'Seeded %d rows across %d varieties (4 archetypes, ~%d each).',
+            count($rows),
+            $varieties->count(),
+            (int) ceil($varieties->count() / 4),
+        ));
     }
 
-    /**
-     * Returns [supplyFulfilled, supplyArchived, demandFulfilled, demandArchived].
-     *
-     * $monthsAgo goes from 11 (oldest) → 0 (most recent), allowing archetypes
-     * to express trends over time (e.g. rising demand, declining supply).
-     *
-     * @return array{float, float, float, float}
-     */
-    private function generateVolumes(string $archetype, int $monthsAgo): array
+    // ─── Archetype volume generators ──────────────────────────────────────────
+
+    private function volumesFor(string $archetype, int $monthsAgo): array
     {
         return match ($archetype) {
-            // ── Oversupply: supply ~3x demand, archive rate high on supply side
-            'oversupply_steady' => $this->oversupplyVolumes($monthsAgo),
-
-            // ── Undersupply: demand outpaces supply, demand archive rate high
-            'undersupply_demand' => $this->undersupplyVolumes($monthsAgo),
-
-            // ── Balanced: supply ≈ demand, both sides fulfilling well (>70%)
-            'balanced_healthy' => $this->balancedVolumes($monthsAgo),
-
-            // ── Seasonal: spike in the middle of the window, quiet at edges
-            'seasonal_spike' => $this->seasonalVolumes($monthsAgo),
+            'oversupply_steady' => $this->oversupplySteady($monthsAgo),
+            'undersupply_demand' => $this->undersupplyDemand($monthsAgo),
+            'balanced_declining' => $this->balancedDeclining($monthsAgo),
+            'post_seasonal_crash' => $this->postSeasonalCrash($monthsAgo),
         };
     }
 
-    // ─── Archetype generators ─────────────────────────────────────────────────
-
-    /** @return array{float, float, float, float} */
-    private function oversupplyVolumes(int $monthsAgo): array
+    /**
+     * Supply is ~3× demand throughout. Archive rate on supply is fixed at 0.62,
+     * Fires: high_supply_archive_rate (guaranteed)
+     */
+    private function oversupplySteady(int $monthsAgo): array
     {
-        // Supply is 2.5×–4× demand. Farmers flooding market.
-        // Supply archive rate: 40–65% (bad). Demand archive rate: 10–25% (ok, dealers find supply).
-        $baseSupply = $this->jitter(8_000, 0.25);
-        $baseDemand = $this->jitter(2_500, 0.20);
+        // Supply grows slightly toward present — represents ongoing saturation.
+        $supplyBase = 8_000 + (11 - $monthsAgo) * 150;
+        $demandBase = 2_600;
 
-        // Slight downward price pressure trend: supply grows over recent months
-        $supplyMultiplier = 1 + (0.02 * (11 - $monthsAgo));  // grows toward present
-        $baseSupply = (int) ($baseSupply * $supplyMultiplier);
-
-        $supplyArchiveRate = $this->jitter(0.52, 0.15);
-        $demandArchiveRate = $this->jitter(0.17, 0.10);
-
-        return $this->split($baseSupply, $supplyArchiveRate, $baseDemand, $demandArchiveRate);
+        // Fixed ABOVE threshold → fulfillment 0.38 < 0.50
+        return $this->split($supplyBase, 0.62, $demandBase, 0.15);
     }
-
-    /** @return array{float, float, float, float} */
-    private function undersupplyVolumes(int $monthsAgo): array
-    {
-        // Demand is 2×–3× supply. Dealers can't find enough.
-        // Demand archive rate: 45–70% (bad). Supply archive rate: 8–20% (good, sells fast).
-        $baseSupply = $this->jitter(2_000, 0.20);
-        $baseDemand = $this->jitter(5_500, 0.25);
-
-        // Demand is growing over time (getting worse)
-        $demandMultiplier = 1 + (0.015 * (11 - $monthsAgo));
-        $baseDemand = (int) ($baseDemand * $demandMultiplier);
-
-        $supplyArchiveRate = $this->jitter(0.14, 0.08);
-        $demandArchiveRate = $this->jitter(0.57, 0.15);
-
-        return $this->split($baseSupply, $supplyArchiveRate, $baseDemand, $demandArchiveRate);
-    }
-
-    /** @return array{float, float, float, float} */
-    private function balancedVolumes(int $monthsAgo): array
-    {
-        // Supply ≈ demand with mild fluctuation.
-        // Both fulfillment rates high: 70–90%. This is the healthy market signal.
-        $base = $this->jitter(4_000, 0.20);
-
-        // Slight demand growth trend — triggers "strong market signal" rec in recent months
-        $demandMultiplier = 1 + (0.01 * (11 - $monthsAgo));
-        $baseDemand = (int) ($base * $demandMultiplier);
-
-        $supplyArchiveRate = $this->jitter(0.15, 0.07);
-        $demandArchiveRate = $this->jitter(0.18, 0.07);
-
-        return $this->split($base, $supplyArchiveRate, $baseDemand, $demandArchiveRate);
-    }
-
-    /** @return array{float, float, float, float} */
-    private function seasonalVolumes(int $monthsAgo): array
-    {
-        // High volume in the middle of the 12-month window (months 4–7 ago).
-        // Quiet at both edges. Archive rates are moderate throughout.
-        $isSpike = $monthsAgo >= 4 && $monthsAgo <= 7;
-
-        $baseSupply = $isSpike ? $this->jitter(9_000, 0.20) : $this->jitter(1_200, 0.30);
-        $baseDemand = $isSpike ? $this->jitter(7_000, 0.20) : $this->jitter(1_000, 0.30);
-
-        $supplyArchiveRate = $this->jitter(0.30, 0.12);
-        $demandArchiveRate = $this->jitter(0.28, 0.12);
-
-        return $this->split($baseSupply, $supplyArchiveRate, $baseDemand, $demandArchiveRate);
-    }
-
-    // ─── Helpers ─────────────────────────────────────────────────────────────
 
     /**
-     * Splits a total volume into [fulfilled, archived] using the given archive rate.
-     * Returns four rounded floats.
+     * Demand is ~3× supply. Demand archive rate fixed at 0.60 — buyers can't
+     * find enough supply, posts expire unfulfilled.
      *
+     * Fires: supply_opportunity (band always Undersupply)
+     *      + high_demand_archive_rate (demand fulfillment 0.40 < 0.50, guaranteed)
+     */
+    private function undersupplyDemand(int $monthsAgo): array
+    {
+        $supplyBase = 2_000;
+        // Demand grows month by month — worsening shortage.
+        $demandBase = 5_500 + (11 - $monthsAgo) * 200;
+
+        // Supply sells fast (low archive rate).
+        // Demand archive fixed ABOVE threshold → fulfillment 0.40 < 0.50.
+        return $this->split($supplyBase, 0.12, $demandBase, 0.60);
+    }
+
+    /**
+     * Supply ≈ demand with healthy fulfillment. However, supply crashes in
+     * the most recent month, creating a large negative MoM.
+     *
+     * Volume pattern:
+     *   months 11–2 ago → stable ~4 000 kg supply
+     *   month  1  ago   → crashes to ~1 600 kg  (MoM = −60%, below −20% threshold)
+     *
+     * Fires: declining_supply_volume (guaranteed)
+     */
+    private function balancedDeclining(int $monthsAgo): array
+    {
+        $supplyBase = $monthsAgo === 1 ? 1_600 : 4_000;
+        $demandBase = 3_800;
+
+        return $this->split($supplyBase, 0.15, $demandBase, 0.17);
+    }
+
+    /**
+     * Seasonal peak in months 5–7 ago, elevated tail in month 2, sharp crash
+     * in month 1 producing an extreme negative MoM.
+     *
+     * Volume pattern:
+     *   months 5–7 ago → peak  ~9 000 kg supply, ~7 000 kg demand
+     *   month  2  ago  → tail  ~3 500 kg supply
+     *   month  1  ago  → crash   ~525 kg supply  (MoM ≈ −85%, below −20% threshold)
+     *   other months   → quiet  ~1 200 kg supply
+     *
+     * Fires: declining_supply_volume (guaranteed)
+     *
+     * @return array{float, float, float, float}
+     */
+    private function postSeasonalCrash(int $monthsAgo): array
+    {
+        $supplyBase = match (true) {
+            $monthsAgo >= 5 && $monthsAgo <= 7 => 9_000,
+            $monthsAgo === 2 => 3_500,
+            $monthsAgo === 1 => 525,
+            default => 1_200,
+        };
+
+        $demandBase = ($monthsAgo >= 5 && $monthsAgo <= 7) ? 7_000 : 900;
+
+        return $this->split($supplyBase, 0.28, $demandBase, 0.25);
+    }
+
+    // ─── Helper ───────────────────────────────────────────────────────────────
+
+    /**
      * @return array{float, float, float, float}
      */
     private function split(
@@ -189,27 +164,11 @@ class VarietyMonthlyStatsSeeder extends Seeder
         float $demandBase,
         float $demandArchiveRate,
     ): array {
-        $supplyArchiveRate = max(0.0, min(1.0, $supplyArchiveRate));
-        $demandArchiveRate = max(0.0, min(1.0, $demandArchiveRate));
-
         return [
-            round($supplyBase * (1 - $supplyArchiveRate), 2),  // supply_fulfilled
-            round($supplyBase * $supplyArchiveRate, 2),         // supply_archived
-            round($demandBase * (1 - $demandArchiveRate), 2),  // demand_fulfilled
-            round($demandBase * $demandArchiveRate, 2),         // demand_archived
+            round($supplyBase * (1 - $supplyArchiveRate), 2),
+            round($supplyBase * $supplyArchiveRate, 2),
+            round($demandBase * (1 - $demandArchiveRate), 2),
+            round($demandBase * $demandArchiveRate, 2),
         ];
-    }
-
-    /**
-     * Applies a gaussian-like jitter to a base value using a uniformly sampled
-     * deviation. Cheaper than GMP-based normal distribution for seeding purposes.
-     *
-     * $spread controls the ± range as a fraction of $base.
-     */
-    private function jitter(float $base, float $spread): float
-    {
-        $deviation = $base * $spread;
-
-        return $base + (lcg_value() * 2 - 1) * $deviation;
     }
 }
