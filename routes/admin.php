@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DealerController;
 use App\Http\Controllers\Admin\FarmerController;
@@ -27,19 +28,22 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
 
     /* ---------- vegetables ---------- */
 
-    Route::prefix('vegetables')->name('vegetables.')->group(function () {
+    Route::prefix('categories')->name('categories.')->group(function () {
+        Route::get('/', [CategoryController::class, 'index'])->name('index');
 
-        Route::post('/', [VegetableController::class, 'store'])->name('store');
-        Route::put('/{vegetable}', [VegetableController::class, 'update'])->name('update');
-        Route::delete('/{vegetable}', [VegetableController::class, 'destroy'])->name('destroy');
+        Route::prefix('vegetables')->name('vegetables.')->group(function () {
+            Route::post('/', [VegetableController::class, 'store'])->name('store');
+            Route::put('/{vegetable}', [VegetableController::class, 'update'])->name('update');
+            Route::delete('/{vegetable}', [VegetableController::class, 'destroy'])->name('destroy');
 
-        Route::prefix('varieties')->name('varieties.')->group(function () {
-            Route::get('/', [VarietyController::class, 'index'])->name('index');
-            Route::get('/{variety}', [VarietyController::class, 'show'])->name('show');
-            Route::post('/', [VarietyController::class, 'store'])->name('store');
-            Route::put('/{variety}', [VarietyController::class, 'update'])->name('update');
-            Route::post('/{variety}/prices', [VarietyPriceController::class, 'store'])->name('prices.store');
-            Route::delete('/{variety}', [VarietyController::class, 'destroy'])->name('destroy');
+            Route::prefix('varieties')->name('varieties.')->group(function () {
+                Route::get('/', [VarietyController::class, 'index'])->name('index');
+                Route::get('/{variety}', [VarietyController::class, 'show'])->name('show');
+                Route::post('/', [VarietyController::class, 'store'])->name('store');
+                Route::put('/{variety}', [VarietyController::class, 'update'])->name('update');
+                Route::post('/{variety}/prices', [VarietyPriceController::class, 'store'])->name('prices.store');
+                Route::delete('/{variety}', [VarietyController::class, 'destroy'])->name('destroy');
+            });
         });
     });
 
