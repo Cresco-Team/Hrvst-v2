@@ -26,15 +26,21 @@ class VarietyController extends Controller
 
     public function index(Request $request): Response
     {
+        $categoryId = $request->integer('category_id') ?: null;
+        $category = $categoryId ? Category::find($categoryId, ['id', 'name']) : null;
+
         return Inertia::render('admin/vegetables/Index', [
+            'category' => $category,
             'summary' => Inertia::defer(fn () => $this->varietyService->summary()),
             'filters' => [
                 'price_filter' => $request->query('price_filter', null),
                 'search' => $request->query('search', null),
+                'category_id' => $categoryId,
             ],
             'vegetables' => Inertia::defer(fn () => $this->varietyService->table(
                 search: $request->query('search', null),
-                priceFilter: $request->query('price_filter', null)
+                priceFilter: $request->query('price_filter', null),
+                categoryId: $categoryId,
             )),
             'vegetableOptions' => Inertia::defer(fn () => $this->varietyService->vegetableOptions()),
             'categories' => Inertia::defer(fn () => Category::orderBy('name')->get(['id', 'name'])),
@@ -71,7 +77,7 @@ class VarietyController extends Controller
             image: $request->file('image')
         );
 
-        return redirect()->route('admin.vegetables.varieties.index')
+        return redirect()->route('admin.categories.vegetables.varieties.index')
             ->with('flash', ['type' => 'success', 'message' => 'Variety created successfully.']);
     }
 
@@ -83,7 +89,7 @@ class VarietyController extends Controller
             image: $request->file('image')
         );
 
-        return redirect()->route('admin.vegetables.varieties.index')
+        return redirect()->route('admin.categories.vegetables.varieties.index')
             ->with('flash', ['type' => 'success', 'message' => 'Variety updated successfully.']);
     }
 
@@ -91,7 +97,7 @@ class VarietyController extends Controller
     {
         $deleteVariety->handle($variety);
 
-        return redirect()->route('admin.vegetables.varieties.index')
+        return redirect()->route('admin.categories.vegetables.varieties.index')
             ->with('flash', ['type' => 'success', 'message' => 'Variety deleted successfully.']);
     }
 }
