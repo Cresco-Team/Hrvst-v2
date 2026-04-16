@@ -17,7 +17,7 @@ class VegetableController extends Controller
 
         Vegetable::create($request->validated());
 
-        return redirect()->route('admin.vegetables.varieties.index')
+        return redirect()->route('admin.categories.vegetables.varieties.index')
             ->with('flash', ['type' => 'success', 'message' => 'Vegetable created successfully.']);
     }
 
@@ -27,7 +27,7 @@ class VegetableController extends Controller
 
         $vegetable->update($request->validated());
 
-        return redirect()->route('admin.vegetables.varieties.index')
+        return redirect()->route('admin.categories.vegetables.varieties.index')
             ->with('flash', ['type' => 'success', 'message' => 'Vegetable updated successfully.']);
     }
 
@@ -37,7 +37,7 @@ class VegetableController extends Controller
 
         $vegetable->delete();
 
-        return redirect()->route('admin.vegetables.varieties.index')
+        return redirect()->route('admin.categories.vegetables.varieties.index')
             ->with('flash', ['type' => 'success', 'message' => 'Vegetable deleted successfully.']);
     }
 }
