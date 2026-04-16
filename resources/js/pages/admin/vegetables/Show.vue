@@ -17,7 +17,7 @@ import { dashboard } from '@/routes/admin'
 import {
   index as vegetablesIndex,
   show as vegetablesShow,
-} from '@/routes/admin/vegetables/varieties'
+} from '@/routes/admin/categories/vegetables/varieties'
 import type {
   BreadcrumbItem,
   CalendarTimeSlot,

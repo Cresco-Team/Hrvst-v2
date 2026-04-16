@@ -44,7 +44,7 @@ const mainNavItems = computed<NavItem[]>(() => {
 
   if (page.props.auth.user.roles.includes('admin')) {
     items.push(
-      { title: 'Vegetables', href: admin.vegetables.varieties.index(), icon: Package },
+      { title: 'Vegetables', href: admin.categories.index(), icon: Package },
       { title: 'Farmers', href: admin.farmers.index(), icon: Vegan },
       { title: 'Dealers', href: admin.dealers.index(), icon: ShoppingBag },
     )

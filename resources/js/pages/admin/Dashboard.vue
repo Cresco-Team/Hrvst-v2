@@ -97,7 +97,7 @@ function formatChange(change?: number): string {
                 </CardHeader>
                 <Separator />
                 <CardContent class="grid md:grid-cols-3 gap-4">
-                    <QuickNavItem :href="admin.vegetables.varieties.index()" title="Vegetables" description="Manage market"
+                    <QuickNavItem :href="admin.categories.index()" title="Vegetables" description="Manage market"
                         :icon="Tractor" colorClasses="from-green-500/10 to-emerald-500/10"
                         iconClasses="text-green-600 dark:text-green-500" />
                     <QuickNavItem :href="farmers.index()" title="Farmers" description="View all farmers" :icon="Tractor"
