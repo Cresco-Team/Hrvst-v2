@@ -57,7 +57,7 @@ const mainNavItems = computed<NavItem[]>(() => {
 	if (page.props.auth.user.roles.includes('dealer')) {
 		items.push(
 			{ title: 'Vegetables', href: categories.index(), icon: Vegan },
-			{ title: 'Supply Distribution', href: dealer.supplyMap.index(), icon: MapPinned },
+			/* { title: 'Supply Distribution', href: dealer.supplyMap.index(), icon: MapPinned }, */
 			{ title: 'Marketplace', href: dealer.marketplace.index(), icon: Store },
 			{ title: 'My Demands', href: dealer.demands.index(), icon: PackageSearch },
 		)
@@ -66,7 +66,7 @@ const mainNavItems = computed<NavItem[]>(() => {
 	if (page.props.auth.user.roles.includes('farmer')) {
 		items.push(
 			{ title: 'Vegetables', href: categories.index(), icon: Vegan },
-			{ title: 'Supply Distribution', href: farmer.supplyMap.index(), icon: MapPinned },
+			/* { title: 'Supply Distribution', href: farmer.supplyMap.index(), icon: MapPinned }, */
 			{ title: 'Marketplace', href: farmer.marketplace.index(), icon: Store },
 			{ title: 'My Supplies', href: farmer.supplies.index(), icon: Package },
 		)
