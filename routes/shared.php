@@ -10,6 +10,7 @@ Route::middleware(['can:not-admin'])->group(function () {
 
         Route::prefix('{category}')->name('vegetables.')->group(function () {
             Route::get('/', [VegetableController::class, 'index'])->name('index');
+            Route::get('/{variety}', [VegetableController::class, 'show'])->name('show');
         });
     });
 });
