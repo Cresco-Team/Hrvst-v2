@@ -13,7 +13,7 @@ class CategoryController extends Controller
     {
         $categories = Category::query()
             ->orderBy('name')
-            ->get(['id', 'name']);
+            ->get(['id', 'name', 'slug']);
 
         return Inertia::render('shared/vegetables/Categories', [
             'categories' => $categories,
