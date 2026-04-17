@@ -24,21 +24,21 @@ import {
 } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
 import AppLayout from '@/layouts/AppLayout.vue'
+import categories from '@/routes/categories'
 import dealer from '@/routes/dealer'
 import farmer from '@/routes/farmer'
-import type { BreadcrumbItem } from '@/types'
+import type { BreadcrumbItem, SharedCategoryProps } from '@/types'
 import type { Paginated } from '@/types/index'
-import type { CategoryOption, VegetableResource } from '@/types/resources/product'
+import type { VegetableResource } from '@/types/resources/product'
 
 interface VegetablesFilters {
 	search: string | null
-	category_id: number | null
 }
 
 interface Props {
+	category: SharedCategoryProps
 	filters: VegetablesFilters
 	vegetables?: Paginated<VegetableResource> // Inertia::defer — varieties eager-loaded
-	categoryOptions?: CategoryOption[] // Inertia::defer
 }
 
 const props = defineProps<Props>()
@@ -52,11 +52,11 @@ const page = usePage()
 const isFarmer = page.props.auth.user.roles.includes('farmer')
 
 const backHref = isFarmer ? farmer.supplies.index().url : dealer.demands.index().url
-const indexHref = isFarmer ? farmer.vegetables.index().url : dealer.vegetables.index().url
+const indexHref = categories.vegetables.index
 
 const breadcrumbs: BreadcrumbItem[] = [
 	{ title: isFarmer ? 'Farmer' : 'Dealer', href: backHref },
-	{ title: 'Vegetables', href: indexHref },
+	{ title: 'Vegetables', href: categories.vegetables.index({ category: props.category.slug }).url },
 ]
 
 // ─── Derived ─────────────────────────────────────────────────────────────────
@@ -76,10 +76,9 @@ function handleSearch() {
 	if (searchDebounce) clearTimeout(searchDebounce)
 
 	searchDebounce = setTimeout(() => {
-		router.visit(indexHref, {
+		router.visit(categories.vegetables.index({ category: props.category }), {
 			data: {
 				search: searchQuery.value || undefined,
-				category_id: props.filters.category_id || undefined,
 			},
 			preserveState: true,
 			preserveScroll: true,
@@ -88,26 +87,11 @@ function handleSearch() {
 	}, 300)
 }
 
-function handleCategoryFilter(value: AcceptableValue) {
-	const category = value === 'all' || value == null ? undefined : String(value)
-
-	router.visit(indexHref, {
-		data: {
-			search: props.filters.search || undefined,
-			category_id: category,
-		},
-		preserveState: true,
-		preserveScroll: true,
-		only: ['vegetables'],
-	})
-}
-
 function handlePageChange(page: number) {
-	router.visit(indexHref, {
+	router.visit(categories.vegetables.index({ category: props.category }), {
 		data: {
 			page,
 			search: props.filters.search || undefined,
-			category_id: props.filters.category_id || undefined,
 		},
 		preserveScroll: true,
 	})
@@ -136,26 +120,6 @@ function handlePageChange(page: number) {
                         {{ totalVarieties }} results
                     </InputGroupAddon>
                 </InputGroup>
-
-                <Deferred data="categoryOptions">
-                    <template #fallback>
-                        <Skeleton class="h-9 w-40" />
-                    </template>
-
-                    <Select :model-value="String(filters.category_id ?? 'all')"
-                        @update:model-value="handleCategoryFilter">
-                        <SelectTrigger class="w-40">
-                            <SelectValue placeholder="All categories" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="all">All categories</SelectItem>
-                            <SelectItem v-for="cat in categoryOptions" :key="cat.id"
-                                :value="String(cat.id)">
-                                {{ cat.name }}
-                            </SelectItem>
-                        </SelectContent>
-                    </Select>
-                </Deferred>
             </div>
 
             <!-- Grouped carousels -->
@@ -210,7 +174,7 @@ function handlePageChange(page: number) {
                                 >
                                     <VegetableCard
                                         :variety="variety"
-                                        :href="`${indexHref}/${variety.id}`"
+                                        :href="categories.vegetables.show({ category: props.category.slug, variety: variety.id }).url"
                                     />
                                 </CarouselItem>
                             </CarouselContent>
