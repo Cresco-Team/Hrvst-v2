@@ -36,15 +36,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             return redirect()->route('admin.dashboard');
         }
 
-        if ($user->hasRole('farmer')) {
-            return redirect()->route('farmer.vegetables.index');
-        }
-
-        if ($user->hasRole('dealer')) {
-            return redirect()->route('dealer.vegetables.index');
-        }
-
-        return Inertia::render('Welcome');
+        return redirect()->route('categories.index');
     })->name('dashboard');
 });
 
