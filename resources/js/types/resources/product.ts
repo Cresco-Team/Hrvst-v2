@@ -127,6 +127,7 @@ export type VegetableOptions = Record<string, Record<string, string>>
 export interface CategoryOption {
   id: number
   name: string
+  slug: string
 }
 
 export interface VarietySummary {
