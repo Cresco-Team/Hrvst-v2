@@ -8,3 +8,11 @@ export interface SharedCategoriesProps {
         slug: string
     }[]
 }
+
+// ─── /categories/vegetables ─────────────────────────────────────────────────────────
+
+export interface SharedCategoryProps {
+        id: number
+        name: string
+        slug: string
+}
