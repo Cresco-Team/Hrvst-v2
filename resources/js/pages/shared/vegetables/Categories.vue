@@ -2,8 +2,6 @@
 import { Head, Link } from '@inertiajs/vue3'
 import { ArrowRight, Leaf } from 'lucide-vue-next'
 import Heading from '@/components/Heading.vue'
-import { Card, CardContent, CardTitle } from '@/components/ui/card'
-import CardHeader from '@/components/ui/card/CardHeader.vue'
 import { Item, ItemContent, ItemMedia, ItemTitle } from '@/components/ui/item'
 import AppLayout from '@/layouts/AppLayout.vue'
 import categories from '@/routes/categories'
@@ -30,7 +28,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                 <Link
                     v-for="category in props.categories"
                     :key="category.id"
-                    href="#"
+                    :href="categories.vegetables.index({ category: category.slug }).url"
                     class="group"
                 >
                     <Item variant="outline" class="transition-all hover:shadow-sm">
