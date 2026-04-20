@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers\Admin\Vegetable;
 
 use App\Actions\Product\AddVarietyPriceAction;
 use App\Http\Controllers\Controller;

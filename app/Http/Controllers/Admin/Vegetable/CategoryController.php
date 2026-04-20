@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers\Admin\Vegetable;
 
 use App\Http\Controllers\Controller;
 use App\Models\Product\Category;
