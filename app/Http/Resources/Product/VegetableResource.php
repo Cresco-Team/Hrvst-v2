@@ -16,6 +16,7 @@ class VegetableResource extends JsonResource
             'category' => $this->whenLoaded('category', fn () => [
                 'id' => $this->category->id,
                 'name' => $this->category->name,
+                'slug' => $this->category->slug,
             ]),
             'varieties_count' => $this->whenCounted('varieties'),
             'varieties' => $this->whenLoaded(
