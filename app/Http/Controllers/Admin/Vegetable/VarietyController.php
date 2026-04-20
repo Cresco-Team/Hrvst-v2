@@ -43,6 +43,12 @@ class VarietyController extends Controller
                 'year' => $year,
                 'month' => $month,
             ],
+            'meta' => [
+                'varietyId' => $variety->id,
+                'varietyLabel' => "{$variety->vegetable->name} {$variety->name}",
+                'categoryName' => $variety->vegetable->category->name,
+                'categorySlug' => $variety->vegetable->category->slug,
+            ],
         ]);
     }
 
