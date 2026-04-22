@@ -34,7 +34,7 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<{
 	'update:open': [value: boolean]
-	submit: [form: InertiaForm<TData>]
+	submit: []
 }>()
 
 function handleClose() {
@@ -45,7 +45,7 @@ function handleClose() {
 }
 
 function handleSubmit() {
-	emit('submit', props.form)
+	emit('submit')
 }
 
 const maxWidthClass = computed(() => {
