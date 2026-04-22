@@ -1,4 +1,4 @@
-<script setup lang="ts" generic="TData extends Record<string, unknown>">
+<script setup lang="ts" generic="TData extends object">
 import { computed } from 'vue'
 import type { InertiaForm } from '@inertiajs/vue3'
 import { Button } from '@/components/ui/button'
