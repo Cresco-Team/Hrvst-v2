@@ -5,9 +5,11 @@ namespace App\Http\Controllers\Shared;
 use App\Enums\Analytics\VarietyViewerRole;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Product\VarietyDetailResource;
+use App\Http\Resources\Product\VegetableResource;
 use App\Models\Product\Category;
 use App\Models\Product\Variety;
 use App\Services\Product\VarietyService;
+use App\Services\Product\VegetableService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -15,22 +17,29 @@ use Inertia\Response;
 class VegetableController extends Controller
 {
     public function __construct(
+        private VegetableService $vegetableService,
         private VarietyService $varietyService,
     ) {}
 
     public function index(Request $request, Category $category): Response
     {
         return Inertia::render('shared/vegetables/Index', [
+            'vegetables' => Inertia::defer(
+                function () use ($request, $category) {
+                    $query = $this->vegetableService->paginated(
+                        search: $request->query('search', null),
+                        categoryId: $category->id,
+                        userId: $request->user()->id,
+                    )->paginate(12)
+                        ->withQueryString();
+
+                    return VegetableResource::collection($query);
+                }
+            ),
             'category' => $category->only(['id', 'name', 'slug']),
             'filters' => [
                 'search' => $request->query('search', null),
             ],
-            'vegetables' => Inertia::defer(fn () => $this->varietyService->table(
-                search: $request->query('search', null),
-                categoryId: $category->id,
-                userId: $request->user()->id,
-                perPage: 12,
-            )),
         ]);
     }
 
