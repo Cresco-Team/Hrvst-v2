@@ -68,7 +68,6 @@ class VegetableController extends Controller
                 'search' => $request->query('search', null),
             ],
             'category' => $category,
-            'vegetableOptions' => Inertia::defer(fn () => $this->varietyService->vegetableOptions()),
         ]);
     }
 
