@@ -44,6 +44,7 @@ export interface AdminDashboardProps {
 export interface CategoryStat {
   id: number
   name: string
+  slug: string
   vegetables_count: number
   varieties_count: number
 }
@@ -61,10 +62,10 @@ export interface AdminVegetablesFilters {
 }
 
 export interface AdminVegetablesProps {
-  category?: { id: number; name: string } | null
+  category?: { id: number; name: string; slug: string } | null
   summary: VarietySummary // Inertia::defer
   filters: AdminVegetablesFilters
-  vegetables: Table[] // Inertia::defer
+  vegetables: Paginated<Table> // Inertia::defer
   vegetableOptions: VegetableOptions // Inertia::defer
   categories: CategoryOption[]
 }
