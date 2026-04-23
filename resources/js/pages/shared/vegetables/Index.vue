@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { Deferred, Head, router, usePage } from '@inertiajs/vue3'
 import { Search } from 'lucide-vue-next'
-import type { AcceptableValue } from 'reka-ui'
 import { computed, ref } from 'vue'
 import EmptyState from '@/components/EmptyState.vue'
 import Heading from '@/components/Heading.vue'
@@ -15,18 +14,12 @@ import {
 	CarouselPrevious,
 } from '@/components/ui/carousel'
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group'
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
 import AppLayout from '@/layouts/AppLayout.vue'
-import categories from '@/routes/categories'
+import { categories } from '@/routes'
 import dealer from '@/routes/dealer'
 import farmer from '@/routes/farmer'
+import { index, show } from '@/routes/vegetables'
 import type { BreadcrumbItem, SharedCategoryProps } from '@/types'
 import type { Paginated } from '@/types/index'
 import type { VegetableResource } from '@/types/resources/product'
@@ -48,15 +41,13 @@ const searchQuery = ref(props.filters.search ?? '')
 let searchDebounce: ReturnType<typeof setTimeout> | null = null
 
 // ─── Breadcrumbs ─────────────────────────────────────────────────────────────
-const page = usePage()
-const isFarmer = page.props.auth.user.roles.includes('farmer')
-
-const backHref = isFarmer ? farmer.supplies.index().url : dealer.demands.index().url
-const indexHref = categories.vegetables.index
 
 const breadcrumbs: BreadcrumbItem[] = [
-	{ title: isFarmer ? 'Farmer' : 'Dealer', href: backHref },
-	{ title: 'Vegetables', href: categories.vegetables.index({ category: props.category.slug }).url },
+	{ title: 'Vegetables', href: categories().url },
+	{
+		title: props.category.name,
+		href: index({ query: { category: props.category.slug } }).url,
+	},
 ]
 
 // ─── Derived ─────────────────────────────────────────────────────────────────
@@ -76,25 +67,32 @@ function handleSearch() {
 	if (searchDebounce) clearTimeout(searchDebounce)
 
 	searchDebounce = setTimeout(() => {
-		router.visit(categories.vegetables.index({ category: props.category }), {
-			data: {
-				search: searchQuery.value || undefined,
+		router.visit(
+			index({
+				query: { category: props.category.slug, search: searchQuery.value || undefined },
+			}),
+			{
+				preserveState: true,
+				preserveScroll: true,
+				only: ['vegetables'],
 			},
-			preserveState: true,
-			preserveScroll: true,
-			only: ['vegetables'],
-		})
+		)
 	}, 300)
 }
 
 function handlePageChange(page: number) {
-	router.visit(categories.vegetables.index({ category: props.category }), {
-		data: {
-			page,
-			search: props.filters.search || undefined,
+	router.visit(
+		index({
+			query: { category: props.category.slug, search: searchQuery.value || undefined },
+		}),
+		{
+			data: {
+				page,
+				search: props.filters.search || undefined,
+			},
+			preserveScroll: true,
 		},
-		preserveScroll: true,
-	})
+	)
 }
 </script>
 
@@ -174,7 +172,7 @@ function handlePageChange(page: number) {
                                 >
                                     <VegetableCard
                                         :variety="variety"
-                                        :href="categories.vegetables.show({ category: props.category.slug, variety: variety.id }).url"
+                                        :href="show({ variety: variety.id }).url"
                                     />
                                 </CarouselItem>
                             </CarouselContent>

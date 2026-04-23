@@ -4,13 +4,14 @@ import { ArrowRight, Leaf } from 'lucide-vue-next'
 import Heading from '@/components/Heading.vue'
 import { Item, ItemContent, ItemMedia, ItemTitle } from '@/components/ui/item'
 import AppLayout from '@/layouts/AppLayout.vue'
-import categories from '@/routes/categories'
+import vegetables from '@/routes/vegetables'
 import type { BreadcrumbItem, SharedCategoriesProps } from '@/types'
 
 const props = defineProps<SharedCategoriesProps>()
 
 const breadcrumbs: BreadcrumbItem[] = [
-	{ title: 'Vegetable Categories', href: categories.index().url },
+	{ title: 'Vegetable', href: vegetables.index().url },
+	{ title: '', href: vegetables.index().url },
 ]
 </script>
 
@@ -28,7 +29,8 @@ const breadcrumbs: BreadcrumbItem[] = [
                 <Link
                     v-for="category in props.categories"
                     :key="category.id"
-                    :href="categories.vegetables.index({ category: category.slug }).url"
+                    :href="vegetables.index().url"
+                    :data="{ category: category.slug }"
                     class="group"
                 >
                     <Item variant="outline" class="transition-all hover:shadow-sm">

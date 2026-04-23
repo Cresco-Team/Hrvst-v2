@@ -10,6 +10,7 @@ use App\Models\Product\Category;
 use App\Models\Product\Variety;
 use App\Services\Product\VarietyService;
 use App\Services\Product\VegetableService;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -21,8 +22,26 @@ class VegetableController extends Controller
         private VarietyService $varietyService,
     ) {}
 
-    public function index(Request $request, Category $category): Response
+    public function category(): Response
     {
+        $categories = Category::query()
+            ->orderBy('name')
+            ->get(['id', 'name', 'slug']);
+
+        return Inertia::render('shared/vegetables/Categories', [
+            'categories' => $categories,
+        ]);
+    }
+
+    public function index(Request $request): Response|RedirectResponse
+    {
+        if (! $request->filled('category')) {
+            return redirect()->route('categories');
+        }
+
+        $slug = $request->query('category');
+        $category = Category::where('slug', $slug)->first();
+
         return Inertia::render('shared/vegetables/Index', [
             'vegetables' => Inertia::defer(
                 function () use ($request, $category) {
@@ -36,14 +55,14 @@ class VegetableController extends Controller
                     return VegetableResource::collection($query);
                 }
             ),
-            'category' => $category->only(['id', 'name', 'slug']),
+            'category' => $category,
             'filters' => [
                 'search' => $request->query('search', null),
             ],
         ]);
     }
 
-    public function show(Request $request, string $category, Variety $variety): Response
+    public function show(Request $request, Variety $variety): Response
     {
         $validated = $request->validate([
             'year' => ['sometimes', 'integer', 'min:2020', 'max:2035'],
@@ -54,7 +73,6 @@ class VegetableController extends Controller
         $month = (int) ($validated['month'] ?? now()->month);
 
         return Inertia::render('shared/vegetables/Show', [
-            'category' => $category,
             'variety' => Inertia::defer(
                 fn () => (new VarietyDetailResource(
                     $this->varietyService->show($variety, $year, $month, VarietyViewerRole::Marketplace)
@@ -64,6 +82,12 @@ class VegetableController extends Controller
             'calendarFilters' => [
                 'year' => $year,
                 'month' => $month,
+            ],
+            'meta' => [
+                'varietyId' => $variety->id,
+                'varietyLabel' => "{$variety->vegetable->name} {$variety->name}",
+                'categoryName' => $variety->vegetable->category->name,
+                'categorySlug' => $variety->vegetable->category->slug,
             ],
         ]);
     }

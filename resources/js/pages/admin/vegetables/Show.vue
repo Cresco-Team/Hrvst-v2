@@ -123,14 +123,6 @@ const TIME_SLOTS: Array<{ key: CalendarTimeSlot; label: string; dotClass: string
 	{ key: 'unscheduled', label: 'No time slot', dotClass: 'bg-slate-400' },
 ]
 
-function totalKgForSlot(entries: VarietyCalendarEntry[]): number {
-	return entries.reduce((sum, e) => sum + e.total_kg, 0)
-}
-
-function formatKg(kg: number): string {
-	return `${kg.toLocaleString('en-PH', { minimumFractionDigits: 0, maximumFractionDigits: 2 })} kg`
-}
-
 const dailyTotals = computed(() => {
 	const map: Record<string, { supplyKg: number; demandKg: number }> = {}
 	if (!props.variety?.variety_calendar) return map
