@@ -1,6 +1,13 @@
 <script setup lang="ts">
 import {
-	AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
 import { buttonVariants } from '@/components/ui/button'
 
@@ -11,11 +18,13 @@ type Props = {
 	description: string
 	actionName?: string
 	variant?: ButtonVariant
+	processing?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
 	actionName: 'Confirm',
 	variant: 'default',
+	processing: false,
 })
 
 const open = defineModel<boolean>('open', { default: false })
@@ -40,7 +49,7 @@ const handleAction = () => {
 
 			<AlertDialogFooter>
 				<AlertDialogCancel>Cancel</AlertDialogCancel>
-				<AlertDialogAction @click="handleAction" :class="buttonVariants({ variant: props.variant })">
+				<AlertDialogAction @click="handleAction" :class="buttonVariants({ variant: props.variant })" :disabled="props.processing">
 					{{ actionName }}
 				</AlertDialogAction>
 			</AlertDialogFooter>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Deferred, Head, router } from '@inertiajs/vue3'
+import { Deferred, Head, router, useForm } from '@inertiajs/vue3'
 import { Archive, CircleCheckBig, PackageCheck, Plus, Sprout, Wheat } from 'lucide-vue-next'
 import { computed, ref } from 'vue'
 import ConfirmationDialog from '@/components/dialogs/ConfirmationDialog.vue'
@@ -19,7 +19,7 @@ import type {
 	DealerDemandResource,
 	FarmerSuppliesProps,
 	FarmerSupplyResource,
-	SupplyVarietyOption,
+	VarietyOption,
 	VarietyOptionsByCategory,
 } from '@/types'
 
@@ -37,6 +37,10 @@ const deleteDialogOpen = ref(false)
 const supplyToArchive = ref<FarmerSupplyResource | null>(null)
 const supplyToFulfill = ref<FarmerSupplyResource | null>(null)
 const supplyToDelete = ref<FarmerSupplyResource | null>(null)
+
+const fulfillForm = useForm({})
+const archiveForm = useForm({})
+const deleteForm = useForm({})
 
 /* --- Computed --- */
 const activeTab = computed(() => props.filters.status ?? 'Ongoing')
@@ -77,37 +81,29 @@ function openDelete(supply: PostItem) {
 
 function handleArchive() {
 	if (!supplyToArchive.value) return
-	router.post(
-		archive(supplyToArchive.value.id).url,
-		{},
-		{
-			preserveScroll: true,
-			onSuccess: () => {
-				archiveDialogOpen.value = false
-				supplyToArchive.value = null
-			},
+	archiveForm.post(archive(supplyToArchive.value.id).url, {
+		preserveScroll: true,
+		onSuccess: () => {
+			archiveDialogOpen.value = false
+			supplyToArchive.value = null
 		},
-	)
+	})
 }
 
 function handleFulfill() {
 	if (!supplyToFulfill.value) return
-	router.post(
-		fulfill(supplyToFulfill.value.id).url,
-		{},
-		{
-			preserveScroll: true,
-			onSuccess: () => {
-				fulfillDialogOpen.value = false
-				supplyToFulfill.value = null
-			},
+	fulfillForm.post(fulfill(supplyToFulfill.value.id).url, {
+		preserveScroll: true,
+		onSuccess: () => {
+			fulfillDialogOpen.value = false
+			supplyToFulfill.value = null
 		},
-	)
+	})
 }
 
 function handleDelete() {
 	if (!supplyToDelete.value) return
-	router.visit(destroy(supplyToDelete.value.id).url, {
+	deleteForm.post(destroy(supplyToDelete.value.id).url, {
 		method: 'delete',
 		preserveScroll: true,
 		onSuccess: () => {
@@ -204,18 +200,31 @@ const breadcrumbs: BreadcrumbItem[] = [
   </AppLayout>
 
   <SupplyForm :open="formOpen" :supply="activeSupply"
-    :variety-options="(varietyOptions as VarietyOptionsByCategory<SupplyVarietyOption> | undefined)"
+    :variety-options="(varietyOptions as VarietyOptionsByCategory<VarietyOption> | undefined)"
     @update:open="formOpen = $event" />
 
-  <ConfirmationDialog v-model:open="archiveDialogOpen" title="Archive Supply"
+  <ConfirmationDialog 
+    v-model:open="archiveDialogOpen" 
+    title="Archive Supply"
     :description="`Are you sure you want to archive ${supplyToArchive?.variety?.vegetable} ${supplyToArchive?.variety?.name}?`"
-    variant="destructive" @action="handleArchive" />
+    variant="destructive" 
+    :processing="archiveForm.processing"
+    @action="handleArchive" 
+  />
 
-  <ConfirmationDialog v-model:open="fulfillDialogOpen" title="Fulfill Supply"
+  <ConfirmationDialog 
+    v-model:open="fulfillDialogOpen" 
+    title="Fulfill Supply"
     :description="`Are you sure you want to set ${supplyToFulfill?.variety?.vegetable} ${supplyToFulfill?.variety?.name} as fulfilled?`"
-    @action="handleFulfill" />
+    :processing="fulfillForm.processing"
+    @action="handleFulfill" 
+  />
 
-  <ConfirmationDialog v-model:open="deleteDialogOpen" title="Delete Supply"
+  <ConfirmationDialog 
+    v-model:open="deleteDialogOpen" 
+    title="Delete Supply"
     :description="`Are you sure you want to delete ${supplyToDelete?.variety?.vegetable} ${supplyToDelete?.variety?.name}?`"
-    @action="handleDelete" />
+    :processing="deleteForm.processing"
+    @action="handleDelete" 
+  />
 </template>
