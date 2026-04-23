@@ -154,16 +154,13 @@ export interface FarmerMarkerVegetableSummary {
 
 // ─── Option Bag Types ─────────────────────────────────────────────────────────
 
-export type SupplyVarietyOption = {
+export type VarietyOption = {
 	id: number
 	name: string
-}
-
-export type DemandVarietyOption = SupplyVarietyOption & {
 	current_price: { min: number; max: number } | null
 }
 
-export type VarietyOptionsByCategory<T extends SupplyVarietyOption = SupplyVarietyOption> = Record<
+export type VarietyOptionsByCategory<T extends VarietyOption = VarietyOption> = Record<
 	string,
 	T[]
 >
