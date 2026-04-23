@@ -10,6 +10,7 @@ use App\Models\Product\Category;
 use App\Models\Product\Variety;
 use App\Services\Product\VarietyService;
 use App\Services\Product\VegetableService;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -32,8 +33,12 @@ class VegetableController extends Controller
         ]);
     }
 
-    public function index(Request $request): Response
+    public function index(Request $request): Response|RedirectResponse
     {
+        if ($request->query('category') === null) {
+            return redirect()->route('categories');
+        }
+
         $slug = $request->query('category');
         $category = Category::where('slug', $slug)->first();
 
