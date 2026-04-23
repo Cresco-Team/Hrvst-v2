@@ -6,41 +6,46 @@ import 'v-calendar/style.css'
 import { computed, ref } from 'vue'
 import Heading from '@/components/Heading.vue'
 import VarietyAnalyticsSummary from '@/components/shared/charts/VarietyAnalyticsSummary.vue'
+import VarietyRecommendations from '@/components/shared/charts/VarietyRecommendations.vue'
 import VarietyMonthlyChart from '@/components/shared/charts/VegetableMonthlyChart.vue'
 import VarietyPriceChart from '@/components/shared/charts/VegetablePriceChart.vue'
-import VarietyRecommendations from '@/components/shared/charts/VarietyRecommendations.vue'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { Skeleton } from '@/components/ui/skeleton'
 import AppLayout from '@/layouts/AppLayout.vue'
-import { dashboard } from '@/routes/admin'
-import {
-  index as vegetablesIndex,
-  show as vegetablesShow,
-} from '@/routes/admin/categories/vegetables/varieties'
+import admin, { dashboard } from '@/routes/admin'
+import { show as vegetablesShow } from '@/routes/admin/vegetables/varieties'
 import type {
-  BreadcrumbItem,
-  CalendarTimeSlot,
-  VarietyCalendarEntry,
-  VarietyCalendarFilters,
-  VarietyDaySchedule,
-  VarietyResource,
+	BreadcrumbItem,
+	CalendarTimeSlot,
+	VarietyCalendarEntry,
+	VarietyCalendarFilters,
+	VarietyDaySchedule,
+	VarietyResource,
 } from '@/types'
 
 const props = defineProps<{
-  variety?: VarietyResource
-  calendarFilters: VarietyCalendarFilters
+	variety?: VarietyResource
+	calendarFilters: VarietyCalendarFilters
+	meta: {
+		varietyId: number
+		varietyLabel: string
+		categoryName: string
+		categorySlug: string
+	}
 }>()
 
 const breadcrumbs = computed<BreadcrumbItem[]>(() => [
-  { title: 'Admin', href: dashboard().url },
-  { title: 'Vegetables', href: vegetablesIndex().url },
-  ...(props.variety
-    ? [{
-        title: `${props.variety.vegetable?.name} ${props.variety.name}`,
-        href: vegetablesShow(props.variety.id).url,
-      }]
-    : []),
+	{ title: 'Admin', href: dashboard().url },
+	{ title: 'Vegetables', href: admin.categories.index().url },
+	{
+		title: props.meta.categoryName,
+		href: admin.vegetables.index({ query: { category: props.meta.categorySlug } }).url,
+	},
+	{
+		title: props.meta.varietyLabel,
+		href: admin.vegetables.varieties.show(props.meta.varietyId).url,
+	},
 ])
 
 const calendarYear = computed(() => props.calendarFilters.year)
@@ -49,45 +54,51 @@ const calendarMonth = computed(() => props.calendarFilters.month)
 const calendarPage = computed(() => ({ year: calendarYear.value, month: calendarMonth.value }))
 
 const monthLabel = computed(() =>
-  new Date(calendarYear.value, calendarMonth.value - 1, 1).toLocaleString('en-PH', {
-    month: 'long',
-    year: 'numeric',
-  }),
+	new Date(calendarYear.value, calendarMonth.value - 1, 1).toLocaleString('en-PH', {
+		month: 'long',
+		year: 'numeric',
+	}),
 )
 
 function navigateMonth(direction: 1 | -1): void {
-  let month = calendarMonth.value + direction
-  let year = calendarYear.value
+	let month = calendarMonth.value + direction
+	let year = calendarYear.value
 
-  if (month > 12) { month = 1; year++ }
-  if (month < 1) { month = 12; year-- }
+	if (month > 12) {
+		month = 1
+		year++
+	}
+	if (month < 1) {
+		month = 12
+		year--
+	}
 
-  router.visit(vegetablesShow(props.variety!.id).url, {
-    data: { year, month },
-    preserveState: true,
-    preserveScroll: true,
-    only: ['variety', 'calendarFilters'],
-  })
+	router.visit(vegetablesShow(props.variety!.id).url, {
+		data: { year, month },
+		preserveState: true,
+		preserveScroll: true,
+		only: ['variety', 'calendarFilters'],
+	})
 }
 
 function goToToday(): void {
-  const now = new Date()
-  router.visit(vegetablesShow(props.variety!.id).url, {
-    data: { year: now.getFullYear(), month: now.getMonth() + 1 },
-    preserveState: true,
-    preserveScroll: true,
-    only: ['variety', 'calendarFilters'],
-  })
+	const now = new Date()
+	router.visit(vegetablesShow(props.variety!.id).url, {
+		data: { year: now.getFullYear(), month: now.getMonth() + 1 },
+		preserveState: true,
+		preserveScroll: true,
+		only: ['variety', 'calendarFilters'],
+	})
 }
 
 const calendarAttributes = computed(() => {
-  if (!props.variety?.variety_calendar) return []
+	if (!props.variety?.variety_calendar) return []
 
-  return Object.entries(props.variety.variety_calendar).map(([dateStr, daySchedule]) => ({
-    key: dateStr,
-    dates: [new Date(`${dateStr}T00:00:00`)],
-    customData: { dateStr, daySchedule },
-  }))
+	return Object.entries(props.variety.variety_calendar).map(([dateStr, daySchedule]) => ({
+		key: dateStr,
+		dates: [new Date(`${dateStr}T00:00:00`)],
+		customData: { dateStr, daySchedule },
+	}))
 })
 
 const sheetOpen = ref(false)
@@ -95,65 +106,65 @@ const selectedDateStr = ref<string | null>(null)
 const selectedSchedule = ref<VarietyDaySchedule | null>(null)
 
 function handleDayClick(day: {
-  attributes: Array<{ customData?: { dateStr: string; daySchedule: VarietyDaySchedule } }>
+	attributes: Array<{ customData?: { dateStr: string; daySchedule: VarietyDaySchedule } }>
 }): void {
-  const attr = day.attributes?.find((a) => a.customData?.dateStr)
-  if (!attr?.customData) return
+	const attr = day.attributes?.find((a) => a.customData?.dateStr)
+	if (!attr?.customData) return
 
-  selectedDateStr.value = attr.customData.dateStr
-  selectedSchedule.value = attr.customData.daySchedule
-  sheetOpen.value = true
+	selectedDateStr.value = attr.customData.dateStr
+	selectedSchedule.value = attr.customData.daySchedule
+	sheetOpen.value = true
 }
 
 const TIME_SLOTS: Array<{ key: CalendarTimeSlot; label: string; dotClass: string }> = [
-  { key: 'morning', label: 'Morning (6 AM – 12 PM)', dotClass: 'bg-amber-400' },
-  { key: 'afternoon', label: 'Afternoon (12 PM – 6 PM)', dotClass: 'bg-emerald-500' },
-  { key: 'evening', label: 'Evening (6 PM – 10 PM)', dotClass: 'bg-indigo-500' },
-  { key: 'unscheduled', label: 'No time slot', dotClass: 'bg-slate-400' },
+	{ key: 'morning', label: 'Morning (6 AM – 12 PM)', dotClass: 'bg-amber-400' },
+	{ key: 'afternoon', label: 'Afternoon (12 PM – 6 PM)', dotClass: 'bg-emerald-500' },
+	{ key: 'evening', label: 'Evening (6 PM – 10 PM)', dotClass: 'bg-indigo-500' },
+	{ key: 'unscheduled', label: 'No time slot', dotClass: 'bg-slate-400' },
 ]
 
 function totalKgForSlot(entries: VarietyCalendarEntry[]): number {
-  return entries.reduce((sum, e) => sum + e.total_kg, 0)
+	return entries.reduce((sum, e) => sum + e.total_kg, 0)
 }
 
 function formatKg(kg: number): string {
-  return `${kg.toLocaleString('en-PH', { minimumFractionDigits: 0, maximumFractionDigits: 2 })} kg`
+	return `${kg.toLocaleString('en-PH', { minimumFractionDigits: 0, maximumFractionDigits: 2 })} kg`
 }
 
 const dailyTotals = computed(() => {
-  const map: Record<string, { supplyKg: number; demandKg: number }> = {}
-  if (!props.variety?.variety_calendar) return map
+	const map: Record<string, { supplyKg: number; demandKg: number }> = {}
+	if (!props.variety?.variety_calendar) return map
 
-  for (const [dateStr, daySchedule] of Object.entries(props.variety.variety_calendar)) {
-    let supplyKg = 0
-    let demandKg = 0
-    for (const entries of Object.values(daySchedule)) {
-      for (const entry of entries) {
-        if (entry.type === 'supply') supplyKg += entry.total_kg
-        else if (entry.type === 'demand') demandKg += entry.total_kg
-      }
-    }
-    if (supplyKg > 0 || demandKg > 0) map[dateStr] = { supplyKg, demandKg }
-  }
-  return map
+	for (const [dateStr, daySchedule] of Object.entries(props.variety.variety_calendar)) {
+		let supplyKg = 0
+		let demandKg = 0
+		for (const entries of Object.values(daySchedule)) {
+			for (const entry of entries) {
+				if (entry.type === 'supply') supplyKg += entry.total_kg
+				else if (entry.type === 'demand') demandKg += entry.total_kg
+			}
+		}
+		if (supplyKg > 0 || demandKg > 0) map[dateStr] = { supplyKg, demandKg }
+	}
+	return map
 })
 
 const maxDailyKg = computed(() => {
-  let max = 0
-  for (const { supplyKg, demandKg } of Object.values(dailyTotals.value)) {
-    if (supplyKg > max) max = supplyKg
-    if (demandKg > max) max = demandKg
-  }
-  return max || 1
+	let max = 0
+	for (const { supplyKg, demandKg } of Object.values(dailyTotals.value)) {
+		if (supplyKg > max) max = supplyKg
+		if (demandKg > max) max = demandKg
+	}
+	return max || 1
 })
 
 function barPct(kg: number): string {
-  return `${Math.round((kg / maxDailyKg.value) * 100)}%`
+	return `${Math.round((kg / maxDailyKg.value) * 100)}%`
 }
 
 function formatKgShort(kg: number): string {
-  if (kg >= 1000) return `${(kg / 1000).toFixed(1)}t`
-  return kg % 1 === 0 ? `${kg}` : `${kg.toFixed(1)}`
+	if (kg >= 1000) return `${(kg / 1000).toFixed(1)}t`
+	return kg % 1 === 0 ? `${kg}` : `${kg.toFixed(1)}`
 }
 </script>
 
