@@ -36,7 +36,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             return redirect()->route('admin.dashboard');
         }
 
-        return redirect()->route('categories.index');
+        return redirect()->route('categories');
     })->name('dashboard');
 });
 
