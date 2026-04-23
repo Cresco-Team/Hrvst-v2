@@ -12,13 +12,15 @@ import {
   Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue,
 } from '@/components/ui/select'
 import type {
-  FarmerSupplyResource, PostTimeSlot, SupplyVarietyOption, VarietyOptionsByCategory,
+  FarmerSupplyResource, PostTimeSlot, VarietyOption, VarietyOptionsByCategory,
 } from '@/types'
+import { ref } from 'vue'
+import { AcceptableValue } from 'reka-ui'
 
 interface Props {
   open: boolean
   supply?: FarmerSupplyResource | null
-  varietyOptions?: VarietyOptionsByCategory<SupplyVarietyOption>
+  varietyOptions?: VarietyOptionsByCategory<VarietyOption>
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -45,6 +47,31 @@ const form = useForm({
 })
 
 const isEditMode = computed(() => !!props.supply)
+
+const selectedVarietyPrice = ref<VarietyOption['current_price'] | null>(null)
+
+function updatePriceHint(varietyId: string) {
+  if (!props.varietyOptions) {
+    selectedVarietyPrice.value = null
+    return
+  }
+
+  for (const varieties of Object.values(props.varietyOptions)) {
+    const found = varieties.find((v) => String(v.id) === varietyId)
+    if (found) {
+      selectedVarietyPrice.value = found.current_price
+      return
+    }
+  }
+
+  selectedVarietyPrice.value = null
+}
+
+function handleVarietyChange(value: AcceptableValue) {
+  const id = String(value ?? '')
+  form.variety_id = id
+  updatePriceHint(id)
+}
 
 const minDate = computed(() => {
   const tomorrow = new Date()
@@ -80,6 +107,7 @@ function handleSubmit() {
       onSuccess: () => {
         emit('update:open', false)
         form.reset()
+        selectedVarietyPrice.value = null
       },
     })
 }
@@ -96,9 +124,12 @@ watch(
       form.time_slot = (s?.time_slot ?? 'morning') as PostTimeSlot | ''
       form.image = null
       form.clearErrors()
-    } else {
-      form.reset()
-      form.clearErrors()
+
+      if (s?.variety?.id) {
+        updatePriceHint(String(s.variety.id))
+      } else {
+        selectedVarietyPrice.value = null
+      }
     }
   },
 )
@@ -107,7 +138,7 @@ watch(
 <template>
   <DialogForm :open="open" :title="isEditMode ? 'Edit Offering' : 'Create Offering'"
     :description="isEditMode ? 'Update your supply details' : 'Post a new supply for dealers'"
-    :is-submitting="form.processing" :submit-label="isEditMode ? 'Update Supply' : 'Post Supply'" max-width="2xl"
+    :form="form" :submit-label="isEditMode ? 'Update Supply' : 'Post Supply'" max-width="2xl"
     @update:open="emit('update:open', $event)" @submit="handleSubmit">
     <template #icon>
       <Sprout class="size-5 text-primary" />
@@ -121,7 +152,7 @@ watch(
           Variety
           <Badge variant="secondary" class="text-xs font-normal">Required</Badge>
         </Label>
-        <Select v-model="form.variety_id" :disabled="isEditMode">
+        <Select v-model="form.variety_id" :disabled="isEditMode" @update:model-value="handleVarietyChange">
           <SelectTrigger id="variety" :class="{ 'border-destructive': form.errors.variety_id }">
             <SelectValue placeholder="Select a variety..." />
           </SelectTrigger>
@@ -140,9 +171,16 @@ watch(
         <p v-else-if="isEditMode" class="text-xs text-muted-foreground">
           Variety cannot be changed after creation
         </p>
-        <p v-else class="text-xs text-muted-foreground">
-          Choose the variety you're offering
-        </p>
+
+        <!-- Current market price hint — only shows when VarietyOption has price data -->
+        <div v-if="selectedVarietyPrice"
+          class="flex items-center gap-1.5 rounded-md border border-dashed bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
+          <span>Current market price:</span>
+          <span class="font-mono font-semibold text-foreground">
+            ₱{{ selectedVarietyPrice.min.toFixed(2) }} – ₱{{ selectedVarietyPrice.max.toFixed(2) }}
+          </span>
+          <span>/ kg</span>
+        </div>
       </div>
 
       <!-- Image Upload -->

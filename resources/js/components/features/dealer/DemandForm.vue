@@ -12,13 +12,13 @@ import {
   Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue,
 } from '@/components/ui/select'
 import type {
-  DealerDemandResource, DemandVarietyOption, PostTimeSlot, VarietyOptionsByCategory,
+  DealerDemandResource, VarietyOption, PostTimeSlot, VarietyOptionsByCategory,
 } from '@/types'
 
 interface Props {
   open: boolean
   demand?: DealerDemandResource | null
-  varietyOptions?: VarietyOptionsByCategory<DemandVarietyOption>
+  varietyOptions?: VarietyOptionsByCategory<VarietyOption>
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -45,9 +45,7 @@ const form = useForm({
 
 const isEditMode = computed(() => !!props.demand)
 
-// Derive current price hint for the selected variety — only available on
-// DemandVarietyOption which carries current_price from DemandService::varietyOptions()
-const selectedVarietyPrice = ref<DemandVarietyOption['current_price'] | null>(null)
+const selectedVarietyPrice = ref<VarietyOption['current_price'] | null>(null)
 
 function updatePriceHint(varietyId: string) {
   if (!props.varietyOptions) {
@@ -119,10 +117,6 @@ watch(
       } else {
         selectedVarietyPrice.value = null
       }
-    } else {
-      form.reset()
-      form.clearErrors()
-      selectedVarietyPrice.value = null
     }
   },
 )
@@ -131,7 +125,7 @@ watch(
 <template>
   <DialogForm :open="open" :title="isEditMode ? 'Edit Request' : 'Create Request'"
     :description="isEditMode ? 'Update your demand details' : 'Post a new purchase request for farmers'"
-    :is-submitting="form.processing" :submit-label="isEditMode ? 'Update Request' : 'Post Request'" max-width="2xl"
+    :form="form" :submit-label="isEditMode ? 'Update Request' : 'Post Request'" max-width="2xl"
     @update:open="emit('update:open', $event)" @submit="handleSubmit">
     <template #icon>
       <ShoppingBag class="size-5 text-primary" />
@@ -165,7 +159,7 @@ watch(
           Variety cannot be changed after creation
         </p>
 
-        <!-- Current market price hint — only shows when DemandVarietyOption has price data -->
+        <!-- Current market price hint — only shows when VarietyOption has price data -->
         <div v-if="selectedVarietyPrice"
           class="flex items-center gap-1.5 rounded-md border border-dashed bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
           <span>Current market price:</span>
