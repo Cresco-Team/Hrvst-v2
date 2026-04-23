@@ -42,8 +42,12 @@ class VegetableController extends Controller
         ]);
     }
 
-    public function index(Request $request): Response
+    public function index(Request $request): Response|RedirectResponse
     {
+        if (! $request->filled('category')) {
+            return redirect()->route('admin.vegetables.category');
+        }
+
         $slug = $request->query('category');
         $category = Category::where('slug', $slug)->first();
 
