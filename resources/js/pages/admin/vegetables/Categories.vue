@@ -10,8 +10,8 @@ import type { AdminCategoriesProps, BreadcrumbItem } from '@/types'
 defineProps<AdminCategoriesProps>()
 
 const breadcrumbs: BreadcrumbItem[] = [
-  { title: 'Admin', href: admin.dashboard().url },
-  { title: 'Vegetables', href: admin.categories.index().url },
+	{ title: 'Admin', href: admin.dashboard().url },
+	{ title: 'Vegetables', href: admin.categories.index().url },
 ]
 </script>
 
@@ -34,7 +34,8 @@ const breadcrumbs: BreadcrumbItem[] = [
         <Link
           v-for="category in categories"
           :key="category.id"
-          :href="admin.categories.vegetables.varieties.index({ query: { category_id: category.id } }).url"
+          :href="admin.vegetables.index().url"
+          :data="{ category: category.slug }"
           class="group"
         >
           <Card class="h-full transition-all hover:shadow-md hover:-translate-y-0.5 cursor-pointer">
