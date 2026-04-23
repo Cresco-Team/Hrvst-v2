@@ -35,7 +35,7 @@ class VegetableController extends Controller
 
     public function index(Request $request): Response|RedirectResponse
     {
-        if ($request->query('category') === null) {
+        if (! $request->filled('category')) {
             return redirect()->route('categories');
         }
 
