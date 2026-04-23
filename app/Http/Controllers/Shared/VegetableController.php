@@ -32,8 +32,11 @@ class VegetableController extends Controller
         ]);
     }
 
-    public function index(Request $request, Category $category): Response
+    public function index(Request $request): Response
     {
+        $slug = $request->query('category');
+        $category = Category::where('slug', $slug)->first();
+
         return Inertia::render('shared/vegetables/Index', [
             'vegetables' => Inertia::defer(
                 function () use ($request, $category) {
@@ -47,7 +50,7 @@ class VegetableController extends Controller
                     return VegetableResource::collection($query);
                 }
             ),
-            'category' => $category->only(['id', 'name', 'slug']),
+            'category' => $category,
             'filters' => [
                 'search' => $request->query('search', null),
             ],
