@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
-import { router, usePage } from '@inertiajs/vue3'
+import { router, useForm, usePage } from '@inertiajs/vue3'
 import { Calendar1, Info, KeyRound, Mail, MapPinHouse, Phone, Trash, Wheat } from 'lucide-vue-next'
+import { ref, watch } from 'vue'
 import { destroy, show } from '@/actions/App/Http/Controllers/Admin/FarmerController'
 import { resetPin } from '@/actions/App/Http/Controllers/Admin/UserController'
 import ConfirmationDialog from '@/components/dialogs/ConfirmationDialog.vue'
@@ -10,11 +10,11 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogHeader,
+	DialogTitle,
 } from '@/components/ui/dialog'
 import { Item, ItemContent, ItemDescription, ItemMedia, ItemTitle } from '@/components/ui/item'
 import { Separator } from '@/components/ui/separator'
@@ -23,13 +23,13 @@ import { useInitials } from '@/composables/useInitials'
 import type { FarmerResource, FlashMessage } from '@/types'
 
 const props = defineProps<{
-  open: boolean
-  farmer: FarmerResource | null
-  loading: boolean
+	open: boolean
+	farmer: FarmerResource | null
+	loading: boolean
 }>()
 
 defineEmits<{
-  close: []
+	close: []
 }>()
 
 const { getInitials } = useInitials()
@@ -38,26 +38,28 @@ const isDeleteDialogOpen = ref(false)
 const pinModalOpen = ref(false)
 const revealedPin = ref('')
 
-// Watch flash for PIN reset result — reset PIN triggers back() which re-renders this page
+const resetPinForm = useForm({})
+const deleteForm = useForm({})
+
 const page = usePage()
 watch(
-  () => page.props.flash as FlashMessage | null,
-  (flash) => {
-    if (flash?.type === 'pin' && flash.pin) {
-      revealedPin.value = flash.pin
-      pinModalOpen.value = true
-    }
-  },
+	() => page.props.flash as FlashMessage | null,
+	(flash) => {
+		if (flash?.type === 'pin' && flash.pin) {
+			revealedPin.value = flash.pin
+			pinModalOpen.value = true
+		}
+	},
 )
 
 function handleResetPin() {
-  if (!props.farmer) return
-  router.post(resetPin(props.farmer.user?.id ?? 0).url, {}, { preserveScroll: true })
+	if (!props.farmer) return
+	resetPinForm.post(resetPin(props.farmer.user?.id ?? 0).url, { preserveScroll: true })
 }
 
 function handleDelete() {
-  if (!props.farmer) return
-  router.delete(destroy(props.farmer.id).url)
+	if (!props.farmer) return
+	deleteForm.delete(destroy(props.farmer.id).url)
 }
 </script>
 
@@ -151,12 +153,16 @@ function handleDelete() {
           <Info class="size-4" />
           More Details
         </Button>
-        <Button variant="outline" size="sm" @click="handleResetPin">
-          <KeyRound class="size-4" />
+
+        <Button variant="outline" size="sm" :disabled="resetPinForm.processing" @click="handleResetPin">
+          <Spinner v-if="resetPinForm.processing" class="size-3.5" />
+          <KeyRound v-else class="size-4" />
           Reset PIN
         </Button>
-        <Button variant="destructive" size="sm" @click="isDeleteDialogOpen = true">
-          <Trash class="size-4" />
+
+        <Button variant="destructive" size="sm" :disabled="deleteForm.processing" @click="isDeleteDialogOpen = true">
+          <Spinner v-if="deleteForm.processing" class="size-3.5" />
+          <Trash v-else class="size-4" />
           Delete
         </Button>
       </div>

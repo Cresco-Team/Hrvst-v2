@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { router, usePage } from '@inertiajs/vue3'
+import { router, useForm, usePage } from '@inertiajs/vue3'
 import { Calendar1, Info, KeyRound, Mail, Phone, Trash, Wheat } from 'lucide-vue-next'
 import { ref, watch } from 'vue'
 import { destroy, show } from '@/actions/App/Http/Controllers/Admin/DealerController'
@@ -38,7 +38,9 @@ const isDeleteDialogOpen = ref(false)
 const pinModalOpen = ref(false)
 const revealedPin = ref('')
 
-// Watch flash for PIN reset result — reset PIN triggers back() which re-renders this page
+const resetPinForm = useForm({})
+const deleteForm = useForm({})
+
 const page = usePage()
 watch(
 	() => page.props.flash as FlashMessage | null,
@@ -52,12 +54,12 @@ watch(
 
 function handleResetPin() {
 	if (!props.dealer) return
-	router.post(resetPin(props.dealer.user?.id ?? 0).url, {}, { preserveScroll: true })
+	resetPinForm.post(resetPin(props.dealer.user?.id ?? 0).url, { preserveScroll: true })
 }
 
 const handleDelete = () => {
 	if (!props.dealer) return
-	router.delete(destroy(props.dealer.id).url)
+	deleteForm.delete(destroy(props.dealer.id).url)
 }
 </script>
 
@@ -158,12 +160,16 @@ const handleDelete = () => {
                     <Info />
                     More Details
                 </Button>
-                <Button variant="outline" size="sm" class="cursor-pointer" @click="handleResetPin">
-                    <KeyRound />
+                
+                <Button variant="outline" size="sm" :disabled="resetPinForm.processing" @click="handleResetPin">
+                    <Spinner v-if="resetPinForm.processing" class="size-3.5" />
+                    <KeyRound v-else class="size-4" />
                     Reset PIN
                 </Button>
-                <Button variant="destructive" class="cursor-pointer" @click="isDeleteDialogOpen = true">
-                    <Trash />
+
+                <Button variant="destructive" size="sm" :disabled="deleteForm.processing" @click="isDeleteDialogOpen = true">
+                    <Spinner v-if="deleteForm.processing" class="size-3.5" />
+                    <Trash v-else class="size-4" />
                     Delete
                 </Button>
             </div>
