@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers\Admin\Vegetable;
 
 use App\Actions\Product\AddVarietyPriceAction;
 use App\Http\Controllers\Controller;
@@ -18,7 +18,7 @@ class VarietyPriceController extends Controller
             priceMax: (float) $request->validated('price_max'),
         );
 
-        return redirect()->route('admin.vegetables.varieties.index')
+        return redirect()->route('admin.vegetables.index')
             ->with('flash', ['type' => 'success', 'message' => 'Price updated successfully.']);
     }
 }

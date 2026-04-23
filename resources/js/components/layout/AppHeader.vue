@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import { Link, usePage } from '@inertiajs/vue3'
-import {
-  MapPinned, Menu, Package, PackageSearch, ShoppingBag, Store, Vegan,
-} from 'lucide-vue-next'
+import { MapPinned, Menu, Package, PackageSearch, ShoppingBag, Store, Vegan } from 'lucide-vue-next'
 import { computed } from 'vue'
 import AppLogo from '@/components/layout/AppLogo.vue'
 import AppLogoIcon from '@/components/layout/AppLogoIcon.vue'
@@ -11,26 +9,32 @@ import UserMenuContent from '@/components/layout/UserMenuContent.vue'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import {
-  DropdownMenu, DropdownMenuContent, DropdownMenuTrigger,
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import {
-  NavigationMenu, NavigationMenuItem, NavigationMenuList, navigationMenuTriggerStyle,
+	NavigationMenu,
+	NavigationMenuItem,
+	NavigationMenuList,
+	navigationMenuTriggerStyle,
 } from '@/components/ui/navigation-menu'
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
 import { useCurrentUrl } from '@/composables/useCurrentUrl'
 import { getInitials } from '@/composables/useInitials'
 import { dashboard } from '@/routes'
 import admin from '@/routes/admin'
+import categories from '@/routes/categories'
 import dealer from '@/routes/dealer'
 import farmer from '@/routes/farmer'
 import type { BreadcrumbItem, NavItem } from '@/types'
 
 type Props = {
-  breadcrumbs?: BreadcrumbItem[]
+	breadcrumbs?: BreadcrumbItem[]
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  breadcrumbs: () => [],
+	breadcrumbs: () => [],
 })
 
 const page = usePage()
@@ -40,35 +44,35 @@ const { isCurrentUrl, whenCurrentUrl } = useCurrentUrl()
 const activeItemStyles = 'text-neutral-900 dark:bg-neutral-800 dark:text-neutral-100'
 
 const mainNavItems = computed<NavItem[]>(() => {
-  const items: NavItem[] = []
+	const items: NavItem[] = []
 
-  if (page.props.auth.user.roles.includes('admin')) {
-    items.push(
-      { title: 'Vegetables', href: admin.vegetables.varieties.index(), icon: Package },
-      { title: 'Farmers', href: admin.farmers.index(), icon: Vegan },
-      { title: 'Dealers', href: admin.dealers.index(), icon: ShoppingBag },
-    )
-  }
+	if (page.props.auth.user.roles.includes('admin')) {
+		items.push(
+			{ title: 'Vegetables', href: admin.categories.index(), icon: Package },
+			{ title: 'Farmers', href: admin.farmers.index(), icon: Vegan },
+			{ title: 'Dealers', href: admin.dealers.index(), icon: ShoppingBag },
+		)
+	}
 
-  if (page.props.auth.user.roles.includes('dealer')) {
-    items.push(
-      { title: 'Vegetables', href: dealer.vegetables.index(), icon: Vegan },
-      { title: 'Supply Distribution', href: dealer.supplyMap.index(), icon: MapPinned },
-      { title: 'Marketplace', href: dealer.marketplace.index(), icon: Store },
-      { title: 'My Demands', href: dealer.demands.index(), icon: PackageSearch },
-    )
-  }
+	if (page.props.auth.user.roles.includes('dealer')) {
+		items.push(
+			{ title: 'Vegetables', href: categories.index(), icon: Vegan },
+			/* { title: 'Supply Distribution', href: dealer.supplyMap.index(), icon: MapPinned }, */
+			{ title: 'Marketplace', href: dealer.marketplace.index(), icon: Store },
+			{ title: 'My Demands', href: dealer.demands.index(), icon: PackageSearch },
+		)
+	}
 
-  if (page.props.auth.user.roles.includes('farmer')) {
-    items.push(
-      { title: 'Vegetables', href: farmer.vegetables.index(), icon: Vegan },
-      { title: 'Supply Distribution', href: farmer.supplyMap.index(), icon: MapPinned },
-      { title: 'Marketplace', href: farmer.marketplace.index(), icon: Store },
-      { title: 'My Supplies', href: farmer.supplies.index(), icon: Package },
-    )
-  }
+	if (page.props.auth.user.roles.includes('farmer')) {
+		items.push(
+			{ title: 'Vegetables', href: categories.index(), icon: Vegan },
+			/* { title: 'Supply Distribution', href: farmer.supplyMap.index(), icon: MapPinned }, */
+			{ title: 'Marketplace', href: farmer.marketplace.index(), icon: Store },
+			{ title: 'My Supplies', href: farmer.supplies.index(), icon: Package },
+		)
+	}
 
-  return items
+	return items
 })
 </script>
 

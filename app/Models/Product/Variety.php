@@ -4,6 +4,7 @@ namespace App\Models\Product;
 
 use App\Models\Interaction\VarietyHeart;
 use App\Models\Marketplace\Post;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -64,6 +65,13 @@ class Variety extends Model implements HasMedia
     public function hearts(): HasMany
     {
         return $this->hasMany(VarietyHeart::class);
+    }
+
+    /* ---------- scopes ---------- */
+
+    public function scopeSearch(Builder $query, ?string $search): void
+    {
+        $query->when($search, fn (Builder $q) => $q->where('name', 'like', "%{$search}%"));
     }
 
     /* ---------- media ---------- */

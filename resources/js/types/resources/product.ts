@@ -69,6 +69,7 @@ export interface VarietyVegetable {
 export interface VarietyCategory {
   id: number
   name: string
+  slug: string
 }
 
 export interface SupplyMunicipality {
@@ -127,6 +128,7 @@ export type VegetableOptions = Record<string, Record<string, string>>
 export interface CategoryOption {
   id: number
   name: string
+  slug: string
 }
 
 export interface VarietySummary {
@@ -146,6 +148,7 @@ export interface VarietyTableRow {
   id: number
   name: string
   is_variety: boolean
+  vegetable_id?: number | null
   category?: { id: number; name: string } | null
   varieties_count?: number
   image_url?: string | null
@@ -170,6 +173,7 @@ export function mapVegetablesToTableRows(vegetables: VegetableResource[]): Varie
       id: v.id,
       name: v.name,
       is_variety: true,
+      vegetable_id: veg.id,
       image_url: v.image_url,
       latest_price: v.latest_price ?? null,
       price_updated_human: v.price_updated_human ?? null,

@@ -7,6 +7,7 @@ use App\Models\Product\Variety;
 use App\Models\Product\Vegetable;
 use App\Models\Profiles\DealerProfile;
 use App\Models\Profiles\FarmerProfile;
+use App\Models\User;
 use App\Observers\PostObserver;
 use App\Observers\VarietyObserver;
 use App\Policies\Marketplace\PostPolicy;
@@ -39,10 +40,16 @@ class AppServiceProvider extends ServiceProvider
         URL::forceScheme('https');
         $this->configureDefaults();
         Model::automaticallyEagerLoadRelationships();
+
         Gate::policy(FarmerProfile::class, FarmerPolicy::class);
         Gate::policy(DealerProfile::class, DealerPolicy::class);
         Gate::policy(Vegetable::class, VegetablePolicy::class);
         Gate::policy(Post::class, PostPolicy::class);
+
+        Gate::define('not-admin', function (User $user) {
+            return $user->hasRole('admin') === false;
+        });
+
         Variety::observe(VarietyObserver::class);
         Post::observe(PostObserver::class);
     }

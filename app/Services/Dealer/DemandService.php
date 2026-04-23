@@ -38,6 +38,7 @@ class DemandService
     public function varietyOptions(): array
     {
         return cache()->remember('dealer_demand_variety_options', 3600, fn () => Variety::with('vegetable.category', 'latestPrice')
+            ->orderBy('name')
             ->get()
             ->groupBy(fn ($variety) => $variety->vegetable->category->name)
             ->map(fn ($varieties) => $varieties->map(fn ($variety) => [
