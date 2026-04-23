@@ -41,13 +41,8 @@ const searchQuery = ref(props.filters.search ?? '')
 let searchDebounce: ReturnType<typeof setTimeout> | null = null
 
 // ─── Breadcrumbs ─────────────────────────────────────────────────────────────
-const page = usePage()
-const isFarmer = page.props.auth.user.roles.includes('farmer')
-
-const backHref = isFarmer ? farmer.supplies.index().url : dealer.demands.index().url
 
 const breadcrumbs: BreadcrumbItem[] = [
-	{ title: 'Categories', href: categories().url },
 	{ title: 'Vegetables', href: categories().url },
 	{
 		title: props.category.name,
