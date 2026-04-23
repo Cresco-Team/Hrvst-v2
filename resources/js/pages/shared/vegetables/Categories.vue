@@ -10,7 +10,8 @@ import type { BreadcrumbItem, SharedCategoriesProps } from '@/types'
 const props = defineProps<SharedCategoriesProps>()
 
 const breadcrumbs: BreadcrumbItem[] = [
-	{ title: 'Vegetable Categories', href: vegetables.index().url },
+	{ title: 'Vegetable', href: vegetables.index().url },
+	{ title: '', href: vegetables.index().url },
 ]
 </script>
 
