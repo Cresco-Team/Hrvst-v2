@@ -16,8 +16,6 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sh
 import { Skeleton } from '@/components/ui/skeleton'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { categories } from '@/routes'
-import dealer from '@/routes/dealer'
-import farmer from '@/routes/farmer'
 import vegetables from '@/routes/vegetables'
 import type {
 	BreadcrumbItem,
@@ -204,9 +202,6 @@ function formatKgShort(kg: number): string {
         <template #fallback>
           <div class="flex flex-col gap-6">
             <Skeleton class="h-8 w-64" />
-            <div class="grid grid-cols-2 gap-4 sm:grid-cols-4">
-              <Skeleton v-for="i in 4" :key="i" class="h-24 rounded-xl" />
-            </div>
             <div class="grid grid-cols-2 gap-4 sm:grid-cols-4">
               <Skeleton v-for="i in 4" :key="i" class="h-24 rounded-xl" />
             </div>
