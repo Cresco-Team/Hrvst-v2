@@ -37,13 +37,17 @@ class SupplyService
 
     public function varietyOptions(): array
     {
-        return cache()->remember('farmer_supply_variety_options', 3600, fn () => Variety::with('vegetable.category')
+        return cache()->remember('farmer_supply_variety_options', 3600, fn () => Variety::with('vegetable.category', 'latestprice')
             ->orderBy('name')
             ->get()
             ->groupBy(fn ($variety) => $variety->vegetable->category->name)
             ->map(fn ($varieties) => $varieties->map(fn ($variety) => [
                 'id' => $variety->id,
                 'name' => $variety->vegetable->name.' '.$variety->name,
+                'current_price' => $variety->latestPrice ? [
+                    'min' => (float) $variety->latestPrice->price_min,
+                    'max' => (float) $variety->latestPrice->price_max,
+                ] : null,
             ])->values()->toArray())
             ->toArray()
         );
