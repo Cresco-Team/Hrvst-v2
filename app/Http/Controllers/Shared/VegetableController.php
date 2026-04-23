@@ -21,6 +21,17 @@ class VegetableController extends Controller
         private VarietyService $varietyService,
     ) {}
 
+    public function category(): Response
+    {
+        $categories = Category::query()
+            ->orderBy('name')
+            ->get(['id', 'name', 'slug']);
+
+        return Inertia::render('shared/vegetables/Categories', [
+            'categories' => $categories,
+        ]);
+    }
+
     public function index(Request $request, Category $category): Response
     {
         return Inertia::render('shared/vegetables/Index', [
