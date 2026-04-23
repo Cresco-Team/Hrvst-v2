@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Deferred, Head, router } from '@inertiajs/vue3'
+import { Deferred, Head, router, useForm } from '@inertiajs/vue3'
 import { AlertTriangle } from 'lucide-vue-next'
 import { computed, ref } from 'vue'
 import ConfirmationDialog from '@/components/dialogs/ConfirmationDialog.vue'
@@ -14,176 +14,149 @@ import LargeCard from '@/components/shared/cards/LargeCard.vue'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
 import AppLayout from '@/layouts/AppLayout.vue'
 import admin, { dashboard } from '@/routes/admin'
 import {
-  destroy as destroyVeg,
-  store as storeVeg,
-  update as updateVeg,
-} from '@/routes/admin/categories/vegetables'
-import {
-  destroy,
-  index,
-  show,
-  store,
-  update,
-} from '@/routes/admin/categories/vegetables/varieties'
+	destroy as destroyVeg,
+	index,
+	store as storeVeg,
+	update as updateVeg,
+} from '@/routes/admin/vegetables'
 import type { AdminVegetablesProps, BreadcrumbItem, VarietyResource } from '@/types'
-import {
-  mapVegetablesToTableRows,
-  type VarietyTableRow,
-} from '@/types/resources/product'
+import { mapVegetablesToTableRows, type VarietyTableRow } from '@/types/resources/product'
 
 const props = defineProps<AdminVegetablesProps>()
 
 const breadcrumbs = computed<BreadcrumbItem[]>(() => [
-  { title: 'Admin', href: dashboard().url },
-  { title: 'Vegetables', href: admin.categories.index().url },
-  ...(props.category
-    ? [{ title: props.category.name, href: index({ query: { category_id: props.category.id } }).url }]
-    : [{ title: 'All Varieties', href: index().url }]),
+	{ title: 'Admin', href: dashboard().url },
+	{ title: 'Vegetables', href: admin.categories.index().url },
+	...(props.category
+		? [
+				{
+					title: props.category.name,
+					href: index({ query: { category: props.category.slug } }).url,
+				},
+			]
+		: [{ title: 'All Varieties', href: index().url }]),
 ])
 
 const searchQuery = ref(props.filters?.search ?? '')
 
-const tableVegetables = computed(() => mapVegetablesToTableRows(props.vegetables ?? []))
+const tableVegetables = computed(() => mapVegetablesToTableRows(props.vegetables.data ?? []))
 
 // ── Variety CRUD ───────────────────────────────────────────────────────────────
 
 const varietyFormOpen = ref(false)
 const varietyDeleteOpen = ref(false)
 const activeVariety = ref<VarietyResource | null>(null)
+const activeParentVegetable = ref<{ id: number; name: string } | null>(null)
 const varietyDeleteTarget = ref<VarietyTableRow | null>(null)
-const isVarietySubmitting = ref(false)
 
-function openCreateVariety(): void {
-  activeVariety.value = null
-  varietyFormOpen.value = true
+function openCreateVariety(parentRow: VarietyTableRow): void {
+	activeVariety.value = null
+	activeParentVegetable.value = { id: parentRow.id, name: parentRow.name }
+	varietyFormOpen.value = true
 }
 
 function openEditVariety(row: VarietyTableRow): void {
-  activeVariety.value = {
-    id: row.id,
-    name: row.name,
-    image_url: row.image_url ?? '',
-    hearts_count: 0,
-    is_hearted: false,
-    vegetable: { id: 0, name: '', category: null },
-    latest_price: row.latest_price ?? null,
-  } as unknown as VarietyResource
-  varietyFormOpen.value = true
+	const parentVeg = tableVegetables.value.find((v) => v.id === row.vegetable_id)
+	activeParentVegetable.value = parentVeg ? { id: parentVeg.id, name: parentVeg.name } : null
+	activeVariety.value = {
+		id: row.id,
+		name: row.name,
+		image_url: row.image_url ?? '',
+		hearts_count: 0,
+		is_hearted: false,
+		vegetable: { id: row.vegetable_id ?? 0, name: activeParentVegetable.value?.name ?? '', category: null },
+		latest_price: row.latest_price ?? null,
+	} as unknown as VarietyResource
+	varietyFormOpen.value = true
 }
 
 function openDeleteVariety(row: VarietyTableRow): void {
-  varietyDeleteTarget.value = row
-  varietyDeleteOpen.value = true
+	varietyDeleteTarget.value = row
+	varietyDeleteOpen.value = true
 }
 
 function handleDeleteVariety(): void {
-  if (!varietyDeleteTarget.value) return
-  router.delete(destroy({ variety: varietyDeleteTarget.value.id }).url, {
-    preserveScroll: true,
-    onSuccess: () => {
-      varietyDeleteOpen.value = false
-      varietyDeleteTarget.value = null
-    },
-  })
-}
-
-function handleVarietyFormSubmit(payload: FormData): void {
-  isVarietySubmitting.value = true
-  const isEdit = activeVariety.value !== null
-  const url = isEdit ? update({ variety: activeVariety.value!.id }).url : store().url
-  if (isEdit) payload.append('_method', 'PUT')
-
-  router.post(url, payload, {
-    onSuccess: () => {
-      varietyFormOpen.value = false
-      isVarietySubmitting.value = false
-    },
-    onError: () => {
-      isVarietySubmitting.value = false
-    },
-  })
+	if (!varietyDeleteTarget.value) return
+	router.delete(admin.vegetables.varieties.destroy({ variety: varietyDeleteTarget.value.id }).url, {
+		preserveScroll: true,
+		onSuccess: () => {
+			varietyDeleteOpen.value = false
+			varietyDeleteTarget.value = null
+		},
+	})
 }
 
 // ── Vegetable CRUD ─────────────────────────────────────────────────────────────
 
-interface VegFormErrors {
-  category_id?: string
-  name?: string
+interface VegFormData {
+	category_id: number | string
+	name: string
 }
 
 const vegFormOpen = ref(false)
 const vegDeleteOpen = ref(false)
-const vegSubmitting = ref(false)
-const vegErrors = ref<VegFormErrors>({})
 const vegEditTarget = ref<VarietyTableRow | null>(null)
 const vegDeleteTarget = ref<VarietyTableRow | null>(null)
-const vegCategoryId = ref('')
-const vegName = ref('')
+
+const vegForm = useForm<VegFormData>({
+	category_id: props.category?.id ?? '',
+	name: '',
+})
 
 function openCreateVegetable(): void {
-  vegEditTarget.value = null
-  vegCategoryId.value = ''
-  vegName.value = ''
-  vegErrors.value = {}
-  vegFormOpen.value = true
+	vegEditTarget.value = null
+	vegForm.category_id = props.category?.id ?? ''
+	vegForm.name = ''
+	vegForm.clearErrors()
+	vegFormOpen.value = true
 }
 
 function openEditVegetable(row: VarietyTableRow): void {
-  vegEditTarget.value = row
-  vegCategoryId.value = String(row.category?.id ?? '')
-  vegName.value = row.name
-  vegErrors.value = {}
-  vegFormOpen.value = true
+	vegEditTarget.value = row
+	vegForm.category_id = row.category?.id ?? ''
+	vegForm.name = row.name
+	vegForm.clearErrors()
+	vegFormOpen.value = true
 }
 
 function openDeleteVegetable(row: VarietyTableRow): void {
-  vegDeleteTarget.value = row
-  vegDeleteOpen.value = true
+	vegDeleteTarget.value = row
+	vegDeleteOpen.value = true
 }
 
 function handleVegSubmit(): void {
-  vegSubmitting.value = true
-  vegErrors.value = {}
+	const isEdit = vegEditTarget.value !== null
 
-  const isEdit = vegEditTarget.value !== null
-  const url = isEdit ? updateVeg(vegEditTarget.value!.id).url : storeVeg().url
-
-  router.visit(url, {
-    method: isEdit ? 'put' : 'post',
-    data: { category_id: vegCategoryId.value, name: vegName.value },
-    preserveScroll: true,
-    onSuccess: () => {
-      vegFormOpen.value = false
-    },
-    onError: (errors) => {
-      vegErrors.value = errors as VegFormErrors
-    },
-    onFinish: () => {
-      vegSubmitting.value = false
-    },
-  })
+	if (isEdit) {
+		vegForm.put(updateVeg(vegEditTarget.value!.id).url, {
+			preserveScroll: true,
+			onSuccess: () => {
+				vegFormOpen.value = false
+			},
+		})
+	} else {
+		vegForm.post(storeVeg().url, {
+			preserveScroll: true,
+			onSuccess: () => {
+				vegFormOpen.value = false
+			},
+		})
+	}
 }
 
 function handleDeleteVegetable(): void {
-  if (!vegDeleteTarget.value) return
-  router.delete(destroyVeg(vegDeleteTarget.value.id).url, {
-    preserveScroll: true,
-    onSuccess: () => {
-      vegDeleteOpen.value = false
-      vegDeleteTarget.value = null
-    },
-  })
+	if (!vegDeleteTarget.value) return
+	router.delete(destroyVeg(vegDeleteTarget.value.id).url, {
+		preserveScroll: true,
+		onSuccess: () => {
+			vegDeleteOpen.value = false
+			vegDeleteTarget.value = null
+		},
+	})
 }
 
 // ── Price update ───────────────────────────────────────────────────────────────
@@ -192,43 +165,43 @@ const priceFormOpen = ref(false)
 const priceVariety = ref<VarietyResource | null>(null)
 
 function openUpdatePrice(row: VarietyTableRow): void {
-  priceVariety.value = {
-    id: row.id,
-    name: row.name,
-    image_url: row.image_url ?? '',
-    hearts_count: 0,
-    is_hearted: false,
-    vegetable: { id: 0, name: '', category: null },
-    latest_price: row.latest_price ?? null,
-  } as unknown as VarietyResource
-  priceFormOpen.value = true
+	priceVariety.value = {
+		id: row.id,
+		name: row.name,
+		image_url: row.image_url ?? '',
+		hearts_count: 0,
+		is_hearted: false,
+		vegetable: { id: 0, name: '', category: null },
+		latest_price: row.latest_price ?? null,
+	} as unknown as VarietyResource
+	priceFormOpen.value = true
 }
 
 // ── Filtering ─────────────────────────────────────────────────────────────────
 
 function handleFilterChange(filter: string | null): void {
-  router.get(
-    index().url,
-    {
-      price_filter: filter,
-      category_id: props.filters.category_id ?? undefined,
-    },
-    { preserveScroll: true, preserveState: true },
-  )
+	router.get(
+		index().url,
+		{
+			price_filter: filter,
+			category_id: props.filters.category_id ?? undefined,
+		},
+		{ preserveScroll: true, preserveState: true },
+	)
 }
 
 function handleSearch(query: string): void {
-  searchQuery.value = query
-  router.visit(index().url, {
-    data: {
-      search: query || undefined,
-      price_filter: props.filters.price_filter || undefined,
-      category_id: props.filters.category_id ?? undefined,
-    },
-    preserveState: true,
-    preserveScroll: true,
-    only: ['vegetables', 'filters'],
-  })
+	searchQuery.value = query
+	router.visit(index().url, {
+		data: {
+			search: query || undefined,
+			price_filter: props.filters.price_filter || undefined,
+			category_id: props.filters.category_id ?? undefined,
+		},
+		preserveState: true,
+		preserveScroll: true,
+		only: ['vegetables', 'filters'],
+	})
 }
 </script>
 
@@ -308,7 +281,7 @@ function handleSearch(query: string): void {
           @open-edit-variety="openEditVariety"
           @open-delete-variety="openDeleteVariety"
           @open-update-price="openUpdatePrice"
-          @open-variety-details="(row) => router.visit(show({ variety: row.id }).url)"
+          @open-variety-details="(row) => router.visit(admin.vegetables.varieties.show({ variety: row.id }).url)"
           @search="handleSearch"
         />
       </Deferred>
@@ -318,13 +291,13 @@ function handleSearch(query: string): void {
 
   <!-- Variety create / edit -->
   <VarietyForm
-    v-if="vegetableOptions"
     :open="varietyFormOpen"
     :variety="activeVariety"
-    :vegetable-options="vegetableOptions"
-    :is-submitting="isVarietySubmitting"
+    :parent-vegetable="activeParentVegetable"
+    :store-url="admin.vegetables.varieties.store().url"
+    :update-url="activeVariety ? admin.vegetables.varieties.update({ variety: activeVariety.id }).url : undefined"
     @update:open="varietyFormOpen = $event"
-    @submit="handleVarietyFormSubmit"
+    @success="varietyFormOpen = false"
   />
 
   <!-- Variety delete -->
@@ -338,56 +311,31 @@ function handleSearch(query: string): void {
 
   <!-- Vegetable create / edit -->
   <DialogForm
-    v-if="categories"
     :open="vegFormOpen"
+    :form="vegForm"
     :title="vegEditTarget ? 'Edit Vegetable' : 'Add Vegetable'"
     :description="vegEditTarget
       ? 'Update the vegetable name or category.'
       : 'Create a new vegetable type under a category.'"
-    :is-submitting="vegSubmitting"
     :submit-label="vegEditTarget ? 'Save Changes' : 'Create Vegetable'"
     max-width="md"
     @update:open="!$event && (vegFormOpen = false)"
     @submit="handleVegSubmit"
   >
-    <Deferred data="categories">
-      <template #fallback>
-        <Skeleton class="h-9 w-full" />
-      </template>
+    <template #default>
       <div class="flex flex-col gap-4">
-        <div class="flex flex-col gap-2">
-          <Label for="veg-category">Category</Label>
-          <Select v-model="vegCategoryId">
-            <SelectTrigger
-              id="veg-category"
-              :class="{ 'border-destructive': vegErrors.category_id }"
-            >
-              <SelectValue placeholder="Select a category…" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem
-                v-for="cat in categories"
-                :key="cat.id"
-                :value="String(cat.id)"
-              >
-                {{ cat.name }}
-              </SelectItem>
-            </SelectContent>
-          </Select>
-          <InputError :message="vegErrors.category_id" />
-        </div>
         <div class="flex flex-col gap-2">
           <Label for="veg-name">Name</Label>
           <Input
             id="veg-name"
-            v-model="vegName"
+            v-model="vegForm.name"
             placeholder="e.g. Pechay, Kangkong, Carrot"
-            :class="{ 'border-destructive': vegErrors.name }"
+            :class="{ 'border-destructive': vegForm.errors.name }"
           />
-          <InputError :message="vegErrors.name" />
+          <InputError :message="vegForm.errors.name" />
         </div>
       </div>
-    </Deferred>
+    </template>
   </DialogForm>
 
   <!-- Vegetable delete -->
