@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { Form } from '@inertiajs/vue3'
 import { PhilippinePeso, Plus } from 'lucide-vue-next'
-import { store } from '@/actions/App/Http/Controllers/Admin/VarietyPriceController'
 import ResponsiveModal from '@/components/templates/ResponsiveModal.vue'
 import { Button } from '@/components/ui/button'
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group'
 import { Label } from '@/components/ui/label'
 import Spinner from '@/components/ui/spinner/Spinner.vue'
 import type { VarietyResource } from '@/types'
+import { store } from '@/routes/admin/vegetables/varieties/prices'
 
 const props = defineProps<{
   open: boolean
