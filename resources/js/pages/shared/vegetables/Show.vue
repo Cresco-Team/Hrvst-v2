@@ -15,8 +15,10 @@ import { Separator } from '@/components/ui/separator'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { Skeleton } from '@/components/ui/skeleton'
 import AppLayout from '@/layouts/AppLayout.vue'
+import { categories } from '@/routes'
 import dealer from '@/routes/dealer'
 import farmer from '@/routes/farmer'
+import vegetables from '@/routes/vegetables'
 import type {
 	BreadcrumbItem,
 	CalendarTimeSlot,
@@ -29,29 +31,28 @@ import type { VarietyResource } from '@/types/resources/product'
 interface Props {
 	variety?: VarietyResource | null
 	calendarFilters: VarietyCalendarFilters
+	meta: {
+		varietyId: number
+		varietyLabel: string
+		categoryName: string
+		categorySlug: string
+	}
 }
 
 const props = defineProps<Props>()
 
 // ─── Routing context ──────────────────────────────────────────────────────────
 
-const page = usePage()
-const isFarmer = page.props.auth.user.roles.includes('farmer')
-
-const backHref = isFarmer ? farmer.supplies.index().url : dealer.demands.index().url
-const indexHref = isFarmer ? farmer.vegetables.index().url : dealer.vegetables.index().url
-
 const breadcrumbs = computed<BreadcrumbItem[]>(() => [
-	{ title: isFarmer ? 'Farmer' : 'Dealer', href: backHref },
-	{ title: 'Vegetables', href: indexHref },
-	...(props.variety
-		? [
-				{
-					title: `${props.variety.vegetable?.name} ${props.variety.name}`,
-					href: `${indexHref}/${props.variety.id}`,
-				},
-			]
-		: []),
+	{ title: 'Vegetables', href: categories().url },
+	{
+		title: props.meta.categoryName,
+		href: vegetables.index({ query: { category: props.meta.categorySlug } }).url,
+	},
+	{
+		title: props.meta.varietyLabel,
+		href: vegetables.show(props.meta.varietyId).url,
+	},
 ])
 
 // ─── Calendar — month navigation ──────────────────────────────────────────────
@@ -80,7 +81,7 @@ function navigateMonth(direction: 1 | -1): void {
 		year--
 	}
 
-	router.visit(`${indexHref}/${props.variety?.id}`, {
+	router.visit(vegetables.show(props.meta.varietyId).url, {
 		data: { year, month },
 		preserveState: true,
 		preserveScroll: true,
@@ -90,7 +91,7 @@ function navigateMonth(direction: 1 | -1): void {
 
 function goToToday(): void {
 	const now = new Date()
-	router.visit(`${indexHref}/${props.variety?.id}`, {
+	router.visit(vegetables.show(props.meta.varietyId).url, {
 		data: { year: now.getFullYear(), month: now.getMonth() + 1 },
 		preserveState: true,
 		preserveScroll: true,
