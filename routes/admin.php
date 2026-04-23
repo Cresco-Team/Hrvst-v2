@@ -4,7 +4,6 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DealerController;
 use App\Http\Controllers\Admin\FarmerController;
 use App\Http\Controllers\Admin\UserController;
-use App\Http\Controllers\Admin\Vegetable\CategoryController;
 use App\Http\Controllers\Admin\Vegetable\VarietyController;
 use App\Http\Controllers\Admin\Vegetable\VarietyPriceController;
 use App\Http\Controllers\Admin\Vegetable\VegetableController;
@@ -29,7 +28,7 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     /* ---------- vegetables ---------- */
 
     Route::prefix('categories')->name('categories.')->group(function () {
-        Route::get('/', [CategoryController::class, 'index'])->name('index');
+        Route::get('/', [VegetableController::class, 'category'])->name('index');
     });
 
     Route::prefix('vegetables')->name('vegetables.')->group(function () {
