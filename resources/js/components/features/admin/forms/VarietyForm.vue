@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import type { VarietyResource } from '@/types/resources/product'
+import { store, update } from '@/actions/App/Http/Controllers/Admin/Vegetable/VarietyController'
 
 interface VarietyFormData {
 	vegetable_id: string
@@ -21,8 +22,6 @@ const props = defineProps<{
 	open: boolean
 	variety: VarietyResource | null
 	parentVegetable: { id: number; name: string } | null
-	storeUrl: string
-	updateUrl?: string
 }>()
 
 const emit = defineEmits<{
@@ -101,7 +100,7 @@ function handleSubmit(): void {
 			...(data.image ? { image: data.image } : {}),
 		}))
 
-		form.put(props.updateUrl!, {
+		form.put(update({ variety: props.variety!.id }).url!, {
 			preserveScroll: true,
 			preserveState: true,
 			onSuccess: () => emit('success'),
@@ -115,7 +114,7 @@ function handleSubmit(): void {
 			price_max: data.price_max,
 		}))
 
-		form.post(props.storeUrl, {
+		form.post(store().url, {
 			preserveScroll: true,
 			preserveState: true,
 			forceFormData: true,
