@@ -29,6 +29,7 @@ import admin from '@/routes/admin'
 import { index } from '@/routes/admin/farmers'
 import users from '@/routes/admin/users'
 import type { AdminFarmersProps, BreadcrumbItem, FarmerMarker, FarmerResource } from '@/types'
+import { details as farmerDetails, markers as farmerMarkers } from '@/actions/App/Http/Controllers/Admin/FarmerController'
 
 const props = defineProps<AdminFarmersProps>()
 
@@ -82,25 +83,24 @@ function switchView(newView: 'list' | 'map') {
 
 /* -- Data Fetching -- */
 async function fetchMarkers() {
-	loadingMarkers.value = true
-	try {
-		const params: Record<string, unknown> = {}
+    loadingMarkers.value = true
+    try {
+        const params: Record<string, unknown> = {}
+        if (selectedMunicipality.value) params.municipality_id = selectedMunicipality.value
+        if (selectedVariety.value) params.variety_id = selectedVariety.value
+        if (mapBounds.value) params.bounds = mapBounds.value
 
-		if (selectedMunicipality.value) params.municipality_id = selectedMunicipality.value
-		if (selectedVariety.value) params.variety_id = selectedVariety.value
-		if (mapBounds.value) params.bounds = mapBounds.value
-
-		const { data } = await axios.get<{ markers: FarmerMarker[]; total: number }>(
-			'/admin/farmers/api/markers',
-			{ params },
-		)
-		markers.value = data.markers
-	} catch (error: unknown) {
-		const message = error instanceof Error ? error.message : 'Failed to load farmer markers'
+        const { data } = await axios.get<{ markers: FarmerMarker[]; total: number }>(
+            farmerMarkers().url,  // ← was '/admin/farmers/api/markers'
+            { params },
+        )
+        markers.value = data.markers
+    } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : 'Failed to load farmer markers'
 		toast.error('Error loading markers', { description: message })
-	} finally {
-		loadingMarkers.value = false
-	}
+    } finally {
+        loadingMarkers.value = false
+    }
 }
 
 async function loadFarmerDetails(farmerId: number) {
@@ -109,7 +109,7 @@ async function loadFarmerDetails(farmerId: number) {
 	selectedFarmer.value = null
 
 	try {
-		const { data } = await axios.get<FarmerResource>(`/admin/farmers/api/${farmerId}/details`)
+		const { data } = await axios.get<FarmerResource>(farmerDetails(farmerId).url)
 		selectedFarmer.value = data
 	} catch (error: unknown) {
 		const message = error instanceof Error ? error.message : 'Failed to load farmer information'
