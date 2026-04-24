@@ -4,7 +4,7 @@
 import type { PostStatus } from '../enums'
 import type {
 	DealerDemandResource,
-	DemandVarietyOption,
+	VarietyOption,
 	FarmerSupplyResource,
 	SupplyMapFilterOptions,
 	VarietyOptionsByCategory,
@@ -12,6 +12,35 @@ import type {
 import type { CategoryOption, VarietyResource } from '../resources/product'
 import type { DealerDemandSummary } from '../resources/profile'
 import type { MapConfig, Paginated } from '../shared'
+
+// ─── dealer/Dashboard ─────────────────────────────────────────────────────────
+
+export type DealerRecommendationSeverity = 'critical' | 'warning' | 'info'
+
+export interface DealerDashboardRecommendation {
+	severity: DealerRecommendationSeverity
+	type: string
+	title: string
+	body: string
+}
+
+export interface DealerPriceSnapshot {
+	variety_id: number
+	variety_name: string
+	vegetable_name: string
+	price_min: number
+	price_max: number
+	freshness: 'recent' | 'stable' | 'very stable' | 'stale'
+	recorded_at: string
+	weeks_stale: number
+}
+
+export interface DealerDashboardProps {
+	summary: DealerDemandSummary // Inertia::defer
+	expiringDemands: DealerDemandResource[] // Inertia::defer
+	priceSnapshots: DealerPriceSnapshot[] // Inertia::defer
+	recommendations: DealerDashboardRecommendation[] // Inertia::defer
+}
 
 // ─── dealer/demands/Index ─────────────────────────────────────────────────────
 
@@ -22,7 +51,7 @@ export interface DealerDemandsFilters {
 export interface DealerDemandsProps {
 	filters: DealerDemandsFilters
 	summary: DealerDemandSummary // Inertia::defer
-	varietyOptions: VarietyOptionsByCategory<DemandVarietyOption> // Inertia::defer
+	varietyOptions: VarietyOptionsByCategory<VarietyOption> // Inertia::defer
 	demands: Paginated<DealerDemandResource> // Inertia::defer
 }
 
