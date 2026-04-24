@@ -9,6 +9,7 @@ import { Separator } from '@/components/ui/separator'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { cn } from '@/lib/utils'
 import type { DealerDemandResource, FarmerSupplyResource } from '@/types'
+import { toggle as togglePostHeart } from '@/actions/App/Http/Controllers/PostHeartController'
 
 // Used by both farmer/marketplace (viewing DealerDemandResource) and
 // dealer/marketplace (viewing FarmerSupplyResource). Both shapes share all
@@ -38,7 +39,7 @@ async function toggleHeart(event: MouseEvent): Promise<void> {
 
     try {
         const { data } = await axios.post<{ hearted: boolean; hearts_count: number }>(
-            `/posts/${post.id}/heart`,
+            togglePostHeart(post.id).url,
         )
         localHearted.value = data.hearted
         localCount.value = data.hearts_count
