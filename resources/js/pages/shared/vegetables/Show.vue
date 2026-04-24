@@ -15,7 +15,8 @@ import { Separator } from '@/components/ui/separator'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { Skeleton } from '@/components/ui/skeleton'
 import AppLayout from '@/layouts/AppLayout.vue'
-import { categories } from '@/routes'
+import { useCapitalize } from '@/lib/utils'
+import { categories, dashboard } from '@/routes'
 import vegetables from '@/routes/vegetables'
 import type {
 	BreadcrumbItem,
@@ -42,6 +43,7 @@ const props = defineProps<Props>()
 // ─── Routing context ──────────────────────────────────────────────────────────
 
 const breadcrumbs = computed<BreadcrumbItem[]>(() => [
+	{ title: useCapitalize(usePage().props.auth.user.roles[0]), href: dashboard().url },
 	{ title: 'Vegetables', href: categories().url },
 	{
 		title: props.meta.categoryName,

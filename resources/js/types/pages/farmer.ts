@@ -6,12 +6,41 @@ import type {
 	DealerDemandResource,
 	FarmerSupplyResource,
 	SupplyMapFilterOptions,
-	SupplyVarietyOption,
+	VarietyOption,
 	VarietyOptionsByCategory,
 } from '../resources/marketplace'
 import type { CategoryOption, VarietyResource } from '../resources/product'
 import type { FarmerSupplySummary } from '../resources/profile'
 import type { MapConfig, Paginated } from '../shared'
+
+// ─── farmer/Dashboard ─────────────────────────────────────────────────────────
+
+export type RecommendationSeverity = 'critical' | 'warning' | 'info'
+
+export interface FarmerDashboardRecommendation {
+	severity: RecommendationSeverity
+	type: string
+	title: string
+	body: string
+}
+
+export interface FarmerPriceSnapshot {
+	variety_id: number
+	variety_name: string
+	vegetable_name: string
+	price_min: number
+	price_max: number
+	freshness: 'recent' | 'stable' | 'very stable' | 'stale'
+	recorded_at: string
+	weeks_stale: number
+}
+
+export interface FarmerDashboardProps {
+	summary: FarmerSupplySummary // Inertia::defer
+	expiringSupplies: FarmerSupplyResource[] // Inertia::defer
+	priceSnapshots: FarmerPriceSnapshot[] // Inertia::defer
+	recommendations: FarmerDashboardRecommendation[] // Inertia::defer
+}
 
 // ─── farmer/supplies/Index ────────────────────────────────────────────────────
 
@@ -22,7 +51,7 @@ export interface FarmerSuppliesFilters {
 export interface FarmerSuppliesProps {
 	filters: FarmerSuppliesFilters
 	summary: FarmerSupplySummary // Inertia::defer
-	varietyOptions: VarietyOptionsByCategory<SupplyVarietyOption> // Inertia::defer
+	varietyOptions: VarietyOptionsByCategory<VarietyOption> // Inertia::defer
 	supplies: Paginated<FarmerSupplyResource> // Inertia::defer
 }
 

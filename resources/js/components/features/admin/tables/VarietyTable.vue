@@ -170,7 +170,7 @@ const trendIcon = {
             class="border-t transition-colors"
             :class="row.depth === 0
               ? 'hover:bg-muted/30 font-medium'
-              : 'bg-muted/10 hover:bg-muted/20'"
+              : 'bg-green-50/60 hover:bg-green-100/60 dark:bg-green-950/20 dark:hover:bg-green-950/40'"
           >
             <!-- expand toggle -->
             <td class="w-8 px-2 py-2">

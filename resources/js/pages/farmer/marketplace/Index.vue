@@ -68,7 +68,7 @@ function handlePageChange(page: number) {
 }
 
 const breadcrumbs: BreadcrumbItem[] = [
-	{ title: 'Farmer', href: farmer.supplies.index().url },
+	{ title: 'Farmer', href: farmer.dashboard().url },
 	{ title: 'Marketplace Demands', href: farmer.marketplace.index().url },
 ]
 </script>

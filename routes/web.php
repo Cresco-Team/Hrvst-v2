@@ -36,6 +36,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
             return redirect()->route('admin.dashboard');
         }
 
+        if ($user->hasRole('farmer')) {
+            return redirect()->route('farmer.dashboard');
+        }
+
+        if ($user->hasRole('dealer')) {
+            return redirect()->route('dealer.dashboard');
+        }
+
         return redirect()->route('categories');
     })->name('dashboard');
 });
@@ -47,7 +55,7 @@ if (app()->environment('local', 'development')) {
         Route::get('login/admin', function () {
             Auth::loginUsingId(1);
 
-            return redirect()->route('admin.dashboard');
+            return redirect()->route('dashboard');
         })->name('login.admin');
 
         Route::get('login/farmer', function () {
