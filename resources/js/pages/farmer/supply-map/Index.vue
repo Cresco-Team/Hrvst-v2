@@ -20,7 +20,7 @@ import type {
 defineProps<FarmerSupplyMapProps>()
 
 const breadcrumbs: BreadcrumbItem[] = [
-  { title: 'Farmer', href: farmer.supplies.index().url },
+  { title: 'Farmer', href: farmer.dashboard().url },
   { title: 'Supply Map', href: farmer.supplyMap.index().url },
 ]
 
