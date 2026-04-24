@@ -1,17 +1,22 @@
 <script setup lang='ts'>
-import { Head, Link } from '@inertiajs/vue3'
+import { Head, Link, usePage } from '@inertiajs/vue3'
 import { ArrowRight, Leaf } from 'lucide-vue-next'
 import Heading from '@/components/Heading.vue'
 import { Item, ItemContent, ItemMedia, ItemTitle } from '@/components/ui/item'
 import AppLayout from '@/layouts/AppLayout.vue'
+import { useCapitalize } from '@/lib/utils'
+import { dashboard } from '@/routes'
 import vegetables from '@/routes/vegetables'
 import type { BreadcrumbItem, SharedCategoriesProps } from '@/types'
 
 const props = defineProps<SharedCategoriesProps>()
 
 const breadcrumbs: BreadcrumbItem[] = [
+	{
+		title: useCapitalize(usePage().props.auth.user.roles[0]),
+		href: dashboard().url,
+	},
 	{ title: 'Vegetable', href: vegetables.index().url },
-	{ title: '', href: vegetables.index().url },
 ]
 </script>
 

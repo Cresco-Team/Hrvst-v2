@@ -16,9 +16,8 @@ import {
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group'
 import { Skeleton } from '@/components/ui/skeleton'
 import AppLayout from '@/layouts/AppLayout.vue'
-import { categories } from '@/routes'
-import dealer from '@/routes/dealer'
-import farmer from '@/routes/farmer'
+import { useCapitalize } from '@/lib/utils'
+import { categories, dashboard } from '@/routes'
 import { index, show } from '@/routes/vegetables'
 import type { BreadcrumbItem, SharedCategoryProps } from '@/types'
 import type { Paginated } from '@/types/index'
@@ -31,7 +30,7 @@ interface VegetablesFilters {
 interface Props {
 	category: SharedCategoryProps
 	filters: VegetablesFilters
-	vegetables?: Paginated<VegetableResource> // Inertia::defer — varieties eager-loaded
+	vegetables?: Paginated<VegetableResource>
 }
 
 const props = defineProps<Props>()
@@ -43,6 +42,7 @@ let searchDebounce: ReturnType<typeof setTimeout> | null = null
 // ─── Breadcrumbs ─────────────────────────────────────────────────────────────
 
 const breadcrumbs: BreadcrumbItem[] = [
+	{ title: useCapitalize(usePage().props.auth.user.roles[0]), href: dashboard().url },
 	{ title: 'Vegetables', href: categories().url },
 	{
 		title: props.category.name,
