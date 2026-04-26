@@ -59,7 +59,7 @@ class VarietyController extends Controller
             image: $request->file('image')
         );
 
-        return redirect()->route('admin.vegetables.index')
+        return redirect()->back()
             ->with('flash', ['type' => 'success', 'message' => 'Variety created successfully.']);
     }
 
@@ -71,7 +71,7 @@ class VarietyController extends Controller
             image: $request->file('image')
         );
 
-        return redirect()->route('admin.vegetables.index')
+        return redirect()->back()
             ->with('flash', ['type' => 'success', 'message' => 'Variety updated successfully.']);
     }
 
@@ -79,7 +79,7 @@ class VarietyController extends Controller
     {
         $deleteVariety->handle($variety);
 
-        return redirect()->route('admin.vegetables.index')
+        return redirect()->back()
             ->with('flash', ['type' => 'success', 'message' => 'Variety deleted successfully.']);
     }
 }
