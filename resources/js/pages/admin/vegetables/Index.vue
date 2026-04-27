@@ -294,8 +294,6 @@ function handleSearch(query: string): void {
     :open="varietyFormOpen"
     :variety="activeVariety"
     :parent-vegetable="activeParentVegetable"
-    :store-url="admin.vegetables.varieties.store().url"
-    :update-url="activeVariety ? admin.vegetables.varieties.update({ variety: activeVariety.id }).url : undefined"
     @update:open="varietyFormOpen = $event"
     @success="varietyFormOpen = false"
   />

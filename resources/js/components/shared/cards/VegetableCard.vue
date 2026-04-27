@@ -10,6 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Separator } from '@/components/ui/separator'
 import { cn } from '@/lib/utils'
 import type { PriceTrend, VarietyResource } from '@/types'
+import { toggle as toggleVarietyHeart } from '@/actions/App/Http/Controllers/VarietyHeartController'
 
 const props = defineProps<{
 	variety: VarietyResource
@@ -32,8 +33,8 @@ async function toggleHeart(event: MouseEvent): Promise<void> {
 
 	try {
 		const { data } = await axios.post<{ hearted: boolean; hearts_count: number }>(
-			`/varieties/${props.variety.id}/heart`,
-		)
+            toggleVarietyHeart(props.variety.id).url,
+        )
 		localHearted.value = data.hearted
 		localCount.value = data.hearts_count
 	} catch {

@@ -14,6 +14,7 @@ import AppLayout from '@/layouts/AppLayout.vue'
 import admin from '@/routes/admin'
 import users from '@/routes/admin/users'
 import type { AdminDealersProps, BreadcrumbItem, DealerResource } from '@/types'
+import { details as dealerDetails } from '@/actions/App/Http/Controllers/Admin/DealerController'
 
 const props = defineProps<AdminDealersProps>()
 
@@ -33,7 +34,7 @@ async function loadDealerDetails(dealerId: number) {
 	selectedDealer.value = null
 	sidebarOpen.value = true
 	try {
-		const { data } = await axios.get<DealerResource>(`/admin/dealers/api/${dealerId}/details`)
+		const { data } = await axios.get<DealerResource>(dealerDetails(dealerId).url)
 		selectedDealer.value = data
 	} catch (error: unknown) {
 		const message = error instanceof Error ? error.message : 'Failed to load dealer information'

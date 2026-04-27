@@ -45,7 +45,7 @@ class VegetableController extends Controller
     public function index(Request $request): Response|RedirectResponse
     {
         if (! $request->filled('category')) {
-            return redirect()->route('admin.vegetables.category');
+            return redirect()->route('admin.categories.index');
         }
 
         $slug = $request->query('category');
@@ -79,7 +79,7 @@ class VegetableController extends Controller
 
         Vegetable::create($request->validated());
 
-        return redirect()->route('admin.vegetables.index')
+        return redirect()->back()
             ->with('flash', ['type' => 'success', 'message' => 'Vegetable created successfully.']);
     }
 
@@ -89,7 +89,7 @@ class VegetableController extends Controller
 
         $vegetable->update($request->validated());
 
-        return redirect()->route('admin.vegetables.index')
+        return redirect()->back()
             ->with('flash', ['type' => 'success', 'message' => 'Vegetable updated successfully.']);
     }
 
@@ -99,7 +99,7 @@ class VegetableController extends Controller
 
         $vegetable->delete();
 
-        return redirect()->route('admin.vegetables.index')
+        return redirect()->back()
             ->with('flash', ['type' => 'success', 'message' => 'Vegetable deleted successfully.']);
     }
 }
