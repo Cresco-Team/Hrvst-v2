@@ -69,6 +69,12 @@ const trendConfig = computed<TrendConfig | null>(() => {
                     :alt="`${variety.vegetable?.name} ${variety.name}`"
                     class="absolute inset-0 h-full w-full object-cover"
                 />
+
+                <div class="absolute bottom-0 right-0 rounded-tl-lg bg-black/60 px-3 py-1 text-xs font-medium text-white backdrop-blur-sm">
+                    <AppTooltip :content="variety.price_updated_date">
+                        <span class="cursor-help">{{ variety.price_updated_human }}</span>
+                    </AppTooltip>
+                </div>
             </AspectRatio>
 
             <!-- BUG FIX: was gap-2 in Card but header had no top padding — collapsed weirdly.
@@ -77,9 +83,6 @@ const trendConfig = computed<TrendConfig | null>(() => {
                 <CardTitle class="text-sm leading-tight sm:text-base">
                     {{ variety.vegetable?.name }} {{ variety.name }}
                 </CardTitle>
-                <CardDescription class="text-xs">
-                    {{ variety.vegetable?.category?.name }}
-                </CardDescription>
             </CardHeader>
 
             <div class="px-3 sm:px-4">
@@ -88,27 +91,23 @@ const trendConfig = computed<TrendConfig | null>(() => {
         </Link>
 
         <CardContent class="flex flex-col gap-1.5 px-3 py-2 sm:px-4 sm:py-3">
-            <!-- Price row — BUG FIX: apply trendConfig.class to the icon, not hardcoded muted -->
-            <div class="flex items-center gap-1.5 font-mono">
-                <component
-                    :is="trendConfig?.icon ?? Minus"
-                    :size="16"
-                    :class="trendConfig?.class ?? 'text-muted-foreground'"
-                />
-                <AppTooltip :content="`${variety.latest_price?.freshness} price since ${variety.price_updated_date}`">
-                    <span class="text-xs sm:text-sm cursor-help">
-                        ₱{{ variety.latest_price?.price_min.toFixed(2) }} –
-                        ₱{{ variety.latest_price?.price_max.toFixed(2) }}
-                    </span>
-                </AppTooltip>
-            </div>
 
-            <!-- Date row -->
-            <div class="flex items-center gap-1.5">
-                <CalendarSync :size="16" class="shrink-0 text-muted-foreground" />
-                <AppTooltip :content="variety.price_updated_date">
-                    <span class="text-xs cursor-help">{{ variety.price_updated_human }}</span>
-                </AppTooltip>
+            <div>
+                <p class="text-xs text-muted-foreground">Suggested retail price</p>
+
+                <div class="flex items-center gap-1.5 font-mono">
+                    <component
+                        :is="trendConfig?.icon ?? Minus"
+                        :size="16"
+                        :class="trendConfig?.class ?? 'text-muted-foreground'"
+                    />
+                    <AppTooltip :content="`${variety.latest_price?.freshness} price since ${variety.price_updated_date}`">
+                        <span class="text-xs sm:text-sm cursor-help">
+                            ₱{{ variety.latest_price?.price_min.toFixed(2) }} -
+                            ₱{{ variety.latest_price?.price_max.toFixed(2) }}
+                        </span>
+                    </AppTooltip>
+                </div>
             </div>
 
             <!-- Heart row -->
