@@ -28,11 +28,8 @@ class ProductSeeder extends Seeder
                 'Cabbage Scorpio',
                 'Cabbage Wonderball',
                 'Cabbage Rareball',
-                'Pechay',
                 'Celery',
                 'Broccoli',
-                'Cauliflower',
-                'Spinach',
             ],
             'Root Vegetables' => [
                 'Carrot',
@@ -40,25 +37,16 @@ class ProductSeeder extends Seeder
                 'Potato LBR',
                 'Radish Long',
                 'Sayote',
-                'Turnip',
-                'Beet',
             ],
             'Fruiting Vegetables' => [
                 'Tomato',
-                'Eggplant',
                 'Cucumber',
                 'Bell Pepper',
-                'Lemon',
                 'Chayote',
             ],
             'Bean Vegetables' => [
                 'Snap Beans',
                 'Garden Peas',
-                'String Beans',
-                'Green Beans',
-                'Sugar Snap Peas',
-                'Chicharo',
-                'Broad Beans',
             ],
         ];
 
@@ -76,12 +64,9 @@ class ProductSeeder extends Seeder
         $data = [
             // ── Leafy Vegetables ─────────────────────────────────────────────
             'Lettuce' => [
-                ['name' => 'Green Batavia'],
-                ['name' => 'Red Batavia'],
-                ['name' => 'Butterhead'],
-                ['name' => 'Romaine (Cos)'],
-                ['name' => 'Lollo Rossa'],
-                ['name' => 'Grand Rapids'],
+                ['name' => 'Iceberg'],
+                ['name' => 'Green Ice'],
+                ['name' => 'Romaine'],
             ],
             'Cabbage Scorpio' => [
                 ['name' => '1st Class'],
@@ -96,30 +81,13 @@ class ProductSeeder extends Seeder
                 ['name' => '1st Class'],
                 ['name' => '2nd Class'],
             ],
-            'Pechay' => [
-                ['name' => 'Improved White Stem'],
-                ['name' => 'Green Fortune'],
-                ['name' => 'Baguio White'],
-                ['name' => 'Hybrid F1 Pechay'],
-            ],
             'Celery' => [
-                ['name' => 'Utah 52-70'],
-                ['name' => 'Tall Utah'],
-                ['name' => 'Golden Self-Blanching'],
+                ['name' => 'Good'],
+                ['name' => 'Semi'],
             ],
             'Broccoli' => [
-                ['name' => 'Trimmed'],
-            ],
-            'Cauliflower' => [
-                ['name' => 'Snowball Y'],
-                ['name' => 'Igloo'],
-                ['name' => 'Benguet White'],
-                ['name' => 'Amazing'],
-            ],
-            'Spinach' => [
-                ['name' => 'Bloomsdale'],
-                ['name' => 'Tyee'],
-                ['name' => 'Regiment'],
+                ['name' => 'Good'],
+                ['name' => 'Semi'],
             ],
 
             // ── Root Vegetables ───────────────────────────────────────────────
@@ -127,7 +95,6 @@ class ProductSeeder extends Seeder
                 ['name' => 'Big'],
                 ['name' => 'ML'],
                 ['name' => 'Medium'],
-                ['name' => 'Lumpia'],
             ],
             'Potato Granola' => [
                 ['name' => 'SXL'],
@@ -154,27 +121,12 @@ class ProductSeeder extends Seeder
                 ['name' => 'White Smooth'],
                 ['name' => 'Spineless Green'],
             ],
-            'Turnip' => [
-                ['name' => 'Purple Top White Globe'],
-                ['name' => 'Tokyo Cross'],
-            ],
-            'Beet' => [
-                ['name' => 'Detroit Dark Red'],
-                ['name' => 'Chioggia'],
-                ['name' => 'Golden Beet'],
-            ],
 
             // ── Fruiting Vegetables ───────────────────────────────────────────
             'Tomato' => [
                 ['name' => 'Green Big-Jumbo'],
                 ['name' => 'Green Medium'],
                 ['name' => 'Half Ripe Big-Jumbo'],
-            ],
-            'Eggplant' => [
-                ['name' => 'Long Purple'],
-                ['name' => 'Black Beauty'],
-                ['name' => 'Ping Tung Long'],
-                ['name' => 'Sinabawanon'],
             ],
             'Cucumber' => [
                 ['name' => 'Good'],
@@ -190,10 +142,6 @@ class ProductSeeder extends Seeder
                 ['name' => 'Sultan Big'],
                 ['name' => 'Sultan Medium'],
             ],
-            'Lemon' => [
-                ['name' => 'Green'],
-                ['name' => 'Yelow'],
-            ],
             'Chayote' => [
                 ['name' => '1st Class'],
                 ['name' => '2nd Class'],
@@ -207,30 +155,6 @@ class ProductSeeder extends Seeder
             ],
             'Garden Peas' => [
                 ['name' => 'Chinese'],
-            ],
-            'String Beans' => [
-                ['name' => 'Contender'],
-                ['name' => 'Blue Lake'],
-                ['name' => 'Jade'],
-                ['name' => 'Sitaw Pula'],
-            ],
-            'Green Beans' => [
-                ['name' => 'Kentucky Wonder'],
-                ['name' => 'Provider'],
-                ['name' => 'Roma II'],
-            ],
-            'Sugar Snap Peas' => [
-                ['name' => 'Super Sugar Snap'],
-                ['name' => 'Cascadia'],
-                ['name' => 'Sugar Ann'],
-            ],
-            'Chicharo' => [
-                ['name' => 'Benguet Chicharo Local'],
-                ['name' => 'Wando'],
-            ],
-            'Broad Beans' => [
-                ['name' => 'Aquadulce Claudia'],
-                ['name' => 'The Sutton'],
             ],
         ];
 
