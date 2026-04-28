@@ -7,7 +7,7 @@ use App\Enums\PostStatus;
 use App\Enums\PostTimeSlot;
 use App\Enums\PostType;
 use App\Models\Interaction\PostHeart;
-use App\Models\Product\Variety;
+use App\Models\Product\Vegetable;
 use App\Models\Profiles\DealerProfile;
 use App\Models\Profiles\FarmerProfile;
 use App\Models\User;
@@ -57,9 +57,9 @@ class Post extends Model implements HasMedia
         return $this->belongsTo(User::class);
     }
 
-    public function variety(): BelongsTo
+    public function vegetable(): BelongsTo
     {
-        return $this->belongsTo(Variety::class);
+        return $this->belongsTo(Vegetable::class);
     }
 
     public function hearts(): HasMany

@@ -2,6 +2,7 @@
 
 namespace App\Models\Product;
 
+use App\Models\Marketplace\Post;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -27,6 +28,11 @@ class Vegetable extends Model
     public function varieties(): HasMany
     {
         return $this->hasMany(Variety::class);
+    }
+
+    public function posts(): HasMany
+    {
+        return $this->hasMany(Post::class);
     }
 
     /* ---------- scopes ---------- */

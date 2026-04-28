@@ -3,7 +3,6 @@
 namespace App\Models\Product;
 
 use App\Models\Interaction\VarietyHeart;
-use App\Models\Marketplace\Post;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -55,11 +54,6 @@ class Variety extends Model implements HasMedia
         return $this->hasMany(PriceHistory::class)
             ->latest('recorded_at')
             ->limit(2);
-    }
-
-    public function posts(): HasMany
-    {
-        return $this->hasMany(Post::class);
     }
 
     public function hearts(): HasMany
