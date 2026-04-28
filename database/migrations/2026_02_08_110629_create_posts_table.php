@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('posts', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('variety_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('vegetable_id')->constrained()->cascadeOnDelete();
 
             $table->enum('type', ['supply', 'demand']);
             $table->enum('status', ['Ongoing', 'Archived', 'Fulfilled'])->default('Ongoing');
