@@ -2,10 +2,8 @@
 
 namespace App\Actions\Demand;
 
-use App\Enums\PostPriceFlag;
 use App\Enums\PostStatus;
 use App\Models\Marketplace\Post;
-use App\Models\Product\Variety;
 
 final class UpdateDemandAction
 {
@@ -16,21 +14,11 @@ final class UpdateDemandAction
         }
 
         $fields = array_intersect_key($validated, array_flip([
-            'variety_id', 'quantity_kg', 'offered_price', 'scheduled_date', 'time_slot',
+            'vegetable_id', 'quantity_kg', 'scheduled_date', 'time_slot',
         ]));
-
-        if (isset($fields['offered_price'])) {
-            $variety = Variety::with('latestPrice')
-                ->findOrFail($fields['variety_id'] ?? $post->variety_id);
-
-            $fields['price_flag'] = PostPriceFlag::fromMarketPrice(
-                (float) $fields['offered_price'],
-                $variety->latestPrice
-            );
-        }
 
         $post->update($fields);
 
-        return $post->fresh('variety');
+        return $post->fresh('vegetable');
     }
 }
