@@ -13,7 +13,7 @@ class MarketplaceService
     {
         $query = Post::demand()
             ->ongoing()
-            ->with(['variety.media', 'variety.vegetable.category', 'variety.latestPrice']);
+            ->with(['vegetable.category']);
 
         if ($userId) {
             $query->withExists([
@@ -23,19 +23,15 @@ class MarketplaceService
 
         if (! empty($filters['search'])) {
             $search = $filters['search'];
-            $query->whereHas('variety', fn (Builder $q) => $q->where('name', 'LIKE', "%{$search}%")
-                ->orWhereHas('vegetable', fn (Builder $vq) => $vq->where('name', 'LIKE', "%{$search}%")
-                )
-            );
+            $query->whereHas('vegetable', fn (Builder $q) => $q->where('name', 'LIKE', "%{$search}%"));
         }
 
         if (! empty($filters['category_id'])) {
-            $query->whereHas('variety.vegetable', fn (Builder $q) => $q->where('category_id', $filters['category_id'])
-            );
+            $query->whereHas('vegetable', fn (Builder $q) => $q->where('category_id', $filters['category_id']));
         }
 
-        if (! empty($filters['variety_id'])) {
-            $query->where('variety_id', $filters['variety_id']);
+        if (! empty($filters['vegetable_id'])) {
+            $query->where('vegetable_id', $filters['vegetable_id']);
         }
 
         if (! empty($filters['date_from'])) {
@@ -52,7 +48,7 @@ class MarketplaceService
     public function categoryOptions(): array
     {
         return Category::whereHas(
-            'vegetables.varieties.posts',
+            'vegetables.posts',
             fn (Builder $q) => $q->ongoing()->demand()->where('scheduled_date', '>=', now())
         )
             ->orderBy('name')

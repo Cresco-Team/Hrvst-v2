@@ -13,7 +13,7 @@ class MarketplaceService
     {
         $query = Post::supply()
             ->ongoing()
-            ->with(['media', 'variety.media', 'variety.vegetable.category', 'variety.latestPrice', 'farmerProfile.municipality']);
+            ->with(['media', 'vegetable.category', 'farmerProfile.municipality']);
 
         if ($userId) {
             $query->withExists([
@@ -21,18 +21,21 @@ class MarketplaceService
             ]);
         }
 
-        if (! empty($filters['category_id'])) {
-            $query->whereHas('variety.vegetable', fn (Builder $q) => $q->where('category_id', $filters['category_id'])
-            );
+        if (! empty($filters['search'])) {
+            $search = $filters['search'];
+            $query->whereHas('vegetable', fn (Builder $q) => $q->where('name', 'LIKE', "%{$search}%"));
         }
 
-        if (! empty($filters['variety_id'])) {
-            $query->where('variety_id', $filters['variety_id']);
+        if (! empty($filters['category_id'])) {
+            $query->whereHas('vegetable', fn (Builder $q) => $q->where('category_id', $filters['category_id']));
+        }
+
+        if (! empty($filters['vegetable_id'])) {
+            $query->where('vegetable_id', $filters['vegetable_id']);
         }
 
         if (! empty($filters['municipality_id'])) {
-            $query->whereHas('farmerProfile', fn (Builder $q) => $q->where('municipality_id', $filters['municipality_id'])
-            );
+            $query->whereHas('farmerProfile', fn (Builder $q) => $q->where('municipality_id', $filters['municipality_id']));
         }
 
         return $query->orderBy('scheduled_date', 'asc')->paginate($perPage);
@@ -41,11 +44,8 @@ class MarketplaceService
     public function categoryOptions(): array
     {
         return Category::whereHas(
-            'vegetables.varieties.posts',
-            fn (Builder $q) => $q
-                ->ongoing()
-                ->supply()
-                ->where('scheduled_date', '>=', now())
+            'vegetables.posts',
+            fn (Builder $q) => $q->ongoing()->supply()->where('scheduled_date', '>=', now())
         )
             ->orderBy('name')
             ->get()
