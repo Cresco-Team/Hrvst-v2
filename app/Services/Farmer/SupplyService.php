@@ -4,7 +4,7 @@ namespace App\Services\Farmer;
 
 use App\Enums\PostStatus;
 use App\Models\Marketplace\Post;
-use App\Models\Product\Variety;
+use App\Models\Product\Vegetable;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class SupplyService
@@ -24,7 +24,7 @@ class SupplyService
     {
         $query = Post::supply()
             ->where('user_id', $userId)
-            ->with(['media', 'variety.media', 'variety.vegetable.category', 'variety.latestPrice']);
+            ->with(['media', 'vegetable.category']);
 
         match ($status) {
             PostStatus::Ongoing => $query->ongoing(),
@@ -35,19 +35,15 @@ class SupplyService
         return $query->orderBy('scheduled_date', 'desc')->paginate($perPage);
     }
 
-    public function varietyOptions(): array
+    public function vegetableOptions(): array
     {
-        return cache()->remember('farmer_supply_variety_options', 3600, fn () => Variety::with('vegetable.category', 'latestprice')
+        return cache()->remember('farmer_supply_vegetable_options', 3600, fn () => Vegetable::with('category')
             ->orderBy('name')
             ->get()
-            ->groupBy(fn ($variety) => $variety->vegetable->category->name)
-            ->map(fn ($varieties) => $varieties->map(fn ($variety) => [
-                'id' => $variety->id,
-                'name' => $variety->vegetable->name.' '.$variety->name,
-                'current_price' => $variety->latestPrice ? [
-                    'min' => (float) $variety->latestPrice->price_min,
-                    'max' => (float) $variety->latestPrice->price_max,
-                ] : null,
+            ->groupBy(fn ($vegetable) => $vegetable->category->name)
+            ->map(fn ($vegetables) => $vegetables->map(fn ($vegetable) => [
+                'id' => $vegetable->id,
+                'name' => $vegetable->name,
             ])->values()->toArray())
             ->toArray()
         );
