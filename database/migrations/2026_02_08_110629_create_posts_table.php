@@ -28,8 +28,8 @@ return new class extends Migration
 
             $table->index(['status']);
             $table->index(
-                ['variety_id', 'type', 'status', 'created_at'],
-                'idx_posts_variety_type_status_created'
+                ['vegetable_id', 'type', 'status', 'created_at'],
+                'idx_posts_vegetable_type_status_created'
             );
         });
     }
