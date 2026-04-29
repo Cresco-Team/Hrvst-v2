@@ -12,8 +12,6 @@ class FarmerSupplyResource extends JsonResource
         return [
             'id' => $this->id,
             'quantity_kg' => (float) $this->quantity_kg,
-            'offered_price' => (float) $this->offered_price,
-            'price_flag' => $this->price_flag,
             'status' => $this->status,
             'scheduled_date' => $this->scheduled_date?->format('M d, Y'),
             'time_slot' => $this->time_slot?->value,
@@ -26,24 +24,18 @@ class FarmerSupplyResource extends JsonResource
             'created_at' => $this->created_at->format('M d, Y'),
             'created_at_human' => $this->created_at->diffForHumans(),
 
-            /* with('media') */
-            'image_url' => $this->whenLoaded('media', fn () => $this->getFirstMediaUrl('post_image')
-            ),
+            'image_url' => $this->whenLoaded('media', fn () => $this->getFirstMediaUrl('post_image')),
 
-            /* with('variety.vegetable.category', 'variety.media') */
-            'variety' => $this->whenLoaded('variety', function () {
-                $variety = $this->variety;
+            'vegetable' => $this->whenLoaded('vegetable', function () {
+                $vegetable = $this->vegetable;
 
                 return [
-                    'id' => $variety->id,
-                    'name' => $variety->name,
-                    'vegetable' => $variety->relationLoaded('vegetable')
-                        ? $variety->vegetable->name
+                    'id' => $vegetable->id,
+                    'name' => $vegetable->name,
+                    'category' => $vegetable->relationLoaded('category')
+                        ? $vegetable->category->name
                         : null,
-                    'category' => $variety->relationLoaded('vegetable') && $variety->vegetable->relationLoaded('category')
-                        ? $variety->vegetable->category->name
-                        : null,
-                    'image_url' => $variety->getFirstMediaUrl('variety_image'),
+                    'image_url' => $vegetable->getFirstMediaUrl('vegetable_image'),
                 ];
             }),
         ];
