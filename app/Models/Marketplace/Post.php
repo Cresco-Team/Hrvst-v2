@@ -2,7 +2,6 @@
 
 namespace App\Models\Marketplace;
 
-use App\Enums\PostPriceFlag;
 use App\Enums\PostStatus;
 use App\Enums\PostTimeSlot;
 use App\Enums\PostType;
@@ -27,12 +26,10 @@ class Post extends Model implements HasMedia
 
     protected $fillable = [
         'user_id',
-        'variety_id',
+        'vegetable_id',
         'type',
         'status',
         'quantity_kg',
-        'offered_price',
-        'price_flag',
         'scheduled_date',
         'time_slot',
     ];
@@ -41,8 +38,6 @@ class Post extends Model implements HasMedia
     {
         return [
             'quantity_kg' => 'int',
-            'offered_price' => 'decimal:2',
-            'price_flag' => PostPriceFlag::class,
             'type' => PostType::class,
             'status' => PostStatus::class,
             'scheduled_date' => 'date',
@@ -159,9 +154,6 @@ class Post extends Model implements HasMedia
 
     public function registerMediaCollections(): void
     {
-        // Only supply posts carry an image; demands do not.
-        // The collection is registered on Post for both types but only populated
-        // by CreateSupplyAction / UpdateSupplyAction.
         $this->addMediaCollection('post_image')
             ->singleFile()
             ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/webp']);
