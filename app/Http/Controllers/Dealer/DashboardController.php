@@ -32,10 +32,6 @@ class DashboardController extends Controller
                 )
             ),
 
-            'priceSnapshots' => Inertia::defer(
-                fn () => $this->dashboardService->priceSnapshots($profile)
-            ),
-
             'recommendations' => Inertia::defer(
                 fn () => array_map(
                     fn ($rec) => $rec->toArray(),
