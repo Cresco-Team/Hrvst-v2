@@ -37,7 +37,7 @@ class DemandController extends Controller
         return Inertia::render('dealer/demands/Index', [
             'filters' => ['status' => $status],
             'summary' => Inertia::defer(fn () => $this->demandService->summary($userId)),
-            'varietyOptions' => Inertia::defer(fn () => $this->demandService->varietyOptions()),
+            'vegetableOptions' => Inertia::defer(fn () => $this->demandService->vegetableOptions()),
             'demands' => Inertia::defer(fn () => DealerDemandResource::collection(
                 $this->demandService->paginated(userId: $userId, status: $status)
             )),

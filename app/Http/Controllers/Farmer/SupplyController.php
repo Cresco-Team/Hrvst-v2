@@ -37,7 +37,7 @@ class SupplyController extends Controller
         return Inertia::render('farmer/supplies/Index', [
             'filters' => ['status' => $status],
             'summary' => Inertia::defer(fn () => $this->supplyService->summary($userId)),
-            'varietyOptions' => Inertia::defer(fn () => $this->supplyService->varietyOptions()),
+            'vegetableOptions' => Inertia::defer(fn () => $this->supplyService->vegetableOptions()),
             'supplies' => Inertia::defer(fn () => FarmerSupplyResource::collection(
                 $this->supplyService->paginated(userId: $userId, status: $status)
             )),
