@@ -4,26 +4,16 @@
 //   app/Http/Resources/Marketplace/MarketplacePostResource.php
 //   app/Services/Marketplace/VarietyCalendarService.php
 
-import type { PostPriceFlag, PostStatus, PostTimeSlot } from '../enums'
+import type { PostStatus, PostTimeSlot } from '../enums'
 import type { Coordinates } from '../shared'
 
-// ─── Embedded variety shape (both supply + demand resources) ──────────────────
+// ─── Embedded vegetable shape ─────────────────────────────────────────────────
 
-export interface PostVarietySnapshot {
+export interface PostVegetableSnapshot {
 	id: number
 	name: string
-	vegetable: string | null
 	category: string | null
 	image_url: string
-}
-
-export interface MarketplacePostVariety extends PostVarietySnapshot {
-	latest_price: {
-		price_min: number
-		price_max: number
-		recorded_at: string
-		freshness: 'recent' | 'stable' | 'very stable' | 'stale'
-	} | null
 }
 
 // ─── FarmerSupplyResource ─────────────────────────────────────────────────────
@@ -31,8 +21,6 @@ export interface MarketplacePostVariety extends PostVarietySnapshot {
 export interface FarmerSupplyResource {
 	id: number
 	quantity_kg: number
-	offered_price: number
-	price_flag: PostPriceFlag
 	status: PostStatus
 	scheduled_date: string | null
 	time_slot: PostTimeSlot | null
@@ -43,7 +31,7 @@ export interface FarmerSupplyResource {
 	created_at: string
 	created_at_human: string
 	image_url?: string
-	variety?: PostVarietySnapshot
+	vegetable?: PostVegetableSnapshot
 }
 
 // ─── DealerDemandResource ─────────────────────────────────────────────────────
@@ -51,8 +39,6 @@ export interface FarmerSupplyResource {
 export interface DealerDemandResource {
 	id: number
 	quantity_kg: number
-	offered_price: number
-	price_flag: PostPriceFlag
 	status: PostStatus
 	scheduled_date: string | null
 	time_slot: PostTimeSlot | null
@@ -62,7 +48,7 @@ export interface DealerDemandResource {
 	is_hearted: boolean
 	created_at: string
 	created_at_human: string
-	variety?: PostVarietySnapshot
+	vegetable?: PostVegetableSnapshot
 }
 
 // ─── MarketplacePost ──────────────────────────────────────────────────────────
@@ -72,8 +58,6 @@ export interface MarketplacePost {
 	type: 'supply' | 'demand'
 	status: PostStatus
 	quantity_kg: number
-	offered_price: number | null
-	price_flag: PostPriceFlag | null
 	scheduled_date: string | null
 	scheduled_date_iso: string | null
 	time_slot: PostTimeSlot | null
@@ -86,16 +70,11 @@ export interface MarketplacePost {
 	municipality: string | null
 	created_at: string
 	created_at_human: string
-	variety: MarketplacePostVariety
+	vegetable: PostVegetableSnapshot
 }
 
 // ─── Variety Calendar ─────────────────────────────────────────────────────────
-// Mirrors app/Services/Marketplace/VarietyCalendarService::forMonth()
-//
-// 'unscheduled' is a backend-only bucket for posts where time_slot IS NULL.
-// It is intentionally NOT part of the PostTimeSlot enum — that enum reflects
-// real DB column values, and NULL is not one of them. This is purely a
-// frontend display concept to prevent NULL posts silently disappearing.
+// 'unscheduled' is a frontend-only bucket for posts where time_slot IS NULL.
 
 export type CalendarTimeSlot = PostTimeSlot | 'unscheduled'
 
@@ -105,10 +84,7 @@ export interface VarietyCalendarEntry {
 	posts_count: number
 }
 
-/** Slot → entries for one calendar day */
 export type VarietyDaySchedule = Partial<Record<CalendarTimeSlot, VarietyCalendarEntry[]>>
-
-/** ISO date string "YYYY-MM-DD" → day schedule */
 export type VarietyMonthSchedule = Record<string, VarietyDaySchedule>
 
 export interface VarietyCalendarFilters {
@@ -134,7 +110,6 @@ export interface SupplyBreakdown {
 	category: string
 	count: number
 	total_quantity_kg: number
-	varieties: string[]
 }
 
 export interface FarmerMarker {
@@ -149,30 +124,25 @@ export interface FarmerMarker {
 export interface FarmerMarkerVegetableSummary {
 	vegetable: string
 	count: number
-	varieties: string[]
 }
 
 // ─── Option Bag Types ─────────────────────────────────────────────────────────
 
-export type VarietyOption = {
+export type VegetableOption = {
 	id: number
 	name: string
-	current_price: { min: number; max: number } | null
 }
 
-export type VarietyOptionsByCategory<T extends VarietyOption = VarietyOption> = Record<
-	string,
-	T[]
->
+export type VegetableOptionsByCategory = Record<string, VegetableOption[]>
 
 export interface SupplyMapFilterOptions {
 	categories: Array<{ id: number; name: string }>
-	varieties: Record<string, Array<{ id: number; name: string }>>
+	vegetables: Record<string, Array<{ id: number; name: string }>>
 }
 
 export interface SupplyMapFilters {
 	category_id: number | null
-	variety_id: number | null
+	vegetable_id: number | null
 }
 
 export interface MunicipalityOption {
@@ -180,10 +150,4 @@ export interface MunicipalityOption {
 	name: string
 	province: string
 	label: string
-}
-
-export interface SupplyOption {
-	id: number
-	name: string
-	category: string
 }
