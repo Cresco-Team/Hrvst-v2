@@ -11,31 +11,37 @@ class DealerDemandResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'quantity_kg' => (float) $this->quantity_kg,
             'status' => $this->status,
-            'scheduled_date' => $this->scheduled_date?->format('M d, Y'),
-            'time_slot' => $this->time_slot?->value,
-            'time_slot_label' => $this->time_slot?->label(),
-            'days_until_transaction' => $this->scheduled_date
-                ? (int) now()->diffInDays($this->scheduled_date, false)
+            'scheduled_at' => $this->scheduled_at?->format('M d, Y'),
+            'days_until_transaction' => $this->scheduled_at
+                ? (int) now()->diffInDays($this->scheduled_at, false)
                 : null,
             'hearts_count' => $this->hearts_count ?? 0,
             'is_hearted' => (bool) ($this->is_hearted ?? false),
             'created_at' => $this->created_at->format('M d, Y'),
             'created_at_human' => $this->created_at->diffForHumans(),
 
-            'vegetable' => $this->whenLoaded('vegetable', function () {
-                $vegetable = $this->vegetable;
+            /* with('vegetable.category') */
+            'vegetable' => $this->whenLoaded('vegetable', fn () => [
+                'id' => $this->vegetable->id,
+                'name' => $this->vegetable->name,
+                'category' => $this->vegetable->relationLoaded('category')
+                    ? $this->vegetable->category->name
+                    : null,
+                'image_url' => $this->vegetable->getFirstMediaUrl('vegetable_image'),
+            ]),
 
-                return [
-                    'id' => $vegetable->id,
-                    'name' => $vegetable->name,
-                    'category' => $vegetable->relationLoaded('category')
-                        ? $vegetable->category->name
-                        : null,
-                    'image_url' => $vegetable->getFirstMediaUrl('vegetable_image'),
-                ];
-            }),
+            /* with('postItems.variety') */
+            'items' => $this->whenLoaded('postItems', fn () => $this->postItems->map(fn ($item) => [
+                'id' => $item->id,
+                'variety_id' => $item->variety_id,
+                'variety_name' => $item->relationLoaded('variety') ? $item->variety->name : null,
+                'quantity_kg' => (float) $item->quantity_kg,
+                'unit_price' => $item->unit_price !== null ? (float) $item->unit_price : null,
+                'price_flag' => $item->price_flag,
+                'time_slot' => $item->time_slot?->value,
+                'time_slot_label' => $item->time_slot?->label(),
+            ])),
         ];
     }
 }
