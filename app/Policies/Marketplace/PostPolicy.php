@@ -32,13 +32,21 @@ class PostPolicy
     public function update(User $user, Post $post): bool
     {
         return $user->id === $post->user_id
-            && $post->status === PostStatus::Ongoing;
+            && $post->status === PostStatus::Growing; // supply only; demands use UpdateDemandAction which checks Ongoing
+    }
+
+    public function harvest(User $user, Post $post): bool
+    {
+        return $user->id === $post->user_id
+            && $post->type === PostType::Supply
+            && $post->status === PostStatus::Growing;
     }
 
     public function archive(User $user, Post $post): bool
     {
         return match ($post->type) {
-            PostType::Supply => $this->update($user, $post),
+            PostType::Supply => $user->id === $post->user_id
+                && in_array($post->status, [PostStatus::Growing, PostStatus::Ongoing], true),
             PostType::Demand => $user->id === $post->user_id
                 && $post->status !== PostStatus::Archived,
         };
