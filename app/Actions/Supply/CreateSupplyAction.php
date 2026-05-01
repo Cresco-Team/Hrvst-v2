@@ -2,6 +2,7 @@
 
 namespace App\Actions\Supply;
 
+use App\Enums\PostStatus;
 use App\Enums\PostType;
 use App\Models\Marketplace\Post;
 use App\Models\Profiles\FarmerProfile;
@@ -16,9 +17,9 @@ final class CreateSupplyAction
             'user_id' => $farmer->user_id,
             'vegetable_id' => $validated['vegetable_id'],
             'type' => PostType::Supply,
-            'quantity_kg' => $validated['quantity_kg'],
-            'scheduled_date' => $validated['scheduled_date'],
-            'time_slot' => $validated['time_slot'],
+            'status' => PostStatus::Growing,
+            'target_month' => $validated['target_month'],
+            'estimated_total_weight' => $validated['estimated_total_weight'],
         ]);
 
         if ($image !== null) {
