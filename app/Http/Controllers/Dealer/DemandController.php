@@ -38,17 +38,18 @@ class DemandController extends Controller
             'filters' => ['status' => $status],
             'summary' => Inertia::defer(fn () => $this->demandService->summary($userId)),
             'vegetableOptions' => Inertia::defer(fn () => $this->demandService->vegetableOptions()),
+            'varietyOptions' => Inertia::defer(fn () => $this->demandService->varietyOptions()),
             'demands' => Inertia::defer(fn () => DealerDemandResource::collection(
                 $this->demandService->paginated(userId: $userId, status: $status)
             )),
         ]);
     }
 
-    public function store(StoreDemandRequest $request, CreateDemandAction $createDemand): RedirectResponse
+    public function store(StoreDemandRequest $request, CreateDemandAction $action): RedirectResponse
     {
         Gate::authorize('create', [Post::class, PostType::Demand]);
 
-        $createDemand->handle(
+        $action->handle(
             dealer: $request->user()->dealerProfile,
             validated: $request->validated(),
         );
@@ -57,43 +58,40 @@ class DemandController extends Controller
             ->with('flash', ['type' => 'success', 'message' => 'Request posted successfully!']);
     }
 
-    public function update(UpdateDemandRequest $request, Post $demand, UpdateDemandAction $updateDemand): RedirectResponse
+    public function update(UpdateDemandRequest $request, Post $demand, UpdateDemandAction $action): RedirectResponse
     {
         Gate::authorize('update', $demand);
 
-        $updateDemand->handle(
-            post: $demand,
-            validated: $request->validated()
-        );
+        $action->handle(post: $demand, validated: $request->validated());
 
         return redirect()->route('dealer.demands.index')
-            ->with('flash', ['type' => 'success', 'message' => 'Post updated successfully!']);
+            ->with('flash', ['type' => 'success', 'message' => 'Demand updated successfully!']);
     }
 
-    public function archive(Post $demand, ArchiveDemandAction $archiveDemand): RedirectResponse
+    public function archive(Post $demand, ArchiveDemandAction $action): RedirectResponse
     {
         Gate::authorize('archive', $demand);
-        $archiveDemand->handle($demand);
+        $action->handle($demand);
 
         return redirect()->route('dealer.demands.index')
-            ->with('flash', ['type' => 'success', 'message' => 'Post archived.']);
+            ->with('flash', ['type' => 'success', 'message' => 'Demand archived.']);
     }
 
-    public function fulfill(Post $demand, FulfillDemandAction $fulfillDemand): RedirectResponse
+    public function fulfill(Post $demand, FulfillDemandAction $action): RedirectResponse
     {
         Gate::authorize('fulfill', $demand);
-        $fulfillDemand->handle($demand);
+        $action->handle($demand);
 
         return redirect()->route('dealer.demands.index')
-            ->with('flash', ['type' => 'success', 'message' => 'Post marked as fulfilled!']);
+            ->with('flash', ['type' => 'success', 'message' => 'Demand marked as fulfilled!']);
     }
 
-    public function destroy(Post $demand, DeleteDemandAction $deleteDemand): RedirectResponse
+    public function destroy(Post $demand, DeleteDemandAction $action): RedirectResponse
     {
         Gate::authorize('delete', $demand);
-        $deleteDemand->handle($demand);
+        $action->handle($demand);
 
         return redirect()->route('dealer.demands.index')
-            ->with('flash', ['type' => 'success', 'message' => 'Post deleted.']);
+            ->with('flash', ['type' => 'success', 'message' => 'Demand deleted.']);
     }
 }
