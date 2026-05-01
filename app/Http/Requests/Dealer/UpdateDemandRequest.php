@@ -17,21 +17,26 @@ class UpdateDemandRequest extends FormRequest
     {
         return [
             'vegetable_id' => ['sometimes', 'integer', 'exists:vegetables,id'],
-            'quantity_kg' => ['sometimes', 'numeric', 'min:0.01', 'max:99999'],
-            'scheduled_date' => ['sometimes', 'nullable', 'date', 'after:today', 'before:'.now()->addMonths(3)->toDateString()],
-            'time_slot' => ['sometimes', Rule::enum(PostTimeSlot::class)],
+            'scheduled_at' => ['sometimes', 'date', 'after:today', 'before:'.now()->addMonths(3)->toDateString()],
+            'items' => ['sometimes', 'array', 'min:1'],
+            'items.*.variety_id' => ['required_with:items', 'integer', 'exists:varieties,id'],
+            'items.*.quantity_kg' => ['required_with:items', 'numeric', 'min:0.1', 'max:99999'],
+            'items.*.unit_price' => ['nullable', 'numeric', 'min:0', 'max:9999.99'],
+            'items.*.time_slot' => ['required_with:items', Rule::enum(PostTimeSlot::class)],
         ];
     }
 
     public function messages(): array
     {
         return [
-            'quantity_kg.numeric' => 'Quantity must be a number.',
-            'quantity_kg.min' => 'Quantity is too low.',
-            'scheduled_date.date' => 'Transaction date must be a valid date.',
-            'scheduled_date.after' => 'Transaction date must be in the future.',
-            'scheduled_date.before' => 'Transaction date cannot be more than 3 months away.',
-            'time_slot.enum' => 'Time slot must be morning, afternoon, or evening.',
+            'scheduled_at.after' => 'Transaction date must be in the future.',
+            'scheduled_at.before' => 'Transaction date cannot be more than 3 months away.',
+            'items.min' => 'At least one item is required.',
+            'items.*.variety_id.required_with' => 'Each item must have a variety.',
+            'items.*.quantity_kg.required_with' => 'Each item must have a quantity.',
+            'items.*.quantity_kg.min' => 'Quantity is too low.',
+            'items.*.unit_price.min' => 'Price cannot be negative.',
+            'items.*.time_slot.required_with' => 'Each item must have a time slot.',
         ];
     }
 }
