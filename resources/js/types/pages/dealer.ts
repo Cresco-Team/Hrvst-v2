@@ -1,14 +1,12 @@
-// Dealer Inertia page props
-
 import type { PostStatus } from '../enums'
 import type {
 	DealerDemandResource,
 	FarmerSupplyResource,
 	SupplyMapFilterOptions,
-	VegetableOption,
+	VarietyOptionsByVegetable,
 	VegetableOptionsByCategory,
 } from '../resources/marketplace'
-import type { CategoryOption, VarietyResource } from '../resources/product'
+import type { CategoryOption } from '../resources/product'
 import type { DealerDemandSummary } from '../resources/profile'
 import type { MapConfig, Paginated } from '../shared'
 
@@ -39,6 +37,7 @@ export interface DealerDemandsProps {
 	filters: DealerDemandsFilters
 	summary: DealerDemandSummary
 	vegetableOptions: VegetableOptionsByCategory
+	varietyOptions: VarietyOptionsByVegetable
 	demands: Paginated<DealerDemandResource>
 }
 
@@ -62,23 +61,4 @@ export interface DealerMarketplaceProps {
 	filters: DealerMarketplaceFilters
 	supplies: Paginated<FarmerSupplyResource>
 	categoryOptions: CategoryOption[]
-}
-
-// ─── dealer/vegetables/Index ──────────────────────────────────────────────────
-
-export interface DealerVegetablesFilters {
-	search: string | null
-	category_id: number | null
-}
-
-export interface DealerVegetablesProps {
-	filters: DealerVegetablesFilters
-	varieties: Paginated<VarietyResource>
-	categoryOptions: CategoryOption[]
-}
-
-// ─── dealer/vegetables/Show ───────────────────────────────────────────────────
-
-export interface DealerVegetableShowProps {
-	variety: VarietyResource
 }
