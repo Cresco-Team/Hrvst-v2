@@ -17,12 +17,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select'
-import type {
-	FarmerSupplyResource,
-	PostTimeSlot,
-	VegetableOption,
-	VegetableOptionsByCategory,
-} from '@/types'
+import type { FarmerSupplyResource, VegetableOptionsByCategory } from '@/types'
 
 interface Props {
 	open: boolean
@@ -30,41 +25,19 @@ interface Props {
 	vegetableOptions?: VegetableOptionsByCategory
 }
 
-const props = withDefaults(defineProps<Props>(), {
-	supply: null,
-})
+const props = withDefaults(defineProps<Props>(), { supply: null })
 
-const emit = defineEmits<{
-	'update:open': [value: boolean]
-}>()
-
-const TIME_SLOT_OPTIONS: { value: PostTimeSlot; label: string }[] = [
-	{ value: 'morning', label: 'Morning (6 AM – 12 PM)' },
-	{ value: 'afternoon', label: 'Afternoon (12 PM – 6 PM)' },
-	{ value: 'evening', label: 'Evening (6 PM – 10 PM)' },
-]
+const emit = defineEmits<{ 'update:open': [value: boolean] }>()
 
 const form = useForm({
 	vegetable_id: '',
-	quantity_kg: '',
-	scheduled_date: '',
-	time_slot: 'morning' as PostTimeSlot | '',
+	target_month: '',
+	estimated_total_weight: '',
 	image: null as File | null,
 })
 
 const isEditMode = computed(() => !!props.supply)
-
-const minDate = computed(() => {
-	const tomorrow = new Date()
-	tomorrow.setDate(tomorrow.getDate() + 1)
-	return tomorrow.toISOString().split('T')[0]
-})
-
-const maxDate = computed(() => {
-	const threeMonths = new Date()
-	threeMonths.setMonth(threeMonths.getMonth() + 3)
-	return threeMonths.toISOString().split('T')[0]
-})
+const minMonth = computed(() => new Date().toISOString().slice(0, 7))
 
 function handleSubmit() {
 	const routeData = props.supply ? update(props.supply.id) : store()
@@ -72,14 +45,10 @@ function handleSubmit() {
 	form
 		.transform((data) => {
 			const payload: Record<string, unknown> = { ...data }
-
 			if (props.supply) {
 				payload._method = 'PUT'
-				if (!payload.image) {
-					delete payload.image
-				}
+				if (!payload.image) delete payload.image
 			}
-
 			return payload
 		})
 		.post(routeData.url, {
@@ -95,31 +64,34 @@ function handleSubmit() {
 watch(
 	() => props.open,
 	(isOpen) => {
-		if (isOpen) {
-			const s = props.supply
-			form.vegetable_id = String(s?.vegetable?.id ?? '')
-			form.quantity_kg = String(s?.quantity_kg ?? '')
-			form.scheduled_date = s?.scheduled_date ?? ''
-			form.time_slot = (s?.time_slot ?? 'morning') as PostTimeSlot | ''
-			form.image = null
-			form.clearErrors()
-		}
+		if (!isOpen) return
+		const s = props.supply
+		form.vegetable_id = String(s?.vegetable?.id ?? '')
+		form.target_month = s?.target_month ?? ''
+		form.estimated_total_weight = String(s?.estimated_total_weight ?? '')
+		form.image = null
+		form.clearErrors()
 	},
 )
 </script>
 
 <template>
-	<DialogForm :open="open" :title="isEditMode ? 'Edit Offering' : 'Create Offering'"
-		:description="isEditMode ? 'Update your supply details' : 'Post a new supply for dealers'"
-		:form="form" :submit-label="isEditMode ? 'Update Supply' : 'Post Supply'" max-width="2xl"
-		@update:open="emit('update:open', $event)" @submit="handleSubmit">
+	<DialogForm
+		:open="open"
+		:title="isEditMode ? 'Edit Supply' : 'New Supply'"
+		:description="isEditMode ? 'Update your supply details.' : 'Register an upcoming harvest.'"
+		:form="form"
+		:submit-label="isEditMode ? 'Update Supply' : 'Register Supply'"
+		max-width="2xl"
+		@update:open="emit('update:open', $event)"
+		@submit="handleSubmit"
+	>
 		<template #icon>
 			<Sprout class="size-5 text-primary" />
 		</template>
 
 		<div class="space-y-6">
 
-			<!-- Vegetable Select -->
 			<div class="space-y-2">
 				<Label for="vegetable" class="flex items-center gap-1.5">
 					Vegetable
@@ -132,72 +104,50 @@ watch(
 					<SelectContent>
 						<SelectGroup v-for="(vegetables, category) in vegetableOptions" :key="category">
 							<SelectLabel>{{ category }}</SelectLabel>
-							<SelectItem v-for="vegetable in vegetables" :key="vegetable.id" :value="String(vegetable.id)">
-								{{ vegetable.name }}
+							<SelectItem v-for="v in vegetables" :key="v.id" :value="String(v.id)">
+								{{ v.name }}
 							</SelectItem>
 						</SelectGroup>
 					</SelectContent>
 				</Select>
-				<p v-if="form.errors.vegetable_id" class="text-xs text-destructive">
-					{{ form.errors.vegetable_id }}
-				</p>
-				<p v-else-if="isEditMode" class="text-xs text-muted-foreground">
-					Vegetable cannot be changed after creation
-				</p>
+				<p v-if="form.errors.vegetable_id" class="text-xs text-destructive">{{ form.errors.vegetable_id }}</p>
+				<p v-else-if="isEditMode" class="text-xs text-muted-foreground">Vegetable cannot be changed after creation</p>
 			</div>
 
-			<!-- Image Upload -->
-			<ImageUpload v-model="form.image" :existing-image-url="supply?.image_url ?? null"
-				:error="form.errors.image" :required="!isEditMode" />
+			<ImageUpload v-model="form.image" :existing-image-url="supply?.image_url ?? null" :error="form.errors.image" />
 
-			<!-- Quantity -->
 			<div class="space-y-2">
-				<Label for="quantity" class="flex items-center gap-1.5">
-					Quantity (kg)
+				<Label for="target_month" class="flex items-center gap-1.5">
+					Target Harvest Month
 					<Badge variant="secondary" class="text-xs font-normal">Required</Badge>
 				</Label>
-				<Input id="quantity" v-model.number="form.quantity_kg" type="number" step="0.1" min="0.1" max="99999"
-					placeholder="0.0" :class="{ 'border-destructive': form.errors.quantity_kg }" />
-				<p v-if="form.errors.quantity_kg" class="text-xs text-destructive">
-					{{ form.errors.quantity_kg }}
-				</p>
-				<p v-else class="text-xs text-muted-foreground">Enter the available quantity in kilograms</p>
+				<Input
+					id="target_month"
+					v-model="form.target_month"
+					type="month"
+					:min="minMonth"
+					:class="{ 'border-destructive': form.errors.target_month }"
+				/>
+				<p v-if="form.errors.target_month" class="text-xs text-destructive">{{ form.errors.target_month }}</p>
+				<p v-else class="text-xs text-muted-foreground">Which month do you plan to harvest?</p>
 			</div>
 
-			<!-- Scheduled Date -->
 			<div class="space-y-2">
-				<Label for="scheduled" class="flex items-center gap-1.5">
-					Scheduled Date
+				<Label for="weight" class="flex items-center gap-1.5">
+					Estimated Total Weight (kg)
 					<Badge variant="secondary" class="text-xs font-normal">Required</Badge>
 				</Label>
-				<Input id="scheduled" v-model="form.scheduled_date" type="date" :min="minDate" :max="maxDate"
-					:class="{ 'border-destructive': form.errors.scheduled_date }" />
-				<p v-if="form.errors.scheduled_date" class="text-xs text-destructive">
-					{{ form.errors.scheduled_date }}
-				</p>
-				<p v-else class="text-xs text-muted-foreground">Post will auto-archive after this date (max 3 months)</p>
-			</div>
-
-			<!-- Time Slot -->
-			<div class="space-y-2">
-				<Label for="time_slot" class="flex items-center gap-1.5">
-					Preferred Time Slot
-					<Badge variant="secondary" class="text-xs font-normal">Required</Badge>
-				</Label>
-				<Select v-model="form.time_slot">
-					<SelectTrigger id="time_slot" :class="{ 'border-destructive': form.errors.time_slot }">
-						<SelectValue placeholder="Select a time slot..." />
-					</SelectTrigger>
-					<SelectContent>
-						<SelectItem v-for="option in TIME_SLOT_OPTIONS" :key="option.value" :value="option.value">
-							{{ option.label }}
-						</SelectItem>
-					</SelectContent>
-				</Select>
-				<p v-if="form.errors.time_slot" class="text-xs text-destructive">
-					{{ form.errors.time_slot }}
-				</p>
-				<p v-else class="text-xs text-muted-foreground">When are you available for delivery?</p>
+				<Input
+					id="weight"
+					v-model.number="form.estimated_total_weight"
+					type="number"
+					step="0.1"
+					min="0.1"
+					placeholder="0.0"
+					:class="{ 'border-destructive': form.errors.estimated_total_weight }"
+				/>
+				<p v-if="form.errors.estimated_total_weight" class="text-xs text-destructive">{{ form.errors.estimated_total_weight }}</p>
+				<p v-else class="text-xs text-muted-foreground">Your best estimate — exact variety weights set on harvest day.</p>
 			</div>
 
 		</div>
