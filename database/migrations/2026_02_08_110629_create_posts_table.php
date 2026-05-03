@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('status')->default('growing')->index();
 
             $table->string('target_month', 7)->nullable();  // "YYYY-MM", supply only
-            $table->date('scheduled_at')->nullable();        // set on harvest for supply, creation for demand
+            $table->date('scheduled_date')->nullable();        // set on harvest for supply, creation for demand
 
             $table->decimal('estimated_total_weight', 12, 2)->nullable(); // farmer's pre-harvest estimate
 
