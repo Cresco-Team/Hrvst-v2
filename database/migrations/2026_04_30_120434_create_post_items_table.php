@@ -17,9 +17,8 @@ return new class extends Migration
             $table->foreignId('variety_id')->constrained()->cascadeOnDelete();
 
             $table->decimal('quantity_kg', 8, 2);
-            $table->decimal('unitprice', 8, 2)->nullable();
+            $table->decimal('unit_price', 8, 2)->nullable();
             $table->enum('price_flag', ['Low', 'Fair', 'High'])->default('Fair');
-            $table->enum('time_slot', ['morning', 'afternoon', 'evening'])->default('morning');
             $table->softDeletes();
             $table->timestamps();
         });
