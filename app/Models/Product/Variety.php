@@ -3,6 +3,7 @@
 namespace App\Models\Product;
 
 use App\Models\Interaction\VarietyHeart;
+use App\Models\Marketplace\PostItem;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -30,6 +31,11 @@ class Variety extends Model implements HasMedia
     public function vegetable(): BelongsTo
     {
         return $this->belongsTo(Vegetable::class);
+    }
+
+    public function postItems(): HasMany
+    {
+        return $this->hasMany(PostItem::class);
     }
 
     public function prices(): HasMany
