@@ -21,6 +21,7 @@ return new class extends Migration
 
             $table->string('target_month', 7)->nullable();  // "YYYY-MM", supply only
             $table->date('scheduled_date')->nullable();        // set on harvest for supply, creation for demand
+            $table->enum('time_slot', ['morning', 'afternoon', 'evening'])->default('morning')->nullable();
 
             $table->decimal('estimated_total_weight', 12, 2)->nullable(); // farmer's pre-harvest estimate
 
