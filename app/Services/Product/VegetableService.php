@@ -18,19 +18,29 @@ class VegetableService
         return Vegetable::with([
             'category',
             'varieties' => function (HasMany $varieties) use ($search, $priceFilter, $userId): void {
-                $varieties->with(['latestPrice', 'lastTwoPrices', 'media'])
+                $varieties
+                    ->with(['latestPrice', 'lastTwoPrices', 'media'])
+                    // supply_count / demand_count now counted via post_items
+                    // because posts.variety_id was removed; variety-level granularity
+                    // lives in post_items.variety_id
                     ->withCount([
-                        'posts as supply_count' => fn (Builder $posts) => $posts->supply(),
-                        'posts as demand_count' => fn (Builder $posts) => $posts->demand(),
+                        'postItems as supply_count' => fn (Builder $q) => $q->whereHas(
+                            'post', fn (Builder $p) => $p->supply()->ongoing()
+                        ),
+                        'postItems as demand_count' => fn (Builder $q) => $q->whereHas(
+                            'post', fn (Builder $p) => $p->demand()->ongoing()
+                        ),
                     ])
                     ->when($userId, fn (Builder $q) => $q->withExists([
                         'hearts as is_hearted' => fn (Builder $q) => $q->where('user_id', $userId),
                     ]))
                     ->search($search)
-                    ->when($priceFilter === 'no_price',
+                    ->when(
+                        $priceFilter === 'no_price',
                         fn ($q) => $q->whereDoesntHave('latestPrice')
                     )
-                    ->when($priceFilter && $priceFilter !== 'no_price',
+                    ->when(
+                        $priceFilter && $priceFilter !== 'no_price',
                         fn ($q) => $this->applyPriceFilter($q, $priceFilter)
                     )
                     ->orderBy('name');
@@ -77,12 +87,25 @@ class VegetableService
         ];
     }
 
-    private function applyPriceFilter(Builder $q, string $filter): void
+    /**
+     * Applies a date-based price filter by constraining to varieties
+     * that have a latestPrice record within the given window.
+     *
+     * Bug fix: original applied ->where('recorded_at', ...) directly on the
+     * variety builder which had no recorded_at column — must scope via relationship.
+     */
+    private function applyPriceFilter(Builder $query, string $filter): void
     {
         match ($filter) {
-            'week' => $q->where('recorded_at', '>=', now()->subWeek()),
-            'month' => $q->where('recorded_at', '>=', now()->subMonth()),
-            'stale' => $q->where('recorded_at', '<', now()->subMonth()),
+            'week' => $query->whereHas(
+                'latestPrice', fn (Builder $q) => $q->where('recorded_at', '>=', now()->subWeek())
+            ),
+            'month' => $query->whereHas(
+                'latestPrice', fn (Builder $q) => $q->where('recorded_at', '>=', now()->subMonth())
+            ),
+            'stale' => $query->whereHas(
+                'latestPrice', fn (Builder $q) => $q->where('recorded_at', '<', now()->subMonth())
+            ),
             default => null,
         };
     }

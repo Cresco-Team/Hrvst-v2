@@ -57,14 +57,6 @@ class VarietyService
         ];
     }
 
-    /**
-     * Vegetable-grouped query used by both:
-     *   - Admin table      → $perPage = null  → returns plain resolved array
-     *   - Marketplace catalog → $perPage = N  → returns paginated envelope array
-     *
-     * When paginating, priceFilter is intentionally excluded — the marketplace
-     * has no price-filter UI. Pass it only from admin callers.
-     */
     public function table(
         ?string $search = null,
         ?string $priceFilter = null,
@@ -77,8 +69,12 @@ class VarietyService
             'varieties' => function (HasMany $q) use ($search, $priceFilter, $userId): void {
                 $q->with(['latestPrice', 'lastTwoPrices', 'media'])
                     ->withCount([
-                        'posts as supply_count' => fn (Builder $q) => $q->supply(),
-                        'posts as demand_count' => fn (Builder $q) => $q->demand(),
+                        'postItems as supply_count' => fn (Builder $q) => $q->whereHas(
+                            'post', fn (Builder $p) => $p->supply()->ongoing()
+                        ),
+                        'postItems as demand_count' => fn (Builder $q) => $q->whereHas(
+                            'post', fn (Builder $p) => $p->demand()->ongoing()
+                        ),
                     ])
                     ->when($userId, fn (Builder $q) => $q->withExists([
                         'hearts as is_hearted' => fn (Builder $q) => $q->where('user_id', $userId),
@@ -123,14 +119,12 @@ class VarietyService
             }
         }
 
-        // Paginated path — marketplace catalog
         if ($perPage !== null) {
             $paginator = $query->whereHas('varieties')->paginate($perPage)->withQueryString();
 
             return VegetableResource::collection($paginator)->response()->getData(true);
         }
 
-        // Flat path — admin table (existing behaviour)
         return VegetableResource::collection($query->get())->resolve();
     }
 
@@ -138,8 +132,12 @@ class VarietyService
     {
         return Variety::with(['vegetable.category', 'latestPrice', 'lastTwoPrices', 'media'])
             ->withCount([
-                'posts as supply_count' => fn (Builder $q) => $q->supply()->ongoing(),
-                'posts as demand_count' => fn (Builder $q) => $q->demand()->ongoing(),
+                'postItems as supply_count' => fn (Builder $q) => $q->whereHas(
+                    'post', fn (Builder $p) => $p->supply()->ongoing()
+                ),
+                'postItems as demand_count' => fn (Builder $q) => $q->whereHas(
+                    'post', fn (Builder $p) => $p->demand()->ongoing()
+                ),
             ])
             ->when($search, fn (Builder $q) => $q
                 ->where('name', 'like', "%{$search}%")
@@ -157,11 +155,15 @@ class VarietyService
 
     public function show(Variety $variety, int $year, int $month, VarietyViewerRole $role): Variety
     {
-        $variety->load(['vegetable.category', 'latestPrice', 'recentPrices', 'media'])
-            ->loadCount([
-                'posts as supply_count' => fn (Builder $q) => $q->supply()->ongoing(),
-                'posts as demand_count' => fn (Builder $q) => $q->demand()->ongoing(),
-            ]);
+        $variety->load(['vegetable.category', 'latestPrice', 'recentPrices', 'media']);
+
+        $variety->supply_count = $variety->postItems()
+            ->whereHas('post', fn (Builder $q) => $q->supply()->ongoing())
+            ->count();
+
+        $variety->demand_count = $variety->postItems()
+            ->whereHas('post', fn (Builder $q) => $q->demand()->ongoing())
+            ->count();
 
         $variety->supply_municipalities = $this->resolveSupplyMunicipalities($variety->id);
 
@@ -205,17 +207,20 @@ class VarietyService
 
     private function resolveSupplyMunicipalities(int $varietyId): array
     {
-        return DB::table('posts')
+        return DB::table('post_items')
+            ->join('posts', 'posts.id', '=', 'post_items.post_id')
             ->join('users', 'posts.user_id', '=', 'users.id')
             ->join('farmer_profiles', 'users.id', '=', 'farmer_profiles.user_id')
             ->join('municipalities', 'farmer_profiles.municipality_id', '=', 'municipalities.id')
-            ->where('posts.variety_id', $varietyId)
+            ->where('post_items.variety_id', $varietyId)
             ->where('posts.type', PostType::Supply->value)
             ->where('posts.status', PostStatus::Ongoing->value)
+            ->whereNull('posts.deleted_at')
+            ->whereNull('post_items.deleted_at')
             ->groupBy('municipalities.id', 'municipalities.name')
             ->select(
                 'municipalities.name as municipality_name',
-                DB::raw('SUM(posts.quantity_kg) as total_kg'),
+                DB::raw('SUM(post_items.quantity_kg) as total_kg'),
             )
             ->get()
             ->map(fn ($row) => [
