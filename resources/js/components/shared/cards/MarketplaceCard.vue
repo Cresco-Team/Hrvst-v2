@@ -20,7 +20,6 @@ const isPending = ref(false)
 
 const displayImageUrl = 'image_url' in post ? post.image_url : undefined
 
-// Total kg across items
 const totalKg = post.items?.reduce((sum, i) => sum + i.quantity_kg, 0) ?? null
 
 async function toggleHeart(event: MouseEvent): Promise<void> {
@@ -87,10 +86,16 @@ async function toggleHeart(event: MouseEvent): Promise<void> {
 				</div>
 			</div>
 
-			<!-- Scheduled date -->
-			<div v-if="'scheduled_at' in post && post.scheduled_at" class="flex items-center gap-2">
+			<!-- Scheduled date — Bug #3 fix: was 'scheduled_at', correct key is 'scheduled_date' -->
+			<div v-if="'scheduled_date' in post && post.scheduled_date" class="flex items-center gap-2">
 				<Calendar :size="20" class="text-muted-foreground" />
-				<span class="text-xs">{{ post.scheduled_at }}</span>
+				<span class="text-xs">{{ post.scheduled_date }}</span>
+			</div>
+
+			<!-- Time slot -->
+			<div v-if="'time_slot_label' in post && post.time_slot_label" class="flex items-center gap-2">
+				<AlarmClockCheck :size="20" class="text-muted-foreground" />
+				<span class="text-xs">{{ post.time_slot_label }}</span>
 			</div>
 
 			<!-- Heart -->
