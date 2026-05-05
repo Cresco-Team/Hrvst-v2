@@ -20,8 +20,8 @@ import type {
 	DealerDemandResource,
 	FarmerSuppliesProps,
 	FarmerSupplyResource,
-	VegetableOptionsByCategory,
 	VarietyOptionsByVegetable,
+	VegetableOptionsByCategory,
 } from '@/types'
 
 type PostItem = FarmerSupplyResource | DealerDemandResource
@@ -55,18 +55,39 @@ function handleTabChange(value: string | number) {
 	})
 }
 
-function openCreate() { activeSupply.value = null; formOpen.value = true }
-function openEdit(s: PostItem) { activeSupply.value = s as FarmerSupplyResource; formOpen.value = true }
-function openHarvest(s: PostItem) { supplyToHarvest.value = s as FarmerSupplyResource; harvestOpen.value = true }
-function openArchive(s: PostItem) { supplyToArchive.value = s as FarmerSupplyResource; archiveDialogOpen.value = true }
-function openFulfill(s: PostItem) { supplyToFulfill.value = s as FarmerSupplyResource; fulfillDialogOpen.value = true }
-function openDelete(s: PostItem) { supplyToDelete.value = s as FarmerSupplyResource; deleteDialogOpen.value = true }
+function openCreate() {
+	activeSupply.value = null
+	formOpen.value = true
+}
+function openEdit(s: PostItem) {
+	activeSupply.value = s as FarmerSupplyResource
+	formOpen.value = true
+}
+function openHarvest(s: PostItem) {
+	supplyToHarvest.value = s as FarmerSupplyResource
+	harvestOpen.value = true
+}
+function openArchive(s: PostItem) {
+	supplyToArchive.value = s as FarmerSupplyResource
+	archiveDialogOpen.value = true
+}
+function openFulfill(s: PostItem) {
+	supplyToFulfill.value = s as FarmerSupplyResource
+	fulfillDialogOpen.value = true
+}
+function openDelete(s: PostItem) {
+	supplyToDelete.value = s as FarmerSupplyResource
+	deleteDialogOpen.value = true
+}
 
 function handleArchive() {
 	if (!supplyToArchive.value) return
 	archiveForm.post(archive(supplyToArchive.value.id).url, {
 		preserveScroll: true,
-		onSuccess: () => { archiveDialogOpen.value = false; supplyToArchive.value = null },
+		onSuccess: () => {
+			archiveDialogOpen.value = false
+			supplyToArchive.value = null
+		},
 	})
 }
 
@@ -74,7 +95,10 @@ function handleFulfill() {
 	if (!supplyToFulfill.value) return
 	fulfillForm.post(fulfill(supplyToFulfill.value.id).url, {
 		preserveScroll: true,
-		onSuccess: () => { fulfillDialogOpen.value = false; supplyToFulfill.value = null },
+		onSuccess: () => {
+			fulfillDialogOpen.value = false
+			supplyToFulfill.value = null
+		},
 	})
 }
 
@@ -83,7 +107,10 @@ function handleDelete() {
 	deleteForm.post(destroy(supplyToDelete.value.id).url, {
 		method: 'delete',
 		preserveScroll: true,
-		onSuccess: () => { deleteDialogOpen.value = false; supplyToDelete.value = null },
+		onSuccess: () => {
+			deleteDialogOpen.value = false
+			supplyToDelete.value = null
+		},
 	})
 }
 
@@ -185,11 +212,10 @@ const breadcrumbs: BreadcrumbItem[] = [
 		@update:open="formOpen = $event"
 	/>
 
-	<!-- HarvestForm needs varietyOptions, not vegetableOptions — pass from a separate defer if you add it to the controller -->
 	<HarvestForm
 		:open="harvestOpen"
 		:supply="supplyToHarvest"
-		:variety-options="(undefined as VarietyOptionsByVegetable | undefined)"
+		:variety-options="(varietyOptions as VarietyOptionsByVegetable)"
 		@update:open="harvestOpen = $event"
 	/>
 
