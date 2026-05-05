@@ -27,7 +27,7 @@ class DemandService
             ->where('user_id', $userId)
             ->ofStatus($status)
             ->with(['vegetable.category', 'postItems.variety'])
-            ->orderBy('scheduled_at', 'desc')
+            ->orderBy('scheduled_date', 'desc')
             ->paginate($perPage);
     }
 

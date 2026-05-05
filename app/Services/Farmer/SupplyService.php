@@ -4,6 +4,7 @@ namespace App\Services\Farmer;
 
 use App\Enums\PostStatus;
 use App\Models\Marketplace\Post;
+use App\Models\Product\Variety;
 use App\Models\Product\Vegetable;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
@@ -40,6 +41,28 @@ class SupplyService
             ->map(fn ($vegetables) => $vegetables->map(fn ($v) => [
                 'id' => $v->id,
                 'name' => $v->name,
+            ])->values()->toArray())
+            ->toArray()
+        );
+    }
+
+    /**
+     * Varieties grouped by vegetable name for the HarvestForm item picker.
+     * Includes latest market price hint per variety.
+     */
+    public function varietyOptions(): array
+    {
+        return cache()->remember('farmer_harvest_variety_options', 3600, fn () => Variety::with(['vegetable', 'latestPrice'])
+            ->orderBy('name')
+            ->get()
+            ->groupBy(fn ($v) => $v->vegetable->name)
+            ->map(fn ($varieties) => $varieties->map(fn ($v) => [
+                'id' => $v->id,
+                'name' => $v->name,
+                'current_price' => $v->latestPrice ? [
+                    'min' => (float) $v->latestPrice->price_min,
+                    'max' => (float) $v->latestPrice->price_max,
+                ] : null,
             ])->values()->toArray())
             ->toArray()
         );
