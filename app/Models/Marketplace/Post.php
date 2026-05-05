@@ -42,7 +42,8 @@ class Post extends Model implements HasMedia
             'type' => PostType::class,
             'status' => PostStatus::class,
             'time_slot' => PostTimeSlot::class,
-            'target_month' => 'date',
+            // target_month intentionally not cast — stored as varchar(7) 'YYYY-MM' string.
+            // Casting to 'date' expands it to a full datetime, overflowing the column.
             'scheduled_date' => 'date',
             'estimated_total_weight' => 'decimal:2',
         ];
