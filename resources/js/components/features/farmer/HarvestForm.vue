@@ -9,7 +9,11 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
-	Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
 } from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
 import type { FarmerSupplyResource, PostTimeSlot, VarietyOptionsByVegetable } from '@/types'
@@ -18,7 +22,6 @@ interface HarvestItem {
 	variety_id: string
 	quantity_kg: string
 	unit_price: string
-	time_slot: PostTimeSlot | ''
 }
 
 interface Props {
@@ -37,14 +40,16 @@ const TIME_SLOT_OPTIONS: { value: PostTimeSlot; label: string }[] = [
 ]
 
 function blankItem(): HarvestItem {
-	return { variety_id: '', quantity_kg: '', unit_price: '', time_slot: 'morning' }
+	return { variety_id: '', quantity_kg: '', unit_price: '' }
 }
 
 const form = useForm<{
-	scheduled_at: string
+	scheduled_date: string
+	time_slot: PostTimeSlot | ''
 	items: HarvestItem[]
 }>({
-	scheduled_at: '',
+	scheduled_date: '',
+	time_slot: 'morning',
 	items: [blankItem()],
 })
 
@@ -60,28 +65,24 @@ const maxDate = computed(() => {
 	return d.toISOString().split('T')[0]
 })
 
-// Flat list of all varieties for searching price hints
 const allVarieties = computed(() => {
 	if (!props.varietyOptions) return []
 	return Object.values(props.varietyOptions).flat()
 })
 
 function priceHintFor(varietyId: string) {
-	const v = allVarieties.value.find((v) => String(v.id) === varietyId)
-	return v?.current_price ?? null
+	return allVarieties.value.find((v) => String(v.id) === varietyId)?.current_price ?? null
 }
 
 function addItem() {
 	form.items.push(blankItem())
 }
-
 function removeItem(index: number) {
 	form.items.splice(index, 1)
 }
 
 function handleSubmit() {
 	if (!props.supply) return
-
 	form.post(harvest(props.supply.id).url, {
 		preserveScroll: true,
 		onSuccess: () => {
@@ -96,7 +97,8 @@ watch(
 	() => props.open,
 	(isOpen) => {
 		if (!isOpen) return
-		form.scheduled_at = ''
+		form.scheduled_date = ''
+		form.time_slot = 'morning'
 		form.items = [blankItem()]
 		form.clearErrors()
 	},
@@ -122,25 +124,45 @@ watch(
 
 			<!-- Scheduled date -->
 			<div class="space-y-2">
-				<Label for="scheduled_at" class="flex items-center gap-1.5">
+				<Label for="scheduled_date" class="flex items-center gap-1.5">
 					Delivery Date
 					<Badge variant="secondary" class="text-xs font-normal">Required</Badge>
 				</Label>
 				<Input
-					id="scheduled_at"
-					v-model="form.scheduled_at"
+					id="scheduled_date"
+					v-model="form.scheduled_date"
 					type="date"
 					:min="minDate"
 					:max="maxDate"
-					:class="{ 'border-destructive': form.errors.scheduled_at }"
+					:class="{ 'border-destructive': form.errors.scheduled_date }"
 				/>
-				<p v-if="form.errors.scheduled_at" class="text-xs text-destructive">{{ form.errors.scheduled_at }}</p>
+				<p v-if="form.errors.scheduled_date" class="text-xs text-destructive">{{ form.errors.scheduled_date }}</p>
 				<p v-else class="text-xs text-muted-foreground">When will you bring this to the trading post?</p>
+			</div>
+
+			<!-- Time slot — post level -->
+			<div class="space-y-2">
+				<Label for="time_slot" class="flex items-center gap-1.5">
+					Preferred Time Slot
+					<Badge variant="secondary" class="text-xs font-normal">Required</Badge>
+				</Label>
+				<Select v-model="form.time_slot">
+					<SelectTrigger id="time_slot" :class="{ 'border-destructive': form.errors.time_slot }">
+						<SelectValue placeholder="Select a time slot..." />
+					</SelectTrigger>
+					<SelectContent>
+						<SelectItem v-for="opt in TIME_SLOT_OPTIONS" :key="opt.value" :value="opt.value">
+							{{ opt.label }}
+						</SelectItem>
+					</SelectContent>
+				</Select>
+				<p v-if="form.errors.time_slot" class="text-xs text-destructive">{{ form.errors.time_slot }}</p>
+				<p v-else class="text-xs text-muted-foreground">When are you available for delivery?</p>
 			</div>
 
 			<Separator />
 
-			<!-- Variety items -->
+			<!-- Variety items — no time_slot per item -->
 			<div class="space-y-4">
 				<div class="flex items-center justify-between">
 					<Label class="text-sm font-medium">Harvest Items</Label>
@@ -157,7 +179,7 @@ watch(
 				<div
 					v-for="(item, index) in form.items"
 					:key="index"
-					class="relative rounded-lg border bg-muted/30 p-4 space-y-4"
+					class="rounded-lg border bg-muted/30 p-4 space-y-4"
 				>
 					<div class="flex items-center justify-between">
 						<span class="text-xs font-semibold text-muted-foreground">Item {{ index + 1 }}</span>
@@ -185,11 +207,7 @@ watch(
 							</SelectTrigger>
 							<SelectContent>
 								<template v-for="(varieties, vegetableName) in varietyOptions" :key="vegetableName">
-									<SelectItem
-										v-for="v in varieties"
-										:key="v.id"
-										:value="String(v.id)"
-									>
+									<SelectItem v-for="v in varieties" :key="v.id" :value="String(v.id)">
 										{{ vegetableName }} — {{ v.name }}
 									</SelectItem>
 								</template>
@@ -214,7 +232,6 @@ watch(
 					</div>
 
 					<div class="grid grid-cols-2 gap-3">
-						<!-- Quantity -->
 						<div class="space-y-1.5">
 							<Label :for="`qty-${index}`" class="text-xs">Quantity (kg)</Label>
 							<Input
@@ -231,7 +248,6 @@ watch(
 							</p>
 						</div>
 
-						<!-- Unit Price -->
 						<div class="space-y-1.5">
 							<Label :for="`price-${index}`" class="text-xs">Asking Price (₱/kg)</Label>
 							<Input
@@ -247,27 +263,6 @@ watch(
 								{{ (form.errors as Record<string, string>)[`items.${index}.unit_price`] }}
 							</p>
 						</div>
-					</div>
-
-					<!-- Time Slot -->
-					<div class="space-y-1.5">
-						<Label :for="`slot-${index}`" class="text-xs">Preferred Time Slot</Label>
-						<Select v-model="item.time_slot">
-							<SelectTrigger
-								:id="`slot-${index}`"
-								:class="{ 'border-destructive': (form.errors as Record<string, string>)[`items.${index}.time_slot`] }"
-							>
-								<SelectValue placeholder="Select time slot..." />
-							</SelectTrigger>
-							<SelectContent>
-								<SelectItem v-for="opt in TIME_SLOT_OPTIONS" :key="opt.value" :value="opt.value">
-									{{ opt.label }}
-								</SelectItem>
-							</SelectContent>
-						</Select>
-						<p v-if="(form.errors as Record<string, string>)[`items.${index}.time_slot`]" class="text-xs text-destructive">
-							{{ (form.errors as Record<string, string>)[`items.${index}.time_slot`] }}
-						</p>
 					</div>
 
 				</div>
