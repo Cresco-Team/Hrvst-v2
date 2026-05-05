@@ -13,7 +13,9 @@ class FarmerSupplyResource extends JsonResource
             'id' => $this->id,
             'status' => $this->status,
             'target_month' => $this->target_month,
-            'scheduled_at' => $this->scheduled_at?->format('M d, Y'),
+            'scheduled_date' => $this->scheduled_date?->format('M d, Y'),
+            'time_slot' => $this->time_slot?->value,
+            'time_slot_label' => $this->time_slot?->label(),
             'estimated_total_weight' => (float) $this->estimated_total_weight,
             'hearts_count' => $this->hearts_count ?? 0,
             'is_hearted' => (bool) ($this->is_hearted ?? false),
@@ -41,8 +43,6 @@ class FarmerSupplyResource extends JsonResource
                 'quantity_kg' => (float) $item->quantity_kg,
                 'unit_price' => $item->unit_price !== null ? (float) $item->unit_price : null,
                 'price_flag' => $item->price_flag,
-                'time_slot' => $item->time_slot?->value,
-                'time_slot_label' => $item->time_slot?->label(),
             ])),
         ];
     }
