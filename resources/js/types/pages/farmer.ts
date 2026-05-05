@@ -59,5 +59,6 @@ export interface FarmerMarketplaceFilters {
 export interface FarmerMarketplaceProps {
 	filters: FarmerMarketplaceFilters
 	categoryOptions: CategoryOption[]
+	varietyOptions: VegetableOptionsByCategory
 	demands: Paginated<DealerDemandResource>
 }
