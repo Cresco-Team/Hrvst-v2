@@ -16,12 +16,12 @@ final class CreateDemandAction
     /**
      * @param  array{
      *     vegetable_id: int,
-     *     scheduled_at: string,
+     *     scheduled_date: string,
+     *     time_slot: string,
      *     items: array<int, array{
      *         variety_id: int,
      *         quantity_kg: float,
      *         unit_price: float|null,
-     *         time_slot: string,
      *     }>
      * } $validated
      */
@@ -34,7 +34,8 @@ final class CreateDemandAction
                 'vegetable_id' => $validated['vegetable_id'],
                 'type' => PostType::Demand,
                 'status' => PostStatus::Ongoing,
-                'scheduled_at' => $validated['scheduled_at'],
+                'scheduled_date' => $validated['scheduled_date'],
+                'time_slot' => $validated['time_slot'],
             ]);
 
             $varietyIds = collect($validated['items'])->pluck('variety_id');
@@ -55,7 +56,6 @@ final class CreateDemandAction
                     'price_flag' => $unitPrice !== null
                         ? PostPriceFlag::fromMarketPrice((float) $unitPrice, $variety?->latestPrice)
                         : PostPriceFlag::Fair,
-                    'time_slot' => $item['time_slot'],
                 ]);
             }
 
