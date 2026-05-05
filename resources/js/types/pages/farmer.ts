@@ -3,6 +3,7 @@ import type {
 	DealerDemandResource,
 	FarmerSupplyResource,
 	SupplyMapFilterOptions,
+	VarietyOptionsByVegetable,
 	VegetableOptionsByCategory,
 } from '../resources/marketplace'
 import type { CategoryOption } from '../resources/product'
@@ -36,6 +37,7 @@ export interface FarmerSuppliesProps {
 	filters: FarmerSuppliesFilters
 	summary: FarmerSupplySummary
 	vegetableOptions: VegetableOptionsByCategory
+	varietyOptions: VarietyOptionsByVegetable // Bug #4 fix: was missing, HarvestForm requires it
 	supplies: Paginated<FarmerSupplyResource>
 }
 
@@ -59,6 +61,5 @@ export interface FarmerMarketplaceFilters {
 export interface FarmerMarketplaceProps {
 	filters: FarmerMarketplaceFilters
 	categoryOptions: CategoryOption[]
-	varietyOptions: VegetableOptionsByCategory
 	demands: Paginated<DealerDemandResource>
 }
