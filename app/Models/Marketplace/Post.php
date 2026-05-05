@@ -3,6 +3,7 @@
 namespace App\Models\Marketplace;
 
 use App\Enums\PostStatus;
+use App\Enums\PostTimeSlot;
 use App\Enums\PostType;
 use App\Models\Interaction\PostHeart;
 use App\Models\Product\Vegetable;
@@ -30,7 +31,8 @@ class Post extends Model implements HasMedia
         'type',
         'status',
         'target_month',
-        'scheduled_at',
+        'scheduled_date',
+        'time_slot',
         'estimated_total_weight',
     ];
 
@@ -39,7 +41,9 @@ class Post extends Model implements HasMedia
         return [
             'type' => PostType::class,
             'status' => PostStatus::class,
-            'scheduled_at' => 'date',
+            'time_slot' => PostTimeSlot::class,
+            'target_month' => 'date',
+            'scheduled_date' => 'date',
             'estimated_total_weight' => 'decimal:2',
         ];
     }
