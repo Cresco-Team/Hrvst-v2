@@ -30,7 +30,7 @@ class DealerDemandResource extends JsonResource
                 'category' => $this->vegetable->relationLoaded('category')
                     ? $this->vegetable->category->name
                     : null,
-                'image_url' => $this->vegetable->getFirstMediaUrl('vegetable_image'),
+                'image_url' => '',
             ]),
 
             /* with('postItems.variety') */
