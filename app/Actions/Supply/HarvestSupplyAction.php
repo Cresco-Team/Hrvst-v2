@@ -11,6 +11,17 @@ use Illuminate\Support\Facades\DB;
 
 final class HarvestSupplyAction
 {
+    /**
+     * @param  array{
+     *     scheduled_date: string,
+     *     time_slot: string,
+     *     items: array<int, array{
+     *         variety_id: int,
+     *         quantity_kg: float,
+     *         unit_price: float,
+     *     }>
+     * } $validated
+     */
     public function handle(Post $post, array $validated): Post
     {
         if ($post->status !== PostStatus::Growing) {
@@ -36,11 +47,12 @@ final class HarvestSupplyAction
                         (float) $item['unit_price'],
                         $variety?->latestPrice
                     ),
-                    'time_slot' => $item['time_slot'],
                 ]);
             }
 
-            $post->markAsOngoing($validated['scheduled_at']);
+            // time_slot lives on post — set it alongside scheduled_date
+            $post->time_slot = $validated['time_slot'];
+            $post->markAsOngoing($validated['scheduled_date']);
         });
 
         return $post->fresh(['vegetable', 'postItems.variety']);
