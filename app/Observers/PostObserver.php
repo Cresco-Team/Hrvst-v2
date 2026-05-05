@@ -33,10 +33,10 @@ class PostObserver
 
         $periodDate = $post->created_at->startOfMonth()->toDateString();
 
-        $this->upsertRow($post->variety_id, $periodDate);
+        $this->upsertRow($post->vegetable_id, $periodDate);
 
-        DB::table('variety_monthly_stats')
-            ->where('variety_id', $post->variety_id)
+        DB::table('vegetable_monthly_stats')
+            ->where('vegetable_id', $post->vegetable_id)
             ->where('period_date', $periodDate)
             ->increment($newColumn, (float) $post->quantity_kg);
 
@@ -44,8 +44,8 @@ class PostObserver
             $oldColumn = $this->resolveColumn($post->type, $oldStatus);
 
             if ($oldColumn !== null) {
-                DB::table('variety_monthly_stats')
-                    ->where('variety_id', $post->variety_id)
+                DB::table('vegetable_monthly_stats')
+                    ->where('vegetable_id', $post->vegetable_id)
                     ->where('period_date', $periodDate)
                     ->update([
                         $oldColumn => DB::raw(
@@ -73,8 +73,8 @@ class PostObserver
 
         $periodDate = $post->created_at->startOfMonth()->toDateString();
 
-        $exists = DB::table('variety_monthly_stats')
-            ->where('variety_id', $post->variety_id)
+        $exists = DB::table('vegetable_monthly_stats')
+            ->where('vegetable_id', $post->vegetable_id)
             ->where('period_date', $periodDate)
             ->exists();
 
@@ -82,8 +82,8 @@ class PostObserver
             return;
         }
 
-        DB::table('variety_monthly_stats')
-            ->where('variety_id', $post->variety_id)
+        DB::table('vegetable_monthly_stats')
+            ->where('vegetable_id', $post->vegetable_id)
             ->where('period_date', $periodDate)
             ->update([
                 $column => DB::raw(
@@ -106,11 +106,11 @@ class PostObserver
         };
     }
 
-    private function upsertRow(int $varietyId, string $periodDate): void
+    private function upsertRow(int $vegetableId, string $periodDate): void
     {
-        DB::table('variety_monthly_stats')->upsert(
+        DB::table('vegetable_monthly_stats')->upsert(
             [[
-                'variety_id' => $varietyId,
+                'vegetable_id' => $vegetableId,
                 'period_date' => $periodDate,
                 'supply_archived_kg' => 0,
                 'supply_fulfilled_kg' => 0,
@@ -119,7 +119,7 @@ class PostObserver
                 'created_at' => now(),
                 'updated_at' => now(),
             ]],
-            ['variety_id', 'period_date'],
+            ['vegetable_id', 'period_date'],
             ['updated_at'],
         );
     }

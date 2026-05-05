@@ -25,12 +25,20 @@ class VarietyResource extends JsonResource
                 ],
             ],
 
-            'latest_price' => $this->whenLoaded('latestPrice', fn () => $this->latestPrice
-                ? (new PriceHistoryResource($this->latestPrice))->toArray($request)
-                : null
+            'latest_price' => $this->whenLoaded(
+                'latestPrice',
+                fn () => $this->latestPrice
+                    ? (new PriceHistoryResource($this->latestPrice))->toArray($request)
+                    : null
             ),
-            'price_updated_human' => $this->whenLoaded('latestPrice', fn () => $this->latestPrice?->recorded_at->diffForHumans()),
-            'price_updated_date' => $this->whenLoaded('latestPrice', fn () => $this->latestPrice?->recorded_at->format('M d, Y')),
+            'price_updated_human' => $this->whenLoaded(
+                'latestPrice',
+                fn () => $this->latestPrice?->recorded_at->diffForHumans()
+            ),
+            'price_updated_date' => $this->whenLoaded(
+                'latestPrice',
+                fn () => $this->latestPrice?->recorded_at->format('M d, Y')
+            ),
 
             'price_trend' => $this->whenLoaded('lastTwoPrices', function () {
                 $prices = $this->lastTwoPrices;
@@ -49,6 +57,8 @@ class VarietyResource extends JsonResource
                 };
             }),
 
+            // Counted via postItems since posts.variety_id was removed.
+            // Keys must match the withCount aliases in VegetableService::paginated().
             'supply_count' => $this->whenCounted('supply_count'),
             'demand_count' => $this->whenCounted('demand_count'),
         ];

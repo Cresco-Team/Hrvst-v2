@@ -8,9 +8,9 @@ enum PostPriceFlag: string
     case Fair = 'Fair';
     case High = 'High';
 
-    public static function fromMarketPrice(float $offered, ?object $market): self 
+    public static function fromMarketPrice(float $offered, ?object $market): self
     {
-        if (!$market) {
+        if (! $market) {
             return self::Fair;
         }
 

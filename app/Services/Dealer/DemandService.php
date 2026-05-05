@@ -5,6 +5,7 @@ namespace App\Services\Dealer;
 use App\Enums\PostStatus;
 use App\Models\Marketplace\Post;
 use App\Models\Product\Variety;
+use App\Models\Product\Vegetable;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class DemandService
@@ -22,31 +23,44 @@ class DemandService
 
     public function paginated(int $userId, PostStatus $status, int $perPage = 20): LengthAwarePaginator
     {
-        $query = Post::demand()
+        return Post::demand()
             ->where('user_id', $userId)
-            ->with(['variety.media', 'variety.vegetable.category', 'variety.latestPrice']);
-
-        match ($status) {
-            PostStatus::Ongoing => $query->ongoing(),
-            PostStatus::Archived => $query->archived(),
-            PostStatus::Fulfilled => $query->fulfilled(),
-        };
-
-        return $query->orderBy('scheduled_date', 'desc')->paginate($perPage);
+            ->ofStatus($status)
+            ->with(['vegetable.category', 'postItems.variety'])
+            ->orderBy('scheduled_date', 'desc')
+            ->paginate($perPage);
     }
 
-    public function varietyOptions(): array
+    public function vegetableOptions(): array
     {
-        return cache()->remember('dealer_demand_variety_options', 3600, fn () => Variety::with('vegetable.category', 'latestPrice')
+        return cache()->remember('dealer_demand_vegetable_options', 3600, fn () => Vegetable::with('category')
             ->orderBy('name')
             ->get()
-            ->groupBy(fn ($variety) => $variety->vegetable->category->name)
-            ->map(fn ($varieties) => $varieties->map(fn ($variety) => [
-                'id' => $variety->id,
-                'name' => $variety->vegetable->name.' '.$variety->name,
-                'current_price' => $variety->latestPrice ? [
-                    'min' => (float) $variety->latestPrice->price_min,
-                    'max' => (float) $variety->latestPrice->price_max,
+            ->groupBy(fn ($v) => $v->category->name)
+            ->map(fn ($vegetables) => $vegetables->map(fn ($v) => [
+                'id' => $v->id,
+                'name' => $v->name,
+            ])->values()->toArray())
+            ->toArray()
+        );
+    }
+
+    /**
+     * Varieties grouped by vegetable for the demand item form.
+     * Includes latest market price hint per variety.
+     */
+    public function varietyOptions(): array
+    {
+        return cache()->remember('dealer_demand_variety_options', 3600, fn () => Variety::with(['vegetable', 'latestPrice'])
+            ->orderBy('name')
+            ->get()
+            ->groupBy(fn ($v) => $v->vegetable->name)
+            ->map(fn ($varieties) => $varieties->map(fn ($v) => [
+                'id' => $v->id,
+                'name' => $v->name,
+                'current_price' => $v->latestPrice ? [
+                    'min' => (float) $v->latestPrice->price_min,
+                    'max' => (float) $v->latestPrice->price_max,
                 ] : null,
             ])->values()->toArray())
             ->toArray()

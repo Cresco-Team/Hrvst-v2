@@ -2,21 +2,20 @@
 
 namespace App\Models\Marketplace;
 
-use App\Enums\PostPriceFlag;
 use App\Enums\PostStatus;
 use App\Enums\PostTimeSlot;
 use App\Enums\PostType;
 use App\Models\Interaction\PostHeart;
-use App\Models\Product\Variety;
+use App\Models\Product\Vegetable;
 use App\Models\Profiles\DealerProfile;
 use App\Models\Profiles\FarmerProfile;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOneThrough;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
@@ -24,29 +23,28 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
 class Post extends Model implements HasMedia
 {
     use InteractsWithMedia;
+    use SoftDeletes;
 
     protected $fillable = [
         'user_id',
-        'variety_id',
+        'vegetable_id',
         'type',
         'status',
-        'quantity_kg',
-        'offered_price',
-        'price_flag',
+        'target_month',
         'scheduled_date',
         'time_slot',
+        'estimated_total_weight',
     ];
 
     protected function casts(): array
     {
         return [
-            'quantity_kg' => 'int',
-            'offered_price' => 'decimal:2',
-            'price_flag' => PostPriceFlag::class,
             'type' => PostType::class,
             'status' => PostStatus::class,
-            'scheduled_date' => 'date',
             'time_slot' => PostTimeSlot::class,
+            'target_month' => 'date',
+            'scheduled_date' => 'date',
+            'estimated_total_weight' => 'decimal:2',
         ];
     }
 
@@ -57,9 +55,14 @@ class Post extends Model implements HasMedia
         return $this->belongsTo(User::class);
     }
 
-    public function variety(): BelongsTo
+    public function vegetable(): BelongsTo
     {
-        return $this->belongsTo(Variety::class);
+        return $this->belongsTo(Vegetable::class);
+    }
+
+    public function postItems(): HasMany
+    {
+        return $this->hasMany(PostItem::class);
     }
 
     public function hearts(): HasMany
@@ -103,6 +106,11 @@ class Post extends Model implements HasMedia
         return $query->where('type', PostType::Demand);
     }
 
+    public function scopeGrowing(Builder $query): Builder
+    {
+        return $query->where('status', PostStatus::Growing);
+    }
+
     public function scopeOngoing(Builder $query): Builder
     {
         return $query->where('status', PostStatus::Ongoing);
@@ -118,17 +126,19 @@ class Post extends Model implements HasMedia
         return $query->where('status', PostStatus::Fulfilled);
     }
 
-    public function scopeOfType(Builder $query, PostType $type): Builder
-    {
-        return $query->where('type', $type);
-    }
-
     public function scopeOfStatus(Builder $query, PostStatus $status): Builder
     {
         return $query->where('status', $status);
     }
 
-    /* ---------- actions ---------- */
+    /* ---------- lifecycle ---------- */
+
+    public function markAsOngoing(string $scheduledAt): void
+    {
+        $this->status = PostStatus::Ongoing;
+        $this->scheduled_at = $scheduledAt;
+        $this->save();
+    }
 
     public function markAsArchived(): void
     {
@@ -142,26 +152,17 @@ class Post extends Model implements HasMedia
         $this->save();
     }
 
-    /* ---------- accessors ---------- */
+    /* ---------- helpers ---------- */
 
-    public function daysUntilArchive(): Attribute
+    public function isGrowing(): bool
     {
-        return Attribute::make(
-            get: function () {
-                if ($this->status !== PostStatus::Ongoing) {
-                    return null;
-                }
-            }
-        );
+        return $this->status === PostStatus::Growing;
     }
 
     /* ---------- media ---------- */
 
     public function registerMediaCollections(): void
     {
-        // Only supply posts carry an image; demands do not.
-        // The collection is registered on Post for both types but only populated
-        // by CreateSupplyAction / UpdateSupplyAction.
         $this->addMediaCollection('post_image')
             ->singleFile()
             ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/webp']);

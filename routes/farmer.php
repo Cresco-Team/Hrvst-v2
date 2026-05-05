@@ -16,6 +16,7 @@ Route::middleware(['auth', 'verified', 'farmer'])->prefix('farmer')->name('farme
         Route::put('/{supply}', [SupplyController::class, 'update'])->name('update');
         Route::post('/{supply}/archive', [SupplyController::class, 'archive'])->name('archive');
         Route::post('/{supply}/fulfill', [SupplyController::class, 'fulfill'])->name('fulfill');
+        Route::post('/{supply}/harvest', [SupplyController::class, 'harvest'])->name('harvest');
         Route::delete('/{supply}', [SupplyController::class, 'destroy'])->name('destroy');
     });
 

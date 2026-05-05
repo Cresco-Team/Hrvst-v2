@@ -24,7 +24,7 @@ class DatabaseSeeder extends Seeder
             $this->call([
                 TestUsersSeeder::class,
                 PriceHistorySeeder::class,
-                VarietyMonthlyStatsSeeder::class,
+                // VarietyMonthlyStatsSeeder::class,
             ]);
 
             FarmerProfile::factory(10)->create();

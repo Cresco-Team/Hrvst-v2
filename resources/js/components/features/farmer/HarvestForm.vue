@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { useForm } from '@inertiajs/vue3'
-import { Plus, ShoppingBag, Trash2 } from 'lucide-vue-next'
+import { Leaf, Plus, Trash2 } from 'lucide-vue-next'
 import { computed, watch } from 'vue'
-import { store, update } from '@/actions/App/Http/Controllers/Dealer/DemandController'
+import { harvest } from '@/actions/App/Http/Controllers/Farmer/SupplyController'
 import DialogForm from '@/components/dialogs/DialogForm.vue'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -11,21 +11,14 @@ import { Label } from '@/components/ui/label'
 import {
 	Select,
 	SelectContent,
-	SelectGroup,
 	SelectItem,
-	SelectLabel,
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
-import type {
-	DealerDemandResource,
-	PostTimeSlot,
-	VarietyOptionsByVegetable,
-	VegetableOptionsByCategory,
-} from '@/types'
+import type { FarmerSupplyResource, PostTimeSlot, VarietyOptionsByVegetable } from '@/types'
 
-interface DemandItem {
+interface HarvestItem {
 	variety_id: string
 	quantity_kg: string
 	unit_price: string
@@ -33,12 +26,11 @@ interface DemandItem {
 
 interface Props {
 	open: boolean
-	demand?: DealerDemandResource | null
-	vegetableOptions?: VegetableOptionsByCategory
+	supply: FarmerSupplyResource | null
 	varietyOptions?: VarietyOptionsByVegetable
 }
 
-const props = withDefaults(defineProps<Props>(), { demand: null })
+const props = defineProps<Props>()
 const emit = defineEmits<{ 'update:open': [value: boolean] }>()
 
 const TIME_SLOT_OPTIONS: { value: PostTimeSlot; label: string }[] = [
@@ -47,23 +39,19 @@ const TIME_SLOT_OPTIONS: { value: PostTimeSlot; label: string }[] = [
 	{ value: 'evening', label: 'Evening (6 PM – 10 PM)' },
 ]
 
-function blankItem(): DemandItem {
+function blankItem(): HarvestItem {
 	return { variety_id: '', quantity_kg: '', unit_price: '' }
 }
 
 const form = useForm<{
-	vegetable_id: string
 	scheduled_date: string
 	time_slot: PostTimeSlot | ''
-	items: DemandItem[]
+	items: HarvestItem[]
 }>({
-	vegetable_id: '',
 	scheduled_date: '',
 	time_slot: 'morning',
 	items: [blankItem()],
 })
-
-const isEditMode = computed(() => !!props.demand)
 
 const minDate = computed(() => {
 	const d = new Date()
@@ -94,37 +82,24 @@ function removeItem(index: number) {
 }
 
 function handleSubmit() {
-	const routeData = props.demand ? update(props.demand.id) : store()
-	form
-		.transform((data) => {
-			if (props.demand) return { ...data, _method: 'PUT' }
-			return data
-		})
-		.post(routeData.url, {
-			preserveScroll: true,
-			onSuccess: () => {
-				emit('update:open', false)
-				form.reset()
-				form.items = [blankItem()]
-			},
-		})
+	if (!props.supply) return
+	form.post(harvest(props.supply.id).url, {
+		preserveScroll: true,
+		onSuccess: () => {
+			emit('update:open', false)
+			form.reset()
+			form.items = [blankItem()]
+		},
+	})
 }
 
 watch(
 	() => props.open,
 	(isOpen) => {
 		if (!isOpen) return
-		const d = props.demand
-		form.vegetable_id = String(d?.vegetable?.id ?? '')
-		form.scheduled_date = d?.scheduled_date ?? ''
-		form.time_slot = (d?.time_slot ?? 'morning') as PostTimeSlot | ''
-		form.items = d?.items?.length
-			? d.items.map((i) => ({
-					variety_id: String(i.variety_id),
-					quantity_kg: String(i.quantity_kg),
-					unit_price: String(i.unit_price ?? ''),
-				}))
-			: [blankItem()]
+		form.scheduled_date = ''
+		form.time_slot = 'morning'
+		form.items = [blankItem()]
 		form.clearErrors()
 	},
 )
@@ -133,47 +108,24 @@ watch(
 <template>
 	<DialogForm
 		:open="open"
-		:title="isEditMode ? 'Edit Demand' : 'New Demand'"
-		:description="isEditMode ? 'Update your demand details.' : 'Post a purchase request for farmers.'"
+		title="Record Harvest"
+		:description="`Expand ${supply?.vegetable?.name ?? 'supply'} into variety breakdown and schedule delivery.`"
 		:form="form"
-		:submit-label="isEditMode ? 'Update Demand' : 'Post Demand'"
+		submit-label="Confirm Harvest"
 		max-width="2xl"
 		@update:open="emit('update:open', $event)"
 		@submit="handleSubmit"
 	>
 		<template #icon>
-			<ShoppingBag class="size-5 text-primary" />
+			<Leaf class="size-5 text-primary" />
 		</template>
 
 		<div class="space-y-6">
 
-			<!-- Vegetable -->
-			<div class="space-y-2">
-				<Label for="vegetable" class="flex items-center gap-1.5">
-					Vegetable
-					<Badge variant="secondary" class="text-xs font-normal">Required</Badge>
-				</Label>
-				<Select v-model="form.vegetable_id" :disabled="isEditMode">
-					<SelectTrigger id="vegetable" :class="{ 'border-destructive': form.errors.vegetable_id }">
-						<SelectValue placeholder="Select a vegetable..." />
-					</SelectTrigger>
-					<SelectContent>
-						<SelectGroup v-for="(vegetables, category) in vegetableOptions" :key="category">
-							<SelectLabel>{{ category }}</SelectLabel>
-							<SelectItem v-for="v in vegetables" :key="v.id" :value="String(v.id)">
-								{{ v.name }}
-							</SelectItem>
-						</SelectGroup>
-					</SelectContent>
-				</Select>
-				<p v-if="form.errors.vegetable_id" class="text-xs text-destructive">{{ form.errors.vegetable_id }}</p>
-				<p v-else-if="isEditMode" class="text-xs text-muted-foreground">Vegetable cannot be changed after creation</p>
-			</div>
-
-			<!-- Transaction Date -->
+			<!-- Scheduled date -->
 			<div class="space-y-2">
 				<Label for="scheduled_date" class="flex items-center gap-1.5">
-					Transaction Date
+					Delivery Date
 					<Badge variant="secondary" class="text-xs font-normal">Required</Badge>
 				</Label>
 				<Input
@@ -185,10 +137,10 @@ watch(
 					:class="{ 'border-destructive': form.errors.scheduled_date }"
 				/>
 				<p v-if="form.errors.scheduled_date" class="text-xs text-destructive">{{ form.errors.scheduled_date }}</p>
-				<p v-else class="text-xs text-muted-foreground">Post will auto-archive after this date (max 3 months)</p>
+				<p v-else class="text-xs text-muted-foreground">When will you bring this to the trading post?</p>
 			</div>
 
-			<!-- Time Slot — post level -->
+			<!-- Time slot — post level -->
 			<div class="space-y-2">
 				<Label for="time_slot" class="flex items-center gap-1.5">
 					Preferred Time Slot
@@ -205,7 +157,7 @@ watch(
 					</SelectContent>
 				</Select>
 				<p v-if="form.errors.time_slot" class="text-xs text-destructive">{{ form.errors.time_slot }}</p>
-				<p v-else class="text-xs text-muted-foreground">When are you available for pickup?</p>
+				<p v-else class="text-xs text-muted-foreground">When are you available for delivery?</p>
 			</div>
 
 			<Separator />
@@ -213,7 +165,7 @@ watch(
 			<!-- Variety items — no time_slot per item -->
 			<div class="space-y-4">
 				<div class="flex items-center justify-between">
-					<Label class="text-sm font-medium">Varieties Needed</Label>
+					<Label class="text-sm font-medium">Harvest Items</Label>
 					<Button type="button" variant="outline" size="sm" class="gap-1.5" @click="addItem">
 						<Plus class="size-3.5" />
 						Add Variety
@@ -265,6 +217,7 @@ watch(
 							{{ (form.errors as Record<string, string>)[`items.${index}.variety_id`] }}
 						</p>
 
+						<!-- Market price hint -->
 						<div
 							v-if="item.variety_id && priceHintFor(item.variety_id)"
 							class="flex items-center gap-1.5 rounded-md border border-dashed bg-background px-3 py-1.5 text-xs text-muted-foreground"
@@ -296,14 +249,14 @@ watch(
 						</div>
 
 						<div class="space-y-1.5">
-							<Label :for="`price-${index}`" class="text-xs">Offered Price (₱/kg)</Label>
+							<Label :for="`price-${index}`" class="text-xs">Asking Price (₱/kg)</Label>
 							<Input
 								:id="`price-${index}`"
 								v-model.number="item.unit_price"
 								type="number"
 								step="0.01"
 								min="0"
-								placeholder="Optional"
+								placeholder="0.00"
 								:class="{ 'border-destructive': (form.errors as Record<string, string>)[`items.${index}.unit_price`] }"
 							/>
 							<p v-if="(form.errors as Record<string, string>)[`items.${index}.unit_price`]" class="text-xs text-destructive">

@@ -11,9 +11,6 @@ class DealerDemandResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'quantity_kg' => (float) $this->quantity_kg,
-            'offered_price' => (float) $this->offered_price,
-            'price_flag' => $this->price_flag,
             'status' => $this->status,
             'scheduled_date' => $this->scheduled_date?->format('M d, Y'),
             'time_slot' => $this->time_slot?->value,
@@ -26,22 +23,25 @@ class DealerDemandResource extends JsonResource
             'created_at' => $this->created_at->format('M d, Y'),
             'created_at_human' => $this->created_at->diffForHumans(),
 
-            /* with('variety.vegetable.category', 'variety.media') */
-            'variety' => $this->whenLoaded('variety', function () {
-                $variety = $this->variety;
+            /* with('vegetable.category') */
+            'vegetable' => $this->whenLoaded('vegetable', fn () => [
+                'id' => $this->vegetable->id,
+                'name' => $this->vegetable->name,
+                'category' => $this->vegetable->relationLoaded('category')
+                    ? $this->vegetable->category->name
+                    : null,
+                'image_url' => '',
+            ]),
 
-                return [
-                    'id' => $variety->id,
-                    'name' => $variety->name,
-                    'vegetable' => $variety->relationLoaded('vegetable')
-                        ? $variety->vegetable->name
-                        : null,
-                    'category' => $variety->relationLoaded('vegetable') && $variety->vegetable->relationLoaded('category')
-                        ? $variety->vegetable->category->name
-                        : null,
-                    'image_url' => $variety->getFirstMediaUrl('variety_image'),
-                ];
-            }),
+            /* with('postItems.variety') */
+            'items' => $this->whenLoaded('postItems', fn () => $this->postItems->map(fn ($item) => [
+                'id' => $item->id,
+                'variety_id' => $item->variety_id,
+                'variety_name' => $item->relationLoaded('variety') ? $item->variety->name : null,
+                'quantity_kg' => (float) $item->quantity_kg,
+                'unit_price' => $item->unit_price !== null ? (float) $item->unit_price : null,
+                'price_flag' => $item->price_flag,
+            ])),
         ];
     }
 }

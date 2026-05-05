@@ -16,26 +16,27 @@ class UpdateDemandRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'variety_id' => ['sometimes', 'integer', 'exists:varieties,id'],
-            'quantity_kg' => ['sometimes', 'numeric', 'min:0.01', 'max:99999'],
-            'offered_price' => ['sometimes', 'nullable', 'numeric', 'min:0', 'max:9999.99'],
-            'scheduled_date' => ['sometimes', 'nullable', 'date', 'after:today', 'before:'.now()->addMonths(3)->toDateString()],
+            'vegetable_id' => ['sometimes', 'integer', 'exists:vegetables,id'],
+            'scheduled_date' => ['sometimes', 'date', 'after:today', 'before:'.now()->addMonths(3)->toDateString()],
             'time_slot' => ['sometimes', Rule::enum(PostTimeSlot::class)],
+            'items' => ['sometimes', 'array', 'min:1'],
+            'items.*.variety_id' => ['required_with:items', 'integer', 'exists:varieties,id'],
+            'items.*.quantity_kg' => ['required_with:items', 'numeric', 'min:0.1', 'max:99999'],
+            'items.*.unit_price' => ['nullable', 'numeric', 'min:0', 'max:9999.99'],
         ];
     }
 
     public function messages(): array
     {
         return [
-            'quantity_kg.numeric' => 'Quantity must be a number.',
-            'quantity_kg.min' => 'Quantity is too low.',
-            'offered_price.numeric' => 'Budget must be a number.',
-            'offered_price.min' => 'Budget is too low.',
-            'scheduled_date.date' => 'Transaction date must be a valid date.',
             'scheduled_date.after' => 'Transaction date must be in the future.',
             'scheduled_date.before' => 'Transaction date cannot be more than 3 months away.',
-            'time_slot.required' => 'A preferred time slot is required.',
             'time_slot.enum' => 'Time slot must be morning, afternoon, or evening.',
+            'items.min' => 'At least one item is required.',
+            'items.*.variety_id.required_with' => 'Each item must have a variety.',
+            'items.*.quantity_kg.required_with' => 'Each item must have a quantity.',
+            'items.*.quantity_kg.min' => 'Quantity is too low.',
+            'items.*.unit_price.min' => 'Price cannot be negative.',
         ];
     }
 }
