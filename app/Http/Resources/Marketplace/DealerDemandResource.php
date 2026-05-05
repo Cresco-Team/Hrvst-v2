@@ -12,9 +12,11 @@ class DealerDemandResource extends JsonResource
         return [
             'id' => $this->id,
             'status' => $this->status,
-            'scheduled_at' => $this->scheduled_at?->format('M d, Y'),
-            'days_until_transaction' => $this->scheduled_at
-                ? (int) now()->diffInDays($this->scheduled_at, false)
+            'scheduled_date' => $this->scheduled_date?->format('M d, Y'),
+            'time_slot' => $this->time_slot?->value,
+            'time_slot_label' => $this->time_slot?->label(),
+            'days_until_transaction' => $this->scheduled_date
+                ? (int) now()->diffInDays($this->scheduled_date, false)
                 : null,
             'hearts_count' => $this->hearts_count ?? 0,
             'is_hearted' => (bool) ($this->is_hearted ?? false),
@@ -39,8 +41,6 @@ class DealerDemandResource extends JsonResource
                 'quantity_kg' => (float) $item->quantity_kg,
                 'unit_price' => $item->unit_price !== null ? (float) $item->unit_price : null,
                 'price_flag' => $item->price_flag,
-                'time_slot' => $item->time_slot?->value,
-                'time_slot_label' => $item->time_slot?->label(),
             ])),
         ];
     }
