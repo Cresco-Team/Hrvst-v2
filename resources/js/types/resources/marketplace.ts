@@ -17,8 +17,7 @@ export interface PostItemSnapshot {
 	quantity_kg: number
 	unit_price: number | null
 	price_flag: PostPriceFlag | null
-	time_slot: PostTimeSlot | null
-	time_slot_label: string | null
+	// time_slot intentionally absent — it lives on the parent post
 }
 
 // ─── FarmerSupplyResource ─────────────────────────────────────────────────────
@@ -26,8 +25,10 @@ export interface PostItemSnapshot {
 export interface FarmerSupplyResource {
 	id: number
 	status: PostStatus
-	target_month: string | null           // "YYYY-MM" — growing only
-	scheduled_at: string | null           // formatted — ongoing+
+	target_month: string | null
+	scheduled_date: string | null
+	time_slot: PostTimeSlot | null
+	time_slot_label: string | null
 	estimated_total_weight: number
 	hearts_count: number
 	is_hearted: boolean
@@ -35,7 +36,7 @@ export interface FarmerSupplyResource {
 	created_at_human: string
 	image_url?: string
 	vegetable?: PostVegetableSnapshot
-	items?: PostItemSnapshot[]            // empty while growing
+	items?: PostItemSnapshot[]
 }
 
 // ─── DealerDemandResource ─────────────────────────────────────────────────────
@@ -43,7 +44,9 @@ export interface FarmerSupplyResource {
 export interface DealerDemandResource {
 	id: number
 	status: PostStatus
-	scheduled_at: string | null
+	scheduled_date: string | null
+	time_slot: PostTimeSlot | null
+	time_slot_label: string | null
 	days_until_transaction: number | null
 	hearts_count: number
 	is_hearted: boolean
@@ -65,11 +68,9 @@ export type VegetableOptionsByCategory = Record<string, VegetableOption[]>
 export type VarietyOption = {
 	id: number
 	name: string
-	vegetable_id: number
 	current_price: { min: number; max: number } | null
 }
 
-// Grouped by vegetable name for display
 export type VarietyOptionsByVegetable = Record<string, VarietyOption[]>
 
 // ─── Map types ────────────────────────────────────────────────────────────────
