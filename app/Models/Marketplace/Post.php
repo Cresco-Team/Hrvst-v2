@@ -133,10 +133,10 @@ class Post extends Model implements HasMedia
 
     /* ---------- lifecycle ---------- */
 
-    public function markAsOngoing(string $scheduledAt): void
+    public function markAsOngoing(string $scheduledDate): void
     {
         $this->status = PostStatus::Ongoing;
-        $this->scheduled_at = $scheduledAt;
+        $this->scheduled_date = $scheduledDate; // Bug #6 fix: was $this->scheduled_at
         $this->save();
     }
 
