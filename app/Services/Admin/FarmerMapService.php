@@ -28,7 +28,7 @@ class FarmerMapService
     public function getSupplyOptions(): array
     {
         return Variety::query()
-            ->whereHas('posts', fn ($q) => $q->ongoing()->supply())
+            // ->whereHas('posts', fn ($q) => $q->ongoing()->supply())
             ->with('vegetable.category')
             ->orderBy('name')
             ->get()

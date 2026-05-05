@@ -13,7 +13,7 @@ class MarketplaceService
     {
         $query = Post::demand()
             ->ongoing()
-            ->with(['vegetable.category']);
+            ->with(['vegetable.category', 'postItems.variety']); // Bug #2 fix: added postItems.variety
 
         if ($userId) {
             $query->withExists([

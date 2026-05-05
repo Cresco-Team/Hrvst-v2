@@ -69,7 +69,7 @@ class FarmerService
             'province',
             'municipality',
             'barangay',
-            'posts' => fn ($q) => $q->with(['media', 'variety.vegetable.category']),
+            'posts' => fn ($q) => $q->with(['media', 'postItems.variety.vegetable.category']),
         ]);
     }
 }

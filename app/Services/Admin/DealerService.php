@@ -27,7 +27,7 @@ class DealerService
             'user.media',
             'posts' => fn ($q) => $q
                 ->ongoing()
-                ->with(['variety.media', 'variety.vegetable.category'])
+                ->with(['postItems.variety.media', 'postItems.variety.vegetable.category'])
                 ->orderBy('scheduled_date', 'asc'),
         ])
             ->withCount([
