@@ -14,12 +14,12 @@ final class UpdateDemandAction
     /**
      * @param  array{
      *     vegetable_id?: int,
-     *     scheduled_at?: string,
+     *     scheduled_date?: string,
+     *     time_slot?: string,
      *     items?: array<int, array{
      *         variety_id: int,
      *         quantity_kg: float,
      *         unit_price: float|null,
-     *         time_slot: string,
      *     }>
      * } $validated
      */
@@ -31,7 +31,7 @@ final class UpdateDemandAction
 
         DB::transaction(function () use ($post, $validated): void {
             $post->update(array_intersect_key($validated, array_flip([
-                'vegetable_id', 'scheduled_at',
+                'vegetable_id', 'scheduled_date', 'time_slot',
             ])));
 
             if (! empty($validated['items'])) {
@@ -55,7 +55,6 @@ final class UpdateDemandAction
                         'price_flag' => $unitPrice !== null
                             ? PostPriceFlag::fromMarketPrice((float) $unitPrice, $variety?->latestPrice)
                             : PostPriceFlag::Fair,
-                        'time_slot' => $item['time_slot'],
                     ]);
                 }
             }
