@@ -3,11 +3,9 @@
 namespace App\Http\Controllers\Dealer;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\Marketplace\FarmerSupplyResource;
-use App\Models\Marketplace\Post;
+use App\Http\Resources\Marketplace\PostItemResource;
 use App\Services\Dealer\MarketplaceService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -19,8 +17,6 @@ class MarketplaceController extends Controller
 
     public function index(Request $request): Response
     {
-        Gate::authorize('viewAny', Post::class);
-
         $validated = $request->validate([
             'search' => 'nullable|string|max:255',
             'category_id' => 'nullable|exists:categories,id',
@@ -30,7 +26,7 @@ class MarketplaceController extends Controller
 
         return Inertia::render('dealer/marketplace/Index', [
             'filters' => $validated,
-            'supplies' => Inertia::defer(fn () => FarmerSupplyResource::collection(
+            'supplies' => Inertia::defer(fn () => PostItemResource::collection(
                 $this->marketplaceService->paginated(
                     filters: $validated,
                     userId: $request->user()->id,
