@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import axios from 'axios'
 import { AlarmClockCheck, Calendar, Heart, MapPin } from 'lucide-vue-next'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { toggle as togglePostHeart } from '@/actions/App/Http/Controllers/PostHeartController'
 import { AspectRatio } from '@/components/ui/aspect-ratio'
 import { Badge } from '@/components/ui/badge'
@@ -11,10 +11,15 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { cn } from '@/lib/utils'
 import type { DealerPostItemResource } from '@/types'
 
-const { item } = defineProps<{ item: DealerPostItemResource }>()
+const props = defineProps<{
+	item: DealerPostItemResource
+	mode?: 'supply' | 'demand'
+}>()
 
-const localHearted = ref(item.is_hearted)
-const localCount = ref(item.hearts_count)
+const mode = computed(() => props.mode ?? 'supply')
+
+const localHearted = ref(props.item.is_hearted)
+const localCount = ref(props.item.hearts_count)
 const isPending = ref(false)
 
 const priceFlagClass: Record<string, string> = {
@@ -22,6 +27,14 @@ const priceFlagClass: Record<string, string> = {
 	Fair: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300',
 	High: 'bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300',
 }
+
+const qtyLabel = computed(() => mode.value === 'supply' ? 'AVAILABLE' : 'NEEDED')
+
+const qtyClass = computed(() =>
+	mode.value === 'supply'
+		? 'bg-primary/10 text-primary'
+		: 'bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300'
+)
 
 async function toggleHeart(event: MouseEvent): Promise<void> {
 	event.stopPropagation()
@@ -34,7 +47,7 @@ async function toggleHeart(event: MouseEvent): Promise<void> {
 
 	try {
 		const { data } = await axios.post<{ hearted: boolean; hearts_count: number }>(
-			togglePostHeart(item.post_id).url,
+			togglePostHeart(props.item.post_id).url,
 		)
 		localHearted.value = data.hearted
 		localCount.value = data.hearts_count
@@ -57,7 +70,6 @@ async function toggleHeart(event: MouseEvent): Promise<void> {
 				class="absolute inset-0 h-full w-full object-cover"
 			/>
 
-			<!-- Days until badge -->
 			<div
 				v-if="item.days_until_transaction !== null"
 				class="absolute top-2 left-2 rounded-full bg-black/60 px-2.5 py-0.5 text-xs font-semibold text-white backdrop-blur-sm"
@@ -65,14 +77,12 @@ async function toggleHeart(event: MouseEvent): Promise<void> {
 				{{ item.days_until_transaction <= 0 ? 'Today' : `${item.days_until_transaction}d away` }}
 			</div>
 
-			<!-- Price flag badge -->
 			<div v-if="item.price_flag" class="absolute top-2 right-2">
 				<Badge :class="priceFlagClass[item.price_flag]">
 					{{ item.price_flag }}
 				</Badge>
 			</div>
 
-			<!-- Timestamp -->
 			<div class="absolute bottom-0 right-0 rounded-tl-lg bg-black/60 px-3 py-1 text-xs font-medium text-white backdrop-blur-sm">
 				<TooltipProvider :delay-duration="200">
 					<Tooltip>
@@ -95,16 +105,14 @@ async function toggleHeart(event: MouseEvent): Promise<void> {
 		<div class="px-4"><Separator /></div>
 
 		<CardContent class="px-4 py-3 flex flex-col gap-2">
-			<!-- Quantity + price -->
-			<div class="bg-primary/10 rounded-md p-3">
-				<span class="text-xs tracking-wider block mb-1">AVAILABLE</span>
-				<span class="font-semibold text-primary text-sm">{{ item.quantity_kg.toLocaleString('en-PH') }} kg</span>
-				<span v-if="item.unit_price" class="ml-2 text-xs text-muted-foreground font-mono">
+			<div :class="cn('rounded-md p-3', qtyClass)">
+				<span class="text-xs tracking-wider block mb-1">{{ qtyLabel }}</span>
+				<span class="font-semibold text-sm">{{ item.quantity_kg.toLocaleString('en-PH') }} kg</span>
+				<span v-if="item.unit_price" class="ml-2 text-xs font-mono opacity-80">
 					@ ₱{{ item.unit_price.toFixed(2) }}/kg
 				</span>
 			</div>
 
-			<!-- Schedule -->
 			<div v-if="item.scheduled_date" class="flex items-center gap-2 text-xs text-muted-foreground">
 				<Calendar class="size-3.5 shrink-0" />
 				<span>{{ item.scheduled_date }}</span>
@@ -115,13 +123,11 @@ async function toggleHeart(event: MouseEvent): Promise<void> {
 				<span>{{ item.time_slot_label }}</span>
 			</div>
 
-			<!-- Municipality -->
 			<div v-if="item.municipality" class="flex items-center gap-2 text-xs text-muted-foreground">
 				<MapPin class="size-3.5 shrink-0" />
 				<span>{{ item.municipality }}</span>
 			</div>
 
-			<!-- Heart -->
 			<div class="flex items-center justify-end pt-1">
 				<button
 					class="flex items-center gap-1.5 text-sm text-muted-foreground cursor-pointer transition-colors hover:text-rose-500 disabled:pointer-events-none disabled:opacity-50"
