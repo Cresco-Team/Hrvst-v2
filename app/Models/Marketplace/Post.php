@@ -42,8 +42,7 @@ class Post extends Model implements HasMedia
             'type' => PostType::class,
             'status' => PostStatus::class,
             'time_slot' => PostTimeSlot::class,
-            // target_month intentionally not cast — stored as varchar(7) 'YYYY-MM' string.
-            // Casting to 'date' expands it to a full datetime, overflowing the column.
+            // target_month stored as varchar(7) 'YYYY-MM' — no date cast
             'scheduled_date' => 'date',
             'estimated_total_weight' => 'decimal:2',
         ];
@@ -112,44 +111,17 @@ class Post extends Model implements HasMedia
         return $query->where('status', PostStatus::Growing);
     }
 
-    public function scopeOngoing(Builder $query): Builder
+    public function scopeHarvested(Builder $query): Builder
     {
-        return $query->where('status', PostStatus::Ongoing);
-    }
-
-    public function scopeArchived(Builder $query): Builder
-    {
-        return $query->where('status', PostStatus::Archived);
-    }
-
-    public function scopeFulfilled(Builder $query): Builder
-    {
-        return $query->where('status', PostStatus::Fulfilled);
-    }
-
-    public function scopeOfStatus(Builder $query, PostStatus $status): Builder
-    {
-        return $query->where('status', $status);
+        return $query->where('status', PostStatus::Harvested);
     }
 
     /* ---------- lifecycle ---------- */
 
-    public function markAsOngoing(string $scheduledDate): void
+    public function markAsHarvested(string $scheduledDate): void
     {
-        $this->status = PostStatus::Ongoing;
-        $this->scheduled_date = $scheduledDate; // Bug #6 fix: was $this->scheduled_at
-        $this->save();
-    }
-
-    public function markAsArchived(): void
-    {
-        $this->status = PostStatus::Archived;
-        $this->save();
-    }
-
-    public function markAsFulfilled(): void
-    {
-        $this->status = PostStatus::Fulfilled;
+        $this->status = PostStatus::Harvested;
+        $this->scheduled_date = $scheduledDate;
         $this->save();
     }
 
