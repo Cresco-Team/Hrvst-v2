@@ -2,33 +2,52 @@
 
 namespace App\Services\Farmer;
 
-use App\Enums\PostStatus;
+use App\Enums\PostItemStatus;
 use App\Models\Marketplace\Post;
+use App\Models\Marketplace\PostItem;
 use App\Models\Product\Variety;
 use App\Models\Product\Vegetable;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Builder;
 
 class SupplyService
 {
     public function summary(int $userId): array
     {
-        $query = Post::supply()->where('user_id', $userId);
+        $itemQuery = PostItem::whereHas('post', fn (Builder $q) => $q->supply()->where('user_id', $userId));
 
         return [
-            'total_growing' => (clone $query)->growing()->count(),
-            'total_ongoing' => (clone $query)->ongoing()->count(),
-            'total_fulfilled' => (clone $query)->fulfilled()->count(),
-            'total_archived' => (clone $query)->archived()->count(),
+            'total_growing' => Post::supply()->growing()->where('user_id', $userId)->count(),
+            'total_ongoing' => (clone $itemQuery)->ongoing()->count(),
+            'total_fulfilled' => (clone $itemQuery)->fulfilled()->count(),
+            'total_archived' => (clone $itemQuery)->archived()->count(),
         ];
     }
 
-    public function paginated(int $userId, PostStatus $status, int $perPage = 20): LengthAwarePaginator
+    public function paginatedGrowing(int $userId, int $perPage = 20): LengthAwarePaginator
     {
         return Post::supply()
             ->where('user_id', $userId)
-            ->ofStatus($status)
-            ->with(['media', 'vegetable.category', 'postItems.variety'])
+            ->growing()
+            ->with(['media', 'vegetable.category'])
             ->orderBy('created_at', 'desc')
+            ->paginate($perPage);
+    }
+
+    public function paginatedHarvested(int $userId, PostItemStatus $status, int $perPage = 20): LengthAwarePaginator
+    {
+        return PostItem::query()
+            ->select('post_items.*')
+            ->join('posts', 'posts.id', '=', 'post_items.post_id')
+            ->with([
+                'variety.vegetable.category',
+                'variety.media',
+                'post',
+            ])
+            ->whereHas('post', fn (Builder $q) => $q->supply()->harvested()->where('user_id', $userId))
+            ->ofStatus($status)
+            ->whereNull('post_items.deleted_at')
+            ->orderBy('posts.scheduled_date', 'desc')
             ->paginate($perPage);
     }
 
@@ -46,10 +65,6 @@ class SupplyService
         );
     }
 
-    /**
-     * Varieties grouped by vegetable name for the HarvestForm item picker.
-     * Includes latest market price hint per variety.
-     */
     public function varietyOptions(): array
     {
         return cache()->remember('farmer_harvest_variety_options', 3600, fn () => Variety::with(['vegetable', 'latestPrice'])
