@@ -17,9 +17,9 @@ class MarketplaceService
             ->with([
                 'variety.vegetable.category',
                 'variety.media',
-                'post' => fn (Builder $q) => $q
+                'post' => fn ($q) => $q
                     ->with(['farmerProfile.municipality'])
-                    ->when($userId, fn (Builder $q) => $q->withExists([
+                    ->when($userId, fn ($q) => $q->withExists([
                         'hearts as is_hearted' => fn (Builder $q) => $q->where('user_id', $userId),
                     ])),
             ])
