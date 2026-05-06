@@ -1,6 +1,6 @@
 import type { PostStatus } from '../enums'
 import type {
-	DealerDemandResource,
+	DealerPostItemResource,
 	FarmerSupplyResource,
 	SupplyMapFilterOptions,
 	VarietyOptionsByVegetable,
@@ -37,7 +37,7 @@ export interface FarmerSuppliesProps {
 	filters: FarmerSuppliesFilters
 	summary: FarmerSupplySummary
 	vegetableOptions: VegetableOptionsByCategory
-	varietyOptions: VarietyOptionsByVegetable // Bug #4 fix: was missing, HarvestForm requires it
+	varietyOptions: VarietyOptionsByVegetable
 	supplies: Paginated<FarmerSupplyResource>
 }
 
@@ -51,15 +51,15 @@ export interface FarmerSupplyMapProps {
 // ─── farmer/marketplace/Index ─────────────────────────────────────────────────
 
 export interface FarmerMarketplaceFilters {
+	search: string | null
 	category_id: number | null
-	vegetable_id: number | null
+	variety_id: number | null
 	date_from: string | null
 	date_to: string | null
-	search: string | null
 }
 
 export interface FarmerMarketplaceProps {
 	filters: FarmerMarketplaceFilters
 	categoryOptions: CategoryOption[]
-	demands: Paginated<DealerDemandResource>
+	demands: Paginated<DealerPostItemResource> // was Paginated<DealerDemandResource>
 }
