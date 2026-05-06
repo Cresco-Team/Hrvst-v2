@@ -1,6 +1,7 @@
 import type { PostStatus } from '../enums'
 import type {
 	DealerDemandResource,
+	DealerPostItemResource,
 	FarmerSupplyResource,
 	SupplyMapFilterOptions,
 	VarietyOptionsByVegetable,
@@ -53,12 +54,12 @@ export interface DealerSupplyMapProps {
 export interface DealerMarketplaceFilters {
 	search: string | null
 	category_id: number | null
-	vegetable_id: number | null
+	variety_id: number | null
 	municipality_id: number | null
 }
 
 export interface DealerMarketplaceProps {
 	filters: DealerMarketplaceFilters
-	supplies: Paginated<FarmerSupplyResource>
+	supplies: Paginated<DealerPostItemResource>  // was Paginated<FarmerSupplyResource>
 	categoryOptions: CategoryOption[]
 }
