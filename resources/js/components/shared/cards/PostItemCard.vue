@@ -1,0 +1,140 @@
+<script setup lang="ts">
+import axios from 'axios'
+import { AlarmClockCheck, Calendar, Heart, MapPin } from 'lucide-vue-next'
+import { ref } from 'vue'
+import { toggle as togglePostHeart } from '@/actions/App/Http/Controllers/PostHeartController'
+import { AspectRatio } from '@/components/ui/aspect-ratio'
+import { Badge } from '@/components/ui/badge'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Separator } from '@/components/ui/separator'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+import { cn } from '@/lib/utils'
+import type { DealerPostItemResource } from '@/types'
+
+const { item } = defineProps<{ item: DealerPostItemResource }>()
+
+const localHearted = ref(item.is_hearted)
+const localCount = ref(item.hearts_count)
+const isPending = ref(false)
+
+const priceFlagClass: Record<string, string> = {
+	Low: 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300',
+	Fair: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300',
+	High: 'bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300',
+}
+
+async function toggleHeart(event: MouseEvent): Promise<void> {
+	event.stopPropagation()
+	if (isPending.value) return
+
+	const wasHearted = localHearted.value
+	localHearted.value = !wasHearted
+	localCount.value += wasHearted ? -1 : 1
+	isPending.value = true
+
+	try {
+		const { data } = await axios.post<{ hearted: boolean; hearts_count: number }>(
+			togglePostHeart(item.post_id).url,
+		)
+		localHearted.value = data.hearted
+		localCount.value = data.hearts_count
+	} catch {
+		localHearted.value = wasHearted
+		localCount.value += wasHearted ? 1 : -1
+	} finally {
+		isPending.value = false
+	}
+}
+</script>
+
+<template>
+	<Card class="py-0 gap-0 overflow-hidden transition-all hover:shadow-lg hover:-translate-y-0.5">
+		<AspectRatio :ratio="16 / 9" class="relative overflow-hidden bg-primary/10">
+			<img
+				v-if="item.variety_image_url"
+				:src="item.variety_image_url"
+				:alt="`${item.vegetable_name} ${item.variety_name}`"
+				class="absolute inset-0 h-full w-full object-cover"
+			/>
+
+			<!-- Days until badge -->
+			<div
+				v-if="item.days_until_transaction !== null"
+				class="absolute top-2 left-2 rounded-full bg-black/60 px-2.5 py-0.5 text-xs font-semibold text-white backdrop-blur-sm"
+			>
+				{{ item.days_until_transaction <= 0 ? 'Today' : `${item.days_until_transaction}d away` }}
+			</div>
+
+			<!-- Price flag badge -->
+			<div v-if="item.price_flag" class="absolute top-2 right-2">
+				<Badge :class="priceFlagClass[item.price_flag]">
+					{{ item.price_flag }}
+				</Badge>
+			</div>
+
+			<!-- Timestamp -->
+			<div class="absolute bottom-0 right-0 rounded-tl-lg bg-black/60 px-3 py-1 text-xs font-medium text-white backdrop-blur-sm">
+				<TooltipProvider :delay-duration="200">
+					<Tooltip>
+						<TooltipTrigger as-child>
+							<div class="cursor-help">{{ item.created_at_human }}</div>
+						</TooltipTrigger>
+						<TooltipContent>{{ item.created_at }}</TooltipContent>
+					</Tooltip>
+				</TooltipProvider>
+			</div>
+		</AspectRatio>
+
+		<CardHeader class="px-4 pt-3 pb-1">
+			<CardTitle class="text-sm leading-tight sm:text-base line-clamp-1">
+				{{ item.vegetable_name }} — {{ item.variety_name }}
+			</CardTitle>
+			<CardDescription class="text-xs">{{ item.category_name }}</CardDescription>
+		</CardHeader>
+
+		<div class="px-4"><Separator /></div>
+
+		<CardContent class="px-4 py-3 flex flex-col gap-2">
+			<!-- Quantity + price -->
+			<div class="bg-primary/10 rounded-md p-3">
+				<span class="text-xs tracking-wider block mb-1">AVAILABLE</span>
+				<span class="font-semibold text-primary text-sm">{{ item.quantity_kg.toLocaleString('en-PH') }} kg</span>
+				<span v-if="item.unit_price" class="ml-2 text-xs text-muted-foreground font-mono">
+					@ ₱{{ item.unit_price.toFixed(2) }}/kg
+				</span>
+			</div>
+
+			<!-- Schedule -->
+			<div v-if="item.scheduled_date" class="flex items-center gap-2 text-xs text-muted-foreground">
+				<Calendar class="size-3.5 shrink-0" />
+				<span>{{ item.scheduled_date }}</span>
+			</div>
+
+			<div v-if="item.time_slot_label" class="flex items-center gap-2 text-xs text-muted-foreground">
+				<AlarmClockCheck class="size-3.5 shrink-0" />
+				<span>{{ item.time_slot_label }}</span>
+			</div>
+
+			<!-- Municipality -->
+			<div v-if="item.municipality" class="flex items-center gap-2 text-xs text-muted-foreground">
+				<MapPin class="size-3.5 shrink-0" />
+				<span>{{ item.municipality }}</span>
+			</div>
+
+			<!-- Heart -->
+			<div class="flex items-center justify-end pt-1">
+				<button
+					class="flex items-center gap-1.5 text-sm text-muted-foreground cursor-pointer transition-colors hover:text-rose-500 disabled:pointer-events-none disabled:opacity-50"
+					:disabled="isPending"
+					@click="toggleHeart"
+				>
+					<Heart
+						class="size-4 transition-all"
+						:class="cn(localHearted ? 'fill-rose-500 text-rose-500 scale-110' : 'fill-none')"
+					/>
+					<span class="tabular-nums">{{ localCount }}</span>
+				</button>
+			</div>
+		</CardContent>
+	</Card>
+</template>
