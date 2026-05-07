@@ -2,6 +2,7 @@
 
 namespace App\Services\Farmer;
 
+use App\Enums\PostItemStatus;
 use App\Models\Marketplace\PostItem;
 use App\Models\Product\Category;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -22,7 +23,7 @@ class MarketplaceService
                         'hearts as is_hearted' => fn (Builder $q) => $q->where('user_id', $userId),
                     ])),
             ])
-            ->ongoing()
+            ->where('post_items.status', PostItemStatus::Ongoing)
             ->whereHas('post', fn (Builder $q) => $q->demand()->harvested())
             ->whereNull('post_items.deleted_at')
             ->when(! empty($filters['search']), fn (Builder $q) => $q->whereHas(
@@ -43,7 +44,7 @@ class MarketplaceService
     public function categoryOptions(): array
     {
         return Category::whereHas('vegetables.varieties.postItems', fn (Builder $q) => $q
-            ->ongoing()
+            ->where('status', PostItemStatus::Ongoing)
             ->whereHas('post', fn (Builder $q) => $q->demand()->harvested())
         )
             ->orderBy('name')
