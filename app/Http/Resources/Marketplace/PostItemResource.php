@@ -16,6 +16,7 @@ class PostItemResource extends JsonResource
         return [
             'id' => $this->id,
             'post_id' => $post->id,
+            'status' => $this->status,
 
             // variety
             'variety_id' => $this->variety_id,
@@ -29,7 +30,7 @@ class PostItemResource extends JsonResource
             'unit_price' => $this->unit_price !== null ? (float) $this->unit_price : null,
             'price_flag' => $this->price_flag?->value,
 
-            // schedule (from parent post)
+            // schedule
             'scheduled_date' => $post->scheduled_date?->format('M d, Y'),
             'time_slot' => $post->time_slot?->value,
             'time_slot_label' => $post->time_slot?->label(),
@@ -37,10 +38,10 @@ class PostItemResource extends JsonResource
                 ? (int) now()->diffInDays($post->scheduled_date, false)
                 : null,
 
-            // farmer location
+            // farmer location (null for demand posts)
             'municipality' => $post->farmerProfile?->municipality?->name,
 
-            // interaction (hearts live on Post, shared across all its items)
+            // interaction
             'hearts_count' => $post->hearts_count,
             'is_hearted' => (bool) ($post->is_hearted ?? false),
             'created_at' => $post->created_at->format('M d, Y'),
