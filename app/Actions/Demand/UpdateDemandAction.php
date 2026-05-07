@@ -2,6 +2,7 @@
 
 namespace App\Actions\Demand;
 
+use App\Enums\PostItemStatus;
 use App\Enums\PostPriceFlag;
 use App\Enums\PostStatus;
 use App\Models\Marketplace\Post;
@@ -11,22 +12,10 @@ use Illuminate\Support\Facades\DB;
 
 final class UpdateDemandAction
 {
-    /**
-     * @param  array{
-     *     vegetable_id?: int,
-     *     scheduled_date?: string,
-     *     time_slot?: string,
-     *     items?: array<int, array{
-     *         variety_id: int,
-     *         quantity_kg: float,
-     *         unit_price: float|null,
-     *     }>
-     * } $validated
-     */
     public function handle(Post $post, array $validated): Post
     {
-        if ($post->status !== PostStatus::Ongoing) {
-            throw new \LogicException('Only ongoing demands can be updated.');
+        if ($post->status !== PostStatus::Harvested) {
+            throw new \LogicException('Only active demand posts can be updated.');
         }
 
         DB::transaction(function () use ($post, $validated): void {
@@ -55,6 +44,7 @@ final class UpdateDemandAction
                         'price_flag' => $unitPrice !== null
                             ? PostPriceFlag::fromMarketPrice((float) $unitPrice, $variety?->latestPrice)
                             : PostPriceFlag::Fair,
+                        'status' => PostItemStatus::Ongoing,
                     ]);
                 }
             }
