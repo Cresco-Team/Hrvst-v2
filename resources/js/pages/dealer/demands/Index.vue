@@ -1,46 +1,96 @@
 <script setup lang="ts">
 import { Deferred, Head, router, useForm } from '@inertiajs/vue3'
-import { CircleCheckBig, Plus, Sprout } from 'lucide-vue-next'
+import { Plus, Sprout } from 'lucide-vue-next'
 import { computed, ref } from 'vue'
 import ConfirmationDialog from '@/components/dialogs/ConfirmationDialog.vue'
 import EmptyState from '@/components/EmptyState.vue'
 import DemandForm from '@/components/features/dealer/DemandForm.vue'
 import Heading from '@/components/Heading.vue'
 import LargeCard from '@/components/shared/cards/LargeCard.vue'
-import MyPostCard from '@/components/shared/cards/MyPostCard.vue'
+import PostItemCard from '@/components/shared/cards/PostItemCard.vue'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import AppLayout from '@/layouts/AppLayout.vue'
 import dealer from '@/routes/dealer'
-import { archive, destroy, fulfill, index } from '@/routes/dealer/demands'
+import { index } from '@/routes/dealer/demands'
+import { archive, destroy, fulfill } from '@/routes/dealer/post-items'
 import type {
 	BreadcrumbItem,
-	DealerDemandResource,
 	DealerDemandsProps,
-	FarmerSupplyResource,
-	VegetableOptionsByCategory,
+	DealerPostItemResource,
 	VarietyOptionsByVegetable,
+	VegetableOptionsByCategory,
 } from '@/types'
-
-type PostItem = FarmerSupplyResource | DealerDemandResource
 
 const props = defineProps<DealerDemandsProps>()
 
+// ─── Form (create/edit demand Post) ──────────────────────────────────────────
 const formOpen = ref(false)
-const activeDemand = ref<DealerDemandResource | null>(null)
+function openCreate() {
+	formOpen.value = true
+}
 
-const archiveDialogOpen = ref(false)
+// ─── PostItem actions ─────────────────────────────────────────────────────────
 const fulfillDialogOpen = ref(false)
+const archiveDialogOpen = ref(false)
 const deleteDialogOpen = ref(false)
-const demandToArchive = ref<DealerDemandResource | null>(null)
-const demandToFulfill = ref<DealerDemandResource | null>(null)
-const demandToDelete = ref<DealerDemandResource | null>(null)
+const itemToFulfill = ref<DealerPostItemResource | null>(null)
+const itemToArchive = ref<DealerPostItemResource | null>(null)
+const itemToDelete = ref<DealerPostItemResource | null>(null)
 
-const archiveForm = useForm({})
 const fulfillForm = useForm({})
+const archiveForm = useForm({})
 const deleteForm = useForm({})
 
+function openFulfill(item: DealerPostItemResource) {
+	itemToFulfill.value = item
+	fulfillDialogOpen.value = true
+}
+function openArchive(item: DealerPostItemResource) {
+	itemToArchive.value = item
+	archiveDialogOpen.value = true
+}
+function openDelete(item: DealerPostItemResource) {
+	itemToDelete.value = item
+	deleteDialogOpen.value = true
+}
+
+function handleFulfill() {
+	if (!itemToFulfill.value) return
+	fulfillForm.post(fulfill(itemToFulfill.value.id).url, {
+		preserveScroll: true,
+		onSuccess: () => {
+			fulfillDialogOpen.value = false
+			itemToFulfill.value = null
+		},
+	})
+}
+
+function handleArchive() {
+	if (!itemToArchive.value) return
+	archiveForm.post(archive(itemToArchive.value.id).url, {
+		preserveScroll: true,
+		onSuccess: () => {
+			archiveDialogOpen.value = false
+			itemToArchive.value = null
+		},
+	})
+}
+
+function handleDelete() {
+	if (!itemToDelete.value) return
+	deleteForm.post(destroy(itemToDelete.value.id).url, {
+		method: 'delete',
+		preserveScroll: true,
+		onSuccess: () => {
+			deleteDialogOpen.value = false
+			itemToDelete.value = null
+		},
+	})
+}
+
+// ─── Tabs + pagination ────────────────────────────────────────────────────────
 const activeTab = computed(() => props.filters.status ?? 'ongoing')
 
 function handleTabChange(value: string | number) {
@@ -51,42 +101,24 @@ function handleTabChange(value: string | number) {
 	})
 }
 
-function openCreate() { activeDemand.value = null; formOpen.value = true }
-function openEdit(d: PostItem) { activeDemand.value = d as DealerDemandResource; formOpen.value = true }
-function openArchive(d: PostItem) { demandToArchive.value = d as DealerDemandResource; archiveDialogOpen.value = true }
-function openFulfill(d: PostItem) { demandToFulfill.value = d as DealerDemandResource; fulfillDialogOpen.value = true }
-function openDelete(d: PostItem) { demandToDelete.value = d as DealerDemandResource; deleteDialogOpen.value = true }
-
-function handleArchive() {
-	if (!demandToArchive.value) return
-	archiveForm.post(archive(demandToArchive.value.id).url, {
-		preserveScroll: true,
-		onSuccess: () => { archiveDialogOpen.value = false; demandToArchive.value = null },
-	})
-}
-
-function handleFulfill() {
-	if (!demandToFulfill.value) return
-	fulfillForm.post(fulfill(demandToFulfill.value.id).url, {
-		preserveScroll: true,
-		onSuccess: () => { fulfillDialogOpen.value = false; demandToFulfill.value = null },
-	})
-}
-
-function handleDelete() {
-	if (!demandToDelete.value) return
-	deleteForm.post(destroy(demandToDelete.value.id).url, {
-		method: 'delete',
-		preserveScroll: true,
-		onSuccess: () => { deleteDialogOpen.value = false; demandToDelete.value = null },
-	})
-}
-
 function handlePageChange(page: number) {
 	router.visit(dealer.demands.index().url, {
 		data: { page, status: props.filters.status },
 		preserveScroll: true,
 	})
+}
+
+function actionsFor(status: string): Array<'fulfill' | 'archive' | 'delete'> {
+	switch (status) {
+		case 'ongoing':
+			return ['fulfill', 'archive', 'delete']
+		case 'archived':
+			return ['fulfill', 'delete']
+		case 'fulfilled':
+			return ['delete']
+		default:
+			return []
+	}
 }
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -115,10 +147,10 @@ const breadcrumbs: BreadcrumbItem[] = [
 						<Skeleton v-for="i in 3" :key="i" class="h-24 rounded-lg" />
 					</div>
 				</template>
-				<div class="grid md:grid-cols-3 gap-4">
-					<LargeCard title="Ongoing Demands" :value="summary?.total_ongoing" subtext="not yet picked-up" />
-					<LargeCard title="Archived Demands" :value="summary?.total_archived" subtext="closed" />
-					<LargeCard title="Fulfilled Demands" :value="summary?.total_fulfilled" subtext="completed" :icon="CircleCheckBig" />
+				<div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+					<LargeCard title="Ongoing" :value="summary?.total_ongoing" subtext="awaiting supply" />
+					<LargeCard title="Archived" :value="summary?.total_archived" subtext="closed" />
+					<LargeCard title="Fulfilled" :value="summary?.total_fulfilled" subtext="completed" />
 				</div>
 			</Deferred>
 
@@ -139,21 +171,21 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 				<EmptyState
 					v-if="demands?.data.length === 0"
-					title="No Demands Yet."
-					description="Post a demand to be picked-up."
+					title="No Demands"
+					description="Post a demand to be picked up by farmers."
 					:icon="Sprout"
-					button="Add Request"
 				/>
 
 				<div v-else class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-					<MyPostCard
-						v-for="demand in demands!.data"
-						:key="demand.id"
-						:post="demand"
-						@edit="openEdit"
-						@archive="openArchive"
-						@fulfill="openFulfill"
-						@delete="openDelete"
+					<PostItemCard
+						v-for="item in demands!.data"
+						:key="item.id"
+						:item="item"
+						mode="demand"
+						:actions="actionsFor(filters.status)"
+						@fulfill="openFulfill(item)"
+						@archive="openArchive(item)"
+						@delete="openDelete(item)"
 					/>
 				</div>
 			</Deferred>
@@ -173,21 +205,21 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 	<DemandForm
 		:open="formOpen"
-		:demand="activeDemand"
+		:demand="null"
 		:vegetable-options="(vegetableOptions as VegetableOptionsByCategory)"
 		:variety-options="(varietyOptions as VarietyOptionsByVegetable)"
 		@update:open="formOpen = $event"
 	/>
 
-	<ConfirmationDialog v-model:open="archiveDialogOpen" title="Archive Demand"
-		:description="`Archive demand for ${demandToArchive?.vegetable?.name}?`"
-		:processing="archiveForm.processing" variant="destructive" @action="handleArchive" />
-
-	<ConfirmationDialog v-model:open="fulfillDialogOpen" title="Fulfill Demand"
-		:description="`Mark ${demandToFulfill?.vegetable?.name} demand as fulfilled?`"
+	<ConfirmationDialog v-model:open="fulfillDialogOpen" title="Fulfill Item"
+		:description="`Mark ${itemToFulfill?.vegetable_name} ${itemToFulfill?.variety_name} as fulfilled?`"
 		:processing="fulfillForm.processing" @action="handleFulfill" />
 
-	<ConfirmationDialog v-model:open="deleteDialogOpen" title="Delete Demand"
-		:description="`Permanently delete demand for ${demandToDelete?.vegetable?.name}?`"
+	<ConfirmationDialog v-model:open="archiveDialogOpen" title="Archive Item"
+		:description="`Archive ${itemToArchive?.vegetable_name} ${itemToArchive?.variety_name}?`"
+		:processing="archiveForm.processing" variant="destructive" @action="handleArchive" />
+
+	<ConfirmationDialog v-model:open="deleteDialogOpen" title="Delete Item"
+		:description="`Permanently delete ${itemToDelete?.vegetable_name} ${itemToDelete?.variety_name}?`"
 		:processing="deleteForm.processing" variant="destructive" @action="handleDelete" />
 </template>
