@@ -45,7 +45,7 @@ class SupplyService
                 'post',
             ])
             ->whereHas('post', fn (Builder $q) => $q->supply()->harvested()->where('user_id', $userId))
-            ->ofStatus($status)
+            ->where('post_items.status', $status)
             ->whereNull('post_items.deleted_at')
             ->orderBy('posts.scheduled_date', 'desc')
             ->paginate($perPage);
