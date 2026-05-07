@@ -1,8 +1,7 @@
-import type { PostStatus } from '../enums'
+import type { PostItemStatus } from '../enums'
 import type {
 	DealerDemandResource,
 	DealerPostItemResource,
-	FarmerSupplyResource,
 	SupplyMapFilterOptions,
 	VarietyOptionsByVegetable,
 	VegetableOptionsByCategory,
@@ -10,8 +9,6 @@ import type {
 import type { CategoryOption } from '../resources/product'
 import type { DealerDemandSummary } from '../resources/profile'
 import type { MapConfig, Paginated } from '../shared'
-
-// ─── dealer/Dashboard ─────────────────────────────────────────────────────────
 
 export type DealerRecommendationSeverity = 'critical' | 'warning' | 'info'
 
@@ -31,7 +28,7 @@ export interface DealerDashboardProps {
 // ─── dealer/demands/Index ─────────────────────────────────────────────────────
 
 export interface DealerDemandsFilters {
-	status: PostStatus
+	status: PostItemStatus
 }
 
 export interface DealerDemandsProps {
@@ -39,7 +36,7 @@ export interface DealerDemandsProps {
 	summary: DealerDemandSummary
 	vegetableOptions: VegetableOptionsByCategory
 	varietyOptions: VarietyOptionsByVegetable
-	demands: Paginated<DealerDemandResource>
+	demands: Paginated<DealerPostItemResource>
 }
 
 // ─── dealer/supply-map/Index ──────────────────────────────────────────────────
@@ -60,6 +57,6 @@ export interface DealerMarketplaceFilters {
 
 export interface DealerMarketplaceProps {
 	filters: DealerMarketplaceFilters
-	supplies: Paginated<DealerPostItemResource>  // was Paginated<FarmerSupplyResource>
+	supplies: Paginated<DealerPostItemResource>
 	categoryOptions: CategoryOption[]
 }
