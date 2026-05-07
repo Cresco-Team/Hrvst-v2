@@ -1,345 +1,281 @@
 <script setup lang="ts">
-import { Deferred, Head, router, useForm } from '@inertiajs/vue3'
-import { CircleCheckBig, Plus, Sprout } from 'lucide-vue-next'
-import { computed, ref } from 'vue'
-import ConfirmationDialog from '@/components/dialogs/ConfirmationDialog.vue'
-import EmptyState from '@/components/EmptyState.vue'
-import HarvestForm from '@/components/features/farmer/HarvestForm.vue'
-import SupplyForm from '@/components/features/farmer/SupplyForm.vue'
-import Heading from '@/components/Heading.vue'
-import LargeCard from '@/components/shared/cards/LargeCard.vue'
-import MyPostCard from '@/components/shared/cards/MyPostCard.vue'
-import PostItemCard from '@/components/shared/cards/PostItemCard.vue'
+import { useForm } from '@inertiajs/vue3'
+import { Leaf, Plus, Trash2 } from 'lucide-vue-next'
+import { computed, watch } from 'vue'
+import { harvest } from '@/actions/App/Http/Controllers/Farmer/SupplyController'
+import DialogForm from '@/components/dialogs/DialogForm.vue'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Skeleton } from '@/components/ui/skeleton'
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import AppLayout from '@/layouts/AppLayout.vue'
-import farmer from '@/routes/farmer'
-import { archive, destroy, fulfill } from '@/routes/farmer/post-items'
-import { destroy as destroySupply, index } from '@/routes/farmer/supplies'
-import type {
-	BreadcrumbItem,
-	DealerPostItemResource,
-	FarmerSuppliesProps,
-	FarmerSupplyResource,
-	VarietyOptionsByVegetable,
-	VegetableOptionsByCategory,
-} from '@/types'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from '@/components/ui/select'
+import { Separator } from '@/components/ui/separator'
+import type { FarmerSupplyResource, PostTimeSlot, VarietyOptionsByVegetable } from '@/types'
 
-const props = defineProps<FarmerSuppliesProps>()
-
-const isGrowing = computed(() => props.filters.status === 'growing')
-
-// ─── Growing post actions (Post-level: harvest + delete only) ─────────────────
-
-const formOpen = ref(false)
-const activeSupply = ref<FarmerSupplyResource | null>(null)
-const harvestOpen = ref(false)
-const supplyToHarvest = ref<FarmerSupplyResource | null>(null)
-const deletePostDialogOpen = ref(false)
-const supplyToDelete = ref<FarmerSupplyResource | null>(null)
-const deletePostForm = useForm({})
-
-function openCreate() {
-	activeSupply.value = null
-	formOpen.value = true
-}
-function openEdit(post: FarmerSupplyResource) {
-	activeSupply.value = post
-	formOpen.value = true
-}
-function openHarvest(post: FarmerSupplyResource) {
-	supplyToHarvest.value = post
-	harvestOpen.value = true
-}
-function openDeletePost(post: FarmerSupplyResource) {
-	supplyToDelete.value = post
-	deletePostDialogOpen.value = true
+interface HarvestItem {
+	variety_id: string
+	quantity_kg: string
+	unit_price: string
 }
 
-function handleDeletePost() {
-	if (!supplyToDelete.value) return
-	deletePostForm.post(destroySupply(supplyToDelete.value.id).url, {
-		method: 'delete',
-		preserveScroll: true,
-		onSuccess: () => {
-			deletePostDialogOpen.value = false
-			supplyToDelete.value = null
-		},
-	})
+interface Props {
+	open: boolean
+	supply: FarmerSupplyResource | null
+	varietyOptions?: VarietyOptionsByVegetable
 }
 
-// ─── PostItem actions (fulfill, archive, delete) ──────────────────────────────
+const props = defineProps<Props>()
+const emit = defineEmits<{ 'update:open': [value: boolean] }>()
 
-const fulfillDialogOpen = ref(false)
-const archiveDialogOpen = ref(false)
-const deleteItemDialogOpen = ref(false)
-const itemToFulfill = ref<DealerPostItemResource | null>(null)
-const itemToArchive = ref<DealerPostItemResource | null>(null)
-const itemToDelete = ref<DealerPostItemResource | null>(null)
-
-const fulfillForm = useForm({})
-const archiveForm = useForm({})
-const deleteItemForm = useForm({})
-
-function openFulfill(item: DealerPostItemResource) {
-	itemToFulfill.value = item
-	fulfillDialogOpen.value = true
-}
-function openArchive(item: DealerPostItemResource) {
-	itemToArchive.value = item
-	archiveDialogOpen.value = true
-}
-function openDeleteItem(item: DealerPostItemResource) {
-	itemToDelete.value = item
-	deleteItemDialogOpen.value = true
-}
-
-function handleFulfill() {
-	if (!itemToFulfill.value) return
-	fulfillForm.post(fulfill(itemToFulfill.value.id).url, {
-		preserveScroll: true,
-		onSuccess: () => {
-			fulfillDialogOpen.value = false
-			itemToFulfill.value = null
-		},
-	})
-}
-
-function handleArchive() {
-	if (!itemToArchive.value) return
-	archiveForm.post(archive(itemToArchive.value.id).url, {
-		preserveScroll: true,
-		onSuccess: () => {
-			archiveDialogOpen.value = false
-			itemToArchive.value = null
-		},
-	})
-}
-
-function handleDeleteItem() {
-	if (!itemToDelete.value) return
-	deleteItemForm.post(destroy(itemToDelete.value.id).url, {
-		method: 'delete',
-		preserveScroll: true,
-		onSuccess: () => {
-			deleteItemDialogOpen.value = false
-			itemToDelete.value = null
-		},
-	})
-}
-
-// ─── Tabs + pagination ────────────────────────────────────────────────────────
-
-const activeTab = computed(() => props.filters.status ?? 'growing')
-
-function handleTabChange(value: string | number) {
-	router.visit(index({ query: { status: value === 'growing' ? undefined : value } }).url, {
-		preserveState: true,
-		preserveScroll: true,
-		only: ['growingPosts', 'harvestedItems', 'filters', 'summary'],
-	})
-}
-
-function handlePageChange(page: number) {
-	router.visit(farmer.supplies.index().url, {
-		data: { page, status: props.filters.status },
-		preserveScroll: true,
-		only: [isGrowing.value ? 'growingPosts' : 'harvestedItems'],
-	})
-}
-
-function actionsFor(status: string): Array<'fulfill' | 'archive' | 'delete'> {
-	switch (status) {
-		case 'ongoing':
-			return ['fulfill', 'archive', 'delete']
-		case 'archived':
-			return ['fulfill', 'delete']
-		case 'fulfilled':
-			return ['delete']
-		default:
-			return []
-	}
-}
-
-const breadcrumbs: BreadcrumbItem[] = [
-	{ title: 'Farmer', href: farmer.dashboard().url },
-	{ title: 'Supplies', href: farmer.supplies.index().url },
+const TIME_SLOT_OPTIONS: { value: PostTimeSlot; label: string }[] = [
+	{ value: 'morning', label: 'Morning (6 AM – 12 PM)' },
+	{ value: 'afternoon', label: 'Afternoon (12 PM – 6 PM)' },
+	{ value: 'evening', label: 'Evening (6 PM – 10 PM)' },
 ]
+
+// Only show varieties that belong to the supply post's vegetable.
+// varietyOptions is keyed by vegetable name — match against the post's vegetable.
+const availableVarieties = computed(() => {
+	const vegetableName = props.supply?.vegetable?.name
+	if (!vegetableName || !props.varietyOptions) return []
+	return props.varietyOptions[vegetableName] ?? []
+})
+
+function blankItem(): HarvestItem {
+	return { variety_id: '', quantity_kg: '', unit_price: '' }
+}
+
+const form = useForm<{
+	scheduled_date: string
+	time_slot: PostTimeSlot | ''
+	items: HarvestItem[]
+}>({
+	scheduled_date: '',
+	time_slot: 'morning',
+	items: [blankItem()],
+})
+
+const minDate = computed(() => {
+	const d = new Date()
+	d.setDate(d.getDate() + 1)
+	return d.toISOString().split('T')[0]
+})
+
+const maxDate = computed(() => {
+	const d = new Date()
+	d.setMonth(d.getMonth() + 3)
+	return d.toISOString().split('T')[0]
+})
+
+function priceHintFor(varietyId: string) {
+	return availableVarieties.value.find((v) => String(v.id) === varietyId)?.current_price ?? null
+}
+
+function addItem() {
+	form.items.push(blankItem())
+}
+function removeItem(index: number) {
+	form.items.splice(index, 1)
+}
+
+function handleSubmit() {
+	if (!props.supply) return
+	form.post(harvest(props.supply.id).url, {
+		preserveScroll: true,
+		onSuccess: () => {
+			emit('update:open', false)
+			form.reset()
+			form.items = [blankItem()]
+		},
+	})
+}
+
+watch(
+	() => props.open,
+	(isOpen) => {
+		if (!isOpen) return
+		form.scheduled_date = ''
+		form.time_slot = 'morning'
+		form.items = [blankItem()]
+		form.clearErrors()
+	},
+)
 </script>
 
 <template>
-	<Head title="My Supplies" />
+	<DialogForm
+		:open="open"
+		title="Record Harvest"
+		:description="`Break down ${supply?.vegetable?.name ?? 'supply'} into varieties and schedule delivery.`"
+		:form="form"
+		submit-label="Confirm Harvest"
+		max-width="2xl"
+		@update:open="emit('update:open', $event)"
+		@submit="handleSubmit"
+	>
+		<template #icon>
+			<Leaf class="size-5 text-primary" />
+		</template>
 
-	<AppLayout :breadcrumbs="breadcrumbs">
-		<div class="flex h-full flex-col gap-6 p-4 lg:p-6">
+		<div class="space-y-6">
 
-			<div class="flex items-end justify-between">
-				<Heading title="My Supplies" description="Track growing crops and schedule deliveries." />
-				<Button class="gap-2" @click="openCreate">
-					<Plus class="size-4" />
-					New Supply
-				</Button>
+			<div class="space-y-2">
+				<Label for="scheduled_date" class="flex items-center gap-1.5">
+					Delivery Date
+					<Badge variant="secondary" class="text-xs font-normal">Required</Badge>
+				</Label>
+				<Input
+					id="scheduled_date"
+					v-model="form.scheduled_date"
+					type="date"
+					:min="minDate"
+					:max="maxDate"
+					:class="{ 'border-destructive': form.errors.scheduled_date }"
+				/>
+				<p v-if="form.errors.scheduled_date" class="text-xs text-destructive">{{ form.errors.scheduled_date }}</p>
+				<p v-else class="text-xs text-muted-foreground">When will you bring this to the trading post?</p>
 			</div>
 
-			<Deferred data="summary">
-				<template #fallback>
-					<div class="grid grid-cols-2 gap-4 sm:grid-cols-4">
-						<Skeleton v-for="i in 4" :key="i" class="h-24 rounded-lg" />
+			<div class="space-y-2">
+				<Label for="time_slot" class="flex items-center gap-1.5">
+					Preferred Time Slot
+					<Badge variant="secondary" class="text-xs font-normal">Required</Badge>
+				</Label>
+				<Select v-model="form.time_slot">
+					<SelectTrigger id="time_slot" :class="{ 'border-destructive': form.errors.time_slot }">
+						<SelectValue placeholder="Select a time slot..." />
+					</SelectTrigger>
+					<SelectContent>
+						<SelectItem v-for="opt in TIME_SLOT_OPTIONS" :key="opt.value" :value="opt.value">
+							{{ opt.label }}
+						</SelectItem>
+					</SelectContent>
+				</Select>
+				<p v-if="form.errors.time_slot" class="text-xs text-destructive">{{ form.errors.time_slot }}</p>
+				<p v-else class="text-xs text-muted-foreground">When are you available for delivery?</p>
+			</div>
+
+			<Separator />
+
+			<div class="space-y-4">
+				<div class="flex items-center justify-between">
+					<div>
+						<Label class="text-sm font-medium">Harvest Items</Label>
+						<p class="text-xs text-muted-foreground mt-0.5">
+							Varieties of <span class="font-medium text-foreground">{{ supply?.vegetable?.name }}</span>
+						</p>
 					</div>
-				</template>
-				<div class="grid grid-cols-2 gap-4 sm:grid-cols-4">
-					<LargeCard title="Growing" :value="summary?.total_growing" subtext="pre-harvest" />
-					<LargeCard title="Ongoing" :value="summary?.total_ongoing" subtext="scheduled" />
-					<LargeCard title="Fulfilled" :value="summary?.total_fulfilled" subtext="completed" :icon="CircleCheckBig" />
-					<LargeCard title="Archived" :value="summary?.total_archived" subtext="closed" />
+					<Button type="button" variant="outline" size="sm" class="gap-1.5" @click="addItem">
+						<Plus class="size-3.5" />
+						Add Variety
+					</Button>
 				</div>
-			</Deferred>
 
-			<Tabs :model-value="activeTab" @update:model-value="handleTabChange">
-				<TabsList>
-					<TabsTrigger value="growing">Growing</TabsTrigger>
-					<TabsTrigger value="ongoing">Ongoing</TabsTrigger>
-					<TabsTrigger value="archived">Archived</TabsTrigger>
-					<TabsTrigger value="fulfilled">Fulfilled</TabsTrigger>
-				</TabsList>
-			</Tabs>
+				<p v-if="availableVarieties.length === 0" class="text-xs text-muted-foreground italic">
+					No varieties registered for {{ supply?.vegetable?.name ?? 'this vegetable' }}.
+				</p>
 
-			<!-- ── Growing: Post-level cards (harvest + delete) ───────────────── -->
-			<template v-if="isGrowing">
-				<Deferred data="growingPosts">
-					<template #fallback>
-						<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-							<Skeleton v-for="i in 8" :key="i" class="h-80 rounded-lg" />
+				<p v-if="(form.errors as Record<string, string>).items" class="text-xs text-destructive">
+					{{ (form.errors as Record<string, string>).items }}
+				</p>
+
+				<div
+					v-for="(item, index) in form.items"
+					:key="index"
+					class="rounded-lg border bg-muted/30 p-4 space-y-4"
+				>
+					<div class="flex items-center justify-between">
+						<span class="text-xs font-semibold text-muted-foreground">Item {{ index + 1 }}</span>
+						<Button
+							v-if="form.items.length > 1"
+							type="button"
+							variant="ghost"
+							size="icon-sm"
+							class="text-destructive hover:text-destructive"
+							@click="removeItem(index)"
+						>
+							<Trash2 class="size-4" />
+						</Button>
+					</div>
+
+					<div class="space-y-1.5">
+						<Label :for="`variety-${index}`" class="text-xs">Variety</Label>
+						<Select v-model="item.variety_id">
+							<SelectTrigger
+								:id="`variety-${index}`"
+								:class="{ 'border-destructive': (form.errors as Record<string, string>)[`items.${index}.variety_id`] }"
+							>
+								<SelectValue placeholder="Select variety..." />
+							</SelectTrigger>
+							<SelectContent>
+								<SelectItem
+									v-for="v in availableVarieties"
+									:key="v.id"
+									:value="String(v.id)"
+								>
+									{{ v.name }}
+								</SelectItem>
+							</SelectContent>
+						</Select>
+						<p v-if="(form.errors as Record<string, string>)[`items.${index}.variety_id`]" class="text-xs text-destructive">
+							{{ (form.errors as Record<string, string>)[`items.${index}.variety_id`] }}
+						</p>
+
+						<div
+							v-if="item.variety_id && priceHintFor(item.variety_id)"
+							class="flex items-center gap-1.5 rounded-md border border-dashed bg-background px-3 py-1.5 text-xs text-muted-foreground"
+						>
+							<span>Market price:</span>
+							<span class="font-mono font-semibold text-foreground">
+								₱{{ priceHintFor(item.variety_id)!.min.toFixed(2) }} –
+								₱{{ priceHintFor(item.variety_id)!.max.toFixed(2) }}
+							</span>
+							<span>/ kg</span>
 						</div>
-					</template>
-
-					<EmptyState
-						v-if="growingPosts?.data.length === 0"
-						title="No Growing Supplies"
-						description="Register an upcoming harvest to get started."
-						:icon="Sprout"
-					/>
-
-					<div v-else class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-						<MyPostCard
-							v-for="post in growingPosts!.data"
-							:key="post.id"
-							:post="post"
-							@edit="openEdit(post)"
-							@harvest="openHarvest(post)"
-							@delete="openDeletePost(post)"
-						/>
 					</div>
 
-					<div v-if="growingPosts && growingPosts.meta.last_page > 1"
-						class="flex items-center justify-between border-t pt-4">
-						<Button variant="outline" size="sm"
-							:disabled="growingPosts.meta.current_page === 1"
-							@click="handlePageChange(growingPosts.meta.current_page - 1)">Previous</Button>
-						<span class="text-sm text-muted-foreground">
-							Page {{ growingPosts.meta.current_page }} of {{ growingPosts.meta.last_page }}
-						</span>
-						<Button variant="outline" size="sm"
-							:disabled="growingPosts.meta.current_page === growingPosts.meta.last_page"
-							@click="handlePageChange(growingPosts.meta.current_page + 1)">Next</Button>
-					</div>
-				</Deferred>
-			</template>
-
-			<!-- ── Ongoing / Archived / Fulfilled: PostItem cards ────────────── -->
-			<template v-else>
-				<Deferred data="harvestedItems">
-					<template #fallback>
-						<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-							<Skeleton v-for="i in 8" :key="i" class="h-80 rounded-lg" />
+					<div class="grid grid-cols-2 gap-3">
+						<div class="space-y-1.5">
+							<Label :for="`qty-${index}`" class="text-xs">Quantity (kg)</Label>
+							<Input
+								:id="`qty-${index}`"
+								v-model.number="item.quantity_kg"
+								type="number"
+								step="0.1"
+								min="0.1"
+								placeholder="0.0"
+								:class="{ 'border-destructive': (form.errors as Record<string, string>)[`items.${index}.quantity_kg`] }"
+							/>
+							<p v-if="(form.errors as Record<string, string>)[`items.${index}.quantity_kg`]" class="text-xs text-destructive">
+								{{ (form.errors as Record<string, string>)[`items.${index}.quantity_kg`] }}
+							</p>
 						</div>
-					</template>
 
-					<EmptyState
-						v-if="harvestedItems?.data.length === 0"
-						title="No Items"
-						description="Nothing here yet."
-						:icon="Sprout"
-					/>
-
-					<div v-else class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-						<PostItemCard
-							v-for="item in harvestedItems!.data"
-							:key="item.id"
-							:item="item"
-							mode="supply"
-							:actions="actionsFor(filters.status)"
-							@fulfill="openFulfill(item)"
-							@archive="openArchive(item)"
-							@delete="openDeleteItem(item)"
-						/>
+						<div class="space-y-1.5">
+							<Label :for="`price-${index}`" class="text-xs">Asking Price (₱/kg)</Label>
+							<Input
+								:id="`price-${index}`"
+								v-model.number="item.unit_price"
+								type="number"
+								step="0.01"
+								min="0"
+								placeholder="0.00"
+								:class="{ 'border-destructive': (form.errors as Record<string, string>)[`items.${index}.unit_price`] }"
+							/>
+							<p v-if="(form.errors as Record<string, string>)[`items.${index}.unit_price`]" class="text-xs text-destructive">
+								{{ (form.errors as Record<string, string>)[`items.${index}.unit_price`] }}
+							</p>
+						</div>
 					</div>
-
-					<div v-if="harvestedItems && harvestedItems.meta.last_page > 1"
-						class="flex items-center justify-between border-t pt-4">
-						<Button variant="outline" size="sm"
-							:disabled="harvestedItems.meta.current_page === 1"
-							@click="handlePageChange(harvestedItems.meta.current_page - 1)">Previous</Button>
-						<span class="text-sm text-muted-foreground">
-							Page {{ harvestedItems.meta.current_page }} of {{ harvestedItems.meta.last_page }}
-						</span>
-						<Button variant="outline" size="sm"
-							:disabled="harvestedItems.meta.current_page === harvestedItems.meta.last_page"
-							@click="handlePageChange(harvestedItems.meta.current_page + 1)">Next</Button>
-					</div>
-				</Deferred>
-			</template>
+				</div>
+			</div>
 
 		</div>
-	</AppLayout>
-
-	<!-- Growing post forms -->
-	<SupplyForm
-		:open="formOpen"
-		:supply="activeSupply"
-		:vegetable-options="(vegetableOptions as VegetableOptionsByCategory | undefined)"
-		@update:open="formOpen = $event"
-	/>
-	<HarvestForm
-		:open="harvestOpen"
-		:supply="supplyToHarvest"
-		:variety-options="(varietyOptions as VarietyOptionsByVegetable)"
-		@update:open="harvestOpen = $event"
-	/>
-
-	<!-- Growing post delete -->
-	<ConfirmationDialog
-		v-model:open="deletePostDialogOpen"
-		title="Delete Supply"
-		:description="`Permanently delete ${supplyToDelete?.vegetable?.name} supply?`"
-		:processing="deletePostForm.processing"
-		variant="destructive"
-		@action="handleDeletePost"
-	/>
-
-	<!-- PostItem action dialogs -->
-	<ConfirmationDialog
-		v-model:open="fulfillDialogOpen"
-		title="Fulfill Item"
-		:description="`Mark ${itemToFulfill?.vegetable_name} ${itemToFulfill?.variety_name} as fulfilled?`"
-		:processing="fulfillForm.processing"
-		@action="handleFulfill"
-	/>
-	<ConfirmationDialog
-		v-model:open="archiveDialogOpen"
-		title="Archive Item"
-		:description="`Archive ${itemToArchive?.vegetable_name} ${itemToArchive?.variety_name}?`"
-		:processing="archiveForm.processing"
-		variant="destructive"
-		@action="handleArchive"
-	/>
-	<ConfirmationDialog
-		v-model:open="deleteItemDialogOpen"
-		title="Delete Item"
-		:description="`Permanently delete ${itemToDelete?.vegetable_name} ${itemToDelete?.variety_name}?`"
-		:processing="deleteItemForm.processing"
-		variant="destructive"
-		@action="handleDeleteItem"
-	/>
+	</DialogForm>
 </template>
