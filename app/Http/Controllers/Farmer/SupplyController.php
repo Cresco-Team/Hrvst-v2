@@ -91,7 +91,7 @@ class SupplyController extends Controller
 
         $action->handle(post: $supply, validated: $request->validated());
 
-        return redirect()->route('farmer.supplies.index', ['status' => 'ongoing'])
+        return redirect()->route('farmer.supplies.index')
             ->with('flash', ['type' => 'success', 'message' => 'Harvest recorded! Supply is now live.']);
     }
 
