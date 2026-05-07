@@ -22,7 +22,8 @@ class MarketplaceService
                         'hearts as is_hearted' => fn (Builder $q) => $q->where('user_id', $userId),
                     ])),
             ])
-            ->whereHas('post', fn (Builder $q) => $q->demand()->ongoing())
+            ->ongoing()
+            ->whereHas('post', fn (Builder $q) => $q->demand()->harvested())
             ->whereNull('post_items.deleted_at')
             ->when(! empty($filters['search']), fn (Builder $q) => $q->whereHas(
                 'variety', fn (Builder $q) => $q
@@ -41,9 +42,10 @@ class MarketplaceService
 
     public function categoryOptions(): array
     {
-        return Category::whereHas('vegetables.varieties.postItems', fn (Builder $q) => $q->whereHas(
-            'post', fn (Builder $q) => $q->demand()->ongoing()
-        ))
+        return Category::whereHas('vegetables.varieties.postItems', fn (Builder $q) => $q
+            ->ongoing()
+            ->whereHas('post', fn (Builder $q) => $q->demand()->harvested())
+        )
             ->orderBy('name')
             ->get()
             ->map(fn ($category) => ['id' => $category->id, 'name' => $category->name])
