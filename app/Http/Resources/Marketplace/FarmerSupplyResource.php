@@ -13,19 +13,14 @@ class FarmerSupplyResource extends JsonResource
             'id' => $this->id,
             'status' => $this->status,
             'target_month' => $this->target_month,
-            'scheduled_date' => $this->scheduled_date?->format('M d, Y'),
-            'time_slot' => $this->time_slot?->value,
-            'time_slot_label' => $this->time_slot?->label(),
             'estimated_total_weight' => (float) $this->estimated_total_weight,
             'hearts_count' => $this->hearts_count ?? 0,
             'is_hearted' => (bool) ($this->is_hearted ?? false),
             'created_at' => $this->created_at->format('M d, Y'),
             'created_at_human' => $this->created_at->diffForHumans(),
 
-            /* with('media') */
             'image_url' => $this->whenLoaded('media', fn () => $this->getFirstMediaUrl('post_image')),
 
-            /* with('vegetable.category') */
             'vegetable' => $this->whenLoaded('vegetable', fn () => [
                 'id' => $this->vegetable->id,
                 'name' => $this->vegetable->name,
@@ -35,7 +30,6 @@ class FarmerSupplyResource extends JsonResource
                 'image_url' => '',
             ]),
 
-            /* with('postItems.variety') */
             'items' => $this->whenLoaded('postItems', fn () => $this->postItems->map(fn ($item) => [
                 'id' => $item->id,
                 'variety_id' => $item->variety_id,
@@ -43,6 +37,7 @@ class FarmerSupplyResource extends JsonResource
                 'quantity_kg' => (float) $item->quantity_kg,
                 'unit_price' => $item->unit_price !== null ? (float) $item->unit_price : null,
                 'price_flag' => $item->price_flag,
+                'status' => $item->status,
             ])),
         ];
     }
