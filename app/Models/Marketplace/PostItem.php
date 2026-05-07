@@ -49,22 +49,22 @@ class PostItem extends Model
 
     public function scopeOngoing(Builder $query): Builder
     {
-        return $query->where('post_items.status', PostItemStatus::Ongoing);
+        return $query->where('status', PostItemStatus::Ongoing);
     }
 
     public function scopeFulfilled(Builder $query): Builder
     {
-        return $query->where('post_items.status', PostItemStatus::Fulfilled);
+        return $query->where('status', PostItemStatus::Fulfilled);
     }
 
     public function scopeArchived(Builder $query): Builder
     {
-        return $query->where('post_items.status', PostItemStatus::Archived);
+        return $query->where('status', PostItemStatus::Archived);
     }
 
     public function scopeOfStatus(Builder $query, PostItemStatus $status): Builder
     {
-        return $query->where('post_items.status', $status);
+        return $query->where('status', $status);
     }
 
     /* ---------- lifecycle ---------- */
