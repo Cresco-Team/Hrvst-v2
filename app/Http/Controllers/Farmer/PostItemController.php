@@ -14,6 +14,9 @@ class PostItemController extends Controller
 {
     public function fulfill(Request $request, PostItem $postItem, FulfillPostItemAction $action): RedirectResponse
     {
+        // Bug #2 fix: eager-load post before ownership check
+        $postItem->load('post');
+
         abort_if(
             $postItem->post->type !== PostType::Supply || $postItem->post->user_id !== $request->user()->id,
             403
@@ -27,6 +30,8 @@ class PostItemController extends Controller
 
     public function archive(Request $request, PostItem $postItem, ArchivePostItemAction $action): RedirectResponse
     {
+        $postItem->load('post');
+
         abort_if(
             $postItem->post->type !== PostType::Supply || $postItem->post->user_id !== $request->user()->id,
             403
@@ -40,6 +45,8 @@ class PostItemController extends Controller
 
     public function destroy(Request $request, PostItem $postItem): RedirectResponse
     {
+        $postItem->load('post');
+
         abort_if(
             $postItem->post->type !== PostType::Supply || $postItem->post->user_id !== $request->user()->id,
             403
