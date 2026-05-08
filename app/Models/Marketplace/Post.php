@@ -132,6 +132,25 @@ class Post extends Model implements HasMedia
         return $this->status === PostStatus::Growing;
     }
 
+    /* ---------- Bug #8 fix: cascade-delete PostItems through Eloquent ----------
+     * DB-level cascadeOnDelete bypasses observers, so vegetable_monthly_stats
+     * never gets decremented when a Post is force-deleted.
+     * Deleting PostItems explicitly here fires PostItemObserver::deleted on each.
+     */
+
+    protected static function booted(): void
+    {
+        static::deleting(function (Post $post): void {
+            // Only needed on force-delete (soft-delete does not cascade at DB level).
+            // For soft-delete, PostItems remain and can be individually managed.
+            if (! $post->isForceDeleting()) {
+                return;
+            }
+
+            $post->postItems()->each(fn (PostItem $item) => $item->delete());
+        });
+    }
+
     /* ---------- media ---------- */
 
     public function registerMediaCollections(): void
