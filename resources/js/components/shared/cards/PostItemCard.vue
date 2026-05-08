@@ -1,22 +1,51 @@
 <script setup lang="ts">
 import axios from 'axios'
-import { AlarmClockCheck, Calendar, Heart, MapPin } from 'lucide-vue-next'
+import {
+	AlarmClockCheck,
+	Archive,
+	Calendar,
+	Heart,
+	MapPin,
+	MoreVertical,
+	PackageCheck,
+	Trash,
+} from 'lucide-vue-next'
 import { computed, ref } from 'vue'
 import { toggle as togglePostHeart } from '@/actions/App/Http/Controllers/PostHeartController'
 import { AspectRatio } from '@/components/ui/aspect-ratio'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuSeparator,
+	DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import { Separator } from '@/components/ui/separator'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { cn } from '@/lib/utils'
 import type { DealerPostItemResource } from '@/types'
 
+type Action = 'fulfill' | 'archive' | 'delete'
+
 const props = defineProps<{
 	item: DealerPostItemResource
-	mode?: 'supply' | 'demand'
+	actions?: Action[]
+}>()
+
+const emit = defineEmits<{
+	fulfill: []
+	archive: []
+	delete: []
 }>()
 
 const mode = computed(() => props.mode ?? 'supply')
+const hasActions = computed(() => (props.actions?.length ?? 0) > 0)
+const canFulfill = computed(() => props.actions?.includes('fulfill') ?? false)
+const canArchive = computed(() => props.actions?.includes('archive') ?? false)
+const canDelete = computed(() => props.actions?.includes('delete') ?? false)
 
 const localHearted = ref(props.item.is_hearted)
 const localCount = ref(props.item.hearts_count)
@@ -28,12 +57,11 @@ const priceFlagClass: Record<string, string> = {
 	High: 'bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300',
 }
 
-const qtyLabel = computed(() => mode.value === 'supply' ? 'AVAILABLE' : 'NEEDED')
-
+const qtyLabel = computed(() => (mode.value === 'supply' ? 'AVAILABLE' : 'NEEDED'))
 const qtyClass = computed(() =>
 	mode.value === 'supply'
 		? 'bg-primary/10 text-primary'
-		: 'bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300'
+		: 'bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300',
 )
 
 async function toggleHeart(event: MouseEvent): Promise<void> {
@@ -62,6 +90,7 @@ async function toggleHeart(event: MouseEvent): Promise<void> {
 
 <template>
 	<Card class="py-0 gap-0 overflow-hidden transition-all hover:shadow-lg hover:-translate-y-0.5">
+
 		<AspectRatio :ratio="16 / 9" class="relative overflow-hidden bg-primary/10">
 			<img
 				v-if="item.variety_image_url"
@@ -70,20 +99,63 @@ async function toggleHeart(event: MouseEvent): Promise<void> {
 				class="absolute inset-0 h-full w-full object-cover"
 			/>
 
+			<!-- Days until badge — top left -->
 			<div
 				v-if="item.days_until_transaction !== null"
-				class="absolute top-2 left-2 rounded-full bg-black/60 px-2.5 py-0.5 text-xs font-semibold text-white backdrop-blur-sm"
+				class="absolute top-2 left-2 z-10 rounded-full bg-black/60 px-2.5 py-0.5 text-xs font-semibold text-white backdrop-blur-sm"
 			>
 				{{ item.days_until_transaction <= 0 ? 'Today' : `${item.days_until_transaction}d away` }}
 			</div>
 
-			<div v-if="item.price_flag" class="absolute top-2 right-2">
-				<Badge :class="priceFlagClass[item.price_flag]">
-					{{ item.price_flag }}
-				</Badge>
+			<!-- Actions dropdown — top right — z-10 so it sits above the image -->
+			<div v-if="hasActions" class="absolute top-2 right-2 z-10">
+				<DropdownMenu>
+					<DropdownMenuTrigger as-child>
+						<Button variant="outline" size="icon" class="size-7">
+							<MoreVertical class="size-3.5" />
+						</Button>
+					</DropdownMenuTrigger>
+					<DropdownMenuContent align="end">
+						<DropdownMenuItem
+							v-if="canFulfill"
+							class="text-green-600 dark:text-green-400"
+							@click="emit('fulfill')"
+						>
+							<PackageCheck class="mr-2 size-4" />
+							Fulfill
+						</DropdownMenuItem>
+						<DropdownMenuItem
+							v-if="canArchive"
+							@click="emit('archive')"
+						>
+							<Archive class="mr-2 size-4" />
+							Archive
+						</DropdownMenuItem>
+						<DropdownMenuSeparator v-if="canFulfill || canArchive" />
+						<DropdownMenuItem
+							v-if="canDelete"
+							class="text-destructive"
+							@click="emit('delete')"
+						>
+							<Trash class="mr-2 size-4" />
+							Delete
+						</DropdownMenuItem>
+					</DropdownMenuContent>
+				</DropdownMenu>
 			</div>
 
-			<div class="absolute bottom-0 right-0 rounded-tl-lg bg-black/60 px-3 py-1 text-xs font-medium text-white backdrop-blur-sm">
+			<!-- Price flag — top right when no actions -->
+			<div v-else-if="item.price_flag" class="absolute top-2 right-2 z-10">
+				<Badge :class="priceFlagClass[item.price_flag]">{{ item.price_flag }}</Badge>
+			</div>
+
+			<!-- Price flag bottom-left when actions present -->
+			<div v-if="hasActions && item.price_flag" class="absolute bottom-8 left-2 z-10">
+				<Badge :class="priceFlagClass[item.price_flag]">{{ item.price_flag }}</Badge>
+			</div>
+
+			<!-- Timestamp — bottom right -->
+			<div class="absolute bottom-0 right-0 z-10 rounded-tl-lg bg-black/60 px-3 py-1 text-xs font-medium text-white backdrop-blur-sm">
 				<TooltipProvider :delay-duration="200">
 					<Tooltip>
 						<TooltipTrigger as-child>
@@ -105,9 +177,12 @@ async function toggleHeart(event: MouseEvent): Promise<void> {
 		<div class="px-4"><Separator /></div>
 
 		<CardContent class="px-4 py-3 flex flex-col gap-2">
+			<!-- Quantity + price -->
 			<div :class="cn('rounded-md p-3', qtyClass)">
 				<span class="text-xs tracking-wider block mb-1">{{ qtyLabel }}</span>
-				<span class="font-semibold text-sm">{{ item.quantity_kg.toLocaleString('en-PH') }} kg</span>
+				<span class="font-semibold text-sm">
+					{{ item.quantity_kg.toLocaleString('en-PH') }} kg
+				</span>
 				<span v-if="item.unit_price" class="ml-2 text-xs font-mono opacity-80">
 					@ ₱{{ item.unit_price.toFixed(2) }}/kg
 				</span>
@@ -128,7 +203,8 @@ async function toggleHeart(event: MouseEvent): Promise<void> {
 				<span>{{ item.municipality }}</span>
 			</div>
 
-			<div class="flex items-center justify-end pt-1">
+			<!-- Heart — hidden on own posts (actions present) -->
+			<div v-if="!hasActions" class="flex items-center justify-end pt-1">
 				<button
 					class="flex items-center gap-1.5 text-sm text-muted-foreground cursor-pointer transition-colors hover:text-rose-500 disabled:pointer-events-none disabled:opacity-50"
 					:disabled="isPending"
@@ -142,5 +218,6 @@ async function toggleHeart(event: MouseEvent): Promise<void> {
 				</button>
 			</div>
 		</CardContent>
+
 	</Card>
 </template>
