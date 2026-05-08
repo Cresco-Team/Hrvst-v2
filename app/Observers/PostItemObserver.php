@@ -15,13 +15,14 @@ class PostItemObserver
             return;
         }
 
-        $newStatus = $postItem->status;
+        // Bug #1 fix: always load post to avoid lazy-loading exception
+        $postItem->loadMissing('post');
 
+        $newStatus = $postItem->status;
         $newColumn = $this->resolveColumn($postItem->post->type, $newStatus);
 
         if ($newColumn !== null) {
             $periodDate = $postItem->post->created_at->startOfMonth()->toDateString();
-
             $this->upsertRow($postItem->post->vegetable_id, $periodDate);
 
             DB::table('vegetable_monthly_stats')
@@ -30,7 +31,6 @@ class PostItemObserver
                 ->increment($newColumn, (float) $postItem->quantity_kg);
         }
 
-        // Reverse the previous terminal state's contribution if applicable
         $rawOldStatus = $postItem->getOriginal('status');
         $oldStatus = $rawOldStatus instanceof PostItemStatus
             ? $rawOldStatus
@@ -59,6 +59,9 @@ class PostItemObserver
 
     public function deleted(PostItem $postItem): void
     {
+        // Bug #1 fix: always load post to avoid lazy-loading exception
+        $postItem->loadMissing('post');
+
         $column = $this->resolveColumn($postItem->post->type, $postItem->status);
 
         if ($column === null) {
