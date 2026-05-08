@@ -25,16 +25,16 @@ import type {
 
 const props = defineProps<DealerDemandsProps>()
 
-// ─── Form (create/edit demand Post) ──────────────────────────────────────────
+// ─── Create demand form ───────────────────────────────────────────────────────
+
 const formOpen = ref(false)
-function openCreate() {
-	formOpen.value = true
-}
 
 // ─── PostItem actions ─────────────────────────────────────────────────────────
+
 const fulfillDialogOpen = ref(false)
 const archiveDialogOpen = ref(false)
 const deleteDialogOpen = ref(false)
+
 const itemToFulfill = ref<DealerPostItemResource | null>(null)
 const itemToArchive = ref<DealerPostItemResource | null>(null)
 const itemToDelete = ref<DealerPostItemResource | null>(null)
@@ -91,6 +91,7 @@ function handleDelete() {
 }
 
 // ─── Tabs + pagination ────────────────────────────────────────────────────────
+
 const activeTab = computed(() => props.filters.status ?? 'ongoing')
 
 function handleTabChange(value: string | number) {
@@ -135,12 +136,13 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 			<div class="flex items-end justify-between">
 				<Heading title="My Demands" description="Post purchase requests for farmers." />
-				<Button class="gap-2" @click="openCreate">
+				<Button class="gap-2" @click="formOpen = true">
 					<Plus class="size-4" />
 					New Demand
 				</Button>
 			</div>
 
+			<!-- Summary -->
 			<Deferred data="summary">
 				<template #fallback>
 					<div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
@@ -148,8 +150,8 @@ const breadcrumbs: BreadcrumbItem[] = [
 					</div>
 				</template>
 				<div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
-					<LargeCard title="Ongoing" :value="summary?.total_ongoing" subtext="awaiting supply" />
-					<LargeCard title="Archived" :value="summary?.total_archived" subtext="closed" />
+					<LargeCard title="Ongoing"   :value="summary?.total_ongoing"   subtext="awaiting supply" />
+					<LargeCard title="Archived"  :value="summary?.total_archived"  subtext="closed" />
 					<LargeCard title="Fulfilled" :value="summary?.total_fulfilled" subtext="completed" />
 				</div>
 			</Deferred>
@@ -162,6 +164,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 				</TabsList>
 			</Tabs>
 
+			<!-- PostItem grid -->
 			<Deferred data="demands">
 				<template #fallback>
 					<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -171,7 +174,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 				<EmptyState
 					v-if="demands?.data.length === 0"
-					title="No Demands"
+					title="No Demand Items"
 					description="Post a demand to be picked up by farmers."
 					:icon="Sprout"
 				/>
@@ -190,19 +193,30 @@ const breadcrumbs: BreadcrumbItem[] = [
 				</div>
 			</Deferred>
 
-			<div v-if="demands && demands.meta.last_page > 1" class="flex items-center justify-between border-t pt-4">
-				<Button variant="outline" size="sm" :disabled="demands.meta.current_page === 1"
-					@click="handlePageChange(demands.meta.current_page - 1)">Previous</Button>
+			<!-- Pagination -->
+			<div
+				v-if="demands && demands.meta.last_page > 1"
+				class="flex items-center justify-between border-t pt-4"
+			>
+				<Button variant="outline" size="sm"
+					:disabled="demands.meta.current_page === 1"
+					@click="handlePageChange(demands.meta.current_page - 1)">
+					Previous
+				</Button>
 				<span class="text-sm text-muted-foreground">
 					Page {{ demands.meta.current_page }} of {{ demands.meta.last_page }}
 				</span>
-				<Button variant="outline" size="sm" :disabled="demands.meta.current_page === demands.meta.last_page"
-					@click="handlePageChange(demands.meta.current_page + 1)">Next</Button>
+				<Button variant="outline" size="sm"
+					:disabled="demands.meta.current_page === demands.meta.last_page"
+					@click="handlePageChange(demands.meta.current_page + 1)">
+					Next
+				</Button>
 			</div>
 
 		</div>
 	</AppLayout>
 
+	<!-- Create demand -->
 	<DemandForm
 		:open="formOpen"
 		:demand="null"
@@ -211,15 +225,30 @@ const breadcrumbs: BreadcrumbItem[] = [
 		@update:open="formOpen = $event"
 	/>
 
-	<ConfirmationDialog v-model:open="fulfillDialogOpen" title="Fulfill Item"
-		:description="`Mark ${itemToFulfill?.vegetable_name} ${itemToFulfill?.variety_name} as fulfilled?`"
-		:processing="fulfillForm.processing" @action="handleFulfill" />
+	<!-- Action dialogs -->
+	<ConfirmationDialog
+		v-model:open="fulfillDialogOpen"
+		title="Fulfill Item"
+		:description="`Mark ${itemToFulfill?.vegetable_name} — ${itemToFulfill?.variety_name} as fulfilled?`"
+		:processing="fulfillForm.processing"
+		@action="handleFulfill"
+	/>
 
-	<ConfirmationDialog v-model:open="archiveDialogOpen" title="Archive Item"
-		:description="`Archive ${itemToArchive?.vegetable_name} ${itemToArchive?.variety_name}?`"
-		:processing="archiveForm.processing" variant="destructive" @action="handleArchive" />
+	<ConfirmationDialog
+		v-model:open="archiveDialogOpen"
+		title="Archive Item"
+		:description="`Archive ${itemToArchive?.vegetable_name} — ${itemToArchive?.variety_name}?`"
+		:processing="archiveForm.processing"
+		variant="destructive"
+		@action="handleArchive"
+	/>
 
-	<ConfirmationDialog v-model:open="deleteDialogOpen" title="Delete Item"
-		:description="`Permanently delete ${itemToDelete?.vegetable_name} ${itemToDelete?.variety_name}?`"
-		:processing="deleteForm.processing" variant="destructive" @action="handleDelete" />
+	<ConfirmationDialog
+		v-model:open="deleteDialogOpen"
+		title="Delete Item"
+		:description="`Permanently delete ${itemToDelete?.vegetable_name} — ${itemToDelete?.variety_name}? This cannot be undone.`"
+		:processing="deleteForm.processing"
+		variant="destructive"
+		@action="handleDelete"
+	/>
 </template>
