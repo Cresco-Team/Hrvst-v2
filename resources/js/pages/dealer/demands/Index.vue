@@ -110,7 +110,7 @@ function handlePageChange(page: number) {
 }
 
 function actionsFor(status: string): Array<'fulfill' | 'archive' | 'delete'> {
-	switch (status) {
+	switch (String(status)) {
 		case 'ongoing':
 			return ['fulfill', 'archive', 'delete']
 		case 'archived':
