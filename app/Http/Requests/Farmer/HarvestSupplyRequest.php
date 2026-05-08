@@ -15,11 +15,19 @@ class HarvestSupplyRequest extends FormRequest
 
     public function rules(): array
     {
+        // Bug #4 fix: constrain variety_id to only varieties that belong to the
+        // supply post's vegetable. Client-side filter in HarvestForm is UX-only.
+        $vegetableId = $this->route('supply')?->vegetable_id;
+
         return [
             'scheduled_date' => ['required', 'date', 'after:today', 'before:'.now()->addMonths(3)->toDateString()],
             'time_slot' => ['required', Rule::enum(PostTimeSlot::class)],
             'items' => ['required', 'array', 'min:1'],
-            'items.*.variety_id' => ['required', 'integer', 'exists:varieties,id'],
+            'items.*.variety_id' => [
+                'required',
+                'integer',
+                Rule::exists('varieties', 'id')->where('vegetable_id', $vegetableId),
+            ],
             'items.*.quantity_kg' => ['required', 'numeric', 'min:0.1', 'max:99999'],
             'items.*.unit_price' => ['required', 'numeric', 'min:0', 'max:9999.99'],
         ];
@@ -36,7 +44,7 @@ class HarvestSupplyRequest extends FormRequest
             'items.required' => 'At least one harvest item is required.',
             'items.min' => 'At least one harvest item is required.',
             'items.*.variety_id.required' => 'Each item must have a variety.',
-            'items.*.variety_id.exists' => 'Selected variety does not exist.',
+            'items.*.variety_id.exists' => 'Selected variety does not belong to this vegetable.',
             'items.*.quantity_kg.required' => 'Each item must have a quantity.',
             'items.*.quantity_kg.min' => 'Quantity is too low.',
             'items.*.unit_price.required' => 'Each item must have a price.',
