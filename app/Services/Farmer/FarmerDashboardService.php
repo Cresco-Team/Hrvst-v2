@@ -23,22 +23,28 @@ class FarmerDashboardService
         ];
     }
 
+    /**
+     * Bug #6 fix: return Post models (supply posts with upcoming scheduled_date)
+     * so FarmerSupplyResource::collection() receives the correct model type.
+     *
+     * "Expiring" here means harvested supply posts whose delivery date is within
+     * the next 3 days — the farmer needs to prepare for these deliveries.
+     */
     public function expiringSupplies(int $userId): Collection
     {
-        // Ongoing PostItems whose delivery date is within the next 3 days
-        return PostItem::with(['variety', 'post.vegetable'])
-            ->ongoing()
-            ->whereHas('post', fn (Builder $q) => $q
-                ->supply()
-                ->harvested()
-                ->where('user_id', $userId)
-                ->whereBetween('scheduled_date', [now()->startOfDay(), now()->addDays(3)->endOfDay()])
-            )
+        return Post::supply()
+            ->harvested()
+            ->where('user_id', $userId)
+            ->whereBetween('scheduled_date', [now()->startOfDay(), now()->addDays(3)->endOfDay()])
+            ->with(['vegetable.category', 'media', 'postItems.variety'])
+            ->orderBy('scheduled_date')
             ->get();
     }
 
     public function recommendations(int $userId): array
     {
+        $recs = [];
+
         $itemQuery = PostItem::whereHas(
             'post', fn (Builder $q) => $q->supply()->where('user_id', $userId)
         );
@@ -46,8 +52,6 @@ class FarmerDashboardService
         $ongoing = (clone $itemQuery)->ongoing()->count();
         $growing = Post::supply()->growing()->where('user_id', $userId)->count();
         $archived = (clone $itemQuery)->archived()->count();
-
-        $recs = [];
 
         if ($growing === 0 && $ongoing === 0) {
             $recs[] = [
