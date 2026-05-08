@@ -38,8 +38,11 @@ class PostItemResource extends JsonResource
                 ? (int) now()->diffInDays($post->scheduled_date, false)
                 : null,
 
-            // farmer location (null for demand posts)
-            'municipality' => $post->farmerProfile?->municipality?->name,
+            // Bug #3 fix: only resolve municipality when farmerProfile is already loaded.
+            // Demand posts have no farmer profile — avoid firing a lazy-load query.
+            'municipality' => $post->relationLoaded('farmerProfile')
+                ? $post->farmerProfile?->municipality?->name
+                : null,
 
             // interaction
             'hearts_count' => $post->hearts_count,
