@@ -24,7 +24,11 @@ final class UpdateDemandAction
             ])));
 
             if (! empty($validated['items'])) {
-                $post->postItems()->delete();
+                // Bug #5 fix: only remove ongoing items — fulfilled/archived items
+                // represent completed or cancelled transactions and must not be touched.
+                $post->postItems()
+                    ->where('status', PostItemStatus::Ongoing)
+                    ->delete();
 
                 $varietyIds = collect($validated['items'])->pluck('variety_id');
                 $varieties = Variety::with('latestPrice')
