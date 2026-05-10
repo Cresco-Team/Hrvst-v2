@@ -86,8 +86,9 @@ class FarmerMapService
 
         return $query->get()
             ->map(function (FarmerProfile $farmer) {
-                // Flatten all ongoing PostItems across all harvested supply posts
-                $ongoingItems = $farmer->posts->flatMap(fn ($post) => $post->postItems);
+                $ongoingItems = $farmer->posts->flatMap(
+                    fn ($post) => $post->relationLoaded('postItems') ? $post->postItems : collect()
+                );
 
                 return [
                     'id' => $farmer->id,
