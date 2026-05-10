@@ -1,15 +1,14 @@
-import type { PostStatus } from '../enums'
+import type { PostItemStatus } from '../enums'
 import type {
-	DealerDemandResource,
+	DealerPostItemResource,
 	FarmerSupplyResource,
 	SupplyMapFilterOptions,
+	VarietyOptionsByVegetable,
 	VegetableOptionsByCategory,
 } from '../resources/marketplace'
 import type { CategoryOption } from '../resources/product'
 import type { FarmerSupplySummary } from '../resources/profile'
 import type { MapConfig, Paginated } from '../shared'
-
-// ─── farmer/Dashboard ─────────────────────────────────────────────────────────
 
 export type RecommendationSeverity = 'critical' | 'warning' | 'info'
 
@@ -29,14 +28,16 @@ export interface FarmerDashboardProps {
 // ─── farmer/supplies/Index ────────────────────────────────────────────────────
 
 export interface FarmerSuppliesFilters {
-	status: PostStatus
+	status: 'growing' | PostItemStatus
 }
 
 export interface FarmerSuppliesProps {
 	filters: FarmerSuppliesFilters
 	summary: FarmerSupplySummary
 	vegetableOptions: VegetableOptionsByCategory
-	supplies: Paginated<FarmerSupplyResource>
+	varietyOptions: VarietyOptionsByVegetable
+	growingPosts: Paginated<FarmerSupplyResource> | null
+	harvestedItems: Paginated<DealerPostItemResource> | null
 }
 
 // ─── farmer/supply-map/Index ──────────────────────────────────────────────────
@@ -49,15 +50,15 @@ export interface FarmerSupplyMapProps {
 // ─── farmer/marketplace/Index ─────────────────────────────────────────────────
 
 export interface FarmerMarketplaceFilters {
+	search: string | null
 	category_id: number | null
-	vegetable_id: number | null
+	variety_id: number | null
 	date_from: string | null
 	date_to: string | null
-	search: string | null
 }
 
 export interface FarmerMarketplaceProps {
 	filters: FarmerMarketplaceFilters
 	categoryOptions: CategoryOption[]
-	demands: Paginated<DealerDemandResource>
+	demands: Paginated<DealerPostItemResource>
 }

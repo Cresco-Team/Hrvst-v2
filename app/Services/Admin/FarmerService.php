@@ -29,17 +29,19 @@ class FarmerService
             'province',
             'municipality',
             'barangay',
-            'posts' => fn ($q) => $q
-                ->ongoing()
-                ->with(['media', 'variety.media', 'variety.vegetable.category'])
-                ->orderBy('scheduled_date', 'asc'),
         ])
+            // Count harvested supply posts that have at least one ongoing PostItem —
+            // this is the admin's "active deliveries" metric per farmer.
             ->withCount([
-                'posts as ongoing_supplies_count' => fn (Builder $q) => $q->ongoing(),
+                'posts as ongoing_supplies_count' => fn (Builder $q) => $q
+                    ->supply()
+                    ->harvested()
+                    ->whereHas('postItems', fn (Builder $q) => $q->ongoing()),
             ]);
 
         if ($search) {
-            $query->whereHas('user', fn (Builder $q) => $q->where('name', 'like', "%{$search}%")
+            $query->whereHas(
+                'user', fn (Builder $q) => $q->where('name', 'like', "%{$search}%")
             );
         }
 
@@ -54,10 +56,15 @@ class FarmerService
             'province',
             'municipality',
             'barangay',
+            // Load posts + their ongoing PostItems for the sidebar summary
             'posts' => fn ($q) => $q
-                ->ongoing()
-                ->with(['media', 'variety.media', 'variety.vegetable.category'])
-                ->orderBy('scheduled_date', 'asc'),
+                ->supply()
+                ->harvested()
+                ->with([
+                    'postItems' => fn ($q) => $q
+                        ->ongoing()
+                        ->with(['variety.media', 'variety.vegetable.category']),
+                ]),
         ]);
     }
 
@@ -69,7 +76,11 @@ class FarmerService
             'province',
             'municipality',
             'barangay',
-            'posts' => fn ($q) => $q->with(['media', 'variety.vegetable.category']),
+            'posts' => fn ($q) => $q->supply()->growing(),
+            'supplyItems' => fn ($q) => $q
+                ->with(['variety.vegetable.category', 'variety.media', 'post']),
+        ])->loadCount([
+            'posts as growing_posts_count' => fn (Builder $q) => $q->supply()->growing(),
         ]);
     }
 }

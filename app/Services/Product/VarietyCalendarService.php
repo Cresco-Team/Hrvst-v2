@@ -22,7 +22,7 @@ class VarietyCalendarService
             ->whereMonth('posts.scheduled_date', $month)
             ->whereNull('posts.deleted_at')
             ->whereNull('post_items.deleted_at')
-            ->whereIn('posts.status', ['ongoing', 'fulfilled'])
+            ->whereIn('post_items.status', ['ongoing', 'fulfilled'])
             ->groupBy(
                 DB::raw('DATE(posts.scheduled_date)'),
                 DB::raw("COALESCE(posts.time_slot, 'unscheduled')"),

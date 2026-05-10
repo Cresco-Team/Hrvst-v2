@@ -39,6 +39,14 @@ const TIME_SLOT_OPTIONS: { value: PostTimeSlot; label: string }[] = [
 	{ value: 'evening', label: 'Evening (6 PM – 10 PM)' },
 ]
 
+// Only show varieties that belong to the supply post's vegetable.
+// varietyOptions is keyed by vegetable name — match against the post's vegetable.
+const availableVarieties = computed(() => {
+	const vegetableName = props.supply?.vegetable?.name
+	if (!vegetableName || !props.varietyOptions) return []
+	return props.varietyOptions[vegetableName] ?? []
+})
+
 function blankItem(): HarvestItem {
 	return { variety_id: '', quantity_kg: '', unit_price: '' }
 }
@@ -65,13 +73,8 @@ const maxDate = computed(() => {
 	return d.toISOString().split('T')[0]
 })
 
-const allVarieties = computed(() => {
-	if (!props.varietyOptions) return []
-	return Object.values(props.varietyOptions).flat()
-})
-
 function priceHintFor(varietyId: string) {
-	return allVarieties.value.find((v) => String(v.id) === varietyId)?.current_price ?? null
+	return availableVarieties.value.find((v) => String(v.id) === varietyId)?.current_price ?? null
 }
 
 function addItem() {
@@ -109,7 +112,7 @@ watch(
 	<DialogForm
 		:open="open"
 		title="Record Harvest"
-		:description="`Expand ${supply?.vegetable?.name ?? 'supply'} into variety breakdown and schedule delivery.`"
+		:description="`Break down ${supply?.vegetable?.name ?? 'supply'} into varieties and schedule delivery.`"
 		:form="form"
 		submit-label="Confirm Harvest"
 		max-width="2xl"
@@ -122,7 +125,6 @@ watch(
 
 		<div class="space-y-6">
 
-			<!-- Scheduled date -->
 			<div class="space-y-2">
 				<Label for="scheduled_date" class="flex items-center gap-1.5">
 					Delivery Date
@@ -140,7 +142,6 @@ watch(
 				<p v-else class="text-xs text-muted-foreground">When will you bring this to the trading post?</p>
 			</div>
 
-			<!-- Time slot — post level -->
 			<div class="space-y-2">
 				<Label for="time_slot" class="flex items-center gap-1.5">
 					Preferred Time Slot
@@ -162,15 +163,23 @@ watch(
 
 			<Separator />
 
-			<!-- Variety items — no time_slot per item -->
 			<div class="space-y-4">
 				<div class="flex items-center justify-between">
-					<Label class="text-sm font-medium">Harvest Items</Label>
+					<div>
+						<Label class="text-sm font-medium">Harvest Items</Label>
+						<p class="text-xs text-muted-foreground mt-0.5">
+							Varieties of <span class="font-medium text-foreground">{{ supply?.vegetable?.name }}</span>
+						</p>
+					</div>
 					<Button type="button" variant="outline" size="sm" class="gap-1.5" @click="addItem">
 						<Plus class="size-3.5" />
 						Add Variety
 					</Button>
 				</div>
+
+				<p v-if="availableVarieties.length === 0" class="text-xs text-muted-foreground italic">
+					No varieties registered for {{ supply?.vegetable?.name ?? 'this vegetable' }}.
+				</p>
 
 				<p v-if="(form.errors as Record<string, string>).items" class="text-xs text-destructive">
 					{{ (form.errors as Record<string, string>).items }}
@@ -195,7 +204,6 @@ watch(
 						</Button>
 					</div>
 
-					<!-- Variety -->
 					<div class="space-y-1.5">
 						<Label :for="`variety-${index}`" class="text-xs">Variety</Label>
 						<Select v-model="item.variety_id">
@@ -206,18 +214,19 @@ watch(
 								<SelectValue placeholder="Select variety..." />
 							</SelectTrigger>
 							<SelectContent>
-								<template v-for="(varieties, vegetableName) in varietyOptions" :key="vegetableName">
-									<SelectItem v-for="v in varieties" :key="v.id" :value="String(v.id)">
-										{{ vegetableName }} — {{ v.name }}
-									</SelectItem>
-								</template>
+								<SelectItem
+									v-for="v in availableVarieties"
+									:key="v.id"
+									:value="String(v.id)"
+								>
+									{{ v.name }}
+								</SelectItem>
 							</SelectContent>
 						</Select>
 						<p v-if="(form.errors as Record<string, string>)[`items.${index}.variety_id`]" class="text-xs text-destructive">
 							{{ (form.errors as Record<string, string>)[`items.${index}.variety_id`] }}
 						</p>
 
-						<!-- Market price hint -->
 						<div
 							v-if="item.variety_id && priceHintFor(item.variety_id)"
 							class="flex items-center gap-1.5 rounded-md border border-dashed bg-background px-3 py-1.5 text-xs text-muted-foreground"
@@ -264,7 +273,6 @@ watch(
 							</p>
 						</div>
 					</div>
-
 				</div>
 			</div>
 

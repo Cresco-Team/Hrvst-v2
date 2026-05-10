@@ -2,7 +2,8 @@
 
 namespace App\Services\Dealer;
 
-use App\Models\Marketplace\Post;
+use App\Enums\PostItemStatus;
+use App\Models\Marketplace\PostItem;
 use App\Models\Product\Category;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
@@ -11,41 +12,42 @@ class MarketplaceService
 {
     public function paginated(array $filters = [], int $perPage = 20, ?int $userId = null): LengthAwarePaginator
     {
-        $query = Post::supply()
-            ->ongoing()
-            ->with(['media', 'vegetable.category', 'farmerProfile.municipality']);
-
-        if ($userId) {
-            $query->withExists([
-                'hearts as is_hearted' => fn (Builder $q) => $q->where('user_id', $userId),
-            ]);
-        }
-
-        if (! empty($filters['search'])) {
-            $search = $filters['search'];
-            $query->whereHas('vegetable', fn (Builder $q) => $q->where('name', 'LIKE', "%{$search}%"));
-        }
-
-        if (! empty($filters['category_id'])) {
-            $query->whereHas('vegetable', fn (Builder $q) => $q->where('category_id', $filters['category_id']));
-        }
-
-        if (! empty($filters['vegetable_id'])) {
-            $query->where('vegetable_id', $filters['vegetable_id']);
-        }
-
-        if (! empty($filters['municipality_id'])) {
-            $query->whereHas('farmerProfile', fn (Builder $q) => $q->where('municipality_id', $filters['municipality_id']));
-        }
-
-        return $query->orderBy('scheduled_date', 'asc')->paginate($perPage);
+        return PostItem::query()
+            ->select('post_items.*')
+            ->join('posts', 'posts.id', '=', 'post_items.post_id')
+            ->with([
+                'variety.vegetable.category',
+                'variety.media',
+                'post' => fn ($q) => $q
+                    ->with(['farmerProfile.municipality'])
+                    ->when($userId, fn ($q) => $q->withExists([
+                        'hearts as is_hearted' => fn (Builder $q) => $q->where('user_id', $userId),
+                    ])),
+            ])
+            ->where('post_items.status', PostItemStatus::Ongoing)
+            ->whereHas('post', fn (Builder $q) => $q->supply()->harvested())
+            ->whereNull('post_items.deleted_at')
+            ->when(! empty($filters['search']), fn (Builder $q) => $q->whereHas(
+                'variety', fn (Builder $q) => $q
+                    ->where('name', 'LIKE', "%{$filters['search']}%")
+                    ->orWhereHas('vegetable', fn (Builder $q) => $q->where('name', 'LIKE', "%{$filters['search']}%"))
+            ))
+            ->when(! empty($filters['category_id']), fn (Builder $q) => $q->whereHas(
+                'variety.vegetable', fn (Builder $q) => $q->where('category_id', $filters['category_id'])
+            ))
+            ->when(! empty($filters['variety_id']), fn (Builder $q) => $q->where('post_items.variety_id', $filters['variety_id']))
+            ->when(! empty($filters['municipality_id']), fn (Builder $q) => $q->whereHas(
+                'post.farmerProfile', fn (Builder $q) => $q->where('municipality_id', $filters['municipality_id'])
+            ))
+            ->orderBy('posts.scheduled_date', 'asc')
+            ->paginate($perPage);
     }
 
     public function categoryOptions(): array
     {
-        return Category::whereHas(
-            'vegetables.posts',
-            fn (Builder $q) => $q->ongoing()->supply()->where('scheduled_date', '>=', now())
+        return Category::whereHas('vegetables.varieties.postItems', fn (Builder $q) => $q
+            ->where('status', PostItemStatus::Ongoing)
+            ->whereHas('post', fn (Builder $q) => $q->supply()->harvested())
         )
             ->orderBy('name')
             ->get()

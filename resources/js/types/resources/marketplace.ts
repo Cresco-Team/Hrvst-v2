@@ -1,4 +1,4 @@
-import type { PostPriceFlag, PostStatus, PostTimeSlot } from '../enums'
+import type { PostItemStatus, PostPriceFlag, PostTimeSlot } from '../enums'
 import type { Coordinates } from '../shared'
 
 // ─── Embedded shapes ──────────────────────────────────────────────────────────
@@ -17,18 +17,15 @@ export interface PostItemSnapshot {
 	quantity_kg: number
 	unit_price: number | null
 	price_flag: PostPriceFlag | null
-	// time_slot intentionally absent — it lives on the parent post
+	status: PostItemStatus
 }
 
 // ─── FarmerSupplyResource ─────────────────────────────────────────────────────
 
 export interface FarmerSupplyResource {
 	id: number
-	status: PostStatus
+	status: 'growing' // Post is only ever growing here; items carry ongoing/fulfilled/archived
 	target_month: string | null
-	scheduled_date: string | null
-	time_slot: PostTimeSlot | null
-	time_slot_label: string | null
 	estimated_total_weight: number
 	hearts_count: number
 	is_hearted: boolean
@@ -40,14 +37,13 @@ export interface FarmerSupplyResource {
 }
 
 // ─── DealerDemandResource ─────────────────────────────────────────────────────
+// Kept for backward compat in demand form — the demand index now uses DealerPostItemResource
 
 export interface DealerDemandResource {
 	id: number
-	status: PostStatus
 	scheduled_date: string | null
 	time_slot: PostTimeSlot | null
 	time_slot_label: string | null
-	days_until_transaction: number | null
 	hearts_count: number
 	is_hearted: boolean
 	created_at: string
@@ -56,21 +52,46 @@ export interface DealerDemandResource {
 	items?: PostItemSnapshot[]
 }
 
+// ─── DealerPostItemResource ───────────────────────────────────────────────────
+
+export interface DealerPostItemResource {
+	id: number
+	post_id: number
+	status: PostItemStatus
+
+	// variety
+	variety_id: number
+	variety_name: string
+	variety_image_url: string | null
+	vegetable_name: string
+	category_name: string
+
+	// pricing
+	quantity_kg: number
+	unit_price: number | null
+	price_flag: PostPriceFlag | null
+
+	// schedule
+	scheduled_date: string | null
+	time_slot: PostTimeSlot | null
+	time_slot_label: string | null
+	days_until_transaction: number | null
+
+	// farmer location (null for demand items)
+	municipality: string | null
+
+	// interaction
+	hearts_count: number
+	is_hearted: boolean
+	created_at: string
+	created_at_human: string
+}
+
 // ─── Option Bag Types ─────────────────────────────────────────────────────────
 
-export type VegetableOption = {
-	id: number
-	name: string
-}
-
+export type VegetableOption = { id: number; name: string }
 export type VegetableOptionsByCategory = Record<string, VegetableOption[]>
-
-export type VarietyOption = {
-	id: number
-	name: string
-	current_price: { min: number; max: number } | null
-}
-
+export type VarietyOption = { id: number; name: string; current_price: { min: number; max: number } | null }
 export type VarietyOptionsByVegetable = Record<string, VarietyOption[]>
 
 // ─── Map types ────────────────────────────────────────────────────────────────

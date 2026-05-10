@@ -28,14 +28,14 @@ class DashboardController extends Controller
 
             'expiringSupplies' => Inertia::defer(
                 fn () => FarmerSupplyResource::collection(
-                    $this->dashboardService->expiringSupplies($profile)
+                    $this->dashboardService->expiringSupplies($profile->user_id)
                 )
             ),
 
             'recommendations' => Inertia::defer(
                 fn () => array_map(
                     fn ($rec) => $rec->toArray(),
-                    $this->dashboardService->recommendations($profile)
+                    $this->dashboardService->recommendations($profile->user_id)
                 )
             ),
         ]);

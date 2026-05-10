@@ -42,7 +42,7 @@ class Post extends Model implements HasMedia
             'type' => PostType::class,
             'status' => PostStatus::class,
             'time_slot' => PostTimeSlot::class,
-            'target_month' => 'date',
+            // target_month stored as varchar(7) 'YYYY-MM' — no date cast
             'scheduled_date' => 'date',
             'estimated_total_weight' => 'decimal:2',
         ];
@@ -111,44 +111,17 @@ class Post extends Model implements HasMedia
         return $query->where('status', PostStatus::Growing);
     }
 
-    public function scopeOngoing(Builder $query): Builder
+    public function scopeHarvested(Builder $query): Builder
     {
-        return $query->where('status', PostStatus::Ongoing);
-    }
-
-    public function scopeArchived(Builder $query): Builder
-    {
-        return $query->where('status', PostStatus::Archived);
-    }
-
-    public function scopeFulfilled(Builder $query): Builder
-    {
-        return $query->where('status', PostStatus::Fulfilled);
-    }
-
-    public function scopeOfStatus(Builder $query, PostStatus $status): Builder
-    {
-        return $query->where('status', $status);
+        return $query->where('status', PostStatus::Harvested);
     }
 
     /* ---------- lifecycle ---------- */
 
-    public function markAsOngoing(string $scheduledAt): void
+    public function markAsHarvested(string $scheduledDate): void
     {
-        $this->status = PostStatus::Ongoing;
-        $this->scheduled_at = $scheduledAt;
-        $this->save();
-    }
-
-    public function markAsArchived(): void
-    {
-        $this->status = PostStatus::Archived;
-        $this->save();
-    }
-
-    public function markAsFulfilled(): void
-    {
-        $this->status = PostStatus::Fulfilled;
+        $this->status = PostStatus::Harvested;
+        $this->scheduled_date = $scheduledDate;
         $this->save();
     }
 
@@ -157,6 +130,25 @@ class Post extends Model implements HasMedia
     public function isGrowing(): bool
     {
         return $this->status === PostStatus::Growing;
+    }
+
+    /* ---------- Bug #8 fix: cascade-delete PostItems through Eloquent ----------
+     * DB-level cascadeOnDelete bypasses observers, so vegetable_monthly_stats
+     * never gets decremented when a Post is force-deleted.
+     * Deleting PostItems explicitly here fires PostItemObserver::deleted on each.
+     */
+
+    protected static function booted(): void
+    {
+        static::deleting(function (Post $post): void {
+            // Only needed on force-delete (soft-delete does not cascade at DB level).
+            // For soft-delete, PostItems remain and can be individually managed.
+            if (! $post->isForceDeleting()) {
+                return;
+            }
+
+            $post->postItems()->each(fn (PostItem $item) => $item->delete());
+        });
     }
 
     /* ---------- media ---------- */

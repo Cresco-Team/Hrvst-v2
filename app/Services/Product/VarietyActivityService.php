@@ -8,10 +8,6 @@ class VarietyActivityService
 {
     public function buildMonthlyActivity(int $varietyId): array
     {
-        // variety_monthly_stats is now vegetable_monthly_stats (vegetable-level).
-        // Variety-level monthly data must be aggregated from post_items → posts.
-        // We bucket by posts.created_at month, not scheduled_date, to match
-        // how the observer previously counted posts.
         $start = now()->startOfMonth()->subMonths(11);
         $end = now()->endOfMonth();
 
@@ -20,18 +16,18 @@ class VarietyActivityService
             ->select([
                 DB::raw("TO_CHAR(posts.created_at, 'YYYY-MM') as period"),
                 'posts.type',
-                'posts.status',
+                'post_items.status',
                 DB::raw('SUM(post_items.quantity_kg) as total_kg'),
             ])
             ->where('post_items.variety_id', $varietyId)
             ->whereBetween('posts.created_at', [$start, $end])
             ->whereNull('posts.deleted_at')
             ->whereNull('post_items.deleted_at')
-            ->whereIn('posts.status', ['archived', 'fulfilled'])
+            ->whereIn('post_items.status', ['archived', 'fulfilled'])
             ->groupBy(
                 DB::raw("TO_CHAR(posts.created_at, 'YYYY-MM')"),
                 'posts.type',
-                'posts.status',
+                'post_items.status',
             )
             ->get()
             ->groupBy('period');

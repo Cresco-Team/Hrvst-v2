@@ -19,6 +19,10 @@ return new class extends Migration
             $table->decimal('quantity_kg', 8, 2);
             $table->decimal('unit_price', 8, 2)->nullable();
             $table->enum('price_flag', ['Low', 'Fair', 'High'])->default('Fair');
+            $table->string('status')->default('ongoing');
+
+            $table->index('status');
+
             $table->softDeletes();
             $table->timestamps();
         });

@@ -2,6 +2,7 @@
 
 namespace App\Actions\Demand;
 
+use App\Enums\PostItemStatus;
 use App\Enums\PostPriceFlag;
 use App\Enums\PostStatus;
 use App\Enums\PostType;
@@ -13,18 +14,6 @@ use Illuminate\Support\Facades\DB;
 
 final class CreateDemandAction
 {
-    /**
-     * @param  array{
-     *     vegetable_id: int,
-     *     scheduled_date: string,
-     *     time_slot: string,
-     *     items: array<int, array{
-     *         variety_id: int,
-     *         quantity_kg: float,
-     *         unit_price: float|null,
-     *     }>
-     * } $validated
-     */
     public function handle(DealerProfile $dealer, array $validated): Post
     {
         return DB::transaction(function () use ($dealer, $validated): Post {
@@ -33,7 +22,7 @@ final class CreateDemandAction
                 'user_id' => $dealer->user_id,
                 'vegetable_id' => $validated['vegetable_id'],
                 'type' => PostType::Demand,
-                'status' => PostStatus::Ongoing,
+                'status' => PostStatus::Harvested, // demands are immediately active
                 'scheduled_date' => $validated['scheduled_date'],
                 'time_slot' => $validated['time_slot'],
             ]);
@@ -56,6 +45,7 @@ final class CreateDemandAction
                     'price_flag' => $unitPrice !== null
                         ? PostPriceFlag::fromMarketPrice((float) $unitPrice, $variety?->latestPrice)
                         : PostPriceFlag::Fair,
+                    'status' => PostItemStatus::Ongoing,
                 ]);
             }
 

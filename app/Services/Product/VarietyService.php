@@ -3,6 +3,7 @@
 namespace App\Services\Product;
 
 use App\Enums\Analytics\VarietyViewerRole;
+use App\Enums\PostItemStatus;
 use App\Enums\PostStatus;
 use App\Enums\PostType;
 use App\Http\Resources\Product\VegetableResource;
@@ -69,11 +70,11 @@ class VarietyService
             'varieties' => function (HasMany $q) use ($search, $priceFilter, $userId): void {
                 $q->with(['latestPrice', 'lastTwoPrices', 'media'])
                     ->withCount([
-                        'postItems as supply_count' => fn (Builder $q) => $q->whereHas(
-                            'post', fn (Builder $p) => $p->supply()->ongoing()
+                        'postItems as supply_count' => fn (Builder $q) => $q->ongoing()->whereHas(
+                            'post', fn (Builder $p) => $p->supply()->harvested()
                         ),
-                        'postItems as demand_count' => fn (Builder $q) => $q->whereHas(
-                            'post', fn (Builder $p) => $p->demand()->ongoing()
+                        'postItems as demand_count' => fn (Builder $q) => $q->ongoing()->whereHas(
+                            'post', fn (Builder $p) => $p->demand()->harvested()
                         ),
                     ])
                     ->when($userId, fn (Builder $q) => $q->withExists([
@@ -132,11 +133,11 @@ class VarietyService
     {
         return Variety::with(['vegetable.category', 'latestPrice', 'lastTwoPrices', 'media'])
             ->withCount([
-                'postItems as supply_count' => fn (Builder $q) => $q->whereHas(
-                    'post', fn (Builder $p) => $p->supply()->ongoing()
+                'postItems as supply_count' => fn (Builder $q) => $q->ongoing()->whereHas(
+                    'post', fn (Builder $p) => $p->supply()->harvested()
                 ),
-                'postItems as demand_count' => fn (Builder $q) => $q->whereHas(
-                    'post', fn (Builder $p) => $p->demand()->ongoing()
+                'postItems as demand_count' => fn (Builder $q) => $q->ongoing()->whereHas(
+                    'post', fn (Builder $p) => $p->demand()->harvested()
                 ),
             ])
             ->when($search, fn (Builder $q) => $q
@@ -158,11 +159,13 @@ class VarietyService
         $variety->load(['vegetable.category', 'latestPrice', 'recentPrices', 'media']);
 
         $variety->supply_count = $variety->postItems()
-            ->whereHas('post', fn (Builder $q) => $q->supply()->ongoing())
+            ->ongoing()
+            ->whereHas('post', fn (Builder $q) => $q->supply()->harvested())
             ->count();
 
         $variety->demand_count = $variety->postItems()
-            ->whereHas('post', fn (Builder $q) => $q->demand()->ongoing())
+            ->ongoing()
+            ->whereHas('post', fn (Builder $q) => $q->demand()->harvested())
             ->count();
 
         $variety->supply_municipalities = $this->resolveSupplyMunicipalities($variety->id);
@@ -214,7 +217,8 @@ class VarietyService
             ->join('municipalities', 'farmer_profiles.municipality_id', '=', 'municipalities.id')
             ->where('post_items.variety_id', $varietyId)
             ->where('posts.type', PostType::Supply->value)
-            ->where('posts.status', PostStatus::Ongoing->value)
+            ->where('posts.status', PostStatus::Harvested->value)
+            ->where('post_items.status', PostItemStatus::Ongoing->value)
             ->whereNull('posts.deleted_at')
             ->whereNull('post_items.deleted_at')
             ->groupBy('municipalities.id', 'municipalities.name')

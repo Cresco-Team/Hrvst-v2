@@ -2,6 +2,7 @@
 
 namespace App\Actions\Supply;
 
+use App\Enums\PostItemStatus;
 use App\Enums\PostPriceFlag;
 use App\Enums\PostStatus;
 use App\Models\Marketplace\Post;
@@ -11,17 +12,6 @@ use Illuminate\Support\Facades\DB;
 
 final class HarvestSupplyAction
 {
-    /**
-     * @param  array{
-     *     scheduled_date: string,
-     *     time_slot: string,
-     *     items: array<int, array{
-     *         variety_id: int,
-     *         quantity_kg: float,
-     *         unit_price: float,
-     *     }>
-     * } $validated
-     */
     public function handle(Post $post, array $validated): Post
     {
         if ($post->status !== PostStatus::Growing) {
@@ -47,12 +37,12 @@ final class HarvestSupplyAction
                         (float) $item['unit_price'],
                         $variety?->latestPrice
                     ),
+                    'status' => PostItemStatus::Ongoing,
                 ]);
             }
 
-            // time_slot lives on post — set it alongside scheduled_date
             $post->time_slot = $validated['time_slot'];
-            $post->markAsOngoing($validated['scheduled_date']);
+            $post->markAsHarvested($validated['scheduled_date']);
         });
 
         return $post->fresh(['vegetable', 'postItems.variety']);
