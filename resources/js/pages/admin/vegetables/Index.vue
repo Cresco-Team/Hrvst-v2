@@ -184,7 +184,7 @@ function handleFilterChange(filter: string | null): void {
 		index().url,
 		{
 			price_filter: filter,
-			category_id: props.filters.category_id ?? undefined,
+			category: props.category?.slug ?? undefined,
 		},
 		{ preserveScroll: true, preserveState: true },
 	)
@@ -196,7 +196,7 @@ function handleSearch(query: string): void {
 		data: {
 			search: query || undefined,
 			price_filter: props.filters.price_filter || undefined,
-			category_id: props.filters.category_id ?? undefined,
+			category: props.category?.slug ?? undefined,
 		},
 		preserveState: true,
 		preserveScroll: true,
