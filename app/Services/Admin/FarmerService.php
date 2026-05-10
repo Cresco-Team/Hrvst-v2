@@ -76,11 +76,11 @@ class FarmerService
             'province',
             'municipality',
             'barangay',
-            // Growing posts (pre-harvest)
             'posts' => fn ($q) => $q->supply()->growing(),
-            // All PostItems across all supply posts for the tabbed status view
             'supplyItems' => fn ($q) => $q
                 ->with(['variety.vegetable.category', 'variety.media', 'post']),
+        ])->loadCount([
+            'posts as growing_posts_count' => fn (Builder $q) => $q->supply()->growing(),
         ]);
     }
 }

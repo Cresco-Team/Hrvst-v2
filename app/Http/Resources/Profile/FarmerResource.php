@@ -63,7 +63,7 @@ class FarmerResource extends JsonResource
 
             // Count of growing posts loaded for the show view
             'growing_posts_count' => $this->whenLoaded(
-                'posts',
+                'growing_posts_count',
                 fn () => $this->posts->count()
             ),
         ];
