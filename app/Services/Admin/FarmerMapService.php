@@ -3,7 +3,6 @@
 namespace App\Services\Admin;
 
 use App\Models\Address\Municipality;
-use App\Models\Marketplace\Post;
 use App\Models\Product\Variety;
 use App\Models\Profiles\FarmerProfile;
 use Illuminate\Database\Eloquent\Builder;
@@ -27,8 +26,12 @@ class FarmerMapService
 
     public function getSupplyOptions(): array
     {
+        // Varieties that have ongoing PostItems from harvested supply posts
         return Variety::query()
-            // ->whereHas('posts', fn ($q) => $q->ongoing()->supply())
+            ->whereHas('postItems', fn (Builder $q) => $q
+                ->ongoing()
+                ->whereHas('post', fn (Builder $q) => $q->supply()->harvested())
+            )
             ->with('vegetable.category')
             ->orderBy('name')
             ->get()
@@ -41,14 +44,24 @@ class FarmerMapService
             ->toArray();
     }
 
-    public function getFarmersForMap(?int $municipalityId = null, ?int $varietyId = null, ?array $bounds = null): array
-    {
-        // FarmerProfile::posts() is already scoped to PostType::Supply — no 'supplies' relation exists.
+    public function getFarmersForMap(
+        ?int $municipalityId = null,
+        ?int $varietyId = null,
+        ?array $bounds = null,
+    ): array {
         $query = FarmerProfile::query()
             ->with([
                 'user',
                 'municipality',
-                'posts' => fn ($q) => $q->ongoing()->with('variety.vegetable'),
+                // Load harvested supply posts with their ongoing PostItems
+                'posts' => fn ($q) => $q
+                    ->supply()
+                    ->harvested()
+                    ->with([
+                        'postItems' => fn ($q) => $q
+                            ->ongoing()
+                            ->with('variety.vegetable'),
+                    ]),
             ]);
 
         if ($municipalityId) {
@@ -56,7 +69,13 @@ class FarmerMapService
         }
 
         if ($varietyId) {
-            $query->whereHas('posts', fn (Builder $q) => $q->ongoing()->where('variety_id', $varietyId)
+            $query->whereHas('posts', fn (Builder $q) => $q
+                ->supply()
+                ->harvested()
+                ->whereHas('postItems', fn (Builder $q) => $q
+                    ->ongoing()
+                    ->where('variety_id', $varietyId)
+                )
             );
         }
 
@@ -67,7 +86,8 @@ class FarmerMapService
 
         return $query->get()
             ->map(function (FarmerProfile $farmer) {
-                $ongoingSupplies = $farmer->posts;
+                // Flatten all ongoing PostItems across all harvested supply posts
+                $ongoingItems = $farmer->posts->flatMap(fn ($post) => $post->postItems);
 
                 return [
                     'id' => $farmer->id,
@@ -77,13 +97,13 @@ class FarmerMapService
                     ],
                     'farmer_name' => $farmer->user->name,
                     'municipality' => $farmer->municipality->name,
-                    'ongoing_supplies_count' => $ongoingSupplies->count(),
-                    'supplies_summary' => $ongoingSupplies
-                        ->groupBy(fn (Post $supply) => $supply->variety->vegetable->name)
-                        ->map(fn ($supplies, string $vegetableName) => [
+                    'ongoing_supplies_count' => $ongoingItems->count(),
+                    'supplies_summary' => $ongoingItems
+                        ->groupBy(fn ($item) => $item->variety->vegetable->name)
+                        ->map(fn ($items, string $vegetableName) => [
                             'vegetable' => $vegetableName,
-                            'count' => $supplies->count(),
-                            'varieties' => $supplies->pluck('variety.name')->unique()->values()->toArray(),
+                            'count' => $items->count(),
+                            'varieties' => $items->pluck('variety.name')->unique()->values()->toArray(),
                         ])
                         ->values()
                         ->toArray(),
