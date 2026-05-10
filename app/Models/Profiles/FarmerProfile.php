@@ -45,7 +45,7 @@ class FarmerProfile extends Model implements HasMedia
             'post_id',
             'user_id',
             'id',
-        )->supply();
+        )->where('posts.type', PostType::Supply);
     }
 
     public function province(): BelongsTo

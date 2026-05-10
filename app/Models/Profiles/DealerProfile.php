@@ -42,6 +42,6 @@ class DealerProfile extends Model implements HasMedia
             'post_id',
             'user_id',
             'id',
-        )->demand();
+        )->where('posts.type', PostType::Demand);
     }
 }
