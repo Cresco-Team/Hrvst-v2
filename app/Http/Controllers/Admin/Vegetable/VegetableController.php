@@ -68,6 +68,7 @@ class VegetableController extends Controller
             'filters' => [
                 'price_filter' => $request->query('price_filter', null),
                 'search' => $request->query('search', null),
+                'category' => $request->query('category', null),
             ],
             'category' => $category,
         ]);
