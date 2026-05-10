@@ -25,9 +25,9 @@ class FarmerResource extends JsonResource
 
             'location' => [
                 'full_address' => implode(', ', array_filter([
-                    $this->whenLoaded('barangay', fn () => $this->barangay?->name),
-                    $this->whenLoaded('municipality', fn () => $this->municipality?->name),
-                    $this->whenLoaded('province', fn () => $this->province?->name),
+                    $this->relationLoaded('barangay') ? $this->barangay?->name : null,
+                    $this->relationLoaded('municipality') ? $this->municipality?->name : null,
+                    $this->relationLoaded('province') ? $this->province?->name : null,
                 ])),
                 'barangay' => $this->whenLoaded('barangay', fn () => $this->barangay?->name),
                 'municipality' => $this->whenLoaded('municipality', fn () => $this->municipality?->name),
