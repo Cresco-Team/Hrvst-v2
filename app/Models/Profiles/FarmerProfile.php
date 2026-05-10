@@ -7,12 +7,14 @@ use App\Models\Address\Barangay;
 use App\Models\Address\Municipality;
 use App\Models\Address\Province;
 use App\Models\Marketplace\Post;
+use App\Models\Marketplace\PostItem;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 
@@ -32,6 +34,18 @@ class FarmerProfile extends Model implements HasMedia
     {
         return $this->hasMany(Post::class, 'user_id', 'user_id')
             ->where('type', PostType::Supply);
+    }
+
+    public function supplyItems(): HasManyThrough
+    {
+        return $this->hasManyThrough(
+            PostItem::class,
+            Post::class,
+            'user_id',
+            'post_id',
+            'user_id',
+            'id',
+        )->supply();
     }
 
     public function province(): BelongsTo
