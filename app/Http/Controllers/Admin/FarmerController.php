@@ -70,10 +70,7 @@ class FarmerController extends Controller
             bounds: $validated['bounds'] ?? null,
         );
 
-        return response()->json([
-            'markers' => $farmers,
-            'total' => count($farmers),
-        ]);
+        return response()->json(['markers' => $farmers, 'total' => count($farmers)]);
     }
 
     public function details(FarmerProfile $farmer): JsonResponse
@@ -105,9 +102,6 @@ class FarmerController extends Controller
         $user->delete();
 
         return redirect()->route('admin.farmers.index')
-            ->with('flash', [
-                'type' => 'success',
-                'message' => 'Farmer deleted successfully.',
-            ]);
+            ->with('flash', ['type' => 'success', 'message' => 'Farmer deleted successfully.']);
     }
 }

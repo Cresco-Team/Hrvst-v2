@@ -30,9 +30,7 @@ class DealerController extends Controller
                     search: $request->query('search', null),
                 )
             )),
-            'filters' => [
-                'search' => $request->query('search', null),
-            ],
+            'filters' => ['search' => $request->query('search', null)],
         ]);
     }
 
@@ -65,9 +63,6 @@ class DealerController extends Controller
         $user->delete();
 
         return redirect()->route('admin.dealers.index')
-            ->with('flash', [
-                'type' => 'success',
-                'message' => 'Dealer deleted successfully.',
-            ]);
+            ->with('flash', ['type' => 'success', 'message' => 'Dealer deleted successfully.']);
     }
 }
