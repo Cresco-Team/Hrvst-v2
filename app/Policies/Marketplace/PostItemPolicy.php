@@ -25,7 +25,7 @@ class PostItemPolicy
 
     public function update(User $user, PostItem $postItem): bool
     {
-        return false;
+        return $user->id === $postItem->post->user_id;
     }
 
     public function delete(User $user, PostItem $postItem): bool
