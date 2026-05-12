@@ -32,7 +32,8 @@ class PostPolicy
     public function update(User $user, Post $post): bool
     {
         return $user->id === $post->user_id
-            && $post->status === PostStatus::Growing; // supply only; demands use UpdateDemandAction which checks Ongoing
+            && $post->status === PostStatus::Growing
+            && $post->target_month <= now()->addMonth()->format('Y-m');
     }
 
     public function harvest(User $user, Post $post): bool
@@ -46,16 +47,10 @@ class PostPolicy
     {
         return match ($post->type) {
             PostType::Supply => $user->id === $post->user_id
-                && in_array($post->status, [PostStatus::Growing, PostStatus::Ongoing], true),
+                && in_array($post->status, [PostStatus::Harvested], true),
             PostType::Demand => $user->id === $post->user_id
-                && $post->status !== PostStatus::Archived,
+                && $post->status !== PostStatus::Harvested,
         };
-    }
-
-    public function fulfill(User $user, Post $post): bool
-    {
-        return $user->id === $post->user_id
-            && $post->status !== PostStatus::Fulfilled;
     }
 
     public function delete(User $user, Post $post): bool
