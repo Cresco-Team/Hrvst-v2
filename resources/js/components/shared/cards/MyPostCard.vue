@@ -12,8 +12,6 @@ import { Separator } from '@/components/ui/separator'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import type { FarmerSupplyResource } from '@/types'
 
-// MyPostCard is now growing-only — Post has two stages: growing | harvested.
-// Post-level actions: harvest, edit, delete. Fulfill/archive live on PostItem.
 const { post } = defineProps<{ post: FarmerSupplyResource }>()
 
 const emit = defineEmits<{
@@ -21,6 +19,13 @@ const emit = defineEmits<{
 	harvest: [post: FarmerSupplyResource]
 	delete: [post: FarmerSupplyResource]
 }>()
+
+const canHarvest = computed(() => {
+	const d = new Date()
+	d.setMonth(d.getMonth() + 1)
+	const nextMonth = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
+	return post.target_month! <= nextMonth
+})
 </script>
 
 <template>
@@ -54,7 +59,7 @@ const emit = defineEmits<{
 					</Button>
 				</DropdownMenuTrigger>
 				<DropdownMenuContent align="end">
-					<DropdownMenuItem @click="emit('harvest', post)">
+					<DropdownMenuItem :disabled="!canHarvest" @click="canHarvest && emit('harvest', post)">
 						<Leaf class="mr-2 size-4 text-lime-600" />
 						Record Harvest
 					</DropdownMenuItem>
