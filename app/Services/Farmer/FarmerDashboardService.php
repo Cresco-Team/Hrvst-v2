@@ -2,6 +2,7 @@
 
 namespace App\Services\Farmer;
 
+use App\DTOs\Farmer\FarmerDashboardRecommendationDTO;
 use App\Models\Marketplace\Post;
 use App\Models\Marketplace\PostItem;
 use Illuminate\Database\Eloquent\Builder;
@@ -9,11 +10,16 @@ use Illuminate\Database\Eloquent\Collection;
 
 class FarmerDashboardService
 {
-    public function summary(int $userId): array
+    private function baseItemQuery(int $userId): Builder
     {
-        $itemQuery = PostItem::whereHas(
+        return PostItem::whereHas(
             'post', fn (Builder $q) => $q->supply()->where('user_id', $userId)
         );
+    }
+
+    public function summary(int $userId): array
+    {
+        $itemQuery = $this->baseItemQuery($userId);
 
         return [
             'total_growing' => Post::supply()->growing()->where('user_id', $userId)->count(),
@@ -23,13 +29,6 @@ class FarmerDashboardService
         ];
     }
 
-    /**
-     * Bug #6 fix: return Post models (supply posts with upcoming scheduled_date)
-     * so FarmerSupplyResource::collection() receives the correct model type.
-     *
-     * "Expiring" here means harvested supply posts whose delivery date is within
-     * the next 3 days — the farmer needs to prepare for these deliveries.
-     */
     public function expiringSupplies(int $userId): Collection
     {
         return Post::supply()
@@ -41,34 +40,33 @@ class FarmerDashboardService
             ->get();
     }
 
+    /** @return FarmerDashboardRecommendationDTO[] */
     public function recommendations(int $userId): array
     {
         $recs = [];
 
-        $itemQuery = PostItem::whereHas(
-            'post', fn (Builder $q) => $q->supply()->where('user_id', $userId)
-        );
+        $itemQuery = $this->baseItemQuery($userId);
 
         $ongoing = (clone $itemQuery)->ongoing()->count();
         $growing = Post::supply()->growing()->where('user_id', $userId)->count();
         $archived = (clone $itemQuery)->archived()->count();
 
         if ($growing === 0 && $ongoing === 0) {
-            $recs[] = [
-                'severity' => 'info',
-                'type' => 'no_active_supply',
-                'title' => 'No Active Supply',
-                'body' => 'You have no growing or ongoing supply posts. Register a new crop to get started.',
-            ];
+            $recs[] = new FarmerDashboardRecommendationDTO(
+                severity: 'info',
+                type: 'no_active_supply',
+                title: 'No Active Supply',
+                body: 'You have no growing or ongoing supply posts. Register a new crop to get started.',
+            );
         }
 
         if ($archived > 0) {
-            $recs[] = [
-                'severity' => 'warning',
-                'type' => 'archived_items',
-                'title' => 'Archived Items',
-                'body' => "{$archived} supply item(s) were archived without being fulfilled. Review your pricing or delivery timing.",
-            ];
+            $recs[] = new FarmerDashboardRecommendationDTO(
+                severity: 'warning',
+                type: 'archived_items',
+                title: 'Archived Items',
+                body: "{$archived} supply item(s) were archived without being fulfilled. Review your pricing or delivery timing.",
+            );
         }
 
         return $recs;
