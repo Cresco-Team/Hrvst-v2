@@ -102,6 +102,7 @@ function handleSubmit() {
 		})
 		.post(routeData.url, {
 			preserveScroll: true,
+			only: ['demands', 'summary'],
 			onSuccess: () => {
 				emit('update:open', false)
 				form.reset()

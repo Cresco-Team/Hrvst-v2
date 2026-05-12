@@ -54,6 +54,7 @@ function handleSubmit() {
 		.post(routeData.url, {
 			forceFormData: true,
 			preserveScroll: true,
+			only: ['growingPosts', 'summary'],
 			onSuccess: () => {
 				emit('update:open', false)
 				form.reset()

@@ -88,6 +88,7 @@ function handleSubmit() {
 	if (!props.supply) return
 	form.post(harvest(props.supply.id).url, {
 		preserveScroll: true,
+		only: ['growingPosts', 'summary'],
 		onSuccess: () => {
 			emit('update:open', false)
 			form.reset()
