@@ -9,12 +9,13 @@ use App\Http\Controllers\Controller;
 use App\Models\Marketplace\PostItem;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class PostItemController extends Controller
 {
     public function fulfill(Request $request, PostItem $postItem, FulfillPostItemAction $action): RedirectResponse
     {
-        // Bug #2 fix: eager-load post before ownership check
+        Gate::authorize('fulfill', $postItem);
         $postItem->load('post');
 
         abort_if(
@@ -30,6 +31,7 @@ class PostItemController extends Controller
 
     public function archive(Request $request, PostItem $postItem, ArchivePostItemAction $action): RedirectResponse
     {
+        Gate::authorize('archive', $postItem);
         $postItem->load('post');
 
         abort_if(
@@ -45,6 +47,7 @@ class PostItemController extends Controller
 
     public function destroy(Request $request, PostItem $postItem): RedirectResponse
     {
+        Gate::authorize('delete', $postItem);
         $postItem->load('post');
 
         abort_if(
