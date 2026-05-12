@@ -62,6 +62,7 @@ function handleDeletePost() {
 	deletePostForm.post(destroySupply(supplyToDelete.value.id).url, {
 		method: 'delete',
 		preserveScroll: true,
+		only: ['growingPosts', 'summary'],
 		onSuccess: () => {
 			deletePostDialogOpen.value = false
 			supplyToDelete.value = null
@@ -99,6 +100,7 @@ function handleFulfill() {
 	if (!itemToFulfill.value) return
 	fulfillForm.post(fulfill(itemToFulfill.value.id).url, {
 		preserveScroll: true,
+		only: ['growingPosts', 'summary'],
 		onSuccess: () => {
 			fulfillDialogOpen.value = false
 			itemToFulfill.value = null
@@ -110,6 +112,7 @@ function handleArchive() {
 	if (!itemToArchive.value) return
 	archiveForm.post(archive(itemToArchive.value.id).url, {
 		preserveScroll: true,
+		only: ['growingPosts', 'summary'],
 		onSuccess: () => {
 			archiveDialogOpen.value = false
 			itemToArchive.value = null
@@ -122,6 +125,7 @@ function handleDeleteItem() {
 	deleteItemForm.post(destroy(itemToDelete.value.id).url, {
 		method: 'delete',
 		preserveScroll: true,
+		only: ['growingPosts', 'summary'],
 		onSuccess: () => {
 			deleteItemDialogOpen.value = false
 			itemToDelete.value = null
