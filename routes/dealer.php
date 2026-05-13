@@ -19,6 +19,7 @@ Route::middleware(['auth', 'verified', 'dealer'])->prefix('dealer')->name('deale
     });
 
     Route::prefix('post-items')->name('post-items.')->group(function () {
+        Route::put('/{postItem}', [PostItemController::class, 'update'])->name('update');
         Route::post('/{postItem}/fulfill', [PostItemController::class, 'fulfill'])->name('fulfill');
         Route::post('/{postItem}/archive', [PostItemController::class, 'archive'])->name('archive');
         Route::delete('/{postItem}', [PostItemController::class, 'destroy'])->name('destroy');
