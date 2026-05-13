@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Farmer;
 
 use App\Actions\PostItem\ArchivePostItemAction;
 use App\Actions\PostItem\FulfillPostItemAction;
+use App\Actions\PostItem\UpdatePostItemAction;
 use App\Enums\PostType;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Farmer\UpdatePostItemRequest;
 use App\Models\Marketplace\PostItem;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -13,15 +15,25 @@ use Illuminate\Support\Facades\Gate;
 
 class PostItemController extends Controller
 {
+    public function update(UpdatePostItemRequest $request, PostItem $postItem, UpdatePostItemAction $action): RedirectResponse
+    {
+        $postItem->load('post');
+        Gate::authorize('update', $postItem);
+
+        abort_if($postItem->post->type !== PostType::Supply, 403);
+
+        $action->handle($postItem, $request->validated());
+
+        return redirect()->route('farmer.supplies.index', ['status' => $postItem->status->value])
+            ->with('flash', ['type' => 'success', 'message' => 'Item updated.']);
+    }
+
     public function fulfill(Request $request, PostItem $postItem, FulfillPostItemAction $action): RedirectResponse
     {
-        Gate::authorize('fulfill', $postItem);
         $postItem->load('post');
+        Gate::authorize('fulfill', $postItem);
 
-        abort_if(
-            $postItem->post->type !== PostType::Supply || $postItem->post->user_id !== $request->user()->id,
-            403
-        );
+        abort_if($postItem->post->type !== PostType::Supply, 403);
 
         $action->handle($postItem);
 
@@ -31,13 +43,10 @@ class PostItemController extends Controller
 
     public function archive(Request $request, PostItem $postItem, ArchivePostItemAction $action): RedirectResponse
     {
-        Gate::authorize('archive', $postItem);
         $postItem->load('post');
+        Gate::authorize('archive', $postItem);
 
-        abort_if(
-            $postItem->post->type !== PostType::Supply || $postItem->post->user_id !== $request->user()->id,
-            403
-        );
+        abort_if($postItem->post->type !== PostType::Supply, 403);
 
         $action->handle($postItem);
 
@@ -47,13 +56,10 @@ class PostItemController extends Controller
 
     public function destroy(Request $request, PostItem $postItem): RedirectResponse
     {
-        Gate::authorize('delete', $postItem);
         $postItem->load('post');
+        Gate::authorize('delete', $postItem);
 
-        abort_if(
-            $postItem->post->type !== PostType::Supply || $postItem->post->user_id !== $request->user()->id,
-            403
-        );
+        abort_if($postItem->post->type !== PostType::Supply, 403);
 
         $postItem->delete();
 
