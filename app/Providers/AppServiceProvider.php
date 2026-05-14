@@ -55,6 +55,7 @@ class AppServiceProvider extends ServiceProvider
 
         Variety::observe(VarietyObserver::class);
         Post::observe(PostObserver::class);
+        PostItem::observe(PostObserver::class);
     }
 
     protected function configureDefaults(): void
