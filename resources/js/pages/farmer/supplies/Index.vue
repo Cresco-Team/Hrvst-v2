@@ -320,7 +320,6 @@ const breadcrumbs: BreadcrumbItem[] = [
 	<PostItemEditDialog
 		:open="editItemDialogOpen"
 		:item="itemToEdit"
-		:variety-options="(varietyOptions as VarietyOptionsByVegetable | undefined)"
 		:update-url="itemToEdit ? updatePostItem(itemToEdit.id).url : ''"
 		@update:open="editItemDialogOpen = $event"
 	/>
