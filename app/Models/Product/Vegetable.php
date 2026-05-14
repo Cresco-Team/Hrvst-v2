@@ -39,6 +39,6 @@ class Vegetable extends Model
 
     public function scopeSearch(Builder $query, ?string $search): void
     {
-        $query->when($search, fn (Builder $q) => $q->where('name', 'like', "%{$search}%"));
+        $query->when($search, fn (Builder $q) => $q->where('name', 'ilike', "%{$search}%"));
     }
 }

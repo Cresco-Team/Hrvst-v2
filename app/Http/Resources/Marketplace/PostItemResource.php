@@ -22,6 +22,7 @@ class PostItemResource extends JsonResource
             'variety_id' => $this->variety_id,
             'variety_name' => $variety->name,
             'variety_image_url' => $variety->getFirstMediaUrl('variety_image'),
+            'vegetable_id' => $vegetable->id,
             'vegetable_name' => $vegetable->name,
             'category_name' => $vegetable->category->name,
 
@@ -38,8 +39,6 @@ class PostItemResource extends JsonResource
                 ? (int) now()->diffInDays($post->scheduled_date, false)
                 : null,
 
-            // Bug #3 fix: only resolve municipality when farmerProfile is already loaded.
-            // Demand posts have no farmer profile — avoid firing a lazy-load query.
             'municipality' => $post->relationLoaded('farmerProfile')
                 ? $post->farmerProfile?->municipality?->name
                 : null,

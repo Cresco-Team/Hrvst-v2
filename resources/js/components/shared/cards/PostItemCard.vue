@@ -8,6 +8,7 @@ import {
 	MapPin,
 	MoreVertical,
 	PackageCheck,
+	Pencil,
 	Trash,
 } from 'lucide-vue-next'
 import { computed, ref } from 'vue'
@@ -28,14 +29,16 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { cn } from '@/lib/utils'
 import type { DealerPostItemResource } from '@/types'
 
-type Action = 'fulfill' | 'archive' | 'delete'
+type Action = 'edit' | 'fulfill' | 'archive' | 'delete'
 
 const props = defineProps<{
 	item: DealerPostItemResource
+	mode?: 'supply' | 'demand'
 	actions?: Action[]
 }>()
 
 const emit = defineEmits<{
+	edit: []
 	fulfill: []
 	archive: []
 	delete: []
@@ -43,6 +46,7 @@ const emit = defineEmits<{
 
 const mode = computed(() => props.mode ?? 'supply')
 const hasActions = computed(() => (props.actions?.length ?? 0) > 0)
+const canEdit = computed(() => props.actions?.includes('edit') ?? false)
 const canFulfill = computed(() => props.actions?.includes('fulfill') ?? false)
 const canArchive = computed(() => props.actions?.includes('archive') ?? false)
 const canDelete = computed(() => props.actions?.includes('delete') ?? false)
@@ -107,7 +111,7 @@ async function toggleHeart(event: MouseEvent): Promise<void> {
 				{{ item.days_until_transaction <= 0 ? 'Today' : `${item.days_until_transaction}d away` }}
 			</div>
 
-			<!-- Actions dropdown — top right — z-10 so it sits above the image -->
+			<!-- Actions dropdown — top right -->
 			<div v-if="hasActions" class="absolute top-2 right-2 z-10">
 				<DropdownMenu>
 					<DropdownMenuTrigger as-child>
@@ -116,6 +120,14 @@ async function toggleHeart(event: MouseEvent): Promise<void> {
 						</Button>
 					</DropdownMenuTrigger>
 					<DropdownMenuContent align="end">
+						<DropdownMenuItem
+							v-if="canEdit"
+							@click="emit('edit')"
+						>
+							<Pencil class="mr-2 size-4" />
+							Edit
+						</DropdownMenuItem>
+						<DropdownMenuSeparator v-if="canEdit && (canFulfill || canArchive || canDelete)" />
 						<DropdownMenuItem
 							v-if="canFulfill"
 							class="text-green-600 dark:text-green-400"

@@ -97,9 +97,7 @@ class FarmerController extends Controller
     {
         Gate::authorize('delete', $farmerProfile);
 
-        $user = $farmerProfile->user;
-        $farmerProfile->delete();
-        $user->delete();
+        $farmerProfile->user()->delete();
 
         return redirect()->route('admin.farmers.index')
             ->with('flash', ['type' => 'success', 'message' => 'Farmer deleted successfully.']);

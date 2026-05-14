@@ -18,7 +18,7 @@ class VarietyPriceController extends Controller
             priceMax: (float) $request->validated('price_max'),
         );
 
-        return redirect()->route('admin.vegetables.index')
+        return redirect()->back()
             ->with('flash', ['type' => 'success', 'message' => 'Price updated successfully.']);
     }
 }

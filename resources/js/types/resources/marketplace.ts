@@ -63,6 +63,7 @@ export interface DealerPostItemResource {
 	variety_id: number
 	variety_name: string
 	variety_image_url: string | null
+	vegetable_id: number
 	vegetable_name: string
 	category_name: string
 

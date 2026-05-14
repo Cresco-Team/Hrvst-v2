@@ -10,12 +10,13 @@ import Heading from '@/components/Heading.vue'
 import LargeCard from '@/components/shared/cards/LargeCard.vue'
 import MyPostCard from '@/components/shared/cards/MyPostCard.vue'
 import PostItemCard from '@/components/shared/cards/PostItemCard.vue'
+import PostItemEditDialog from '@/components/shared/dialogs/PostItemEditDialog.vue'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import AppLayout from '@/layouts/AppLayout.vue'
 import farmer from '@/routes/farmer'
-import { archive, destroy, fulfill } from '@/routes/farmer/post-items'
+import { archive, destroy, fulfill, update as updatePostItem } from '@/routes/farmer/post-items'
 import { destroy as destroySupply, index } from '@/routes/farmer/supplies'
 import type {
 	BreadcrumbItem,
@@ -30,7 +31,7 @@ const props = defineProps<FarmerSuppliesProps>()
 
 const isGrowing = computed(() => props.filters.status === 'growing')
 
-// ─── Growing post actions (Post-level: harvest + delete only) ─────────────────
+// ─── Growing post actions ─────────────────────────────────────────────────────
 
 const formOpen = ref(false)
 const activeSupply = ref<FarmerSupplyResource | null>(null)
@@ -69,11 +70,13 @@ function handleDeletePost() {
 	})
 }
 
-// ─── PostItem actions (fulfill, archive, delete) ──────────────────────────────
+// ─── PostItem actions ─────────────────────────────────────────────────────────
 
+const editItemDialogOpen = ref(false)
 const fulfillDialogOpen = ref(false)
 const archiveDialogOpen = ref(false)
 const deleteItemDialogOpen = ref(false)
+const itemToEdit = ref<DealerPostItemResource | null>(null)
 const itemToFulfill = ref<DealerPostItemResource | null>(null)
 const itemToArchive = ref<DealerPostItemResource | null>(null)
 const itemToDelete = ref<DealerPostItemResource | null>(null)
@@ -82,6 +85,10 @@ const fulfillForm = useForm({})
 const archiveForm = useForm({})
 const deleteItemForm = useForm({})
 
+function openEditItem(item: DealerPostItemResource) {
+	itemToEdit.value = item
+	editItemDialogOpen.value = true
+}
 function openFulfill(item: DealerPostItemResource) {
 	itemToFulfill.value = item
 	fulfillDialogOpen.value = true
@@ -149,14 +156,14 @@ function handlePageChange(page: number) {
 	})
 }
 
-function actionsFor(status: string): Array<'fulfill' | 'archive' | 'delete'> {
+function actionsFor(status: string): Array<'edit' | 'fulfill' | 'archive' | 'delete'> {
 	switch (String(status)) {
 		case 'ongoing':
-			return ['fulfill', 'archive', 'delete']
+			return ['edit', 'delete']
 		case 'archived':
-			return ['fulfill', 'delete']
+			return ['edit', 'fulfill', 'delete']
 		case 'fulfilled':
-			return ['delete']
+			return ['edit', 'archive', 'delete']
 		default:
 			return []
 	}
@@ -205,7 +212,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 				</TabsList>
 			</Tabs>
 
-			<!-- ── Growing: Post-level cards (harvest + delete) ───────────────── -->
+			<!-- ── Growing ────────────────────────────────────────────────────── -->
 			<template v-if="isGrowing">
 				<Deferred data="growingPosts">
 					<template #fallback>
@@ -247,7 +254,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 				</Deferred>
 			</template>
 
-			<!-- ── Ongoing / Archived / Fulfilled: PostItem cards ────────────── -->
+			<!-- ── Ongoing / Archived / Fulfilled ────────────────────────────── -->
 			<template v-else>
 				<Deferred data="harvestedItems">
 					<template #fallback>
@@ -270,6 +277,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 							:item="item"
 							mode="supply"
 							:actions="actionsFor(filters.status)"
+							@edit="openEditItem(item)"
 							@fulfill="openFulfill(item)"
 							@archive="openArchive(item)"
 							@delete="openDeleteItem(item)"
@@ -306,6 +314,14 @@ const breadcrumbs: BreadcrumbItem[] = [
 		:supply="supplyToHarvest"
 		:variety-options="(varietyOptions as VarietyOptionsByVegetable)"
 		@update:open="harvestOpen = $event"
+	/>
+
+	<!-- PostItem edit -->
+	<PostItemEditDialog
+		:open="editItemDialogOpen"
+		:item="itemToEdit"
+		:update-url="itemToEdit ? updatePostItem(itemToEdit.id).url : ''"
+		@update:open="editItemDialogOpen = $event"
 	/>
 
 	<!-- Growing post delete -->

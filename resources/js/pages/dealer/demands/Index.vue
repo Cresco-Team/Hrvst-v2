@@ -8,13 +8,14 @@ import DemandForm from '@/components/features/dealer/DemandForm.vue'
 import Heading from '@/components/Heading.vue'
 import LargeCard from '@/components/shared/cards/LargeCard.vue'
 import PostItemCard from '@/components/shared/cards/PostItemCard.vue'
+import PostItemEditDialog from '@/components/shared/dialogs/PostItemEditDialog.vue'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import AppLayout from '@/layouts/AppLayout.vue'
 import dealer from '@/routes/dealer'
 import { index } from '@/routes/dealer/demands'
-import { archive, destroy, fulfill } from '@/routes/dealer/post-items'
+import { archive, destroy, fulfill, update as updatePostItem } from '@/routes/dealer/post-items'
 import type {
 	BreadcrumbItem,
 	DealerDemandsProps,
@@ -31,10 +32,12 @@ const formOpen = ref(false)
 
 // ─── PostItem actions ─────────────────────────────────────────────────────────
 
+const editItemDialogOpen = ref(false)
 const fulfillDialogOpen = ref(false)
 const archiveDialogOpen = ref(false)
 const deleteDialogOpen = ref(false)
 
+const itemToEdit = ref<DealerPostItemResource | null>(null)
 const itemToFulfill = ref<DealerPostItemResource | null>(null)
 const itemToArchive = ref<DealerPostItemResource | null>(null)
 const itemToDelete = ref<DealerPostItemResource | null>(null)
@@ -43,6 +46,10 @@ const fulfillForm = useForm({})
 const archiveForm = useForm({})
 const deleteForm = useForm({})
 
+function openEditItem(item: DealerPostItemResource) {
+	itemToEdit.value = item
+	editItemDialogOpen.value = true
+}
 function openFulfill(item: DealerPostItemResource) {
 	itemToFulfill.value = item
 	fulfillDialogOpen.value = true
@@ -109,14 +116,14 @@ function handlePageChange(page: number) {
 	})
 }
 
-function actionsFor(status: string): Array<'fulfill' | 'archive' | 'delete'> {
+function actionsFor(status: string): Array<'edit' | 'fulfill' | 'archive' | 'delete'> {
 	switch (String(status)) {
 		case 'ongoing':
-			return ['fulfill', 'archive', 'delete']
+			return ['edit', 'delete']
 		case 'archived':
-			return ['fulfill', 'delete']
+			return ['edit', 'fulfill', 'delete']
 		case 'fulfilled':
-			return ['delete']
+			return ['edit', 'archive', 'delete']
 		default:
 			return []
 	}
@@ -186,6 +193,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 						:item="item"
 						mode="demand"
 						:actions="actionsFor(filters.status)"
+						@edit="openEditItem(item)"
 						@fulfill="openFulfill(item)"
 						@archive="openArchive(item)"
 						@delete="openDelete(item)"
@@ -223,6 +231,14 @@ const breadcrumbs: BreadcrumbItem[] = [
 		:vegetable-options="(vegetableOptions as VegetableOptionsByCategory)"
 		:variety-options="(varietyOptions as VarietyOptionsByVegetable)"
 		@update:open="formOpen = $event"
+	/>
+
+	<!-- PostItem edit -->
+	<PostItemEditDialog
+		:open="editItemDialogOpen"
+		:item="itemToEdit"
+		:update-url="itemToEdit ? updatePostItem(itemToEdit.id).url : ''"
+		@update:open="editItemDialogOpen = $event"
 	/>
 
 	<!-- Action dialogs -->

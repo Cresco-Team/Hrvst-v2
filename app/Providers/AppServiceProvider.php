@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\Marketplace\Post;
+use App\Models\Marketplace\PostItem;
 use App\Models\Product\Variety;
 use App\Models\Product\Vegetable;
 use App\Models\Profiles\DealerProfile;
@@ -10,6 +11,7 @@ use App\Models\Profiles\FarmerProfile;
 use App\Models\User;
 use App\Observers\PostObserver;
 use App\Observers\VarietyObserver;
+use App\Policies\Marketplace\PostItemPolicy;
 use App\Policies\Marketplace\PostPolicy;
 use App\Policies\Profiles\DealerPolicy;
 use App\Policies\Profiles\FarmerPolicy;
@@ -45,6 +47,7 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(DealerProfile::class, DealerPolicy::class);
         Gate::policy(Vegetable::class, VegetablePolicy::class);
         Gate::policy(Post::class, PostPolicy::class);
+        Gate::policy(PostItem::class, PostItemPolicy::class);
 
         Gate::define('not-admin', function (User $user) {
             return $user->hasRole('admin') === false;
@@ -52,6 +55,7 @@ class AppServiceProvider extends ServiceProvider
 
         Variety::observe(VarietyObserver::class);
         Post::observe(PostObserver::class);
+        PostItem::observe(PostObserver::class);
     }
 
     protected function configureDefaults(): void
