@@ -37,7 +37,7 @@ class PostItemController extends Controller
 
         $action->handle($postItem);
 
-        return redirect()->route('dealer.demands.index', ['status' => 'ongoing'])
+        return redirect()->route('dealer.demands.index', ['status' => 'archived'])
             ->with('flash', ['type' => 'success', 'message' => 'Item marked as fulfilled.']);
     }
 
@@ -50,7 +50,7 @@ class PostItemController extends Controller
 
         $action->handle($postItem);
 
-        return redirect()->route('dealer.demands.index', ['status' => 'ongoing'])
+        return redirect()->route('dealer.demands.index', ['status' => 'archived'])
             ->with('flash', ['type' => 'success', 'message' => 'Item archived.']);
     }
 
