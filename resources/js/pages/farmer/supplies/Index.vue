@@ -159,11 +159,11 @@ function handlePageChange(page: number) {
 function actionsFor(status: string): Array<'edit' | 'fulfill' | 'archive' | 'delete'> {
 	switch (String(status)) {
 		case 'ongoing':
-			return ['edit', 'fulfill', 'archive', 'delete']
+			return ['edit', 'delete']
 		case 'archived':
 			return ['edit', 'fulfill', 'delete']
 		case 'fulfilled':
-			return ['edit', 'delete']
+			return ['edit', 'archive', 'delete']
 		default:
 			return []
 	}
