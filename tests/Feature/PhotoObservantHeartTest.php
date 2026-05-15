@@ -1,9 +1,10 @@
 <?php
 
+use App\Enums\PostItemStatus;
 use App\Enums\PostStatus;
 use App\Enums\PostType;
+use App\Models\Interaction\PostHeart;
 use App\Models\Marketplace\Post;
-use App\Models\Marketplace\PostHeart;
 use App\Models\Marketplace\PostItem;
 use App\Models\Product\Category;
 use App\Models\Product\Variety;
@@ -32,22 +33,24 @@ function statsRow(int $vegetableId, string $periodDate): ?object
         ->first();
 }
 
-// ─── PostObserver ─────────────────────────────────────────────────────────────
+// ─── PostItemObserver ─────────────────────────────────────────────────────────
 
-describe('PostObserver', function () {
+describe('PostItemObserver', function () {
 
-    it('increments supply_fulfilled_kg when supply is fulfilled', function () {
+    it('increments supply_fulfilled_kg when a supply item is fulfilled', function () {
         [$vegetable, $variety] = vegetableWithVariety();
         $user = User::factory()->create();
 
         $post = Post::factory()->for($user)->for($vegetable)->create([
             'type' => PostType::Supply,
-            'status' => PostStatus::Ongoing,
-            'scheduled_at' => now()->addDay(),
+            'status' => PostStatus::Harvested,
         ]);
-        PostItem::factory()->for($post)->for($variety)->create(['quantity_kg' => 150]);
+        $item = PostItem::factory()->for($post)->for($variety)->create([
+            'quantity_kg' => 150,
+            'status' => PostItemStatus::Ongoing,
+        ]);
 
-        $post->markAsFulfilled();
+        $item->markAsFulfilled();
 
         $periodDate = $post->created_at->startOfMonth()->toDateString();
         $row = statsRow($vegetable->id, $periodDate);
@@ -56,17 +59,20 @@ describe('PostObserver', function () {
             ->and((float) $row->supply_fulfilled_kg)->toBe(150.0);
     });
 
-    it('increments supply_archived_kg when supply is archived', function () {
+    it('increments supply_archived_kg when a supply item is archived', function () {
         [$vegetable, $variety] = vegetableWithVariety();
         $user = User::factory()->create();
 
         $post = Post::factory()->for($user)->for($vegetable)->create([
             'type' => PostType::Supply,
-            'status' => PostStatus::Ongoing,
+            'status' => PostStatus::Harvested,
         ]);
-        PostItem::factory()->for($post)->for($variety)->create(['quantity_kg' => 75]);
+        $item = PostItem::factory()->for($post)->for($variety)->create([
+            'quantity_kg' => 75,
+            'status' => PostItemStatus::Ongoing,
+        ]);
 
-        $post->markAsArchived();
+        $item->markAsArchived();
 
         $periodDate = $post->created_at->startOfMonth()->toDateString();
         $row = statsRow($vegetable->id, $periodDate);
@@ -74,18 +80,20 @@ describe('PostObserver', function () {
         expect((float) $row->supply_archived_kg)->toBe(75.0);
     });
 
-    it('increments demand_fulfilled_kg when demand is fulfilled', function () {
+    it('increments demand_fulfilled_kg when a demand item is fulfilled', function () {
         [$vegetable, $variety] = vegetableWithVariety();
         $user = User::factory()->create();
 
         $post = Post::factory()->for($user)->for($vegetable)->create([
             'type' => PostType::Demand,
-            'status' => PostStatus::Ongoing,
-            'scheduled_at' => now()->addDay(),
+            'status' => PostStatus::Harvested,
         ]);
-        PostItem::factory()->for($post)->for($variety)->create(['quantity_kg' => 200]);
+        $item = PostItem::factory()->for($post)->for($variety)->create([
+            'quantity_kg' => 200,
+            'status' => PostItemStatus::Ongoing,
+        ]);
 
-        $post->markAsFulfilled();
+        $item->markAsFulfilled();
 
         $periodDate = $post->created_at->startOfMonth()->toDateString();
         $row = statsRow($vegetable->id, $periodDate);
@@ -93,46 +101,41 @@ describe('PostObserver', function () {
         expect((float) $row->demand_fulfilled_kg)->toBe(200.0);
     });
 
-    it('does not create a stats row when a growing supply is archived', function () {
-        // Growing→archived should still track since we allow archiving growing posts
+    it('does not create a stats row for items that stay ongoing', function () {
         [$vegetable, $variety] = vegetableWithVariety();
         $user = User::factory()->create();
 
         $post = Post::factory()->for($user)->for($vegetable)->create([
             'type' => PostType::Supply,
-            'status' => PostStatus::Growing,
+            'status' => PostStatus::Harvested,
         ]);
 
-        $post->markAsArchived();
+        // Creating an Ongoing item does not trigger the observer's stat tracking
+        PostItem::factory()->for($post)->for($variety)->create([
+            'quantity_kg' => 75,
+            'status' => PostItemStatus::Ongoing,
+        ]);
 
-        // No items, so quantity is 0 but row may still be created
-        // The observer uses post->quantity_kg which no longer exists on the post itself
-        // This test documents the expected behaviour: no stats impact for growing→archived
-        // since there's no quantity on the post level.
-        // Adjust once observer is refactored to aggregate from post_items.
         $periodDate = $post->created_at->startOfMonth()->toDateString();
-        $row = statsRow($vegetable->id, $periodDate);
 
-        // Row may or may not exist — but supply_archived_kg should be 0
-        if ($row) {
-            expect((float) $row->supply_archived_kg)->toBe(0.0);
-        } else {
-            expect($row)->toBeNull();
-        }
+        expect(statsRow($vegetable->id, $periodDate))->toBeNull();
     });
 
-    it('decrements stat when a fulfilled post is soft-deleted', function () {
+    it('decrements stat when a fulfilled supply item is deleted', function () {
         [$vegetable, $variety] = vegetableWithVariety();
         $user = User::factory()->create();
 
         $post = Post::factory()->for($user)->for($vegetable)->create([
             'type' => PostType::Supply,
-            'status' => PostStatus::Fulfilled,
+            'status' => PostStatus::Harvested,
         ]);
-        PostItem::factory()->for($post)->for($variety)->create(['quantity_kg' => 100]);
+        $item = PostItem::factory()->for($post)->for($variety)->create([
+            'quantity_kg' => 100,
+            'status' => PostItemStatus::Fulfilled,
+        ]);
 
-        // Manually upsert a row first (simulates it being created on fulfill)
         $periodDate = $post->created_at->startOfMonth()->toDateString();
+
         DB::table('vegetable_monthly_stats')->upsert([[
             'vegetable_id' => $vegetable->id,
             'period_date' => $periodDate,
@@ -144,32 +147,34 @@ describe('PostObserver', function () {
             'updated_at' => now(),
         ]], ['vegetable_id', 'period_date'], ['updated_at']);
 
-        $post->delete();
+        $item->delete();
 
         $row = statsRow($vegetable->id, $periodDate);
         expect((float) $row->supply_fulfilled_kg)->toBe(0.0);
     });
 
-    it('accumulates across multiple posts in the same period', function () {
+    it('accumulates across multiple items in the same period', function () {
         [$vegetable, $variety] = vegetableWithVariety();
         $user = User::factory()->create();
 
-        $post1 = Post::factory()->for($user)->for($vegetable)->create([
+        $post = Post::factory()->for($user)->for($vegetable)->create([
             'type' => PostType::Supply,
-            'status' => PostStatus::Ongoing,
+            'status' => PostStatus::Harvested,
         ]);
-        PostItem::factory()->for($post1)->for($variety)->create(['quantity_kg' => 100]);
 
-        $post2 = Post::factory()->for($user)->for($vegetable)->create([
-            'type' => PostType::Supply,
-            'status' => PostStatus::Ongoing,
+        $item1 = PostItem::factory()->for($post)->for($variety)->create([
+            'quantity_kg' => 100,
+            'status' => PostItemStatus::Ongoing,
         ]);
-        PostItem::factory()->for($post2)->for($variety)->create(['quantity_kg' => 50]);
+        $item2 = PostItem::factory()->for($post)->for($variety)->create([
+            'quantity_kg' => 50,
+            'status' => PostItemStatus::Ongoing,
+        ]);
 
-        $post1->markAsFulfilled();
-        $post2->markAsFulfilled();
+        $item1->markAsFulfilled();
+        $item2->markAsFulfilled();
 
-        $periodDate = $post1->created_at->startOfMonth()->toDateString();
+        $periodDate = $post->created_at->startOfMonth()->toDateString();
         $row = statsRow($vegetable->id, $periodDate);
 
         expect((float) $row->supply_fulfilled_kg)->toBe(150.0);
@@ -186,7 +191,7 @@ describe('PostHeartToggle', function () {
         [$vegetable] = vegetableWithVariety();
         $post = Post::factory()->for($user)->for($vegetable)->create([
             'type' => PostType::Supply,
-            'status' => PostStatus::Ongoing,
+            'status' => PostStatus::Harvested,
         ]);
 
         actingAs($user)
@@ -203,7 +208,7 @@ describe('PostHeartToggle', function () {
         [$vegetable] = vegetableWithVariety();
         $post = Post::factory()->for($user)->for($vegetable)->create([
             'type' => PostType::Supply,
-            'status' => PostStatus::Ongoing,
+            'status' => PostStatus::Harvested,
             'hearts_count' => 1,
         ]);
         PostHeart::create(['user_id' => $user->id, 'post_id' => $post->id]);
@@ -222,12 +227,11 @@ describe('PostHeartToggle', function () {
         [$vegetable] = vegetableWithVariety();
         $post = Post::factory()->for($user)->for($vegetable)->create([
             'type' => PostType::Supply,
-            'status' => PostStatus::Ongoing,
+            'status' => PostStatus::Harvested,
             'hearts_count' => 0,
         ]);
         PostHeart::create(['user_id' => $user->id, 'post_id' => $post->id]);
 
-        // Force hearts_count to 0 to simulate a race condition / data inconsistency
         $post->update(['hearts_count' => 0]);
 
         actingAs($user)
@@ -242,20 +246,19 @@ describe('PostHeartToggle', function () {
         $user = User::factory()->create();
         $post = Post::factory()->for($user)->for($vegetable)->create([
             'type' => PostType::Supply,
-            'status' => PostStatus::Ongoing,
+            'status' => PostStatus::Harvested,
         ]);
 
         $this->postJson(route('posts.heart.toggle', $post))
             ->assertUnauthorized();
     });
 
-    it('toggling is idempotent under concurrent requests', function () {
-        // Simulates two sequential hearts — second should un-heart
+    it('toggling is idempotent under sequential requests', function () {
         $user = User::factory()->create();
         [$vegetable] = vegetableWithVariety();
         $post = Post::factory()->for($user)->for($vegetable)->create([
             'type' => PostType::Supply,
-            'status' => PostStatus::Ongoing,
+            'status' => PostStatus::Harvested,
         ]);
 
         actingAs($user)->postJson(route('posts.heart.toggle', $post));
