@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\PostItemStatus;
 use App\Enums\PostStatus;
 use App\Enums\PostType;
 use App\Models\Marketplace\Post;
@@ -34,23 +35,22 @@ function demandVegetableAndVarieties(): array
     return [$vegetable, $variety1, $variety2];
 }
 
-function validDemandPayload(Vegetable $vegetable, Variety $variety1, Variety $variety2, ?string $scheduledAt = null): array
+function validDemandPayload(Vegetable $vegetable, Variety $variety1, Variety $variety2, ?string $scheduledDate = null): array
 {
     return [
         'vegetable_id' => $vegetable->id,
-        'scheduled_at' => $scheduledAt ?? now()->addDays(5)->toDateString(),
+        'scheduled_date' => $scheduledDate ?? now()->addDays(5)->toDateString(),
+        'time_slot' => 'morning',
         'items' => [
             [
                 'variety_id' => $variety1->id,
                 'quantity_kg' => 100,
                 'unit_price' => 20.00,
-                'time_slot' => 'morning',
             ],
             [
                 'variety_id' => $variety2->id,
                 'quantity_kg' => 50,
                 'unit_price' => null,
-                'time_slot' => 'afternoon',
             ],
         ],
     ];
@@ -70,19 +70,18 @@ describe('CreateDemand', function () {
 
         $post = Post::first();
         expect($post)->not->toBeNull()
-            ->and($post->status)->toBe(PostStatus::Ongoing)
+            ->and($post->status)->toBe(PostStatus::Harvested)
             ->and($post->type)->toBe(PostType::Demand)
             ->and($post->vegetable_id)->toBe($vegetable->id)
+            ->and($post->time_slot->value)->toBe('morning')
             ->and($post->postItems)->toHaveCount(2);
 
         $item1 = $post->postItems->firstWhere('variety_id', $variety1->id);
         expect((float) $item1->quantity_kg)->toBe(100.0)
-            ->and((float) $item1->unit_price)->toBe(20.0)
-            ->and($item1->time_slot->value)->toBe('morning');
+            ->and((float) $item1->unit_price)->toBe(20.0);
 
         $item2 = $post->postItems->firstWhere('variety_id', $variety2->id);
-        expect($item2->unit_price)->toBeNull()
-            ->and($item2->time_slot->value)->toBe('afternoon');
+        expect($item2->unit_price)->toBeNull();
     });
 
     it('demand creation is atomic — no post exists if items fail', function () {
@@ -92,9 +91,10 @@ describe('CreateDemand', function () {
         actingAs($dealer)
             ->post(route('dealer.demands.store'), [
                 'vegetable_id' => $vegetable->id,
-                'scheduled_at' => now()->addDay()->toDateString(),
+                'scheduled_date' => now()->addDay()->toDateString(),
+                'time_slot' => 'morning',
                 'items' => [
-                    ['variety_id' => 99999, 'quantity_kg' => 10, 'unit_price' => null, 'time_slot' => 'morning'],
+                    ['variety_id' => 99999, 'quantity_kg' => 10, 'unit_price' => null],
                 ],
             ])
             ->assertSessionHasErrors('items.0.variety_id');
@@ -114,22 +114,22 @@ describe('CreateDemand', function () {
             ->assertSessionHasErrors('vegetable_id');
     });
 
-    it('rejects past scheduled_at', function () {
+    it('rejects past scheduled_date', function () {
         $dealer = dealerWithProfile();
         [$vegetable, $variety1, $variety2] = demandVegetableAndVarieties();
 
         actingAs($dealer)
             ->post(route('dealer.demands.store'), validDemandPayload($vegetable, $variety1, $variety2, now()->subDay()->toDateString()))
-            ->assertSessionHasErrors('scheduled_at');
+            ->assertSessionHasErrors('scheduled_date');
     });
 
-    it('rejects scheduled_at beyond 3 months', function () {
+    it('rejects scheduled_date beyond 3 months', function () {
         $dealer = dealerWithProfile();
         [$vegetable, $variety1, $variety2] = demandVegetableAndVarieties();
 
         actingAs($dealer)
             ->post(route('dealer.demands.store'), validDemandPayload($vegetable, $variety1, $variety2, now()->addMonths(4)->toDateString()))
-            ->assertSessionHasErrors('scheduled_at');
+            ->assertSessionHasErrors('scheduled_date');
     });
 
     it('rejects empty items array', function () {
@@ -139,7 +139,8 @@ describe('CreateDemand', function () {
         actingAs($dealer)
             ->post(route('dealer.demands.store'), [
                 'vegetable_id' => $vegetable->id,
-                'scheduled_at' => now()->addDay()->toDateString(),
+                'scheduled_date' => now()->addDay()->toDateString(),
+                'time_slot' => 'morning',
                 'items' => [],
             ])
             ->assertSessionHasErrors('items');
@@ -152,9 +153,10 @@ describe('CreateDemand', function () {
         actingAs($dealer)
             ->post(route('dealer.demands.store'), [
                 'vegetable_id' => $vegetable->id,
-                'scheduled_at' => now()->addDay()->toDateString(),
+                'scheduled_date' => now()->addDay()->toDateString(),
+                'time_slot' => 'morning',
                 'items' => [
-                    ['variety_id' => $variety1->id, 'quantity_kg' => 0, 'unit_price' => null, 'time_slot' => 'morning'],
+                    ['variety_id' => $variety1->id, 'quantity_kg' => 0, 'unit_price' => null],
                 ],
             ])
             ->assertSessionHasErrors('items.0.quantity_kg');
@@ -185,39 +187,39 @@ describe('CreateDemand', function () {
 
 describe('UpdateDemand', function () {
 
-    it('dealer can update scheduled_at on an ongoing demand', function () {
+    it('dealer can update scheduled_date on an active demand', function () {
         $dealer = dealerWithProfile();
         [$vegetable, $variety1] = demandVegetableAndVarieties();
         $post = Post::factory()->for($dealer)->for($vegetable)->create([
             'type' => PostType::Demand,
-            'status' => PostStatus::Ongoing,
-            'scheduled_at' => now()->addDays(5),
+            'status' => PostStatus::Harvested,
+            'scheduled_date' => now()->addDays(5),
         ]);
         PostItem::factory()->for($post)->for($variety1)->create();
 
         $newDate = now()->addDays(10)->toDateString();
 
         actingAs($dealer)
-            ->put(route('dealer.demands.update', $post), ['scheduled_at' => $newDate])
+            ->put(route('dealer.demands.update', $post), ['scheduled_date' => $newDate])
             ->assertRedirect(route('dealer.demands.index'));
 
-        expect($post->fresh()->scheduled_at->toDateString())->toBe($newDate);
+        expect($post->fresh()->scheduled_date->toDateString())->toBe($newDate);
     });
 
-    it('updating items replaces all existing items', function () {
+    it('updating items replaces all existing ongoing items', function () {
         $dealer = dealerWithProfile();
         [$vegetable, $variety1, $variety2] = demandVegetableAndVarieties();
         $post = Post::factory()->for($dealer)->for($vegetable)->create([
             'type' => PostType::Demand,
-            'status' => PostStatus::Ongoing,
-            'scheduled_at' => now()->addDays(5),
+            'status' => PostStatus::Harvested,
+            'scheduled_date' => now()->addDays(5),
         ]);
         PostItem::factory()->for($post)->for($variety1)->create(['quantity_kg' => 50]);
 
         actingAs($dealer)
             ->put(route('dealer.demands.update', $post), [
                 'items' => [
-                    ['variety_id' => $variety2->id, 'quantity_kg' => 200, 'unit_price' => 15, 'time_slot' => 'evening'],
+                    ['variety_id' => $variety2->id, 'quantity_kg' => 200, 'unit_price' => 15],
                 ],
             ])
             ->assertRedirect();
@@ -228,80 +230,72 @@ describe('UpdateDemand', function () {
             ->and((float) $post->postItems->first()->quantity_kg)->toBe(200.0);
     });
 
-    it('dealer cannot update an archived demand', function () {
-        $dealer = dealerWithProfile();
-        [$vegetable, $variety1] = demandVegetableAndVarieties();
-        $post = Post::factory()->for($dealer)->for($vegetable)->create([
-            'type' => PostType::Demand,
-            'status' => PostStatus::Archived,
-            'scheduled_at' => now()->subDay(),
-        ]);
-
-        actingAs($dealer)
-            ->put(route('dealer.demands.update', $post), ['scheduled_at' => now()->addDay()->toDateString()])
-            ->assertForbidden();
-    });
-
     it('dealer cannot update another dealer\'s demand', function () {
         $dealer = dealerWithProfile();
         $other = dealerWithProfile();
         [$vegetable] = demandVegetableAndVarieties();
         $post = Post::factory()->for($other)->for($vegetable)->create([
             'type' => PostType::Demand,
-            'status' => PostStatus::Ongoing,
-            'scheduled_at' => now()->addDay(),
+            'status' => PostStatus::Harvested,
+            'scheduled_date' => now()->addDay(),
         ]);
 
         actingAs($dealer)
-            ->put(route('dealer.demands.update', $post), ['scheduled_at' => now()->addDays(2)->toDateString()])
+            ->put(route('dealer.demands.update', $post), ['scheduled_date' => now()->addDays(2)->toDateString()])
             ->assertForbidden();
     });
 
 });
 
-// ─── Archive / Fulfill / Delete Demand ───────────────────────────────────────
+// ─── Demand Item Lifecycle ────────────────────────────────────────────────────
 
 describe('DemandLifecycle', function () {
 
-    it('dealer can archive an ongoing demand', function () {
+    it('dealer can archive an ongoing demand item', function () {
         $dealer = dealerWithProfile();
-        [$vegetable] = demandVegetableAndVarieties();
+        [$vegetable, $variety1] = demandVegetableAndVarieties();
         $post = Post::factory()->for($dealer)->for($vegetable)->create([
             'type' => PostType::Demand,
-            'status' => PostStatus::Ongoing,
-            'scheduled_at' => now()->addDay(),
+            'status' => PostStatus::Harvested,
+        ]);
+        $item = PostItem::factory()->for($post)->for($variety1)->create([
+            'status' => PostItemStatus::Ongoing,
         ]);
 
         actingAs($dealer)
-            ->post(route('dealer.demands.archive', $post))
+            ->post(route('dealer.post-items.archive', $item))
             ->assertRedirect();
 
-        expect($post->fresh()->status)->toBe(PostStatus::Archived);
+        expect($item->fresh()->status)->toBe(PostItemStatus::Archived);
     });
 
-    it('dealer can fulfill an ongoing demand', function () {
+    it('dealer can fulfill an ongoing demand item', function () {
         $dealer = dealerWithProfile();
-        [$vegetable] = demandVegetableAndVarieties();
+        [$vegetable, $variety1] = demandVegetableAndVarieties();
         $post = Post::factory()->for($dealer)->for($vegetable)->create([
             'type' => PostType::Demand,
-            'status' => PostStatus::Ongoing,
-            'scheduled_at' => now()->addDay(),
+            'status' => PostStatus::Harvested,
+        ]);
+        $item = PostItem::factory()->for($post)->for($variety1)->create([
+            'status' => PostItemStatus::Ongoing,
         ]);
 
         actingAs($dealer)
-            ->post(route('dealer.demands.fulfill', $post))
+            ->post(route('dealer.post-items.fulfill', $item))
             ->assertRedirect();
 
-        expect($post->fresh()->status)->toBe(PostStatus::Fulfilled);
+        expect($item->fresh()->status)->toBe(PostItemStatus::Fulfilled);
     });
 
-    it('dealer cannot delete an ongoing demand', function () {
+    it('dealer cannot delete a demand with ongoing items', function () {
         $dealer = dealerWithProfile();
-        [$vegetable] = demandVegetableAndVarieties();
+        [$vegetable, $variety1] = demandVegetableAndVarieties();
         $post = Post::factory()->for($dealer)->for($vegetable)->create([
             'type' => PostType::Demand,
-            'status' => PostStatus::Ongoing,
-            'scheduled_at' => now()->addDay(),
+            'status' => PostStatus::Harvested,
+        ]);
+        PostItem::factory()->for($post)->for($variety1)->create([
+            'status' => PostItemStatus::Ongoing,
         ]);
 
         actingAs($dealer)
@@ -309,13 +303,15 @@ describe('DemandLifecycle', function () {
             ->assertForbidden();
     });
 
-    it('dealer can delete an archived demand', function () {
+    it('dealer can delete a demand with no ongoing items', function () {
         $dealer = dealerWithProfile();
-        [$vegetable] = demandVegetableAndVarieties();
+        [$vegetable, $variety1] = demandVegetableAndVarieties();
         $post = Post::factory()->for($dealer)->for($vegetable)->create([
             'type' => PostType::Demand,
-            'status' => PostStatus::Archived,
-            'scheduled_at' => now()->subDay(),
+            'status' => PostStatus::Harvested,
+        ]);
+        PostItem::factory()->for($post)->for($variety1)->create([
+            'status' => PostItemStatus::Archived,
         ]);
 
         actingAs($dealer)
@@ -325,21 +321,23 @@ describe('DemandLifecycle', function () {
         expect(Post::find($post->id))->toBeNull();
     });
 
-    it('deleting a demand soft-deletes its items', function () {
+    it('deleting a demand soft-deletes the post record', function () {
         $dealer = dealerWithProfile();
         [$vegetable, $variety1] = demandVegetableAndVarieties();
         $post = Post::factory()->for($dealer)->for($vegetable)->create([
             'type' => PostType::Demand,
-            'status' => PostStatus::Archived,
+            'status' => PostStatus::Harvested,
         ]);
-        $item = PostItem::factory()->for($post)->for($variety1)->create();
+        PostItem::factory()->for($post)->for($variety1)->create([
+            'status' => PostItemStatus::Fulfilled,
+        ]);
 
         actingAs($dealer)
             ->delete(route('dealer.demands.destroy', $post))
             ->assertRedirect();
 
-        expect(PostItem::find($item->id))->toBeNull()
-            ->and(PostItem::withTrashed()->find($item->id))->not->toBeNull();
+        expect(Post::find($post->id))->toBeNull()
+            ->and(Post::withTrashed()->find($post->id))->not->toBeNull();
     });
 
 });
@@ -357,7 +355,7 @@ describe('CrossRoleAccess', function () {
             ->assertForbidden();
     });
 
-    it('unauthenticated user is redirected from supply routes', function () {
+    it('unauthenticated user is redirected from supply and demand routes', function () {
         $this->post(route('farmer.supplies.store'), [])->assertRedirect(route('login'));
         $this->post(route('dealer.demands.store'), [])->assertRedirect(route('login'));
     });
