@@ -1,7 +1,6 @@
 <?php
 
 use App\Models\User;
-use Illuminate\Support\Facades\RateLimiter;
 use Laravel\Fortify\Features;
 
 test('login screen can be rendered', function () {
@@ -13,8 +12,8 @@ test('login screen can be rendered', function () {
 test('users can authenticate using the login screen', function () {
     $user = User::factory()->create();
 
-    $response = $this->post(route('login.store'), [
-        'email' => $user->email,
+    $response = $this->post(route('login'), [
+        'phone_number' => $user->phone_number,
         'password' => 'password',
     ]);
 
@@ -41,7 +40,7 @@ test('users with two factor enabled are redirected to two factor challenge', fun
     ])->save();
 
     $response = $this->post(route('login'), [
-        'email' => $user->email,
+        'phone_number' => $user->phone_number,
         'password' => 'password',
     ]);
 
@@ -53,8 +52,8 @@ test('users with two factor enabled are redirected to two factor challenge', fun
 test('users can not authenticate with invalid password', function () {
     $user = User::factory()->create();
 
-    $this->post(route('login.store'), [
-        'email' => $user->email,
+    $this->post(route('login'), [
+        'phone_number' => $user->phone_number,
         'password' => 'wrong-password',
     ]);
 
@@ -73,10 +72,15 @@ test('users can logout', function () {
 test('users are rate limited', function () {
     $user = User::factory()->create();
 
-    RateLimiter::increment(md5('login'.implode('|', [$user->email, '127.0.0.1'])), amount: 5);
+    for ($i = 0; $i < 5; $i++) {
+        $this->post(route('login'), [
+            'phone_number' => $user->phone_number,
+            'password' => 'wrong-password',
+        ]);
+    }
 
-    $response = $this->post(route('login.store'), [
-        'email' => $user->email,
+    $response = $this->post(route('login'), [
+        'phone_number' => $user->phone_number,
         'password' => 'wrong-password',
     ]);
 
