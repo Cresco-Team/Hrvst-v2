@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\PostItemStatus;
 use App\Enums\PostStatus;
 use App\Enums\PostType;
 use App\Models\Marketplace\Post;
@@ -65,7 +66,7 @@ describe('CreateSupply', function () {
             ->and($post->vegetable_id)->toBe($vegetable->id)
             ->and($post->target_month)->toBe(now()->format('Y-m'))
             ->and((float) $post->estimated_total_weight)->toBe(500.0)
-            ->and($post->scheduled_at)->toBeNull()
+            ->and($post->scheduled_date)->toBeNull()
             ->and($post->postItems)->toHaveCount(0);
     });
 
@@ -159,13 +160,13 @@ describe('UpdateSupply', function () {
         expect($post->fresh()->estimated_total_weight)->toBe('350.00');
     });
 
-    it('farmer cannot update an ongoing supply', function () {
+    it('farmer cannot update a harvested supply', function () {
         $farmer = farmerWithProfile();
         $vegetable = makeVegetable();
         $post = Post::factory()->for($farmer)->for($vegetable)->create([
             'type' => PostType::Supply,
-            'status' => PostStatus::Ongoing,
-            'scheduled_at' => now()->addDay(),
+            'status' => PostStatus::Harvested,
+            'scheduled_date' => now()->addDay(),
         ]);
 
         actingAs($farmer)
@@ -197,7 +198,7 @@ describe('UpdateSupply', function () {
 
 describe('HarvestSupply', function () {
 
-    it('farmer can harvest a growing supply, creating items and transitioning to ongoing', function () {
+    it('farmer can harvest a growing supply, creating items and transitioning to harvested', function () {
         $farmer = farmerWithProfile();
         $vegetable = makeVegetable();
         $variety1 = makeVariety($vegetable);
@@ -209,38 +210,29 @@ describe('HarvestSupply', function () {
             'estimated_total_weight' => 200,
         ]);
 
-        $scheduledAt = now()->addDays(3)->toDateString();
+        $scheduledDate = now()->addDays(3)->toDateString();
 
         actingAs($farmer)
             ->post(route('farmer.supplies.harvest', $post), [
-                'scheduled_at' => $scheduledAt,
+                'scheduled_date' => $scheduledDate,
+                'time_slot' => 'morning',
                 'items' => [
-                    [
-                        'variety_id' => $variety1->id,
-                        'quantity_kg' => 120,
-                        'unit_price' => 25.00,
-                        'time_slot' => 'morning',
-                    ],
-                    [
-                        'variety_id' => $variety2->id,
-                        'quantity_kg' => 80,
-                        'unit_price' => 30.00,
-                        'time_slot' => 'afternoon',
-                    ],
+                    ['variety_id' => $variety1->id, 'quantity_kg' => 120, 'unit_price' => 25.00],
+                    ['variety_id' => $variety2->id, 'quantity_kg' => 80, 'unit_price' => 30.00],
                 ],
             ])
             ->assertRedirect(route('farmer.supplies.index'));
 
         $post->refresh();
 
-        expect($post->status)->toBe(PostStatus::Ongoing)
-            ->and($post->scheduled_at->toDateString())->toBe($scheduledAt)
+        expect($post->status)->toBe(PostStatus::Harvested)
+            ->and($post->scheduled_date->toDateString())->toBe($scheduledDate)
+            ->and($post->time_slot->value)->toBe('morning')
             ->and($post->postItems)->toHaveCount(2);
 
         $item1 = $post->postItems->firstWhere('variety_id', $variety1->id);
         expect((float) $item1->quantity_kg)->toBe(120.0)
-            ->and((float) $item1->unit_price)->toBe(25.0)
-            ->and($item1->time_slot->value)->toBe('morning');
+            ->and((float) $item1->unit_price)->toBe(25.0);
     });
 
     it('harvest is atomic — rolls back on failure', function () {
@@ -251,13 +243,12 @@ describe('HarvestSupply', function () {
             'status' => PostStatus::Growing,
         ]);
 
-        // Non-existent variety_id should fail validation before DB, but let's
-        // verify no partial items exist if something slips through.
         actingAs($farmer)
             ->post(route('farmer.supplies.harvest', $post), [
-                'scheduled_at' => now()->addDay()->toDateString(),
+                'scheduled_date' => now()->addDay()->toDateString(),
+                'time_slot' => 'morning',
                 'items' => [
-                    ['variety_id' => 99999, 'quantity_kg' => 10, 'unit_price' => 5, 'time_slot' => 'morning'],
+                    ['variety_id' => 99999, 'quantity_kg' => 10, 'unit_price' => 5],
                 ],
             ])
             ->assertSessionHasErrors('items.0.variety_id');
@@ -266,18 +257,19 @@ describe('HarvestSupply', function () {
             ->and($post->fresh()->status)->toBe(PostStatus::Growing);
     });
 
-    it('cannot harvest a supply that is already ongoing', function () {
+    it('cannot harvest a supply that is already harvested', function () {
         $farmer = farmerWithProfile();
         $vegetable = makeVegetable();
         $post = Post::factory()->for($farmer)->for($vegetable)->create([
             'type' => PostType::Supply,
-            'status' => PostStatus::Ongoing,
-            'scheduled_at' => now()->addDay(),
+            'status' => PostStatus::Harvested,
+            'scheduled_date' => now()->addDay(),
         ]);
 
         actingAs($farmer)
             ->post(route('farmer.supplies.harvest', $post), [
-                'scheduled_at' => now()->addDay()->toDateString(),
+                'scheduled_date' => now()->addDay()->toDateString(),
+                'time_slot' => 'morning',
                 'items' => [],
             ])
             ->assertForbidden();
@@ -293,13 +285,14 @@ describe('HarvestSupply', function () {
 
         actingAs($farmer)
             ->post(route('farmer.supplies.harvest', $post), [
-                'scheduled_at' => now()->addDay()->toDateString(),
+                'scheduled_date' => now()->addDay()->toDateString(),
+                'time_slot' => 'morning',
                 'items' => [],
             ])
             ->assertSessionHasErrors('items');
     });
 
-    it('harvest rejects a past scheduled_at', function () {
+    it('harvest rejects a past scheduled_date', function () {
         $farmer = farmerWithProfile();
         $vegetable = makeVegetable();
         $variety = makeVariety($vegetable);
@@ -310,12 +303,13 @@ describe('HarvestSupply', function () {
 
         actingAs($farmer)
             ->post(route('farmer.supplies.harvest', $post), [
-                'scheduled_at' => now()->subDay()->toDateString(),
+                'scheduled_date' => now()->subDay()->toDateString(),
+                'time_slot' => 'morning',
                 'items' => [
-                    ['variety_id' => $variety->id, 'quantity_kg' => 10, 'unit_price' => 5, 'time_slot' => 'morning'],
+                    ['variety_id' => $variety->id, 'quantity_kg' => 10, 'unit_price' => 5],
                 ],
             ])
-            ->assertSessionHasErrors('scheduled_at');
+            ->assertSessionHasErrors('scheduled_date');
     });
 
     it('cannot harvest another farmer\'s supply', function () {
@@ -330,9 +324,10 @@ describe('HarvestSupply', function () {
 
         actingAs($farmer)
             ->post(route('farmer.supplies.harvest', $post), [
-                'scheduled_at' => now()->addDay()->toDateString(),
+                'scheduled_date' => now()->addDay()->toDateString(),
+                'time_slot' => 'morning',
                 'items' => [
-                    ['variety_id' => $variety->id, 'quantity_kg' => 10, 'unit_price' => 5, 'time_slot' => 'morning'],
+                    ['variety_id' => $variety->id, 'quantity_kg' => 10, 'unit_price' => 5],
                 ],
             ])
             ->assertForbidden();
@@ -340,58 +335,11 @@ describe('HarvestSupply', function () {
 
 });
 
-// ─── Archive / Fulfill / Delete Supply ───────────────────────────────────────
+// ─── Supply Item Lifecycle ────────────────────────────────────────────────────
 
 describe('SupplyLifecycle', function () {
 
-    it('farmer can archive a growing supply', function () {
-        $farmer = farmerWithProfile();
-        $vegetable = makeVegetable();
-        $post = Post::factory()->for($farmer)->for($vegetable)->create([
-            'type' => PostType::Supply,
-            'status' => PostStatus::Growing,
-        ]);
-
-        actingAs($farmer)
-            ->post(route('farmer.supplies.archive', $post))
-            ->assertRedirect();
-
-        expect($post->fresh()->status)->toBe(PostStatus::Archived);
-    });
-
-    it('farmer can archive an ongoing supply', function () {
-        $farmer = farmerWithProfile();
-        $vegetable = makeVegetable();
-        $post = Post::factory()->for($farmer)->for($vegetable)->create([
-            'type' => PostType::Supply,
-            'status' => PostStatus::Ongoing,
-            'scheduled_at' => now()->addDay(),
-        ]);
-
-        actingAs($farmer)
-            ->post(route('farmer.supplies.archive', $post))
-            ->assertRedirect();
-
-        expect($post->fresh()->status)->toBe(PostStatus::Archived);
-    });
-
-    it('farmer can fulfill an ongoing supply', function () {
-        $farmer = farmerWithProfile();
-        $vegetable = makeVegetable();
-        $post = Post::factory()->for($farmer)->for($vegetable)->create([
-            'type' => PostType::Supply,
-            'status' => PostStatus::Ongoing,
-            'scheduled_at' => now()->addDay(),
-        ]);
-
-        actingAs($farmer)
-            ->post(route('farmer.supplies.fulfill', $post))
-            ->assertRedirect();
-
-        expect($post->fresh()->status)->toBe(PostStatus::Fulfilled);
-    });
-
-    it('farmer can delete any of their own supplies', function () {
+    it('farmer can delete a growing supply', function () {
         $farmer = farmerWithProfile();
         $vegetable = makeVegetable();
         $post = Post::factory()->for($farmer)->for($vegetable)->create([
@@ -404,6 +352,59 @@ describe('SupplyLifecycle', function () {
             ->assertRedirect();
 
         expect(Post::find($post->id))->toBeNull();
+    });
+
+    it('farmer can delete a harvested supply', function () {
+        $farmer = farmerWithProfile();
+        $vegetable = makeVegetable();
+        $post = Post::factory()->for($farmer)->for($vegetable)->create([
+            'type' => PostType::Supply,
+            'status' => PostStatus::Harvested,
+        ]);
+
+        actingAs($farmer)
+            ->delete(route('farmer.supplies.destroy', $post))
+            ->assertRedirect();
+
+        expect(Post::find($post->id))->toBeNull();
+    });
+
+    it('farmer can archive an ongoing supply item', function () {
+        $farmer = farmerWithProfile();
+        $vegetable = makeVegetable();
+        $variety = makeVariety($vegetable);
+        $post = Post::factory()->for($farmer)->for($vegetable)->create([
+            'type' => PostType::Supply,
+            'status' => PostStatus::Harvested,
+        ]);
+        $item = PostItem::factory()->for($post)->for($variety)->create([
+            'status' => PostItemStatus::Ongoing,
+        ]);
+
+        actingAs($farmer)
+            ->post(route('farmer.post-items.archive', $item))
+            ->assertRedirect();
+
+        expect($item->fresh()->status)->toBe(PostItemStatus::Archived);
+    });
+
+    it('farmer can fulfill an ongoing supply item', function () {
+        $farmer = farmerWithProfile();
+        $vegetable = makeVegetable();
+        $variety = makeVariety($vegetable);
+        $post = Post::factory()->for($farmer)->for($vegetable)->create([
+            'type' => PostType::Supply,
+            'status' => PostStatus::Harvested,
+        ]);
+        $item = PostItem::factory()->for($post)->for($variety)->create([
+            'status' => PostItemStatus::Ongoing,
+        ]);
+
+        actingAs($farmer)
+            ->post(route('farmer.post-items.fulfill', $item))
+            ->assertRedirect();
+
+        expect($item->fresh()->status)->toBe(PostItemStatus::Fulfilled);
     });
 
 });
