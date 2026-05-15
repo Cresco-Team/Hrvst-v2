@@ -2,6 +2,7 @@
 
 namespace App\Policies\Marketplace;
 
+use App\Enums\PostItemStatus;
 use App\Enums\PostStatus;
 use App\Enums\PostType;
 use App\Models\Marketplace\Post;
@@ -31,9 +32,13 @@ class PostPolicy
 
     public function update(User $user, Post $post): bool
     {
-        return $user->id === $post->user_id
-            && $post->status === PostStatus::Growing
-            && $post->target_month <= now()->addMonth()->format('Y-m');
+        return match ($post->type) {
+            PostType::Supply => $user->id === $post->user_id
+                && $post->status === PostStatus::Growing
+                && $post->target_month <= now()->addMonth()->format('Y-m'),
+            PostType::Demand => $user->id === $post->user_id
+                && $post->status === PostStatus::Harvested,
+        };
     }
 
     public function harvest(User $user, Post $post): bool
@@ -57,8 +62,11 @@ class PostPolicy
     {
         return match ($post->type) {
             PostType::Supply => $user->id === $post->user_id || $user->hasRole('admin'),
+            // Demand can only be deleted when no PostItems are still ongoing
             PostType::Demand => $user->id === $post->user_id
-                && $post->status !== PostStatus::Ongoing,
+                && ! $post->postItems()
+                    ->where('status', PostItemStatus::Ongoing->value)
+                    ->exists(),
         };
     }
 }
