@@ -1,22 +1,28 @@
 <?php
 
+use App\Http\Middleware\EnsurePinChanged;
 use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
+
+uses(RefreshDatabase::class);
 
 test('password update page is displayed', function () {
     /** @var User $user */
-    $user = User::factory()->create(['must_change_pin' => false]);
+    $user = User::factory()->create();
 
-    $this->actingAs($user)
+    $this->withoutMiddleware(EnsurePinChanged::class)
+        ->actingAs($user)
         ->get(route('user-password.edit'))
         ->assertOk();
 });
 
 test('password can be updated', function () {
     /** @var User $user */
-    $user = User::factory()->create(['must_change_pin' => false]);
+    $user = User::factory()->create();
 
-    $this->actingAs($user)
+    $this->withoutMiddleware(EnsurePinChanged::class)
+        ->actingAs($user)
         ->from(route('user-password.edit'))
         ->put('/user/password', [
             'current_password' => 'password',
@@ -31,9 +37,10 @@ test('password can be updated', function () {
 
 test('correct password must be provided to update password', function () {
     /** @var User $user */
-    $user = User::factory()->create(['must_change_pin' => false]);
+    $user = User::factory()->create();
 
-    $this->actingAs($user)
+    $this->withoutMiddleware(EnsurePinChanged::class)
+        ->actingAs($user)
         ->from(route('user-password.edit'))
         ->put('/user/password', [
             'current_password' => 'wrong-password',
