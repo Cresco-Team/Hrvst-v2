@@ -1,21 +1,17 @@
 <?php
 
-use App\Models\User;
-use Inertia\Testing\AssertableInertia as Assert;
-
-test('confirm password screen can be rendered', function () {
-    $user = User::factory()->create(['must_change_pin' => false]);
-
-    $response = $this->actingAs($user)->get(route('password.confirm'));
-
-    $response->assertOk();
-    $response->assertInertia(fn (Assert $page) => $page
-        ->component('auth/ConfirmPassword')
-    );
+test('forgot password screen returns 404', function () {
+    $this->get('/forgot-password')->assertNotFound();
 });
 
-test('password confirmation requires authentication', function () {
-    $response = $this->get(route('password.confirm'));
+test('forgot password POST returns 404', function () {
+    $this->post('/forgot-password', [])->assertNotFound();
+});
 
-    $response->assertRedirect(route('login'));
+test('reset password token screen returns 404', function () {
+    $this->get('/reset-password/fake-token')->assertNotFound();
+});
+
+test('reset password POST returns 404', function () {
+    $this->post('/reset-password', [])->assertNotFound();
 });
