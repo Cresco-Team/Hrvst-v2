@@ -7,8 +7,6 @@ use App\Http\Controllers\VarietyHeartController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
-use Laravel\Fortify\Http\Controllers\PasswordController;
-use Laravel\Fortify\Http\Controllers\ProfileInformationController;
 
 Route::get('/', function () {
     return Inertia::render('Welcome');
@@ -71,12 +69,6 @@ if (app()->environment('local', 'development')) {
         })->name('login.dealer');
     });
 }
-
-Route::put('/user/password', [PasswordController::class, 'update'])
-    ->name('user-password.update-password');
-
-Route::put('/user/profile-information', [ProfileInformationController::class, 'update'])
-    ->name('user-profile.update-info');
 
 require __DIR__.'/settings.php';
 require __DIR__.'/admin.php';
