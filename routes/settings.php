@@ -10,6 +10,10 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('settings/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('settings/profile', [ProfileController::class, 'update'])->name('profile.update');
+
+    Route::get('settings/password', function () {
+        return Inertia::render('settings/Password');
+    })->name('user-password.edit');
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {

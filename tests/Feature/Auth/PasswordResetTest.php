@@ -8,7 +8,7 @@ test('forgot password POST returns 404', function () {
     $this->post('/forgot-password', [])->assertNotFound();
 });
 
-test('reset password screen returns 404', function () {
+test('reset password token screen returns 404', function () {
     $this->get('/reset-password/fake-token')->assertNotFound();
 });
 
