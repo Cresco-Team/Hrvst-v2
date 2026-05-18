@@ -33,18 +33,12 @@ pest()->extend(TestCase::class)
 |--------------------------------------------------------------------------
 | Global Hooks
 |--------------------------------------------------------------------------
-|
-| A top-level beforeEach() is guaranteed to run before every Feature test.
-| The chained ->beforeEach() on pest() has inconsistent execution order in
-| some Pest 4 configurations — this form is definitive.
-|
 */
 
 beforeEach(function () {
-    // Spatie MediaLibrary fires a model observer on every delete that
-    // attempts to remove files from disk. Without faking both disks,
-    // any test that deletes a HasMedia model will receive a 500.
     Storage::fake('public');
+
+    config(['inertia.ssr.enabled' => false]);
 });
 
 /*
@@ -61,21 +55,10 @@ expect()->extend('toBeOne', function () {
 |--------------------------------------------------------------------------
 | Shared Helpers
 |--------------------------------------------------------------------------
-|
-| All test helper functions live here so they are declared exactly once
-| across the entire suite. Declaring them in individual test files causes
-| PHP "Cannot redeclare function" errors when multiple files are loaded in
-| the same process.
-|
 */
 
 // ─── Address ─────────────────────────────────────────────────────────────────
 
-/**
- * Creates a fresh Province → Municipality → Barangay chain.
- * RefreshDatabase wipes these tables; there are no factories for them
- * because the data is normally loaded from CSV seeders in production.
- */
 function createBarangay(
     string $provinceName = 'Benguet',
     string $municipalityName = 'La Trinidad',
