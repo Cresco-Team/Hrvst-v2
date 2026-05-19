@@ -18,7 +18,7 @@
 		"spatie/laravel-medialibrary": "^11.21"
 	},
 	"require-dev": {
-		"barryvdh/laravel-ide-helper": "^3.7",
+		"barryvdh/laravel-ide-helper": "*",
 		"fakerphp/faker": "^1.23",
 		"laravel/boost": "^2.3",
 		"laravel/pail": "^1.2.2",
