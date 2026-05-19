@@ -93,12 +93,13 @@ class FarmerController extends Controller
         ]);
     }
 
-    public function destroy(FarmerProfile $farmerProfile): RedirectResponse
+    public function destroy(FarmerProfile $farmer): RedirectResponse
     {
-        Gate::authorize('delete', $farmerProfile);
+        Gate::authorize('delete', $farmer);
 
-        $user = $farmerProfile->user;
-        $farmerProfile->delete();
+        $user = $farmer->user;
+        $user->roles()->detach();
+        $farmer->delete();
         $user->delete();
 
         return redirect()->route('admin.farmers.index')
