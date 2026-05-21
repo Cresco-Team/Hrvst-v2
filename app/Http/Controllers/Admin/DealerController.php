@@ -54,11 +54,14 @@ class DealerController extends Controller
         ]);
     }
 
-    public function destroy(DealerProfile $dealerProfile): RedirectResponse
+    public function destroy(DealerProfile $dealer): RedirectResponse
     {
-        Gate::authorize('delete', $dealerProfile);
+        Gate::authorize('delete', $dealer);
 
-        $dealerProfile->user()->delete();
+        $user = $dealer->user;
+        $user->roles()->detach();
+        $dealer->delete();
+        $user->delete();
 
         return redirect()->route('admin.dealers.index')
             ->with('flash', ['type' => 'success', 'message' => 'Dealer deleted successfully.']);

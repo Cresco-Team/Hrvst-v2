@@ -11,6 +11,7 @@ use App\Models\Product\Vegetable;
 use App\Models\Profiles\DealerProfile;
 use App\Models\Profiles\Role;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 
 use function Pest\Laravel\actingAs;
 
@@ -18,19 +19,22 @@ use function Pest\Laravel\actingAs;
 
 function dealerWithProfile(): User
 {
-    $user = User::factory()->create();
-    $user->roles()->attach(Role::where('name', 'dealer')->firstOrCreate(['name' => 'dealer']));
-    DealerProfile::factory()->for($user)->create();
+    $user = User::factory()->create([
+        'email_verified_at' => now(),
+        'must_change_pin' => false,
+    ]);
+    $user->roles()->attach(Role::firstOrCreate(['name' => 'dealer']));
+    DealerProfile::create(['user_id' => $user->id]);
 
     return $user;
 }
 
 function demandVegetableAndVarieties(): array
 {
-    $category = Category::factory()->create();
-    $vegetable = Vegetable::factory()->for($category)->create();
-    $variety1 = Variety::factory()->for($vegetable)->create();
-    $variety2 = Variety::factory()->for($vegetable)->create();
+    $category = Category::create(['name' => 'Cat '.uniqid()]);
+    $vegetable = Vegetable::create(['category_id' => $category->id, 'name' => 'Veg '.uniqid()]);
+    $variety1 = Variety::create(['vegetable_id' => $vegetable->id, 'name' => 'Var A '.uniqid()]);
+    $variety2 = Variety::create(['vegetable_id' => $vegetable->id, 'name' => 'Var B '.uniqid()]);
 
     return [$vegetable, $variety1, $variety2];
 }
@@ -42,18 +46,29 @@ function validDemandPayload(Vegetable $vegetable, Variety $variety1, Variety $va
         'scheduled_date' => $scheduledDate ?? now()->addDays(5)->toDateString(),
         'time_slot' => 'morning',
         'items' => [
-            [
-                'variety_id' => $variety1->id,
-                'quantity_kg' => 100,
-                'unit_price' => 20.00,
-            ],
-            [
-                'variety_id' => $variety2->id,
-                'quantity_kg' => 50,
-                'unit_price' => null,
-            ],
+            ['variety_id' => $variety1->id, 'quantity_kg' => 100, 'unit_price' => 20.00],
+            ['variety_id' => $variety2->id, 'quantity_kg' => 50,  'unit_price' => null],
         ],
     ];
+}
+
+/**
+ * Creates a demand post + one item through the route so user_id is set by the
+ * auth system — guarantees the policy ownership check passes in lifecycle tests.
+ * Returns the created PostItem.
+ */
+function createDemandViaRoute(User $dealer, Variety $variety): PostItem
+{
+    actingAs($dealer)->post(route('dealer.demands.store'), [
+        'vegetable_id' => $variety->vegetable_id,
+        'scheduled_date' => now()->addDays(5)->toDateString(),
+        'time_slot' => 'morning',
+        'items' => [
+            ['variety_id' => $variety->id, 'quantity_kg' => 50, 'unit_price' => 20.00],
+        ],
+    ]);
+
+    return PostItem::latest('id')->firstOrFail();
 }
 
 // ─── Create Demand ────────────────────────────────────────────────────────────
@@ -173,7 +188,7 @@ describe('CreateDemand', function () {
 
     it('dealer without profile cannot create a demand', function () {
         $user = User::factory()->create();
-        $user->roles()->attach(Role::where('name', 'dealer')->firstOrCreate(['name' => 'dealer']));
+        $user->roles()->attach(Role::firstOrCreate(['name' => 'dealer']));
         [$vegetable, $variety1, $variety2] = demandVegetableAndVarieties();
 
         actingAs($user)
@@ -190,12 +205,8 @@ describe('UpdateDemand', function () {
     it('dealer can update scheduled_date on an active demand', function () {
         $dealer = dealerWithProfile();
         [$vegetable, $variety1] = demandVegetableAndVarieties();
-        $post = Post::factory()->for($dealer)->for($vegetable)->create([
-            'type' => PostType::Demand,
-            'status' => PostStatus::Harvested,
-            'scheduled_date' => now()->addDays(5),
-        ]);
-        PostItem::factory()->for($post)->for($variety1)->create();
+        $item = createDemandViaRoute($dealer, $variety1);
+        $post = $item->post;
 
         $newDate = now()->addDays(10)->toDateString();
 
@@ -209,12 +220,8 @@ describe('UpdateDemand', function () {
     it('updating items replaces all existing ongoing items', function () {
         $dealer = dealerWithProfile();
         [$vegetable, $variety1, $variety2] = demandVegetableAndVarieties();
-        $post = Post::factory()->for($dealer)->for($vegetable)->create([
-            'type' => PostType::Demand,
-            'status' => PostStatus::Harvested,
-            'scheduled_date' => now()->addDays(5),
-        ]);
-        PostItem::factory()->for($post)->for($variety1)->create(['quantity_kg' => 50]);
+        $item = createDemandViaRoute($dealer, $variety1);
+        $post = $item->post;
 
         actingAs($dealer)
             ->put(route('dealer.demands.update', $post), [
@@ -233,12 +240,9 @@ describe('UpdateDemand', function () {
     it('dealer cannot update another dealer\'s demand', function () {
         $dealer = dealerWithProfile();
         $other = dealerWithProfile();
-        [$vegetable] = demandVegetableAndVarieties();
-        $post = Post::factory()->for($other)->for($vegetable)->create([
-            'type' => PostType::Demand,
-            'status' => PostStatus::Harvested,
-            'scheduled_date' => now()->addDay(),
-        ]);
+        [$vegetable, $variety1] = demandVegetableAndVarieties();
+        $item = createDemandViaRoute($other, $variety1);
+        $post = $item->post;
 
         actingAs($dealer)
             ->put(route('dealer.demands.update', $post), ['scheduled_date' => now()->addDays(2)->toDateString()])
@@ -251,16 +255,13 @@ describe('UpdateDemand', function () {
 
 describe('DemandLifecycle', function () {
 
-    it('dealer can archive an ongoing demand item', function () {
+    it('dealer can archive a fulfilled demand item', function () {
         $dealer = dealerWithProfile();
         [$vegetable, $variety1] = demandVegetableAndVarieties();
-        $post = Post::factory()->for($dealer)->for($vegetable)->create([
-            'type' => PostType::Demand,
-            'status' => PostStatus::Harvested,
-        ]);
-        $item = PostItem::factory()->for($post)->for($variety1)->create([
-            'status' => PostItemStatus::Ongoing,
-        ]);
+        $item = createDemandViaRoute($dealer, $variety1);
+
+        // Bypass Eloquent to set status without triggering observers
+        DB::table('post_items')->where('id', $item->id)->update(['status' => 'fulfilled']);
 
         actingAs($dealer)
             ->post(route('dealer.post-items.archive', $item))
@@ -269,16 +270,12 @@ describe('DemandLifecycle', function () {
         expect($item->fresh()->status)->toBe(PostItemStatus::Archived);
     });
 
-    it('dealer can fulfill an ongoing demand item', function () {
+    it('dealer can fulfill an archived demand item', function () {
         $dealer = dealerWithProfile();
         [$vegetable, $variety1] = demandVegetableAndVarieties();
-        $post = Post::factory()->for($dealer)->for($vegetable)->create([
-            'type' => PostType::Demand,
-            'status' => PostStatus::Harvested,
-        ]);
-        $item = PostItem::factory()->for($post)->for($variety1)->create([
-            'status' => PostItemStatus::Ongoing,
-        ]);
+        $item = createDemandViaRoute($dealer, $variety1);
+
+        DB::table('post_items')->where('id', $item->id)->update(['status' => 'archived']);
 
         actingAs($dealer)
             ->post(route('dealer.post-items.fulfill', $item))
@@ -290,13 +287,8 @@ describe('DemandLifecycle', function () {
     it('dealer cannot delete a demand with ongoing items', function () {
         $dealer = dealerWithProfile();
         [$vegetable, $variety1] = demandVegetableAndVarieties();
-        $post = Post::factory()->for($dealer)->for($vegetable)->create([
-            'type' => PostType::Demand,
-            'status' => PostStatus::Harvested,
-        ]);
-        PostItem::factory()->for($post)->for($variety1)->create([
-            'status' => PostItemStatus::Ongoing,
-        ]);
+        $item = createDemandViaRoute($dealer, $variety1);
+        $post = $item->post;
 
         actingAs($dealer)
             ->delete(route('dealer.demands.destroy', $post))
@@ -306,13 +298,10 @@ describe('DemandLifecycle', function () {
     it('dealer can delete a demand with no ongoing items', function () {
         $dealer = dealerWithProfile();
         [$vegetable, $variety1] = demandVegetableAndVarieties();
-        $post = Post::factory()->for($dealer)->for($vegetable)->create([
-            'type' => PostType::Demand,
-            'status' => PostStatus::Harvested,
-        ]);
-        PostItem::factory()->for($post)->for($variety1)->create([
-            'status' => PostItemStatus::Archived,
-        ]);
+        $item = createDemandViaRoute($dealer, $variety1);
+        $post = $item->post;
+
+        DB::table('post_items')->where('id', $item->id)->update(['status' => 'archived']);
 
         actingAs($dealer)
             ->delete(route('dealer.demands.destroy', $post))
@@ -324,13 +313,10 @@ describe('DemandLifecycle', function () {
     it('deleting a demand soft-deletes the post record', function () {
         $dealer = dealerWithProfile();
         [$vegetable, $variety1] = demandVegetableAndVarieties();
-        $post = Post::factory()->for($dealer)->for($vegetable)->create([
-            'type' => PostType::Demand,
-            'status' => PostStatus::Harvested,
-        ]);
-        PostItem::factory()->for($post)->for($variety1)->create([
-            'status' => PostItemStatus::Fulfilled,
-        ]);
+        $item = createDemandViaRoute($dealer, $variety1);
+        $post = $item->post;
+
+        DB::table('post_items')->where('id', $item->id)->update(['status' => 'fulfilled']);
 
         actingAs($dealer)
             ->delete(route('dealer.demands.destroy', $post))
@@ -348,7 +334,7 @@ describe('CrossRoleAccess', function () {
 
     it('farmer cannot access dealer demand routes', function () {
         $farmer = User::factory()->create();
-        $farmer->roles()->attach(Role::where('name', 'farmer')->firstOrCreate(['name' => 'farmer']));
+        $farmer->roles()->attach(Role::firstOrCreate(['name' => 'farmer']));
 
         actingAs($farmer)
             ->post(route('dealer.demands.store'), [])

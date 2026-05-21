@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\PostItemStatus;
 use App\Enums\PostStatus;
 use App\Models\Profiles\DealerProfile;
 use App\Models\Profiles\Role;
@@ -206,9 +207,10 @@ describe('admin dealer details api', function () {
     it('demands list excludes archived posts', function () {
         $dealer = createDealerUser();
         $variety = createVariety();
-        createDemandPost($dealer, $variety, ['status' => PostStatus::Archived]);
+        createDemandPost($dealer, $variety, ['item_status' => PostItemStatus::Archived]);
 
-        // DealerService::details scopes posts to ongoing() only.
+        // DealerService::details loads postItems scoped to ongoing() only.
+        // A post whose only item is archived produces an empty postItems collection → demands = [].
         actingAs(createAdminUser())
             ->getJson(route('admin.dealers.api.details', $dealer->dealerProfile))
             ->assertOk()

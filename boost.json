@@ -5,15 +5,15 @@
     "guidelines": true,
     "herd_mcp": true,
     "mcp": true,
-    "packages": [
-        "laravel/fortify"
-    ],
     "sail": false,
     "skills": [
+        "ai-sdk-development",
+        "fortify-development",
+        "laravel-best-practices",
+        "configure-nightwatch",
         "wayfinder-development",
         "pest-testing",
         "inertia-vue-development",
-        "tailwindcss-development",
-        "fortify-development"
+        "tailwindcss-development"
     ]
 }
