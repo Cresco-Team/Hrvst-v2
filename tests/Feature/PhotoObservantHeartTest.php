@@ -10,17 +10,24 @@ use App\Models\Product\Category;
 use App\Models\Product\Variety;
 use App\Models\Product\Vegetable;
 use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 
 use function Pest\Laravel\actingAs;
+
+uses(RefreshDatabase::class);
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function vegetableWithVariety(): array
 {
-    $category = Category::factory()->create();
-    $vegetable = Vegetable::factory()->for($category)->create();
-    $variety = Variety::factory()->for($vegetable)->create();
+    $category = Category::firstOrCreate(['name' => 'Leafy Greens']);
+    $vegetable = Vegetable::firstOrCreate(['category_id' => $category->id, 'name' => 'Pechay']);
+    $variety = Variety::create([
+        'vegetable_id' => $vegetable->id,
+        'name' => 'Variety '.uniqid(),
+        'hearts_count' => 0,
+    ]);
 
     return [$vegetable, $variety];
 }
@@ -110,7 +117,6 @@ describe('PostItemObserver', function () {
             'status' => PostStatus::Harvested,
         ]);
 
-        // Creating an Ongoing item does not trigger the observer's stat tracking
         PostItem::factory()->for($post)->for($variety)->create([
             'quantity_kg' => 75,
             'status' => PostItemStatus::Ongoing,
