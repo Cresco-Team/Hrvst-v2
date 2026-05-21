@@ -25,7 +25,8 @@ class PostItemPolicy
 
     public function update(User $user, PostItem $postItem): bool
     {
-        return $user->id === $postItem->post->user_id;
+        return $user->id === $postItem->post->user_id
+            && $postItem->status === PostItemStatus::Ongoing;
     }
 
     public function delete(User $user, PostItem $postItem): bool
