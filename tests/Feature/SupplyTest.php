@@ -33,14 +33,21 @@ function farmerWithProfile(): User
 
 function makeVegetable(): Vegetable
 {
-    $category = Category::factory()->create();
+    $category = Category::firstOrCreate(['name' => 'Leafy Greens']);
 
-    return Vegetable::factory()->for($category)->create();
+    return Vegetable::create([
+        'category_id' => $category->id,
+        'name' => 'Vegetable '.uniqid(),
+    ]);
 }
 
 function makeVariety(Vegetable $vegetable): Variety
 {
-    return Variety::factory()->for($vegetable)->create();
+    return Variety::create([
+        'vegetable_id' => $vegetable->id,
+        'name' => 'Variety '.uniqid(),
+        'hearts_count' => 0,
+    ]);
 }
 
 // ─── Create Supply ────────────────────────────────────────────────────────────
