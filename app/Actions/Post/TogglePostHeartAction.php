@@ -19,11 +19,14 @@ final class TogglePostHeartAction
 
             if ($heart) {
                 $heart->delete();
-                $post->decrement('hearts_count');
+                DB::table('posts')
+                    ->where('id', $post->id)
+                    ->update(['hearts_count' => DB::raw('CASE WHEN hearts_count > 0 THEN hearts_count - 1 ELSE 0 END')]);
+                $post->refresh();
 
                 return [
                     'hearted' => false,
-                    'hearts_count' => max(0, $post->hearts_count),
+                    'hearts_count' => $post->hearts_count,
                 ];
             }
 

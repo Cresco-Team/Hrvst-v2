@@ -22,7 +22,7 @@ class TestUsersSeeder extends Seeder
                 'name' => 'Farmer Jane',
                 'phone_number' => '09123456789',
                 'email_verified_at' => now(),
-                'password' => Hash::make('password'),
+                'password' => Hash::make('0000'),
             ]
         );
 
@@ -48,7 +48,7 @@ class TestUsersSeeder extends Seeder
                 'name' => 'Dealer John',
                 'phone_number' => '09171234567',
                 'email_verified_at' => now(),
-                'password' => Hash::make('password'),
+                'password' => Hash::make('0000'),
             ]
         );
 

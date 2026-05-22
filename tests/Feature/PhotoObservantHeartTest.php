@@ -10,12 +10,14 @@ use App\Models\Product\Category;
 use App\Models\Product\Variety;
 use App\Models\Product\Vegetable;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 use function Pest\Laravel\actingAs;
 
-uses(RefreshDatabase::class);
+beforeEach(function () {
+    Storage::fake('public');
+});
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -212,11 +214,13 @@ describe('PostHeartToggle', function () {
     it('user can un-heart a post', function () {
         $user = User::factory()->create();
         [$vegetable] = vegetableWithVariety();
+
         $post = Post::factory()->for($user)->for($vegetable)->create([
             'type' => PostType::Supply,
             'status' => PostStatus::Harvested,
-            'hearts_count' => 1,
         ]);
+        $post->forceFill(['hearts_count' => 1])->save();
+
         PostHeart::create(['user_id' => $user->id, 'post_id' => $post->id]);
 
         actingAs($user)
@@ -231,14 +235,16 @@ describe('PostHeartToggle', function () {
     it('heart count never goes below zero', function () {
         $user = User::factory()->create();
         [$vegetable] = vegetableWithVariety();
+
+        // hearts_count defaults to 0 — no forceFill needed
         $post = Post::factory()->for($user)->for($vegetable)->create([
             'type' => PostType::Supply,
             'status' => PostStatus::Harvested,
-            'hearts_count' => 0,
         ]);
         PostHeart::create(['user_id' => $user->id, 'post_id' => $post->id]);
 
-        $post->update(['hearts_count' => 0]);
+        // Force hearts_count to 0 via DB to simulate desync without touching $fillable
+        DB::table('posts')->where('id', $post->id)->update(['hearts_count' => 0]);
 
         actingAs($user)
             ->postJson(route('posts.heart.toggle', $post))
@@ -267,8 +273,8 @@ describe('PostHeartToggle', function () {
             'status' => PostStatus::Harvested,
         ]);
 
-        actingAs($user)->postJson(route('posts.heart.toggle', $post));
-        actingAs($user)->postJson(route('posts.heart.toggle', $post));
+        $this->actingAs($user)->postJson(route('posts.heart.toggle', $post));
+        $this->actingAs($user)->postJson(route('posts.heart.toggle', $post));
 
         expect($post->fresh()->hearts_count)->toBe(0)
             ->and(PostHeart::where('post_id', $post->id)->count())->toBe(0);
