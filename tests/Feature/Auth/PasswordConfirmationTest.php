@@ -2,14 +2,18 @@
 
 use App\Http\Middleware\EnsurePinChanged;
 use App\Models\User;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Testing\AssertableInertia as Assert;
 
+beforeEach(function () {
+    Storage::fake('public');
+});
+
 test('confirm password screen can be rendered', function () {
-    /** @var User $user */
     $user = User::factory()->create();
 
-    $this->withoutMiddleware(EnsurePinChanged::class)
-        ->actingAs($user)
+    $this->actingAs($user)
+        ->withoutMiddleware(EnsurePinChanged::class)
         ->get('/user/confirm-password')
         ->assertOk()
         ->assertInertia(fn (Assert $page) => $page->component('auth/ConfirmPassword'));
