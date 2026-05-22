@@ -11,6 +11,7 @@ use App\Models\Product\Vegetable;
 use App\Models\Profiles\FarmerProfile;
 use App\Models\Profiles\Role;
 use App\Models\User;
+use Database\Seeders\AddressSeeder;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 
@@ -18,6 +19,7 @@ use function Pest\Laravel\actingAs;
 
 beforeEach(function () {
     Storage::fake('public');
+    $this->seed(AddressSeeder::class);
 });
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -267,6 +269,7 @@ describe('HarvestSupply', function () {
     it('cannot harvest a supply that is already harvested', function () {
         $farmer = farmerWithProfile();
         $vegetable = makeVegetable();
+        $variety = makeVariety($vegetable);
         $post = Post::factory()->for($farmer)->for($vegetable)->create([
             'type' => PostType::Supply,
             'status' => PostStatus::Harvested,
@@ -277,7 +280,9 @@ describe('HarvestSupply', function () {
             ->post(route('farmer.supplies.harvest', $post), [
                 'scheduled_date' => now()->addDay()->toDateString(),
                 'time_slot' => 'morning',
-                'items' => [],
+                'items' => [
+                    ['variety_id' => $variety->id, 'quantity_kg' => 10, 'unit_price' => 5],
+                ],
             ])
             ->assertForbidden();
     });
@@ -376,7 +381,7 @@ describe('SupplyLifecycle', function () {
         expect(Post::find($post->id))->toBeNull();
     });
 
-    it('farmer can archive an ongoing supply item', function () {
+    it('farmer can archive a fulfilled supply item', function () {
         $farmer = farmerWithProfile();
         $vegetable = makeVegetable();
         $variety = makeVariety($vegetable);
@@ -385,7 +390,7 @@ describe('SupplyLifecycle', function () {
             'status' => PostStatus::Harvested,
         ]);
         $item = PostItem::factory()->for($post)->for($variety)->create([
-            'status' => PostItemStatus::Ongoing,
+            'status' => PostItemStatus::Fulfilled,
         ]);
 
         actingAs($farmer)
@@ -395,7 +400,7 @@ describe('SupplyLifecycle', function () {
         expect($item->fresh()->status)->toBe(PostItemStatus::Archived);
     });
 
-    it('farmer can fulfill an ongoing supply item', function () {
+    it('farmer can fulfill an archived supply item', function () {
         $farmer = farmerWithProfile();
         $vegetable = makeVegetable();
         $variety = makeVariety($vegetable);
@@ -404,7 +409,7 @@ describe('SupplyLifecycle', function () {
             'status' => PostStatus::Harvested,
         ]);
         $item = PostItem::factory()->for($post)->for($variety)->create([
-            'status' => PostItemStatus::Ongoing,
+            'status' => PostItemStatus::Archived,
         ]);
 
         actingAs($farmer)
