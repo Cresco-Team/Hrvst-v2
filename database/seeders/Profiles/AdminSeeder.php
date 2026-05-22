@@ -16,7 +16,7 @@ class AdminSeeder extends Seeder
         $password = '0000';
 
         if (app()->environment('production')) {
-            $password = env('ADMIN_PASSWORD');
+            $password = env('ADMIN_PASSWORD') ?? $password;
         }
 
         $user = User::firstOrCreate(
