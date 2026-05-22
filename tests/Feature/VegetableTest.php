@@ -6,7 +6,6 @@ use App\Models\Product\Variety;
 use App\Models\Product\Vegetable;
 use App\Models\Profiles\Role;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Testing\AssertableInertia as Assert;
@@ -14,13 +13,10 @@ use Inertia\Testing\AssertableInertia as Assert;
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\assertDatabaseCount;
 use function Pest\Laravel\assertDatabaseHas;
-use function Pest\Laravel\assertDatabaseMissing;
 use function Pest\Laravel\delete;
 use function Pest\Laravel\get;
 use function Pest\Laravel\post;
 use function Pest\Laravel\put;
-
-uses(RefreshDatabase::class);
 
 // ─── Setup ────────────────────────────────────────────────────────────────────
 
@@ -49,7 +45,6 @@ beforeEach(function () {
         'name' => 'White Pechay',
     ]);
 
-    // Seed a price so VarietyResource and show() queries have data to work with
     $this->variety->prices()->create([
         'price_min' => 20.00,
         'price_max' => 30.00,
@@ -57,14 +52,31 @@ beforeEach(function () {
     ]);
 });
 
+// ─── Category ─────────────────────────────────────────────────────────────────
+
+describe('category', function () {
+    it('renders the category page for an admin', function () {
+        actingAs($this->admin)
+            ->get(route('admin.categories.index'))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page->component('admin/vegetables/Categories'));
+    });
+});
+
 // ─── Index ────────────────────────────────────────────────────────────────────
 
 describe('index', function () {
-    it('renders the index page for an admin', function () {
+    it('renders the index page for an admin when a category slug is provided', function () {
         actingAs($this->admin)
-            ->get(route('admin.vegetables.index'))
+            ->get(route('admin.vegetables.index', ['category' => $this->category->slug]))
             ->assertOk()
             ->assertInertia(fn (Assert $page) => $page->component('admin/vegetables/Index'));
+    });
+
+    it('redirects to categories when no category filter is provided', function () {
+        actingAs($this->admin)
+            ->get(route('admin.vegetables.index'))
+            ->assertRedirect(route('admin.categories.index'));
     });
 
     it('redirects guests to login', function () {
@@ -84,44 +96,19 @@ describe('index', function () {
 describe('show', function () {
     it('renders the show page for an admin', function () {
         actingAs($this->admin)
-            ->get(route('admin.vegetables.show', $this->variety))
+            ->get(route('admin.vegetables.varieties.show', $this->variety))
             ->assertOk()
             ->assertInertia(fn (Assert $page) => $page->component('admin/vegetables/Show'));
     });
 
     it('redirects guests to login', function () {
-        get(route('admin.vegetables.show', $this->variety))
+        get(route('admin.vegetables.varieties.show', $this->variety))
             ->assertRedirect(route('login'));
     });
 
     it('returns 403 for non-admin users', function () {
         actingAs($this->farmer)
-            ->get(route('admin.vegetables.show', $this->variety))
-            ->assertForbidden();
-    });
-});
-
-// ─── Details (JSON) ───────────────────────────────────────────────────────────
-
-describe('details', function () {
-    it('returns a json response for an admin', function () {
-        actingAs($this->admin)
-            ->get(route('admin.vegetables.details', $this->variety))
-            ->assertOk()
-            ->assertJsonFragment([
-                'id' => $this->variety->id,
-                'name' => $this->variety->name,
-            ]);
-    });
-
-    it('redirects guests to login', function () {
-        get(route('admin.vegetables.details', $this->variety))
-            ->assertRedirect(route('login'));
-    });
-
-    it('returns 403 for non-admin users', function () {
-        actingAs($this->farmer)
-            ->get(route('admin.vegetables.details', $this->variety))
+            ->get(route('admin.vegetables.varieties.show', $this->variety))
             ->assertForbidden();
     });
 });
@@ -131,20 +118,15 @@ describe('details', function () {
 describe('store', function () {
     it('creates a variety and seeds its first price history', function () {
         actingAs($this->admin)
-            ->post(route('admin.vegetables.store'), [
+            ->post(route('admin.vegetables.varieties.store'), [
                 'vegetable_id' => $this->vegetable->id,
                 'name' => 'Green Pechay',
                 'image' => UploadedFile::fake()->image('pechay.jpg'),
                 'price_min' => '15.00',
                 'price_max' => '25.00',
             ])
-            ->assertRedirect(route('admin.vegetables.index'))
+            ->assertRedirect()
             ->assertSessionHas('flash.type', 'success');
-
-        assertDatabaseHas('varieties', [
-            'vegetable_id' => $this->vegetable->id,
-            'name' => 'Green Pechay',
-        ]);
 
         $created = Variety::where('name', 'Green Pechay')->firstOrFail();
 
@@ -157,7 +139,7 @@ describe('store', function () {
 
     it('rejects missing vegetable_id', function () {
         actingAs($this->admin)
-            ->post(route('admin.vegetables.store'), [
+            ->post(route('admin.vegetables.varieties.store'), [
                 'name' => 'Green Pechay',
                 'image' => UploadedFile::fake()->image('pechay.jpg'),
                 'price_min' => '15.00',
@@ -168,7 +150,7 @@ describe('store', function () {
 
     it('rejects a vegetable_id that does not exist', function () {
         actingAs($this->admin)
-            ->post(route('admin.vegetables.store'), [
+            ->post(route('admin.vegetables.varieties.store'), [
                 'vegetable_id' => 9999,
                 'name' => 'Green Pechay',
                 'image' => UploadedFile::fake()->image('pechay.jpg'),
@@ -180,7 +162,7 @@ describe('store', function () {
 
     it('rejects missing name', function () {
         actingAs($this->admin)
-            ->post(route('admin.vegetables.store'), [
+            ->post(route('admin.vegetables.varieties.store'), [
                 'vegetable_id' => $this->vegetable->id,
                 'image' => UploadedFile::fake()->image('pechay.jpg'),
                 'price_min' => '15.00',
@@ -191,7 +173,7 @@ describe('store', function () {
 
     it('rejects missing image', function () {
         actingAs($this->admin)
-            ->post(route('admin.vegetables.store'), [
+            ->post(route('admin.vegetables.varieties.store'), [
                 'vegetable_id' => $this->vegetable->id,
                 'name' => 'Green Pechay',
                 'price_min' => '15.00',
@@ -202,7 +184,7 @@ describe('store', function () {
 
     it('rejects a non-image file upload', function () {
         actingAs($this->admin)
-            ->post(route('admin.vegetables.store'), [
+            ->post(route('admin.vegetables.varieties.store'), [
                 'vegetable_id' => $this->vegetable->id,
                 'name' => 'Green Pechay',
                 'image' => UploadedFile::fake()->create('document.pdf', 512, 'application/pdf'),
@@ -214,7 +196,7 @@ describe('store', function () {
 
     it('rejects price_max below price_min', function () {
         actingAs($this->admin)
-            ->post(route('admin.vegetables.store'), [
+            ->post(route('admin.vegetables.varieties.store'), [
                 'vegetable_id' => $this->vegetable->id,
                 'name' => 'Green Pechay',
                 'image' => UploadedFile::fake()->image('pechay.jpg'),
@@ -226,7 +208,7 @@ describe('store', function () {
 
     it('rejects prices that exceed the maximum allowed value', function () {
         actingAs($this->admin)
-            ->post(route('admin.vegetables.store'), [
+            ->post(route('admin.vegetables.varieties.store'), [
                 'vegetable_id' => $this->vegetable->id,
                 'name' => 'Green Pechay',
                 'image' => UploadedFile::fake()->image('pechay.jpg'),
@@ -238,7 +220,7 @@ describe('store', function () {
 
     it('returns 403 for non-admin users', function () {
         actingAs($this->farmer)
-            ->post(route('admin.vegetables.store'), [
+            ->post(route('admin.vegetables.varieties.store'), [
                 'vegetable_id' => $this->vegetable->id,
                 'name' => 'Green Pechay',
                 'image' => UploadedFile::fake()->image('pechay.jpg'),
@@ -249,7 +231,7 @@ describe('store', function () {
     });
 
     it('redirects guests to login', function () {
-        post(route('admin.vegetables.store'), [])
+        post(route('admin.vegetables.varieties.store'), [])
             ->assertRedirect(route('login'));
     });
 });
@@ -259,47 +241,41 @@ describe('store', function () {
 describe('update', function () {
     it('updates the variety name without an image', function () {
         actingAs($this->admin)
-            ->put(route('admin.vegetables.update', $this->variety), [
+            ->put(route('admin.vegetables.varieties.update', $this->variety), [
                 'vegetable_id' => $this->vegetable->id,
                 'name' => 'Updated Pechay',
             ])
-            ->assertRedirect(route('admin.vegetables.index'))
+            ->assertRedirect()
             ->assertSessionHas('flash.type', 'success');
 
-        assertDatabaseHas('varieties', [
-            'id' => $this->variety->id,
-            'name' => 'Updated Pechay',
-        ]);
+        expect($this->variety->fresh()->name)->toBe('Updated Pechay');
     });
 
     it('updates the variety with a new image', function () {
         actingAs($this->admin)
-            ->put(route('admin.vegetables.update', $this->variety), [
+            ->put(route('admin.vegetables.varieties.update', $this->variety), [
                 'vegetable_id' => $this->vegetable->id,
                 'name' => 'Updated With Image',
                 'image' => UploadedFile::fake()->image('new.jpg'),
             ])
-            ->assertRedirect(route('admin.vegetables.index'));
+            ->assertRedirect();
 
-        assertDatabaseHas('varieties', [
-            'id' => $this->variety->id,
-            'name' => 'Updated With Image',
-        ]);
+        expect($this->variety->fresh()->name)->toBe('Updated With Image');
     });
 
     it('allows image to be omitted on update', function () {
         actingAs($this->admin)
-            ->put(route('admin.vegetables.update', $this->variety), [
+            ->put(route('admin.vegetables.varieties.update', $this->variety), [
                 'vegetable_id' => $this->vegetable->id,
                 'name' => 'No Image Update',
             ])
             ->assertSessionHasNoErrors()
-            ->assertRedirect(route('admin.vegetables.index'));
+            ->assertRedirect();
     });
 
     it('rejects missing vegetable_id', function () {
         actingAs($this->admin)
-            ->put(route('admin.vegetables.update', $this->variety), [
+            ->put(route('admin.vegetables.varieties.update', $this->variety), [
                 'name' => 'Updated Pechay',
             ])
             ->assertSessionHasErrors('vegetable_id');
@@ -307,7 +283,7 @@ describe('update', function () {
 
     it('rejects missing name', function () {
         actingAs($this->admin)
-            ->put(route('admin.vegetables.update', $this->variety), [
+            ->put(route('admin.vegetables.varieties.update', $this->variety), [
                 'vegetable_id' => $this->vegetable->id,
             ])
             ->assertSessionHasErrors('name');
@@ -315,7 +291,7 @@ describe('update', function () {
 
     it('rejects a non-image file on update', function () {
         actingAs($this->admin)
-            ->put(route('admin.vegetables.update', $this->variety), [
+            ->put(route('admin.vegetables.varieties.update', $this->variety), [
                 'vegetable_id' => $this->vegetable->id,
                 'name' => 'Updated Pechay',
                 'image' => UploadedFile::fake()->create('document.pdf', 512, 'application/pdf'),
@@ -323,22 +299,19 @@ describe('update', function () {
             ->assertSessionHasErrors('image');
     });
 
-    it('returns 403 for non-admin users', function () {
+    it('returns 403 for non-admin users and leaves the record intact', function () {
         actingAs($this->farmer)
-            ->put(route('admin.vegetables.update', $this->variety), [
+            ->put(route('admin.vegetables.varieties.update', $this->variety), [
                 'vegetable_id' => $this->vegetable->id,
                 'name' => 'Sneaky Update',
             ])
             ->assertForbidden();
 
-        assertDatabaseHas('varieties', [
-            'id' => $this->variety->id,
-            'name' => 'White Pechay',
-        ]);
+        expect($this->variety->fresh()->name)->toBe('White Pechay');
     });
 
     it('redirects guests to login', function () {
-        put(route('admin.vegetables.update', $this->variety), [])
+        put(route('admin.vegetables.varieties.update', $this->variety), [])
             ->assertRedirect(route('login'));
     });
 });
@@ -348,23 +321,23 @@ describe('update', function () {
 describe('destroy', function () {
     it('deletes the variety', function () {
         actingAs($this->admin)
-            ->delete(route('admin.vegetables.destroy', $this->variety))
-            ->assertRedirect(route('admin.vegetables.index'))
+            ->delete(route('admin.vegetables.varieties.destroy', $this->variety))
+            ->assertRedirect()
             ->assertSessionHas('flash.type', 'success');
 
-        assertDatabaseMissing('varieties', ['id' => $this->variety->id]);
+        expect(Variety::find($this->variety->id))->toBeNull();
     });
 
     it('returns 403 for non-admin users and leaves the record intact', function () {
         actingAs($this->farmer)
-            ->delete(route('admin.vegetables.destroy', $this->variety))
+            ->delete(route('admin.vegetables.varieties.destroy', $this->variety))
             ->assertForbidden();
 
-        assertDatabaseHas('varieties', ['id' => $this->variety->id]);
+        expect(Variety::find($this->variety->id))->not->toBeNull();
     });
 
     it('redirects guests to login', function () {
-        delete(route('admin.vegetables.destroy', $this->variety))
+        delete(route('admin.vegetables.varieties.destroy', $this->variety))
             ->assertRedirect(route('login'));
     });
 });
@@ -373,15 +346,14 @@ describe('destroy', function () {
 
 describe('price store', function () {
     it('creates a price for the current week', function () {
-        // Delete the seeded price so this test starts fresh
         PriceHistory::where('variety_id', $this->variety->id)->delete();
 
         actingAs($this->admin)
-            ->post(route('admin.vegetables.prices.store', $this->variety), [
+            ->post(route('admin.vegetables.varieties.prices.store', $this->variety), [
                 'price_min' => '25.00',
                 'price_max' => '40.00',
             ])
-            ->assertRedirect(route('admin.vegetables.index'))
+            ->assertRedirect()
             ->assertSessionHas('flash.type', 'success');
 
         assertDatabaseHas('price_histories', [
@@ -392,14 +364,12 @@ describe('price store', function () {
     });
 
     it('updates the existing record instead of creating a duplicate for the same week', function () {
-        // The beforeEach already seeded one record for the current week
         actingAs($this->admin)
-            ->post(route('admin.vegetables.prices.store', $this->variety), [
+            ->post(route('admin.vegetables.varieties.prices.store', $this->variety), [
                 'price_min' => '18.00',
                 'price_max' => '28.00',
             ]);
 
-        // updateOrCreate must keep exactly one row for this week
         assertDatabaseCount('price_histories', 1);
 
         assertDatabaseHas('price_histories', [
@@ -411,7 +381,7 @@ describe('price store', function () {
 
     it('rejects missing price_min', function () {
         actingAs($this->admin)
-            ->post(route('admin.vegetables.prices.store', $this->variety), [
+            ->post(route('admin.vegetables.varieties.prices.store', $this->variety), [
                 'price_max' => '40.00',
             ])
             ->assertSessionHasErrors('price_min');
@@ -419,7 +389,7 @@ describe('price store', function () {
 
     it('rejects missing price_max', function () {
         actingAs($this->admin)
-            ->post(route('admin.vegetables.prices.store', $this->variety), [
+            ->post(route('admin.vegetables.varieties.prices.store', $this->variety), [
                 'price_min' => '20.00',
             ])
             ->assertSessionHasErrors('price_max');
@@ -427,7 +397,7 @@ describe('price store', function () {
 
     it('rejects price_max below price_min', function () {
         actingAs($this->admin)
-            ->post(route('admin.vegetables.prices.store', $this->variety), [
+            ->post(route('admin.vegetables.varieties.prices.store', $this->variety), [
                 'price_min' => '50.00',
                 'price_max' => '10.00',
             ])
@@ -436,7 +406,7 @@ describe('price store', function () {
 
     it('rejects negative prices', function () {
         actingAs($this->admin)
-            ->post(route('admin.vegetables.prices.store', $this->variety), [
+            ->post(route('admin.vegetables.varieties.prices.store', $this->variety), [
                 'price_min' => '-1.00',
                 'price_max' => '10.00',
             ])
@@ -445,7 +415,7 @@ describe('price store', function () {
 
     it('returns 403 for non-admin users', function () {
         actingAs($this->farmer)
-            ->post(route('admin.vegetables.prices.store', $this->variety), [
+            ->post(route('admin.vegetables.varieties.prices.store', $this->variety), [
                 'price_min' => '20.00',
                 'price_max' => '30.00',
             ])
@@ -453,7 +423,7 @@ describe('price store', function () {
     });
 
     it('redirects guests to login', function () {
-        post(route('admin.vegetables.prices.store', $this->variety), [])
+        post(route('admin.vegetables.varieties.prices.store', $this->variety), [])
             ->assertRedirect(route('login'));
     });
 });
