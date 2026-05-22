@@ -8,7 +8,8 @@ class UpdateSupplyRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()->hasRole('farmer');
+        return $this->user()->hasRole('farmer')
+            && $this->user()->can('update', $this->route('supply'));
     }
 
     public function rules(): array

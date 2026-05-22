@@ -2,13 +2,15 @@
 
 namespace App\Http\Requests\Farmer;
 
+use App\Enums\PostType;
+use App\Models\Marketplace\Post;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreSupplyRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()->hasRole('farmer');
+        return $this->user()->can('create', [Post::class, PostType::Supply]);
     }
 
     public function rules(): array
