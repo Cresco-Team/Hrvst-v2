@@ -10,13 +10,12 @@ class HarvestSupplyRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()->hasRole('farmer');
+        return $this->user()->hasRole('farmer')
+            && $this->user()->can('harvest', $this->route('supply'));
     }
 
     public function rules(): array
     {
-        // Bug #4 fix: constrain variety_id to only varieties that belong to the
-        // supply post's vegetable. Client-side filter in HarvestForm is UX-only.
         $vegetableId = $this->route('supply')?->vegetable_id;
 
         return [
