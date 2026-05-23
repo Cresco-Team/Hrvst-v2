@@ -12,19 +12,13 @@ class AdminSeeder extends Seeder
     {
         $adminRole = Role::firstOrCreate(['name' => 'admin']);
 
-        $password = '0000';
-
-        if (app()->environment('production')) {
-            $password = env('ADMIN_PASSWORD');
-        }
-
         $user = User::firstOrCreate(
             ['email' => 'admin@hrvst.com'],
             [
                 'name' => 'Admin Joe',
                 'phone_number' => '09303997215',
                 'email_verified_at' => now(),
-                'password' => $password,
+                'password' => config('app.admin_password'),
             ]
         );
 
