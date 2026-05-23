@@ -2,16 +2,16 @@
 
 namespace App\Console\Commands;
 
-use App\Actions\Post\ArchiveOldPostsAction;
+use App\Actions\Post\ArchivePostItemAction;
 use Illuminate\Console\Command;
 
-class ArchiveOldPostsCommand extends Command
+class ArchivePostItemCommand extends Command
 {
-    protected $signature = 'posts:archive';
+    protected $signature = 'post-items:archive';
 
     protected $description = 'Expire old dealer demands and farmer supplies';
 
-    public function handle(ArchiveOldPostsAction $archiveOldPost): int
+    public function handle(ArchivePostItemAction $archiveOldPost): int
     {
         $postsArchived = $archiveOldPost();
 
