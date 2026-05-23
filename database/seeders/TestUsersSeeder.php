@@ -7,7 +7,6 @@ use App\Models\Profiles\FarmerProfile;
 use App\Models\Profiles\Role;
 use App\Models\User;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Hash;
 
 class TestUsersSeeder extends Seeder
 {
@@ -22,7 +21,7 @@ class TestUsersSeeder extends Seeder
                 'name' => 'Farmer Jane',
                 'phone_number' => '09123456789',
                 'email_verified_at' => now(),
-                'password' => Hash::make('0000'),
+                'password' => '0000',
             ]
         );
 
@@ -48,7 +47,7 @@ class TestUsersSeeder extends Seeder
                 'name' => 'Dealer John',
                 'phone_number' => '09171234567',
                 'email_verified_at' => now(),
-                'password' => Hash::make('0000'),
+                'password' => '0000',
             ]
         );
 
