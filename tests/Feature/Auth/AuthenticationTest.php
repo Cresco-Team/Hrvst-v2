@@ -14,7 +14,7 @@ test('users can authenticate using the login screen', function () {
 
     $response = $this->post(route('login'), [
         'phone_number' => $user->phone_number,
-        'password' => 'password',
+        'password' => '0000',
     ]);
 
     $this->assertAuthenticated();
@@ -41,7 +41,7 @@ test('users with two factor enabled are redirected to two factor challenge', fun
 
     $response = $this->post(route('login'), [
         'phone_number' => $user->phone_number,
-        'password' => 'password',
+        'password' => '0000',
     ]);
 
     $response->assertRedirect(route('two-factor.login'));
