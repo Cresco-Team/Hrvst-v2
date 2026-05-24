@@ -21,9 +21,9 @@ export interface MunicipalitySupply {
 export interface MonthlyActivity {
 	month: string
 	label: string
-	supply_archived_kg: number
+	supply_unsettled_kg: number
 	supply_fulfilled_kg: number
-	demand_archived_kg: number
+	demand_unsettled_kg: number
 	demand_fulfilled_kg: number
 }
 

@@ -68,7 +68,7 @@ describe('PostItemObserver', function () {
             ->and((float) $row->supply_fulfilled_kg)->toBe(150.0);
     });
 
-    it('increments supply_archived_kg when a supply item is archived', function () {
+    it('increments supply_unsettled_kg when a supply item is unsettled', function () {
         [$vegetable, $variety] = vegetableWithVariety();
         $user = User::factory()->create();
 
@@ -81,12 +81,12 @@ describe('PostItemObserver', function () {
             'status' => PostItemStatus::Ongoing,
         ]);
 
-        $item->markAsArchived();
+        $item->markAsUnsettled();
 
         $periodDate = $post->created_at->startOfMonth()->toDateString();
         $row = statsRow($vegetable->id, $periodDate);
 
-        expect((float) $row->supply_archived_kg)->toBe(75.0);
+        expect((float) $row->supply_unsettled_kg)->toBe(75.0);
     });
 
     it('increments demand_fulfilled_kg when a demand item is fulfilled', function () {
@@ -147,9 +147,9 @@ describe('PostItemObserver', function () {
         DB::table('vegetable_monthly_stats')->upsert([[
             'vegetable_id' => $vegetable->id,
             'period_date' => $periodDate,
-            'supply_archived_kg' => 0,
+            'supply_unsettled_kg' => 0,
             'supply_fulfilled_kg' => 100,
-            'demand_archived_kg' => 0,
+            'demand_unsettled_kg' => 0,
             'demand_fulfilled_kg' => 0,
             'created_at' => now(),
             'updated_at' => now(),

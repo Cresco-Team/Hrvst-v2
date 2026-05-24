@@ -267,15 +267,15 @@ describe('DemandLifecycle', function () {
             ->post(route('dealer.post-items.archive', $item))
             ->assertRedirect();
 
-        expect($item->fresh()->status)->toBe(PostItemStatus::Archived);
+        expect($item->fresh()->status)->toBe(PostItemStatus::Unsettled);
     });
 
-    it('dealer can fulfill an archived demand item', function () {
+    it('dealer can fulfill an unsettled demand item', function () {
         $dealer = dealerWithProfile();
         [$vegetable, $variety1] = demandVegetableAndVarieties();
         $item = createDemandViaRoute($dealer, $variety1);
 
-        DB::table('post_items')->where('id', $item->id)->update(['status' => 'archived']);
+        DB::table('post_items')->where('id', $item->id)->update(['status' => 'unsettled']);
 
         actingAs($dealer)
             ->post(route('dealer.post-items.fulfill', $item))
@@ -301,7 +301,7 @@ describe('DemandLifecycle', function () {
         $item = createDemandViaRoute($dealer, $variety1);
         $post = $item->post;
 
-        DB::table('post_items')->where('id', $item->id)->update(['status' => 'archived']);
+        DB::table('post_items')->where('id', $item->id)->update(['status' => 'unsettled']);
 
         actingAs($dealer)
             ->delete(route('dealer.demands.destroy', $post))

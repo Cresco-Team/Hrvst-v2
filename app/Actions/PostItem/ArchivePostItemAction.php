@@ -8,6 +8,6 @@ final class ArchivePostItemAction
 {
     public function handle(PostItem $postItem): void
     {
-        $postItem->markAsArchived();
+        $postItem->markAsUnsettled();
     }
 }

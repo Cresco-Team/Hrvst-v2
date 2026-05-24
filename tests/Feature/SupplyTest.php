@@ -397,10 +397,10 @@ describe('SupplyLifecycle', function () {
             ->post(route('farmer.post-items.archive', $item))
             ->assertRedirect();
 
-        expect($item->fresh()->status)->toBe(PostItemStatus::Archived);
+            expect($item->fresh()->status)->toBe(PostItemStatus::Unsettled);
     });
 
-    it('farmer can fulfill an archived supply item', function () {
+    it('farmer can fulfill an unsettled supply item', function () {
         $farmer = farmerWithProfile();
         $vegetable = makeVegetable();
         $variety = makeVariety($vegetable);
@@ -409,7 +409,7 @@ describe('SupplyLifecycle', function () {
             'status' => PostStatus::Harvested,
         ]);
         $item = PostItem::factory()->for($post)->for($variety)->create([
-            'status' => PostItemStatus::Archived,
+                'status' => PostItemStatus::Unsettled,
         ]);
 
         actingAs($farmer)

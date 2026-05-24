@@ -41,7 +41,7 @@ const ongoingItems = computed<DealerPostItemResource[]>(
 	() => props.farmer?.supply_items?.filter((i) => i.status === 'ongoing') ?? [],
 )
 const archivedItems = computed<DealerPostItemResource[]>(
-	() => props.farmer?.supply_items?.filter((i) => i.status === 'archived') ?? [],
+    () => props.farmer?.supply_items?.filter((i) => i.status === 'unsettled') ?? [],
 )
 const fulfilledItems = computed<DealerPostItemResource[]>(
 	() => props.farmer?.supply_items?.filter((i) => i.status === 'fulfilled') ?? [],
@@ -159,8 +159,8 @@ function priceFlagVariant(flag?: string | null) {
                                             <Package class="size-4" />Ongoing
                                             <Badge variant="secondary" class="ml-1 px-1.5 py-0 text-xs">{{ ongoingItems.length }}</Badge>
                                         </TabsTrigger>
-                                        <TabsTrigger value="archived" class="gap-1.5">
-                                            <Archive class="size-4" />Archived
+                                        <TabsTrigger value="unsettled" class="gap-1.5">
+                                            <Archive class="size-4" />Unsettled
                                             <Badge variant="secondary" class="ml-1 px-1.5 py-0 text-xs">{{ archivedItems.length }}</Badge>
                                         </TabsTrigger>
                                         <TabsTrigger value="fulfilled" class="gap-1.5">
@@ -173,7 +173,7 @@ function priceFlagVariant(flag?: string | null) {
                                         </TabsTrigger>
                                     </TabsList>
 
-                                    <template v-for="(items, tab) in { ongoing: ongoingItems, archived: archivedItems, fulfilled: fulfilledItems }" :key="tab">
+                                    <template v-for="(items, tab) in { ongoing: ongoingItems, unsettled: archivedItems, fulfilled: fulfilledItems }" :key="tab">
                                         <TabsContent :value="tab">
                                             <div v-if="items.length === 0" class="flex items-center justify-center h-24 text-sm text-muted-foreground">
                                                 No {{ tab }} items

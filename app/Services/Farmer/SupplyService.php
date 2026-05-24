@@ -20,7 +20,7 @@ class SupplyService
             'total_growing' => Post::supply()->growing()->where('user_id', $userId)->count(),
             'total_ongoing' => (clone $itemQuery)->ongoing()->count(),
             'total_fulfilled' => (clone $itemQuery)->fulfilled()->count(),
-            'total_archived' => (clone $itemQuery)->archived()->count(),
+            'total_unsettled' => (clone $itemQuery)->unsettled()->count(),
         ];
     }
 

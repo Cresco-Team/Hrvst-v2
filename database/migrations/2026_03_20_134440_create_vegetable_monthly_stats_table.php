@@ -14,9 +14,9 @@ return new class extends Migration
 
             $table->date('period_date');
 
-            $table->decimal('supply_archived_kg', 10, 2)->default(0);
+            $table->decimal('supply_unsettled_kg', 10, 2)->default(0);
             $table->decimal('supply_fulfilled_kg', 10, 2)->default(0);
-            $table->decimal('demand_archived_kg', 10, 2)->default(0);
+            $table->decimal('demand_unsettled_kg', 10, 2)->default(0);
             $table->decimal('demand_fulfilled_kg', 10, 2)->default(0);
 
             $table->timestamps();

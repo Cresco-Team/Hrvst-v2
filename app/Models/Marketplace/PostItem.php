@@ -59,9 +59,9 @@ class PostItem extends Model
         return $query->where('status', PostItemStatus::Fulfilled);
     }
 
-    public function scopeArchived(Builder $query): Builder
+    public function scopeUnsettled(Builder $query): Builder
     {
-        return $query->where('status', PostItemStatus::Archived);
+        return $query->where('status', PostItemStatus::Unsettled);
     }
 
     public function scopeOfStatus(Builder $query, PostItemStatus $status): Builder
@@ -77,9 +77,9 @@ class PostItem extends Model
         $this->save();
     }
 
-    public function markAsArchived(): void
+    public function markAsUnsettled(): void
     {
-        $this->status = PostItemStatus::Archived;
+        $this->status = PostItemStatus::Unsettled;
         $this->save();
     }
 }

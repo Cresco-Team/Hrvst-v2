@@ -25,7 +25,7 @@ class FarmerDashboardService
             'total_growing' => Post::supply()->growing()->where('user_id', $userId)->count(),
             'total_ongoing' => (clone $itemQuery)->ongoing()->count(),
             'total_fulfilled' => (clone $itemQuery)->fulfilled()->count(),
-            'total_archived' => (clone $itemQuery)->archived()->count(),
+            'total_unsettled' => (clone $itemQuery)->unsettled()->count(),
         ];
     }
 
@@ -49,7 +49,7 @@ class FarmerDashboardService
 
         $ongoing = (clone $itemQuery)->ongoing()->count();
         $growing = Post::supply()->growing()->where('user_id', $userId)->count();
-        $archived = (clone $itemQuery)->archived()->count();
+        $unsettled = (clone $itemQuery)->unsettled()->count();
 
         if ($growing === 0 && $ongoing === 0) {
             $recs[] = new FarmerDashboardRecommendationDTO(
@@ -60,12 +60,12 @@ class FarmerDashboardService
             );
         }
 
-        if ($archived > 0) {
+        if ($unsettled > 0) {
             $recs[] = new FarmerDashboardRecommendationDTO(
                 severity: 'warning',
-                type: 'archived_items',
-                title: 'Archived Items',
-                body: "{$archived} supply item(s) were archived without being fulfilled. Review your pricing or delivery timing.",
+                type: 'unsettled_items',
+                title: 'Unsettled Items',
+                body: "{$unsettled} supply item(s) were unsettled without being fulfilled. Review your pricing or delivery timing.",
             );
         }
 

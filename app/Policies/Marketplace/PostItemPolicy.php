@@ -48,7 +48,7 @@ class PostItemPolicy
     public function fulfill(User $user, PostItem $postItem): bool
     {
         return $user->id === $postItem->post->user_id
-            && $postItem->status === PostItemStatus::Archived;
+            && $postItem->status === PostItemStatus::Unsettled;
     }
 
     public function archive(User $user, PostItem $postItem): bool

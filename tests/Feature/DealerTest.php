@@ -204,13 +204,13 @@ describe('admin dealer details api', function () {
             ->assertJsonCount(1, 'demands');
     });
 
-    it('demands list excludes archived posts', function () {
+    it('demands list excludes unsettled posts', function () {
         $dealer = createDealerUser();
         $variety = createVariety();
-        createDemandPost($dealer, $variety, ['item_status' => PostItemStatus::Archived]);
+        createDemandPost($dealer, $variety, ['item_status' => PostItemStatus::Unsettled]);
 
         // DealerService::details loads postItems scoped to ongoing() only.
-        // A post whose only item is archived produces an empty postItems collection → demands = [].
+        // A post whose only item is unsettled produces an empty postItems collection → demands = [].
         actingAs(createAdminUser())
             ->getJson(route('admin.dealers.api.details', $dealer->dealerProfile))
             ->assertOk()

@@ -143,11 +143,11 @@ const criticalRecs = computed(() =>
 
 					<Card class="gap-0 py-4">
 						<CardContent class="px-4">
-							<p class="text-xs text-muted-foreground">Archived</p>
+							<p class="text-xs text-muted-foreground">Unsettled</p>
 						</CardContent>
 						<CardContent class="flex items-end justify-between px-6 pt-0">
 							<p class="text-2xl font-bold tabular-nums text-muted-foreground">
-								{{ summary?.total_archived ?? 0 }}
+								{{ summary?.total_unsettled ?? 0 }}
 							</p>
 							<AlertTriangle class="size-4 text-muted-foreground" />
 						</CardContent>
