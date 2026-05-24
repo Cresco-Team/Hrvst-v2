@@ -10,7 +10,6 @@ use App\Models\Profiles\DealerProfile;
 use App\Models\Profiles\FarmerProfile;
 use App\Models\User;
 use App\Observers\PostItemObserver;
-use App\Observers\PostObserver;
 use App\Observers\VarietyObserver;
 use App\Policies\Marketplace\PostItemPolicy;
 use App\Policies\Marketplace\PostPolicy;
@@ -54,7 +53,6 @@ class AppServiceProvider extends ServiceProvider
         });
 
         Variety::observe(VarietyObserver::class);
-        Post::observe(PostObserver::class);
         PostItem::observe(PostItemObserver::class);
     }
 
