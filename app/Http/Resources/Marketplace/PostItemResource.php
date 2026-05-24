@@ -21,7 +21,7 @@ class PostItemResource extends JsonResource
             // variety
             'variety_id' => $this->variety_id,
             'variety_name' => $variety->name,
-            'variety_image_url' => $variety->getFirstMediaUrl('variety_image'),
+            'variety_image_url' => $vegetable->getFirstMediaUrl('vegetable_image'),
             'vegetable_id' => $vegetable->id,
             'vegetable_name' => $vegetable->name,
             'category_name' => $vegetable->category->name,

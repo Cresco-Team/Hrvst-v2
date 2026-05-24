@@ -12,7 +12,7 @@ class VarietyResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
-            'image_url' => $this->getFirstMediaUrl('variety_image'),
+            'image_url' => $this->vegetable->getFirstMediaUrl('vegetable_image'),
             'hearts_count' => $this->hearts_count,
             'is_hearted' => (bool) ($this->is_hearted ?? false),
 
@@ -57,8 +57,6 @@ class VarietyResource extends JsonResource
                 };
             }),
 
-            // Counted via postItems since posts.variety_id was removed.
-            // Keys must match the withCount aliases in VegetableService::paginated().
             'supply_count' => $this->whenCounted('supply_count'),
             'demand_count' => $this->whenCounted('demand_count'),
         ];
