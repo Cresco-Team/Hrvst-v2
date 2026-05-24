@@ -18,6 +18,7 @@ class StoreVegetableRequest extends FormRequest
         return [
             'category_id' => ['required', 'integer', 'exists:categories,id'],
             'name' => ['required', 'string', 'max:255', Rule::unique('vegetables', 'name')],
+            'image' => ['nullable', 'image', 'mimes:jpeg,jpg,png,webp', 'max:5120'],
         ];
     }
 
@@ -31,6 +32,9 @@ class StoreVegetableRequest extends FormRequest
             'name.string' => 'The name field must be a string.',
             'name.max' => 'The name field may not be greater than 255 characters.',
             'name.unique' => 'A vegetable with this name already exists.',
+            'image.image' => 'The file must be an image.',
+            'image.mimes' => 'Image must be JPEG, PNG, or WebP format.',
+            'image.max' => 'Image size cannot exceed 5MB.',
         ];
     }
 }

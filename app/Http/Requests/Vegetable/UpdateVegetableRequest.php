@@ -25,6 +25,7 @@ class UpdateVegetableRequest extends FormRequest
                     ->where('category_id', $this->integer('category_id'))
                     ->ignore($this->route('vegetable_type')),
             ],
+            'image' => ['nullable', 'image', 'mimes:jpeg,jpg,png,webp', 'max:5120'],
         ];
     }
 
@@ -35,6 +36,9 @@ class UpdateVegetableRequest extends FormRequest
             'category_id.exists' => 'The selected category does not exist.',
             'name.required' => 'Vegetable name is required.',
             'name.unique' => 'A vegetable with this name already exists in the selected category.',
+            'image.image' => 'The file must be an image.',
+            'image.mimes' => 'Image must be JPEG, PNG, or WebP format.',
+            'image.max' => 'Image size cannot exceed 5MB.',
         ];
     }
 }
