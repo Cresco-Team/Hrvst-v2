@@ -54,10 +54,7 @@ class VarietyController extends Controller
 
     public function store(StoreVarietyRequest $request, CreateVarietyAction $createVariety): RedirectResponse
     {
-        $createVariety->handle(
-            validated: $request->safe()->except('image'),
-            image: $request->file('image')
-        );
+        $createVariety->handle(validated: $request->validated());
 
         return redirect()->back()
             ->with('flash', ['type' => 'success', 'message' => 'Variety created successfully.']);
@@ -67,8 +64,7 @@ class VarietyController extends Controller
     {
         $updateVariety->handle(
             variety: $variety,
-            validated: $request->safe()->except('image'),
-            image: $request->file('image')
+            validated: $request->validated(),
         );
 
         return redirect()->back()

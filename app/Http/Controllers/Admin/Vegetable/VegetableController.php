@@ -9,7 +9,6 @@ use App\Http\Resources\Product\VegetableResource;
 use App\Models\Product\Category;
 use App\Models\Product\Variety;
 use App\Models\Product\Vegetable;
-use App\Services\Product\VarietyService;
 use App\Services\Product\VegetableService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -21,7 +20,6 @@ class VegetableController extends Controller
 {
     public function __construct(
         private VegetableService $vegetableService,
-        private VarietyService $varietyService,
     ) {}
 
     public function category(): Response
@@ -78,7 +76,11 @@ class VegetableController extends Controller
     {
         Gate::authorize('create', Vegetable::class);
 
-        Vegetable::create($request->validated());
+        $vegetable = Vegetable::create($request->safe()->except('image'));
+
+        if ($request->hasFile('image')) {
+            $vegetable->addMediaFromRequest('image')->toMediaCollection('vegetable_image');
+        }
 
         return redirect()->back()
             ->with('flash', ['type' => 'success', 'message' => 'Vegetable created successfully.']);
@@ -88,7 +90,11 @@ class VegetableController extends Controller
     {
         Gate::authorize('update', $vegetable);
 
-        $vegetable->update($request->validated());
+        $vegetable->update($request->safe()->except('image'));
+
+        if ($request->hasFile('image')) {
+            $vegetable->addMediaFromRequest('image')->toMediaCollection('vegetable_image');
+        }
 
         return redirect()->back()
             ->with('flash', ['type' => 'success', 'message' => 'Vegetable updated successfully.']);
