@@ -120,7 +120,7 @@ function actionsFor(status: string): Array<'edit' | 'fulfill' | 'archive' | 'del
 	switch (String(status)) {
 		case 'ongoing':
 			return ['edit', 'delete']
-		case 'archived':
+		case 'unsettled':
 			return ['edit', 'fulfill', 'delete']
 		case 'fulfilled':
 			return ['edit', 'archive', 'delete']
@@ -158,7 +158,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 				</template>
 				<div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
 					<LargeCard title="Ongoing"   :value="summary?.total_ongoing"   subtext="awaiting supply" />
-					<LargeCard title="Archived"  :value="summary?.total_archived"  subtext="closed" />
+					<LargeCard title="Unsettled"  :value="summary?.total_unsettled"  subtext="closed" />
 					<LargeCard title="Fulfilled" :value="summary?.total_fulfilled" subtext="completed" />
 				</div>
 			</Deferred>
@@ -166,7 +166,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 			<Tabs :model-value="activeTab" @update:model-value="handleTabChange">
 				<TabsList>
 					<TabsTrigger value="ongoing">Ongoing</TabsTrigger>
-					<TabsTrigger value="archived">Archived</TabsTrigger>
+					<TabsTrigger value="unsettled">Unsettled</TabsTrigger>
 					<TabsTrigger value="fulfilled">Fulfilled</TabsTrigger>
 				</TabsList>
 			</Tabs>

@@ -160,7 +160,7 @@ function actionsFor(status: string): Array<'edit' | 'fulfill' | 'archive' | 'del
 	switch (String(status)) {
 		case 'ongoing':
 			return ['edit', 'delete']
-		case 'archived':
+		case 'unsettled':
 			return ['edit', 'fulfill', 'delete']
 		case 'fulfilled':
 			return ['edit', 'archive', 'delete']
@@ -199,7 +199,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 					<LargeCard title="Growing" :value="summary?.total_growing" subtext="pre-harvest" />
 					<LargeCard title="Ongoing" :value="summary?.total_ongoing" subtext="scheduled" />
 					<LargeCard title="Fulfilled" :value="summary?.total_fulfilled" subtext="completed" :icon="CircleCheckBig" />
-					<LargeCard title="Archived" :value="summary?.total_archived" subtext="closed" />
+					<LargeCard title="Unsettled" :value="summary?.total_unsettled" subtext="closed" />
 				</div>
 			</Deferred>
 
@@ -207,7 +207,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 				<TabsList>
 					<TabsTrigger value="growing">Growing</TabsTrigger>
 					<TabsTrigger value="ongoing">Ongoing</TabsTrigger>
-					<TabsTrigger value="archived">Archived</TabsTrigger>
+					<TabsTrigger value="unsettled">Unsettled</TabsTrigger>
 					<TabsTrigger value="fulfilled">Fulfilled</TabsTrigger>
 				</TabsList>
 			</Tabs>
@@ -254,7 +254,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 				</Deferred>
 			</template>
 
-			<!-- ── Ongoing / Archived / Fulfilled ────────────────────────────── -->
+			<!-- ── Ongoing / Unsettled / Fulfilled ────────────────────────────── -->
 			<template v-else>
 				<Deferred data="harvestedItems">
 					<template #fallback>
