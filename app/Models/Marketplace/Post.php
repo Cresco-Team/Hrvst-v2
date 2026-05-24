@@ -127,6 +127,11 @@ class Post extends Model implements HasMedia
         $this->save();
     }
 
+    public function markAsUnsettled(): void
+    {
+        $this->postItems()->each(fn (PostItem $item) => $item->markAsUnsettled());
+    }
+
     /* ---------- helpers ---------- */
 
     public function isGrowing(): bool
