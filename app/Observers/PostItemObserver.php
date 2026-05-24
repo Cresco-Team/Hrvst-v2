@@ -95,9 +95,9 @@ class PostItemObserver
     private function resolveColumn(PostType $type, PostItemStatus $status): ?string
     {
         return match (true) {
-            $type === PostType::Supply && $status === PostItemStatus::Archived => 'supply_archived_kg',
+            $type === PostType::Supply && $status === PostItemStatus::Unsettled => 'supply_unsettled_kg',
             $type === PostType::Supply && $status === PostItemStatus::Fulfilled => 'supply_fulfilled_kg',
-            $type === PostType::Demand && $status === PostItemStatus::Archived => 'demand_archived_kg',
+            $type === PostType::Demand && $status === PostItemStatus::Unsettled => 'demand_unsettled_kg',
             $type === PostType::Demand && $status === PostItemStatus::Fulfilled => 'demand_fulfilled_kg',
             default => null,
         };
@@ -109,9 +109,9 @@ class PostItemObserver
             [[
                 'vegetable_id' => $vegetableId,
                 'period_date' => $periodDate,
-                'supply_archived_kg' => 0,
+                'supply_unsettled_kg' => 0,
                 'supply_fulfilled_kg' => 0,
-                'demand_archived_kg' => 0,
+                'demand_unsettled_kg' => 0,
                 'demand_fulfilled_kg' => 0,
                 'created_at' => now(),
                 'updated_at' => now(),
