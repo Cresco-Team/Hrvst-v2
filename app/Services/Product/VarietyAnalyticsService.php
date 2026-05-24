@@ -56,9 +56,9 @@ class VarietyAnalyticsService
      * @param  array<int, array{
      *     month: string,
      *     label: string,
-     *     supply_archived_kg: float,
+     *     supply_unsettled_kg: float,
      *     supply_fulfilled_kg: float,
-     *     demand_archived_kg: float,
+     *     demand_unsettled_kg: float,
      *     demand_fulfilled_kg: float,
      * }> $monthlyActivity  12-entry rolling array from VarietyActivityService
      */
@@ -121,12 +121,12 @@ class VarietyAnalyticsService
         }
 
         $totalSupply = array_sum(array_map(
-            fn (array $m) => $m['supply_fulfilled_kg'] + $m['supply_archived_kg'],
+            fn (array $m) => $m['supply_fulfilled_kg'] + $m['supply_unsettled_kg'],
             $months,
         ));
 
         $totalDemand = array_sum(array_map(
-            fn (array $m) => $m['demand_fulfilled_kg'] + $m['demand_archived_kg'],
+            fn (array $m) => $m['demand_fulfilled_kg'] + $m['demand_unsettled_kg'],
             $months,
         ));
 
@@ -147,7 +147,7 @@ class VarietyAnalyticsService
     }
 
     /**
-     * Fulfillment rate = fulfilled_kg / (fulfilled_kg + archived_kg) over all months.
+     * Fulfillment rate = fulfilled_kg / (fulfilled_kg + unsettled_kg) over all months.
      * Returns null when there is no volume in the window (avoids division by zero noise).
      *
      * @param  'supply'|'demand'  $type
@@ -159,12 +159,12 @@ class VarietyAnalyticsService
             $months,
         ));
 
-        $archived = (float) array_sum(array_map(
-            fn (array $m) => $m["{$type}_archived_kg"],
+        $unsettled = (float) array_sum(array_map(
+            fn (array $m) => $m["{$type}_unsettled_kg"],
             $months,
         ));
 
-        $total = $fulfilled + $archived;
+        $total = $fulfilled + $unsettled;
 
         return $total > 0.0 ? round($fulfilled / $total, 4) : null;
     }
@@ -221,10 +221,10 @@ class VarietyAnalyticsService
             return [null, null];
         }
 
-        $lastSupply = $lastMonth['supply_fulfilled_kg'] + $lastMonth['supply_archived_kg'];
-        $prevSupply = $prevMonth['supply_fulfilled_kg'] + $prevMonth['supply_archived_kg'];
-        $lastDemand = $lastMonth['demand_fulfilled_kg'] + $lastMonth['demand_archived_kg'];
-        $prevDemand = $prevMonth['demand_fulfilled_kg'] + $prevMonth['demand_archived_kg'];
+        $lastSupply = $lastMonth['supply_fulfilled_kg'] + $lastMonth['supply_unsettled_kg'];
+        $prevSupply = $prevMonth['supply_fulfilled_kg'] + $prevMonth['supply_unsettled_kg'];
+        $lastDemand = $lastMonth['demand_fulfilled_kg'] + $lastMonth['demand_unsettled_kg'];
+        $prevDemand = $prevMonth['demand_fulfilled_kg'] + $prevMonth['demand_unsettled_kg'];
 
         $supplyMom = $prevSupply > 0.0
             ? round((($lastSupply - $prevSupply) / $prevSupply) * 100, 2)
@@ -300,7 +300,7 @@ class VarietyAnalyticsService
                 severity: RecommendationSeverity::Warning,
                 type: 'high_supply_archive_rate',
                 title: 'High Supply Archive Rate',
-                body: "{$archivePct}% of supply posts over the last 3 months archived without a match. "
+                body: "{$archivePct}% of supply posts over the last 3 months unsettled without a match. "
                     .'This typically indicates a price or delivery timing mismatch with buyers.',
             );
         }
