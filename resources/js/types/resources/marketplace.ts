@@ -24,7 +24,7 @@ export interface PostItemSnapshot {
 
 export interface FarmerSupplyResource {
 	id: number
-	status: 'growing' // Post is only ever growing here; items carry ongoing/fulfilled/archived
+	status: 'growing' // Post is only ever growing here; items carry ongoing/fulfilled/unsettled
 	target_month: string | null
 	estimated_total_weight: number
 	hearts_count: number
