@@ -15,7 +15,7 @@ class ArchivePostItemCommand extends Command
     {
         $postsArchived = $archiveOldPost();
 
-        $this->info("Archived {$postsArchived}.");
+        $this->info("Unsettled {$postsArchived}.");
 
         return self::SUCCESS;
     }
