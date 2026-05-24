@@ -24,7 +24,7 @@ final class UpdateDemandAction
             ])));
 
             if (! empty($validated['items'])) {
-                // Bug #5 fix: only remove ongoing items — fulfilled/archived items
+                // Bug #5 fix: only remove ongoing items — fulfilled/unsettled items
                 // represent completed or cancelled transactions and must not be touched.
                 $post->postItems()
                     ->where('status', PostItemStatus::Ongoing)

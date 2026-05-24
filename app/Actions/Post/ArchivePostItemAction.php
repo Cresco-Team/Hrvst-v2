@@ -20,7 +20,7 @@ final class ArchivePostItemAction
             ->with('post')
             ->chunkById(200, function ($items) use (&$count): void {
                 foreach ($items as $item) {
-                    $item->markAsArchived();
+                    $item->markAsUnsettled();
                     $count++;
                 }
             });

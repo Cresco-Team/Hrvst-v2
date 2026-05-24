@@ -8,6 +8,6 @@ final class ArchiveDemandAction
 {
     public function handle(Post $post): void
     {
-        $post->markAsArchived();
+        $post->markAsUnsettled();
     }
 }
