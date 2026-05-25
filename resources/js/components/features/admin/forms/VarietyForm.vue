@@ -2,18 +2,16 @@
 import { useForm } from '@inertiajs/vue3'
 import { DollarSign, Leaf } from 'lucide-vue-next'
 import { computed, watch } from 'vue'
+import { store, update } from '@/actions/App/Http/Controllers/Admin/Vegetable/VarietyController'
 import DialogForm from '@/components/dialogs/DialogForm.vue'
-import ImageUpload from '@/components/forms/ImageUpload.vue'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import type { VarietyResource } from '@/types/resources/product'
-import { store, update } from '@/actions/App/Http/Controllers/Admin/Vegetable/VarietyController'
 
 interface VarietyFormData {
 	vegetable_id: string
 	name: string
-	image: File | null
 	price_min: string
 	price_max: string
 }
@@ -34,7 +32,6 @@ const isEditMode = computed(() => props.variety !== null)
 const form = useForm<VarietyFormData>({
 	vegetable_id: '',
 	name: '',
-	image: null,
 	price_min: '',
 	price_max: '',
 })
@@ -45,7 +42,6 @@ watch(
 		if (!props.open) return
 		form.vegetable_id = props.parentVegetable?.id.toString() ?? ''
 		form.name = props.variety?.name ?? ''
-		form.image = null
 		form.price_min = ''
 		form.price_max = ''
 		form.clearErrors()
@@ -59,45 +55,20 @@ const description = computed(() =>
 		: 'Create a new variety for a vegetable type.',
 )
 
-const existingImageUrl = computed(() => props.variety?.image_url ?? null)
+const vegetableImageUrl = computed(() => props.variety?.image_url ?? null)
 
 const priceRange = computed(() => {
 	const min = parseFloat(form.price_min)
 	const max = parseFloat(form.price_max)
-	if (isNaN(min) || isNaN(max)) return null
+	if (Number.isNaN(min) || Number.isNaN(max)) return null
 	return `₱${min.toFixed(2)} – ₱${max.toFixed(2)} (avg: ₱${((min + max) / 2).toFixed(2)})`
 })
 
 function handleSubmit(): void {
-	form.clearErrors()
-
-	if (!form.name.trim()) form.setError('name', 'Variety name is required')
-	if (!isEditMode.value && !form.image) form.setError('image', 'Image is required for new varieties')
-
-	if (!isEditMode.value) {
-		const min = parseFloat(form.price_min)
-		const max = parseFloat(form.price_max)
-
-		if (!form.price_min || isNaN(min)) form.setError('price_min', 'Minimum price is required')
-		else if (min < 0) form.setError('price_min', 'Price cannot be negative')
-		else if (min > 9999.99) form.setError('price_min', 'Price cannot exceed ₱9,999.99')
-
-		if (!form.price_max || isNaN(max)) form.setError('price_max', 'Maximum price is required')
-		else if (max < 0) form.setError('price_max', 'Price cannot be negative')
-		else if (max > 9999.99) form.setError('price_max', 'Price cannot exceed ₱9,999.99')
-
-		if (!form.errors.price_min && !form.errors.price_max && max < min) {
-			form.setError('price_max', 'Maximum price must be greater than or equal to minimum price')
-		}
-	}
-
-	if (Object.keys(form.errors).length > 0) return
-
 	if (isEditMode.value) {
 		form.transform((data) => ({
 			vegetable_id: data.vegetable_id,
 			name: data.name,
-			...(data.image ? { image: data.image } : {}),
 		}))
 
 		form.put(update({ variety: props.variety!.id }).url!, {
@@ -109,7 +80,6 @@ function handleSubmit(): void {
 		form.transform((data) => ({
 			vegetable_id: data.vegetable_id,
 			name: data.name,
-			image: data.image,
 			price_min: data.price_min,
 			price_max: data.price_max,
 		}))
@@ -117,7 +87,6 @@ function handleSubmit(): void {
 		form.post(store().url, {
 			preserveScroll: true,
 			preserveState: true,
-			forceFormData: true,
 			onSuccess: () => emit('success'),
 		})
 	}
@@ -144,11 +113,23 @@ function handleSubmit(): void {
         <!-- Parent Vegetable — locked, derived from table context -->
         <div class="flex flex-col gap-2">
           <Label class="flex items-center gap-1.5">Parent Vegetable</Label>
+
+          <div v-if="vegetableImageUrl" class="overflow-hidden rounded-md border w-full aspect-video bg-muted">
+            <img
+              :src="vegetableImageUrl"
+              :alt="parentVegetable?.name"
+              class="h-full w-full object-cover"
+            />
+          </div>
+
           <div class="flex h-9 items-center rounded-md border border-input bg-muted/50 px-3 text-sm text-muted-foreground">
             {{ parentVegetable?.name ?? '—' }}
           </div>
           <p class="text-xs text-muted-foreground">
             {{ isEditMode ? 'Parent vegetable cannot be changed after creation.' : 'Variety will be created under this vegetable.' }}
+          </p>
+          <p v-if="isEditMode" class="text-xs text-muted-foreground">
+            To change the image, edit the vegetable directly.
           </p>
         </div>
 
@@ -170,14 +151,6 @@ function handleSubmit(): void {
           </p>
           <p v-else class="text-xs text-muted-foreground">The specific type or cultivar name</p>
         </div>
-
-        <!-- Image -->
-        <ImageUpload
-          v-model="form.image"
-          :existing-image-url="existingImageUrl"
-          :error="form.errors.image"
-          :required="!isEditMode"
-        />
 
         <!-- Price Range — create only -->
         <div v-if="!isEditMode" class="flex flex-col gap-3 rounded-lg border bg-muted/30 p-4">
