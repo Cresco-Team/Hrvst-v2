@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Admin\Vegetable;
 
+use App\Actions\Product\CreateVegetableAction;
+use App\Actions\Product\UpdateVegetableAction;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Vegetable\StoreVegetableRequest;
 use App\Http\Requests\Vegetable\UpdateVegetableRequest;
@@ -72,29 +74,28 @@ class VegetableController extends Controller
         ]);
     }
 
-    public function store(StoreVegetableRequest $request): RedirectResponse
+    public function store(StoreVegetableRequest $request, CreateVegetableAction $createVegetable): RedirectResponse
     {
         Gate::authorize('create', Vegetable::class);
 
-        $vegetable = Vegetable::create($request->safe()->except('image'));
-
-        if ($request->hasFile('image')) {
-            $vegetable->addMediaFromRequest('image')->toMediaCollection('vegetable_image');
-        }
+        $createVegetable->handle(
+            validated: $request->safe()->except('image'),
+            image: $request->file('image')
+        );
 
         return redirect()->back()
             ->with('flash', ['type' => 'success', 'message' => 'Vegetable created successfully.']);
     }
 
-    public function update(UpdateVegetableRequest $request, Vegetable $vegetable): RedirectResponse
+    public function update(UpdateVegetableRequest $request, Vegetable $vegetable, UpdateVegetableAction $updateVegetable): RedirectResponse
     {
         Gate::authorize('update', $vegetable);
 
-        $vegetable->update($request->safe()->except('image'));
-
-        if ($request->hasFile('image')) {
-            $vegetable->addMediaFromRequest('image')->toMediaCollection('vegetable_image');
-        }
+        $updateVegetable->handle(
+            vegetable: $vegetable,
+            validated: $request->validated(),
+            image: $request->file('image')
+        );
 
         return redirect()->back()
             ->with('flash', ['type' => 'success', 'message' => 'Vegetable updated successfully.']);
