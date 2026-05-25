@@ -68,7 +68,11 @@ function openEditVariety(row: VarietyTableRow): void {
 		image_url: row.image_url ?? '',
 		hearts_count: 0,
 		is_hearted: false,
-		vegetable: { id: row.vegetable_id ?? 0, name: activeParentVegetable.value?.name ?? '', category: null },
+		vegetable: {
+			id: row.vegetable_id ?? 0,
+			name: activeParentVegetable.value?.name ?? '',
+			category: null,
+		},
 		latest_price: row.latest_price ?? null,
 	} as unknown as VarietyResource
 	varietyFormOpen.value = true
@@ -357,3 +361,4 @@ function handleSearch(query: string): void {
     @update:open="priceFormOpen = $event"
   />
 </template>
+
