@@ -19,7 +19,7 @@ class VegetableService
             'category',
             'varieties' => function (HasMany $varieties) use ($priceFilter, $userId): void {
                 $varieties
-                    ->with(['latestPrice', 'lastTwoPrices', 'media'])
+                    ->with(['latestPrice', 'lastTwoPrices'])
                     ->withCount([
                         'postItems as supply_count' => fn (Builder $q) => $q->ongoing()->whereHas(
                             'post', fn (Builder $p) => $p->supply()->harvested()
