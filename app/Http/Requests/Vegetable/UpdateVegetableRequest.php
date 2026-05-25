@@ -23,7 +23,7 @@ class UpdateVegetableRequest extends FormRequest
                 'max:255',
                 Rule::unique('vegetables', 'name')
                     ->where('category_id', $this->integer('category_id'))
-                    ->ignore($this->route('vegetable_type')),
+                    ->ignore($this->route('vegetable')),
             ],
             'image' => ['nullable', 'image', 'mimes:jpeg,jpg,png,webp', 'max:5120'],
         ];
