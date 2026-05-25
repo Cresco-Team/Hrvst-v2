@@ -13,6 +13,7 @@ class VegetableResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'is_variety' => false,
+            'image_url' => $this->getFirstMediaUrl('vegetable_image'),
             'category' => $this->whenLoaded('category', fn () => [
                 'id' => $this->category->id,
                 'name' => $this->category->name,
@@ -21,7 +22,9 @@ class VegetableResource extends JsonResource
             'varieties_count' => $this->whenCounted('varieties'),
             'varieties' => $this->whenLoaded(
                 'varieties',
-                fn () => VarietyResource::collection($this->varieties)->resolve()
+                fn () => VarietyResource::collection(
+                    $this->varieties->each->setRelation('vegetable', $this->resource)
+                )->resolve()
             ),
         ];
     }
