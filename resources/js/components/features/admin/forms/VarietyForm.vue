@@ -2,94 +2,92 @@
 import { useForm } from '@inertiajs/vue3'
 import { DollarSign, Leaf } from 'lucide-vue-next'
 import { computed, watch } from 'vue'
-import { store, update } from '@/actions/App/Http/Controllers/Admin/Vegetable/VarietyController'
 import DialogForm from '@/components/dialogs/DialogForm.vue'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import type { VarietyResource } from '@/types/resources/product'
+import { store, update } from '@/actions/App/Http/Controllers/Admin/Vegetable/VarietyController'
 
 interface VarietyFormData {
-	vegetable_id: string
-	name: string
-	price_min: string
-	price_max: string
+  vegetable_id: string
+  name: string
+  price_min: string
+  price_max: string
 }
 
 const props = defineProps<{
-	open: boolean
-	variety: VarietyResource | null
-	parentVegetable: { id: number; name: string } | null
+  open: boolean
+  variety: VarietyResource | null
+  parentVegetable: { id: number; name: string } | null
 }>()
 
 const emit = defineEmits<{
-	'update:open': [value: boolean]
-	success: []
+  'update:open': [value: boolean]
+  success: []
 }>()
 
 const isEditMode = computed(() => props.variety !== null)
 
 const form = useForm<VarietyFormData>({
-	vegetable_id: '',
-	name: '',
-	price_min: '',
-	price_max: '',
+  vegetable_id: '',
+  name: '',
+  price_min: '',
+  price_max: '',
 })
 
 watch(
-	() => [props.variety, props.open, props.parentVegetable],
-	() => {
-		if (!props.open) return
-		form.vegetable_id = props.parentVegetable?.id.toString() ?? ''
-		form.name = props.variety?.name ?? ''
-		form.price_min = ''
-		form.price_max = ''
-		form.clearErrors()
-	},
+  () => [props.variety, props.open, props.parentVegetable],
+  () => {
+    if (!props.open) return
+    form.vegetable_id = props.parentVegetable?.id.toString() ?? ''
+    form.name = props.variety?.name ?? ''
+    form.price_min = ''
+    form.price_max = ''
+    form.clearErrors()
+  },
 )
 
 const title = computed(() => (isEditMode.value ? 'Edit Variety' : 'Add New Variety'))
 const description = computed(() =>
-	isEditMode.value
-		? 'Update the variety details. Use the "Update Price" action to record a new price.'
-		: 'Create a new variety for a vegetable type.',
+  isEditMode.value
+    ? 'Update the variety details. Use the "Update Price" action to record a new price.'
+    : 'Create a new variety for a vegetable type.',
 )
 
-const vegetableImageUrl = computed(() => props.variety?.image_url ?? null)
-
 const priceRange = computed(() => {
-	const min = parseFloat(form.price_min)
-	const max = parseFloat(form.price_max)
-	if (Number.isNaN(min) || Number.isNaN(max)) return null
-	return `₱${min.toFixed(2)} – ₱${max.toFixed(2)} (avg: ₱${((min + max) / 2).toFixed(2)})`
+  const min = parseFloat(form.price_min)
+  const max = parseFloat(form.price_max)
+  if (isNaN(min) || isNaN(max)) return null
+  return `₱${min.toFixed(2)} – ₱${max.toFixed(2)} (avg: ₱${((min + max) / 2).toFixed(2)})`
 })
 
 function handleSubmit(): void {
-	if (isEditMode.value) {
-		form.transform((data) => ({
-			vegetable_id: data.vegetable_id,
-			name: data.name,
-		}))
+  if (isEditMode.value) {
+    form.transform((data) => ({
+      vegetable_id: data.vegetable_id,
+      name: data.name,
+    }))
 
-		form.put(update({ variety: props.variety!.id }).url!, {
-			preserveScroll: true,
-			preserveState: true,
-			onSuccess: () => emit('success'),
-		})
-	} else {
-		form.transform((data) => ({
-			vegetable_id: data.vegetable_id,
-			name: data.name,
-			price_min: data.price_min,
-			price_max: data.price_max,
-		}))
+    form.put(update({ variety: props.variety!.id }).url!, {
+      preserveScroll: true,
+      preserveState: true,
+      onSuccess: () => emit('success'),
+    })
+  } else {
+    form.transform((data) => ({
+      vegetable_id: data.vegetable_id,
+      name: data.name,
+      price_min: data.price_min,
+      price_max: data.price_max,
+    }))
 
-		form.post(store().url, {
-			preserveScroll: true,
-			preserveState: true,
-			onSuccess: () => emit('success'),
-		})
-	}
+    form.post(store().url, {
+      preserveScroll: true,
+      preserveState: true,
+      onSuccess: () => emit('success'),
+    })
+  }
 }
 </script>
 
@@ -114,22 +112,11 @@ function handleSubmit(): void {
         <div class="flex flex-col gap-2">
           <Label class="flex items-center gap-1.5">Parent Vegetable</Label>
 
-          <div v-if="vegetableImageUrl" class="overflow-hidden rounded-md border w-full aspect-video bg-muted">
-            <img
-              :src="vegetableImageUrl"
-              :alt="parentVegetable?.name"
-              class="h-full w-full object-cover"
-            />
-          </div>
-
           <div class="flex h-9 items-center rounded-md border border-input bg-muted/50 px-3 text-sm text-muted-foreground">
             {{ parentVegetable?.name ?? '—' }}
           </div>
           <p class="text-xs text-muted-foreground">
             {{ isEditMode ? 'Parent vegetable cannot be changed after creation.' : 'Variety will be created under this vegetable.' }}
-          </p>
-          <p v-if="isEditMode" class="text-xs text-muted-foreground">
-            To change the image, edit the vegetable directly.
           </p>
         </div>
 
