@@ -13,7 +13,6 @@ class VarietyDetailResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
-            'image_url' => $this->vegetable->getFirstMediaUrl('vegetable_image'),
             'hearts_count' => $this->hearts_count,
             'is_hearted' => (bool) ($this->is_hearted ?? false),
 
@@ -23,6 +22,7 @@ class VarietyDetailResource extends JsonResource
                 'category' => [
                     'id' => $this->vegetable->category->id,
                     'name' => $this->vegetable->category->name,
+                    'image_url' => $this->vegetable->getFirstMediaUrl('vegetable_image'),
                 ],
             ],
 

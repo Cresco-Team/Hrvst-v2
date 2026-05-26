@@ -68,7 +68,7 @@ class VarietyService
         $query = Vegetable::with([
             'category',
             'varieties' => function (HasMany $q) use ($search, $priceFilter, $userId): void {
-                $q->with(['latestPrice', 'lastTwoPrices', 'media'])
+                $q->with(['latestPrice', 'lastTwoPrices'])
                     ->withCount([
                         'postItems as supply_count' => fn (Builder $q) => $q->ongoing()->whereHas(
                             'post', fn (Builder $p) => $p->supply()->harvested()
@@ -131,7 +131,7 @@ class VarietyService
 
     public function forCatalog(int $perPage = 20, ?string $search = null, ?int $categoryId = null, ?int $userId = null): LengthAwarePaginator
     {
-        return Variety::with(['vegetable.category', 'latestPrice', 'lastTwoPrices', 'media'])
+        return Variety::with(['vegetable.category', 'latestPrice', 'lastTwoPrices'])
             ->withCount([
                 'postItems as supply_count' => fn (Builder $q) => $q->ongoing()->whereHas(
                     'post', fn (Builder $p) => $p->supply()->harvested()
@@ -156,7 +156,7 @@ class VarietyService
 
     public function show(Variety $variety, int $year, int $month, VarietyViewerRole $role): Variety
     {
-        $variety->load(['vegetable.category', 'latestPrice', 'recentPrices', 'media']);
+        $variety->load(['vegetable.category', 'latestPrice', 'recentPrices']);
 
         $variety->supply_count = $variety->postItems()
             ->ongoing()
