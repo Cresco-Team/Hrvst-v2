@@ -93,7 +93,7 @@ class VegetableController extends Controller
 
         $updateVegetable->handle(
             vegetable: $vegetable,
-            validated: $request->validated(),
+            validated: $request->safe()->except('image'),
             image: $request->file('image')
         );
 
