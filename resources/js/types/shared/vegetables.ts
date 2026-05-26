@@ -1,3 +1,7 @@
+import type { PriceTrend } from '../enums'
+
+export type { PriceTrend }
+
 export interface PriceEntry {
 	price_min: number
 	price_max: number
@@ -10,8 +14,6 @@ export interface LatestPrice {
 	recorded_at: string
 	freshness: 'recent' | 'stable' | 'very stable' | 'stale'
 }
-
-export type PriceTrend = 'up' | 'down' | 'flat' | null
 
 export interface MunicipalitySupply {
 	name: string
@@ -53,7 +55,6 @@ export interface ShowVariety {
 	id: number
 	name: string
 	display_name: string
-	image_url: string | null
 	vegetable: {
 		id: number
 		name: string
@@ -71,7 +72,6 @@ export interface ShowVariety {
 	hearts_count: number
 	is_hearted: boolean
 	supply_municipalities: MunicipalitySupply[]
-	// 12-entry array of monthly closed market volume; oldest → newest
 	monthly_activity: MonthlyActivity[]
 }
 

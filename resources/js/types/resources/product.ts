@@ -21,20 +21,14 @@ export interface VarietyRecommendation {
 }
 
 export interface VarietyAnalytics {
-  /** Positive = oversupply, negative = undersupply */
   supply_demand_ratio: number
   imbalance_band: ImbalanceBand
-  /** 0–1 ratio over last 3 complete months. Null when no volume exists. */
   supply_fulfillment_rate: number | null
   demand_fulfillment_rate: number | null
-  /** % change from oldest to newest recorded price. Null when < 2 price records. */
   price_momentum_pct: number | null
-  /** Weeks since the last price record. Null when no price has ever been set. */
   price_weeks_stale: number | null
-  /** Month-over-month supply volume % change. Null when prior month has no volume. */
   supply_volume_mom_pct: number | null
   demand_volume_mom_pct: number | null
-  /** Pre-sorted: critical → warning → info */
   recommendations: VarietyRecommendation[]
 }
 
@@ -43,16 +37,17 @@ export interface VarietyAnalytics {
 export interface PriceHistoryResource {
   price_min: number
   price_max: number
-  recorded_at: string        // formatted 'M d, Y'
+  recorded_at: string
   freshness: PriceFreshness
 }
 
-// ─── VegetableResource ──────────────────────────────────────────────────────────
+// ─── VegetableResource ────────────────────────────────────────────────────────
 
 export interface VegetableResource {
   id: number
   name: string
   is_variety: boolean
+  image_url: string
   category: { id: number; name: string } | null
   varieties_count?: number
   varieties: VarietyResource[] | null
@@ -78,8 +73,8 @@ export interface SupplyMunicipality {
 }
 
 export interface MonthlyActivity {
-  month: string              // 'Y-m'
-  label: string              // 'M Y'
+  month: string
+  label: string
   supply_unsettled_kg: number
   supply_fulfilled_kg: number
   demand_unsettled_kg: number
@@ -87,37 +82,29 @@ export interface MonthlyActivity {
 }
 
 export interface VarietyResource {
-  // Always present
   id: number
   name: string
-  image_url: string
   hearts_count: number
   is_hearted: boolean
   vegetable: VarietyVegetable
 
-  // with('latestPrice')
   latest_price?: PriceHistoryResource | null
   price_updated_human?: string
   price_updated_date?: string
 
-  // with('lastTwoPrices')
   price_trend?: PriceTrend | null
 
-  // with('recentPrices') — VarietyDetailResource only
   recent_prices?: PriceHistoryResource[]
 
-  // withCount
   supply_count?: number
   demand_count?: number
 
-  // VarietyDetailResource only
   monthly_supply_kg?: number
   monthly_demand_kg?: number
   supply_municipalities?: SupplyMunicipality[]
   monthly_activity?: MonthlyActivity[]
   variety_calendar?: Record<string, Record<string, { type: 'supply' | 'demand'; total_kg: number; posts_count: number }[]>>
 
-  // Computed by VarietyAnalyticsService — present when VarietyService::show() is called
   analytics?: VarietyAnalytics | null
 }
 
@@ -160,6 +147,18 @@ export interface VarietyTableRow {
   varieties?: VarietyTableRow[]
 }
 
+// ─── Admin Table shape ────────────────────────────────────────────────────────
+
+export interface Table {
+  id: number
+  name: string
+  is_variety: boolean
+  image_url: string
+  category: { id: number; name: string } | null
+  varieties_count?: number
+  varieties: VarietyResource[] | null
+}
+
 // ─── Mapper ───────────────────────────────────────────────────────────────────
 
 export function mapVegetablesToTableRows(vegetables: VegetableResource[]): VarietyTableRow[] {
@@ -167,6 +166,7 @@ export function mapVegetablesToTableRows(vegetables: VegetableResource[]): Varie
     id: veg.id,
     name: veg.name,
     is_variety: false,
+    image_url: veg.image_url,
     category: veg.category,
     varieties_count: veg.varieties_count,
     varieties: (veg.varieties ?? []).map((v): VarietyTableRow => ({
@@ -174,7 +174,6 @@ export function mapVegetablesToTableRows(vegetables: VegetableResource[]): Varie
       name: v.name,
       is_variety: true,
       vegetable_id: veg.id,
-      image_url: v.image_url,
       latest_price: v.latest_price ?? null,
       price_updated_human: v.price_updated_human ?? null,
       price_trend: v.price_trend ?? null,
@@ -182,15 +181,4 @@ export function mapVegetablesToTableRows(vegetables: VegetableResource[]): Varie
       demand_count: v.demand_count,
     })),
   }))
-}
-
-// ─── Admin Table shape ────────────────────────────────────────────────────────
-
-export interface Table {
-  id: number
-  name: string
-  is_variety: boolean
-  category: { id: number; name: string } | null
-  varieties_count?: number
-  varieties: VarietyResource[] | null
 }
