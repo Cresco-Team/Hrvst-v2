@@ -22,7 +22,7 @@ class MarketplaceService
                         'hearts as is_hearted' => fn (Builder $q) => $q->where('user_id', $userId),
                     ])),
             ])
-            ->where('post_items.status', PostItemStatus::Ongoing)
+            ->ongoing()
             ->whereHas('post', fn (Builder $q) => $q->demand()->harvested())
             ->whereNull('post_items.deleted_at')
             ->when(! empty($filters['search']), fn (Builder $q) => $q->whereHas(
