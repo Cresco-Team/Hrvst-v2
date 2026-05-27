@@ -24,11 +24,12 @@ class DatabaseSeeder extends Seeder
             $this->call([
                 TestUsersSeeder::class,
                 PriceHistorySeeder::class,
-                // VarietyMonthlyStatsSeeder::class,
             ]);
 
-            FarmerProfile::factory(10)->create();
-            DealerProfile::factory(5)->create();
+            FarmerProfile::factory(25)->create();
+            DealerProfile::factory(12)->create();
+
+            $this->call([PostSeeder::class]);
         }
 
         $this->command->info('Database seeded successfully!');
