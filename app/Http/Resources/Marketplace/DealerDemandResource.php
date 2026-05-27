@@ -23,17 +23,15 @@ class DealerDemandResource extends JsonResource
             'created_at' => $this->created_at->format('M d, Y'),
             'created_at_human' => $this->created_at->diffForHumans(),
 
-            /* with('vegetable.category') */
             'vegetable' => $this->whenLoaded('vegetable', fn () => [
                 'id' => $this->vegetable->id,
                 'name' => $this->vegetable->name,
                 'category' => $this->vegetable->relationLoaded('category')
                     ? $this->vegetable->category->name
                     : null,
-                'image_url' => '',
+                'image_url' => $this->vegetable->getFirstMediaUrl('vegetable_image'),
             ]),
 
-            /* with('postItems.variety') */
             'items' => $this->whenLoaded('postItems', fn () => $this->postItems->map(fn ($item) => [
                 'id' => $item->id,
                 'variety_id' => $item->variety_id,

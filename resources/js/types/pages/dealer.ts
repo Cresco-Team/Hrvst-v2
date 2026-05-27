@@ -2,6 +2,7 @@ import type { PostItemStatus } from '../enums'
 import type {
 	DealerDemandResource,
 	DealerPostItemResource,
+	PostItemSnapshot,
 	SupplyMapFilterOptions,
 	VarietyOptionsByVegetable,
 	VegetableOptionsByCategory,
@@ -36,7 +37,7 @@ export interface DealerDemandsProps {
 	summary: DealerDemandSummary
 	vegetableOptions: VegetableOptionsByCategory
 	varietyOptions: VarietyOptionsByVegetable
-	demands: Paginated<DealerPostItemResource>
+	demands: Paginated<PostItemSnapshot>
 }
 
 // ─── dealer/supply-map/Index ──────────────────────────────────────────────────

@@ -41,7 +41,6 @@ class SupplyService
             ->join('posts', 'posts.id', '=', 'post_items.post_id')
             ->with([
                 'variety.vegetable.category',
-                'variety.media',
                 'post',
             ])
             ->whereHas('post', fn (Builder $q) => $q->supply()->harvested()->where('user_id', $userId))

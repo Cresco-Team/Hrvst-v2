@@ -2,7 +2,7 @@
 // Add/update FarmerResource and DealerResource to include PostItem-based fields
 
 import type { PostItemStatus } from '../enums'
-import type { DealerPostItemResource } from './marketplace'
+import type { DealerPostItemResource, PostItemSnapshot } from './marketplace'
 
 // ─── Shared supply/demand item summary (sidebar) ──────────────────────────────
 
@@ -45,7 +45,7 @@ export interface FarmerResource {
 	supplies?: PostItemSummary[]
 
 	// full show view (show())
-	supply_items?: DealerPostItemResource[]
+	supply_items?: PostItemSnapshot[]
 	growing_posts_count?: number
 }
 
@@ -72,7 +72,7 @@ export interface DealerResource {
 	demands?: PostItemSummary[]
 
 	// full show view
-	demand_items?: DealerPostItemResource[]
+	demand_items?: PostItemSnapshot[]
 }
 
 // ─── Summary shapes ───────────────────────────────────────────────────────────

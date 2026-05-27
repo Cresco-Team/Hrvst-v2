@@ -7,6 +7,7 @@ use App\Models\Marketplace\Post;
 use App\Models\Marketplace\PostItem;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -43,5 +44,14 @@ class DealerProfile extends Model implements HasMedia
             'user_id',
             'id',
         )->where('posts.type', PostType::Demand);
+    }
+
+    /* ---------- scopes ---------- */
+
+    public function ongoingDemands(): Builder
+    {
+        return $this->demandItems()->where(function ($q) {
+            $q->ongoing();
+        });
     }
 }

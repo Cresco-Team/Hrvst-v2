@@ -1,8 +1,19 @@
 <script setup lang="ts">
 import { router, useForm, usePage } from '@inertiajs/vue3'
-import { Calendar1, Info, KeyRound, Mail, Phone, Trash, Wheat } from 'lucide-vue-next'
+import {
+    Calendar1,
+    Info,
+    KeyRound,
+    Mail,
+    Phone,
+    Trash,
+    Wheat,
+} from 'lucide-vue-next'
 import { ref, watch } from 'vue'
-import { destroy, show } from '@/actions/App/Http/Controllers/Admin/DealerController'
+import {
+    destroy,
+    show,
+} from '@/actions/App/Http/Controllers/Admin/DealerController'
 import { resetPin } from '@/actions/App/Http/Controllers/Admin/UserController'
 import ConfirmationDialog from '@/components/dialogs/ConfirmationDialog.vue'
 import DetailSheet from '@/components/dialogs/DetailSheet.vue'
@@ -10,26 +21,32 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
-	Dialog,
-	DialogContent,
-	DialogDescription,
-	DialogHeader,
-	DialogTitle,
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
 } from '@/components/ui/dialog'
-import { Item, ItemContent, ItemDescription, ItemMedia, ItemTitle } from '@/components/ui/item'
+import {
+    Item,
+    ItemContent,
+    ItemDescription,
+    ItemMedia,
+    ItemTitle,
+} from '@/components/ui/item'
 import { Separator } from '@/components/ui/separator'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useInitials } from '@/composables/useInitials'
 import type { DealerResource, FlashMessage } from '@/types'
 
 const props = defineProps<{
-	open: boolean
-	dealer: DealerResource | null
-	loading: boolean
+    open: boolean
+    dealer: DealerResource | null
+    loading: boolean
 }>()
 
 defineEmits<{
-	close: []
+    close: []
 }>()
 
 const { getInitials } = useInitials()
@@ -43,32 +60,38 @@ const deleteForm = useForm({})
 
 const page = usePage()
 watch(
-	() => page.props.flash as FlashMessage | null,
-	(flash) => {
-		if (flash?.type === 'pin' && flash.pin) {
-			revealedPin.value = flash.pin
-			pinModalOpen.value = true
-		}
-	},
+    () => page.props.flash as FlashMessage | null,
+    (flash) => {
+        if (flash?.type === 'pin' && flash.pin) {
+            revealedPin.value = flash.pin
+            pinModalOpen.value = true
+        }
+    },
 )
 
 function handleResetPin() {
-	if (!props.dealer) return
-	resetPinForm.post(resetPin(props.dealer.user?.id ?? 0).url, { preserveScroll: true })
+    if (!props.dealer) return
+    resetPinForm.post(resetPin(props.dealer.user?.id ?? 0).url, {
+        preserveScroll: true,
+    })
 }
 
 const handleDelete = () => {
-	if (!props.dealer) return
-	deleteForm.delete(destroy(props.dealer.id).url)
+    if (!props.dealer) return
+    deleteForm.delete(destroy(props.dealer.id).url)
 }
 </script>
 
 <template>
-    <DetailSheet :open="open" title="Dealer Details" @update:open="!$event && $emit('close')">
+    <DetailSheet
+        :open="open"
+        title="Dealer Details"
+        @update:open="!$event && $emit('close')"
+    >
         <!-- Loading Skeleton -->
         <div v-if="loading" class="space-y-6">
             <div class="flex items-start gap-4">
-                <Skeleton class="size-16 rounded-lg shrink-0" />
+                <Skeleton class="size-16 shrink-0 rounded-lg" />
                 <div class="flex-1 space-y-2">
                     <Skeleton class="h-5 w-40" />
                     <Skeleton class="h-4 w-56" />
@@ -98,15 +121,22 @@ const handleDelete = () => {
             <Item variant="outline">
                 <ItemMedia>
                     <Avatar class="size-16">
-                        <AvatarImage v-if="dealer.user?.avatar_url" :src="dealer.user.avatar_url"
-                            :alt="dealer.user.name" />
-                        <AvatarFallback class="bg-primary/10 text-lg font-semibold text-primary">
+                        <AvatarImage
+                            v-if="dealer.user?.avatar_url"
+                            :src="dealer.user.avatar_url"
+                            :alt="dealer.user.name"
+                        />
+                        <AvatarFallback
+                            class="bg-primary/10 text-lg font-semibold text-primary"
+                        >
                             {{ getInitials(dealer.user?.name) }}
                         </AvatarFallback>
                     </Avatar>
                 </ItemMedia>
                 <ItemContent>
-                    <ItemTitle class="text-base font-semibold truncate">{{ dealer.user?.name }}</ItemTitle>
+                    <ItemTitle class="truncate text-base font-semibold">{{
+                        dealer.user?.name
+                    }}</ItemTitle>
                     <ItemDescription class="flex items-center gap-3">
                         <Calendar1 class="size-4" />
                         Joined {{ dealer.joined_at_human }}
@@ -120,14 +150,18 @@ const handleDelete = () => {
                         <Mail class="size-3.5 text-primary" />
                         <span>Email</span>
                     </div>
-                    <p class="text-muted-foreground">{{ dealer.user?.email }}</p>
+                    <p class="text-muted-foreground">
+                        {{ dealer.user?.email }}
+                    </p>
                 </div>
                 <div class="flex justify-between text-sm">
                     <div class="flex items-center gap-1.5">
                         <Phone class="size-3.5 text-primary" />
                         <span>Phone Number</span>
                     </div>
-                    <p class="text-muted-foreground">{{ dealer.user?.phone_number }}</p>
+                    <p class="text-muted-foreground">
+                        {{ dealer.user?.phone_number }}
+                    </p>
                 </div>
             </div>
 
@@ -138,13 +172,17 @@ const handleDelete = () => {
                     <Wheat />
                 </ItemMedia>
                 <ItemContent>
-                    <ItemTitle class="flex justify-between w-full">
+                    <ItemTitle class="flex w-full justify-between">
                         <p>Ongoing Demands</p>
-                        <Badge>{{ dealer.demands?.length ?? 0 }}</Badge>
+                        <Badge>{{ dealer.demand_items?.length ?? 0 }}</Badge>
                     </ItemTitle>
                     <ItemDescription class="space-x-2 truncate">
-                        <Badge v-for="demand in dealer.demands" :key="demand.id" class="bg-amber-300">
-                            {{ demand.variety?.name }}
+                        <Badge
+                            v-for="demand in dealer.demand_items"
+                            :key="demand.id"
+                            class="bg-amber-300"
+                        >
+                            {{ demand.name }}
                         </Badge>
                     </ItemDescription>
                 </ItemContent>
@@ -156,18 +194,33 @@ const handleDelete = () => {
                 <Skeleton />
             </template>
             <div v-else-if="dealer" class="flex justify-end gap-3">
-                <Button variant="outline" size="sm" class="cursor-pointer" @click="router.visit(show(dealer.id).url)">
+                <Button
+                    variant="outline"
+                    size="sm"
+                    class="cursor-pointer"
+                    @click="router.visit(show(dealer.id).url)"
+                >
                     <Info />
                     More Details
                 </Button>
-                
-                <Button variant="outline" size="sm" :disabled="resetPinForm.processing" @click="handleResetPin">
+
+                <Button
+                    variant="outline"
+                    size="sm"
+                    :disabled="resetPinForm.processing"
+                    @click="handleResetPin"
+                >
                     <Spinner v-if="resetPinForm.processing" class="size-3.5" />
                     <KeyRound v-else class="size-4" />
                     Reset PIN
                 </Button>
 
-                <Button variant="destructive" size="sm" :disabled="deleteForm.processing" @click="isDeleteDialogOpen = true">
+                <Button
+                    variant="destructive"
+                    size="sm"
+                    :disabled="deleteForm.processing"
+                    @click="isDeleteDialogOpen = true"
+                >
                     <Spinner v-if="deleteForm.processing" class="size-3.5" />
                     <Trash v-else class="size-4" />
                     Delete
@@ -176,33 +229,46 @@ const handleDelete = () => {
         </template>
     </DetailSheet>
 
-    <ConfirmationDialog 
-        v-model:open="isDeleteDialogOpen" 
+    <ConfirmationDialog
+        v-model:open="isDeleteDialogOpen"
         title="Delete Dealer"
-        :description="`Are you sure you want to delete ${dealer?.user?.name}?`" 
+        :description="`Are you sure you want to delete ${dealer?.user?.name}?`"
         @action="handleDelete"
-        variant="destructive" 
+        variant="destructive"
     />
 
     <!-- PIN reveal after reset -->
-  <Dialog :open="pinModalOpen" @update:open="!$event && (pinModalOpen = false)">
-    <DialogContent class="sm:max-w-sm" @pointer-down-outside.prevent @escape-key-down.prevent>
-      <DialogHeader class="items-center text-center">
-        <DialogTitle>PIN Reset</DialogTitle>
-        <DialogDescription>
-          Share this temporary PIN with the farmer in person. It will not be shown again.
-        </DialogDescription>
-      </DialogHeader>
+    <Dialog
+        :open="pinModalOpen"
+        @update:open="!$event && (pinModalOpen = false)"
+    >
+        <DialogContent
+            class="sm:max-w-sm"
+            @pointer-down-outside.prevent
+            @escape-key-down.prevent
+        >
+            <DialogHeader class="items-center text-center">
+                <DialogTitle>PIN Reset</DialogTitle>
+                <DialogDescription>
+                    Share this temporary PIN with the farmer in person. It will
+                    not be shown again.
+                </DialogDescription>
+            </DialogHeader>
 
-      <div class="flex flex-col items-center gap-3 py-6">
-        <p class="text-sm text-muted-foreground">Temporary PIN</p>
-        <p class="font-mono text-7xl font-bold tracking-[0.5em]">{{ revealedPin }}</p>
-        <p class="text-xs text-muted-foreground text-center max-w-[220px]">
-          The dealer will be asked to set a new PIN on their next login.
-        </p>
-      </div>
+            <div class="flex flex-col items-center gap-3 py-6">
+                <p class="text-sm text-muted-foreground">Temporary PIN</p>
+                <p class="font-mono text-7xl font-bold tracking-[0.5em]">
+                    {{ revealedPin }}
+                </p>
+                <p
+                    class="max-w-[220px] text-center text-xs text-muted-foreground"
+                >
+                    The dealer will be asked to set a new PIN on their next
+                    login.
+                </p>
+            </div>
 
-      <Button class="w-full" @click="pinModalOpen = false">Done</Button>
-    </DialogContent>
-  </Dialog>
+            <Button class="w-full" @click="pinModalOpen = false">Done</Button>
+        </DialogContent>
+    </Dialog>
 </template>

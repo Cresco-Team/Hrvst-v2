@@ -15,13 +15,14 @@ class PostItemResource extends JsonResource
 
         return [
             'id' => $this->id,
+            'image_url' => $this->variety->vegetable->getFirstMediaUrl('vegetable_image'),
+            'name' => $this->variety->vegetable->name.' '.$this->variety->name,
             'post_id' => $post->id,
             'status' => $this->status,
 
             // variety
             'variety_id' => $this->variety_id,
             'variety_name' => $variety->name,
-            'variety_image_url' => $variety->getFirstMediaUrl('variety_image'),
             'vegetable_id' => $vegetable->id,
             'vegetable_name' => $vegetable->name,
             'category_name' => $vegetable->category->name,
@@ -37,10 +38,6 @@ class PostItemResource extends JsonResource
             'time_slot_label' => $post->time_slot?->label(),
             'days_until_transaction' => $post->scheduled_date
                 ? (int) now()->diffInDays($post->scheduled_date, false)
-                : null,
-
-            'municipality' => $post->relationLoaded('farmerProfile')
-                ? $post->farmerProfile?->municipality?->name
                 : null,
 
             // interaction

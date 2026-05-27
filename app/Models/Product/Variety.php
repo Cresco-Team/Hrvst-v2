@@ -10,13 +10,10 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Spatie\MediaLibrary\HasMedia;
-use Spatie\MediaLibrary\InteractsWithMedia;
-use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
-class Variety extends Model implements HasMedia
+class Variety extends Model
 {
-    use HasFactory, InteractsWithMedia;
+    use HasFactory;
 
     protected $fillable = [
         'vegetable_id',
@@ -24,7 +21,7 @@ class Variety extends Model implements HasMedia
         'hearts_count',
     ];
 
-    protected $with = ['vegetable.category'];
+    protected $with = ['vegetable.category', 'vegetable.media'];
 
     /* ---------- relations ---------- */
 
@@ -72,31 +69,5 @@ class Variety extends Model implements HasMedia
     public function scopeSearch(Builder $query, ?string $search): void
     {
         $query->when($search, fn (Builder $q) => $q->where('name', 'like', "%{$search}%"));
-    }
-
-    /* ---------- media ---------- */
-
-    public function registerMediaCollections(): void
-    {
-        $this->addMediaCollection('variety_image')
-            ->singleFile()
-            ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/webp'])
-            ->useFallbackUrl(asset('images/placeholder.jpg'));
-    }
-
-    public function registerMediaConversions(?Media $media = null): void
-    {
-        // Replaces the manual WebP encode + scale logic in ImageUploadService
-        $this->addMediaConversion('medium')
-            ->width(800)
-            ->height(800)
-            ->quality(85)
-            ->nonQueued();
-
-        $this->addMediaConversion('thumb')
-            ->width(200)
-            ->height(200)
-            ->sharpen(10)
-            ->nonQueued();
     }
 }

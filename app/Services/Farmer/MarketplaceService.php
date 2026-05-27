@@ -17,13 +17,12 @@ class MarketplaceService
             ->join('posts', 'posts.id', '=', 'post_items.post_id')
             ->with([
                 'variety.vegetable.category',
-                'variety.media',
                 'post' => fn ($q) => $q
                     ->when($userId, fn ($q) => $q->withExists([
                         'hearts as is_hearted' => fn (Builder $q) => $q->where('user_id', $userId),
                     ])),
             ])
-            ->where('post_items.status', PostItemStatus::Ongoing)
+            ->ongoing()
             ->whereHas('post', fn (Builder $q) => $q->demand()->harvested())
             ->whereNull('post_items.deleted_at')
             ->when(! empty($filters['search']), fn (Builder $q) => $q->whereHas(

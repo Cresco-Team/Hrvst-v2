@@ -113,15 +113,189 @@ describe('show', function () {
     });
 });
 
-// ─── Store ────────────────────────────────────────────────────────────────────
+// ─── Vegetable Store ──────────────────────────────────────────────────────────
 
-describe('store', function () {
+describe('vegetable store', function () {
+    it('creates a vegetable without an image', function () {
+        actingAs($this->admin)
+            ->post(route('admin.vegetables.store'), [
+                'category_id' => $this->category->id,
+                'name' => 'Kangkong',
+            ])
+            ->assertRedirect()
+            ->assertSessionHas('flash.type', 'success');
+
+        assertDatabaseHas('vegetables', ['name' => 'Kangkong']);
+    });
+
+    it('creates a vegetable with an image', function () {
+        actingAs($this->admin)
+            ->post(route('admin.vegetables.store'), [
+                'category_id' => $this->category->id,
+                'name' => 'Kangkong',
+                'image' => UploadedFile::fake()->image('kangkong.jpg'),
+            ])
+            ->assertRedirect()
+            ->assertSessionHas('flash.type', 'success');
+
+        $vegetable = Vegetable::where('name', 'Kangkong')->firstOrFail();
+        expect($vegetable->getFirstMedia('vegetable_image'))->not->toBeNull();
+    });
+
+    it('rejects a non-image file', function () {
+        actingAs($this->admin)
+            ->post(route('admin.vegetables.store'), [
+                'category_id' => $this->category->id,
+                'name' => 'Kangkong',
+                'image' => UploadedFile::fake()->create('doc.pdf', 512, 'application/pdf'),
+            ])
+            ->assertSessionHasErrors('image');
+    });
+
+    it('rejects a duplicate name', function () {
+        actingAs($this->admin)
+            ->post(route('admin.vegetables.store'), [
+                'category_id' => $this->category->id,
+                'name' => 'Pechay', // already exists in beforeEach
+            ])
+            ->assertSessionHasErrors('name');
+    });
+
+    it('rejects missing category_id', function () {
+        actingAs($this->admin)
+            ->post(route('admin.vegetables.store'), ['name' => 'Kangkong'])
+            ->assertSessionHasErrors('category_id');
+    });
+
+    it('rejects missing name', function () {
+        actingAs($this->admin)
+            ->post(route('admin.vegetables.store'), ['category_id' => $this->category->id])
+            ->assertSessionHasErrors('name');
+    });
+
+    it('returns 403 for non-admin users', function () {
+        actingAs($this->farmer)
+            ->post(route('admin.vegetables.store'), [
+                'category_id' => $this->category->id,
+                'name' => 'Kangkong',
+            ])
+            ->assertForbidden();
+    });
+
+    it('redirects guests to login', function () {
+        post(route('admin.vegetables.store'), [])->assertRedirect(route('login'));
+    });
+});
+
+// ─── Vegetable Update ─────────────────────────────────────────────────────────
+
+describe('vegetable update', function () {
+    it('updates a vegetable name without an image', function () {
+        actingAs($this->admin)
+            ->put(route('admin.vegetables.update', $this->vegetable), [
+                'category_id' => $this->category->id,
+                'name' => 'Updated Pechay',
+            ])
+            ->assertRedirect()
+            ->assertSessionHas('flash.type', 'success');
+
+        expect($this->vegetable->fresh()->name)->toBe('Updated Pechay');
+    });
+
+    it('updates a vegetable with a new image', function () {
+        actingAs($this->admin)
+            ->put(route('admin.vegetables.update', $this->vegetable), [
+                'category_id' => $this->category->id,
+                'name' => 'Pechay',
+                'image' => UploadedFile::fake()->image('new.jpg'),
+            ])
+            ->assertRedirect()
+            ->assertSessionHas('flash.type', 'success');
+
+        expect($this->vegetable->fresh()->getFirstMedia('vegetable_image'))->not->toBeNull();
+    });
+
+    it('rejects a non-image file on update', function () {
+        actingAs($this->admin)
+            ->put(route('admin.vegetables.update', $this->vegetable), [
+                'category_id' => $this->category->id,
+                'name' => 'Pechay',
+                'image' => UploadedFile::fake()->create('doc.pdf', 512, 'application/pdf'),
+            ])
+            ->assertSessionHasErrors('image');
+    });
+
+    it('rejects missing name', function () {
+        actingAs($this->admin)
+            ->put(route('admin.vegetables.update', $this->vegetable), [
+                'category_id' => $this->category->id,
+            ])
+            ->assertSessionHasErrors('name');
+    });
+
+    it('allows saving with the same name (ignore self in unique check)', function () {
+        actingAs($this->admin)
+            ->put(route('admin.vegetables.update', $this->vegetable), [
+                'category_id' => $this->category->id,
+                'name' => 'Pechay',
+            ])
+            ->assertSessionHasNoErrors()
+            ->assertRedirect();
+    });
+
+    it('returns 403 for non-admin users and leaves the record intact', function () {
+        actingAs($this->farmer)
+            ->put(route('admin.vegetables.update', $this->vegetable), [
+                'category_id' => $this->category->id,
+                'name' => 'Sneaky Update',
+            ])
+            ->assertForbidden();
+
+        expect($this->vegetable->fresh()->name)->toBe('Pechay');
+    });
+
+    it('redirects guests to login', function () {
+        put(route('admin.vegetables.update', $this->vegetable), [])
+            ->assertRedirect(route('login'));
+    });
+});
+
+// ─── Vegetable Destroy ────────────────────────────────────────────────────────
+
+describe('vegetable destroy', function () {
+    it('deletes a vegetable with no varieties', function () {
+        $empty = Vegetable::create(['category_id' => $this->category->id, 'name' => 'Empty Veg']);
+
+        actingAs($this->admin)
+            ->delete(route('admin.vegetables.destroy', $empty))
+            ->assertRedirect()
+            ->assertSessionHas('flash.type', 'success');
+
+        expect(Vegetable::find($empty->id))->toBeNull();
+    });
+
+    it('returns 403 for non-admin users and leaves the record intact', function () {
+        actingAs($this->farmer)
+            ->delete(route('admin.vegetables.destroy', $this->vegetable))
+            ->assertForbidden();
+
+        expect(Vegetable::find($this->vegetable->id))->not->toBeNull();
+    });
+
+    it('redirects guests to login', function () {
+        delete(route('admin.vegetables.destroy', $this->vegetable))
+            ->assertRedirect(route('login'));
+    });
+});
+
+// ─── Variety Store ────────────────────────────────────────────────────────────
+
+describe('variety store', function () {
     it('creates a variety and seeds its first price history', function () {
         actingAs($this->admin)
             ->post(route('admin.vegetables.varieties.store'), [
                 'vegetable_id' => $this->vegetable->id,
                 'name' => 'Green Pechay',
-                'image' => UploadedFile::fake()->image('pechay.jpg'),
                 'price_min' => '15.00',
                 'price_max' => '25.00',
             ])
@@ -141,7 +315,6 @@ describe('store', function () {
         actingAs($this->admin)
             ->post(route('admin.vegetables.varieties.store'), [
                 'name' => 'Green Pechay',
-                'image' => UploadedFile::fake()->image('pechay.jpg'),
                 'price_min' => '15.00',
                 'price_max' => '25.00',
             ])
@@ -153,7 +326,6 @@ describe('store', function () {
             ->post(route('admin.vegetables.varieties.store'), [
                 'vegetable_id' => 9999,
                 'name' => 'Green Pechay',
-                'image' => UploadedFile::fake()->image('pechay.jpg'),
                 'price_min' => '15.00',
                 'price_max' => '25.00',
             ])
@@ -164,34 +336,10 @@ describe('store', function () {
         actingAs($this->admin)
             ->post(route('admin.vegetables.varieties.store'), [
                 'vegetable_id' => $this->vegetable->id,
-                'image' => UploadedFile::fake()->image('pechay.jpg'),
                 'price_min' => '15.00',
                 'price_max' => '25.00',
             ])
             ->assertSessionHasErrors('name');
-    });
-
-    it('rejects missing image', function () {
-        actingAs($this->admin)
-            ->post(route('admin.vegetables.varieties.store'), [
-                'vegetable_id' => $this->vegetable->id,
-                'name' => 'Green Pechay',
-                'price_min' => '15.00',
-                'price_max' => '25.00',
-            ])
-            ->assertSessionHasErrors('image');
-    });
-
-    it('rejects a non-image file upload', function () {
-        actingAs($this->admin)
-            ->post(route('admin.vegetables.varieties.store'), [
-                'vegetable_id' => $this->vegetable->id,
-                'name' => 'Green Pechay',
-                'image' => UploadedFile::fake()->create('document.pdf', 512, 'application/pdf'),
-                'price_min' => '15.00',
-                'price_max' => '25.00',
-            ])
-            ->assertSessionHasErrors('image');
     });
 
     it('rejects price_max below price_min', function () {
@@ -199,7 +347,6 @@ describe('store', function () {
             ->post(route('admin.vegetables.varieties.store'), [
                 'vegetable_id' => $this->vegetable->id,
                 'name' => 'Green Pechay',
-                'image' => UploadedFile::fake()->image('pechay.jpg'),
                 'price_min' => '50.00',
                 'price_max' => '10.00',
             ])
@@ -211,7 +358,6 @@ describe('store', function () {
             ->post(route('admin.vegetables.varieties.store'), [
                 'vegetable_id' => $this->vegetable->id,
                 'name' => 'Green Pechay',
-                'image' => UploadedFile::fake()->image('pechay.jpg'),
                 'price_min' => '10000.00',
                 'price_max' => '10001.00',
             ])
@@ -223,7 +369,6 @@ describe('store', function () {
             ->post(route('admin.vegetables.varieties.store'), [
                 'vegetable_id' => $this->vegetable->id,
                 'name' => 'Green Pechay',
-                'image' => UploadedFile::fake()->image('pechay.jpg'),
                 'price_min' => '15.00',
                 'price_max' => '25.00',
             ])
@@ -236,10 +381,10 @@ describe('store', function () {
     });
 });
 
-// ─── Update ───────────────────────────────────────────────────────────────────
+// ─── Variety Update ───────────────────────────────────────────────────────────
 
-describe('update', function () {
-    it('updates the variety name without an image', function () {
+describe('variety update', function () {
+    it('updates the variety name', function () {
         actingAs($this->admin)
             ->put(route('admin.vegetables.varieties.update', $this->variety), [
                 'vegetable_id' => $this->vegetable->id,
@@ -249,28 +394,6 @@ describe('update', function () {
             ->assertSessionHas('flash.type', 'success');
 
         expect($this->variety->fresh()->name)->toBe('Updated Pechay');
-    });
-
-    it('updates the variety with a new image', function () {
-        actingAs($this->admin)
-            ->put(route('admin.vegetables.varieties.update', $this->variety), [
-                'vegetable_id' => $this->vegetable->id,
-                'name' => 'Updated With Image',
-                'image' => UploadedFile::fake()->image('new.jpg'),
-            ])
-            ->assertRedirect();
-
-        expect($this->variety->fresh()->name)->toBe('Updated With Image');
-    });
-
-    it('allows image to be omitted on update', function () {
-        actingAs($this->admin)
-            ->put(route('admin.vegetables.varieties.update', $this->variety), [
-                'vegetable_id' => $this->vegetable->id,
-                'name' => 'No Image Update',
-            ])
-            ->assertSessionHasNoErrors()
-            ->assertRedirect();
     });
 
     it('rejects missing vegetable_id', function () {
@@ -287,16 +410,6 @@ describe('update', function () {
                 'vegetable_id' => $this->vegetable->id,
             ])
             ->assertSessionHasErrors('name');
-    });
-
-    it('rejects a non-image file on update', function () {
-        actingAs($this->admin)
-            ->put(route('admin.vegetables.varieties.update', $this->variety), [
-                'vegetable_id' => $this->vegetable->id,
-                'name' => 'Updated Pechay',
-                'image' => UploadedFile::fake()->create('document.pdf', 512, 'application/pdf'),
-            ])
-            ->assertSessionHasErrors('image');
     });
 
     it('returns 403 for non-admin users and leaves the record intact', function () {
@@ -316,9 +429,9 @@ describe('update', function () {
     });
 });
 
-// ─── Destroy ──────────────────────────────────────────────────────────────────
+// ─── Variety Destroy ──────────────────────────────────────────────────────────
 
-describe('destroy', function () {
+describe('variety destroy', function () {
     it('deletes the variety', function () {
         actingAs($this->admin)
             ->delete(route('admin.vegetables.varieties.destroy', $this->variety))

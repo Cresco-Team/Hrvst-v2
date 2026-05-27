@@ -8,10 +8,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
-class Vegetable extends Model
+class Vegetable extends Model implements HasMedia
 {
-    use HasFactory;
+    use HasFactory, InteractsWithMedia;
 
     protected $fillable = [
         'category_id',
@@ -40,5 +43,28 @@ class Vegetable extends Model
     public function scopeSearch(Builder $query, ?string $search): void
     {
         $query->when($search, fn (Builder $q) => $q->where('name', 'ilike', "%{$search}%"));
+    }
+
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('vegetable_image')
+            ->singleFile()
+            ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/webp'])
+            ->useFallbackUrl(asset('images/placeholder.jpg'));
+    }
+
+    public function registerMediaConversions(?Media $media = null): void
+    {
+        $this->addMediaConversion('medium')
+            ->width(800)
+            ->height(800)
+            ->quality(85)
+            ->nonQueued();
+
+        $this->addMediaConversion('thumb')
+            ->width(200)
+            ->height(200)
+            ->sharpen(10)
+            ->nonQueued();
     }
 }

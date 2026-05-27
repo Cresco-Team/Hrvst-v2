@@ -12,12 +12,25 @@ export interface PostVegetableSnapshot {
 
 export interface PostItemSnapshot {
 	id: number
+	name: string
+	image_url: string
 	variety_id: number
-	variety_name: string | null
+	category_name: string
 	quantity_kg: number
 	unit_price: number | null
 	price_flag: PostPriceFlag | null
 	status: PostItemStatus
+	post_id: number
+
+	scheduled_date: string | null
+	time_slot: PostTimeSlot | null
+	time_slot_label: string | null
+	days_until_transaction: number
+
+	hearts_count: number
+	is_hearted: boolean
+	created_at: string
+	created_at_human: string
 }
 
 // ─── FarmerSupplyResource ─────────────────────────────────────────────────────

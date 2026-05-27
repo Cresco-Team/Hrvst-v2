@@ -27,7 +27,7 @@ class FarmerSupplyResource extends JsonResource
                 'category' => $this->vegetable->relationLoaded('category')
                     ? $this->vegetable->category->name
                     : null,
-                'image_url' => '',
+                'image_url' => $this->vegetable->getFirstMediaUrl('vegetable_image'),
             ]),
 
             'items' => $this->whenLoaded('postItems', fn () => $this->postItems->map(fn ($item) => [

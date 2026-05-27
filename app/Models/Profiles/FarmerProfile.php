@@ -10,6 +10,7 @@ use App\Models\Marketplace\Post;
 use App\Models\Marketplace\PostItem;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -61,5 +62,14 @@ class FarmerProfile extends Model implements HasMedia
     public function barangay(): BelongsTo
     {
         return $this->belongsTo(Barangay::class);
+    }
+
+    /* ---------- scopes ---------- */
+
+    public function ongoingSupplies(): Builder
+    {
+        return $this->supplyItems()->where(function ($q) {
+            $q->ongoing();
+        });
     }
 }

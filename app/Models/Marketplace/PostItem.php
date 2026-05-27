@@ -51,22 +51,22 @@ class PostItem extends Model
 
     public function scopeOngoing(Builder $query): Builder
     {
-        return $query->where('status', PostItemStatus::Ongoing);
+        return $query->where($this->qualifyColumn('status'), PostItemStatus::Ongoing);
     }
 
     public function scopeFulfilled(Builder $query): Builder
     {
-        return $query->where('status', PostItemStatus::Fulfilled);
+        return $query->where($this->qualifyColumn('status'), PostItemStatus::Fulfilled);
     }
 
     public function scopeUnsettled(Builder $query): Builder
     {
-        return $query->where('status', PostItemStatus::Unsettled);
+        return $query->where($this->qualifyColumn('status'), PostItemStatus::Unsettled);
     }
 
     public function scopeOfStatus(Builder $query, PostItemStatus $status): Builder
     {
-        return $query->where('status', $status);
+        return $query->where($this->qualifyColumn('status'), $status);
     }
 
     /* ---------- lifecycle ---------- */
