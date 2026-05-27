@@ -9,7 +9,7 @@ class RoleSeeder extends Seeder
 {
     public function run(): void
     {
-        Role::insert([
+        Role::insertOrIgnore([
             ['name' => 'admin'],
             ['name' => 'farmer'],
             ['name' => 'dealer'],
