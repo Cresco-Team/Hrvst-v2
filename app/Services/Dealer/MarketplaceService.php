@@ -17,7 +17,6 @@ class MarketplaceService
             ->join('posts', 'posts.id', '=', 'post_items.post_id')
             ->with([
                 'variety.vegetable.category',
-                'variety.media',
                 'post' => fn ($q) => $q
                     ->with(['farmerProfile.municipality'])
                     ->when($userId, fn ($q) => $q->withExists([
