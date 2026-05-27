@@ -58,6 +58,7 @@ export interface VegetableResource {
 export interface VarietyVegetable {
   id: number
   name: string
+  image_url: string
   category: VarietyCategory | null
 }
 

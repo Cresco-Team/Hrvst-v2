@@ -12,6 +12,8 @@ export interface PostVegetableSnapshot {
 
 export interface PostItemSnapshot {
 	id: number
+	name: string
+	image_url: string
 	variety_id: number
 	variety_name: string | null
 	quantity_kg: number
