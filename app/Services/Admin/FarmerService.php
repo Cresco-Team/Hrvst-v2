@@ -53,7 +53,9 @@ class FarmerService
             'province',
             'municipality',
             'barangay',
-            'supplyItems' => fn ($q) => $q->ongoing(),
+            'posts' => fn ($q) => $q
+                ->supply()
+                ->with(['postItems' => fn ($q) => $q->ongoing()]),
         ]);
     }
 

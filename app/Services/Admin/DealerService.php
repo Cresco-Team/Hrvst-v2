@@ -44,7 +44,9 @@ class DealerService
     {
         return $dealer->load([
             'user.media',
-            'demandItems',
+            'posts' => fn ($q) => $q
+                ->demand()
+                ->with(['postItems' => fn ($q) => $q->ongoing()]),
         ]);
     }
 
