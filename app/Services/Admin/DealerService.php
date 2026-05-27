@@ -23,12 +23,10 @@ class DealerService
 
     public function paginated(int $perPage = 20, ?string $search = null): LengthAwarePaginator
     {
-        $query = DealerProfile::with(['user.media'])
+        $query = DealerProfile::with(['user.media', 'demandItems'])
             ->withCount([
-                'posts as ongoing_demands_count' => fn (Builder $q) => $q
-                    ->demand()
-                    ->harvested()
-                    ->whereHas('postItems', fn (Builder $q) => $q->ongoing()),
+                'demandItems as ongoing_demands_count' => fn (Builder $q) => $q
+                    ->ongoing(),
             ]);
 
         if ($search) {
@@ -46,14 +44,7 @@ class DealerService
     {
         return $dealer->load([
             'user.media',
-            'posts' => fn ($q) => $q
-                ->demand()
-                ->harvested()
-                ->with([
-                    'postItems' => fn ($q) => $q
-                        ->ongoing()
-                        ->with(['variety.media', 'variety.vegetable.category']),
-                ]),
+            'demandItems',
         ]);
     }
 
@@ -61,9 +52,8 @@ class DealerService
     {
         return $dealer->load([
             'user.media',
-            // All PostItems across all demand posts for the tabbed status view
             'demandItems' => fn ($q) => $q
-                ->with(['variety.vegetable.category', 'variety.media', 'post']),
+                ->with(['variety.vegetable.category']),
         ]);
     }
 }
