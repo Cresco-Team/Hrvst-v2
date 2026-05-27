@@ -2,6 +2,7 @@ import type { PostItemStatus } from '../enums'
 import type {
 	DealerPostItemResource,
 	FarmerSupplyResource,
+	PostItemSnapshot,
 	SupplyMapFilterOptions,
 	VarietyOptionsByVegetable,
 	VegetableOptionsByCategory,
@@ -37,7 +38,7 @@ export interface FarmerSuppliesProps {
 	vegetableOptions: VegetableOptionsByCategory
 	varietyOptions: VarietyOptionsByVegetable
 	growingPosts: Paginated<FarmerSupplyResource> | null
-	harvestedItems: Paginated<DealerPostItemResource> | null
+	harvestedItems: Paginated<PostItemSnapshot> | null
 }
 
 // ─── farmer/supply-map/Index ──────────────────────────────────────────────────
