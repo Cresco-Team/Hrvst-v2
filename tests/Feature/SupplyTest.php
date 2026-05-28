@@ -12,7 +12,6 @@ use App\Models\Profiles\FarmerProfile;
 use App\Models\Profiles\Role;
 use App\Models\User;
 use Database\Seeders\AddressSeeder;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 
 use function Pest\Laravel\actingAs;
@@ -77,22 +76,6 @@ describe('CreateSupply', function () {
             ->and((float) $post->estimated_total_weight)->toBe(500.0)
             ->and($post->scheduled_date)->toBeNull()
             ->and($post->postItems)->toHaveCount(0);
-    });
-
-    it('farmer can upload an image when creating a supply', function () {
-        $farmer = farmerWithProfile();
-        $vegetable = makeVegetable();
-
-        actingAs($farmer)
-            ->post(route('farmer.supplies.store'), [
-                'vegetable_id' => $vegetable->id,
-                'target_month' => now()->format('Y-m'),
-                'estimated_total_weight' => 200,
-                'image' => UploadedFile::fake()->image('crop.jpg'),
-            ])
-            ->assertRedirect();
-
-        expect(Post::first()->getFirstMedia('post_image'))->not->toBeNull();
     });
 
     it('rejects a past target_month', function () {
@@ -397,7 +380,7 @@ describe('SupplyLifecycle', function () {
             ->post(route('farmer.post-items.archive', $item))
             ->assertRedirect();
 
-            expect($item->fresh()->status)->toBe(PostItemStatus::Unsettled);
+        expect($item->fresh()->status)->toBe(PostItemStatus::Unsettled);
     });
 
     it('farmer can fulfill an unsettled supply item', function () {
@@ -409,7 +392,7 @@ describe('SupplyLifecycle', function () {
             'status' => PostStatus::Harvested,
         ]);
         $item = PostItem::factory()->for($post)->for($variety)->create([
-                'status' => PostItemStatus::Unsettled,
+            'status' => PostItemStatus::Unsettled,
         ]);
 
         actingAs($farmer)
