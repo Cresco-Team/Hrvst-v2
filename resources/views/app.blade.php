@@ -3,6 +3,9 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+        <link rel="apple-touch-icon" href="/icons/pwa-192x192.png">
+        <link rel="manifest" href="{{ asset('build/manifest.webmanifest') }}">
 
         {{-- Inline script to detect system dark mode preference and apply it immediately --}}
         <script>

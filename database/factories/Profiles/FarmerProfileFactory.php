@@ -2,6 +2,8 @@
 
 namespace Database\Factories\Profiles;
 
+use App\Models\Address\Barangay;
+use App\Models\Address\Municipality;
 use App\Models\Profiles\FarmerProfile;
 use App\Models\Profiles\Role;
 use App\Models\User;
@@ -13,27 +15,33 @@ class FarmerProfileFactory extends Factory
 
     public function definition(): array
     {
+        $municipality = Municipality::inRandomOrder()->first()
+            ?? Municipality::first();
+
+        $barangay = Barangay::where('municipality_id', $municipality->id)
+            ->inRandomOrder()
+            ->first();
+
+        $latJitter = fake()->randomFloat(6, -0.03, 0.03);
+        $lngJitter = fake()->randomFloat(6, -0.03, 0.03);
+
         return [
-            // user_id is resolved in configure() via afterCreating
             'user_id' => null,
-            'province_id' => 1,
-            'municipality_id' => 1,
-            'barangay_id' => 1,
-            // Benguet bounding box: lat 16.2–16.7, lng 120.5–120.8
-            'latitude' => fake()->randomFloat(6, 16.2, 16.7),
-            'longitude' => fake()->randomFloat(6, 120.5, 120.8),
+            'province_id' => $municipality->province_id,
+            'municipality_id' => $municipality->id,
+            'barangay_id' => $barangay?->id ?? 1,
+            'latitude' => round($municipality->latitude + $latJitter, 6),
+            'longitude' => round($municipality->longitude + $lngJitter, 6),
         ];
     }
 
     public function configure(): static
     {
         return $this->afterMaking(function (FarmerProfile $profile): void {
-            // Guarantee a user exists before the profile row is inserted
             if (! $profile->user_id) {
                 $profile->user_id = User::factory()->create()->id;
             }
         })->afterCreating(function (FarmerProfile $profile): void {
-            // Attach 'farmer' role to the linked user
             $role = Role::firstOrCreate(['name' => 'farmer']);
             $profile->user->roles()->syncWithoutDetaching($role->id);
         });
