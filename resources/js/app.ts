@@ -9,6 +9,7 @@ import 'leaflet.markercluster/dist/MarkerCluster.css'
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css'
 import 'vue-sonner/style.css'
 import 'vue-sonner/style.css'
+import { useRegisterSW } from 'virtual:pwa-register/vue'
 
 const appName = import.meta.env.VITE_APP_NAME || 'Hrvst'
 
@@ -27,6 +28,12 @@ createInertiaApp({
 	progress: {
 		color: '#4B5563',
 	},
+})
+
+useRegisterSW({
+    onRegistered(r) {
+        r && setInterval(() => r.update(), 60 * 60 * 1000) // check every hour
+    },
 })
 
 // This will set light / dark mode on page load...
