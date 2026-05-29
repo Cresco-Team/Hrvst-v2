@@ -4,19 +4,21 @@ namespace Database\Seeders\Product;
 
 use App\Models\Product\PriceHistory;
 use App\Models\Product\Variety;
+use Faker\Factory as Faker;
 use Illuminate\Database\Seeder;
 
 class PriceHistorySeeder extends Seeder
 {
     public function run(): void
     {
+        $faker = Faker::create();
         $weeks = 12;
         $start = now()->startOfWeek()->subWeeks($weeks);
         $rows = [];
 
         foreach (Variety::pluck('id') as $varietyId) {
             for ($i = 0; $i < $weeks; $i++) {
-                $min = fake()->randomFloat(2, 20, 50);
+                $min = $faker->randomFloat(2, 20, 50);
 
                 $rows[] = [
                     'variety_id' => $varietyId,
