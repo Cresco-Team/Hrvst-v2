@@ -9,7 +9,6 @@ import {
     Phone,
 } from 'lucide-vue-next'
 import DataTable from '@/components/shared/tables/DataTable.vue'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import {
     Item,
@@ -24,7 +23,6 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from '@/components/ui/tooltip'
-import { getInitials } from '@/composables/useInitials'
 import type { DealerResource, Paginated } from '@/types'
 
 defineProps<{
@@ -39,7 +37,13 @@ defineEmits<{
 }>()
 
 const columns: ColumnDef<DealerResource>[] = [
-    { id: 'expander', header: '' },
+    {
+        id: 'expander',
+        header: '',
+        size: 40,
+        enableSorting: false,
+        meta: { hideOnMobile: true },
+    },
     {
         id: 'dealer',
         header: 'Dealer',
@@ -51,14 +55,18 @@ const columns: ColumnDef<DealerResource>[] = [
         header: 'Demands',
         accessorFn: (row) => row.ongoing_demands_count ?? 0,
         enableSorting: true,
+        size: 100,
+        meta: { hideOnMobile: true },
     },
     {
         id: 'joined_at',
         header: 'Joined',
         accessorFn: (row) => row.joined_at,
         enableSorting: true,
+        size: 120,
+        meta: { hideOnMobile: true },
     },
-    { id: 'actions', header: 'Actions', enableSorting: false },
+    { id: 'actions', header: 'Actions', enableSorting: false, size: 80 },
 ]
 </script>
 
@@ -79,7 +87,7 @@ const columns: ColumnDef<DealerResource>[] = [
                 v-if="(row.ongoing_demands_count ?? 0) > 0"
                 variant="ghost"
                 size="icon-sm"
-                class="text-muted-foreground"
+                class="hidden text-muted-foreground sm:flex"
                 @click="cell.row.toggleExpanded()"
             >
                 <ChevronDownIcon
@@ -96,7 +104,7 @@ const columns: ColumnDef<DealerResource>[] = [
                 <div
                     class="flex items-center gap-2 text-xs text-muted-foreground"
                 >
-                    <div class="flex items-center gap-1">
+                    <div class="hidden items-center gap-1 sm:flex">
                         <Mail class="size-3" />
                         {{ row.user?.email }}
                     </div>
@@ -155,7 +163,7 @@ const columns: ColumnDef<DealerResource>[] = [
         </template>
 
         <template #expanded-row="{ row, colspan }">
-            <tr class="bg-muted/20">
+            <tr class="hidden bg-muted/20 sm:table-row">
                 <td :colspan="colspan" class="px-4 py-4">
                     <div class="ml-12">
                         <h4 class="mb-3 text-sm font-medium">

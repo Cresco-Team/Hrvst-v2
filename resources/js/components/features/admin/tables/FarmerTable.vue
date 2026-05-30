@@ -40,7 +40,13 @@ defineEmits<{
 }>()
 
 const columns: ColumnDef<FarmerResource>[] = [
-    { id: 'expander', header: '' },
+    {
+        id: 'expander',
+        header: '',
+        size: 40,
+        enableSorting: false,
+        meta: { hideOnMobile: true },
+    },
     {
         id: 'farmer',
         header: 'Farmer',
@@ -51,6 +57,8 @@ const columns: ColumnDef<FarmerResource>[] = [
         id: 'ongoing_supplies_count',
         header: 'Supplies',
         accessorFn: (row) => row.ongoing_supplies_count ?? 0,
+        size: 100,
+        meta: { hideOnMobile: true },
     },
     {
         id: 'location',
@@ -58,14 +66,18 @@ const columns: ColumnDef<FarmerResource>[] = [
         accessorFn: (row) =>
             `${row.location?.barangay}, ${row.location?.municipality}`,
         enableSorting: true,
+        size: 200,
+        meta: { hideOnMobile: true },
     },
     {
         id: 'joined',
         header: 'Joined',
         accessorFn: (row) => row.joined_at,
         enableSorting: true,
+        size: 120,
+        meta: { hideOnMobile: true },
     },
-    { id: 'actions', header: 'Actions', enableSorting: false },
+    { id: 'actions', header: 'Actions', enableSorting: false, size: 80 },
 ]
 </script>
 
@@ -86,7 +98,7 @@ const columns: ColumnDef<FarmerResource>[] = [
                 v-if="(row.ongoing_supplies_count ?? 0) > 0"
                 variant="ghost"
                 size="icon-sm"
-                class="text-muted-foreground"
+                class="hidden text-muted-foreground sm:flex"
                 @click="cell.row.toggleExpanded()"
             >
                 <ChevronDownIcon
@@ -98,13 +110,13 @@ const columns: ColumnDef<FarmerResource>[] = [
         </template>
 
         <template #cell-farmer="{ row }">
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-1 sm:gap-3">
                 <div class="flex flex-col gap-0.5">
                     <span class="font-medium">{{ row.user?.name }}</span>
                     <div
                         class="flex items-center gap-2 text-xs text-muted-foreground"
                     >
-                        <div class="flex items-center gap-1">
+                        <div class="hidden items-center gap-1 sm:flex">
                             <Mail class="size-3" />
                             {{ row.user?.email }}
                         </div>
@@ -179,7 +191,7 @@ const columns: ColumnDef<FarmerResource>[] = [
         </template>
 
         <template #expanded-row="{ row, colspan }">
-            <tr class="bg-muted/20">
+            <tr class="hidden bg-muted/20 sm:table-row">
                 <td :colspan="colspan" class="px-4 py-4">
                     <div class="ml-12">
                         <h4 class="mb-3 text-sm font-medium">
@@ -195,8 +207,7 @@ const columns: ColumnDef<FarmerResource>[] = [
                                 :key="item.id"
                                 variant="outline"
                             >
-                                <ItemMedia variant="image"
-                                    >\
+                                <ItemMedia variant="image">
                                     <img
                                         v-if="item"
                                         :src="item.image_url"
