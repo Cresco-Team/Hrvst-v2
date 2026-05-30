@@ -38,7 +38,6 @@ interface Props<TData> {
 	entityName?: string
 	enableSearch?: boolean
 	enableExpand?: boolean
-	// ✅ NEW: Server-side search support
 	searchQuery?: string
 }
 
@@ -53,14 +52,12 @@ const props = withDefaults(defineProps<Props<TData>>(), {
 
 const emit = defineEmits<{
 	'page-change': [page: number]
-	search: [query: string] // ✅ NEW: Emit search to parent for server-side handling
+	search: [query: string]
 }>()
 
-/* -- local state -- */
 const localSearchQuery = ref(props.searchQuery)
 const expanded = ref<ExpandedState>({})
 
-/* -- table instance -- */
 const table = useVueTable({
 	get data() {
 		return props.data.data
@@ -81,13 +78,11 @@ const table = useVueTable({
 	getExpandedRowModel: getExpandedRowModel(),
 	getCoreRowModel: getCoreRowModel(),
 	getSortedRowModel: getSortedRowModel(),
-	// ❌ REMOVED: getFilteredRowModel() - This was causing client-side filtering on server-paginated data
 	...(props.enableExpand ? { getExpandedRowModel: getExpandedRowModel() } : {}),
 	manualPagination: true,
-	manualFiltering: true, // ✅ NEW: Tell TanStack we're handling filtering server-side
+	manualFiltering: true,
 })
 
-/* -- pagination helpers -- */
 const hasPrevPage = computed(() => props.data.meta.current_page > 1)
 const hasNextPage = computed(() => props.data.meta.current_page < props.data.meta.last_page)
 
@@ -96,21 +91,16 @@ const paginationRange = computed(() => ({
 	end: Math.min(props.data.meta.current_page * props.data.meta.per_page, props.data.meta.total),
 }))
 
-/* -- sort icon helper -- */
 function sortIcon(state: string | false) {
 	if (state === 'asc') return ChevronUp
 	if (state === 'desc') return ChevronDown
 	return ChevronsUpDown
 }
 
-/* -- search handler with debounce -- */
 let searchTimeout: ReturnType<typeof setTimeout> | null = null
 
 function handleSearchInput() {
-	// Clear existing timeout
 	if (searchTimeout) clearTimeout(searchTimeout)
-
-	// Debounce search (wait 300ms after user stops typing)
 	searchTimeout = setTimeout(() => {
 		emit('search', localSearchQuery.value)
 	}, 300)
@@ -120,8 +110,8 @@ function handleSearchInput() {
 <template>
     <div class="flex flex-col gap-4">
         <!-- toolbar -->
-        <div class="flex items-center justify-between">
-            <InputGroup v-if="enableSearch" class="max-w-xs">
+        <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <InputGroup v-if="enableSearch" class="w-full sm:max-w-xs">
                 <InputGroupInput v-model="localSearchQuery" :placeholder="searchPlaceholder"
                     @input="handleSearchInput" />
                 <InputGroupAddon>
@@ -136,8 +126,8 @@ function handleSearchInput() {
         </div>
 
         <!-- table -->
-        <div class="rounded-lg border">
-            <table class="w-full text-sm">
+        <div class="overflow-x-auto rounded-lg border">
+            <table class="w-full min-w-[600px] text-sm">
                 <thead class="bg-muted/60">
                     <tr>
                         <th v-for="header in table.getHeaderGroups()[0].headers" :key="header.id"
@@ -160,23 +150,18 @@ function handleSearchInput() {
 
                 <tbody>
                     <template v-for="row in table.getRowModel().rows" :key="row.id">
-                        <!-- main row -->
                         <tr class="border-t hover:bg-muted/40 transition-colors">
                             <td v-for="cell in row.getVisibleCells()" :key="cell.id" class="px-4 py-3">
-                                <!-- custom cell rendering via slots -->
                                 <slot :name="`cell-${cell.column.id}`" :row="row.original" :cell="cell">
-                                    <!-- default cell rendering -->
                                     <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
                                 </slot>
                             </td>
                         </tr>
 
-                        <!-- expandable row (optional) -->
                         <slot v-if="enableExpand && row.getIsExpanded()" name="expanded-row" :row="row.original"
                             :colspan="columns.length" />
                     </template>
 
-                    <!-- empty state -->
                     <tr v-if="table.getRowModel().rows.length === 0">
                         <td :colspan="columns.length" class="px-4 py-8 text-center text-muted-foreground">
                             <slot name="empty">
@@ -189,7 +174,7 @@ function handleSearchInput() {
         </div>
 
         <!-- pagination -->
-        <div class="flex items-center justify-between text-sm text-muted-foreground">
+        <div class="flex flex-col gap-2 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
             <span>
                 Showing
                 <strong>{{ paginationRange.start }}</strong>–<strong>{{ paginationRange.end }}</strong>
