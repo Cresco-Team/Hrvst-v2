@@ -17,11 +17,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
-use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
-class Post extends Model implements HasMedia
+class Post extends Model
 {
     use HasFactory;
     use InteractsWithMedia;
@@ -44,7 +42,6 @@ class Post extends Model implements HasMedia
             'type' => PostType::class,
             'status' => PostStatus::class,
             'time_slot' => PostTimeSlot::class,
-            // target_month stored as varchar(7) 'YYYY-MM' — no date cast
             'scheduled_date' => 'date',
             'estimated_total_weight' => 'decimal:2',
         ];
@@ -139,39 +136,14 @@ class Post extends Model implements HasMedia
         return $this->status === PostStatus::Growing;
     }
 
-    /* ---------- Bug #8 fix: cascade-delete PostItems through Eloquent ----------
-     * DB-level cascadeOnDelete bypasses observers, so vegetable_monthly_stats
-     * never gets decremented when a Post is force-deleted.
-     * Deleting PostItems explicitly here fires PostItemObserver::deleted on each.
-     */
-
     protected static function booted(): void
     {
         static::deleting(function (Post $post): void {
-            // Only needed on force-delete (soft-delete does not cascade at DB level).
-            // For soft-delete, PostItems remain and can be individually managed.
             if (! $post->isForceDeleting()) {
                 return;
             }
 
             $post->postItems()->each(fn (PostItem $item) => $item->delete());
         });
-    }
-
-    /* ---------- media ---------- */
-
-    public function registerMediaCollections(): void
-    {
-        $this->addMediaCollection('post_image')
-            ->singleFile()
-            ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/webp']);
-    }
-
-    public function registerMediaConversions(?Media $media = null): void
-    {
-        $this->addMediaConversion('thumb')
-            ->width(400)
-            ->height(400)
-            ->nonQueued();
     }
 }
