@@ -93,15 +93,14 @@ function priceFlagVariant(flag?: string | null) {
 
             <Deferred data="farmer">
                 <template #fallback>
-                    <div class="grid grid-cols-12 gap-5">
-                        <div class="col-span-12 lg:col-span-3">
-                            <Card class="space-y-5 p-5">
-                                <Skeleton class="size-16 rounded-full" />
-                                <Skeleton class="h-4 w-full" />
-                                <Skeleton class="h-4 w-3/4" />
-                            </Card>
-                        </div>
-                        <div class="col-span-12 space-y-4 lg:col-span-9">
+                    <!-- skeleton uses same responsive layout -->
+                    <div class="flex flex-col gap-5 lg:flex-row lg:items-start">
+                        <Card class="w-full space-y-5 p-5 lg:w-72 lg:shrink-0">
+                            <Skeleton class="size-16 rounded-full" />
+                            <Skeleton class="h-4 w-full" />
+                            <Skeleton class="h-4 w-3/4" />
+                        </Card>
+                        <div class="flex-1 space-y-4">
                             <Skeleton class="h-52 w-full rounded-xl" />
                             <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
                                 <Skeleton
@@ -115,64 +114,55 @@ function priceFlagVariant(flag?: string | null) {
                     </div>
                 </template>
 
-                <div v-if="farmer" class="grid grid-cols-12 gap-5">
-                    <!-- Sidebar -->
-                    <div class="col-span-12 lg:col-span-3">
-                        <Card class="space-y-5 p-5">
-                            <div class="flex flex-col items-start gap-3">
-                                <Avatar class="size-16">
-                                    <AvatarImage
-                                        v-if="farmer.user?.avatar_url"
-                                        :src="farmer.user.avatar_url"
-                                        :alt="farmer.user.name"
-                                    />
-                                    <AvatarFallback
-                                        class="bg-primary/10 text-base font-semibold text-primary"
-                                    >
-                                        {{ getInitials(farmer.user?.name) }}
-                                    </AvatarFallback>
-                                </Avatar>
-                                <div>
-                                    <p
-                                        class="text-sm leading-snug font-semibold"
-                                    >
-                                        {{ farmer.user?.name }}
-                                    </p>
-                                    <p
-                                        class="mt-0.5 text-xs text-muted-foreground"
-                                    >
-                                        {{ farmer.location?.full_address }}
-                                    </p>
-                                </div>
+                <!-- was: grid grid-cols-12 — completely breaks mobile, col-span-3/9 invisible below lg -->
+                <div
+                    v-if="farmer"
+                    class="flex flex-col gap-5 lg:flex-row lg:items-start"
+                >
+                    <!-- Sidebar — full width on mobile, fixed width on lg -->
+                    <Card class="w-full space-y-5 p-5 lg:w-72 lg:shrink-0">
+                        <div class="flex flex-col items-start gap-3">
+                            <Avatar class="size-16">
+                                <AvatarImage
+                                    v-if="farmer.user?.avatar_url"
+                                    :src="farmer.user.avatar_url"
+                                    :alt="farmer.user.name"
+                                />
+                                <AvatarFallback
+                                    class="bg-primary/10 text-base font-semibold text-primary"
+                                >
+                                    {{ getInitials(farmer.user?.name) }}
+                                </AvatarFallback>
+                            </Avatar>
+                            <div>
+                                <p class="text-sm leading-snug font-semibold">
+                                    {{ farmer.user?.name }}
+                                </p>
+                                <p class="mt-0.5 text-xs text-muted-foreground">
+                                    {{ farmer.location?.full_address }}
+                                </p>
                             </div>
-                            <div
-                                class="space-y-2.5 text-sm text-muted-foreground"
-                            >
-                                <div class="flex items-center gap-2">
-                                    <Mail class="size-4 shrink-0" /><span
-                                        class="truncate"
-                                        >{{ farmer.user?.email }}</span
-                                    >
-                                </div>
-                                <div class="flex items-center gap-2">
-                                    <Phone class="size-4 shrink-0" /><span>{{
-                                        farmer.user?.phone_number
-                                    }}</span>
-                                </div>
-                                <div class="flex items-center gap-2">
-                                    <CalendarDays
-                                        class="size-4 shrink-0"
-                                    /><span
-                                        >Joined
-                                        {{ farmer.joined_at_human }}</span
-                                    >
-                                </div>
+                        </div>
+                        <div class="space-y-2.5 text-sm text-muted-foreground">
+                            <div class="flex items-center gap-2">
+                                <Mail class="size-4 shrink-0" />
+                                <span class="truncate">{{
+                                    farmer.user?.email
+                                }}</span>
                             </div>
-                        </Card>
-                    </div>
+                            <div class="flex items-center gap-2">
+                                <Phone class="size-4 shrink-0" />
+                                <span>{{ farmer.user?.phone_number }}</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <CalendarDays class="size-4 shrink-0" />
+                                <span>Joined {{ farmer.joined_at_human }}</span>
+                            </div>
+                        </div>
+                    </Card>
 
                     <!-- Main -->
-                    <div class="col-span-12 space-y-4 lg:col-span-9">
+                    <div class="min-w-0 flex-1 space-y-4">
                         <!-- Map -->
                         <Card class="gap-0 overflow-hidden py-0">
                             <CardContent
@@ -213,64 +203,70 @@ function priceFlagVariant(flag?: string | null) {
                             />
                         </div>
 
-                        <!-- Supply Items (PostItem-level tabs) -->
+                        <!-- Supply Items -->
                         <Card>
                             <CardContent class="pt-4">
                                 <Tabs default-value="ongoing">
-                                    <TabsList class="mb-4">
-                                        <TabsTrigger
-                                            value="ongoing"
-                                            class="gap-1.5"
-                                        >
-                                            <Package class="size-4" />Ongoing
-                                            <Badge
-                                                variant="secondary"
-                                                class="ml-1 px-1.5 py-0 text-xs"
-                                                >{{
-                                                    ongoingItems.length
-                                                }}</Badge
+                                    <div class="overflow-x-auto">
+                                        <TabsList class="mb-4">
+                                            <TabsTrigger
+                                                value="ongoing"
+                                                class="gap-1.5"
                                             >
-                                        </TabsTrigger>
-                                        <TabsTrigger
-                                            value="unsettled"
-                                            class="gap-1.5"
-                                        >
-                                            <Archive class="size-4" />Unsettled
-                                            <Badge
-                                                variant="secondary"
-                                                class="ml-1 px-1.5 py-0 text-xs"
-                                                >{{
-                                                    archivedItems.length
-                                                }}</Badge
+                                                <Package
+                                                    class="size-4"
+                                                />Ongoing
+                                                <Badge
+                                                    variant="secondary"
+                                                    class="ml-1 px-1.5 py-0 text-xs"
+                                                    >{{
+                                                        ongoingItems.length
+                                                    }}</Badge
+                                                >
+                                            </TabsTrigger>
+                                            <TabsTrigger
+                                                value="unsettled"
+                                                class="gap-1.5"
                                             >
-                                        </TabsTrigger>
-                                        <TabsTrigger
-                                            value="fulfilled"
-                                            class="gap-1.5"
-                                        >
-                                            <PackageCheck
-                                                class="size-4"
-                                            />Fulfilled
-                                            <Badge
-                                                variant="secondary"
-                                                class="ml-1 px-1.5 py-0 text-xs"
-                                                >{{
-                                                    fulfilledItems.length
-                                                }}</Badge
+                                                <Archive
+                                                    class="size-4"
+                                                />Unsettled
+                                                <Badge
+                                                    variant="secondary"
+                                                    class="ml-1 px-1.5 py-0 text-xs"
+                                                    >{{
+                                                        archivedItems.length
+                                                    }}</Badge
+                                                >
+                                            </TabsTrigger>
+                                            <TabsTrigger
+                                                value="fulfilled"
+                                                class="gap-1.5"
                                             >
-                                        </TabsTrigger>
-                                        <TabsTrigger
-                                            value="growing"
-                                            class="gap-1.5"
-                                        >
-                                            <Sprout class="size-4" />Growing
-                                            <Badge
-                                                variant="secondary"
-                                                class="ml-1 px-1.5 py-0 text-xs"
-                                                >{{ growingCount }}</Badge
+                                                <PackageCheck
+                                                    class="size-4"
+                                                />Fulfilled
+                                                <Badge
+                                                    variant="secondary"
+                                                    class="ml-1 px-1.5 py-0 text-xs"
+                                                    >{{
+                                                        fulfilledItems.length
+                                                    }}</Badge
+                                                >
+                                            </TabsTrigger>
+                                            <TabsTrigger
+                                                value="growing"
+                                                class="gap-1.5"
                                             >
-                                        </TabsTrigger>
-                                    </TabsList>
+                                                <Sprout class="size-4" />Growing
+                                                <Badge
+                                                    variant="secondary"
+                                                    class="ml-1 px-1.5 py-0 text-xs"
+                                                    >{{ growingCount }}</Badge
+                                                >
+                                            </TabsTrigger>
+                                        </TabsList>
+                                    </div>
 
                                     <template
                                         v-for="(items, tab) in {
