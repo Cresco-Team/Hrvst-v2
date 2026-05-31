@@ -5,7 +5,6 @@ import {
     Info,
     KeyRound,
     Mail,
-    MapPinHouse,
     Phone,
     Trash,
     Wheat,
@@ -19,7 +18,6 @@ import { resetPin } from '@/actions/App/Http/Controllers/Admin/UserController'
 import ConfirmationDialog from '@/components/dialogs/ConfirmationDialog.vue'
 import DetailSheet from '@/components/dialogs/DetailSheet.vue'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
     Dialog,
@@ -38,11 +36,13 @@ import {
 import { Separator } from '@/components/ui/separator'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useInitials } from '@/composables/useInitials'
-import type { FarmerResource, FlashMessage } from '@/types'
+import type { AdminFarmerDetail, FlashMessage } from '@/types'
+import { Card } from '@/components/ui/card'
+import LeafletMap from '@/components/LeafletMap.vue'
 
 const props = defineProps<{
     open: boolean
-    farmer: FarmerResource | null
+    farmer: AdminFarmerDetail | null
     loading: boolean
 }>()
 
@@ -151,39 +151,22 @@ function handleDelete() {
                         {{ farmer.user?.phone_number }}
                     </p>
                 </div>
-                <div class="flex justify-between text-sm">
-                    <div class="flex items-center gap-1.5">
-                        <MapPinHouse class="size-3.5 text-primary" />
-                        <span>Address</span>
-                    </div>
-                    <p class="text-muted-foreground">
-                        {{ farmer.location?.full_address }}
-                    </p>
-                </div>
             </div>
 
-            <Separator />
-
-            <Item>
-                <ItemMedia variant="icon" class="bg-primary/10 text-primary">
-                    <Wheat />
-                </ItemMedia>
-                <ItemContent>
-                    <ItemTitle class="flex w-full justify-between">
-                        <p>Ongoing Supplies</p>
-                        <Badge>{{ farmer.supply_items?.length ?? 0 }}</Badge>
-                    </ItemTitle>
-                    <ItemDescription class="space-x-2 truncate">
-                        <Badge
-                            v-for="supply in farmer.supply_items"
-                            :key="supply.id"
-                            class="bg-amber-300"
-                        >
-                            {{ supply.name }}
-                        </Badge>
-                    </ItemDescription>
-                </ItemContent>
-            </Item>
+            <Card class="py-0">
+                <LeafletMap
+                    :lat="farmer.coordinates.lat"
+                    :lng="farmer.coordinates.lng"
+                    :zoom="15"
+                    :markers="[
+                        {
+                            lat: farmer.coordinates.lat,
+                            lng: farmer.coordinates.lng,
+                            popup: `${farmer.location?.full_address}<br />${farmer.ongoing_supply_items_count} ongoing supplies`,
+                        },
+                    ]"
+                />
+            </Card>
         </div>
 
         <template #footer>
