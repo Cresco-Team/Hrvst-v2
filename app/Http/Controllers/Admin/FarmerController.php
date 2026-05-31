@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Profile\FarmerIndexResource;
 use App\Http\Resources\Profile\FarmerResource;
 use App\Models\Profiles\FarmerProfile;
 use App\Services\Admin\FarmerMapService;
@@ -39,7 +40,7 @@ class FarmerController extends Controller
                 'defaultZoom' => 13,
             ],
             'farmers' => $view === 'list'
-                ? Inertia::defer(fn () => FarmerResource::collection(
+                ? Inertia::defer(fn () => FarmerIndexResource::collection(
                     $this->farmerService->paginated(
                         perPage: 20,
                         search: $request->query('search', null),

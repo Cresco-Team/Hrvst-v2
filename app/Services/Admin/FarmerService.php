@@ -14,7 +14,6 @@ class FarmerService
         return [
             'total_farmers' => FarmerProfile::count(),
             'new_farmers_this_month' => FarmerProfile::where('created_at', '>=', now()->startOfMonth())->count(),
-            'total_supplies' => Post::supply()->count(),
             'new_supplies_this_month' => Post::supply()
                 ->where('created_at', '>=', now()->startOfMonth())
                 ->count(),
@@ -38,7 +37,7 @@ class FarmerService
 
         if ($search) {
             $query->whereHas(
-                'user', fn (Builder $q) => $q->where('name', 'like', "%{$search}%")
+                'user', fn (Builder $q) => $q->where('name', 'ilike', "%{$search}%")
             );
         }
 
