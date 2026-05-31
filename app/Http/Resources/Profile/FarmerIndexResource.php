@@ -14,13 +14,13 @@ class FarmerIndexResource extends JsonResource
             'joined_at' => $this->created_at->toDateString(),
             'joined_at_human' => $this->created_at->diffForHumans(),
 
-            'user' => $this->whenLoaded('user', fn () => [
+            'user' => [
                 'id' => $this->user->id,
                 'name' => $this->user->name,
                 'email' => $this->user->email,
                 'phone_number' => $this->user->phone_number,
                 'avatar_url' => $this->user->getFirstMediaUrl('avatar'),
-            ]),
+            ],
 
             'location' => [
                 'full_address' => implode(', ', array_filter([
