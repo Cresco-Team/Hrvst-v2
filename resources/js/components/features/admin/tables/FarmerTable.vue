@@ -1,24 +1,9 @@
 <script setup lang="ts">
 import type { ColumnDef } from '@tanstack/vue-table'
-import {
-    ChevronDownIcon,
-    ChevronRightIcon,
-    ClipboardList,
-    Mail,
-    MapPin,
-    Package,
-    Phone,
-} from 'lucide-vue-next'
+import { ClipboardList, Mail, MapPin, Phone } from 'lucide-vue-next'
 import DataTable from '@/components/shared/tables/DataTable.vue'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
-import {
-    Item,
-    ItemContent,
-    ItemDescription,
-    ItemMedia,
-    ItemTitle,
-} from '@/components/ui/item'
 import {
     Tooltip,
     TooltipContent,
@@ -26,26 +11,25 @@ import {
     TooltipTrigger,
 } from '@/components/ui/tooltip'
 import { getInitials } from '@/composables/useInitials'
-import type { FarmerResource, Paginated } from '@/types'
+import type { AdminFarmerTable, Paginated } from '@/types'
 
 defineProps<{
-    farmers: Paginated<FarmerResource>
+    farmers: Paginated<AdminFarmerTable>
     searchQuery?: string
 }>()
 
 defineEmits<{
-    'view-farmer': [farmer: FarmerResource]
+    'view-farmer': [farmer: AdminFarmerTable]
     'page-change': [page: number]
     search: [query: string]
 }>()
 
-const columns: ColumnDef<FarmerResource>[] = [
+const columns: ColumnDef<AdminFarmerTable>[] = [
     {
         id: 'expander',
         header: '',
-        size: 40,
+        size: 10,
         enableSorting: false,
-        meta: { hideOnMobile: true },
     },
     {
         id: 'farmer',
@@ -54,19 +38,11 @@ const columns: ColumnDef<FarmerResource>[] = [
         enableSorting: true,
     },
     {
-        id: 'ongoing_supplies_count',
-        header: 'Supplies',
-        accessorFn: (row) => row.ongoing_supplies_count ?? 0,
-        size: 100,
-        meta: { hideOnMobile: true },
-    },
-    {
         id: 'location',
         header: 'Address',
         accessorFn: (row) =>
             `${row.location?.barangay}, ${row.location?.municipality}`,
         enableSorting: true,
-        size: 200,
         meta: { hideOnMobile: true },
     },
     {
@@ -74,10 +50,14 @@ const columns: ColumnDef<FarmerResource>[] = [
         header: 'Joined',
         accessorFn: (row) => row.joined_at,
         enableSorting: true,
-        size: 120,
         meta: { hideOnMobile: true },
     },
-    { id: 'actions', header: 'Actions', enableSorting: false, size: 80 },
+    {
+        id: 'actions',
+        header: 'Actions',
+        enableSorting: false,
+        size: 80,
+    },
 ]
 </script>
 
@@ -93,33 +73,18 @@ const columns: ColumnDef<FarmerResource>[] = [
         @page-change="$emit('page-change', $event)"
         @search="$emit('search', $event)"
     >
-        <template #cell-expander="{ row, cell }">
-            <Button
-                v-if="(row.ongoing_supplies_count ?? 0) > 0"
-                variant="ghost"
-                size="icon-sm"
-                class="hidden text-muted-foreground sm:flex"
-                @click="cell.row.toggleExpanded()"
-            >
-                <ChevronDownIcon
-                    v-if="cell.row.getIsExpanded()"
-                    class="size-4"
-                />
-                <ChevronRightIcon v-else class="size-4" />
-            </Button>
-        </template>
-
         <template #cell-farmer="{ row }">
             <div class="flex items-center gap-1 sm:gap-3">
+                <Avatar>
+                    <AvatarImage :src="row.user.avatar_url!" />
+                    <AvatarFallback>
+                        {{ getInitials(row.user.name) }}
+                    </AvatarFallback>
+                </Avatar>
+
                 <div class="flex flex-col gap-0.5">
                     <span class="font-medium">{{ row.user?.name }}</span>
-                    <div
-                        class="flex items-center gap-2 text-xs text-muted-foreground"
-                    >
-                        <div class="hidden items-center gap-1 sm:flex">
-                            <Mail class="size-3" />
-                            {{ row.user?.email }}
-                        </div>
+                    <div class="text-xs text-muted-foreground">
                         <div class="flex items-center gap-1">
                             <Phone class="size-3" />
                             {{ row.user?.phone_number }}
@@ -129,18 +94,12 @@ const columns: ColumnDef<FarmerResource>[] = [
             </div>
         </template>
 
-        <template #cell-ongoing_supplies_count="{ row }">
-            <div class="flex items-center gap-2">
-                <Package class="size-4 text-muted-foreground" />
-                <span class="font-mono font-medium">{{
-                    row.ongoing_supplies_count ?? 0
-                }}</span>
-            </div>
-        </template>
-
         <template #cell-location="{ row }">
-            <div class="flex items-start gap-2">
-                <MapPin class="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+            <div class="flex items-center gap-2">
+                <MapPin
+                    :size="20"
+                    class="mt-0.5 shrink-0 text-muted-foreground"
+                />
                 <div class="flex flex-col gap-0.5">
                     <span class="font-medium">{{
                         row.location?.barangay
@@ -188,48 +147,6 @@ const columns: ColumnDef<FarmerResource>[] = [
                     </Tooltip>
                 </TooltipProvider>
             </div>
-        </template>
-
-        <template #expanded-row="{ row, colspan }">
-            <tr class="hidden bg-muted/20 sm:table-row">
-                <td :colspan="colspan" class="px-4 py-4">
-                    <div class="ml-12">
-                        <h4 class="mb-3 text-sm font-medium">
-                            Available Supplies ({{
-                                row.ongoing_supplies_count ?? 0
-                            }})
-                        </h4>
-                        <div
-                            class="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-4"
-                        >
-                            <Item
-                                v-for="item in row.supply_items"
-                                :key="item.id"
-                                variant="outline"
-                            >
-                                <ItemMedia variant="image">
-                                    <img
-                                        v-if="item"
-                                        :src="item.image_url"
-                                        :alt="item.name"
-                                    />
-                                </ItemMedia>
-                                <ItemContent>
-                                    <ItemTitle class="line-clamp-1">
-                                        {{ item.name }}
-                                    </ItemTitle>
-                                    <ItemDescription
-                                        >{{
-                                            item.quantity_kg.toFixed(2)
-                                        }}
-                                        kg</ItemDescription
-                                    >
-                                </ItemContent>
-                            </Item>
-                        </div>
-                    </div>
-                </td>
-            </tr>
         </template>
     </DataTable>
 </template>
