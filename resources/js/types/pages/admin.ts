@@ -79,13 +79,15 @@ export interface AdminFarmersFilters {
   supplies: Record<string, SupplyOption[]>
 }
 
-export interface AdminFarmerIndex {
+export interface AdminFarmerProps {
   view: 'list' | 'map'
   filters: AdminFarmersFilters
   mapConfig: MapConfig
   farmers: Paginated<FarmerBaseResource> | null
   summary: AdminFarmerSummary
 }
+
+export interface AdminFarmerTable extends FarmerBaseResource {}
 
 export interface AdminFarmerDetail extends FarmerBaseResource {
   coordinates: Coordinates
