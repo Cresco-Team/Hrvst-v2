@@ -30,7 +30,7 @@ import { index } from '@/routes/admin/farmers'
 import users from '@/routes/admin/users'
 import type {
     AdminFarmerDetail,
-    AdminFarmerIndex,
+    AdminFarmerProps,
     BreadcrumbItem,
     FarmerMarker,
 } from '@/types'
@@ -39,7 +39,7 @@ import {
     markers as farmerMarkers,
 } from '@/actions/App/Http/Controllers/Admin/FarmerController'
 
-const props = defineProps<AdminFarmerIndex>()
+const props = defineProps<AdminFarmerProps>()
 
 const currentView = ref<'list' | 'map'>(props.view)
 const markers = ref<FarmerMarker[]>([])
