@@ -2,6 +2,7 @@
 // Add/update FarmerResource and DealerResource to include PostItem-based fields
 
 import type { PostItemStatus } from '../enums'
+import { Coordinates } from '../shared'
 import type { DealerPostItemResource, PostItemSnapshot } from './marketplace'
 
 // ─── Shared supply/demand item summary (sidebar) ──────────────────────────────
@@ -20,7 +21,6 @@ export interface FarmerLocation {
 	barangay: string | null
 	municipality: string | null
 	province: string | null
-	coordinates: { lat: number; lng: number }
 }
 
 export interface FarmerUser {
@@ -47,6 +47,14 @@ export interface FarmerResource {
 	// full show view (show())
 	supply_items?: PostItemSnapshot[]
 	growing_posts_count?: number
+}
+
+export interface FarmerBaseResource {
+	id: number
+	joined_at: string
+	joined_at_human: string
+	user: FarmerUser
+	location: FarmerLocation
 }
 
 // ─── DealerResource ───────────────────────────────────────────────────────────
@@ -93,7 +101,6 @@ export interface DealerDemandSummary {
 export interface AdminFarmerSummary {
 	total_farmers: number
 	new_farmers_this_month: number
-	total_supplies: number
 	new_supplies_this_month: number
 }
 
