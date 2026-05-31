@@ -11,7 +11,10 @@
     "require": {
         "php": "^8.5",
         "inertiajs/inertia-laravel": "^2.0",
+<<<<<<< HEAD
         "fakerphp/faker": "^1.23",
+=======
+>>>>>>> b90d5eb65e0c015d6fa6885a5e717d0e4a0be2ae
         "intervention/image": "^3.0",
         "laravel/ai": "^0.4.5",
         "laravel/fortify": "^1.30",
@@ -23,6 +26,10 @@
     },
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^3.7",
+<<<<<<< HEAD
+=======
+        "fakerphp/faker": "^1.23",
+>>>>>>> b90d5eb65e0c015d6fa6885a5e717d0e4a0be2ae
         "laravel/boost": "^2.3",
         "laravel/pail": "^1.2.2",
         "laravel/pint": "^1.24",
