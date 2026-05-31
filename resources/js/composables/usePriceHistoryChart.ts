@@ -3,11 +3,8 @@ import { CategoryScale, Chart as ChartJS, type ChartOptions, Filler, Legend, Lin
 import { computed, type MaybeRefOrGetter, toValue } from 'vue'
 import type { PriceHistoryResource } from '@/types/resources/product'
 
-// Register Line chart elements once here — importing this composable is sufficient.
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler)
 
-// Accepts a MaybeRefOrGetter so callers can pass a plain array, a ref, or a computed.
-// Returns a computed chartData (null when empty) and a stable chartOptions object.
 export function usePriceHistoryChart(prices: MaybeRefOrGetter<PriceHistoryResource[] | null | undefined>) {
   const chartData = computed(() => {
     const raw = toValue(prices)
@@ -45,10 +42,9 @@ export function usePriceHistoryChart(prices: MaybeRefOrGetter<PriceHistoryResour
     }
   })
 
-  // Static — defined outside computed to avoid object recreation on every render
   const chartOptions: ChartOptions<'line'> = {
     responsive: true,
-    maintainAspectRatio: true,
+    maintainAspectRatio: false,
     interaction: { mode: 'index', intersect: false },
     plugins: {
       legend: {
@@ -62,7 +58,7 @@ export function usePriceHistoryChart(prices: MaybeRefOrGetter<PriceHistoryResour
     scales: {
       x: {
         grid: { display: false },
-        ticks: { font: { size: 11 }, maxRotation: 45 },
+        ticks: { font: { size: 11 }, maxRotation: 45, maxTicksLimit: 6 },
       },
       y: {
         grid: { color: 'rgba(0,0,0,0.05)' },
