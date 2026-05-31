@@ -24,6 +24,8 @@ class FarmerProfile extends Model implements HasMedia
 {
     use HasFactory, InteractsWithMedia;
 
+    protected $with = ['user'];
+
     /* ---------- relations ---------- */
 
     public function user(): BelongsTo
