@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Profile\FarmerDetailResource;
 use App\Http\Resources\Profile\FarmerIndexResource;
-use App\Http\Resources\Profile\FarmerResource;
+use App\Http\Resources\Profile\FarmerShowResource;
 use App\Models\Profiles\FarmerProfile;
 use App\Services\Admin\FarmerMapService;
 use App\Services\Admin\FarmerService;
@@ -90,7 +90,7 @@ class FarmerController extends Controller
 
         return Inertia::render('admin/farmers/Show', [
             'farmer' => Inertia::defer(
-                fn () => (new FarmerResource($this->farmerService->show($farmer)))->resolve()
+                fn () => (new FarmerShowResource($this->farmerService->show($farmer)))->resolve()
             ),
         ]);
     }
