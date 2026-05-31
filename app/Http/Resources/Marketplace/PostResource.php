@@ -52,15 +52,7 @@ class PostResource extends JsonResource
                                    : null,
                 'image_url' => $this->vegetable->getFirstMediaUrl('vegetable_image'),
             ]),
-            'items' => $this->whenLoaded('postItems', fn () => $this->postItems->map(fn ($item) => [
-                'id' => $item->id,
-                'variety_id' => $item->variety_id,
-                'variety_name' => $item->relationLoaded('variety') ? $item->variety->name : null,
-                'quantity_kg' => (float) $item->quantity_kg,
-                'unit_price' => $item->unit_price !== null ? (float) $item->unit_price : null,
-                'price_flag' => $item->price_flag,
-                'status' => $item->status,
-            ])
+            'items' => $this->whenLoaded('postItems', fn () => PostItemResource::collection($this->postItems)->resolve($request)
             ),
         ];
     }
