@@ -13,11 +13,10 @@ import type {
   AdminDealerSummary,
   AdminFarmerSummary,
   DealerResource,
-  FarmerDetailResource,
-  FarmerIndexResource,
+  FarmerBaseResource,
   FarmerResource,
 } from '../resources/profile'
-import type { KpiStat, MapConfig, Paginated } from '../shared'
+import type { Coordinates, KpiStat, MapConfig, Paginated } from '../shared'
 
 // ─── admin/Dashboard ──────────────────────────────────────────────────────────
 
@@ -84,11 +83,14 @@ export interface AdminFarmerIndex {
   view: 'list' | 'map'
   filters: AdminFarmersFilters
   mapConfig: MapConfig
-  farmers: Paginated<FarmerIndexResource> | null
+  farmers: Paginated<FarmerBaseResource> | null
   summary: AdminFarmerSummary
 }
 
-export interface AdminFarmerDetail extends FarmerDetailResource {}
+export interface AdminFarmerDetail extends FarmerBaseResource {
+  coordinates: Coordinates
+  ongoing_supply_items_count: number
+}
 
 // ─── admin/farmers/Show ───────────────────────────────────────────────────────
 
