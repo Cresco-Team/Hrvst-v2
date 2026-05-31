@@ -29,17 +29,17 @@ import admin from '@/routes/admin'
 import { index } from '@/routes/admin/farmers'
 import users from '@/routes/admin/users'
 import type {
-    AdminFarmersProps,
+    AdminFarmerDetail,
+    AdminFarmerIndex,
     BreadcrumbItem,
     FarmerMarker,
-    FarmerResource,
 } from '@/types'
 import {
     details as farmerDetails,
     markers as farmerMarkers,
 } from '@/actions/App/Http/Controllers/Admin/FarmerController'
 
-const props = defineProps<AdminFarmersProps>()
+const props = defineProps<AdminFarmerIndex>()
 
 const currentView = ref<'list' | 'map'>(props.view)
 const markers = ref<FarmerMarker[]>([])
@@ -47,7 +47,7 @@ const selectedMunicipality = ref<string | null>(null)
 const selectedVariety = ref<string | null>(null)
 const loadingMarkers = ref(false)
 const sidebarOpen = ref(false)
-const selectedFarmer = ref<FarmerResource | null>(null)
+const selectedFarmer = ref<AdminFarmerDetail | null>(null)
 const loadingFarmer = ref(false)
 const mapBounds = ref<{
     north: number
@@ -60,7 +60,10 @@ const isListView = computed(() => currentView.value === 'list')
 const isMapView = computed(() => currentView.value === 'map')
 
 const totalVisiblePlantings = computed(() =>
-    markers.value.reduce((sum, m) => sum + m.ongoing_supplies_count, 0),
+    markers.value.reduce(
+        (sum: any, m: any) => sum + m.ongoing_supplies_count,
+        0,
+    ),
 )
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -113,7 +116,7 @@ async function loadFarmerDetails(farmerId: number) {
     sidebarOpen.value = true
     selectedFarmer.value = null
     try {
-        const { data } = await axios.get<FarmerResource>(
+        const { data } = await axios.get<AdminFarmerDetail>(
             farmerDetails(farmerId).url,
         )
         selectedFarmer.value = data
@@ -186,13 +189,13 @@ if (storedView && storedView !== props.view) switchView(storedView)
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex flex-col gap-6 p-4 lg:p-6">
-            <!-- Header — was inline flex which wraps badly on mobile -->
+            <!-- Header -->
             <div
                 class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"
             >
                 <Heading
                     title="Farmers"
-                    description="Manage farmers and their active plantings."
+                    description="Manage farmers and their supplies."
                 />
 
                 <div class="flex shrink-0 items-center gap-2">
@@ -233,12 +236,12 @@ if (storedView && storedView !== props.view) switchView(storedView)
             <!-- Summary Cards -->
             <Deferred data="summary">
                 <template #fallback>
-                    <div class="grid grid-cols-2 gap-4 sm:grid-cols-4 lg:gap-2">
-                        <Skeleton v-for="i in 4" :key="i" class="h-33" />
+                    <div class="grid sm:grid-cols-3 lg:gap-2">
+                        <Skeleton v-for="i in 3" :key="i" class="h-33" />
                     </div>
                 </template>
 
-                <div class="grid grid-cols-2 gap-4 sm:grid-cols-4 lg:gap-2">
+                <div class="grid sm:grid-cols-3 sm:gap-2">
                     <LargeCard
                         title="Total Farmers"
                         :value="summary.total_farmers"
@@ -250,12 +253,6 @@ if (storedView && storedView !== props.view) switchView(storedView)
                         :value="summary.new_farmers_this_month"
                         subtext="registered this month"
                         :icon="UserPlus"
-                    />
-                    <LargeCard
-                        title="Total Supplies"
-                        :value="summary.total_supplies"
-                        subtext="all supplies posted"
-                        :icon="Package"
                     />
                     <LargeCard
                         title="New Supplies"
