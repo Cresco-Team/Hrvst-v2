@@ -41,8 +41,6 @@ class FarmerResource extends JsonResource
             // List view — populated by withCount in paginated()
             'ongoing_supplies_count' => $this->whenCounted('ongoing_supplies_count'),
 
-            // Sidebar detail view — populated by details(); posts loaded with ongoing postItems
-            // Flatten postItems across all loaded posts into a simple summary array
             'supplies' => $this->whenLoaded('posts', fn () => $this->posts
                 ->flatMap(fn ($post) => $post->relationLoaded('postItems') ? $post->postItems : collect())
                 ->map(fn ($item) => [
