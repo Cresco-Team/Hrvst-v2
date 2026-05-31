@@ -26,7 +26,6 @@ class FarmerMapService
 
     public function getSupplyOptions(): array
     {
-        // Varieties that have ongoing PostItems from harvested supply posts
         return Variety::query()
             ->whereHas('postItems', fn (Builder $q) => $q
                 ->ongoing()
@@ -53,7 +52,6 @@ class FarmerMapService
             ->with([
                 'user',
                 'municipality',
-                // Load harvested supply posts with their ongoing PostItems
                 'posts' => fn ($q) => $q
                     ->supply()
                     ->harvested()
