@@ -24,16 +24,10 @@ class FarmerService
     {
         $query = FarmerProfile::with([
             'user.media',
-            'media',
             'province',
             'municipality',
             'barangay',
-            'supplyItems',
-        ])
-            ->withCount([
-                'supplyItems as ongoing_supplies_count' => fn (Builder $q) => $q
-                    ->ongoing(),
-            ]);
+        ]);
 
         if ($search) {
             $query->whereHas(
@@ -48,13 +42,11 @@ class FarmerService
     {
         return $farmer->load([
             'user.media',
-            'media',
             'province',
             'municipality',
             'barangay',
-            'posts' => fn ($q) => $q
-                ->supply()
-                ->with(['postItems' => fn ($q) => $q->ongoing()]),
+        ])->loadCount([
+            'supplyItems as ongoing_supply_items_count' => fn (Builder $q) => $q->ongoing(),
         ]);
     }
 
