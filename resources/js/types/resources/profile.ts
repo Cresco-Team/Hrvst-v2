@@ -2,8 +2,7 @@
 // Add/update FarmerResource and DealerResource to include PostItem-based fields
 
 import type { PostItemStatus } from '../enums'
-import { Coordinates } from '../shared'
-import type { DealerPostItemResource, PostItemSnapshot } from './marketplace'
+import type { PostItemSnapshot } from './marketplace'
 
 // ─── Shared supply/demand item summary (sidebar) ──────────────────────────────
 
