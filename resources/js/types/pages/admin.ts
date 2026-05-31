@@ -13,6 +13,8 @@ import type {
   AdminDealerSummary,
   AdminFarmerSummary,
   DealerResource,
+  FarmerDetailResource,
+  FarmerIndexResource,
   FarmerResource,
 } from '../resources/profile'
 import type { KpiStat, MapConfig, Paginated } from '../shared'
@@ -78,13 +80,15 @@ export interface AdminFarmersFilters {
   supplies: Record<string, SupplyOption[]>
 }
 
-export interface AdminFarmersProps {
+export interface AdminFarmerIndex {
   view: 'list' | 'map'
   filters: AdminFarmersFilters
   mapConfig: MapConfig
-  farmers: Paginated<FarmerResource> | null // Inertia::defer — null in map view
-  summary: AdminFarmerSummary // Inertia::defer
+  farmers: Paginated<FarmerIndexResource> | null
+  summary: AdminFarmerSummary
 }
+
+export interface AdminFarmerDetail extends FarmerDetailResource {}
 
 // ─── admin/farmers/Show ───────────────────────────────────────────────────────
 
