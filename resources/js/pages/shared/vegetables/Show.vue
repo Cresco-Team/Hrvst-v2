@@ -5,14 +5,12 @@ import { Calendar } from 'v-calendar'
 import { computed, ref } from 'vue'
 import 'v-calendar/style.css'
 import Heading from '@/components/Heading.vue'
-import SmallCard from '@/components/shared/cards/SmallCard.vue'
 import VarietyAnalyticsSummary from '@/components/shared/charts/VarietyAnalyticsSummary.vue'
 import VarietyRecommendations from '@/components/shared/charts/VarietyRecommendations.vue'
 import VegetableMonthlyChart from '@/components/shared/charts/VegetableMonthlyChart.vue'
 import VegetablePriceChart from '@/components/shared/charts/VegetablePriceChart.vue'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { Skeleton } from '@/components/ui/skeleton'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { useCapitalize } from '@/lib/utils'
@@ -26,6 +24,7 @@ import type {
 	VarietyDaySchedule,
 } from '@/types'
 import type { VarietyResource } from '@/types/resources/product'
+import DetailSheet from '@/components/dialogs/DetailSheet.vue'
 
 interface Props {
 	variety?: VarietyResource | null
@@ -127,15 +126,13 @@ const selectedDateLabel = computed(() => {
 	})
 })
 
-function handleDayClick(day: {
-	attributes: Array<{ customData?: { dateStr: string; daySchedule: VarietyDaySchedule } }>
-}): void {
-	const attr = day.attributes?.find((a) => a.customData?.dateStr)
-	if (!attr?.customData) return
+function handleDayClick(day: { id: string }): void {
+  const schedule = props.variety?.variety_calendar?.[day.id]
+  if (!schedule) return
 
-	selectedDateStr.value = attr.customData.dateStr
-	selectedSchedule.value = attr.customData.daySchedule
-	sheetOpen.value = true
+  selectedDateStr.value = day.id
+  selectedSchedule.value = schedule
+  sheetOpen.value = true
 }
 
 // ─── Calendar — time slot config ─────────────────────────────────────────────
@@ -298,18 +295,17 @@ function formatKgShort(kg: number): string {
             </div>
 
             <!-- Calendar grid -->
-            <div class="rounded-xl border bg-card p-2 sm:p-4">
               <Calendar
                 :key="`${calendarYear}-${calendarMonth}`"
                 :attributes="calendarAttributes"
                 :initial-page="calendarPage"
                 expanded
-                @dayclick="handleDayClick"
               >
                 <template #day-content="{ day }">
                   <div
                     class="vc-day-tile flex h-full w-full cursor-pointer flex-col p-1"
                     :class="{ 'opacity-30': !day.inMonth }"
+                    @click="handleDayClick(day)"
                   >
                     <span class="mb-auto text-xs font-semibold leading-none">{{ day.label }}</span>
 
@@ -347,7 +343,6 @@ function formatKgShort(kg: number): string {
                   </div>
                 </template>
               </Calendar>
-            </div>
 
           </div>
 
@@ -358,74 +353,85 @@ function formatKgShort(kg: number): string {
   </AppLayout>
 
   <!-- ─── Day detail sheet ──────────────────────────────────────────────────── -->
-  <Sheet v-model:open="sheetOpen">
-    <SheetContent class="w-full overflow-y-auto sm:max-w-md">
-      <SheetHeader class="mb-4">
-        <SheetTitle class="text-base font-semibold">{{ selectedDateLabel }}</SheetTitle>
-      </SheetHeader>
-
-      <div v-if="selectedSchedule" class="flex flex-col gap-5">
-        <template v-for="slot in TIME_SLOTS" :key="slot.key">
-          <div v-if="selectedSchedule[slot.key]?.length">
-            <div class="mb-3 flex items-center gap-2">
-              <span class="h-2.5 w-2.5 shrink-0 rounded-full" :class="slot.dotClass" />
-              <span class="text-sm font-semibold">{{ slot.label }}</span>
-              <span class="ml-auto text-xs tabular-nums text-muted-foreground">
-                {{ formatKg(totalKgForSlot(selectedSchedule[slot.key]!)) }} total
-              </span>
-            </div>
-
-            <div class="flex flex-col gap-2 pl-4">
-              <div
-                v-for="(entry, idx) in selectedSchedule[slot.key]"
-                :key="idx"
-                class="flex items-center justify-between rounded-lg border bg-muted/30 px-3 py-2"
-              >
-                <div class="flex items-center gap-2">
-                  <span
-                    class="rounded-full px-2 py-0.5 text-[10px] font-bold uppercase"
-                    :class="entry.type === 'supply'
-                      ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300'
-                      : 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300'"
-                  >
-                    {{ entry.type }}
-                  </span>
-                  <span class="text-xs text-muted-foreground">
-                    {{ entry.posts_count }} {{ entry.posts_count === 1 ? 'post' : 'posts' }}
-                  </span>
-                </div>
-                <span class="text-sm font-semibold tabular-nums">{{ formatKg(entry.total_kg) }}</span>
-              </div>
-            </div>
-
-            <Separator class="mt-4" />
+  <DetailSheet
+    :open="sheetOpen"
+    :title="selectedDateLabel"
+    @update:open="sheetOpen = $event"
+  >
+    <div v-if="selectedSchedule" class="flex flex-col gap-5">
+      <template v-for="slot in TIME_SLOTS" :key="slot.key">
+        <div v-if="selectedSchedule[slot.key]?.length">
+          <div class="mb-3 flex items-center gap-2">
+            <span class="h-2.5 w-2.5 shrink-0 rounded-full" :class="slot.dotClass" />
+            <span class="text-sm font-semibold">{{ slot.label }}</span>
+            <span class="ml-auto text-xs tabular-nums text-muted-foreground">
+              {{ formatKg(totalKgForSlot(selectedSchedule[slot.key]!)) }} total
+            </span>
           </div>
-        </template>
-      </div>
 
-      <p v-else class="text-sm text-muted-foreground">
-        No schedule data for this day.
-      </p>
-    </SheetContent>
-  </Sheet>
+          <div class="flex flex-col gap-2 pl-4">
+            <div
+              v-for="(entry, idx) in selectedSchedule[slot.key]"
+              :key="idx"
+              class="flex items-center justify-between rounded-lg border bg-muted/30 px-3 py-2"
+            >
+              <div class="flex items-center gap-2">
+                <span
+                  class="rounded-full px-2 py-0.5 text-[10px] font-bold uppercase"
+                  :class="entry.type === 'supply'
+                    ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300'
+                    : 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300'"
+                >
+                  {{ entry.type }}
+                </span>
+                <span class="text-xs text-muted-foreground">
+                  {{ entry.posts_count }} {{ entry.posts_count === 1 ? 'post' : 'posts' }}
+                </span>
+              </div>
+              <span class="text-sm font-semibold tabular-nums">{{ formatKg(entry.total_kg) }}</span>
+            </div>
+          </div>
+
+          <Separator class="mt-4" />
+        </div>
+      </template>
+    </div>
+
+    <p v-else class="text-sm text-muted-foreground">
+      No schedule data for this day.
+    </p>
+  </DetailSheet>
 </template>
 
 <style scoped>
-:deep(.vc-day-content) { display: none; }
-:deep(.vc-dots), :deep(.vc-highlights) { display: none; }
-:deep(.vc-day) {
-  min-height: 5rem;
-  border: 1px solid hsl(var(--border) / 0.4);
-  border-radius: 0.375rem;
-  background-color: hsl(var(--muted) / 0.2);
-  padding: 0;
-  overflow: hidden;
-  transition: background-color 0.15s;
-}
-:deep(.vc-day:hover) { background-color: hsl(var(--muted) / 0.5); }
-:deep(.vc-day.is-today) {
-  border-color: hsl(var(--primary) / 0.6);
-  background-color: hsl(var(--primary) / 0.06);
-}
-:deep(.vc-week), :deep(.vc-weeks) { gap: 3px; padding: 0; }
+  :deep(.vc-day-content) { display: none; }
+  :deep(.vc-dots), :deep(.vc-highlights) { display: none; }
+
+  :deep(.vc-container) { width: 100% !important; }
+  :deep(.vc-pane-layout),
+  :deep(.vc-pane),
+  :deep(.vc-weeks) { width: 100%; min-width: 0; }
+
+  :deep(.vc-week) { gap: 2px; padding: 0; }
+  :deep(.vc-weeks) { gap: 2px; padding: 0; }
+
+  :deep(.vc-day) {
+    min-height: 5rem;
+    border: 1px solid hsl(var(--border) / 0.4);
+    border-radius: 0.375rem;
+    background-color: hsl(var(--muted) / 0.2);
+    padding: 0;
+    overflow: hidden;
+    transition: background-color 0.15s;
+  }
+  :deep(.vc-day:hover) { background-color: hsl(var(--muted) / 0.5); }
+  :deep(.vc-day.is-today) {
+    border-color: hsl(var(--primary) / 0.6);
+    background-color: hsl(var(--primary) / 0.06);
+  }
+
+  @media (max-width: 479px) {
+    :deep(.vc-day) { min-height: 3rem; }
+    :deep(.vc-weekday) { font-size: 0.6rem; }
+  }
 </style>
