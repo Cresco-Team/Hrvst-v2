@@ -5,7 +5,6 @@ import { Calendar } from 'v-calendar'
 import { computed, ref } from 'vue'
 import 'v-calendar/style.css'
 import Heading from '@/components/Heading.vue'
-import SmallCard from '@/components/shared/cards/SmallCard.vue'
 import VarietyAnalyticsSummary from '@/components/shared/charts/VarietyAnalyticsSummary.vue'
 import VarietyRecommendations from '@/components/shared/charts/VarietyRecommendations.vue'
 import VegetableMonthlyChart from '@/components/shared/charts/VegetableMonthlyChart.vue'
@@ -127,15 +126,13 @@ const selectedDateLabel = computed(() => {
 	})
 })
 
-function handleDayClick(day: {
-	attributes: Array<{ customData?: { dateStr: string; daySchedule: VarietyDaySchedule } }>
-}): void {
-	const attr = day.attributes?.find((a) => a.customData?.dateStr)
-	if (!attr?.customData) return
+function handleDayClick(day: { id: string }): void {
+  const schedule = props.variety?.variety_calendar?.[day.id]
+  if (!schedule) return
 
-	selectedDateStr.value = attr.customData.dateStr
-	selectedSchedule.value = attr.customData.daySchedule
-	sheetOpen.value = true
+  selectedDateStr.value = day.id
+  selectedSchedule.value = schedule
+  sheetOpen.value = true
 }
 
 // ─── Calendar — time slot config ─────────────────────────────────────────────
@@ -304,12 +301,12 @@ function formatKgShort(kg: number): string {
                 :attributes="calendarAttributes"
                 :initial-page="calendarPage"
                 expanded
-                @dayclick="handleDayClick"
               >
                 <template #day-content="{ day }">
                   <div
                     class="vc-day-tile flex h-full w-full cursor-pointer flex-col p-1"
                     :class="{ 'opacity-30': !day.inMonth }"
+                    @click="handleDayClick(day)"
                   >
                     <span class="mb-auto text-xs font-semibold leading-none">{{ day.label }}</span>
 
