@@ -11,7 +11,6 @@ import VegetableMonthlyChart from '@/components/shared/charts/VegetableMonthlyCh
 import VegetablePriceChart from '@/components/shared/charts/VegetablePriceChart.vue'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { Skeleton } from '@/components/ui/skeleton'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { useCapitalize } from '@/lib/utils'
@@ -25,6 +24,7 @@ import type {
 	VarietyDaySchedule,
 } from '@/types'
 import type { VarietyResource } from '@/types/resources/product'
+import DetailSheet from '@/components/dialogs/DetailSheet.vue'
 
 interface Props {
 	variety?: VarietyResource | null
@@ -355,56 +355,54 @@ function formatKgShort(kg: number): string {
   </AppLayout>
 
   <!-- ─── Day detail sheet ──────────────────────────────────────────────────── -->
-  <Sheet v-model:open="sheetOpen">
-    <SheetContent class="w-full overflow-y-auto sm:max-w-md">
-      <SheetHeader class="mb-4">
-        <SheetTitle class="text-base font-semibold">{{ selectedDateLabel }}</SheetTitle>
-      </SheetHeader>
+  <DetailSheet
+  :open="sheetOpen"
+  :title="selectedDateLabel"
+  @update:open="sheetOpen = $event"
+>
+  <div v-if="selectedSchedule" class="flex flex-col gap-5">
+    <template v-for="slot in TIME_SLOTS" :key="slot.key">
+      <div v-if="selectedSchedule[slot.key]?.length">
+        <div class="mb-3 flex items-center gap-2">
+          <span class="h-2.5 w-2.5 shrink-0 rounded-full" :class="slot.dotClass" />
+          <span class="text-sm font-semibold">{{ slot.label }}</span>
+          <span class="ml-auto text-xs tabular-nums text-muted-foreground">
+            {{ formatKg(totalKgForSlot(selectedSchedule[slot.key]!)) }} total
+          </span>
+        </div>
 
-      <div v-if="selectedSchedule" class="flex flex-col gap-5">
-        <template v-for="slot in TIME_SLOTS" :key="slot.key">
-          <div v-if="selectedSchedule[slot.key]?.length">
-            <div class="mb-3 flex items-center gap-2">
-              <span class="h-2.5 w-2.5 shrink-0 rounded-full" :class="slot.dotClass" />
-              <span class="text-sm font-semibold">{{ slot.label }}</span>
-              <span class="ml-auto text-xs tabular-nums text-muted-foreground">
-                {{ formatKg(totalKgForSlot(selectedSchedule[slot.key]!)) }} total
+        <div class="flex flex-col gap-2 pl-4">
+          <div
+            v-for="(entry, idx) in selectedSchedule[slot.key]"
+            :key="idx"
+            class="flex items-center justify-between rounded-lg border bg-muted/30 px-3 py-2"
+          >
+            <div class="flex items-center gap-2">
+              <span
+                class="rounded-full px-2 py-0.5 text-[10px] font-bold uppercase"
+                :class="entry.type === 'supply'
+                  ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300'
+                  : 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300'"
+              >
+                {{ entry.type }}
+              </span>
+              <span class="text-xs text-muted-foreground">
+                {{ entry.posts_count }} {{ entry.posts_count === 1 ? 'post' : 'posts' }}
               </span>
             </div>
-
-            <div class="flex flex-col gap-2 pl-4">
-              <div
-                v-for="(entry, idx) in selectedSchedule[slot.key]"
-                :key="idx"
-                class="flex items-center justify-between rounded-lg border bg-muted/30 px-3 py-2"
-              >
-                <div class="flex items-center gap-2">
-                  <span
-                    class="rounded-full px-2 py-0.5 text-[10px] font-bold uppercase"
-                    :class="entry.type === 'supply'
-                      ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300'
-                      : 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300'"
-                  >
-                    {{ entry.type }}
-                  </span>
-                  <span class="text-xs text-muted-foreground">
-                    {{ entry.posts_count }} {{ entry.posts_count === 1 ? 'post' : 'posts' }}
-                  </span>
-                </div>
-                <span class="text-sm font-semibold tabular-nums">{{ formatKg(entry.total_kg) }}</span>
-              </div>
-            </div>
-
-            <Separator class="mt-4" />
+            <span class="text-sm font-semibold tabular-nums">{{ formatKg(entry.total_kg) }}</span>
           </div>
-        </template>
-      </div>
+        </div>
 
-      <p v-else class="text-sm text-muted-foreground">
-        No schedule data for this day.
-      </p>
-    </SheetContent>
-  </Sheet>
+        <Separator class="mt-4" />
+      </div>
+    </template>
+  </div>
+
+  <p v-else class="text-sm text-muted-foreground">
+    No schedule data for this day.
+  </p>
+</DetailSheet>
 </template>
 
 <style scoped>
