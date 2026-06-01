@@ -54,12 +54,12 @@ export function useMonthlyVolumeChart(activity: MaybeRefOrGetter<MonthlyActivity
 
   const chartOptions: ChartOptions<'bar'> = {
     responsive: true,
-    maintainAspectRatio: true,
+    maintainAspectRatio: false,
     interaction: { mode: 'index', intersect: false },
     plugins: {
       legend: {
-        position: 'top',
-        labels: { boxWidth: 12, padding: 16, font: { size: 12 } },
+        position: 'bottom',
+        labels: { boxWidth: 8, boxHeight: 8, padding: 8, font: { size: 10 } },
       },
       tooltip: {
         callbacks: {
@@ -72,7 +72,7 @@ export function useMonthlyVolumeChart(activity: MaybeRefOrGetter<MonthlyActivity
       x: {
         stacked: true,
         grid: { display: false },
-        ticks: { font: { size: 11 }, maxRotation: 45 },
+        ticks: { font: { size: 11 }, maxRotation: 45, maxTicksLimit: 6},
       },
       y: {
         stacked: true,
