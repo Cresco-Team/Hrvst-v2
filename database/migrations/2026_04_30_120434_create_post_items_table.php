@@ -21,7 +21,7 @@ return new class extends Migration
             $table->enum('price_flag', ['Low', 'Fair', 'High'])->default('Fair');
             $table->string('status')->default('ongoing');
 
-            $table->index('status');
+            $table->index(['variety_id', 'status'], 'idx_post_items_variety_status');
 
             $table->softDeletes();
             $table->timestamps();
