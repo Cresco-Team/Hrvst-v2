@@ -156,17 +156,21 @@ class VarietyService
 
     public function show(Variety $variety, int $year, int $month, VarietyViewerRole $role): Variety
     {
-        $variety->load(['vegetable.category', 'latestPrice', 'recentPrices']);
+        $variety->loadMissing(['latestPrice', 'recentPrices']);
 
-        $variety->supply_count = $variety->postItems()
+        $counts = $variety->postItems()
             ->ongoing()
-            ->whereHas('post', fn (Builder $q) => $q->supply()->harvested())
-            ->count();
+            ->join('posts', 'posts.id', '=', 'post_items.post_id')
+            ->where('posts.status', PostStatus::Harvested->value)
+            ->whereNull('posts.deleted_at')
+            ->selectRaw("
+            SUM(CASE WHEN posts.type = 'supply' THEN 1 ELSE 0 END) as supply_count,
+            SUM(CASE WHEN posts.type = 'demand' THEN 1 ELSE 0 END) as demand_count
+        ")
+            ->first();
 
-        $variety->demand_count = $variety->postItems()
-            ->ongoing()
-            ->whereHas('post', fn (Builder $q) => $q->demand()->harvested())
-            ->count();
+        $variety->supply_count = (int) ($counts->supply_count ?? 0);
+        $variety->demand_count = (int) ($counts->demand_count ?? 0);
 
         $variety->supply_municipalities = $this->resolveSupplyMunicipalities($variety->id);
 
