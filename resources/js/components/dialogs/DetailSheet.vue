@@ -1,29 +1,37 @@
 <script setup lang="ts">
+import { computed } from 'vue'
+import { useMediaQuery } from '@vueuse/core'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import {
     Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle,
 } from '@/components/ui/sheet'
 
-withDefaults(
+const props = withDefaults(
     defineProps<{
         open: boolean
         title: string
         description?: string
         side?: 'right' | 'left' | 'top' | 'bottom'
     }>(),
-    {
-        side: 'right',
-    },
+    { side: 'right' },
 )
 
 defineEmits<{
     'update:open': [value: boolean]
 }>()
+
+const isMobile = useMediaQuery('(max-width: 639px)')
+const effectiveSide = computed(() =>
+    props.side === 'right' && isMobile.value ? 'bottom' : props.side
+)
 </script>
 
 <template>
     <Sheet :open="open" @update:open="$emit('update:open', $event)">
-        <SheetContent :side="side" class="flex flex-col gap-0 p-0 sm:max-w-[480px]">
+        <SheetContent
+            :side="effectiveSide"
+            class="flex flex-col gap-0 p-0 sm:max-w-[480px] max-h-[85vh] sm:max-h-none"
+        >
             <SheetHeader class="border-b px-6 py-4">
                 <SheetTitle>{{ title }}</SheetTitle>
                 <SheetDescription v-if="description">
