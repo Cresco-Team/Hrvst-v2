@@ -130,8 +130,7 @@ function handleArchive() {
 
 function handleDeleteItem() {
     if (!itemToDelete.value) return
-    deleteItemForm.post(destroy(itemToDelete.value.id).url, {
-        method: 'delete',
+    deleteItemForm.delete(destroy(itemToDelete.value.id).url, {
         preserveScroll: true,
         onSuccess: () => {
             deleteItemDialogOpen.value = false
