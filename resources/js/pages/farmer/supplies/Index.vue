@@ -65,8 +65,7 @@ function openDeletePost(post: FarmerSupplyResource) {
 
 function handleDeletePost() {
     if (!supplyToDelete.value) return
-    deletePostForm.post(destroySupply(supplyToDelete.value.id).url, {
-        method: 'delete',
+    deletePostForm.delete(destroySupply(supplyToDelete.value.id).url, {
         preserveScroll: true,
         onSuccess: () => {
             deletePostDialogOpen.value = false
