@@ -33,6 +33,7 @@ return new class extends Migration
                 ['vegetable_id', 'type', 'status', 'created_at'],
                 'idx_posts_vegetable_type_status_created'
             );
+            $table->index('scheduled_date');
         });
     }
 
