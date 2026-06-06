@@ -138,7 +138,6 @@ export interface VarietyTableRow {
   is_variety: boolean
   vegetable_id?: number | null
   category?: { id: number; name: string } | null
-  varieties_count?: number
   image_url?: string | null
   latest_price?: PriceHistoryResource | null
   price_updated_human?: string | null

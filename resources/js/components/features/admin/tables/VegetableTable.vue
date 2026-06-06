@@ -69,7 +69,7 @@ const columns: ColumnDef<VarietyTableRow>[] = [
     { id: 'expand', header: '', size: 32 },
     { id: 'name', header: 'Name', enableSorting: false },
     { id: 'meta', header: 'Category / Price', enableSorting: false },
-    { id: 'activity', header: 'Activity', enableSorting: false },
+    { id: 'activity', header: '', enableSorting: false },
     { id: 'actions', header: '', enableSorting: false },
 ]
 
@@ -221,33 +221,12 @@ const trendIcon = {
                                     <span class="font-semibold">{{
                                         row.original.name
                                     }}</span>
-                                    <AppTooltip content="Variety">
-                                        <Badge class="cursor-help">
-                                            {{
-                                                row.original.varieties
-                                                    ?.length ?? 0
-                                            }}
-                                        </Badge>
-                                    </AppTooltip>
                                 </div>
                             </template>
 
                             <!-- variety child row -->
                             <template v-else>
                                 <div class="flex items-center gap-2 pl-6">
-                                    <Avatar class="size-8 shrink-0 rounded-md">
-                                        <AvatarImage
-                                            v-if="row.original.image_url"
-                                            :src="row.original.image_url"
-                                            :alt="row.original.name"
-                                            class="object-cover"
-                                        />
-                                        <AvatarFallback
-                                            class="rounded-md bg-primary/10 text-xs font-semibold text-primary"
-                                        >
-                                            {{ row.original.name.charAt(0) }}
-                                        </AvatarFallback>
-                                    </Avatar>
                                     <span class="font-medium">{{
                                         row.original.name
                                     }}</span>
@@ -381,7 +360,7 @@ const trendIcon = {
                                                     class="flex w-fit cursor-help items-center gap-1.5 text-xs"
                                                 >
                                                     <span
-                                                        class="size-1.5 rounded-full bg-blue-500"
+                                                        class="size-1.5 rounded-full bg-orange-500"
                                                     />
                                                     <span
                                                         class="font-medium tabular-nums"
@@ -399,8 +378,7 @@ const trendIcon = {
                                             </TooltipTrigger>
                                             <TooltipContent
                                                 ><p class="text-xs">
-                                                    Ongoing dealer demand
-                                                    listings
+                                                    Scheduled Dealer Demands
                                                 </p></TooltipContent
                                             >
                                         </Tooltip>
