@@ -9,7 +9,6 @@ use App\Http\Requests\Vegetable\StoreVegetableRequest;
 use App\Http\Requests\Vegetable\UpdateVegetableRequest;
 use App\Http\Resources\Product\VegetableResource;
 use App\Models\Product\Category;
-use App\Models\Product\Variety;
 use App\Models\Product\Vegetable;
 use App\Services\Product\VegetableService;
 use Illuminate\Http\RedirectResponse;
@@ -27,15 +26,8 @@ class VegetableController extends Controller
     public function category(): Response
     {
         $categories = Category::query()
-            ->withCount('vegetables')
-            ->addSelect([
-                'varieties_count' => Variety::query()
-                    ->join('vegetables', 'varieties.vegetable_id', '=', 'vegetables.id')
-                    ->whereColumn('vegetables.category_id', 'categories.id')
-                    ->selectRaw('COUNT(*)'),
-            ])
             ->orderBy('name')
-            ->get(['id', 'name']);
+            ->get(['id', 'name', 'slug']);
 
         return Inertia::render('admin/vegetables/Categories', [
             'categories' => $categories,
