@@ -45,8 +45,6 @@ export interface CategoryStat {
   id: number
   name: string
   slug: string
-  vegetables_count: number
-  varieties_count: number
 }
 
 export interface AdminCategoriesProps {

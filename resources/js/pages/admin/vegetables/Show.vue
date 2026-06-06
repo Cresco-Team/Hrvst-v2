@@ -16,37 +16,39 @@ import AppLayout from '@/layouts/AppLayout.vue'
 import admin, { dashboard } from '@/routes/admin'
 import { show as vegetablesShow } from '@/routes/admin/vegetables/varieties'
 import type {
-	BreadcrumbItem,
-  CalendarSlotData,
-	CalendarTimeSlot,
-	VarietyCalendarFilters,
-	VarietyDaySchedule,
-	VarietyResource,
+    BreadcrumbItem,
+    CalendarSlotData,
+    CalendarTimeSlot,
+    VarietyCalendarFilters,
+    VarietyDaySchedule,
+    VarietyResource,
 } from '@/types'
 import DetailSheet from '@/components/dialogs/DetailSheet.vue'
 
 const props = defineProps<{
-	variety?: VarietyResource
-	calendarFilters: VarietyCalendarFilters
-	meta: {
-		varietyId: number
-		varietyLabel: string
-		categoryName: string
-		categorySlug: string
-	}
+    variety?: VarietyResource
+    calendarFilters: VarietyCalendarFilters
+    meta: {
+        varietyId: number
+        varietyLabel: string
+        categoryName: string
+        categorySlug: string
+    }
 }>()
 
 const breadcrumbs = computed<BreadcrumbItem[]>(() => [
-	{ title: 'Admin', href: dashboard().url },
-	{ title: 'Vegetables', href: admin.categories.index().url },
-	{
-		title: props.meta.categoryName,
-		href: admin.vegetables.index({ query: { category: props.meta.categorySlug } }).url,
-	},
-	{
-		title: props.meta.varietyLabel,
-		href: admin.vegetables.varieties.show(props.meta.varietyId).url,
-	},
+    { title: 'Admin', href: dashboard().url },
+    { title: 'Vegetables', href: admin.categories.index().url },
+    {
+        title: props.meta.categoryName,
+        href: admin.vegetables.index({
+            query: { category: props.meta.categorySlug },
+        }).url,
+    },
+    {
+        title: props.meta.varietyLabel,
+        href: admin.vegetables.varieties.show(props.meta.varietyId).url,
+    },
 ])
 
 // ─── Calendar — month navigation ──────────────────────────────────────────────
@@ -223,64 +225,64 @@ function formatKgShort(kg: number): string {
 </script>
 
 <template>
+    <Head
+        :title="
+            variety ? `${variety.vegetable?.name} ${variety.name}` : 'Variety'
+        "
+    />
 
-  <Head :title="variety ? `${variety.vegetable?.name} ${variety.name}` : 'Variety'" />
-
-  <AppLayout :breadcrumbs="breadcrumbs">
-    <div class="flex flex-col gap-6 p-4 lg:p-6">
-
-      <Deferred data="variety">
-        <template #fallback>
-          <div class="flex flex-col gap-6">
-            <Skeleton class="h-8 w-64" />
-            <div class="grid grid-cols-2 gap-4 sm:grid-cols-4">
-              <Skeleton v-for="i in 4" :key="i" class="h-24 rounded-xl" />
-            </div>
-            <div class="grid grid-cols-2 gap-4 sm:grid-cols-4">
-              <Skeleton v-for="i in 4" :key="i" class="h-24 rounded-xl" />
-            </div>
-            <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
-              <Skeleton class="h-72 rounded-xl" />
-              <Skeleton class="h-72 rounded-xl" />
-            </div>
-            <Skeleton class="h-72 w-full rounded-xl" />
-          </div>
-        </template>
-
-        <template v-if="variety">
-
-          <!-- ── Header ─────────────────────────────────────────────────────── -->
-          <Heading
-            :title="`${variety.vegetable?.name} ${variety.name}`"
-            :description="variety.vegetable?.category?.name"
-          />
-
-          <!-- ── Analytics Summary ───────────────────────────────────────────── -->
-          <VarietyAnalyticsSummary
-            v-if="variety.analytics"
-            :analytics="variety.analytics"
-          />
-
-          <!-- ── Recommendations ────────────────────────────────────────────── -->
-          <VarietyRecommendations
-            v-if="variety.analytics?.recommendations.length"
-            :recommendations="variety.analytics.recommendations"
-          />
-
-          <!-- ── Charts ─────────────────────────────────────────────────────── -->
-          <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
-            <VarietyPriceChart
-              v-if="variety.recent_prices?.length"
-              :recent-prices="variety.recent_prices"
+    <AppLayout :breadcrumbs="breadcrumbs">
+        <div class="flex flex-col gap-6 p-4 lg:p-6">
+            <Heading
+                :title="meta.varietyLabel"
+                :description="meta.categoryName"
             />
-            <VarietyMonthlyChart
-              v-if="variety.monthly_activity?.length"
-              :monthly-activity="variety.monthly_activity"
-            />
-          </div>
 
-          <!-- ── Market Calendar ─────────────────────────────────────────────── -->
-          <div
+            <Deferred data="variety">
+                <template #fallback>
+                    <div class="flex flex-col gap-6">
+                        <div class="grid grid-cols-2 gap-4 sm:grid-cols-4">
+                            <Skeleton
+                                v-for="i in 4"
+                                :key="i"
+                                class="h-24 rounded-xl"
+                            />
+                        </div>
+                        <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
+                            <Skeleton class="h-72 rounded-xl" />
+                            <Skeleton class="h-72 rounded-xl" />
+                        </div>
+                        <Skeleton class="h-72 w-full rounded-xl" />
+                    </div>
+                </template>
+
+                <template v-if="variety">
+                    <!-- ── Analytics Summary ───────────────────────────────────────────── -->
+                    <VarietyAnalyticsSummary
+                        v-if="variety.analytics"
+                        :analytics="variety.analytics"
+                    />
+
+                    <!-- ── Recommendations ────────────────────────────────────────────── -->
+                    <VarietyRecommendations
+                        v-if="variety.analytics?.recommendations.length"
+                        :recommendations="variety.analytics.recommendations"
+                    />
+
+                    <!-- ── Charts ─────────────────────────────────────────────────────── -->
+                    <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
+                        <VarietyPriceChart
+                            v-if="variety.recent_prices?.length"
+                            :recent-prices="variety.recent_prices"
+                        />
+                        <VarietyMonthlyChart
+                            v-if="variety.monthly_activity?.length"
+                            :monthly-activity="variety.monthly_activity"
+                        />
+                    </div>
+
+                    <!-- ── Market Calendar ─────────────────────────────────────────────── -->
+                    <div
                         class="grid grid-cols-1 gap-4 lg:grid-cols-[220px_1fr]"
                     >
                         <!-- Sidebar -->
@@ -467,14 +469,12 @@ function formatKgShort(kg: number): string {
                             </Calendar>
                         </Card>
                     </div>
+                </template>
+            </Deferred>
+        </div>
+    </AppLayout>
 
-        </template>
-      </Deferred>
-
-    </div>
-  </AppLayout>
-
-  <DetailSheet
+    <DetailSheet
         :open="sheetOpen"
         :title="selectedDateLabel"
         @update:open="sheetOpen = $event"
@@ -626,25 +626,35 @@ function formatKgShort(kg: number): string {
             No schedule data for this day.
         </p>
     </DetailSheet>
-
 </template>
 
 <style scoped>
-:deep(.vc-day-content) { display: none; }
-:deep(.vc-dots), :deep(.vc-highlights) { display: none; }
+:deep(.vc-day-content) {
+    display: none;
+}
+:deep(.vc-dots),
+:deep(.vc-highlights) {
+    display: none;
+}
 :deep(.vc-day) {
-  min-height: 5rem;
-  border: 1px solid hsl(var(--border) / 0.4);
-  border-radius: 0.375rem;
-  background-color: hsl(var(--muted) / 0.2);
-  padding: 0;
-  overflow: hidden;
-  transition: background-color 0.15s;
+    min-height: 5rem;
+    border: 1px solid hsl(var(--border) / 0.4);
+    border-radius: 0.375rem;
+    background-color: hsl(var(--muted) / 0.2);
+    padding: 0;
+    overflow: hidden;
+    transition: background-color 0.15s;
 }
-:deep(.vc-day:hover) { background-color: hsl(var(--muted) / 0.5); }
+:deep(.vc-day:hover) {
+    background-color: hsl(var(--muted) / 0.5);
+}
 :deep(.vc-day.is-today) {
-  border-color: hsl(var(--primary) / 0.6);
-  background-color: hsl(var(--primary) / 0.06);
+    border-color: hsl(var(--primary) / 0.6);
+    background-color: hsl(var(--primary) / 0.06);
 }
-:deep(.vc-week), :deep(.vc-weeks) { gap: 3px; padding: 0; }
+:deep(.vc-week),
+:deep(.vc-weeks) {
+    gap: 3px;
+    padding: 0;
+}
 </style>

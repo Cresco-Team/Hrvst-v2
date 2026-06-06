@@ -15,24 +15,16 @@ class VarietyResource extends JsonResource
             'hearts_count' => $this->hearts_count,
             'is_hearted' => (bool) ($this->is_hearted ?? false),
 
-            'vegetable' => [
-                'id' => $this->vegetable->id,
-                'name' => $this->vegetable->name,
-                'image_url' => $this->vegetable->getFirstMediaUrl('vegetable_image'),
-                'category' => [
-                    'id' => $this->vegetable->category->id,
-                    'name' => $this->vegetable->category->name,
-                ],
-            ],
+            'vegetable' => $this->whenLoaded('vegetable',
+                fn () => new VegetableResource(($this->vegetable))
+            ),
 
-            'latest_price' => $this->whenLoaded(
-                'latestPrice',
+            'latest_price' => $this->whenLoaded('latestPrice',
                 fn () => $this->latestPrice
                     ? (new PriceHistoryResource($this->latestPrice))->toArray($request)
                     : null
             ),
-            'price_updated_human' => $this->whenLoaded(
-                'latestPrice',
+            'price_updated_human' => $this->whenLoaded('latestPrice',
                 fn () => $this->latestPrice?->recorded_at->diffForHumans()
             ),
             'price_updated_date' => $this->whenLoaded(

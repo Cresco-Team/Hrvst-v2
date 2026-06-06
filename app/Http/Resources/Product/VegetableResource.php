@@ -12,19 +12,20 @@ class VegetableResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
-            'is_variety' => false,
+            'is_variety' => false, // Tanstack child table
             'image_url' => $this->getFirstMediaUrl('vegetable_image'),
+            'varieties_count' => $this->whenCounted('varieties'),
+
+            // with category
             'category' => $this->whenLoaded('category', fn () => [
                 'id' => $this->category->id,
                 'name' => $this->category->name,
                 'slug' => $this->category->slug,
             ]),
-            'varieties_count' => $this->whenCounted('varieties'),
-            'varieties' => $this->whenLoaded(
-                'varieties',
-                fn () => VarietyResource::collection(
-                    $this->varieties->each->setRelation('vegetable', $this->resource)
-                )->resolve()
+
+            // with varieties
+            'varieties' => $this->whenLoaded('varieties',
+                fn () => VarietyResource::collection($this->varieties),
             ),
         ];
     }

@@ -44,7 +44,6 @@ class VegetableService
         ])
             ->when($categoryId, fn (Builder $q) => $q->where('category_id', $categoryId))
             ->search($search)
-            ->withCount('varieties')
             ->orderBy('name');
     }
 

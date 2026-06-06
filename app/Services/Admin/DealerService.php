@@ -23,7 +23,7 @@ class DealerService
 
     public function paginated(int $perPage = 20, ?string $search = null): LengthAwarePaginator
     {
-        $query = DealerProfile::with(['user.media', 'demandItems'])
+        $query = DealerProfile::with(['user.media'])
             ->withCount([
                 'demandItems as ongoing_demands_count' => fn (Builder $q) => $q
                     ->ongoing(),

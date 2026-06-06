@@ -10,7 +10,6 @@ import {
     Phone,
 } from 'lucide-vue-next'
 import DataTable from '@/components/shared/tables/DataTable.vue'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import {
     Item,
@@ -77,26 +76,9 @@ const columns: ColumnDef<FarmerResource>[] = [
         search-placeholder="Search farmers..."
         entity-name="farmers"
         empty-message="No farmers found"
-        enable-expand
         @page-change="$emit('page-change', $event)"
         @search="$emit('search', $event)"
     >
-        <template #cell-expander="{ row, cell }">
-            <Button
-                v-if="(row.ongoing_supplies_count ?? 0) > 0"
-                variant="ghost"
-                size="icon-sm"
-                class="text-muted-foreground"
-                @click="cell.row.toggleExpanded()"
-            >
-                <ChevronDownIcon
-                    v-if="cell.row.getIsExpanded()"
-                    class="size-4"
-                />
-                <ChevronRightIcon v-else class="size-4" />
-            </Button>
-        </template>
-
         <template #cell-farmer="{ row }">
             <div class="flex items-center gap-3">
                 <div class="flex flex-col gap-0.5">
@@ -176,49 +158,6 @@ const columns: ColumnDef<FarmerResource>[] = [
                     </Tooltip>
                 </TooltipProvider>
             </div>
-        </template>
-
-        <template #expanded-row="{ row, colspan }">
-            <tr class="bg-muted/20">
-                <td :colspan="colspan" class="px-4 py-4">
-                    <div class="ml-12">
-                        <h4 class="mb-3 text-sm font-medium">
-                            Available Supplies ({{
-                                row.ongoing_supplies_count ?? 0
-                            }})
-                        </h4>
-                        <div
-                            class="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-4"
-                        >
-                            <Item
-                                v-for="item in row.supply_items"
-                                :key="item.id"
-                                variant="outline"
-                            >
-                                <ItemMedia variant="image"
-                                    >\
-                                    <img
-                                        v-if="item"
-                                        :src="item.image_url"
-                                        :alt="item.name"
-                                    />
-                                </ItemMedia>
-                                <ItemContent>
-                                    <ItemTitle class="line-clamp-1">
-                                        {{ item.name }}
-                                    </ItemTitle>
-                                    <ItemDescription
-                                        >{{
-                                            item.quantity_kg.toFixed(2)
-                                        }}
-                                        kg</ItemDescription
-                                    >
-                                </ItemContent>
-                            </Item>
-                        </div>
-                    </div>
-                </td>
-            </tr>
         </template>
     </DataTable>
 </template>
