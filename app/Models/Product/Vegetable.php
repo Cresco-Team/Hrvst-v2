@@ -21,6 +21,8 @@ class Vegetable extends Model implements HasMedia
         'name',
     ];
 
+    protected $with = ['media'];
+
     /* ---------- relations ---------- */
 
     public function category(): BelongsTo
