@@ -8,7 +8,7 @@ import PriceUpdateForm from '@/components/features/admin/forms/PriceUpdateForm.v
 import VarietyForm from '@/components/features/admin/forms/VarietyForm.vue'
 import CreateVegetable from '@/components/features/admin/forms/CreateVegetable.vue'
 import UpdateVegetable from '@/components/features/admin/forms/UpdateVegetable.vue'
-import VarietyTable from '@/components/features/admin/tables/VarietyTable.vue'
+import VegetableTable from '@/components/features/admin/tables/VegetableTable.vue'
 import Heading from '@/components/Heading.vue'
 import LargeCard from '@/components/shared/cards/LargeCard.vue'
 import { Button } from '@/components/ui/button'
@@ -251,7 +251,7 @@ function handleSearch(query: string): void {
                     </div>
                 </template>
 
-                <VarietyTable
+                <VegetableTable
                     v-if="vegetables"
                     :vegetables="tableVegetables"
                     :search-query="searchQuery"
