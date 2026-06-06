@@ -29,7 +29,6 @@ class FarmerService
             'province',
             'municipality',
             'barangay',
-            'supplyItems',
         ])
             ->withCount([
                 'supplyItems as ongoing_supplies_count' => fn (Builder $q) => $q
