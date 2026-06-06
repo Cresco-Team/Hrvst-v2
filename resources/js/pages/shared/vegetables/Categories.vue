@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Head, Link, usePage } from '@inertiajs/vue3'
-import { ArrowRight, Leaf } from 'lucide-vue-next'
+import { ArrowRight, Leaf, Vegan } from 'lucide-vue-next'
 import Heading from '@/components/Heading.vue'
 import { Item, ItemContent, ItemMedia, ItemTitle } from '@/components/ui/item'
 import AppLayout from '@/layouts/AppLayout.vue'
@@ -9,7 +9,7 @@ import { dashboard } from '@/routes'
 import vegetables from '@/routes/vegetables'
 import type { BreadcrumbItem, SharedCategoriesProps } from '@/types'
 
-const props = defineProps<SharedCategoriesProps>()
+defineProps<SharedCategoriesProps>()
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -32,7 +32,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 
             <div class="grid grid-cols-2 gap-4 lg:grid-cols-4">
                 <Link
-                    v-for="category in props.categories"
+                    v-for="category in categories"
                     :key="category.id"
                     :href="vegetables.index().url"
                     :data="{ category: category.slug }"
@@ -46,7 +46,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                             variant="icon"
                             class="bg-primary/10 text-primary"
                         >
-                            <Leaf />
+                            <Vegan />
                         </ItemMedia>
 
                         <ItemContent
