@@ -74,22 +74,6 @@ const columns: ColumnDef<DealerResource>[] = [
         @page-change="$emit('page-change', $event)"
         @search="$emit('search', $event)"
     >
-        <template #cell-expander="{ row, cell }">
-            <Button
-                v-if="(row.ongoing_demands_count ?? 0) > 0"
-                variant="ghost"
-                size="icon-sm"
-                class="text-muted-foreground"
-                @click="cell.row.toggleExpanded()"
-            >
-                <ChevronDownIcon
-                    v-if="cell.row.getIsExpanded()"
-                    class="size-4"
-                />
-                <ChevronRightIcon v-else class="size-4" />
-            </Button>
-        </template>
-
         <template #cell-dealer="{ row }">
             <div class="flex flex-col gap-0.5">
                 <span class="font-medium">{{ row.user?.name }}</span>
@@ -152,47 +136,6 @@ const columns: ColumnDef<DealerResource>[] = [
                     </Tooltip>
                 </TooltipProvider>
             </div>
-        </template>
-
-        <template #expanded-row="{ row, colspan }">
-            <tr class="bg-muted/20">
-                <td :colspan="colspan" class="px-4 py-4">
-                    <div class="ml-12">
-                        <h4 class="mb-3 text-sm font-medium">
-                            Ongoing Demands ({{
-                                row.demand_items?.length ?? 0
-                            }})
-                        </h4>
-                        <div
-                            class="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-4"
-                        >
-                            <Item
-                                v-for="demand in row.demand_items"
-                                :key="demand.id"
-                                variant="outline"
-                            >
-                                <ItemMedia variant="image">
-                                    <img
-                                        :src="demand.image_url"
-                                        :alt="demand.name"
-                                    />
-                                </ItemMedia>
-                                <ItemContent>
-                                    <ItemTitle class="line-clamp-1">
-                                        {{ demand.name }}
-                                    </ItemTitle>
-                                    <ItemDescription
-                                        >{{
-                                            demand.quantity_kg.toFixed(2)
-                                        }}
-                                        kg</ItemDescription
-                                    >
-                                </ItemContent>
-                            </Item>
-                        </div>
-                    </div>
-                </td>
-            </tr>
         </template>
     </DataTable>
 </template>
