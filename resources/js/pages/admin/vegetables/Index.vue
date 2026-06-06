@@ -10,7 +10,6 @@ import CreateVegetable from '@/components/features/admin/forms/CreateVegetable.v
 import UpdateVegetable from '@/components/features/admin/forms/UpdateVegetable.vue'
 import VegetableTable from '@/components/features/admin/tables/VegetableTable.vue'
 import Heading from '@/components/Heading.vue'
-import LargeCard from '@/components/shared/cards/LargeCard.vue'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import AppLayout from '@/layouts/AppLayout.vue'
@@ -25,6 +24,7 @@ import {
     mapVegetablesToTableRows,
     type VarietyTableRow,
 } from '@/types/resources/product'
+import SmallCard from '@/components/shared/cards/SmallCard.vue'
 
 const props = defineProps<AdminVegetablesProps>()
 
@@ -210,26 +210,26 @@ function handleSearch(query: string): void {
             <Deferred data="summary">
                 <template #fallback>
                     <div class="grid gap-4 md:grid-cols-3">
-                        <Skeleton v-for="i in 3" :key="i" class="h-32" />
+                        <Skeleton v-for="i in 3" :key="i" class="h-20" />
                     </div>
                 </template>
                 <div class="grid gap-4 md:grid-cols-3">
-                    <LargeCard
+                    <SmallCard
                         title="Vegetable Varieties"
                         subtext="total"
                         :value="summary?.total_varieties"
                     />
-                    <LargeCard
+                    <SmallCard
                         title="Price Updates"
                         subtext="updated this week"
                         :value="summary?.price_stats.updated_week"
                     />
-                    <LargeCard
+                    <SmallCard
                         title="Needs Attention"
                         subtext="varieties"
                         :value="summary?.price_stats.stale"
                         :icon="AlertTriangle"
-                        icon-color="text-orange-500"
+                        icon-class="text-orange-500"
                     />
                 </div>
             </Deferred>
