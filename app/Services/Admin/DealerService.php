@@ -46,6 +46,7 @@ class DealerService
             'user.media',
             'posts' => fn ($q) => $q
                 ->demand()
+                ->whereDate('scheduled_date', today())
                 ->with(['postItems' => fn ($q) => $q->ongoing()]),
         ]);
     }

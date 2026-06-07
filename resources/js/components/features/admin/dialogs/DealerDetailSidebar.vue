@@ -104,16 +104,6 @@ const handleDelete = () => {
                 <Skeleton class="h-4 w-24" />
                 <Skeleton class="h-4 w-64" />
             </div>
-            <Separator />
-            <div class="grid grid-cols-2 gap-3">
-                <Skeleton class="h-20 rounded-lg" />
-                <Skeleton class="h-20 rounded-lg" />
-            </div>
-            <Separator />
-            <div class="space-y-3">
-                <Skeleton class="h-4 w-36" />
-                <Skeleton v-for="i in 3" :key="i" class="h-24 rounded-lg" />
-            </div>
         </div>
 
         <!-- Dealer Details -->
@@ -173,17 +163,23 @@ const handleDelete = () => {
                 </ItemMedia>
                 <ItemContent>
                     <ItemTitle class="flex w-full justify-between">
-                        <p>Ongoing Demands</p>
-                        <Badge>{{ dealer.demand_items?.length ?? 0 }}</Badge>
+                        <p>Today's Demands</p>
+                        <Badge>{{ dealer.demands?.length ?? 0 }}</Badge>
                     </ItemTitle>
                     <ItemDescription class="space-x-2 truncate">
                         <Badge
-                            v-for="demand in dealer.demand_items"
+                            v-for="demand in dealer.demands"
                             :key="demand.id"
                             class="bg-amber-300"
                         >
-                            {{ demand.name }}
+                            {{ demand.variety_name }}
                         </Badge>
+                        <span
+                            v-if="!dealer.demands?.length"
+                            class="text-xs text-muted-foreground"
+                        >
+                            No demands scheduled today
+                        </span>
                     </ItemDescription>
                 </ItemContent>
             </Item>
@@ -250,7 +246,7 @@ const handleDelete = () => {
             <DialogHeader class="items-center text-center">
                 <DialogTitle>PIN Reset</DialogTitle>
                 <DialogDescription>
-                    Share this temporary PIN with the farmer in person. It will
+                    Share this temporary PIN with the dealer in person. It will
                     not be shown again.
                 </DialogDescription>
             </DialogHeader>
