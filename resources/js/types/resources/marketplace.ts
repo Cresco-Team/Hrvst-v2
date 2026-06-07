@@ -37,7 +37,7 @@ export interface PostItemSnapshot {
 
 export interface FarmerSupplyResource {
 	id: number
-	status: 'growing' // Post is only ever growing here; items carry ongoing/fulfilled/unsettled
+	status: 'growing'
 	target_month: string | null
 	estimated_total_weight: number
 	hearts_count: number
@@ -50,7 +50,6 @@ export interface FarmerSupplyResource {
 }
 
 // ─── DealerDemandResource ─────────────────────────────────────────────────────
-// Kept for backward compat in demand form — the demand index now uses DealerPostItemResource
 
 export interface DealerDemandResource {
 	id: number
@@ -72,7 +71,6 @@ export interface DealerPostItemResource {
 	post_id: number
 	status: PostItemStatus
 
-	// variety
 	variety_id: number
 	variety_name: string
 	variety_image_url: string | null
@@ -80,21 +78,17 @@ export interface DealerPostItemResource {
 	vegetable_name: string
 	category_name: string
 
-	// pricing
 	quantity_kg: number
 	unit_price: number | null
 	price_flag: PostPriceFlag | null
 
-	// schedule
 	scheduled_date: string | null
 	time_slot: PostTimeSlot | null
 	time_slot_label: string | null
 	days_until_transaction: number | null
 
-	// farmer location (null for demand items)
 	municipality: string | null
 
-	// interaction
 	hearts_count: number
 	is_hearted: boolean
 	created_at: string
@@ -135,4 +129,30 @@ export interface MunicipalityOption {
 	name: string
 	province: string
 	label: string
+}
+
+export interface SupplyOption {
+	id: number
+	name: string
+	category: string
+}
+
+// ─── Farmer map marker ────────────────────────────────────────────────────────
+
+export interface FarmerMarker {
+	id: number
+	coordinates: Coordinates
+	farmer_name: string
+	province_id: number
+	province: string | null
+	municipality_id: number
+	municipality: string
+	barangay_id: number
+	barangay: string | null
+	ongoing_supplies_count: number
+	supplies_summary: Array<{
+		vegetable: string
+		count: number
+		varieties: string[]
+	}>
 }
