@@ -38,6 +38,7 @@ import {
     markers as farmerMarkers,
 } from '@/actions/App/Http/Controllers/Admin/FarmerController'
 import SmallCard from '@/components/shared/cards/SmallCard.vue'
+import FarmerBarangaySheet from '@/components/features/admin/dialogs/FarmerBarangaySheet.vue'
 
 const props = defineProps<AdminFarmersProps>()
 
@@ -50,6 +51,9 @@ const loadingMarkers = ref(false)
 const sidebarOpen = ref(false)
 const selectedFarmer = ref<FarmerResource | null>(null)
 const loadingFarmer = ref(false)
+const barangaySheetOpen = ref(false)
+const barangayFarmers = ref<FarmerMarker[]>([])
+const barangayName = ref('')
 const mapBounds = ref<{
     north: number
     south: number
@@ -145,6 +149,17 @@ function openFarmerSidebar(farmerId: number) {
 function closeSidebar() {
     sidebarOpen.value = false
     selectedFarmer.value = null
+}
+
+function handleBarangayClick(farmers: FarmerMarker[], name: string): void {
+    barangayFarmers.value = farmers
+    barangayName.value = name
+    barangaySheetOpen.value = true
+}
+
+function handleFarmerFromBarangay(farmerId: number): void {
+    barangaySheetOpen.value = false
+    openFarmerSidebar(farmerId)
 }
 
 function handleSearch(query: string) {
@@ -348,7 +363,7 @@ if (storedView && storedView !== props.view) {
                         :markers="markers"
                         :center="mapConfig.center"
                         :zoom="mapConfig.defaultZoom ?? 13"
-                        @marker-click="openFarmerSidebar"
+                        @barangay-click="handleBarangayClick"
                         @bounds-change="handleBoundsChange"
                     />
                 </div>
@@ -437,12 +452,20 @@ if (storedView && storedView !== props.view) {
                 </div>
             </div>
         </div>
-    </AppLayout>
 
-    <FarmerDetailSidebar
-        :open="sidebarOpen"
-        :farmer="selectedFarmer"
-        :loading="loadingFarmer"
-        @close="closeSidebar"
-    />
+        <FarmerDetailSidebar
+            :open="sidebarOpen"
+            :farmer="selectedFarmer"
+            :loading="loadingFarmer"
+            @close="closeSidebar"
+        />
+
+        <FarmerBarangaySheet
+            :open="barangaySheetOpen"
+            :farmers="barangayFarmers"
+            :barangay-name="barangayName"
+            @close="barangaySheetOpen = false"
+            @view-farmer="handleFarmerFromBarangay"
+        />
+    </AppLayout>
 </template>

@@ -15,7 +15,7 @@ final class ArchivePostItemAction
             ->whereHas('post', fn (Builder $q) => $q
                 ->harvested()
                 ->whereNotNull('scheduled_date')
-                ->where('scheduled_date', '<', now()->startOfDay())
+                ->where('scheduled_date', '<', yesterday())
             )
             ->with('post')
             ->chunkById(200, function ($items) use (&$count): void {

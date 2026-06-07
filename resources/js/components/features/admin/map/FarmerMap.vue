@@ -2,181 +2,233 @@
 import L from 'leaflet'
 import { onMounted, onUnmounted, ref, watch } from 'vue'
 import 'leaflet/dist/leaflet.css'
-import 'leaflet.markercluster/dist/MarkerCluster.css'
-import 'leaflet.markercluster/dist/MarkerCluster.Default.css'
-import 'leaflet.markercluster'
 import type { FarmerMarker } from '@/types/resources/marketplace'
 
 interface MapCenter {
-	lat: number
-	lng: number
+    lat: number
+    lng: number
+}
+
+interface FarmerGroup {
+    key: number
+    name: string
+    lat: number
+    lng: number
+    farmers: FarmerMarker[]
+    totalSupplies: number
+    level: 'province' | 'municipality' | 'barangay'
 }
 
 const props = defineProps<{
-	markers: FarmerMarker[]
-	center: MapCenter
-	zoom: number
+    markers: FarmerMarker[]
+    center: MapCenter
+    zoom: number
 }>()
 
 const emit = defineEmits<{
-	'marker-click': [farmerId: number]
-	'bounds-change': [bounds: { north: number; south: number; east: number; west: number }]
+    'barangay-click': [farmers: FarmerMarker[], barangayName: string]
+    'bounds-change': [
+        bounds: { north: number; south: number; east: number; west: number },
+    ]
 }>()
 
 const mapContainer = ref<HTMLDivElement | null>(null)
 let map: L.Map | null = null
-let markerClusterGroup: L.MarkerClusterGroup | null = null
+let clusterLayers: L.Marker[] = []
 
-// Vegetable color mapping for different colored markers
-const vegetableColors: Record<string, string> = {
-	Lettuce: '#10b981',
-	Spinach: '#059669',
-	Cabbage: '#84cc16',
-	Kale: '#22c55e',
-	Carrot: '#f97316',
-	Radish: '#ef4444',
-	Potato: '#a16207',
-	'Sweet Potato': '#ea580c',
-	Tomato: '#dc2626',
-	'Bell Pepper': '#eab308',
-	Eggplant: '#7c3aed',
-	Cucumber: '#16a34a',
-	'Green Beans': '#65a30d',
-	Peas: '#84cc16',
-	Onion: '#d97706',
-	Garlic: '#f59e0b',
-	Broccoli: '#14b8a6',
-	Cauliflower: '#94a3b8',
-	'Brussels Sprouts': '#22c55e',
-	Zucchini: '#059669',
-	Pumpkin: '#f97316',
-	'Butternut Squash': '#ea580c',
+const ZOOM_MUNICIPALITY = 10
+const ZOOM_BARANGAY = 13
+
+const COLORS = {
+    province: '#8b5cf6',
+    municipality: '#3b82f6',
+    barangay: '#10b981',
+} as const
+
+function getLevel(zoom: number): FarmerGroup['level'] {
+    if (zoom < ZOOM_MUNICIPALITY) return 'province'
+    if (zoom < ZOOM_BARANGAY) return 'municipality'
+    return 'barangay'
 }
 
-const getMarkerColor = (summary: FarmerMarker['supplies_summary']): string => {
-	if (summary.length === 0) return '#6b7280'
-	const dominant = summary.reduce((prev, current) =>
-		prev.count > current.count ? prev : current,
-	)
-	return vegetableColors[dominant.vegetable] || '#6b7280'
+function centroid(farmers: FarmerMarker[]): [number, number] {
+    const lat =
+        farmers.reduce((s, f) => s + f.coordinates.lat, 0) / farmers.length
+    const lng =
+        farmers.reduce((s, f) => s + f.coordinates.lng, 0) / farmers.length
+    return [lat, lng]
 }
 
-const createCustomMarker = (marker: FarmerMarker): L.DivIcon => {
-	const color = getMarkerColor(marker.supplies_summary)
+function buildGroups(level: FarmerGroup['level']): FarmerGroup[] {
+    const buckets = new Map<number, FarmerMarker[]>()
 
-	return L.divIcon({
-		className: 'custom-marker',
-		html: `
-      <div style="
-        width: 36px;
-        height: 36px;
-        background-color: ${color};
-        border: 3px solid white;
-        border-radius: 50%;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-weight: bold;
-        font-size: 13px;
-        cursor: pointer;
-        transition: transform 0.2s;
-      "
-      onmouseover="this.style.transform='scale(1.2)'"
-      onmouseout="this.style.transform='scale(1)'"
-      >
-        ${marker.ongoing_supplies_count}
-      </div>
-    `,
-		iconSize: [36, 36],
-		iconAnchor: [18, 18],
-	})
+    for (const f of props.markers) {
+        const key =
+            level === 'province'
+                ? f.province_id
+                : level === 'municipality'
+                  ? f.municipality_id
+                  : f.barangay_id
+
+        if (!buckets.has(key)) buckets.set(key, [])
+        buckets.get(key)!.push(f)
+    }
+
+    return Array.from(buckets.entries()).map(([key, farmers]) => {
+        const [lat, lng] = centroid(farmers)
+        const name =
+            level === 'province'
+                ? (farmers[0].province ?? `Province ${key}`)
+                : level === 'municipality'
+                  ? farmers[0].municipality
+                  : (farmers[0].barangay ?? `Barangay ${key}`)
+
+        return {
+            key,
+            name,
+            lat,
+            lng,
+            farmers,
+            totalSupplies: farmers.reduce(
+                (s, f) => s + f.ongoing_supplies_count,
+                0,
+            ),
+            level,
+        }
+    })
 }
 
-const initMap = () => {
-	if (!mapContainer.value || map) return
+function makeIcon(group: FarmerGroup): L.DivIcon {
+    const color = COLORS[group.level]
+    const sz =
+        group.level === 'province'
+            ? 56
+            : group.level === 'municipality'
+              ? 48
+              : 40
+    const hint = group.level === 'barangay' ? 'view list' : 'zoom in'
 
-	map = L.map(mapContainer.value).setView([props.center.lat, props.center.lng], props.zoom)
-
-	L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-		attribution: '© OpenStreetMap contributors',
-		maxZoom: 19,
-	}).addTo(map)
-
-	markerClusterGroup = L.markerClusterGroup({
-		maxClusterRadius: 60,
-		disableClusteringAtZoom: 14,
-		spiderfyOnMaxZoom: true,
-		showCoverageOnHover: false,
-		iconCreateFunction: (cluster) => {
-			const count = cluster.getChildCount()
-			const size = count < 10 ? 40 : count < 50 ? 50 : 60
-			return L.divIcon({
-				html: `<div style="width:${size}px;height:${size}px;background:#3b82f6;border:3px solid white;border-radius:50%;box-shadow:0 3px 12px rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;color:white;font-weight:bold;font-size:${size / 3}px;">${count}</div>`,
-				className: 'marker-cluster-custom',
-				iconSize: [size, size],
-			})
-		},
-	})
-
-	map.addLayer(markerClusterGroup)
-
-	map.on('moveend', () => {
-		if (!map) return
-		const bounds = map.getBounds()
-		emit('bounds-change', {
-			north: bounds.getNorth(),
-			south: bounds.getSouth(),
-			east: bounds.getEast(),
-			west: bounds.getWest(),
-		})
-	})
-
-	updateMarkers()
+    return L.divIcon({
+        className: '',
+        html: `<div style="
+			width:${sz}px;height:${sz}px;
+			background:${color};
+			border:3px solid white;
+			border-radius:50%;
+			box-shadow:0 3px 10px rgba(0,0,0,.28);
+			display:flex;flex-direction:column;
+			align-items:center;justify-content:center;
+			color:#fff;font-weight:700;
+			cursor:pointer;
+			transition:transform .15s;
+		"
+		onmouseover="this.style.transform='scale(1.12)'"
+		onmouseout="this.style.transform='scale(1)'">
+			<span style="font-size:${Math.max(10, sz / 3.5)}px;line-height:1">${group.farmers.length}</span>
+			<span style="font-size:8px;opacity:.8;margin-top:1px">${hint}</span>
+		</div>`,
+        iconSize: [sz, sz],
+        iconAnchor: [sz / 2, sz / 2],
+    })
 }
 
-const updateMarkers = () => {
-	if (!markerClusterGroup) return
-	markerClusterGroup.clearLayers()
-	props.markers.forEach((markerData) => {
-		const marker = L.marker([markerData.coordinates.lat, markerData.coordinates.lng], {
-			icon: createCustomMarker(markerData),
-		})
-		marker.on('click', () => emit('marker-click', markerData.id))
-		markerClusterGroup!.addLayer(marker)
-	})
+function refresh(): void {
+    if (!map) return
+
+    clusterLayers.forEach((m) => map!.removeLayer(m))
+    clusterLayers = []
+
+    if (props.markers.length === 0) return
+
+    const level = getLevel(map.getZoom())
+    const groups = buildGroups(level)
+
+    for (const group of groups) {
+        const marker = L.marker([group.lat, group.lng], {
+            icon: makeIcon(group),
+        })
+
+        marker.bindTooltip(
+            `<b>${group.name}</b><br>${group.farmers.length} farmer${group.farmers.length !== 1 ? 's' : ''} · ${group.totalSupplies} active`,
+            { direction: 'top', offset: [0, -10] },
+        )
+
+        marker.on('click', () => {
+            if (group.level === 'barangay') {
+                emit('barangay-click', group.farmers, group.name)
+                return
+            }
+
+            const bounds = L.latLngBounds(
+                group.farmers.map(
+                    (f) =>
+                        [f.coordinates.lat, f.coordinates.lng] as [
+                            number,
+                            number,
+                        ],
+                ),
+            )
+
+            map!.flyToBounds(bounds, {
+                padding: [50, 50],
+                maxZoom:
+                    group.level === 'province'
+                        ? ZOOM_MUNICIPALITY + 1
+                        : ZOOM_BARANGAY + 1,
+            })
+        })
+
+        marker.addTo(map!)
+        clusterLayers.push(marker)
+    }
 }
 
-watch(() => props.markers, updateMarkers, { deep: true })
+watch(() => props.markers, refresh, { deep: true })
 
-onMounted(() => initMap())
+onMounted(() => {
+    if (!mapContainer.value) return
+
+    map = L.map(mapContainer.value).setView(
+        [props.center.lat, props.center.lng],
+        props.zoom,
+    )
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors',
+        maxZoom: 19,
+    }).addTo(map)
+
+    map.on('zoomend', refresh)
+    map.on('moveend', () => {
+        if (!map) return
+        const b = map.getBounds()
+        emit('bounds-change', {
+            north: b.getNorth(),
+            south: b.getSouth(),
+            east: b.getEast(),
+            west: b.getWest(),
+        })
+    })
+
+    refresh()
+})
+
 onUnmounted(() => {
-	if (map) {
-		map.remove()
-		map = null
-	}
+    map?.remove()
+    map = null
 })
 </script>
 
 <template>
-	<div ref="mapContainer" class="h-full w-full rounded-lg overflow-hidden" />
+    <div ref="mapContainer" class="h-full w-full overflow-hidden rounded-lg" />
 </template>
 
 <style scoped>
-:deep(.custom-marker),
-:deep(.marker-cluster-custom) {
-	background: transparent !important;
-	border: none !important;
-}
-
-/* Ensure map stays below overlays */
 :deep(.leaflet-pane) {
-	z-index: 1 !important;
+    z-index: 1 !important;
 }
-
 :deep(.leaflet-top),
 :deep(.leaflet-bottom) {
-	z-index: 2 !important;
+    z-index: 2 !important;
 }
 </style>

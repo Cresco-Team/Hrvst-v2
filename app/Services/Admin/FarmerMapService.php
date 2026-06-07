@@ -26,7 +26,6 @@ class FarmerMapService
 
     public function getSupplyOptions(): array
     {
-        // Varieties that have ongoing PostItems from harvested supply posts
         return Variety::query()
             ->whereHas('postItems', fn (Builder $q) => $q
                 ->ongoing()
@@ -52,8 +51,9 @@ class FarmerMapService
         $query = FarmerProfile::query()
             ->with([
                 'user',
+                'province',
                 'municipality',
-                // Load harvested supply posts with their ongoing PostItems
+                'barangay',
                 'posts' => fn ($q) => $q
                     ->supply()
                     ->harvested()
@@ -97,7 +97,12 @@ class FarmerMapService
                         'lng' => (float) $farmer->longitude,
                     ],
                     'farmer_name' => $farmer->user->name,
+                    'province_id' => $farmer->province_id,
+                    'province' => $farmer->province?->name,
+                    'municipality_id' => $farmer->municipality_id,
                     'municipality' => $farmer->municipality->name,
+                    'barangay_id' => $farmer->barangay_id,
+                    'barangay' => $farmer->barangay?->name,
                     'ongoing_supplies_count' => $ongoingItems->count(),
                     'supplies_summary' => $ongoingItems
                         ->groupBy(fn ($item) => $item->variety->vegetable->name)

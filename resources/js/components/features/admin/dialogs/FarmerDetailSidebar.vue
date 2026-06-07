@@ -170,17 +170,23 @@ function handleDelete() {
                 </ItemMedia>
                 <ItemContent>
                     <ItemTitle class="flex w-full justify-between">
-                        <p>Ongoing Supplies</p>
-                        <Badge>{{ farmer.supply_items?.length ?? 0 }}</Badge>
+                        <p>Today's Supplies</p>
+                        <Badge>{{ farmer.supplies?.length ?? 0 }}</Badge>
                     </ItemTitle>
                     <ItemDescription class="space-x-2 truncate">
                         <Badge
-                            v-for="supply in farmer.supply_items"
+                            v-for="supply in farmer.supplies"
                             :key="supply.id"
                             class="bg-amber-300"
                         >
-                            {{ supply.name }}
+                            {{ supply.variety_name }}
                         </Badge>
+                        <span
+                            v-if="!farmer.supplies?.length"
+                            class="text-xs text-muted-foreground"
+                        >
+                            No supplies scheduled today
+                        </span>
                     </ItemDescription>
                 </ItemContent>
             </Item>
