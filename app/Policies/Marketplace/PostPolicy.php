@@ -34,8 +34,7 @@ class PostPolicy
     {
         return match ($post->type) {
             PostType::Supply => $user->id === $post->user_id
-                && $post->status === PostStatus::Growing
-                && $post->target_month <= now()->addMonth()->format('Y-m'),
+                && $post->status === PostStatus::Growing,
             PostType::Demand => $user->id === $post->user_id
                 && $post->status === PostStatus::Harvested,
         };

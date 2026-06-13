@@ -41,24 +41,20 @@ const isEditMode = computed(() => !!props.supply)
 const minMonth = computed(() => new Date().toISOString().slice(0, 7))
 
 function handleSubmit() {
-    const routeData = props.supply ? update(props.supply.id) : store()
-
-    form.transform((data) => {
-        const payload: Record<string, unknown> = { ...data }
-        if (props.supply) {
-            payload._method = 'PUT'
-            if (!payload.image) delete payload.image
-        }
-        return payload
-    }).post(routeData.url, {
-        forceFormData: true,
+    const options = {
         preserveScroll: true,
         only: ['growingPosts', 'summary'],
         onSuccess: () => {
             emit('update:open', false)
             form.reset()
         },
-    })
+    }
+
+    if (props.supply) {
+        form.put(update(props.supply.id).url, options)
+    } else {
+        form.post(store().url, options)
+    }
 }
 
 watch(
