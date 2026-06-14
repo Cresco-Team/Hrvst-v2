@@ -81,7 +81,6 @@ class SupplyController extends Controller
         $action->handle(
             post: $supply,
             validated: $request->validated(),
-            image: $request->file('image')
         );
 
         return redirect()->route('farmer.supplies.index')
