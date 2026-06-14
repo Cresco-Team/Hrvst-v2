@@ -2,7 +2,6 @@
 
 use App\Http\Controllers\Dealer\DashboardController;
 use App\Http\Controllers\Dealer\DemandController;
-use App\Http\Controllers\Dealer\MarketplaceController;
 use App\Http\Controllers\Dealer\PostItemController;
 use App\Http\Controllers\Dealer\SupplyMapController;
 use Illuminate\Support\Facades\Route;
@@ -28,9 +27,5 @@ Route::middleware(['auth', 'verified', 'dealer'])->prefix('dealer')->name('deale
     Route::prefix('supply-map')->name('supply-map.')->group(function () {
         Route::get('/', [SupplyMapController::class, 'index'])->name('index');
         Route::get('/api/markers', [SupplyMapController::class, 'markers'])->name('markers');
-    });
-
-    Route::prefix('marketplace')->name('marketplace.')->group(function () {
-        Route::get('/', [MarketplaceController::class, 'index'])->name('index');
     });
 });

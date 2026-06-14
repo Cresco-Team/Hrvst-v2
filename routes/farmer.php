@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Controllers\Farmer\DashboardController;
-use App\Http\Controllers\Farmer\MarketplaceController;
 use App\Http\Controllers\Farmer\PostItemController;
 use App\Http\Controllers\Farmer\SupplyController;
 use App\Http\Controllers\Farmer\SupplyMapController;
@@ -29,9 +28,5 @@ Route::middleware(['auth', 'verified', 'farmer'])->prefix('farmer')->name('farme
     Route::prefix('supply-map')->name('supply-map.')->group(function () {
         Route::get('/', [SupplyMapController::class, 'index'])->name('index');
         Route::get('/api/markers', [SupplyMapController::class, 'markers'])->name('markers');
-    });
-
-    Route::prefix('marketplace')->name('marketplace.')->group(function () {
-        Route::get('/', [MarketplaceController::class, 'index'])->name('index');
     });
 });
