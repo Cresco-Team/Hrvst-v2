@@ -3,7 +3,6 @@
 namespace App\Actions\Demand;
 
 use App\Enums\PostItemStatus;
-use App\Enums\PostPriceFlag;
 use App\Enums\PostStatus;
 use App\Models\Marketplace\Post;
 use App\Models\Marketplace\PostItem;
@@ -38,16 +37,11 @@ final class UpdateDemandAction
 
                 foreach ($validated['items'] as $item) {
                     $variety = $varieties->get($item['variety_id']);
-                    $unitPrice = $item['unit_price'] ?? null;
 
                     PostItem::create([
                         'post_id' => $post->id,
                         'variety_id' => $item['variety_id'],
                         'quantity_kg' => $item['quantity_kg'],
-                        'unit_price' => $unitPrice,
-                        'price_flag' => $unitPrice !== null
-                            ? PostPriceFlag::fromMarketPrice((float) $unitPrice, $variety?->latestPrice)
-                            : PostPriceFlag::Fair,
                         'status' => PostItemStatus::Ongoing,
                     ]);
                 }

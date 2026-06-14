@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Enums\PostItemStatus;
-use App\Enums\PostPriceFlag;
 use App\Enums\PostStatus;
 use App\Enums\PostTimeSlot;
 use App\Enums\PostType;
@@ -209,16 +208,10 @@ class PostSeeder extends Seeder
                 : fake()->numberBetween(2, 6);
 
             foreach ($this->randomVarietyIds($post->vegetable_id, $itemCount) as $varietyId) {
-                $unitPrice = fake()->boolean(85) ? fake()->randomFloat(2, 8, 130) : null;
-
                 $itemRows[] = [
                     'post_id' => $post->id,
                     'variety_id' => $varietyId,
                     'quantity_kg' => fake()->randomFloat(2, 20, 1000),
-                    'unit_price' => $unitPrice,
-                    'price_flag' => $unitPrice
-                        ? $this->resolvePriceFlag($varietyId, $unitPrice)->value
-                        : PostPriceFlag::Fair->value,
                     'status' => $isSupply
                         ? $this->resolveSupplyStatus($isPast)->value
                         : $this->resolveDemandStatus($isPast)->value,
@@ -296,12 +289,5 @@ class PostSeeder extends Seeder
             PostItemStatus::Fulfilled,
             PostItemStatus::Unsettled,
         ]);
-    }
-
-    private function resolvePriceFlag(int $varietyId, float $unitPrice): PostPriceFlag
-    {
-        $market = $this->latestPrices[$varietyId] ?? null;
-
-        return PostPriceFlag::fromMarketPrice($unitPrice, $market);
     }
 }

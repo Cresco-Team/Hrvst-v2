@@ -3,7 +3,6 @@
 namespace App\Models\Marketplace;
 
 use App\Enums\PostItemStatus;
-use App\Enums\PostPriceFlag;
 use App\Models\Product\Variety;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -20,8 +19,6 @@ class PostItem extends Model
         'post_id',
         'variety_id',
         'quantity_kg',
-        'unit_price',
-        'price_flag',
         'status',
     ];
 
@@ -29,8 +26,6 @@ class PostItem extends Model
     {
         return [
             'quantity_kg' => 'decimal:2',
-            'unit_price' => 'decimal:2',
-            'price_flag' => PostPriceFlag::class,
             'status' => PostItemStatus::class,
         ];
     }

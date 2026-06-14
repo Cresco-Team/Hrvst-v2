@@ -1,4 +1,4 @@
-import type { PostItemStatus, PostPriceFlag, PostTimeSlot } from '../enums'
+import type { PostItemStatus, PostTimeSlot } from '../enums'
 import type { Coordinates } from '../shared'
 
 // ─── Embedded shapes ──────────────────────────────────────────────────────────
@@ -17,8 +17,6 @@ export interface PostItemSnapshot {
 	variety_id: number
 	category_name: string
 	quantity_kg: number
-	unit_price: number | null
-	price_flag: PostPriceFlag | null
 	status: PostItemStatus
 	post_id: number
 
@@ -79,8 +77,6 @@ export interface DealerPostItemResource {
 	category_name: string
 
 	quantity_kg: number
-	unit_price: number | null
-	price_flag: PostPriceFlag | null
 
 	scheduled_date: string | null
 	time_slot: PostTimeSlot | null

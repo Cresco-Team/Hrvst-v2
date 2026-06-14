@@ -37,8 +37,6 @@ class DealerDemandResource extends JsonResource
                 'variety_id' => $item->variety_id,
                 'variety_name' => $item->relationLoaded('variety') ? $item->variety->name : null,
                 'quantity_kg' => (float) $item->quantity_kg,
-                'unit_price' => $item->unit_price !== null ? (float) $item->unit_price : null,
-                'price_flag' => $item->price_flag,
             ])),
         ];
     }

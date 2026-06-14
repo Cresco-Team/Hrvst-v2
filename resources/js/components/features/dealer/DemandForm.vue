@@ -28,7 +28,6 @@ import type {
 interface DemandItem {
 	variety_id: string
 	quantity_kg: string
-	unit_price: string
 }
 
 interface Props {
@@ -48,7 +47,7 @@ const TIME_SLOT_OPTIONS: { value: PostTimeSlot; label: string }[] = [
 ]
 
 function blankItem(): DemandItem {
-	return { variety_id: '', quantity_kg: '', unit_price: '' }
+	return { variety_id: '', quantity_kg: '' }
 }
 
 const form = useForm<{
@@ -81,10 +80,6 @@ const allVarieties = computed(() => {
 	if (!props.varietyOptions) return []
 	return Object.values(props.varietyOptions).flat()
 })
-
-function priceHintFor(varietyId: string) {
-	return allVarieties.value.find((v) => String(v.id) === varietyId)?.current_price ?? null
-}
 
 function addItem() {
 	form.items.push(blankItem())
@@ -123,7 +118,6 @@ watch(
 			? d.items.map((i) => ({
 					variety_id: String(i.variety_id),
 					quantity_kg: String(i.quantity_kg),
-					unit_price: String(i.unit_price ?? ''),
 				}))
 			: [blankItem()]
 		form.clearErrors()
@@ -265,18 +259,6 @@ watch(
 						<p v-if="(form.errors as Record<string, string>)[`items.${index}.variety_id`]" class="text-xs text-destructive">
 							{{ (form.errors as Record<string, string>)[`items.${index}.variety_id`] }}
 						</p>
-
-						<div
-							v-if="item.variety_id && priceHintFor(item.variety_id)"
-							class="flex items-center gap-1.5 rounded-md border border-dashed bg-background px-3 py-1.5 text-xs text-muted-foreground"
-						>
-							<span>Market price:</span>
-							<span class="font-mono font-semibold text-foreground">
-								₱{{ priceHintFor(item.variety_id)!.min.toFixed(2) }} –
-								₱{{ priceHintFor(item.variety_id)!.max.toFixed(2) }}
-							</span>
-							<span>/ kg</span>
-						</div>
 					</div>
 
 					<div class="grid grid-cols-2 gap-3">
@@ -293,22 +275,6 @@ watch(
 							/>
 							<p v-if="(form.errors as Record<string, string>)[`items.${index}.quantity_kg`]" class="text-xs text-destructive">
 								{{ (form.errors as Record<string, string>)[`items.${index}.quantity_kg`] }}
-							</p>
-						</div>
-
-						<div class="space-y-1.5">
-							<Label :for="`price-${index}`" class="text-xs">Offered Price (₱/kg)</Label>
-							<Input
-								:id="`price-${index}`"
-								v-model.number="item.unit_price"
-								type="number"
-								step="0.01"
-								min="0"
-								placeholder="Optional"
-								:class="{ 'border-destructive': (form.errors as Record<string, string>)[`items.${index}.unit_price`] }"
-							/>
-							<p v-if="(form.errors as Record<string, string>)[`items.${index}.unit_price`]" class="text-xs text-destructive">
-								{{ (form.errors as Record<string, string>)[`items.${index}.unit_price`] }}
 							</p>
 						</div>
 					</div>

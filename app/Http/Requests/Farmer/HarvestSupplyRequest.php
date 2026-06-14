@@ -28,7 +28,6 @@ class HarvestSupplyRequest extends FormRequest
                 Rule::exists('varieties', 'id')->where('vegetable_id', $vegetableId),
             ],
             'items.*.quantity_kg' => ['required', 'numeric', 'min:0.1', 'max:99999'],
-            'items.*.unit_price' => ['required', 'numeric', 'min:0', 'max:9999.99'],
         ];
     }
 
@@ -46,8 +45,6 @@ class HarvestSupplyRequest extends FormRequest
             'items.*.variety_id.exists' => 'Selected variety does not belong to this vegetable.',
             'items.*.quantity_kg.required' => 'Each item must have a quantity.',
             'items.*.quantity_kg.min' => 'Quantity is too low.',
-            'items.*.unit_price.required' => 'Each item must have a price.',
-            'items.*.unit_price.min' => 'Price cannot be negative.',
         ];
     }
 }

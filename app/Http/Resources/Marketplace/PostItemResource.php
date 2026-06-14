@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Marketplace;
 
+use App\Http\Resources\Product\VarietyResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -21,16 +22,13 @@ class PostItemResource extends JsonResource
             'status' => $this->status,
 
             // variety
+            'variety' => $this->whenLoaded('variety', fn () => new VarietyResource($this->variety)),
             'variety_id' => $this->variety_id,
             'variety_name' => $variety->name,
             'vegetable_id' => $vegetable->id,
             'vegetable_name' => $vegetable->name,
             'category_name' => $vegetable->category->name,
-
-            // pricing
             'quantity_kg' => (float) $this->quantity_kg,
-            'unit_price' => $this->unit_price !== null ? (float) $this->unit_price : null,
-            'price_flag' => $this->price_flag?->value,
 
             // schedule
             'scheduled_date' => $post->scheduled_date?->format('M d, Y'),

@@ -21,7 +21,6 @@ import type { FarmerSupplyResource, PostTimeSlot, VarietyOptionsByVegetable } fr
 interface HarvestItem {
 	variety_id: string
 	quantity_kg: string
-	unit_price: string
 }
 
 interface Props {
@@ -48,7 +47,7 @@ const availableVarieties = computed(() => {
 })
 
 function blankItem(): HarvestItem {
-	return { variety_id: '', quantity_kg: '', unit_price: '' }
+	return { variety_id: '', quantity_kg: '' }
 }
 
 const form = useForm<{
@@ -72,10 +71,6 @@ const maxDate = computed(() => {
 	d.setMonth(d.getMonth() + 3)
 	return d.toISOString().split('T')[0]
 })
-
-function priceHintFor(varietyId: string) {
-	return availableVarieties.value.find((v) => String(v.id) === varietyId)?.current_price ?? null
-}
 
 function addItem() {
 	form.items.push(blankItem())
@@ -227,18 +222,6 @@ watch(
 						<p v-if="(form.errors as Record<string, string>)[`items.${index}.variety_id`]" class="text-xs text-destructive">
 							{{ (form.errors as Record<string, string>)[`items.${index}.variety_id`] }}
 						</p>
-
-						<div
-							v-if="item.variety_id && priceHintFor(item.variety_id)"
-							class="flex items-center gap-1.5 rounded-md border border-dashed bg-background px-3 py-1.5 text-xs text-muted-foreground"
-						>
-							<span>Market price:</span>
-							<span class="font-mono font-semibold text-foreground">
-								₱{{ priceHintFor(item.variety_id)!.min.toFixed(2) }} –
-								₱{{ priceHintFor(item.variety_id)!.max.toFixed(2) }}
-							</span>
-							<span>/ kg</span>
-						</div>
 					</div>
 
 					<div class="grid grid-cols-2 gap-3">
@@ -255,22 +238,6 @@ watch(
 							/>
 							<p v-if="(form.errors as Record<string, string>)[`items.${index}.quantity_kg`]" class="text-xs text-destructive">
 								{{ (form.errors as Record<string, string>)[`items.${index}.quantity_kg`] }}
-							</p>
-						</div>
-
-						<div class="space-y-1.5">
-							<Label :for="`price-${index}`" class="text-xs">Asking Price (₱/kg)</Label>
-							<Input
-								:id="`price-${index}`"
-								v-model.number="item.unit_price"
-								type="number"
-								step="0.01"
-								min="0"
-								placeholder="0.00"
-								:class="{ 'border-destructive': (form.errors as Record<string, string>)[`items.${index}.unit_price`] }"
-							/>
-							<p v-if="(form.errors as Record<string, string>)[`items.${index}.unit_price`]" class="text-xs text-destructive">
-								{{ (form.errors as Record<string, string>)[`items.${index}.unit_price`] }}
 							</p>
 						</div>
 					</div>

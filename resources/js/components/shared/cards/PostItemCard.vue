@@ -66,12 +66,6 @@ const localHearted = ref(props.item.is_hearted)
 const localCount = ref(props.item.hearts_count)
 const isPending = ref(false)
 
-const priceFlagClass: Record<string, string> = {
-    Low: 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300',
-    Fair: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300',
-    High: 'bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300',
-}
-
 const qtyLabel = computed(() =>
     mode.value === 'supply' ? 'AVAILABLE' : 'NEEDED',
 )
@@ -182,26 +176,6 @@ async function toggleHeart(event: MouseEvent): Promise<void> {
                 </DropdownMenu>
             </div>
 
-            <!-- Price flag — top right when no actions -->
-            <div
-                v-else-if="item.price_flag"
-                class="absolute top-2 right-2 z-10"
-            >
-                <Badge :class="priceFlagClass[item.price_flag]">{{
-                    item.price_flag
-                }}</Badge>
-            </div>
-
-            <!-- Price flag bottom-left when actions present -->
-            <div
-                v-if="hasActions && item.price_flag"
-                class="absolute bottom-8 left-2 z-10"
-            >
-                <Badge :class="priceFlagClass[item.price_flag]">{{
-                    item.price_flag
-                }}</Badge>
-            </div>
-
             <!-- Timestamp — bottom right -->
             <div
                 class="absolute right-0 bottom-0 z-10 rounded-tl-lg bg-black/60 px-3 py-1 text-xs font-medium text-white backdrop-blur-sm"
@@ -231,19 +205,13 @@ async function toggleHeart(event: MouseEvent): Promise<void> {
         <div class="px-4"><Separator /></div>
 
         <CardContent class="flex flex-col gap-2 px-4 py-3">
-            <!-- Quantity + price -->
+            <!-- Quantity -->
             <div :class="cn('rounded-md p-3', qtyClass)">
                 <span class="mb-1 block text-xs tracking-wider">{{
                     qtyLabel
                 }}</span>
                 <span class="text-sm font-semibold">
                     {{ item.quantity_kg.toLocaleString('en-PH') }} kg
-                </span>
-                <span
-                    v-if="item.unit_price"
-                    class="ml-2 font-mono text-xs opacity-80"
-                >
-                    @ ₱{{ item.unit_price.toFixed(2) }}/kg
                 </span>
             </div>
 
