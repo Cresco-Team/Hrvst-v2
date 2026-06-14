@@ -3,7 +3,6 @@
 use App\Http\Controllers\Farmer\DashboardController;
 use App\Http\Controllers\Farmer\PostItemController;
 use App\Http\Controllers\Farmer\SupplyController;
-use App\Http\Controllers\Farmer\SupplyMapController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'verified', 'farmer'])->prefix('farmer')->name('farmer.')->group(function () {
@@ -23,10 +22,5 @@ Route::middleware(['auth', 'verified', 'farmer'])->prefix('farmer')->name('farme
         Route::post('/{postItem}/fulfill', [PostItemController::class, 'fulfill'])->name('fulfill');
         Route::post('/{postItem}/archive', [PostItemController::class, 'archive'])->name('archive');
         Route::delete('/{postItem}', [PostItemController::class, 'destroy'])->name('destroy');
-    });
-
-    Route::prefix('supply-map')->name('supply-map.')->group(function () {
-        Route::get('/', [SupplyMapController::class, 'index'])->name('index');
-        Route::get('/api/markers', [SupplyMapController::class, 'markers'])->name('markers');
     });
 });

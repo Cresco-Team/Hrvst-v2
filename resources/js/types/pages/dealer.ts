@@ -40,13 +40,6 @@ export interface DealerDemandsProps {
 	demands: Paginated<PostItemSnapshot>
 }
 
-// ─── dealer/supply-map/Index ──────────────────────────────────────────────────
-
-export interface DealerSupplyMapProps {
-	mapConfig: MapConfig
-	filterOptions: SupplyMapFilterOptions
-}
-
 // ─── dealer/marketplace/Index ─────────────────────────────────────────────────
 
 export interface DealerMarketplaceFilters {
