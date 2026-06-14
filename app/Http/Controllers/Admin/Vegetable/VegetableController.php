@@ -7,7 +7,7 @@ use App\Actions\Product\UpdateVegetableAction;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Vegetable\StoreVegetableRequest;
 use App\Http\Requests\Vegetable\UpdateVegetableRequest;
-use App\Http\Resources\Product\VegetableResource;
+use App\Http\Resources\Product\VegetableAdminResource;
 use App\Models\Product\Category;
 use App\Models\Product\Vegetable;
 use App\Services\Product\VegetableService;
@@ -53,7 +53,7 @@ class VegetableController extends Controller
                     )->paginate(12)
                         ->withQueryString();
 
-                    return VegetableResource::collection($query);
+                    return VegetableAdminResource::collection($query);
                 }
             ),
             'summary' => Inertia::defer(fn () => $this->vegetableService->summary()),
