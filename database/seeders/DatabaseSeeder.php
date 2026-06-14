@@ -26,8 +26,8 @@ class DatabaseSeeder extends Seeder
                 PriceHistorySeeder::class,
             ]);
 
-            FarmerProfile::factory(25)->create();
-            DealerProfile::factory(12)->create();
+            FarmerProfile::factory(500)->create();
+            DealerProfile::factory(30)->create();
 
             $this->call([PostSeeder::class]);
         }
