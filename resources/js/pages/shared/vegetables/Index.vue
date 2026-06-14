@@ -4,15 +4,7 @@ import { Search } from 'lucide-vue-next'
 import { computed, ref } from 'vue'
 import EmptyState from '@/components/EmptyState.vue'
 import Heading from '@/components/Heading.vue'
-import VegetableCard from '@/components/shared/cards/VegetableCard.vue'
 import { Button } from '@/components/ui/button'
-import {
-    Carousel,
-    CarouselContent,
-    CarouselItem,
-    CarouselNext,
-    CarouselPrevious,
-} from '@/components/ui/carousel'
 import {
     InputGroup,
     InputGroupAddon,
@@ -26,14 +18,6 @@ import { index, show } from '@/routes/vegetables'
 import type { BreadcrumbItem, SharedCategoryProps } from '@/types'
 import type { Paginated } from '@/types/index'
 import type { VegetableResource } from '@/types/resources/product'
-import { AspectRatio } from '@/components/ui/aspect-ratio'
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-} from '@/components/ui/card'
 import { Item, ItemDescription, ItemMedia } from '@/components/ui/item'
 
 interface VegetablesFilters {
