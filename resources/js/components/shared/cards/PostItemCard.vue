@@ -5,7 +5,6 @@ import {
     Archive,
     Calendar,
     Heart,
-    MapPin,
     MoreVertical,
     PackageCheck,
     Pencil,
