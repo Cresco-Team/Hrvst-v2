@@ -67,7 +67,7 @@ class VarietyService
     ): array {
         $query = Vegetable::with([
             'category',
-            'varieties' => function (HasMany $q) use ($search, $priceFilter, $userId): void {
+            'varieties' => function (HasMany $q) use ($search, $priceFilter): void {
                 $q->with(['latestPrice', 'lastTwoPrices'])
                     ->withCount([
                         'postItems as supply_count' => fn (Builder $q) => $q->ongoing()->whereHas(
@@ -77,9 +77,6 @@ class VarietyService
                             'post', fn (Builder $p) => $p->demand()->harvested()
                         ),
                     ])
-                    ->when($userId, fn (Builder $q) => $q->withExists([
-                        'hearts as is_hearted' => fn (Builder $q) => $q->where('user_id', $userId),
-                    ]))
                     ->orderBy('name');
 
                 if ($search) {
@@ -147,9 +144,6 @@ class VarietyService
             ->when($categoryId, fn (Builder $q) => $q->whereHas(
                 'vegetable', fn ($q) => $q->where('category_id', $categoryId)
             ))
-            ->when($userId, fn (Builder $q) => $q->withExists([
-                'hearts as is_hearted' => fn (Builder $q) => $q->where('user_id', $userId),
-            ]))
             ->orderBy('name')
             ->paginate($perPage);
     }

@@ -17,7 +17,7 @@ class VegetableService
     ): Builder {
         return Vegetable::with([
             'category',
-            'varieties' => function (HasMany $varieties) use ($priceFilter, $userId): void {
+            'varieties' => function (HasMany $varieties) use ($priceFilter): void {
                 $varieties
                     ->with(['latestPrice', 'lastTwoPrices'])
                     ->withCount([
@@ -28,9 +28,6 @@ class VegetableService
                             'post', fn (Builder $p) => $p->demand()->harvested()
                         ),
                     ])
-                    ->when($userId, fn (Builder $q) => $q->withExists([
-                        'hearts as is_hearted' => fn (Builder $q) => $q->where('user_id', $userId),
-                    ]))
                     ->when(
                         $priceFilter === 'no_price',
                         fn ($q) => $q->whereDoesntHave('latestPrice')
