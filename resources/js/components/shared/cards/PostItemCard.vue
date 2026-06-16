@@ -13,7 +13,6 @@ import {
 import { computed, ref } from 'vue'
 import { toggle as togglePostHeart } from '@/actions/App/Http/Controllers/PostHeartController'
 import { AspectRatio } from '@/components/ui/aspect-ratio'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
     Card,
