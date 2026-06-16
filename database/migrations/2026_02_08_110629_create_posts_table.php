@@ -25,7 +25,6 @@ return new class extends Migration
 
             $table->decimal('estimated_total_weight', 12, 2)->nullable(); // farmer's pre-harvest estimate
 
-            $table->unsignedInteger('hearts_count')->default(0);
             $table->softDeletes();
             $table->timestamps();
 
