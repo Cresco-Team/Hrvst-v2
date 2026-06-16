@@ -13,8 +13,6 @@ class VarietyDetailResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
-            'hearts_count' => $this->hearts_count,
-            'is_hearted' => (bool) ($this->is_hearted ?? false),
 
             'vegetable' => [
                 'id' => $this->vegetable->id,

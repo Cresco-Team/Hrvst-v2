@@ -14,8 +14,6 @@ class FarmerSupplyResource extends JsonResource
             'status' => $this->status,
             'target_month' => $this->target_month,
             'estimated_total_weight' => (float) $this->estimated_total_weight,
-            'hearts_count' => $this->hearts_count ?? 0,
-            'is_hearted' => (bool) ($this->is_hearted ?? false),
             'created_at' => $this->created_at->format('M d, Y'),
             'created_at_human' => $this->created_at->diffForHumans(),
 
