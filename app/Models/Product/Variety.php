@@ -18,7 +18,6 @@ class Variety extends Model
     protected $fillable = [
         'vegetable_id',
         'name',
-        'hearts_count',
     ];
 
     /* ---------- relations ---------- */
