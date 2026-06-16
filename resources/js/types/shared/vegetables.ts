@@ -46,8 +46,6 @@ export interface CatalogVariety {
 	price_updated_human: string | null
 	supply_count: number
 	demand_count: number
-	hearts_count: number
-	is_hearted: boolean
 	recent_prices?: PriceEntry[]
 }
 
@@ -69,8 +67,6 @@ export interface ShowVariety {
 	recent_prices: PriceEntry[]
 	supply_count: number
 	demand_count: number
-	hearts_count: number
-	is_hearted: boolean
 	supply_municipalities: MunicipalitySupply[]
 	monthly_activity: MonthlyActivity[]
 }

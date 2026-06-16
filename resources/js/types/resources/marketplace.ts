@@ -25,8 +25,6 @@ export interface PostItemSnapshot {
 	time_slot_label: string | null
 	days_until_transaction: number
 
-	hearts_count: number
-	is_hearted: boolean
 	created_at: string
 	created_at_human: string
 }
@@ -38,8 +36,6 @@ export interface FarmerSupplyResource {
 	status: 'growing'
 	target_month: string | null
 	estimated_total_weight: number
-	hearts_count: number
-	is_hearted: boolean
 	created_at: string
 	created_at_human: string
 	image_url?: string
@@ -54,8 +50,6 @@ export interface DealerDemandResource {
 	scheduled_date: string | null
 	time_slot: PostTimeSlot | null
 	time_slot_label: string | null
-	hearts_count: number
-	is_hearted: boolean
 	created_at: string
 	created_at_human: string
 	vegetable?: PostVegetableSnapshot
@@ -85,8 +79,6 @@ export interface DealerPostItemResource {
 
 	municipality: string | null
 
-	hearts_count: number
-	is_hearted: boolean
 	created_at: string
 	created_at_human: string
 }
