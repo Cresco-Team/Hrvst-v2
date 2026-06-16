@@ -47,7 +47,6 @@ function makeVariety(Vegetable $vegetable): Variety
     return Variety::create([
         'vegetable_id' => $vegetable->id,
         'name' => 'Variety '.uniqid(),
-        'hearts_count' => 0,
     ]);
 }
 
