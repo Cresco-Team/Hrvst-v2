@@ -18,8 +18,6 @@ class DealerDemandResource extends JsonResource
             'days_until_transaction' => $this->scheduled_date
                 ? (int) now()->diffInDays($this->scheduled_date, false)
                 : null,
-            'hearts_count' => $this->hearts_count ?? 0,
-            'is_hearted' => (bool) ($this->is_hearted ?? false),
             'created_at' => $this->created_at->format('M d, Y'),
             'created_at_human' => $this->created_at->diffForHumans(),
 

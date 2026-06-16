@@ -15,7 +15,6 @@ class VarietyFactory extends Factory
         return [
             'vegetable_id' => Vegetable::factory(),
             'name' => fake()->unique()->word().' Variety',
-            'hearts_count' => 0,
         ];
     }
 }

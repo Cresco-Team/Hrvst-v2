@@ -99,7 +99,6 @@ class PostSeeder extends Seeder
                     'estimated_total_weight' => fake()->randomFloat(2, 200, 3000),
                     'scheduled_date' => null,
                     'time_slot' => null,
-                    'hearts_count' => 0,
                     'created_at' => $createdAt,
                     'updated_at' => $createdAt,
                     'deleted_at' => null,
@@ -124,7 +123,6 @@ class PostSeeder extends Seeder
                     'estimated_total_weight' => fake()->randomFloat(2, 100, 2000),
                     'scheduled_date' => $scheduledDate->toDateString(),
                     'time_slot' => fake()->randomElement(PostTimeSlot::cases())->value,
-                    'hearts_count' => fake()->numberBetween(0, 20),
                     'created_at' => $createdAt,
                     'updated_at' => $createdAt,
                     'deleted_at' => null,
@@ -162,7 +160,6 @@ class PostSeeder extends Seeder
                     'time_slot' => fake()->boolean(70)
                         ? fake()->randomElement(PostTimeSlot::cases())->value
                         : null,
-                    'hearts_count' => fake()->numberBetween(0, 25),
                     'created_at' => $createdAt,
                     'updated_at' => $createdAt,
                     'deleted_at' => null,

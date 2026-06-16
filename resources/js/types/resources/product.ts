@@ -85,8 +85,6 @@ export interface MonthlyActivity {
 export interface VarietyResource {
   id: number
   name: string
-  hearts_count: number
-  is_hearted: boolean
   vegetable: VarietyVegetable
 
   latest_price?: PriceHistoryResource | null

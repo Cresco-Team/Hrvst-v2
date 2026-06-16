@@ -38,9 +38,6 @@ class PostItemResource extends JsonResource
                 ? (int) now()->diffInDays($post->scheduled_date, false)
                 : null,
 
-            // interaction
-            'hearts_count' => $post->hearts_count,
-            'is_hearted' => (bool) ($post->is_hearted ?? false),
             'created_at' => $post->created_at->format('M d, Y'),
             'created_at_human' => $post->created_at->diffForHumans(),
         ];

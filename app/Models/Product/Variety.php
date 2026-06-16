@@ -2,7 +2,6 @@
 
 namespace App\Models\Product;
 
-use App\Models\Interaction\VarietyHeart;
 use App\Models\Marketplace\PostItem;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -18,7 +17,6 @@ class Variety extends Model
     protected $fillable = [
         'vegetable_id',
         'name',
-        'hearts_count',
     ];
 
     /* ---------- relations ---------- */
@@ -55,11 +53,6 @@ class Variety extends Model
         return $this->hasMany(PriceHistory::class)
             ->latest('recorded_at')
             ->limit(2);
-    }
-
-    public function hearts(): HasMany
-    {
-        return $this->hasMany(VarietyHeart::class);
     }
 
     /* ---------- scopes ---------- */

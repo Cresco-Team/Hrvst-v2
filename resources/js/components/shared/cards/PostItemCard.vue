@@ -4,14 +4,12 @@ import {
     AlarmClockCheck,
     Archive,
     Calendar,
-    Heart,
     MoreVertical,
     PackageCheck,
     Pencil,
     Trash,
 } from 'lucide-vue-next'
 import { computed, ref } from 'vue'
-import { toggle as togglePostHeart } from '@/actions/App/Http/Controllers/PostHeartController'
 import { AspectRatio } from '@/components/ui/aspect-ratio'
 import { Button } from '@/components/ui/button'
 import {
@@ -60,8 +58,6 @@ const canFulfill = computed(() => props.actions?.includes('fulfill') ?? false)
 const canArchive = computed(() => props.actions?.includes('archive') ?? false)
 const canDelete = computed(() => props.actions?.includes('delete') ?? false)
 
-const localHearted = ref(props.item.is_hearted)
-const localCount = ref(props.item.hearts_count)
 const isPending = ref(false)
 
 const qtyLabel = computed(() =>
@@ -72,30 +68,6 @@ const qtyClass = computed(() =>
         ? 'bg-primary/10 text-primary'
         : 'bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300',
 )
-
-async function toggleHeart(event: MouseEvent): Promise<void> {
-    event.stopPropagation()
-    if (isPending.value) return
-
-    const wasHearted = localHearted.value
-    localHearted.value = !wasHearted
-    localCount.value += wasHearted ? -1 : 1
-    isPending.value = true
-
-    try {
-        const { data } = await axios.post<{
-            hearted: boolean
-            hearts_count: number
-        }>(togglePostHeart(props.item.post_id).url)
-        localHearted.value = data.hearted
-        localCount.value = data.hearts_count
-    } catch {
-        localHearted.value = wasHearted
-        localCount.value += wasHearted ? 1 : -1
-    } finally {
-        isPending.value = false
-    }
-}
 </script>
 
 <template>
@@ -227,27 +199,6 @@ async function toggleHeart(event: MouseEvent): Promise<void> {
             >
                 <AlarmClockCheck class="size-3.5 shrink-0" />
                 <span>{{ item.time_slot_label }}</span>
-            </div>
-
-            <!-- Heart — hidden on own posts (actions present) -->
-            <div v-if="!hasActions" class="flex items-center justify-end pt-1">
-                <button
-                    class="flex cursor-pointer items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-rose-500 disabled:pointer-events-none disabled:opacity-50"
-                    :disabled="isPending"
-                    @click="toggleHeart"
-                >
-                    <Heart
-                        class="size-4 transition-all"
-                        :class="
-                            cn(
-                                localHearted
-                                    ? 'scale-110 fill-rose-500 text-rose-500'
-                                    : 'fill-none',
-                            )
-                        "
-                    />
-                    <span class="tabular-nums">{{ localCount }}</span>
-                </button>
             </div>
         </CardContent>
     </Card>

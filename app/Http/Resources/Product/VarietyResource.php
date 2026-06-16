@@ -12,8 +12,6 @@ class VarietyResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
-            'hearts_count' => $this->hearts_count,
-            'is_hearted' => (bool) ($this->is_hearted ?? false),
 
             'vegetable' => $this->whenLoaded('vegetable',
                 fn () => new VegetableResource(($this->vegetable))

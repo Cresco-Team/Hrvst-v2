@@ -71,8 +71,6 @@ function openEditVariety(row: VarietyTableRow): void {
         id: row.id,
         name: row.name,
         image_url: row.image_url ?? '',
-        hearts_count: 0,
-        is_hearted: false,
         vegetable: {
             id: row.vegetable_id ?? 0,
             name: activeParentVegetable.value?.name ?? '',
@@ -147,8 +145,6 @@ function openUpdatePrice(row: VarietyTableRow): void {
         id: row.id,
         name: row.name,
         image_url: row.image_url ?? '',
-        hearts_count: 0,
-        is_hearted: false,
         vegetable: { id: 0, name: '', category: null },
         latest_price: row.latest_price ?? null,
     } as unknown as VarietyResource

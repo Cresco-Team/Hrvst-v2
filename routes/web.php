@@ -2,8 +2,6 @@
 
 use App\Http\Controllers\AddressController;
 use App\Http\Controllers\ChangePinController;
-use App\Http\Controllers\PostHeartController;
-use App\Http\Controllers\VarietyHeartController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -24,8 +22,6 @@ Route::middleware(['auth'])->group(function () {
 /* ---------- authenticated & verified ---------- */
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::post('varieties/{variety}/heart', [VarietyHeartController::class, 'toggle'])->name('varieties.heart.toggle');
-    Route::post('posts/{post}/heart', [PostHeartController::class, 'toggle'])->name('posts.heart.toggle');
 
     Route::get('dashboard', function () {
         $user = Auth::user();
