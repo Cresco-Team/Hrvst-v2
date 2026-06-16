@@ -5,7 +5,6 @@ namespace App\Models\Marketplace;
 use App\Enums\PostStatus;
 use App\Enums\PostTimeSlot;
 use App\Enums\PostType;
-use App\Models\Interaction\PostHeart;
 use App\Models\Product\Vegetable;
 use App\Models\Profiles\DealerProfile;
 use App\Models\Profiles\FarmerProfile;
@@ -65,11 +64,6 @@ class Post extends Model implements HasMedia
     public function postItems(): HasMany
     {
         return $this->hasMany(PostItem::class);
-    }
-
-    public function hearts(): HasMany
-    {
-        return $this->hasMany(PostHeart::class);
     }
 
     public function farmerProfile(): HasOneThrough
