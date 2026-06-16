@@ -22,7 +22,6 @@ class UpdateDemandRequest extends FormRequest
             'items' => ['sometimes', 'array', 'min:1'],
             'items.*.variety_id' => ['required_with:items', 'integer', 'exists:varieties,id'],
             'items.*.quantity_kg' => ['required_with:items', 'numeric', 'min:0.1', 'max:99999'],
-            'items.*.unit_price' => ['nullable', 'numeric', 'min:0', 'max:9999.99'],
         ];
     }
 
@@ -36,7 +35,6 @@ class UpdateDemandRequest extends FormRequest
             'items.*.variety_id.required_with' => 'Each item must have a variety.',
             'items.*.quantity_kg.required_with' => 'Each item must have a quantity.',
             'items.*.quantity_kg.min' => 'Quantity is too low.',
-            'items.*.unit_price.min' => 'Price cannot be negative.',
         ];
     }
 }

@@ -3,7 +3,6 @@
 namespace App\Actions\Demand;
 
 use App\Enums\PostItemStatus;
-use App\Enums\PostPriceFlag;
 use App\Enums\PostStatus;
 use App\Enums\PostType;
 use App\Models\Marketplace\Post;
@@ -22,7 +21,7 @@ final class CreateDemandAction
                 'user_id' => $dealer->user_id,
                 'vegetable_id' => $validated['vegetable_id'],
                 'type' => PostType::Demand,
-                'status' => PostStatus::Harvested, // demands are immediately active
+                'status' => PostStatus::Harvested,
                 'scheduled_date' => $validated['scheduled_date'],
                 'time_slot' => $validated['time_slot'],
             ]);
@@ -34,17 +33,10 @@ final class CreateDemandAction
                 ->keyBy('id');
 
             foreach ($validated['items'] as $item) {
-                $variety = $varieties->get($item['variety_id']);
-                $unitPrice = $item['unit_price'] ?? null;
-
                 PostItem::create([
                     'post_id' => $post->id,
                     'variety_id' => $item['variety_id'],
                     'quantity_kg' => $item['quantity_kg'],
-                    'unit_price' => $unitPrice,
-                    'price_flag' => $unitPrice !== null
-                        ? PostPriceFlag::fromMarketPrice((float) $unitPrice, $variety?->latestPrice)
-                        : PostPriceFlag::Fair,
                     'status' => PostItemStatus::Ongoing,
                 ]);
             }

@@ -612,18 +612,6 @@ function formatKgShort(kg: number): string {
                                     class="text-sm font-semibold tabular-nums"
                                     >{{ formatKg(item.quantity_kg) }}</span
                                 >
-                                <span
-                                    v-if="item.unit_price"
-                                    class="text-[10px] text-muted-foreground"
-                                >
-                                    ₱{{ item.unit_price.toFixed(2) }}/kg
-                                </span>
-                                <span
-                                    v-else-if="item.price_flag"
-                                    class="text-[10px] text-muted-foreground italic"
-                                >
-                                    {{ item.price_flag }}
-                                </span>
                             </div>
                         </div>
                     </div>

@@ -73,12 +73,6 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => [
           ]
         : []),
 ])
-
-function priceFlagVariant(flag?: string | null) {
-    if (flag === 'Low') return 'secondary'
-    if (flag === 'High') return 'destructive'
-    return 'outline'
-}
 </script>
 
 <template>
@@ -325,33 +319,6 @@ function priceFlagVariant(flag?: string | null) {
                                                                 }}
                                                                 kg
                                                             </span>
-                                                            <span
-                                                                v-if="
-                                                                    item.unit_price
-                                                                "
-                                                                class="text-xs text-muted-foreground"
-                                                            >
-                                                                @ ₱{{
-                                                                    item.unit_price.toFixed(
-                                                                        2,
-                                                                    )
-                                                                }}
-                                                            </span>
-                                                            <Badge
-                                                                v-if="
-                                                                    item.price_flag
-                                                                "
-                                                                :variant="
-                                                                    priceFlagVariant(
-                                                                        item.price_flag,
-                                                                    )
-                                                                "
-                                                                class="px-1.5 py-0 text-xs"
-                                                            >
-                                                                {{
-                                                                    item.price_flag
-                                                                }}
-                                                            </Badge>
                                                         </ItemDescription>
                                                     </ItemContent>
                                                 </Item>

@@ -41,13 +41,6 @@ export interface FarmerSuppliesProps {
 	harvestedItems: Paginated<PostItemSnapshot> | null
 }
 
-// ─── farmer/supply-map/Index ──────────────────────────────────────────────────
-
-export interface FarmerSupplyMapProps {
-	mapConfig: MapConfig
-	filterOptions: SupplyMapFilterOptions
-}
-
 // ─── farmer/marketplace/Index ─────────────────────────────────────────────────
 
 export interface FarmerMarketplaceFilters {

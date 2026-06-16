@@ -48,8 +48,6 @@ class VarietyCalendarService
                 'post_items.post_id',
                 'post_items.variety_id',
                 'post_items.quantity_kg',
-                'post_items.unit_price',
-                'post_items.price_flag',
                 'post_items.status',
                 'posts.type',
             ])
@@ -96,8 +94,6 @@ class VarietyCalendarService
                 'type' => $item->type,
                 'variety_name' => $item->variety_name,
                 'quantity_kg' => (float) $item->quantity_kg,
-                'unit_price' => $item->unit_price !== null ? (float) $item->unit_price : null,
-                'price_flag' => $item->price_flag?->value ?? null,
                 'status' => $item->status?->value ?? $item->status,
             ];
         }

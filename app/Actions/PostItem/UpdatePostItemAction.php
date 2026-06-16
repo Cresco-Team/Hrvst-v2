@@ -10,7 +10,6 @@ class UpdatePostItemAction
     {
         $postItem->update([
             'quantity_kg' => $validated['quantity_kg'],
-            'unit_price' => $validated['unit_price'] ?? null,
         ]);
     }
 }

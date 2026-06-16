@@ -17,7 +17,6 @@ class UpdatePostItemRequest extends FormRequest
 
         return [
             'quantity_kg' => ['required', 'numeric', 'min:0.1', 'max:99999'],
-            'unit_price' => ['nullable', 'numeric', 'min:0', 'max:9999.99'],
         ];
     }
 
@@ -26,7 +25,6 @@ class UpdatePostItemRequest extends FormRequest
         return [
             'quantity_kg.required' => 'Quantity is required.',
             'quantity_kg.min' => 'Quantity is too low.',
-            'unit_price.min' => 'Price cannot be negative.',
         ];
     }
 }

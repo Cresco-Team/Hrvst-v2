@@ -24,7 +24,6 @@ const emit = defineEmits<{ 'update:open': [value: boolean] }>()
 const form = useForm({
     variety_id: 0,
     quantity_kg: '',
-    unit_price: '',
 })
 
 watch(
@@ -33,7 +32,6 @@ watch(
         if (!item) return
         form.variety_id = item.variety_id
         form.quantity_kg = String(item.quantity_kg)
-        form.unit_price = item.unit_price != null ? String(item.unit_price) : ''
     },
     { immediate: true },
 )
@@ -76,28 +74,6 @@ function submit() {
                         class="text-xs text-destructive"
                     >
                         {{ form.errors.quantity_kg }}
-                    </p>
-                </div>
-
-                <div class="grid gap-1.5">
-                    <Label
-                        >Unit Price (₱/kg)
-                        <span class="text-xs text-muted-foreground"
-                            >optional</span
-                        ></Label
-                    >
-                    <Input
-                        v-model="form.unit_price"
-                        type="number"
-                        min="0"
-                        step="0.01"
-                        placeholder="0.00"
-                    />
-                    <p
-                        v-if="form.errors.unit_price"
-                        class="text-xs text-destructive"
-                    >
-                        {{ form.errors.unit_price }}
                     </p>
                 </div>
             </div>

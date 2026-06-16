@@ -209,8 +209,8 @@ describe('HarvestSupply', function () {
                 'scheduled_date' => $scheduledDate,
                 'time_slot' => 'morning',
                 'items' => [
-                    ['variety_id' => $variety1->id, 'quantity_kg' => 120, 'unit_price' => 25.00],
-                    ['variety_id' => $variety2->id, 'quantity_kg' => 80, 'unit_price' => 30.00],
+                    ['variety_id' => $variety1->id, 'quantity_kg' => 120],
+                    ['variety_id' => $variety2->id, 'quantity_kg' => 80],
                 ],
             ])
             ->assertRedirect(route('farmer.supplies.index'));
@@ -223,8 +223,7 @@ describe('HarvestSupply', function () {
             ->and($post->postItems)->toHaveCount(2);
 
         $item1 = $post->postItems->firstWhere('variety_id', $variety1->id);
-        expect((float) $item1->quantity_kg)->toBe(120.0)
-            ->and((float) $item1->unit_price)->toBe(25.0);
+        expect((float) $item1->quantity_kg)->toBe(120.0);
     });
 
     it('harvest is atomic — rolls back on failure', function () {
@@ -240,7 +239,7 @@ describe('HarvestSupply', function () {
                 'scheduled_date' => now()->addDay()->toDateString(),
                 'time_slot' => 'morning',
                 'items' => [
-                    ['variety_id' => 99999, 'quantity_kg' => 10, 'unit_price' => 5],
+                    ['variety_id' => 99999, 'quantity_kg' => 10],
                 ],
             ])
             ->assertSessionHasErrors('items.0.variety_id');
@@ -264,7 +263,7 @@ describe('HarvestSupply', function () {
                 'scheduled_date' => now()->addDay()->toDateString(),
                 'time_slot' => 'morning',
                 'items' => [
-                    ['variety_id' => $variety->id, 'quantity_kg' => 10, 'unit_price' => 5],
+                    ['variety_id' => $variety->id, 'quantity_kg' => 10],
                 ],
             ])
             ->assertForbidden();
@@ -301,7 +300,7 @@ describe('HarvestSupply', function () {
                 'scheduled_date' => now()->subDay()->toDateString(),
                 'time_slot' => 'morning',
                 'items' => [
-                    ['variety_id' => $variety->id, 'quantity_kg' => 10, 'unit_price' => 5],
+                    ['variety_id' => $variety->id, 'quantity_kg' => 10],
                 ],
             ])
             ->assertSessionHasErrors('scheduled_date');
@@ -322,7 +321,7 @@ describe('HarvestSupply', function () {
                 'scheduled_date' => now()->addDay()->toDateString(),
                 'time_slot' => 'morning',
                 'items' => [
-                    ['variety_id' => $variety->id, 'quantity_kg' => 10, 'unit_price' => 5],
+                    ['variety_id' => $variety->id, 'quantity_kg' => 10],
                 ],
             ])
             ->assertForbidden();

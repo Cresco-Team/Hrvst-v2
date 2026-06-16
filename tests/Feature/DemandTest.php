@@ -46,8 +46,8 @@ function validDemandPayload(Vegetable $vegetable, Variety $variety1, Variety $va
         'scheduled_date' => $scheduledDate ?? now()->addDays(5)->toDateString(),
         'time_slot' => 'morning',
         'items' => [
-            ['variety_id' => $variety1->id, 'quantity_kg' => 100, 'unit_price' => 20.00],
-            ['variety_id' => $variety2->id, 'quantity_kg' => 50,  'unit_price' => null],
+            ['variety_id' => $variety1->id, 'quantity_kg' => 100],
+            ['variety_id' => $variety2->id, 'quantity_kg' => 50],
         ],
     ];
 }
@@ -64,7 +64,7 @@ function createDemandViaRoute(User $dealer, Variety $variety): PostItem
         'scheduled_date' => now()->addDays(5)->toDateString(),
         'time_slot' => 'morning',
         'items' => [
-            ['variety_id' => $variety->id, 'quantity_kg' => 50, 'unit_price' => 20.00],
+            ['variety_id' => $variety->id, 'quantity_kg' => 50],
         ],
     ]);
 
@@ -92,11 +92,10 @@ describe('CreateDemand', function () {
             ->and($post->postItems)->toHaveCount(2);
 
         $item1 = $post->postItems->firstWhere('variety_id', $variety1->id);
-        expect((float) $item1->quantity_kg)->toBe(100.0)
-            ->and((float) $item1->unit_price)->toBe(20.0);
+        expect((float) $item1->quantity_kg)->toBe(100.0);
 
         $item2 = $post->postItems->firstWhere('variety_id', $variety2->id);
-        expect($item2->unit_price)->toBeNull();
+        expect($item2->quantity_kg)->toBe(100.0);
     });
 
     it('demand creation is atomic — no post exists if items fail', function () {
@@ -109,7 +108,7 @@ describe('CreateDemand', function () {
                 'scheduled_date' => now()->addDay()->toDateString(),
                 'time_slot' => 'morning',
                 'items' => [
-                    ['variety_id' => 99999, 'quantity_kg' => 10, 'unit_price' => null],
+                    ['variety_id' => 99999, 'quantity_kg' => 10],
                 ],
             ])
             ->assertSessionHasErrors('items.0.variety_id');
@@ -171,7 +170,7 @@ describe('CreateDemand', function () {
                 'scheduled_date' => now()->addDay()->toDateString(),
                 'time_slot' => 'morning',
                 'items' => [
-                    ['variety_id' => $variety1->id, 'quantity_kg' => 0, 'unit_price' => null],
+                    ['variety_id' => $variety1->id, 'quantity_kg' => 0],
                 ],
             ])
             ->assertSessionHasErrors('items.0.quantity_kg');
@@ -226,7 +225,7 @@ describe('UpdateDemand', function () {
         actingAs($dealer)
             ->put(route('dealer.demands.update', $post), [
                 'items' => [
-                    ['variety_id' => $variety2->id, 'quantity_kg' => 200, 'unit_price' => 15],
+                    ['variety_id' => $variety2->id, 'quantity_kg' => 200],
                 ],
             ])
             ->assertRedirect();

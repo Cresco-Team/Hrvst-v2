@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Shared;
 use App\Enums\Analytics\VarietyViewerRole;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Product\VarietyDetailResource;
-use App\Http\Resources\Product\VegetableResource;
+use App\Http\Resources\Product\VegetableSharedResource;
 use App\Models\Product\Category;
 use App\Models\Product\Variety;
 use App\Services\Product\VarietyService;
@@ -52,7 +52,7 @@ class VegetableController extends Controller
                     )->paginate(12)
                         ->withQueryString();
 
-                    return VegetableResource::collection($query);
+                    return VegetableSharedResource::collection($query);
                 }
             ),
             'category' => $category,

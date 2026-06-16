@@ -6,9 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('post_items', function (Blueprint $table) {
@@ -17,8 +14,6 @@ return new class extends Migration
             $table->foreignId('variety_id')->constrained()->cascadeOnDelete();
 
             $table->decimal('quantity_kg', 8, 2);
-            $table->decimal('unit_price', 8, 2)->nullable();
-            $table->enum('price_flag', ['Low', 'Fair', 'High'])->default('Fair');
             $table->string('status')->default('ongoing');
 
             $table->index(['variety_id', 'status'], 'idx_post_items_variety_status');
@@ -28,9 +23,6 @@ return new class extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('post_items');
