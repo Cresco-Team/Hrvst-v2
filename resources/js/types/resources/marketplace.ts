@@ -34,7 +34,7 @@ export interface PostItemSnapshot {
 export interface FarmerSupplyResource {
 	id: number
 	status: 'growing'
-	target_month: string | null
+	expected_harvest_month: string | null
 	estimated_total_weight: number
 	created_at: string
 	created_at_human: string

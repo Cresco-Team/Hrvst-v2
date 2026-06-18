@@ -20,7 +20,7 @@ class PostFactory extends Factory
             'vegetable_id' => Vegetable::factory(),
             'type' => PostType::Supply,
             'status' => PostStatus::Growing,
-            'target_month' => now()->format('Y-m'),
+            'expected_harvest_month' => now()->format('Y-m'),
             'estimated_total_weight' => fake()->randomFloat(2, 50, 1000),
             'scheduled_date' => null,
             'time_slot' => null,

@@ -33,7 +33,7 @@ const emit = defineEmits<{ 'update:open': [value: boolean] }>()
 
 const form = useForm({
     vegetable_id: '',
-    target_month: '',
+    expected_harvest_month: '',
     estimated_total_weight: '',
 })
 
@@ -63,7 +63,7 @@ watch(
         if (!isOpen) return
         const s = props.supply
         form.vegetable_id = String(s?.vegetable?.id ?? '')
-        form.target_month = s?.target_month ?? ''
+        form.expected_harvest_month = s?.expected_harvest_month ?? ''
         form.estimated_total_weight = String(s?.estimated_total_weight ?? '')
         form.clearErrors()
     },
@@ -134,24 +134,30 @@ watch(
             </div>
 
             <div class="space-y-2">
-                <Label for="target_month" class="flex items-center gap-1.5">
-                    Target Harvest Month
+                <Label
+                    for="expected_harvest_month"
+                    class="flex items-center gap-1.5"
+                >
+                    Expected Harvest Month
                     <Badge variant="secondary" class="text-xs font-normal"
                         >Required</Badge
                     >
                 </Label>
                 <Input
-                    id="target_month"
-                    v-model="form.target_month"
+                    id="expected_harvest_month"
+                    v-model="form.expected_harvest_month"
                     type="month"
                     :min="minMonth"
-                    :class="{ 'border-destructive': form.errors.target_month }"
+                    :class="{
+                        'border-destructive':
+                            form.errors.expected_harvest_month,
+                    }"
                 />
                 <p
-                    v-if="form.errors.target_month"
+                    v-if="form.errors.expected_harvest_month"
                     class="text-xs text-destructive"
                 >
-                    {{ form.errors.target_month }}
+                    {{ form.errors.expected_harvest_month }}
                 </p>
                 <p v-else class="text-xs text-muted-foreground">
                     Which month do you plan to harvest?

@@ -46,7 +46,7 @@ const canHarvest = computed(() => {
     const d = new Date()
     d.setMonth(d.getMonth() + 1)
     const nextMonth = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
-    return post.target_month! <= nextMonth
+    return post.expected_harvest_month! <= nextMonth
 })
 </script>
 
@@ -142,10 +142,10 @@ const canHarvest = computed(() => {
             <div class="rounded-md bg-lime-50 p-3 dark:bg-lime-900/20">
                 <span
                     class="mb-1 block text-xs tracking-wider text-lime-700 dark:text-lime-300"
-                    >TARGET MONTH</span
+                    >Expected Harvest Month</span
                 >
                 <span class="font-semibold text-lime-700 dark:text-lime-300">{{
-                    post.target_month
+                    post.expected_harvest_month
                 }}</span>
             </div>
             <div class="rounded-md bg-primary/10 p-3">
