@@ -15,15 +15,13 @@ return new class extends Migration
 
             $table->enum('type', ['supply', 'demand']);
 
-            // supply: growing → ongoing → fulfilled/archived
-            // demand: ongoing → fulfilled/archived
             $table->string('status')->default('growing')->index();
 
-            $table->string('target_month', 7)->nullable();  // "YYYY-MM", supply only
-            $table->date('scheduled_date')->nullable();        // set on harvest for supply, creation for demand
+            $table->string('expected_harvest_month', 7)->nullable();
+            $table->date('scheduled_date')->nullable();
             $table->enum('time_slot', ['morning', 'afternoon', 'evening'])->default('morning')->nullable();
 
-            $table->decimal('estimated_total_weight', 12, 2)->nullable(); // farmer's pre-harvest estimate
+            $table->decimal('estimated_total_weight', 12, 2)->nullable();
 
             $table->softDeletes();
             $table->timestamps();
