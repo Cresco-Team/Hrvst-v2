@@ -38,7 +38,7 @@ export interface FarmerSuppliesProps {
 	vegetableOptions: VegetableOptionsByCategory
 	varietyOptions: VarietyOptionsByVegetable
 	growingPosts: Paginated<FarmerSupplyResource> | null
-	harvestedItems: Paginated<PostItemSnapshot> | null
+	readyForHarvestPosts: Paginated<PostItemSnapshot> | null
 }
 
 // ─── farmer/marketplace/Index ─────────────────────────────────────────────────
