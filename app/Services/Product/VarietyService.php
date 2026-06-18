@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\DB;
 class VarietyService
 {
     public function __construct(
-        private VarietyActivityService $activityService,
+        private VegetableActivityService $activityService,
         private VarietyCalendarService $calendarService,
         private VarietyAnalyticsService $analyticsService,
     ) {}
@@ -168,7 +168,7 @@ class VarietyService
 
         $variety->supply_municipalities = $this->resolveSupplyMunicipalities($variety->id);
 
-        $monthlyActivity = $this->activityService->buildMonthlyActivity($variety->id);
+        $monthlyActivity = $this->activityService->buildMonthlyActivity($variety->vegetable_id);
         $variety->monthly_activity = $monthlyActivity;
         $variety->variety_calendar = $this->calendarService->buildForMonth($variety->id, $year, $month);
         $variety->analytics = $this->analyticsService->compute($variety, $monthlyActivity, $role);

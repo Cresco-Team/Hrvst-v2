@@ -4,22 +4,23 @@ namespace App\Services\Product;
 
 use Illuminate\Support\Facades\DB;
 
-class VarietyActivityService
+class VegetableActivityService
 {
-    public function buildMonthlyActivity(int $varietyId): array
+    public function buildMonthlyActivity(int $vegetableId): array
     {
         $start = now()->startOfMonth()->subMonths(11);
         $end = now()->endOfMonth();
 
         $rows = DB::table('post_items')
             ->join('posts', 'posts.id', '=', 'post_items.post_id')
+            ->join('varieties', 'varieties.id', '=', 'post_items.variety_id')
             ->select([
                 DB::raw("TO_CHAR(posts.created_at, 'YYYY-MM') as period"),
                 'posts.type',
                 'post_items.status',
                 DB::raw('SUM(post_items.quantity_kg) as total_kg'),
             ])
-            ->where('post_items.variety_id', $varietyId)
+            ->where('varieties.vegetable_id', $vegetableId)
             ->whereBetween('posts.created_at', [$start, $end])
             ->whereNull('posts.deleted_at')
             ->whereNull('post_items.deleted_at')
