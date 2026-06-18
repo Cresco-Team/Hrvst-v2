@@ -12,7 +12,7 @@ class FarmerSupplyResource extends JsonResource
         return [
             'id' => $this->id,
             'status' => $this->status,
-            'target_month' => $this->target_month,
+            'expected_harvest_month' => $this->expected_harvest_month,
             'estimated_total_weight' => (float) $this->estimated_total_weight,
             'created_at' => $this->created_at->format('M d, Y'),
             'created_at_human' => $this->created_at->diffForHumans(),
