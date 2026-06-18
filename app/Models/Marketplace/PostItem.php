@@ -4,16 +4,18 @@ namespace App\Models\Marketplace;
 
 use App\Enums\PostItemStatus;
 use App\Models\Product\Variety;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+#[Fillable(['post_id', 'variety_id', 'quantity_kg', 'status'])]
+#[SoftDeletes()]
 class PostItem extends Model
 {
     use HasFactory;
-    use SoftDeletes;
 
     protected $fillable = [
         'post_id',
