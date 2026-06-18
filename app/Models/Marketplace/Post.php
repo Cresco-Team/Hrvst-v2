@@ -105,16 +105,16 @@ class Post extends Model implements HasMedia
         return $query->where('status', PostStatus::Growing);
     }
 
-    public function scopeHarvested(Builder $query): Builder
+    public function scopeReady(Builder $query): Builder
     {
-        return $query->where('status', PostStatus::Harvested);
+        return $query->where('status', PostStatus::Ready);
     }
 
     /* ---------- lifecycle ---------- */
 
-    public function markAsHarvested(string $scheduledDate): void
+    public function markAsReady(string $scheduledDate): void
     {
-        $this->status = PostStatus::Harvested;
+        $this->status = PostStatus::Ready;
         $this->scheduled_date = $scheduledDate;
         $this->save();
     }
