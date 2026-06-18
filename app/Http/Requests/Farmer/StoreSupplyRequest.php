@@ -17,7 +17,7 @@ class StoreSupplyRequest extends FormRequest
     {
         return [
             'vegetable_id' => ['required', 'integer', 'exists:vegetables,id'],
-            'target_month' => ['required', 'string', 'regex:/^\d{4}-(0[1-9]|1[0-2])$/', 'after_or_equal:'.now()->format('Y-m')],
+            'expected_harvest_month' => ['required', 'string', 'regex:/^\d{4}-(0[1-9]|1[0-2])$/', 'after_or_equal:'.now()->format('Y-m')],
             'estimated_total_weight' => ['required', 'numeric', 'min:0.1', 'max:999999'],
         ];
     }
@@ -27,9 +27,9 @@ class StoreSupplyRequest extends FormRequest
         return [
             'vegetable_id.required' => 'Vegetable is required.',
             'vegetable_id.exists' => 'Selected vegetable does not exist.',
-            'target_month.required' => 'Target harvest month is required.',
-            'target_month.regex' => 'Target month must be in YYYY-MM format.',
-            'target_month.after_or_equal' => 'Target month cannot be in the past.',
+            'expected_harvest_month.required' => 'Expected harvest month is required.',
+            'expected_harvest_month.regex' => 'Expected Harvest Month must be in YYYY-MM format.',
+            'expected_harvest_month.after_or_equal' => 'Expected Harvest Month cannot be in the past.',
             'estimated_total_weight.required' => 'Estimated weight is required.',
             'estimated_total_weight.min' => 'Estimated weight is too low.',
         ];
