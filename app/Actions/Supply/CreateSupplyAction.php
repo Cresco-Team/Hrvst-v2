@@ -17,7 +17,7 @@ final class CreateSupplyAction
             'vegetable_id' => $validated['vegetable_id'],
             'type' => PostType::Supply,
             'status' => PostStatus::Growing,
-            'target_month' => $validated['target_month'],
+            'expected_harvest_month' => $validated['expected_harvest_month'],
             'estimated_total_weight' => $validated['estimated_total_weight'],
         ]);
 
