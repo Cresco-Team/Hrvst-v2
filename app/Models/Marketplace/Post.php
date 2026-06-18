@@ -9,6 +9,7 @@ use App\Models\Product\Vegetable;
 use App\Models\Profiles\DealerProfile;
 use App\Models\Profiles\FarmerProfile;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -20,22 +21,20 @@ use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
+#[Fillable(['user_id',
+    'vegetable_id',
+    'type',
+    'status',
+    'target_month',
+    'scheduled_date',
+    'time_slot',
+    'estimated_total_weight',
+])]
 class Post extends Model implements HasMedia
 {
     use HasFactory;
     use InteractsWithMedia;
     use SoftDeletes;
-
-    protected $fillable = [
-        'user_id',
-        'vegetable_id',
-        'type',
-        'status',
-        'target_month',
-        'scheduled_date',
-        'time_slot',
-        'estimated_total_weight',
-    ];
 
     protected function casts(): array
     {
@@ -133,17 +132,9 @@ class Post extends Model implements HasMedia
         return $this->status === PostStatus::Growing;
     }
 
-    /* ---------- Bug #8 fix: cascade-delete PostItems through Eloquent ----------
-     * DB-level cascadeOnDelete bypasses observers, so vegetable_monthly_stats
-     * never gets decremented when a Post is force-deleted.
-     * Deleting PostItems explicitly here fires PostItemObserver::deleted on each.
-     */
-
     protected static function booted(): void
     {
         static::deleting(function (Post $post): void {
-            // Only needed on force-delete (soft-delete does not cascade at DB level).
-            // For soft-delete, PostItems remain and can be individually managed.
             if (! $post->isForceDeleting()) {
                 return;
             }

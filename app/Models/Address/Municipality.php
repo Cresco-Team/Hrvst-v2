@@ -3,20 +3,16 @@
 namespace App\Models\Address;
 
 use App\Models\Profiles\FarmerProfile;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+#[Fillable(['province_id', 'name', 'latitude', 'longitude'])]
+
 class Municipality extends Model
 {
     public $timestamps = false;
-
-    protected $fillable = [
-        'province_id', 
-        'name', 
-        'latitude', 
-        'longitude'
-    ];
 
     /* ---------- relations ---------- */
 
