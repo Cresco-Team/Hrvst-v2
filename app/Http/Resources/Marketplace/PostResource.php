@@ -14,7 +14,7 @@ class PostResource extends JsonResource
             'id' => $this->id,
             'type' => $this->type->value,
             'status' => $this->status->value,
-            'target_month' => $this->target_month,
+            'expected_harvest_month' => $this->expected_harvest_month,
             'estimated_total_weight' => $this->estimated_total_weight !== null
                 ? (float) $this->estimated_total_weight
                 : null,
