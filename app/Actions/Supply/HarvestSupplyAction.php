@@ -27,7 +27,7 @@ final class HarvestSupplyAction
             }
 
             $post->time_slot = $validated['time_slot'];
-            $post->markAsHarvested($validated['scheduled_date']);
+            $post->markAsReady($validated['scheduled_date']);
         });
 
         return $post->fresh(['vegetable', 'postItems.variety']);

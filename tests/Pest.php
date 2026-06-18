@@ -143,17 +143,13 @@ function createVariety(
 
 // ─── Posts ───────────────────────────────────────────────────────────────────
 
-/**
- * Creates a Harvested supply Post with one Ongoing PostItem for the given variety.
- * Pass post-level overrides in $overrides (e.g. ['scheduled_date' => '2025-01-01']).
- */
 function createSupplyPost(User $farmer, Variety $variety, array $overrides = []): Post
 {
     $post = Post::create(array_merge([
         'user_id' => $farmer->id,
         'vegetable_id' => $variety->vegetable_id,
         'type' => PostType::Supply,
-        'status' => PostStatus::Harvested,
+        'status' => PostStatus::Ready,
         'scheduled_date' => now()->addDays(7)->toDateString(),
         'time_slot' => PostTimeSlot::Morning,
         'estimated_total_weight' => 100,
@@ -178,7 +174,7 @@ function createDemandPost(User $dealer, Variety $variety, array $overrides = [])
         'user_id' => $dealer->id,
         'vegetable_id' => $variety->vegetable_id,
         'type' => PostType::Demand,
-        'status' => PostStatus::Harvested,
+        'status' => PostStatus::Ready,
         'scheduled_date' => now()->addDays(5)->toDateString(),
         'time_slot' => PostTimeSlot::Afternoon,
     ], $overrides));

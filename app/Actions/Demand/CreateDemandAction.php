@@ -21,7 +21,7 @@ final class CreateDemandAction
                 'user_id' => $dealer->user_id,
                 'vegetable_id' => $validated['vegetable_id'],
                 'type' => PostType::Demand,
-                'status' => PostStatus::Harvested,
+                'status' => PostStatus::Ready,
                 'scheduled_date' => $validated['scheduled_date'],
                 'time_slot' => $validated['time_slot'],
             ]);

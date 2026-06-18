@@ -94,7 +94,7 @@ class PostSeeder extends Seeder
                 ];
             }
 
-            // Harvested: 10–20 per farmer
+            // Ready: 10–20 per farmer
             for ($i = 0; $i < fake()->numberBetween(10, 20); $i++) {
                 $scheduledDate = Carbon::parse(
                     fake()->boolean(55)
@@ -107,7 +107,7 @@ class PostSeeder extends Seeder
                     'user_id' => $farmer->user_id,
                     'vegetable_id' => $this->randomVegetableId(),
                     'type' => PostType::Supply->value,
-                    'status' => PostStatus::Harvested->value,
+                    'status' => PostStatus::Ready->value,
                     'expected_harvest_month' => $scheduledDate->copy()->subMonth()->format('Y-m'),
                     'estimated_total_weight' => fake()->randomFloat(2, 100, 2000),
                     'scheduled_date' => $scheduledDate->toDateString(),
@@ -142,7 +142,7 @@ class PostSeeder extends Seeder
                     'user_id' => $dealer->user_id,
                     'vegetable_id' => $this->randomVegetableId(),
                     'type' => PostType::Demand->value,
-                    'status' => PostStatus::Harvested->value,
+                    'status' => PostStatus::Ready->value,
                     'expected_harvest_month' => null,
                     'estimated_total_weight' => null,
                     'scheduled_date' => $scheduledDate->toDateString(),

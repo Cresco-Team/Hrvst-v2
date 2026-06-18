@@ -36,7 +36,7 @@ class PostPolicy
             PostType::Supply => $user->id === $post->user_id
                 && $post->status === PostStatus::Growing,
             PostType::Demand => $user->id === $post->user_id
-                && $post->status === PostStatus::Harvested,
+                && $post->status === PostStatus::Ready,
         };
     }
 
@@ -51,9 +51,9 @@ class PostPolicy
     {
         return match ($post->type) {
             PostType::Supply => $user->id === $post->user_id
-                && in_array($post->status, [PostStatus::Harvested], true),
+                && in_array($post->status, [PostStatus::Ready], true),
             PostType::Demand => $user->id === $post->user_id
-                && $post->status !== PostStatus::Harvested,
+                && $post->status !== PostStatus::Ready,
         };
     }
 

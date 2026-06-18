@@ -71,10 +71,10 @@ class VarietyService
                 $q->with(['latestPrice', 'lastTwoPrices'])
                     ->withCount([
                         'postItems as supply_count' => fn (Builder $q) => $q->ongoing()->whereHas(
-                            'post', fn (Builder $p) => $p->supply()->harvested()
+                            'post', fn (Builder $p) => $p->supply()->ready()
                         ),
                         'postItems as demand_count' => fn (Builder $q) => $q->ongoing()->whereHas(
-                            'post', fn (Builder $p) => $p->demand()->harvested()
+                            'post', fn (Builder $p) => $p->demand()->ready()
                         ),
                     ])
                     ->orderBy('name');
@@ -131,10 +131,10 @@ class VarietyService
         return Variety::with(['vegetable.category', 'latestPrice', 'lastTwoPrices'])
             ->withCount([
                 'postItems as supply_count' => fn (Builder $q) => $q->ongoing()->whereHas(
-                    'post', fn (Builder $p) => $p->supply()->harvested()
+                    'post', fn (Builder $p) => $p->supply()->ready()
                 ),
                 'postItems as demand_count' => fn (Builder $q) => $q->ongoing()->whereHas(
-                    'post', fn (Builder $p) => $p->demand()->harvested()
+                    'post', fn (Builder $p) => $p->demand()->ready()
                 ),
             ])
             ->when($search, fn (Builder $q) => $q
@@ -155,7 +155,7 @@ class VarietyService
         $counts = $variety->postItems()
             ->ongoing()
             ->join('posts', 'posts.id', '=', 'post_items.post_id')
-            ->where('posts.status', PostStatus::Harvested->value)
+            ->where('posts.status', PostStatus::ready->value)
             ->whereNull('posts.deleted_at')
             ->selectRaw("
             SUM(CASE WHEN posts.type = 'supply' THEN 1 ELSE 0 END) as supply_count,
@@ -215,7 +215,7 @@ class VarietyService
             ->join('municipalities', 'farmer_profiles.municipality_id', '=', 'municipalities.id')
             ->where('post_items.variety_id', $varietyId)
             ->where('posts.type', PostType::Supply->value)
-            ->where('posts.status', PostStatus::Harvested->value)
+            ->where('posts.status', PostStatus::ready->value)
             ->where('post_items.status', PostItemStatus::Ongoing->value)
             ->whereNull('posts.deleted_at')
             ->whereNull('post_items.deleted_at')
