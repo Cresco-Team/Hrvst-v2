@@ -31,6 +31,7 @@ import type {
     VarietyOptionsByVegetable,
     VegetableOptionsByCategory,
 } from '@/types'
+import PlantItem from '@/components/features/farmer/PlantItem.vue'
 
 const props = defineProps<FarmerSuppliesProps>()
 
@@ -314,17 +315,14 @@ const breadcrumbs: BreadcrumbItem[] = [
                         :icon="Sprout"
                     />
 
-                    <div
-                        v-else
-                        class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
-                    >
-                        <MyPostCard
-                            v-for="post in growingPosts!.data"
-                            :key="post.id"
-                            :post="post"
-                            @edit="openEdit(post)"
-                            @harvest="openHarvest(post)"
-                            @delete="openDeletePost(post)"
+                    <div v-else class="grid gap-4 sm:grid-cols-3">
+                        <PlantItem
+                            v-for="plant in growingPosts!.data"
+                            :key="plant.id"
+                            :plant="plant"
+                            @edit="openEdit(plant)"
+                            @harvest="openHarvest(plant)"
+                            @delete="openDeletePost(plant)"
                         />
                     </div>
 
