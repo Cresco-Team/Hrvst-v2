@@ -5,10 +5,9 @@ import { computed, ref } from 'vue'
 import ConfirmationDialog from '@/components/dialogs/ConfirmationDialog.vue'
 import EmptyState from '@/components/EmptyState.vue'
 import HarvestForm from '@/components/features/farmer/HarvestForm.vue'
-import SupplyForm from '@/components/features/farmer/SupplyForm.vue'
+import PlantForm from '@/components/features/farmer/PlantForm.vue'
 import Heading from '@/components/Heading.vue'
 import LargeCard from '@/components/shared/cards/LargeCard.vue'
-import MyPostCard from '@/components/shared/cards/MyPostCard.vue'
 import PostItemCard from '@/components/shared/cards/PostItemCard.vue'
 import PostItemEditDialog from '@/components/shared/dialogs/PostItemEditDialog.vue'
 import { Button } from '@/components/ui/button'
@@ -209,52 +208,41 @@ const breadcrumbs: BreadcrumbItem[] = [
 </script>
 
 <template>
-    <Head title="My Supplies" />
+    <Head title="Supplies" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex h-full flex-col gap-6 p-4 lg:p-6">
             <div class="flex items-end justify-between">
                 <Heading
-                    title="My Supplies"
-                    description="Track growing crops and schedule deliveries."
+                    title="My Plants & Supplies"
+                    description="Track growing plants and schedule supply deliveries."
                 />
                 <Button class="gap-2" @click="openCreate">
                     <Plus class="size-4" />
-                    New Supply
+                    New Plant
                 </Button>
             </div>
 
             <Deferred data="summary">
                 <template #fallback>
-                    <div class="grid grid-cols-2 gap-4 sm:grid-cols-4">
+                    <div class="grid gap-44 sm:grid-cols-2">
                         <Skeleton
-                            v-for="i in 4"
+                            v-for="i in 2"
                             :key="i"
                             class="h-24 rounded-lg"
                         />
                     </div>
                 </template>
-                <div class="grid grid-cols-2 gap-4 sm:grid-cols-4">
+                <div class="grid gap-4 sm:grid-cols-2">
                     <LargeCard
-                        title="Growing"
+                        title="Total Plants"
                         :value="summary?.total_growing"
-                        subtext="still not scheduled this month"
+                        subtext="still growing"
                     />
                     <LargeCard
-                        title="Ongoing"
+                        title="Scheduled Supplies"
                         :value="summary?.total_ongoing"
                         subtext="scheduled this month"
-                    />
-                    <LargeCard
-                        title="Fulfilled"
-                        :value="summary?.total_fulfilled"
-                        subtext="schedule is complete"
-                        :icon="CircleCheckBig"
-                    />
-                    <LargeCard
-                        title="Unsettled"
-                        :value="summary?.total_unsettled"
-                        subtext="schedule is unsettled"
                     />
                 </div>
             </Deferred>
@@ -266,10 +254,8 @@ const breadcrumbs: BreadcrumbItem[] = [
                     @update:model-value="handleMainTabChange"
                 >
                     <TabsList>
-                        <TabsTrigger value="growing">Growing</TabsTrigger>
-                        <TabsTrigger value="ready"
-                            >Ready for Schedule</TabsTrigger
-                        >
+                        <TabsTrigger value="growing">Plants</TabsTrigger>
+                        <TabsTrigger value="ready">Supplies</TabsTrigger>
                     </TabsList>
                 </Tabs>
 
@@ -447,7 +433,7 @@ const breadcrumbs: BreadcrumbItem[] = [
     </AppLayout>
 
     <!-- Growing post forms -->
-    <SupplyForm
+    <PlantForm
         :open="formOpen"
         :supply="activeSupply"
         :vegetable-options="
