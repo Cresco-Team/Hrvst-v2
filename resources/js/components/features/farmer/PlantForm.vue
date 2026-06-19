@@ -73,14 +73,14 @@ watch(
 <template>
     <DialogForm
         :open="open"
-        :title="isEditMode ? 'Edit Supply' : 'New Supply'"
+        :title="isEditMode ? 'Edit Plant' : 'New Plant'"
         :description="
             isEditMode
-                ? 'Update your supply details.'
+                ? 'Update your plant details.'
                 : 'Register an upcoming harvest.'
         "
         :form="form"
-        :submit-label="isEditMode ? 'Update Supply' : 'Register Supply'"
+        :submit-label="isEditMode ? 'Update Plant' : 'Register Plant'"
         max-width="2xl"
         @update:open="emit('update:open', $event)"
         @submit="handleSubmit"
@@ -160,7 +160,7 @@ watch(
                     {{ form.errors.expected_harvest_month }}
                 </p>
                 <p v-else class="text-xs text-muted-foreground">
-                    Which month do you plan to harvest?
+                    Which month do you plan to schedule delivery?
                 </p>
             </div>
 
