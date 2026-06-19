@@ -331,7 +331,8 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => [
                                             class="flex h-24 items-center justify-center text-sm text-muted-foreground"
                                         >
                                             {{ growingCount }} crop(s)
-                                            registered, not yet harvested.
+                                            registered, not yet ready for
+                                            harvest.
                                         </div>
                                     </TabsContent>
                                 </Tabs>

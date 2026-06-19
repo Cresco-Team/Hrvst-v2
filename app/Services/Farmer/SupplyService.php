@@ -34,7 +34,7 @@ class SupplyService
             ->paginate($perPage);
     }
 
-    public function paginatedHarvested(int $userId, PostItemStatus $status, int $perPage = 20): LengthAwarePaginator
+    public function paginatedReady(int $userId, PostItemStatus $status, int $perPage = 20): LengthAwarePaginator
     {
         return PostItem::query()
             ->select('post_items.*')
@@ -43,7 +43,7 @@ class SupplyService
                 'variety.vegetable.category',
                 'post',
             ])
-            ->whereHas('post', fn (Builder $q) => $q->supply()->harvested()->where('user_id', $userId))
+            ->whereHas('post', fn (Builder $q) => $q->supply()->ready()->where('user_id', $userId))
             ->where('post_items.status', $status)
             ->whereNull('post_items.deleted_at')
             ->orderBy('posts.scheduled_date', 'desc')

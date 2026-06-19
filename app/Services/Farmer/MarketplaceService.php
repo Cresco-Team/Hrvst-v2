@@ -19,7 +19,7 @@ class MarketplaceService
                 'variety.vegetable.category',
             ])
             ->ongoing()
-            ->whereHas('post', fn (Builder $q) => $q->demand()->harvested())
+            ->whereHas('post', fn (Builder $q) => $q->demand()->ready())
             ->whereNull('post_items.deleted_at')
             ->when(! empty($filters['search']), fn (Builder $q) => $q->whereHas(
                 'variety', fn (Builder $q) => $q
@@ -40,7 +40,7 @@ class MarketplaceService
     {
         return Category::whereHas('vegetables.varieties.postItems', fn (Builder $q) => $q
             ->where('status', PostItemStatus::Ongoing)
-            ->whereHas('post', fn (Builder $q) => $q->demand()->harvested())
+            ->whereHas('post', fn (Builder $q) => $q->demand()->ready())
         )
             ->orderBy('name')
             ->get()

@@ -53,9 +53,9 @@ class SupplyController extends Controller
                     $this->supplyService->paginatedGrowing(userId: $userId)
                 ))
                 : null,
-            'harvestedItems' => ! $isGrowing
+            'readyForHarvestPosts' => ! $isGrowing
                 ? Inertia::defer(fn () => PostItemResource::collection(
-                    $this->supplyService->paginatedHarvested(userId: $userId, status: $postItemStatus)
+                    $this->supplyService->paginatedReady(userId: $userId, status: $postItemStatus)
                 ))
                 : null,
         ]);

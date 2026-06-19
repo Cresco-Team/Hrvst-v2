@@ -13,7 +13,7 @@ final class UpdateDemandAction
 {
     public function handle(Post $post, array $validated): Post
     {
-        if ($post->status !== PostStatus::Harvested) {
+        if ($post->status !== PostStatus::Ready) {
             throw new \LogicException('Only active demand posts can be updated.');
         }
 

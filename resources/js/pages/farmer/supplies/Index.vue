@@ -141,9 +141,9 @@ function handleDeleteItem() {
 
 // ─── Tabs + pagination ────────────────────────────────────────────────────────
 
-const DEFAULT_HARVESTED_STATUS = 'ongoing'
+const DEFAULT_READY_FOR_HARVEST_STATUS = 'ongoing'
 
-const mainTab = computed(() => (isGrowing.value ? 'growing' : 'harvested'))
+const mainTab = computed(() => (isGrowing.value ? 'growing' : 'ready'))
 
 const subTab = computed(() => props.filters.status)
 
@@ -152,13 +152,20 @@ function handleMainTabChange(value: string | number) {
         index({
             query: {
                 status:
-                    value === 'growing' ? undefined : DEFAULT_HARVESTED_STATUS,
+                    value === 'growing'
+                        ? undefined
+                        : DEFAULT_READY_FOR_HARVEST_STATUS,
             },
         }).url,
         {
             preserveState: true,
             preserveScroll: true,
-            only: ['growingPosts', 'harvestedItems', 'filters', 'summary'],
+            only: [
+                'growingPosts',
+                'readyForHarvestPosts',
+                'filters',
+                'summary',
+            ],
         },
     )
 }
@@ -167,7 +174,7 @@ function handleSubTabChange(value: string | number) {
     router.visit(index({ query: { status: value } }).url, {
         preserveState: true,
         preserveScroll: true,
-        only: ['harvestedItems', 'filters'],
+        only: ['readyForHarvestPosts', 'filters'],
     })
 }
 
@@ -175,7 +182,7 @@ function handlePageChange(page: number) {
     router.visit(farmer.supplies.index().url, {
         data: { page, status: props.filters.status },
         preserveScroll: true,
-        only: [isGrowing.value ? 'growingPosts' : 'harvestedItems'],
+        only: [isGrowing.value ? 'growingPosts' : 'readyForHarvestPosts'],
     })
 }
 
@@ -230,28 +237,28 @@ const breadcrumbs: BreadcrumbItem[] = [
                     <LargeCard
                         title="Growing"
                         :value="summary?.total_growing"
-                        subtext="pre-harvest"
+                        subtext="still not scheduled this month"
                     />
                     <LargeCard
                         title="Ongoing"
                         :value="summary?.total_ongoing"
-                        subtext="scheduled"
+                        subtext="scheduled this month"
                     />
                     <LargeCard
                         title="Fulfilled"
                         :value="summary?.total_fulfilled"
-                        subtext="completed"
+                        subtext="schedule is complete"
                         :icon="CircleCheckBig"
                     />
                     <LargeCard
                         title="Unsettled"
                         :value="summary?.total_unsettled"
-                        subtext="closed"
+                        subtext="schedule is unsettled"
                     />
                 </div>
             </Deferred>
 
-            <!-- ── Tier 1: Post status (Growing vs Harvested) ────────────────── -->
+            <!-- ── Tier 1: Post status (Growing vs Ready for Harvest) ────────────────── -->
             <div class="flex flex-col gap-3">
                 <Tabs
                     :model-value="mainTab"
@@ -259,13 +266,13 @@ const breadcrumbs: BreadcrumbItem[] = [
                 >
                     <TabsList>
                         <TabsTrigger value="growing">Growing</TabsTrigger>
-                        <TabsTrigger value="harvested"
+                        <TabsTrigger value="ready"
                             >Ready for Schedule</TabsTrigger
                         >
                     </TabsList>
                 </Tabs>
 
-                <!-- ── Tier 2: PostItem status (only once harvested) ──────────── -->
+                <!-- ── Tier 2: PostItem status (only once ready for harvest) ──────────── -->
                 <Tabs
                     v-if="!isGrowing"
                     :model-value="subTab"
@@ -303,7 +310,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                     <EmptyState
                         v-if="growingPosts?.data.length === 0"
                         title="No Growing Supplies"
-                        description="Register an upcoming harvest to get started."
+                        description="Register an upcoming schedule to get started."
                         :icon="Sprout"
                     />
 
@@ -360,7 +367,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 
             <!-- ── Ongoing / Unsettled / Fulfilled ────────────────────────────── -->
             <template v-else>
-                <Deferred data="harvestedItems">
+                <Deferred data="readyForHarvestPosts">
                     <template #fallback>
                         <div
                             class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
@@ -374,7 +381,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                     </template>
 
                     <EmptyState
-                        v-if="harvestedItems?.data.length === 0"
+                        v-if="readyForHarvestPosts?.data.length === 0"
                         title="No Items"
                         description="Nothing here yet."
                         :icon="Sprout"
@@ -385,7 +392,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                         class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
                     >
                         <PostItemCard
-                            v-for="item in harvestedItems!.data"
+                            v-for="item in readyForHarvestPosts!.data"
                             :key="item.id"
                             :item="item"
                             mode="supply"
@@ -399,35 +406,38 @@ const breadcrumbs: BreadcrumbItem[] = [
 
                     <div
                         v-if="
-                            harvestedItems && harvestedItems.meta.last_page > 1
+                            readyForHarvestPosts &&
+                            readyForHarvestPosts.meta.last_page > 1
                         "
                         class="flex items-center justify-between border-t pt-4"
                     >
                         <Button
                             variant="outline"
                             size="sm"
-                            :disabled="harvestedItems.meta.current_page === 1"
+                            :disabled="
+                                readyForHarvestPosts.meta.current_page === 1
+                            "
                             @click="
                                 handlePageChange(
-                                    harvestedItems.meta.current_page - 1,
+                                    readyForHarvestPosts.meta.current_page - 1,
                                 )
                             "
                             >Previous</Button
                         >
                         <span class="text-sm text-muted-foreground">
-                            Page {{ harvestedItems.meta.current_page }} of
-                            {{ harvestedItems.meta.last_page }}
+                            Page {{ readyForHarvestPosts.meta.current_page }} of
+                            {{ readyForHarvestPosts.meta.last_page }}
                         </span>
                         <Button
                             variant="outline"
                             size="sm"
                             :disabled="
-                                harvestedItems.meta.current_page ===
-                                harvestedItems.meta.last_page
+                                readyForHarvestPosts.meta.current_page ===
+                                readyForHarvestPosts.meta.last_page
                             "
                             @click="
                                 handlePageChange(
-                                    harvestedItems.meta.current_page + 1,
+                                    readyForHarvestPosts.meta.current_page + 1,
                                 )
                             "
                             >Next</Button

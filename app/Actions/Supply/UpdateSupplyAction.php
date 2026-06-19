@@ -15,7 +15,7 @@ final class UpdateSupplyAction
         }
 
         $post->update(array_intersect_key($validated, array_flip([
-            'vegetable_id', 'target_month', 'estimated_total_weight',
+            'vegetable_id', 'expected_harvest_month', 'estimated_total_weight',
         ])));
 
         if ($image !== null) {

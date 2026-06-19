@@ -5,5 +5,5 @@ namespace App\Enums;
 enum PostStatus: string
 {
     case Growing = 'growing';
-    case Harvested = 'harvested';
+    case Ready = 'ready for harvest';
 }

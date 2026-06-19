@@ -20,7 +20,7 @@ class DealerDashboardService
             ->ongoing()
             ->whereHas('post', fn (Builder $q) => $q
                 ->demand()
-                ->harvested()
+                ->ready()
                 ->where('user_id', $profile->user_id)
                 ->whereBetween('scheduled_date', [now()->startOfDay(), now()->addDays(3)->endOfDay()])
             )
@@ -38,7 +38,7 @@ class DealerDashboardService
             ->ongoing()
             ->whereHas('post', fn (Builder $q) => $q
                 ->demand()
-                ->harvested()
+                ->ready()
                 ->where('user_id', $profile->user_id)
             )
             ->get();

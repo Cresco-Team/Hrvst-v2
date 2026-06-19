@@ -61,7 +61,7 @@ describe('CreateSupply', function () {
         actingAs($farmer)
             ->post(route('farmer.supplies.store'), [
                 'vegetable_id' => $vegetable->id,
-                'target_month' => now()->format('Y-m'),
+                'expected_harvest_month' => now()->format('Y-m'),
                 'estimated_total_weight' => 500,
             ])
             ->assertRedirect(route('farmer.supplies.index'));
@@ -71,23 +71,23 @@ describe('CreateSupply', function () {
             ->and($post->status)->toBe(PostStatus::Growing)
             ->and($post->type)->toBe(PostType::Supply)
             ->and($post->vegetable_id)->toBe($vegetable->id)
-            ->and($post->target_month)->toBe(now()->format('Y-m'))
+            ->and($post->expected_harvest_month)->toBe(now()->format('Y-m'))
             ->and((float) $post->estimated_total_weight)->toBe(500.0)
             ->and($post->scheduled_date)->toBeNull()
             ->and($post->postItems)->toHaveCount(0);
     });
 
-    it('rejects a past target_month', function () {
+    it('rejects a past expected_harvest_month', function () {
         $farmer = farmerWithProfile();
         $vegetable = makeVegetable();
 
         actingAs($farmer)
             ->post(route('farmer.supplies.store'), [
                 'vegetable_id' => $vegetable->id,
-                'target_month' => now()->subMonth()->format('Y-m'),
+                'expected_harvest_month' => now()->subMonth()->format('Y-m'),
                 'estimated_total_weight' => 100,
             ])
-            ->assertSessionHasErrors('target_month');
+            ->assertSessionHasErrors('expected_harvest_month');
     });
 
     it('rejects missing required fields', function () {
@@ -95,7 +95,7 @@ describe('CreateSupply', function () {
 
         actingAs($farmer)
             ->post(route('farmer.supplies.store'), [])
-            ->assertSessionHasErrors(['vegetable_id', 'target_month', 'estimated_total_weight']);
+            ->assertSessionHasErrors(['vegetable_id', 'expected_harvest_month', 'estimated_total_weight']);
     });
 
     it('non-farmer cannot create a supply', function () {
@@ -106,7 +106,7 @@ describe('CreateSupply', function () {
         actingAs($dealer)
             ->post(route('farmer.supplies.store'), [
                 'vegetable_id' => $vegetable->id,
-                'target_month' => now()->format('Y-m'),
+                'expected_harvest_month' => now()->format('Y-m'),
                 'estimated_total_weight' => 100,
             ])
             ->assertForbidden();
@@ -120,7 +120,7 @@ describe('CreateSupply', function () {
         actingAs($user)
             ->post(route('farmer.supplies.store'), [
                 'vegetable_id' => $vegetable->id,
-                'target_month' => now()->format('Y-m'),
+                'expected_harvest_month' => now()->format('Y-m'),
                 'estimated_total_weight' => 100,
             ])
             ->assertForbidden();
@@ -138,7 +138,7 @@ describe('UpdateSupply', function () {
         $post = Post::factory()->for($farmer)->for($vegetable)->create([
             'type' => PostType::Supply,
             'status' => PostStatus::Growing,
-            'target_month' => now()->format('Y-m'),
+            'expected_harvest_month' => now()->format('Y-m'),
             'estimated_total_weight' => 100,
         ]);
 
@@ -151,12 +151,12 @@ describe('UpdateSupply', function () {
         expect($post->fresh()->estimated_total_weight)->toBe('350.00');
     });
 
-    it('farmer cannot update a harvested supply', function () {
+    it('farmer cannot update a ready for harvest supply', function () {
         $farmer = farmerWithProfile();
         $vegetable = makeVegetable();
         $post = Post::factory()->for($farmer)->for($vegetable)->create([
             'type' => PostType::Supply,
-            'status' => PostStatus::Harvested,
+            'status' => PostStatus::Ready,
             'scheduled_date' => now()->addDay(),
         ]);
 
@@ -189,7 +189,7 @@ describe('UpdateSupply', function () {
 
 describe('HarvestSupply', function () {
 
-    it('farmer can harvest a growing supply, creating items and transitioning to harvested', function () {
+    it('farmer can harvest a growing supply, creating items and transitioning to a ready to harvest', function () {
         $farmer = farmerWithProfile();
         $vegetable = makeVegetable();
         $variety1 = makeVariety($vegetable);
@@ -216,7 +216,7 @@ describe('HarvestSupply', function () {
 
         $post->refresh();
 
-        expect($post->status)->toBe(PostStatus::Harvested)
+        expect($post->status)->toBe(PostStatus::Ready)
             ->and($post->scheduled_date->toDateString())->toBe($scheduledDate)
             ->and($post->time_slot->value)->toBe('morning')
             ->and($post->postItems)->toHaveCount(2);
@@ -247,13 +247,13 @@ describe('HarvestSupply', function () {
             ->and($post->fresh()->status)->toBe(PostStatus::Growing);
     });
 
-    it('cannot harvest a supply that is already harvested', function () {
+    it('cannot re-schedule a supply that is already ready for harvest', function () {
         $farmer = farmerWithProfile();
         $vegetable = makeVegetable();
         $variety = makeVariety($vegetable);
         $post = Post::factory()->for($farmer)->for($vegetable)->create([
             'type' => PostType::Supply,
-            'status' => PostStatus::Harvested,
+            'status' => PostStatus::Ready,
             'scheduled_date' => now()->addDay(),
         ]);
 
@@ -347,12 +347,12 @@ describe('SupplyLifecycle', function () {
         expect(Post::find($post->id))->toBeNull();
     });
 
-    it('farmer can delete a harvested supply', function () {
+    it('farmer can delete a ready to harvest supply', function () {
         $farmer = farmerWithProfile();
         $vegetable = makeVegetable();
         $post = Post::factory()->for($farmer)->for($vegetable)->create([
             'type' => PostType::Supply,
-            'status' => PostStatus::Harvested,
+            'status' => PostStatus::Ready,
         ]);
 
         actingAs($farmer)
@@ -368,7 +368,7 @@ describe('SupplyLifecycle', function () {
         $variety = makeVariety($vegetable);
         $post = Post::factory()->for($farmer)->for($vegetable)->create([
             'type' => PostType::Supply,
-            'status' => PostStatus::Harvested,
+            'status' => PostStatus::Ready,
         ]);
         $item = PostItem::factory()->for($post)->for($variety)->create([
             'status' => PostItemStatus::Fulfilled,
@@ -387,7 +387,7 @@ describe('SupplyLifecycle', function () {
         $variety = makeVariety($vegetable);
         $post = Post::factory()->for($farmer)->for($vegetable)->create([
             'type' => PostType::Supply,
-            'status' => PostStatus::Harvested,
+            'status' => PostStatus::Ready,
         ]);
         $item = PostItem::factory()->for($post)->for($variety)->create([
             'status' => PostItemStatus::Unsettled,

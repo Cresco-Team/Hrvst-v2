@@ -25,7 +25,7 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
     'vegetable_id',
     'type',
     'status',
-    'target_month',
+    'expected_harvest_month',
     'scheduled_date',
     'time_slot',
     'estimated_total_weight',
@@ -42,7 +42,6 @@ class Post extends Model implements HasMedia
             'type' => PostType::class,
             'status' => PostStatus::class,
             'time_slot' => PostTimeSlot::class,
-            // target_month stored as varchar(7) 'YYYY-MM' — no date cast
             'scheduled_date' => 'date',
             'estimated_total_weight' => 'decimal:2',
         ];
@@ -106,16 +105,16 @@ class Post extends Model implements HasMedia
         return $query->where('status', PostStatus::Growing);
     }
 
-    public function scopeHarvested(Builder $query): Builder
+    public function scopeReady(Builder $query): Builder
     {
-        return $query->where('status', PostStatus::Harvested);
+        return $query->where('status', PostStatus::Ready);
     }
 
     /* ---------- lifecycle ---------- */
 
-    public function markAsHarvested(string $scheduledDate): void
+    public function markAsReady(string $scheduledDate): void
     {
-        $this->status = PostStatus::Harvested;
+        $this->status = PostStatus::Ready;
         $this->scheduled_date = $scheduledDate;
         $this->save();
     }

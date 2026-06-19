@@ -32,7 +32,7 @@ class FarmerDashboardService
     public function expiringSupplies(int $userId): Collection
     {
         return Post::supply()
-            ->harvested()
+            ->ready()
             ->where('user_id', $userId)
             ->whereBetween('scheduled_date', [now()->startOfDay(), now()->addDays(3)->endOfDay()])
             ->with(['vegetable.category', 'media', 'postItems.variety'])

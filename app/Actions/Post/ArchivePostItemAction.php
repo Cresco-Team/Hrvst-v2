@@ -13,7 +13,7 @@ final class ArchivePostItemAction
 
         PostItem::ongoing()
             ->whereHas('post', fn (Builder $q) => $q
-                ->harvested()
+                ->ready()
                 ->whereNotNull('scheduled_date')
                 ->where('scheduled_date', '<', yesterday())
             )

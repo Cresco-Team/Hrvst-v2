@@ -20,21 +20,10 @@ use Illuminate\Support\Facades\DB;
 
 class PostSeeder extends Seeder
 {
-    /** @var array<int> */
     private array $varietyIds = [];
 
-    /**
-     * Latest price keyed by variety_id for O(1) flag resolution.
-     *
-     * @var array<int, object{price_min: string, price_max: string}>
-     */
     private array $latestPrices = [];
 
-    /**
-     * Variety IDs grouped by vegetable_id.
-     *
-     * @var array<int, array<int>>
-     */
     private array $varietiesByVegetable = [];
 
     /** @var array<int> */
@@ -95,7 +84,7 @@ class PostSeeder extends Seeder
                     'vegetable_id' => $this->randomVegetableId(),
                     'type' => PostType::Supply->value,
                     'status' => PostStatus::Growing->value,
-                    'target_month' => now()->addMonths(fake()->numberBetween(0, 2))->format('Y-m'),
+                    'expected_harvest_month' => now()->addMonths(fake()->numberBetween(0, 2))->format('Y-m'),
                     'estimated_total_weight' => fake()->randomFloat(2, 200, 3000),
                     'scheduled_date' => null,
                     'time_slot' => null,
@@ -105,7 +94,7 @@ class PostSeeder extends Seeder
                 ];
             }
 
-            // Harvested: 10–20 per farmer
+            // Ready: 10–20 per farmer
             for ($i = 0; $i < fake()->numberBetween(10, 20); $i++) {
                 $scheduledDate = Carbon::parse(
                     fake()->boolean(55)
@@ -118,8 +107,8 @@ class PostSeeder extends Seeder
                     'user_id' => $farmer->user_id,
                     'vegetable_id' => $this->randomVegetableId(),
                     'type' => PostType::Supply->value,
-                    'status' => PostStatus::Harvested->value,
-                    'target_month' => $scheduledDate->copy()->subMonth()->format('Y-m'),
+                    'status' => PostStatus::Ready->value,
+                    'expected_harvest_month' => $scheduledDate->copy()->subMonth()->format('Y-m'),
                     'estimated_total_weight' => fake()->randomFloat(2, 100, 2000),
                     'scheduled_date' => $scheduledDate->toDateString(),
                     'time_slot' => fake()->randomElement(PostTimeSlot::cases())->value,
@@ -153,8 +142,8 @@ class PostSeeder extends Seeder
                     'user_id' => $dealer->user_id,
                     'vegetable_id' => $this->randomVegetableId(),
                     'type' => PostType::Demand->value,
-                    'status' => PostStatus::Harvested->value,
-                    'target_month' => null,
+                    'status' => PostStatus::Ready->value,
+                    'expected_harvest_month' => null,
                     'estimated_total_weight' => null,
                     'scheduled_date' => $scheduledDate->toDateString(),
                     'time_slot' => fake()->boolean(70)
@@ -170,11 +159,6 @@ class PostSeeder extends Seeder
         $this->bulkInsertWithItems($postRows);
     }
 
-    /**
-     * Inserts a batch of post rows then bulk-inserts their items.
-     *
-     * @param  array<int, array<string, mixed>>  $postRows
-     */
     private function bulkInsertWithItems(array $postRows): void
     {
         if (empty($postRows)) {
@@ -185,7 +169,6 @@ class PostSeeder extends Seeder
             DB::table('posts')->insert($chunk);
         }
 
-        // Fetch posts with no items (the ones we just inserted)
         $posts = Post::whereDoesntHave('postItems')
             ->get(['id', 'vegetable_id', 'type', 'status', 'scheduled_date', 'created_at']);
 
@@ -252,9 +235,6 @@ class PostSeeder extends Seeder
         return $this->vegetableIds[array_rand($this->vegetableIds)];
     }
 
-    /**
-     * @return array<int>
-     */
     private function randomVarietyIds(int $vegetableId, int $count): array
     {
         $pool = $this->varietiesByVegetable[$vegetableId] ?? $this->varietyIds;
