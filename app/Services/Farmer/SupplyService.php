@@ -34,19 +34,18 @@ class SupplyService
             ->paginate($perPage);
     }
 
-    public function paginatedReady(int $userId, PostItemStatus $status, int $perPage = 20): LengthAwarePaginator
+    public function paginatedSupply(int $userId, PostItemStatus $status = PostItemStatus::Ongoing, int $perPage = 20): LengthAwarePaginator
     {
-        return PostItem::query()
-            ->select('post_items.*')
-            ->join('posts', 'posts.id', '=', 'post_items.post_id')
-            ->with([
-                'variety.vegetable.category',
-                'post',
-            ])
-            ->whereHas('post', fn (Builder $q) => $q->supply()->ready()->where('user_id', $userId))
-            ->where('post_items.status', $status)
-            ->whereNull('post_items.deleted_at')
-            ->orderBy('posts.scheduled_date', 'desc')
+        return Post::supply()
+            ->where('user_id', $userId)
+            ->ready()
+            ->whereHas('postItems', function ($query) use ($status) {
+                $query->where('status', $status);
+            })
+            ->with(['media', 'vegetable.category', 'postItems' => function ($query) use ($status) {
+                $query->where('status', $status)->with('variety');
+            }])
+            ->orderBy('created_at', 'asc')
             ->paginate($perPage);
     }
 
