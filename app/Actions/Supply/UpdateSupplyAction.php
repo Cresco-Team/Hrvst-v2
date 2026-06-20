@@ -2,26 +2,47 @@
 
 namespace App\Actions\Supply;
 
-use App\Enums\PostStatus;
 use App\Models\Marketplace\Post;
-use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Arr;
 
 final class UpdateSupplyAction
 {
-    public function handle(Post $post, array $validated, ?UploadedFile $image = null): Post
+    public function handle(Post $post, array $validated): Post
     {
-        if ($post->status !== PostStatus::Growing) {
-            throw new \LogicException('Only growing supplies can be updated via this action.');
+        $post->update(Arr::only($validated, [
+            'vegetable_id',
+            'expected_harvest_month',
+            'estimated_total_weight',
+            'scheduled_date',
+            'time_slot',
+        ]));
+
+        if (array_key_exists('items', $validated)) {
+            $this->syncItems($post, $validated['items']);
         }
 
-        $post->update(array_intersect_key($validated, array_flip([
-            'vegetable_id', 'expected_harvest_month', 'estimated_total_weight',
-        ])));
+        return $post->fresh(['vegetable', 'postItems.variety', 'media']);
+    }
 
-        if ($image !== null) {
-            $post->addMedia($image)->toMediaCollection('post_image');
+    private function syncItems(Post $post, array $items): void
+    {
+        $incoming = collect($items);
+        $submittedIds = $incoming->pluck('id')->filter()->values()->all();
+
+        if (empty($submittedIds)) {
+            $post->postItems()->delete();
+        } else {
+            $post->postItems()->whereNotIn('id', $submittedIds)->delete();
         }
 
-        return $post->fresh(['vegetable', 'media']);
+        foreach ($incoming as $item) {
+            $data = Arr::only($item, ['variety_id', 'quantity_kg']);
+
+            if (! empty($item['id'])) {
+                $post->postItems()->where('id', $item['id'])->update($data);
+            } else {
+                $post->postItems()->create($data);
+            }
+        }
     }
 }
