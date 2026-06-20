@@ -6,14 +6,13 @@ use App\Actions\Supply\CreateSupplyAction;
 use App\Actions\Supply\DeleteSupplyAction;
 use App\Actions\Supply\HarvestSupplyAction;
 use App\Actions\Supply\UpdateSupplyAction;
+use App\Data\Post\FarmerSupplyData;
 use App\Enums\PostItemStatus;
 use App\Enums\PostType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Farmer\HarvestSupplyRequest;
 use App\Http\Requests\Farmer\StoreSupplyRequest;
 use App\Http\Requests\Farmer\UpdateSupplyRequest;
-use App\Http\Resources\Marketplace\FarmerSupplyResource;
-use App\Http\Resources\Marketplace\PostItemResource;
 use App\Models\Marketplace\Post;
 use App\Services\Farmer\SupplyService;
 use Illuminate\Http\RedirectResponse;
@@ -49,13 +48,13 @@ class SupplyController extends Controller
                 : $this->supplyService->varietyOptions(),
 
             'growingPosts' => $isGrowing
-                ? Inertia::defer(fn () => FarmerSupplyResource::collection(
+                ? Inertia::defer(fn () => FarmerSupplyData::collect(
                     $this->supplyService->paginatedGrowing(userId: $userId)
                 ))
                 : null,
-            'readyForHarvestPosts' => ! $isGrowing
-                ? Inertia::defer(fn () => PostItemResource::collection(
-                    $this->supplyService->paginatedReady(userId: $userId, status: $postItemStatus)
+            'supplies' => ! $isGrowing
+                ? Inertia::defer(fn () => FarmerSupplyData::collect(
+                    $this->supplyService->paginatedSupply(userId: $userId, status: $postItemStatus)
                 ))
                 : null,
         ]);
@@ -70,7 +69,7 @@ class SupplyController extends Controller
             validated: $request->validated(),
         );
 
-        return redirect()->route('farmer.supplies.index')
+        return back(fallback: route('farmer.supplies.index'))
             ->with('flash', ['type' => 'success', 'message' => 'Supply posted successfully!']);
     }
 
@@ -83,7 +82,7 @@ class SupplyController extends Controller
             validated: $request->validated(),
         );
 
-        return redirect()->route('farmer.supplies.index')
+        return back(fallback: route('farmer.supplies.index'))
             ->with('flash', ['type' => 'success', 'message' => 'Supply updated successfully!']);
     }
 
@@ -93,7 +92,7 @@ class SupplyController extends Controller
 
         $action->handle(post: $supply, validated: $request->validated());
 
-        return redirect()->route('farmer.supplies.index')
+        return back(fallback: route('farmer.supplies.index'))
             ->with('flash', ['type' => 'success', 'message' => 'Harvest recorded! Supply is now live.']);
     }
 
@@ -102,7 +101,7 @@ class SupplyController extends Controller
         Gate::authorize('delete', $supply);
         $action->handle($supply);
 
-        return redirect()->route('farmer.supplies.index')
+        return back(fallback: route('farmer.supplies.index'))
             ->with('flash', ['type' => 'success', 'message' => 'Supply deleted.']);
     }
 }
