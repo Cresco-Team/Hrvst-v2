@@ -9,23 +9,27 @@ type: App.Enums.PostType,
 status: App.Enums.PostStatus,
 expected_harvest_month: string | null,
 scheduled_date: string | null,
-scheduled_date_human: string | null,
-time_slot: App.Enums.PostTimeSlot,
+time_slot: App.Enums.PostTimeSlot | null,
 estimated_total_weight: number,
 created_at: string,
 created_at_human: string,
 vegetable: App.Data.Vegetable.VegetableLightData | null,
 post_items: undefined<number, App.Data.PostItem.PostItemLightData>,
-item: App.Data.PostItem.PostItemLightData,
 };
 }
 namespace PostItem {
 export type PostItemLightData = {
 id: number,
 variety_id: number,
-variety_name: string | null,
+variety: App.Data.Variety.VarietyLightData | null,
 quantity_kg: number,
 status: App.Enums.PostItemStatus,
+};
+}
+namespace Variety {
+export type VarietyLightData = {
+id: number,
+name: string,
 };
 }
 namespace Vegetable {
