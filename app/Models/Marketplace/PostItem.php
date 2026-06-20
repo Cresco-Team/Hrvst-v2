@@ -12,17 +12,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 #[Fillable(['post_id', 'variety_id', 'quantity_kg', 'status'])]
-#[SoftDeletes()]
 class PostItem extends Model
 {
     use HasFactory;
-
-    protected $fillable = [
-        'post_id',
-        'variety_id',
-        'quantity_kg',
-        'status',
-    ];
+    use SoftDeletes;
 
     protected function casts(): array
     {
