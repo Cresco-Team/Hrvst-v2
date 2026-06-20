@@ -11,6 +11,7 @@ use App\Models\Profiles\FarmerProfile;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -42,7 +43,7 @@ class Post extends Model implements HasMedia
             'type' => PostType::class,
             'status' => PostStatus::class,
             'time_slot' => PostTimeSlot::class,
-            'scheduled_date' => 'date',
+            'scheduled_date' => 'date:F j, Y',
             'estimated_total_weight' => 'decimal:2',
         ];
     }
@@ -129,6 +130,13 @@ class Post extends Model implements HasMedia
     public function isGrowing(): bool
     {
         return $this->status === PostStatus::Growing;
+    }
+
+    public function createdAtHuman(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->created_at->diffForHumans()
+        );
     }
 
     protected static function booted(): void
