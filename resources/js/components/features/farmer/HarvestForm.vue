@@ -16,7 +16,7 @@ import {
 	SelectValue,
 } from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
-import type { FarmerSupplyResource, PostTimeSlot, VarietyOptionsByVegetable } from '@/types'
+import type { FarmerSupplyDataFixed, PostTimeSlot, VarietyOptionsByVegetable } from '@/types'
 
 interface HarvestItem {
 	variety_id: string
@@ -25,7 +25,7 @@ interface HarvestItem {
 
 interface Props {
 	open: boolean
-	supply: FarmerSupplyResource | null
+	supply: FarmerSupplyDataFixed | null
 	varietyOptions?: VarietyOptionsByVegetable
 }
 
@@ -38,8 +38,6 @@ const TIME_SLOT_OPTIONS: { value: PostTimeSlot; label: string }[] = [
 	{ value: 'evening', label: 'Evening (6 PM – 10 PM)' },
 ]
 
-// Only show varieties that belong to the supply post's vegetable.
-// varietyOptions is keyed by vegetable name — match against the post's vegetable.
 const availableVarieties = computed(() => {
 	const vegetableName = props.supply?.vegetable?.name
 	if (!vegetableName || !props.varietyOptions) return []
@@ -107,10 +105,10 @@ watch(
 <template>
 	<DialogForm
 		:open="open"
-		title="Record Harvest"
-		:description="`Break down ${supply?.vegetable?.name ?? 'supply'} into varieties and schedule delivery.`"
+		title="Set Schedule"
+		:description="`Break down ${supply?.vegetable?.name ?? 'supply'} into supply varieties and schedule delivery.`"
 		:form="form"
-		submit-label="Confirm Harvest"
+		submit-label="Confirm Schedule"
 		max-width="2xl"
 		@update:open="emit('update:open', $event)"
 		@submit="handleSubmit"
@@ -123,7 +121,7 @@ watch(
 
 			<div class="space-y-2">
 				<Label for="scheduled_date" class="flex items-center gap-1.5">
-					Delivery Date
+					Schedule Date
 					<Badge variant="secondary" class="text-xs font-normal">Required</Badge>
 				</Label>
 				<Input
@@ -162,7 +160,7 @@ watch(
 			<div class="space-y-4">
 				<div class="flex items-center justify-between">
 					<div>
-						<Label class="text-sm font-medium">Harvest Items</Label>
+						<Label class="text-sm font-medium">Supply Varieties</Label>
 						<p class="text-xs text-muted-foreground mt-0.5">
 							Varieties of <span class="font-medium text-foreground">{{ supply?.vegetable?.name }}</span>
 						</p>
