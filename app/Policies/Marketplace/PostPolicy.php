@@ -33,8 +33,7 @@ class PostPolicy
     public function update(User $user, Post $post): bool
     {
         return match ($post->type) {
-            PostType::Supply => $user->id === $post->user_id
-                && $post->status === PostStatus::Growing,
+            PostType::Supply => $user->id === $post->user_id,
             PostType::Demand => $user->id === $post->user_id
                 && $post->status === PostStatus::Ready,
         };
