@@ -31,17 +31,10 @@ export interface PostItemSnapshot {
 
 // ─── FarmerSupplyResource ─────────────────────────────────────────────────────
 
-export interface FarmerSupplyResource {
-	id: number
-	status: 'growing'
-	expected_harvest_month: string | null
-	estimated_total_weight: number
-	created_at: string
-	created_at_human: string
-	image_url?: string
-	vegetable?: PostVegetableSnapshot
-	items?: PostItemSnapshot[]
-}
+export type FarmerSupplyDataFixed =
+    Omit<App.Data.Post.FarmerSupplyData, 'post_items'> & {
+        post_items: App.Data.PostItem.PostItemLightData[]
+    }
 
 // ─── DealerDemandResource ─────────────────────────────────────────────────────
 
