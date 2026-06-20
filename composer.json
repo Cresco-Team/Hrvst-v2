@@ -10,8 +10,8 @@
     "license": "MIT",
     "require": {
         "php": "^8.5",
-        "inertiajs/inertia-laravel": "^2.0",
         "fakerphp/faker": "^1.23",
+        "inertiajs/inertia-laravel": "^2.0",
         "intervention/image": "^3.0",
         "laravel/ai": "^0.4.5",
         "laravel/fortify": "^1.30",
@@ -19,7 +19,9 @@
         "laravel/nightwatch": "^1.24",
         "laravel/tinker": "^3.0",
         "laravel/wayfinder": "^0.1.9",
-        "spatie/laravel-medialibrary": "^11.21"
+        "spatie/laravel-data": "^4.23",
+        "spatie/laravel-medialibrary": "^11.21",
+        "spatie/laravel-typescript-transformer": "^3.3"
     },
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^3.7",
