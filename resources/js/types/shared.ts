@@ -51,6 +51,13 @@ export interface Paginated<T> {
     to: number | null
     total: number
   }
+  current_page: number
+  from: number | null
+  last_page: number
+  path: string
+  per_page: number
+  to: number | null
+  total: number
 }
 
 export interface PaginationLink {
