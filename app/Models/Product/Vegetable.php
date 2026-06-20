@@ -5,6 +5,7 @@ namespace App\Models\Product;
 use App\Models\Marketplace\Post;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -50,6 +51,13 @@ class Vegetable extends Model implements HasMedia
             ->singleFile()
             ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/webp'])
             ->useFallbackUrl(asset('images/placeholder.jpg'));
+    }
+
+    public function imageUrl(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->getFirstMediaUrl('vegetable_image')
+        );
     }
 
     public function registerMediaConversions(?Media $media = null): void
