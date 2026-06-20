@@ -1,9 +1,7 @@
 import type { PostItemStatus } from '../enums'
 import type {
 	DealerPostItemResource,
-	FarmerSupplyResource,
-	PostItemSnapshot,
-	SupplyMapFilterOptions,
+	FarmerSupplyDataFixed,
 	VarietyOptionsByVegetable,
 	VegetableOptionsByCategory,
 } from '../resources/marketplace'
@@ -22,7 +20,7 @@ export interface FarmerDashboardRecommendation {
 
 export interface FarmerDashboardProps {
 	summary: FarmerSupplySummary
-	expiringSupplies: FarmerSupplyResource[]
+	expiringSupplies: FarmerSupplyDataFixed[]
 	recommendations: FarmerDashboardRecommendation[]
 }
 
@@ -37,8 +35,8 @@ export interface FarmerSuppliesProps {
 	summary: FarmerSupplySummary
 	vegetableOptions: VegetableOptionsByCategory
 	varietyOptions: VarietyOptionsByVegetable
-	growingPosts: Paginated<FarmerSupplyResource> | null
-	readyForHarvestPosts: Paginated<PostItemSnapshot> | null
+	growingPosts: Paginated<FarmerSupplyDataFixed> | null
+	supplies: Paginated<FarmerSupplyDataFixed> | null
 }
 
 // ─── farmer/marketplace/Index ─────────────────────────────────────────────────
