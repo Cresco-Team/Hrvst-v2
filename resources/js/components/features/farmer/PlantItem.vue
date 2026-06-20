@@ -14,7 +14,7 @@ import {
     ItemMedia,
     ItemTitle,
 } from '@/components/ui/item'
-import { FarmerSupplyResource } from '@/types'
+import { FarmerSupplyDataFixed } from '@/types'
 import {
     Calendar,
     CalendarClock,
@@ -26,12 +26,12 @@ import {
 } from 'lucide-vue-next'
 import { computed } from 'vue'
 
-const { plant } = defineProps<{ plant: FarmerSupplyResource }>()
+const { plant } = defineProps<{ plant: FarmerSupplyDataFixed }>()
 
 const emit = defineEmits<{
-    edit: [post: FarmerSupplyResource]
-    harvest: [post: FarmerSupplyResource]
-    delete: [post: FarmerSupplyResource]
+    edit: [post: FarmerSupplyDataFixed]
+    harvest: [post: FarmerSupplyDataFixed]
+    delete: [post: FarmerSupplyDataFixed]
 }>()
 
 const canHarvest = computed(() => {

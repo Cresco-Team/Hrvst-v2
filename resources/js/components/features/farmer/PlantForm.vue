@@ -19,11 +19,11 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select'
-import type { FarmerSupplyResource, VegetableOptionsByCategory } from '@/types'
+import type { FarmerSupplyDataFixed, VegetableOptionsByCategory } from '@/types'
 
 interface Props {
     open: boolean
-    supply?: FarmerSupplyResource | null
+    supply?: FarmerSupplyDataFixed | null
     vegetableOptions?: VegetableOptionsByCategory
 }
 
