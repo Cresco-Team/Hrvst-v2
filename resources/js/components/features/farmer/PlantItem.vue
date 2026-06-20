@@ -46,6 +46,7 @@ const canHarvest = computed(() => {
     <Item variant="outline">
         <ItemMedia variant="image">
             <img
+                v-if="plant.vegetable?.image_url"
                 :src="plant.vegetable?.image_url"
                 :alt="plant.vegetable?.name"
             />
