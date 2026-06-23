@@ -15,17 +15,6 @@ class FarmerDashboardService
         return PostItem::whereHas('post', fn (Builder $q) => $q->supply()->where('user_id', $userId));
     }
 
-    public function summary(int $userId): array
-    {
-        $itemQuery = $this->baseItemQuery($userId);
-
-        return [
-            'total_ongoing' => (clone $itemQuery)->ongoing()->count(),
-            'total_fulfilled' => (clone $itemQuery)->fulfilled()->count(),
-            'total_unsettled' => (clone $itemQuery)->unsettled()->count(),
-        ];
-    }
-
     public function expiringSupplies(int $userId): Collection
     {
         return Post::supply()
