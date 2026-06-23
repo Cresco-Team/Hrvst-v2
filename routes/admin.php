@@ -5,7 +5,6 @@ use App\Http\Controllers\Admin\DealerController;
 use App\Http\Controllers\Admin\FarmerController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\Vegetable\VarietyController;
-use App\Http\Controllers\Admin\Vegetable\VarietyPriceController;
 use App\Http\Controllers\Admin\Vegetable\VegetableController;
 use Illuminate\Support\Facades\Route;
 
@@ -42,7 +41,6 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
             Route::get('/{variety}', [VarietyController::class, 'show'])->name('show');
             Route::post('/', [VarietyController::class, 'store'])->name('store');
             Route::put('/{variety}', [VarietyController::class, 'update'])->name('update');
-            Route::post('/{variety}/prices', [VarietyPriceController::class, 'store'])->name('prices.store');
             Route::delete('/{variety}', [VarietyController::class, 'destroy'])->name('destroy');
         });
     });
