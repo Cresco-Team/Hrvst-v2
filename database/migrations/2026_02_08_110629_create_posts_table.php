@@ -15,20 +15,15 @@ return new class extends Migration
 
             $table->enum('type', ['supply', 'demand']);
 
-            $table->string('status')->default('growing')->index();
-
-            $table->string('expected_harvest_month', 7)->nullable();
             $table->date('scheduled_date')->nullable();
             $table->enum('time_slot', ['morning', 'afternoon', 'evening'])->default('morning')->nullable();
-
-            $table->decimal('estimated_total_weight', 12, 2)->nullable();
 
             $table->softDeletes();
             $table->timestamps();
 
             $table->index(
-                ['vegetable_id', 'type', 'status', 'created_at'],
-                'idx_posts_vegetable_type_status_created'
+                ['vegetable_id', 'type', 'created_at'],
+                'idx_posts_vegetable_type_created'
             );
             $table->index('scheduled_date');
         });
