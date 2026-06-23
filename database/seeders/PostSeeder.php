@@ -3,12 +3,10 @@
 namespace Database\Seeders;
 
 use App\Enums\PostItemStatus;
-use App\Enums\PostStatus;
 use App\Enums\PostTimeSlot;
 use App\Enums\PostType;
 use App\Models\Marketplace\Post;
 use App\Models\Marketplace\PostItem;
-use App\Models\Product\PriceHistory;
 use App\Models\Product\Variety;
 use App\Models\Product\Vegetable;
 use App\Models\Profiles\DealerProfile;
@@ -21,8 +19,6 @@ use Illuminate\Support\Facades\DB;
 class PostSeeder extends Seeder
 {
     private array $varietyIds = [];
-
-    private array $latestPrices = [];
 
     private array $varietiesByVegetable = [];
 
@@ -75,26 +71,6 @@ class PostSeeder extends Seeder
         $postRows = [];
 
         foreach ($farmers as $farmer) {
-            // Growing: 10–20 per farmer
-            for ($i = 0; $i < fake()->numberBetween(10, 20); $i++) {
-                $createdAt = fake()->dateTimeBetween('-60 days', '-5 days')->format('Y-m-d H:i:s');
-
-                $postRows[] = [
-                    'user_id' => $farmer->user_id,
-                    'vegetable_id' => $this->randomVegetableId(),
-                    'type' => PostType::Supply->value,
-                    'status' => PostStatus::Growing->value,
-                    'expected_harvest_month' => now()->addMonths(fake()->numberBetween(0, 2))->format('Y-m'),
-                    'estimated_total_weight' => fake()->randomFloat(2, 200, 3000),
-                    'scheduled_date' => null,
-                    'time_slot' => null,
-                    'created_at' => $createdAt,
-                    'updated_at' => $createdAt,
-                    'deleted_at' => null,
-                ];
-            }
-
-            // Ready: 10–20 per farmer
             for ($i = 0; $i < fake()->numberBetween(10, 20); $i++) {
                 $scheduledDate = Carbon::parse(
                     fake()->boolean(55)
@@ -107,9 +83,6 @@ class PostSeeder extends Seeder
                     'user_id' => $farmer->user_id,
                     'vegetable_id' => $this->randomVegetableId(),
                     'type' => PostType::Supply->value,
-                    'status' => PostStatus::Ready->value,
-                    'expected_harvest_month' => $scheduledDate->copy()->subMonth()->format('Y-m'),
-                    'estimated_total_weight' => fake()->randomFloat(2, 100, 2000),
                     'scheduled_date' => $scheduledDate->toDateString(),
                     'time_slot' => fake()->randomElement(PostTimeSlot::cases())->value,
                     'created_at' => $createdAt,
@@ -129,7 +102,6 @@ class PostSeeder extends Seeder
         $postRows = [];
 
         foreach ($dealers as $dealer) {
-            // 10–20 demand posts per dealer
             for ($i = 0; $i < fake()->numberBetween(10, 20); $i++) {
                 $scheduledDate = Carbon::parse(
                     fake()->boolean(60)
@@ -142,13 +114,8 @@ class PostSeeder extends Seeder
                     'user_id' => $dealer->user_id,
                     'vegetable_id' => $this->randomVegetableId(),
                     'type' => PostType::Demand->value,
-                    'status' => PostStatus::Ready->value,
-                    'expected_harvest_month' => null,
-                    'estimated_total_weight' => null,
                     'scheduled_date' => $scheduledDate->toDateString(),
-                    'time_slot' => fake()->boolean(70)
-                        ? fake()->randomElement(PostTimeSlot::cases())->value
-                        : null,
+                    'time_slot' => fake()->randomElement(PostTimeSlot::cases())->value,
                     'created_at' => $createdAt,
                     'updated_at' => $createdAt,
                     'deleted_at' => null,
@@ -158,6 +125,8 @@ class PostSeeder extends Seeder
 
         $this->bulkInsertWithItems($postRows);
     }
+
+    // ── Shared insert ─────────────────────────────────────────────────────────
 
     private function bulkInsertWithItems(array $postRows): void
     {
@@ -170,16 +139,12 @@ class PostSeeder extends Seeder
         }
 
         $posts = Post::whereDoesntHave('postItems')
-            ->get(['id', 'vegetable_id', 'type', 'status', 'scheduled_date', 'created_at']);
+            ->get(['id', 'vegetable_id', 'type', 'scheduled_date', 'created_at']);
 
         $itemRows = [];
 
         foreach ($posts as $post) {
-            if ($post->status === PostStatus::Growing) {
-                continue;
-            }
-
-            $isPast = $post->scheduled_date && Carbon::parse($post->scheduled_date)->isPast();
+            $isPast = Carbon::parse($post->scheduled_date)->isPast();
             $isSupply = $post->type === PostType::Supply;
 
             // Supply: 3–8 items | Demand: 2–6 items
@@ -217,15 +182,6 @@ class PostSeeder extends Seeder
         Variety::all(['id', 'vegetable_id'])->each(function (Variety $v): void {
             $this->varietiesByVegetable[$v->vegetable_id][] = $v->id;
         });
-
-        // Latest price per variety — loaded once, reused O(1) per item
-        PriceHistory::query()
-            ->select('variety_id', 'price_min', 'price_max', 'recorded_at')
-            ->orderBy('recorded_at')
-            ->get()
-            ->each(function (PriceHistory $p): void {
-                $this->latestPrices[$p->variety_id] = $p;
-            });
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────
