@@ -50,8 +50,6 @@ const fulfilledItems = computed<PostItemSnapshot[]>(
         props.farmer?.supply_items?.filter((i) => i.status === 'fulfilled') ??
         [],
 )
-const growingCount = computed(() => props.farmer?.growing_posts_count ?? 0)
-
 const totalItems = computed(() => props.farmer?.supply_items?.length ?? 0)
 const totalQuantity = computed(
     () =>
@@ -190,8 +188,7 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => [
                         </Card>
 
                         <!-- Stats -->
-                        <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                            <SmallCard title="Growing" :value="growingCount" />
+                        <div class="hidden gap-3 sm:grid sm:grid-cols-3">
                             <SmallCard
                                 title="Total Items"
                                 :value="totalItems"
@@ -251,17 +248,6 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => [
                                                 >{{
                                                     fulfilledItems.length
                                                 }}</Badge
-                                            >
-                                        </TabsTrigger>
-                                        <TabsTrigger
-                                            value="growing"
-                                            class="gap-1.5"
-                                        >
-                                            <Sprout class="size-4" />Growing
-                                            <Badge
-                                                variant="secondary"
-                                                class="ml-1 px-1.5 py-0 text-xs"
-                                                >{{ growingCount }}</Badge
                                             >
                                         </TabsTrigger>
                                     </TabsList>
