@@ -1,7 +1,6 @@
 <?php
 
 use App\Models\Product\Category;
-use App\Models\Product\PriceHistory;
 use App\Models\Product\Variety;
 use App\Models\Product\Vegetable;
 use App\Models\Profiles\Role;
@@ -11,7 +10,6 @@ use Illuminate\Support\Facades\Storage;
 use Inertia\Testing\AssertableInertia as Assert;
 
 use function Pest\Laravel\actingAs;
-use function Pest\Laravel\assertDatabaseCount;
 use function Pest\Laravel\assertDatabaseHas;
 use function Pest\Laravel\delete;
 use function Pest\Laravel\get;
@@ -43,12 +41,6 @@ beforeEach(function () {
     $this->variety = Variety::create([
         'vegetable_id' => $this->vegetable->id,
         'name' => 'White Pechay',
-    ]);
-
-    $this->variety->prices()->create([
-        'price_min' => 20.00,
-        'price_max' => 30.00,
-        'recorded_at' => now()->startOfWeek(),
     ]);
 });
 
@@ -156,7 +148,7 @@ describe('vegetable store', function () {
         actingAs($this->admin)
             ->post(route('admin.vegetables.store'), [
                 'category_id' => $this->category->id,
-                'name' => 'Pechay', // already exists in beforeEach
+                'name' => 'Pechay',
             ])
             ->assertSessionHasErrors('name');
     });
@@ -291,23 +283,18 @@ describe('vegetable destroy', function () {
 // ─── Variety Store ────────────────────────────────────────────────────────────
 
 describe('variety store', function () {
-    it('creates a variety and seeds its first price history', function () {
+    it('creates a variety', function () {
         actingAs($this->admin)
             ->post(route('admin.vegetables.varieties.store'), [
                 'vegetable_id' => $this->vegetable->id,
                 'name' => 'Green Pechay',
-                'price_min' => '15.00',
-                'price_max' => '25.00',
             ])
             ->assertRedirect()
             ->assertSessionHas('flash.type', 'success');
 
-        $created = Variety::where('name', 'Green Pechay')->firstOrFail();
-
-        assertDatabaseHas('price_histories', [
-            'variety_id' => $created->id,
-            'price_min' => '15.00',
-            'price_max' => '25.00',
+        assertDatabaseHas('varieties', [
+            'vegetable_id' => $this->vegetable->id,
+            'name' => 'Green Pechay',
         ]);
     });
 
@@ -315,8 +302,6 @@ describe('variety store', function () {
         actingAs($this->admin)
             ->post(route('admin.vegetables.varieties.store'), [
                 'name' => 'Green Pechay',
-                'price_min' => '15.00',
-                'price_max' => '25.00',
             ])
             ->assertSessionHasErrors('vegetable_id');
     });
@@ -326,8 +311,6 @@ describe('variety store', function () {
             ->post(route('admin.vegetables.varieties.store'), [
                 'vegetable_id' => 9999,
                 'name' => 'Green Pechay',
-                'price_min' => '15.00',
-                'price_max' => '25.00',
             ])
             ->assertSessionHasErrors('vegetable_id');
     });
@@ -336,32 +319,8 @@ describe('variety store', function () {
         actingAs($this->admin)
             ->post(route('admin.vegetables.varieties.store'), [
                 'vegetable_id' => $this->vegetable->id,
-                'price_min' => '15.00',
-                'price_max' => '25.00',
             ])
             ->assertSessionHasErrors('name');
-    });
-
-    it('rejects price_max below price_min', function () {
-        actingAs($this->admin)
-            ->post(route('admin.vegetables.varieties.store'), [
-                'vegetable_id' => $this->vegetable->id,
-                'name' => 'Green Pechay',
-                'price_min' => '50.00',
-                'price_max' => '10.00',
-            ])
-            ->assertSessionHasErrors('price_max');
-    });
-
-    it('rejects prices that exceed the maximum allowed value', function () {
-        actingAs($this->admin)
-            ->post(route('admin.vegetables.varieties.store'), [
-                'vegetable_id' => $this->vegetable->id,
-                'name' => 'Green Pechay',
-                'price_min' => '10000.00',
-                'price_max' => '10001.00',
-            ])
-            ->assertSessionHasErrors(['price_min', 'price_max']);
     });
 
     it('returns 403 for non-admin users', function () {
@@ -369,8 +328,6 @@ describe('variety store', function () {
             ->post(route('admin.vegetables.varieties.store'), [
                 'vegetable_id' => $this->vegetable->id,
                 'name' => 'Green Pechay',
-                'price_min' => '15.00',
-                'price_max' => '25.00',
             ])
             ->assertForbidden();
     });
@@ -451,92 +408,6 @@ describe('variety destroy', function () {
 
     it('redirects guests to login', function () {
         delete(route('admin.vegetables.varieties.destroy', $this->variety))
-            ->assertRedirect(route('login'));
-    });
-});
-
-// ─── Price Store ──────────────────────────────────────────────────────────────
-
-describe('price store', function () {
-    it('creates a price for the current week', function () {
-        PriceHistory::where('variety_id', $this->variety->id)->delete();
-
-        actingAs($this->admin)
-            ->post(route('admin.vegetables.varieties.prices.store', $this->variety), [
-                'price_min' => '25.00',
-                'price_max' => '40.00',
-            ])
-            ->assertRedirect()
-            ->assertSessionHas('flash.type', 'success');
-
-        assertDatabaseHas('price_histories', [
-            'variety_id' => $this->variety->id,
-            'price_min' => '25.00',
-            'price_max' => '40.00',
-        ]);
-    });
-
-    it('updates the existing record instead of creating a duplicate for the same week', function () {
-        actingAs($this->admin)
-            ->post(route('admin.vegetables.varieties.prices.store', $this->variety), [
-                'price_min' => '18.00',
-                'price_max' => '28.00',
-            ]);
-
-        assertDatabaseCount('price_histories', 1);
-
-        assertDatabaseHas('price_histories', [
-            'variety_id' => $this->variety->id,
-            'price_min' => '18.00',
-            'price_max' => '28.00',
-        ]);
-    });
-
-    it('rejects missing price_min', function () {
-        actingAs($this->admin)
-            ->post(route('admin.vegetables.varieties.prices.store', $this->variety), [
-                'price_max' => '40.00',
-            ])
-            ->assertSessionHasErrors('price_min');
-    });
-
-    it('rejects missing price_max', function () {
-        actingAs($this->admin)
-            ->post(route('admin.vegetables.varieties.prices.store', $this->variety), [
-                'price_min' => '20.00',
-            ])
-            ->assertSessionHasErrors('price_max');
-    });
-
-    it('rejects price_max below price_min', function () {
-        actingAs($this->admin)
-            ->post(route('admin.vegetables.varieties.prices.store', $this->variety), [
-                'price_min' => '50.00',
-                'price_max' => '10.00',
-            ])
-            ->assertSessionHasErrors('price_max');
-    });
-
-    it('rejects negative prices', function () {
-        actingAs($this->admin)
-            ->post(route('admin.vegetables.varieties.prices.store', $this->variety), [
-                'price_min' => '-1.00',
-                'price_max' => '10.00',
-            ])
-            ->assertSessionHasErrors('price_min');
-    });
-
-    it('returns 403 for non-admin users', function () {
-        actingAs($this->farmer)
-            ->post(route('admin.vegetables.varieties.prices.store', $this->variety), [
-                'price_min' => '20.00',
-                'price_max' => '30.00',
-            ])
-            ->assertForbidden();
-    });
-
-    it('redirects guests to login', function () {
-        post(route('admin.vegetables.varieties.prices.store', $this->variety), [])
             ->assertRedirect(route('login'));
     });
 });
