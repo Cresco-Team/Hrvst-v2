@@ -11,9 +11,9 @@ class FarmerSupplyResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'status' => $this->status,
-            'expected_harvest_month' => $this->expected_harvest_month,
-            'estimated_total_weight' => (float) $this->estimated_total_weight,
+            'scheduled_date' => $this->scheduled_date?->format('M d, Y'),
+            'time_slot' => $this->time_slot?->value,
+            'time_slot_label' => $this->time_slot?->label(),
             'created_at' => $this->created_at->format('M d, Y'),
             'created_at_human' => $this->created_at->diffForHumans(),
 
