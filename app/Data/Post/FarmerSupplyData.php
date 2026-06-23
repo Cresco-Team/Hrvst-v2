@@ -4,7 +4,6 @@ namespace App\Data\Post;
 
 use App\Data\PostItem\PostItemLightData;
 use App\Data\Vegetable\VegetableLightData;
-use App\Enums\PostStatus;
 use App\Enums\PostTimeSlot;
 use App\Enums\PostType;
 use Carbon\Carbon;
@@ -26,14 +25,11 @@ class FarmerSupplyData extends Data
         public int $user_id,
         public int $vegetable_id,
         public PostType $type,
-        public PostStatus $status,
-        public ?string $expected_harvest_month,
         #[WithCast(DateTimeInterfaceCast::class, format: 'F j, Y')]
         #[WithTransformer(DateTimeInterfaceTransformer::class, format: 'F j, Y')]
-        #[TypeScriptType('string | null')]
-        public ?Carbon $scheduled_date,
-        public ?PostTimeSlot $time_slot,
-        public float $estimated_total_weight,
+        #[TypeScriptType('string')]
+        public Carbon $scheduled_date,
+        public PostTimeSlot $time_slot,
         public string $created_at,
         public string $created_at_human,
 
