@@ -1,10 +1,7 @@
 <script setup lang="ts">
 import { Deferred, Head, router } from '@inertiajs/vue3'
-import { AlertTriangle } from 'lucide-vue-next'
 import { computed, ref } from 'vue'
 import ConfirmationDialog from '@/components/dialogs/ConfirmationDialog.vue'
-import PriceFreshnessFilter from '@/components/features/admin/filters/PriceFreshnessFilter.vue'
-import PriceUpdateForm from '@/components/features/admin/forms/PriceUpdateForm.vue'
 import VarietyForm from '@/components/features/admin/forms/VarietyForm.vue'
 import CreateVegetable from '@/components/features/admin/forms/CreateVegetable.vue'
 import UpdateVegetable from '@/components/features/admin/forms/UpdateVegetable.vue'
@@ -76,7 +73,6 @@ function openEditVariety(row: VarietyTableRow): void {
             name: activeParentVegetable.value?.name ?? '',
             category: null,
         },
-        latest_price: row.latest_price ?? null,
     } as unknown as VarietyResource
     varietyFormOpen.value = true
 }
@@ -135,38 +131,13 @@ function handleDeleteVegetable(): void {
     })
 }
 
-// ── Price update ───────────────────────────────────────────────────────────────
-
-const priceFormOpen = ref(false)
-const priceVariety = ref<VarietyResource | null>(null)
-
-function openUpdatePrice(row: VarietyTableRow): void {
-    priceVariety.value = {
-        id: row.id,
-        name: row.name,
-        image_url: row.image_url ?? '',
-        vegetable: { id: 0, name: '', category: null },
-        latest_price: row.latest_price ?? null,
-    } as unknown as VarietyResource
-    priceFormOpen.value = true
-}
-
 // ── Filtering ─────────────────────────────────────────────────────────────────
-
-function handleFilterChange(filter: string | null): void {
-    router.get(
-        index().url,
-        { price_filter: filter, category: props.category?.slug ?? undefined },
-        { preserveScroll: true, preserveState: true },
-    )
-}
 
 function handleSearch(query: string): void {
     searchQuery.value = query
     router.visit(index().url, {
         data: {
             search: query || undefined,
-            price_filter: props.filters.price_filter || undefined,
             category: props.category?.slug ?? undefined,
         },
         preserveState: true,
@@ -190,42 +161,26 @@ function handleSearch(query: string): void {
                             : 'Manage all vegetable types and their varieties.'
                     "
                 />
-                <div class="flex items-center gap-2">
-                    <PriceFreshnessFilter
-                        v-if="summary"
-                        :active-filter="filters.price_filter"
-                        :price-stats="summary.price_stats"
-                        @filter-change="handleFilterChange"
-                    />
-                    <Skeleton v-else class="h-9 w-32" />
-                    <Button @click="openCreateVegetable">Add Vegetable</Button>
-                </div>
+                <Button @click="openCreateVegetable">Add Vegetable</Button>
             </div>
 
             <!-- Summary cards -->
             <Deferred data="summary">
                 <template #fallback>
-                    <div class="grid gap-4 md:grid-cols-3">
-                        <Skeleton v-for="i in 3" :key="i" class="h-20" />
+                    <div class="grid gap-4 md:grid-cols-2">
+                        <Skeleton v-for="i in 2" :key="i" class="h-20" />
                     </div>
                 </template>
-                <div class="grid gap-4 md:grid-cols-3">
+                <div class="grid gap-4 md:grid-cols-2">
                     <SmallCard
                         title="Vegetable Varieties"
                         subtext="total"
                         :value="summary?.total_varieties"
                     />
                     <SmallCard
-                        title="Price Updates"
-                        subtext="updated this week"
-                        :value="summary?.price_stats.updated_week"
-                    />
-                    <SmallCard
-                        title="Needs Attention"
-                        subtext="varieties"
-                        :value="summary?.price_stats.stale"
-                        :icon="AlertTriangle"
-                        icon-class="text-orange-500"
+                        title="Active Varieties"
+                        subtext="with supply or demand"
+                        :value="summary?.active_varieties"
                     />
                 </div>
             </Deferred>
@@ -256,7 +211,6 @@ function handleSearch(query: string): void {
                     @open-create-variety="openCreateVariety"
                     @open-edit-variety="openEditVariety"
                     @open-delete-variety="openDeleteVariety"
-                    @open-update-price="openUpdatePrice"
                     @open-variety-details="
                         (row) =>
                             router.visit(
@@ -324,14 +278,5 @@ function handleSearch(query: string): void {
                 ? (vegDeleteOpen = false)
                 : handleDeleteVegetable()
         "
-    />
-
-    <!-- Price update -->
-    <PriceUpdateForm
-        v-if="priceVariety"
-        :open="priceFormOpen"
-        :variety="priceVariety"
-        :is-submitting="false"
-        @update:open="priceFormOpen = $event"
     />
 </template>

@@ -8,13 +8,11 @@ import Heading from '@/components/Heading.vue'
 import VarietyAnalyticsSummary from '@/components/shared/charts/VarietyAnalyticsSummary.vue'
 import VarietyRecommendations from '@/components/shared/charts/VarietyRecommendations.vue'
 import VarietyMonthlyChart from '@/components/shared/charts/VegetableMonthlyChart.vue'
-import VarietyPriceChart from '@/components/shared/charts/VegetablePriceChart.vue'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { Skeleton } from '@/components/ui/skeleton'
 import AppLayout from '@/layouts/AppLayout.vue'
 import admin, { dashboard } from '@/routes/admin'
-import { show as vegetablesShow } from '@/routes/admin/vegetables/varieties'
 import type {
     BreadcrumbItem,
     CalendarSlotData,
@@ -83,7 +81,7 @@ function navigateMonth(direction: 1 | -1): void {
         year--
     }
 
-    router.visit(vegetables.show(props.meta.varietyId).url, {
+    router.visit(admin.vegetables.varieties.show(props.meta.varietyId).url, {
         data: { year, month },
         preserveState: true,
         preserveScroll: true,
@@ -93,7 +91,7 @@ function navigateMonth(direction: 1 | -1): void {
 
 function goToToday(): void {
     const now = new Date()
-    router.visit(vegetables.show(props.meta.varietyId).url, {
+    router.visit(admin.vegetables.varieties.show(props.meta.varietyId).url, {
         data: { year: now.getFullYear(), month: now.getMonth() + 1 },
         preserveState: true,
         preserveScroll: true,
@@ -248,10 +246,7 @@ function formatKgShort(kg: number): string {
                                 class="h-24 rounded-xl"
                             />
                         </div>
-                        <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
-                            <Skeleton class="h-72 rounded-xl" />
-                            <Skeleton class="h-72 rounded-xl" />
-                        </div>
+                        <Skeleton class="h-72 w-full rounded-xl" />
                         <Skeleton class="h-72 w-full rounded-xl" />
                     </div>
                 </template>
@@ -270,16 +265,10 @@ function formatKgShort(kg: number): string {
                     />
 
                     <!-- ── Charts ─────────────────────────────────────────────────────── -->
-                    <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
-                        <VarietyPriceChart
-                            v-if="variety.recent_prices?.length"
-                            :recent-prices="variety.recent_prices"
-                        />
-                        <VarietyMonthlyChart
-                            v-if="variety.monthly_activity?.length"
-                            :monthly-activity="variety.monthly_activity"
-                        />
-                    </div>
+                    <VarietyMonthlyChart
+                        v-if="variety.monthly_activity?.length"
+                        :monthly-activity="variety.monthly_activity"
+                    />
 
                     <!-- ── Market Calendar ─────────────────────────────────────────────── -->
                     <div
