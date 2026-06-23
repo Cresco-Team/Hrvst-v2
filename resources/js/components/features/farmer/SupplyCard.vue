@@ -31,7 +31,7 @@ const emit = defineEmits<{
 </script>
 
 <template>
-    <Item variant="outline">
+    <Item variant="outline" class="group transition-all hover:shadow-sm">
         <ItemMedia variant="image">
             <img
                 v-if="supply.vegetable?.image_url"
