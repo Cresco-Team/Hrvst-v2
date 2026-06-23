@@ -29,7 +29,7 @@ class FarmerMapService
         return Variety::query()
             ->whereHas('postItems', fn (Builder $q) => $q
                 ->ongoing()
-                ->whereHas('post', fn (Builder $q) => $q->supply()->ready())
+                ->whereHas('post', fn (Builder $q) => $q->supply())
             )
             ->with('vegetable.category')
             ->orderBy('name')
@@ -56,7 +56,6 @@ class FarmerMapService
                 'barangay',
                 'posts' => fn ($q) => $q
                     ->supply()
-                    ->ready()
                     ->with([
                         'postItems' => fn ($q) => $q
                             ->ongoing()
@@ -71,7 +70,6 @@ class FarmerMapService
         if ($varietyId) {
             $query->whereHas('posts', fn (Builder $q) => $q
                 ->supply()
-                ->ready()
                 ->whereHas('postItems', fn (Builder $q) => $q
                     ->ongoing()
                     ->where('variety_id', $varietyId)

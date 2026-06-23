@@ -3,6 +3,7 @@
 namespace App\Services\Marketplace;
 
 use App\Models\Marketplace\Post;
+use App\Models\Marketplace\PostItem;
 use App\Models\Product\Category;
 use App\Models\Product\Variety;
 use Illuminate\Database\Eloquent\Builder;
@@ -20,20 +21,26 @@ class SupplyMapService
     public function markers(?int $categoryId = null, ?int $varietyId = null): array
     {
         $query = Post::supply()
-            ->ongoing()
+            ->where('scheduled_date', '>=', now()->toDateString())
+            ->whereHas('postItems', fn (Builder $q) => $q->ongoing())
             ->with([
                 'farmerProfile.municipality',
                 'farmerProfile.barangay',
-                'variety.vegetable.category',
+                'postItems.variety.vegetable.category',
             ]);
 
         if ($categoryId) {
-            $query->whereHas('variety.vegetable', fn (Builder $q) => $q->where('category_id', $categoryId)
+            $query->whereHas(
+                'postItems.variety.vegetable',
+                fn (Builder $q) => $q->where('category_id', $categoryId)
             );
         }
 
         if ($varietyId) {
-            $query->where('variety_id', $varietyId);
+            $query->whereHas(
+                'postItems',
+                fn (Builder $q) => $q->where('variety_id', $varietyId)->ongoing()
+            );
         }
 
         return $query
@@ -44,14 +51,16 @@ class SupplyMapService
                 $first = $posts->first();
                 $farmers = $posts->pluck('farmerProfile')->unique('id');
 
-                $breakdown = $posts
-                    ->groupBy(fn (Post $post) => $post->variety->vegetable->name)
-                    ->map(fn ($grouped, string $vegetable) => [
+                $allItems = $posts->flatMap(fn (Post $post) => $post->postItems->where('status->value', 'ongoing'));
+
+                $breakdown = $allItems
+                    ->groupBy(fn (PostItem $item) => $item->variety->vegetable->name)
+                    ->map(fn ($items, string $vegetable) => [
                         'vegetable' => $vegetable,
-                        'category' => $grouped->first()->variety->vegetable->category->name,
-                        'count' => $grouped->count(),
-                        'total_quantity_kg' => round($grouped->sum('quantity_kg'), 2),
-                        'varieties' => $grouped->pluck('variety.name')->unique()->values()->toArray(),
+                        'category' => $items->first()->variety->vegetable->category->name,
+                        'count' => $items->count(),
+                        'total_quantity_kg' => round($items->sum('quantity_kg'), 2),
+                        'varieties' => $items->pluck('variety.name')->unique()->values()->toArray(),
                     ])
                     ->values()
                     ->toArray();
@@ -66,7 +75,7 @@ class SupplyMapService
                         'lng' => round((float) $farmers->avg('longitude'), 6),
                     ],
                     'supply_count' => $posts->count(),
-                    'total_quantity_kg' => round($posts->sum('quantity_kg'), 2),
+                    'total_quantity_kg' => round($allItems->sum('quantity_kg'), 2),
                     'supply_breakdown' => $breakdown,
                 ];
             })
@@ -76,19 +85,17 @@ class SupplyMapService
 
     public function filterOptions(): array
     {
-        $categories = Category::whereHas(
-            'vegetables.varieties.posts',
-            fn (Builder $q) => $q->ongoing()->supply()->where('scheduled_date', '>=', now())
-        )
+        $hasActiveSupply = fn (Builder $q) => $q->supply()
+            ->where('scheduled_date', '>=', now()->toDateString())
+            ->whereHas('postItems', fn (Builder $q2) => $q2->ongoing());
+
+        $categories = Category::whereHas('vegetables.varieties.postItems.post', $hasActiveSupply)
             ->orderBy('name')
             ->get()
             ->map(fn ($c) => ['id' => $c->id, 'name' => $c->name])
             ->toArray();
 
-        $varieties = Variety::whereHas(
-            'posts',
-            fn (Builder $q) => $q->ongoing()->supply()->where('scheduled_date', '>=', now())
-        )
+        $varieties = Variety::whereHas('postItems.post', $hasActiveSupply)
             ->with('vegetable.category')
             ->orderBy('name')
             ->get()

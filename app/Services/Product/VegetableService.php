@@ -22,10 +22,10 @@ class VegetableService
                     ->with(['latestPrice', 'lastTwoPrices'])
                     ->withCount([
                         'postItems as supply_count' => fn (Builder $q) => $q->ongoing()->whereHas(
-                            'post', fn (Builder $p) => $p->supply()->ready()
+                            'post', fn (Builder $p) => $p->supply()
                         ),
                         'postItems as demand_count' => fn (Builder $q) => $q->ongoing()->whereHas(
-                            'post', fn (Builder $p) => $p->demand()->ready()
+                            'post', fn (Builder $p) => $p->demand()
                         ),
                     ])
                     ->when(

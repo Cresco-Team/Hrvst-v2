@@ -1,4 +1,3 @@
-export type PostStatus = 'growing' | 'ready'
 export type PostItemStatus = 'ongoing' | 'fulfilled' | 'unsettled'
 export type PostType = 'supply' | 'demand'
 export type PostTimeSlot = 'morning' | 'afternoon' | 'evening'

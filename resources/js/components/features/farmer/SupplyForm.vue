@@ -2,7 +2,10 @@
 import { useForm } from '@inertiajs/vue3'
 import { PackageCheck, Plus, Trash2 } from 'lucide-vue-next'
 import { computed, watch } from 'vue'
-import { update } from '@/actions/App/Http/Controllers/Farmer/SupplyController'
+import {
+    store,
+    update,
+} from '@/actions/App/Http/Controllers/Farmer/SupplyController'
 import DialogForm from '@/components/dialogs/DialogForm.vue'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -11,29 +14,37 @@ import { Label } from '@/components/ui/label'
 import {
     Select,
     SelectContent,
+    SelectGroup,
     SelectItem,
+    SelectLabel,
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select'
-import type { FarmerSupplyDataFixed, VarietyOptionsByVegetable } from '@/types'
+import type {
+    FarmerSupplyDataFixed,
+    VarietyOptionsByVegetable,
+    VegetableOptionsByCategory,
+} from '@/types'
 
 interface Props {
     open: boolean
-    supply: FarmerSupplyDataFixed | null
+    supply?: FarmerSupplyDataFixed | null
+    vegetableOptions?: VegetableOptionsByCategory
     varietyOptions?: VarietyOptionsByVegetable
 }
 
 const props = withDefaults(defineProps<Props>(), { supply: null })
-
 const emit = defineEmits<{ 'update:open': [value: boolean] }>()
+
+const isEditMode = computed(() => !!props.supply)
 
 let _keyCounter = 0
 const nextKey = (): number => ++_keyCounter
 
 const form = useForm({
+    vegetable_id: '',
     scheduled_date: '',
     time_slot: '',
-    estimated_total_weight: '',
     items: [] as Array<{
         _key: number
         id: number | null
@@ -43,9 +54,22 @@ const form = useForm({
     }>,
 })
 
+// In create mode, resolve the vegetable name from vegetableOptions so we can
+// filter the varietyOptions lookup (which is keyed by vegetable name, not id).
+const selectedVegetableName = computed(() => {
+    if (isEditMode.value) return props.supply?.vegetable?.name ?? null
+    if (!form.vegetable_id || !props.vegetableOptions) return null
+    for (const veggies of Object.values(props.vegetableOptions)) {
+        const found = veggies.find((v) => String(v.id) === form.vegetable_id)
+        if (found) return found.name
+    }
+    return null
+})
+
 const relevantVarieties = computed(() => {
-    if (!props.supply?.vegetable?.name || !props.varietyOptions) return []
-    return props.varietyOptions[props.supply.vegetable.name] ?? []
+    const name = selectedVegetableName.value
+    if (!name || !props.varietyOptions) return []
+    return props.varietyOptions[name] ?? []
 })
 
 function toInputDate(dateStr: string | null | undefined): string {
@@ -58,14 +82,18 @@ function isFulfilled(item: (typeof form.items)[number]): boolean {
     return item.status === 'fulfilled'
 }
 
-function addItem(): void {
-    form.items.push({
+function blankItem() {
+    return {
         _key: nextKey(),
         id: null,
         variety_id: '',
         quantity_kg: '',
         status: 'ongoing',
-    })
+    }
+}
+
+function addItem(): void {
+    form.items.push(blankItem())
 }
 
 function removeItem(index: number): void {
@@ -73,33 +101,46 @@ function removeItem(index: number): void {
 }
 
 function handleSubmit(): void {
-    if (!props.supply) return
-
-    form.put(update(props.supply.id).url, {
+    const options = {
         preserveScroll: true,
         only: ['supplies', 'summary'],
         onSuccess: () => {
             emit('update:open', false)
             form.reset()
+            form.items = []
         },
-    })
+    }
+
+    if (isEditMode.value) {
+        form.put(update(props.supply!.id).url, options)
+    } else {
+        form.post(store().url, options)
+    }
 }
+
+const minDate = computed(() => {
+    const d = new Date()
+    d.setDate(d.getDate() + 1)
+    return d.toISOString().split('T')[0]
+})
 
 watch(
     () => [props.open, props.supply] as const,
     ([isOpen, s]) => {
-        if (!isOpen || !s) return
+        if (!isOpen) return
 
-        form.scheduled_date = toInputDate(s.scheduled_date)
-        form.time_slot = s.time_slot ?? ''
-        form.estimated_total_weight = String(s.estimated_total_weight ?? '')
-        form.items = (s.post_items ?? []).map((item) => ({
-            _key: nextKey(),
-            id: item.id,
-            variety_id: String((item as any).variety_id ?? ''),
-            quantity_kg: String(item.quantity_kg ?? ''),
-            status: (item as any).status ?? 'ongoing',
-        }))
+        form.vegetable_id = s ? String(s.vegetable?.id ?? '') : ''
+        form.scheduled_date = s ? toInputDate(s.scheduled_date) : ''
+        form.time_slot = s?.time_slot ?? ''
+        form.items = s
+            ? (s.post_items ?? []).map((item) => ({
+                  _key: nextKey(),
+                  id: item.id,
+                  variety_id: String((item as any).variety_id ?? ''),
+                  quantity_kg: String(item.quantity_kg ?? ''),
+                  status: (item as any).status ?? 'ongoing',
+              }))
+            : [blankItem()]
         form.clearErrors()
     },
 )
@@ -108,10 +149,14 @@ watch(
 <template>
     <DialogForm
         :open="open"
-        title="Edit Supply"
-        :description="`Editing ${supply?.vegetable?.name ?? 'supply'} — ${supply?.scheduled_date}`"
+        :title="isEditMode ? 'Edit Supply' : 'New Supply'"
+        :description="
+            isEditMode
+                ? `Editing ${supply?.vegetable?.name ?? 'supply'} — ${supply?.scheduled_date}`
+                : 'Post a new supply with schedule and varieties.'
+        "
         :form="form"
-        submit-label="Save Changes"
+        :submit-label="isEditMode ? 'Save Changes' : 'Post Supply'"
         max-width="2xl"
         @update:open="emit('update:open', $event)"
         @submit="handleSubmit"
@@ -121,7 +166,48 @@ watch(
         </template>
 
         <div class="space-y-6">
-            <!-- ── Schedule ──────────────────────────────────────────────── -->
+            <!-- ── Vegetable (create mode only) ─────────────────────── -->
+            <div v-if="!isEditMode" class="space-y-2">
+                <Label for="vegetable_id" class="flex items-center gap-1.5">
+                    Vegetable
+                    <Badge variant="secondary" class="text-xs font-normal"
+                        >Required</Badge
+                    >
+                </Label>
+                <Select v-model="form.vegetable_id">
+                    <SelectTrigger
+                        id="vegetable_id"
+                        :class="{
+                            'border-destructive': form.errors.vegetable_id,
+                        }"
+                    >
+                        <SelectValue placeholder="Select a vegetable..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectGroup
+                            v-for="(vegetables, category) in vegetableOptions"
+                            :key="category"
+                        >
+                            <SelectLabel>{{ category }}</SelectLabel>
+                            <SelectItem
+                                v-for="v in vegetables"
+                                :key="v.id"
+                                :value="String(v.id)"
+                            >
+                                {{ v.name }}
+                            </SelectItem>
+                        </SelectGroup>
+                    </SelectContent>
+                </Select>
+                <p
+                    v-if="form.errors.vegetable_id"
+                    class="text-xs text-destructive"
+                >
+                    {{ form.errors.vegetable_id }}
+                </p>
+            </div>
+
+            <!-- ── Schedule ──────────────────────────────────────────── -->
             <div class="grid grid-cols-2 gap-4">
                 <div class="space-y-2">
                     <Label
@@ -129,14 +215,15 @@ watch(
                         class="flex items-center gap-1.5"
                     >
                         Scheduled Date
-                        <Badge variant="secondary" class="text-xs font-normal">
-                            Required
-                        </Badge>
+                        <Badge variant="secondary" class="text-xs font-normal"
+                            >Required</Badge
+                        >
                     </Label>
                     <Input
                         id="scheduled_date"
                         v-model="form.scheduled_date"
                         type="date"
+                        :min="minDate"
                         :class="{
                             'border-destructive': form.errors.scheduled_date,
                         }"
@@ -152,9 +239,9 @@ watch(
                 <div class="space-y-2">
                     <Label for="time_slot" class="flex items-center gap-1.5">
                         Time Slot
-                        <Badge variant="secondary" class="text-xs font-normal">
-                            Required
-                        </Badge>
+                        <Badge variant="secondary" class="text-xs font-normal"
+                            >Required</Badge
+                        >
                     </Label>
                     <Select v-model="form.time_slot">
                         <SelectTrigger
@@ -163,18 +250,18 @@ watch(
                                 'border-destructive': form.errors.time_slot,
                             }"
                         >
-                            <SelectValue placeholder="Select time slot..." />
+                            <SelectValue placeholder="Select time..." />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="morning">
-                                Morning (6 AM – 12 PM)
-                            </SelectItem>
-                            <SelectItem value="afternoon">
-                                Afternoon (12 PM – 6 PM)
-                            </SelectItem>
-                            <SelectItem value="evening">
-                                Evening (6 PM – 10 PM)
-                            </SelectItem>
+                            <SelectItem value="morning"
+                                >Morning (6 AM – 12 PM)</SelectItem
+                            >
+                            <SelectItem value="afternoon"
+                                >Afternoon (12 PM – 6 PM)</SelectItem
+                            >
+                            <SelectItem value="evening"
+                                >Evening (6 PM – 10 PM)</SelectItem
+                            >
                         </SelectContent>
                     </Select>
                     <p
@@ -186,11 +273,11 @@ watch(
                 </div>
             </div>
 
-            <!-- ── Supply Items ──────────────────────────────────────────── -->
+            <!-- ── Supply Items ──────────────────────────────────────── -->
             <div class="space-y-3">
                 <div class="flex items-center justify-between">
                     <Label class="flex items-center gap-1.5">
-                        Supply Items
+                        Supply Varieties
                         <Badge variant="secondary" class="text-xs font-normal">
                             {{ form.items.length }}
                         </Badge>
@@ -200,22 +287,30 @@ watch(
                         variant="outline"
                         size="sm"
                         class="h-7 gap-1.5 text-xs"
+                        :disabled="!selectedVegetableName"
                         @click="addItem"
                     >
                         <Plus class="size-3" />
-                        Add Item
+                        Add Variety
                     </Button>
                 </div>
+
+                <p
+                    v-if="!isEditMode && !selectedVegetableName"
+                    class="text-xs text-muted-foreground italic"
+                >
+                    Select a vegetable above to add supply items.
+                </p>
 
                 <p v-if="form.errors.items" class="text-xs text-destructive">
                     {{ form.errors.items }}
                 </p>
 
                 <div
-                    v-if="form.items.length === 0"
+                    v-if="form.items.length === 0 && selectedVegetableName"
                     class="rounded-md border border-dashed p-4 text-center text-sm text-muted-foreground"
                 >
-                    No items yet. Add at least one supply item.
+                    No items yet. Add at least one variety.
                 </div>
 
                 <div
@@ -223,7 +318,6 @@ watch(
                     :key="item._key"
                     class="flex items-start gap-2"
                 >
-                    <!-- Variety select -->
                     <div class="flex-1 space-y-1">
                         <Select
                             v-model="item.variety_id"
@@ -246,6 +340,14 @@ watch(
                                     :value="String(v.id)"
                                 >
                                     {{ v.name }}
+                                    <span
+                                        v-if="v.current_price"
+                                        class="ml-1 text-xs text-muted-foreground"
+                                    >
+                                        ₱{{ v.current_price.min }}–{{
+                                            v.current_price.max
+                                        }}/kg
+                                    </span>
                                 </SelectItem>
                             </SelectContent>
                         </Select>
@@ -257,7 +359,6 @@ watch(
                         </p>
                     </div>
 
-                    <!-- Quantity input -->
                     <div class="w-28 space-y-1">
                         <Input
                             v-model.number="item.quantity_kg"
@@ -279,7 +380,6 @@ watch(
                         </p>
                     </div>
 
-                    <!-- Status badge (fulfilled) or remove button -->
                     <div class="flex h-9 items-center">
                         <Badge
                             v-if="isFulfilled(item)"
@@ -293,7 +393,7 @@ watch(
                             type="button"
                             variant="ghost"
                             size="icon"
-                            class="size-9 shrink-0 text-muted-foreground hover:text-destructive"
+                            class="size-9 text-muted-foreground hover:text-destructive"
                             @click="removeItem(index)"
                         >
                             <Trash2 class="size-4" />

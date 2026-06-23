@@ -54,7 +54,6 @@ class FarmerService
             'barangay',
             'posts' => fn ($q) => $q
                 ->supply()
-                ->ready()
                 ->whereDate('scheduled_date', today())
                 ->with(['postItems' => fn ($q) => $q->ongoing()]),
         ]);
@@ -68,11 +67,9 @@ class FarmerService
             'province',
             'municipality',
             'barangay',
-            'posts' => fn ($q) => $q->supply()->growing(),
+            'posts' => fn ($q) => $q->supply(),
             'supplyItems' => fn ($q) => $q
                 ->with(['variety.vegetable.category', 'post']),
-        ])->loadCount([
-            'posts as growing_posts_count' => fn (Builder $q) => $q->supply()->growing(),
         ]);
     }
 }

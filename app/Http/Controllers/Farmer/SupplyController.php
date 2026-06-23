@@ -4,13 +4,11 @@ namespace App\Http\Controllers\Farmer;
 
 use App\Actions\Supply\CreateSupplyAction;
 use App\Actions\Supply\DeleteSupplyAction;
-use App\Actions\Supply\HarvestSupplyAction;
 use App\Actions\Supply\UpdateSupplyAction;
 use App\Data\Post\FarmerSupplyData;
 use App\Enums\PostItemStatus;
 use App\Enums\PostType;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Farmer\HarvestSupplyRequest;
 use App\Http\Requests\Farmer\StoreSupplyRequest;
 use App\Http\Requests\Farmer\UpdateSupplyRequest;
 use App\Models\Marketplace\Post;
@@ -23,40 +21,24 @@ use Inertia\Response;
 
 class SupplyController extends Controller
 {
-    public function __construct(
-        private SupplyService $supplyService
-    ) {}
+    public function __construct(private SupplyService $supplyService) {}
 
     public function index(Request $request): Response
     {
         Gate::authorize('viewAny', Post::class);
 
         $userId = $request->user()->id;
-        $rawStatus = $request->query('status', 'growing');
-        $isGrowing = $rawStatus === 'growing';
-        $postItemStatus = ! $isGrowing
-            ? PostItemStatus::tryFrom($rawStatus) ?? PostItemStatus::Ongoing
-            : null;
+        $rawStatus = $request->query('status', PostItemStatus::Ongoing->value);
+        $postItemStatus = PostItemStatus::tryFrom($rawStatus) ?? PostItemStatus::Ongoing;
 
         return Inertia::render('farmer/supplies/Index', [
-            'filters' => ['status' => $rawStatus],
+            'filters' => ['status' => $postItemStatus->value],
             'summary' => Inertia::defer(fn () => $this->supplyService->summary($userId)),
             'vegetableOptions' => Inertia::defer(fn () => $this->supplyService->vegetableOptions()),
-
-            'varietyOptions' => $isGrowing
-                ? Inertia::defer(fn () => $this->supplyService->varietyOptions())
-                : $this->supplyService->varietyOptions(),
-
-            'growingPosts' => $isGrowing
-                ? Inertia::defer(fn () => FarmerSupplyData::collect(
-                    $this->supplyService->paginatedGrowing(userId: $userId)
-                ))
-                : null,
-            'supplies' => ! $isGrowing
-                ? Inertia::defer(fn () => FarmerSupplyData::collect(
-                    $this->supplyService->paginatedSupply(userId: $userId, status: $postItemStatus)
-                ))
-                : null,
+            'varietyOptions' => Inertia::defer(fn () => $this->supplyService->varietyOptions()),
+            'supplies' => Inertia::defer(fn () => FarmerSupplyData::collect(
+                $this->supplyService->paginatedSupply(userId: $userId, status: $postItemStatus)
+            )),
         ]);
     }
 
@@ -64,10 +46,7 @@ class SupplyController extends Controller
     {
         Gate::authorize('create', [Post::class, PostType::Supply]);
 
-        $action->handle(
-            farmer: $request->user()->farmerProfile,
-            validated: $request->validated(),
-        );
+        $action->handle(farmer: $request->user()->farmerProfile, validated: $request->validated());
 
         return back(fallback: route('farmer.supplies.index'))
             ->with('flash', ['type' => 'success', 'message' => 'Supply posted successfully!']);
@@ -77,23 +56,10 @@ class SupplyController extends Controller
     {
         Gate::authorize('update', $supply);
 
-        $action->handle(
-            post: $supply,
-            validated: $request->validated(),
-        );
-
-        return back(fallback: route('farmer.supplies.index'))
-            ->with('flash', ['type' => 'success', 'message' => 'Supply updated successfully!']);
-    }
-
-    public function harvest(HarvestSupplyRequest $request, Post $supply, HarvestSupplyAction $action): RedirectResponse
-    {
-        Gate::authorize('harvest', $supply);
-
         $action->handle(post: $supply, validated: $request->validated());
 
         return back(fallback: route('farmer.supplies.index'))
-            ->with('flash', ['type' => 'success', 'message' => 'Harvest recorded! Supply is now live.']);
+            ->with('flash', ['type' => 'success', 'message' => 'Supply updated successfully!']);
     }
 
     public function destroy(Post $supply, DeleteSupplyAction $action): RedirectResponse

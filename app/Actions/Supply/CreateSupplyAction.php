@@ -2,25 +2,34 @@
 
 namespace App\Actions\Supply;
 
-use App\Enums\PostStatus;
+use App\Enums\PostItemStatus;
 use App\Enums\PostType;
 use App\Models\Marketplace\Post;
 use App\Models\Profiles\FarmerProfile;
+use Illuminate\Support\Facades\DB;
 
 final class CreateSupplyAction
 {
     public function handle(FarmerProfile $farmer, array $validated): Post
     {
-        /** @var Post $post */
-        $post = Post::create([
-            'user_id' => $farmer->user_id,
-            'vegetable_id' => $validated['vegetable_id'],
-            'type' => PostType::Supply,
-            'status' => PostStatus::Growing,
-            'expected_harvest_month' => $validated['expected_harvest_month'],
-            'estimated_total_weight' => $validated['estimated_total_weight'],
-        ]);
+        return DB::transaction(function () use ($farmer, $validated): Post {
+            $post = Post::create([
+                'user_id' => $farmer->user_id,
+                'vegetable_id' => $validated['vegetable_id'],
+                'type' => PostType::Supply,
+                'scheduled_date' => $validated['scheduled_date'],
+                'time_slot' => $validated['time_slot'],
+            ]);
 
-        return $post->load('vegetable');
+            foreach ($validated['items'] as $item) {
+                $post->postItems()->create([
+                    'variety_id' => $item['variety_id'],
+                    'quantity_kg' => $item['quantity_kg'],
+                    'status' => PostItemStatus::Ongoing,
+                ]);
+            }
+
+            return $post->load('vegetable', 'postItems.variety');
+        });
     }
 }

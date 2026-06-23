@@ -1,11 +1,10 @@
 <script setup lang="ts">
 import { Deferred, Head, router, useForm } from '@inertiajs/vue3'
-import { Plus, Sprout } from 'lucide-vue-next'
+import { Package, Plus } from 'lucide-vue-next'
 import { computed, ref } from 'vue'
 import ConfirmationDialog from '@/components/dialogs/ConfirmationDialog.vue'
 import EmptyState from '@/components/EmptyState.vue'
-import HarvestForm from '@/components/features/farmer/HarvestForm.vue'
-import PlantForm from '@/components/features/farmer/PlantForm.vue'
+import SupplyCard from '@/components/features/farmer/SupplyCard.vue'
 import SupplyForm from '@/components/features/farmer/SupplyForm.vue'
 import Heading from '@/components/Heading.vue'
 import LargeCard from '@/components/shared/cards/LargeCard.vue'
@@ -22,94 +21,51 @@ import type {
     VarietyOptionsByVegetable,
     VegetableOptionsByCategory,
 } from '@/types'
-import PlantItem from '@/components/features/farmer/PlantItem.vue'
-import SupplyCard from '@/components/features/farmer/SupplyCard.vue'
 
 const props = defineProps<FarmerSuppliesProps>()
 
-const isGrowing = computed(() => props.filters.status === 'growing')
-
-// ─── Growing post actions ─────────────────────────────────────────────────────
-
-const plantFormOpen = ref(false)
-const activeGrowingSupply = ref<FarmerSupplyDataFixed | null>(null)
-const harvestOpen = ref(false)
-const supplyToHarvest = ref<FarmerSupplyDataFixed | null>(null)
-
-function openCreate() {
-    activeGrowingSupply.value = null
-    plantFormOpen.value = true
-}
-
-function openEditGrowing(post: FarmerSupplyDataFixed) {
-    activeGrowingSupply.value = post
-    plantFormOpen.value = true
-}
-
-function openHarvest(post: FarmerSupplyDataFixed) {
-    supplyToHarvest.value = post
-    harvestOpen.value = true
-}
-
-// ─── Ready supply actions ─────────────────────────────────────────────────────
+// ─── Supply form (create + edit) ─────────────────────────────────────────────
 
 const supplyFormOpen = ref(false)
-const activeReadySupply = ref<FarmerSupplyDataFixed | null>(null)
+const activeSupply = ref<FarmerSupplyDataFixed | null>(null)
 
-function openEditSupply(supply: FarmerSupplyDataFixed) {
-    activeReadySupply.value = supply
+function openCreate() {
+    activeSupply.value = null
     supplyFormOpen.value = true
 }
 
-// ─── Shared post deletion ─────────────────────────────────────────────────────
-
-const deletePostDialogOpen = ref(false)
-const supplyToDelete = ref<FarmerSupplyDataFixed | null>(null)
-const deletePostForm = useForm({})
-
-function openDeletePost(post: FarmerSupplyDataFixed) {
-    supplyToDelete.value = post
-    deletePostDialogOpen.value = true
+function openEdit(supply: FarmerSupplyDataFixed) {
+    activeSupply.value = supply
+    supplyFormOpen.value = true
 }
 
-function handleDeletePost() {
+// ─── Delete ───────────────────────────────────────────────────────────────────
+
+const deleteDialogOpen = ref(false)
+const supplyToDelete = ref<FarmerSupplyDataFixed | null>(null)
+const deleteForm = useForm({})
+
+function openDelete(supply: FarmerSupplyDataFixed) {
+    supplyToDelete.value = supply
+    deleteDialogOpen.value = true
+}
+
+function handleDelete() {
     if (!supplyToDelete.value) return
-    deletePostForm.delete(destroySupply(supplyToDelete.value.id).url, {
+    deleteForm.delete(destroySupply(supplyToDelete.value.id).url, {
         preserveScroll: true,
         onSuccess: () => {
-            deletePostDialogOpen.value = false
+            deleteDialogOpen.value = false
             supplyToDelete.value = null
         },
     })
 }
 
-// ─── Tabs + pagination ────────────────────────────────────────────────────────
+// ─── Status tabs + pagination ─────────────────────────────────────────────────
 
-const DEFAULT_READY_FOR_HARVEST_STATUS = 'ongoing'
+const currentStatus = computed(() => props.filters.status)
 
-const mainTab = computed(() => (isGrowing.value ? 'growing' : 'ready'))
-const subTab = computed(() => props.filters.status)
-
-function handleMainTabChange(value: string | number) {
-    if (value === mainTab.value) return
-    router.visit(
-        index({
-            query: {
-                status:
-                    value === 'growing'
-                        ? undefined
-                        : DEFAULT_READY_FOR_HARVEST_STATUS,
-            },
-        }).url,
-        {
-            preserveState: true,
-            preserveScroll: true,
-            only: ['growingPosts', 'supplies', 'filters', 'summary'],
-        },
-    )
-}
-
-function handleSubTabChange(value: string | number) {
+function handleStatusChange(value: string | number) {
     router.visit(index({ query: { status: value } }).url, {
         preserveState: true,
         preserveScroll: true,
@@ -118,10 +74,9 @@ function handleSubTabChange(value: string | number) {
 }
 
 function handlePageChange(page: number) {
-    router.visit(farmer.supplies.index().url, {
-        data: { page, status: props.filters.status },
+    router.visit(index({ query: { status: props.filters.status, page } }).url, {
         preserveScroll: true,
-        only: [isGrowing.value ? 'growingPosts' : 'supplies'],
+        only: ['supplies'],
     })
 }
 
@@ -138,166 +93,86 @@ const breadcrumbs: BreadcrumbItem[] = [
         <div class="flex h-full flex-col gap-6 p-4 lg:p-6">
             <div class="flex items-end justify-between">
                 <Heading
-                    title="My Plants & Supplies"
-                    description="Track growing plants and schedule supply deliveries."
+                    title="My Supplies"
+                    description="Post and manage your vegetable supply schedules."
                 />
                 <Button class="gap-2" @click="openCreate">
                     <Plus class="size-4" />
-                    New Plant
+                    New Supply
                 </Button>
             </div>
 
+            <!-- ── Summary ────────────────────────────────────────────── -->
             <Deferred data="summary">
                 <template #fallback>
-                    <div class="grid gap-44 sm:grid-cols-2">
+                    <div class="grid gap-4 sm:grid-cols-3">
                         <Skeleton
-                            v-for="i in 2"
+                            v-for="i in 3"
                             :key="i"
                             class="h-24 rounded-lg"
                         />
                     </div>
                 </template>
-                <div class="grid gap-4 sm:grid-cols-2">
+                <div class="grid gap-4 sm:grid-cols-3">
                     <LargeCard
-                        title="Total Plants"
-                        :value="summary?.total_growing"
-                        subtext="still growing"
+                        title="Ongoing"
+                        :value="summary?.total_ongoing"
+                        subtext="awaiting fulfillment"
                     />
                     <LargeCard
-                        title="Scheduled Supplies"
-                        :value="summary?.total_ongoing"
-                        subtext="scheduled this month"
+                        title="Fulfilled"
+                        :value="summary?.total_fulfilled"
+                        subtext="completed"
+                    />
+                    <LargeCard
+                        title="Unsettled"
+                        :value="summary?.total_unsettled"
+                        subtext="expired without fulfillment"
                     />
                 </div>
             </Deferred>
 
-            <!-- ── Tier 1: Post status (Growing vs Ready for Harvest) ────────────────── -->
-            <div class="flex flex-col gap-3">
-                <Tabs
-                    :model-value="mainTab"
-                    @update:model-value="handleMainTabChange"
-                >
-                    <TabsList>
-                        <TabsTrigger value="growing">Plants</TabsTrigger>
-                        <TabsTrigger value="ready">Supplies</TabsTrigger>
-                    </TabsList>
-                </Tabs>
+            <!-- ── Status tabs ────────────────────────────────────────── -->
+            <Tabs
+                :model-value="currentStatus"
+                @update:model-value="handleStatusChange"
+            >
+                <TabsList>
+                    <TabsTrigger value="ongoing">Ongoing</TabsTrigger>
+                    <TabsTrigger value="unsettled">Unsettled</TabsTrigger>
+                    <TabsTrigger value="fulfilled">Fulfilled</TabsTrigger>
+                </TabsList>
+            </Tabs>
 
-                <!-- ── Tier 2: PostItem status (only once ready for harvest) ──────────── -->
-                <Tabs
-                    v-if="!isGrowing"
-                    :model-value="subTab"
-                    @update:model-value="handleSubTabChange"
-                >
-                    <TabsList class="h-8 bg-transparent p-0">
-                        <TabsTrigger value="ongoing" class="text-xs">
-                            Not yet Scheduled
-                        </TabsTrigger>
-                        <TabsTrigger value="unsettled" class="text-xs">
-                            Expired Schedule
-                        </TabsTrigger>
-                        <TabsTrigger value="fulfilled" class="text-xs">
-                            Fulfilled Schedule
-                        </TabsTrigger>
-                    </TabsList>
-                </Tabs>
-            </div>
-
-            <!-- ── Growing ────────────────────────────────────────────────────── -->
-            <template v-if="isGrowing">
-                <Deferred data="growingPosts">
-                    <template #fallback>
-                        <div
-                            class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
-                        >
-                            <Skeleton
-                                v-for="i in 8"
-                                :key="i"
-                                class="h-80 rounded-lg"
-                            />
-                        </div>
-                    </template>
-
-                    <EmptyState
-                        v-if="growingPosts?.data.length === 0"
-                        title="No Growing Supplies"
-                        description="Register an upcoming schedule to get started."
-                        :icon="Sprout"
-                    />
-
-                    <div v-else class="grid gap-4 sm:grid-cols-3">
-                        <PlantItem
-                            v-for="plant in growingPosts!.data"
-                            :key="plant.id"
-                            :plant="plant"
-                            @edit="openEditGrowing(plant)"
-                            @harvest="openHarvest(plant)"
-                            @delete="openDeletePost(plant)"
+            <!-- ── Supply list ────────────────────────────────────────── -->
+            <Deferred data="supplies">
+                <template #fallback>
+                    <div
+                        class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+                    >
+                        <Skeleton
+                            v-for="i in 8"
+                            :key="i"
+                            class="h-36 rounded-lg"
                         />
                     </div>
+                </template>
 
-                    <div
-                        v-if="growingPosts && growingPosts.last_page > 1"
-                        class="flex items-center justify-between border-t pt-4"
-                    >
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            :disabled="growingPosts.current_page === 1"
-                            @click="
-                                handlePageChange(growingPosts.current_page - 1)
-                            "
-                            >Previous</Button
-                        >
-                        <span class="text-sm text-muted-foreground">
-                            Page {{ growingPosts.current_page }} of
-                            {{ growingPosts.last_page }}
-                        </span>
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            :disabled="
-                                growingPosts.current_page ===
-                                growingPosts.last_page
-                            "
-                            @click="
-                                handlePageChange(growingPosts.current_page + 1)
-                            "
-                            >Next</Button
-                        >
-                    </div>
-                </Deferred>
-            </template>
+                <EmptyState
+                    v-if="supplies?.data.length === 0"
+                    title="No Supplies"
+                    description="Post a new supply to get started."
+                    :icon="Package"
+                />
 
-            <!-- ── Ongoing / Unsettled / Fulfilled ────────────────────────────── -->
-            <template v-else>
-                <Deferred data="supplies">
-                    <template #fallback>
-                        <div
-                            class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
-                        >
-                            <Skeleton
-                                v-for="i in 8"
-                                :key="i"
-                                class="h-80 rounded-lg"
-                            />
-                        </div>
-                    </template>
-
-                    <EmptyState
-                        v-if="supplies?.data.length === 0"
-                        title="No Items"
-                        description="Nothing here yet."
-                        :icon="Sprout"
-                    />
-
-                    <div v-else class="grid gap-4 sm:grid-cols-3">
+                <template v-else>
+                    <div class="grid gap-4 sm:grid-cols-3">
                         <SupplyCard
                             v-for="supply in supplies!.data"
                             :key="supply.id"
                             :supply="supply"
-                            @edit="openEditSupply(supply)"
-                            @delete="openDeletePost(supply)"
+                            @edit="openEdit(supply)"
+                            @delete="openDelete(supply)"
                         />
                     </div>
 
@@ -310,8 +185,9 @@ const breadcrumbs: BreadcrumbItem[] = [
                             size="sm"
                             :disabled="supplies.current_page === 1"
                             @click="handlePageChange(supplies.current_page - 1)"
-                            >Previous</Button
                         >
+                            Previous
+                        </Button>
                         <span class="text-sm text-muted-foreground">
                             Page {{ supplies.current_page }} of
                             {{ supplies.last_page }}
@@ -323,45 +199,33 @@ const breadcrumbs: BreadcrumbItem[] = [
                                 supplies.current_page === supplies.last_page
                             "
                             @click="handlePageChange(supplies.current_page + 1)"
-                            >Next</Button
                         >
+                            Next
+                        </Button>
                     </div>
-                </Deferred>
-            </template>
+                </template>
+            </Deferred>
         </div>
     </AppLayout>
 
-    <!-- Growing post forms -->
-    <PlantForm
-        :open="plantFormOpen"
-        :supply="activeGrowingSupply"
+    <SupplyForm
+        :open="supplyFormOpen"
+        :supply="activeSupply"
         :vegetable-options="
             vegetableOptions as VegetableOptionsByCategory | undefined
         "
-        @update:open="plantFormOpen = $event"
-    />
-    <HarvestForm
-        :open="harvestOpen"
-        :supply="supplyToHarvest"
-        :variety-options="varietyOptions as VarietyOptionsByVegetable"
-        @update:open="harvestOpen = $event"
-    />
-
-    <!-- Ready supply edit form -->
-    <SupplyForm
-        :open="supplyFormOpen"
-        :supply="activeReadySupply"
-        :variety-options="varietyOptions as VarietyOptionsByVegetable"
+        :variety-options="
+            varietyOptions as VarietyOptionsByVegetable | undefined
+        "
         @update:open="supplyFormOpen = $event"
     />
 
-    <!-- Post delete (shared for both growing and ready) -->
     <ConfirmationDialog
-        v-model:open="deletePostDialogOpen"
+        v-model:open="deleteDialogOpen"
         title="Delete Supply"
-        :description="`Permanently delete ${supplyToDelete?.vegetable?.name} supply?`"
-        :processing="deletePostForm.processing"
+        :description="`Permanently delete this ${supplyToDelete?.vegetable?.name} supply?`"
+        :processing="deleteForm.processing"
         variant="destructive"
-        @action="handleDeletePost"
+        @action="handleDelete"
     />
 </template>

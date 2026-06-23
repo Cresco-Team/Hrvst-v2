@@ -2,7 +2,6 @@
 
 namespace App\Models\Marketplace;
 
-use App\Enums\PostStatus;
 use App\Enums\PostTimeSlot;
 use App\Enums\PostType;
 use App\Models\Product\Vegetable;
@@ -20,16 +19,13 @@ use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
-use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
-#[Fillable(['user_id',
+#[Fillable([
+    'user_id',
     'vegetable_id',
     'type',
-    'status',
-    'expected_harvest_month',
     'scheduled_date',
     'time_slot',
-    'estimated_total_weight',
 ])]
 class Post extends Model implements HasMedia
 {
@@ -41,10 +37,8 @@ class Post extends Model implements HasMedia
     {
         return [
             'type' => PostType::class,
-            'status' => PostStatus::class,
             'time_slot' => PostTimeSlot::class,
             'scheduled_date' => 'date:F j, Y',
-            'estimated_total_weight' => 'decimal:2',
         ];
     }
 
@@ -101,24 +95,7 @@ class Post extends Model implements HasMedia
         return $query->where('type', PostType::Demand);
     }
 
-    public function scopeGrowing(Builder $query): Builder
-    {
-        return $query->where('status', PostStatus::Growing);
-    }
-
-    public function scopeReady(Builder $query): Builder
-    {
-        return $query->where('status', PostStatus::Ready);
-    }
-
     /* ---------- lifecycle ---------- */
-
-    public function markAsReady(string $scheduledDate): void
-    {
-        $this->status = PostStatus::Ready;
-        $this->scheduled_date = $scheduledDate;
-        $this->save();
-    }
 
     public function markAsUnsettled(): void
     {
@@ -126,11 +103,6 @@ class Post extends Model implements HasMedia
     }
 
     /* ---------- helpers ---------- */
-
-    public function isGrowing(): bool
-    {
-        return $this->status === PostStatus::Growing;
-    }
 
     public function createdAtHuman(): Attribute
     {
@@ -148,22 +120,5 @@ class Post extends Model implements HasMedia
 
             $post->postItems()->each(fn (PostItem $item) => $item->delete());
         });
-    }
-
-    /* ---------- media ---------- */
-
-    public function registerMediaCollections(): void
-    {
-        $this->addMediaCollection('post_image')
-            ->singleFile()
-            ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/webp']);
-    }
-
-    public function registerMediaConversions(?Media $media = null): void
-    {
-        $this->addMediaConversion('thumb')
-            ->width(400)
-            ->height(400)
-            ->nonQueued();
     }
 }

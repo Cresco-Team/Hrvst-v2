@@ -13,11 +13,6 @@ class PostResource extends JsonResource
         return [
             'id' => $this->id,
             'type' => $this->type->value,
-            'status' => $this->status->value,
-            'expected_harvest_month' => $this->expected_harvest_month,
-            'estimated_total_weight' => $this->estimated_total_weight !== null
-                ? (float) $this->estimated_total_weight
-                : null,
             'scheduled_date' => $this->scheduled_date?->format('M d, Y'),
             'time_slot' => $this->time_slot?->value,
             'time_slot_label' => $this->time_slot?->label(),
