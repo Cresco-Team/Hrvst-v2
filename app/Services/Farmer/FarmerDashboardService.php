@@ -12,9 +12,7 @@ class FarmerDashboardService
 {
     private function baseItemQuery(int $userId): Builder
     {
-        return PostItem::whereHas(
-            'post', fn (Builder $q) => $q->supply()->where('user_id', $userId)
-        );
+        return PostItem::whereHas('post', fn (Builder $q) => $q->supply()->where('user_id', $userId));
     }
 
     public function summary(int $userId): array
@@ -22,7 +20,6 @@ class FarmerDashboardService
         $itemQuery = $this->baseItemQuery($userId);
 
         return [
-            'total_growing' => Post::supply()->growing()->where('user_id', $userId)->count(),
             'total_ongoing' => (clone $itemQuery)->ongoing()->count(),
             'total_fulfilled' => (clone $itemQuery)->fulfilled()->count(),
             'total_unsettled' => (clone $itemQuery)->unsettled()->count(),
@@ -32,8 +29,8 @@ class FarmerDashboardService
     public function expiringSupplies(int $userId): Collection
     {
         return Post::supply()
-            ->ready()
             ->where('user_id', $userId)
+            ->whereHas('postItems', fn (Builder $q) => $q->ongoing())
             ->whereBetween('scheduled_date', [now()->startOfDay(), now()->addDays(3)->endOfDay()])
             ->with(['vegetable.category', 'media', 'postItems.variety'])
             ->orderBy('scheduled_date')
@@ -44,19 +41,17 @@ class FarmerDashboardService
     public function recommendations(int $userId): array
     {
         $recs = [];
-
         $itemQuery = $this->baseItemQuery($userId);
 
         $ongoing = (clone $itemQuery)->ongoing()->count();
-        $growing = Post::supply()->growing()->where('user_id', $userId)->count();
         $unsettled = (clone $itemQuery)->unsettled()->count();
 
-        if ($growing === 0 && $ongoing === 0) {
+        if ($ongoing === 0) {
             $recs[] = new FarmerDashboardRecommendationDTO(
                 severity: 'info',
                 type: 'no_active_supply',
                 title: 'No Active Supply',
-                body: 'You have no growing or ongoing supply posts. Register a new crop to get started.',
+                body: 'You have no scheduled supplies. Post a new supply to get started.',
             );
         }
 
@@ -65,7 +60,7 @@ class FarmerDashboardService
                 severity: 'warning',
                 type: 'unsettled_items',
                 title: 'Unsettled Items',
-                body: "{$unsettled} supply item(s) were unsettled without being fulfilled. Review your pricing or delivery timing.",
+                body: "{$unsettled} supply item(s) expired without being fulfilled. Review your pricing or delivery timing.",
             );
         }
 

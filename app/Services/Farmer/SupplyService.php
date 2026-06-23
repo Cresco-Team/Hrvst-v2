@@ -17,35 +17,27 @@ class SupplyService
         $itemQuery = PostItem::whereHas('post', fn (Builder $q) => $q->supply()->where('user_id', $userId));
 
         return [
-            'total_growing' => Post::supply()->growing()->where('user_id', $userId)->count(),
             'total_ongoing' => (clone $itemQuery)->ongoing()->count(),
             'total_fulfilled' => (clone $itemQuery)->fulfilled()->count(),
             'total_unsettled' => (clone $itemQuery)->unsettled()->count(),
         ];
     }
 
-    public function paginatedGrowing(int $userId, int $perPage = 20): LengthAwarePaginator
-    {
-        return Post::supply()
-            ->where('user_id', $userId)
-            ->growing()
-            ->with(['media', 'vegetable.category'])
-            ->orderBy('created_at', 'desc')
-            ->paginate($perPage);
-    }
-
     public function paginatedSupply(int $userId, PostItemStatus $status = PostItemStatus::Ongoing, int $perPage = 20): LengthAwarePaginator
     {
         return Post::supply()
             ->where('user_id', $userId)
-            ->ready()
-            ->whereHas('postItems', function ($query) use ($status) {
-                $query->where('status', $status);
-            })
-            ->with(['media', 'vegetable.category', 'postItems' => function ($query) use ($status) {
-                $query->where('status', $status)->with('variety');
-            }])
-            ->orderBy('created_at', 'asc')
+            ->whereHas('postItems', fn ($q) => $q->ofStatus($status))
+            ->with([
+                'media',
+                'vegetable.category',
+                'postItems' => fn ($q) => $q->ofStatus($status)->with('variety'),
+            ])
+            ->when(
+                $status === PostItemStatus::Ongoing,
+                fn ($q) => $q->orderBy('scheduled_date'),
+                fn ($q) => $q->latest('scheduled_date'),
+            )
             ->paginate($perPage);
     }
 
@@ -65,7 +57,7 @@ class SupplyService
 
     public function varietyOptions(): array
     {
-        return cache()->remember('farmer_harvest_variety_options', 3600, fn () => Variety::with(['vegetable', 'latestPrice'])
+        return cache()->remember('farmer_supply_variety_options', 3600, fn () => Variety::with(['vegetable', 'latestPrice'])
             ->orderBy('name')
             ->get()
             ->groupBy(fn ($v) => $v->vegetable->name)
