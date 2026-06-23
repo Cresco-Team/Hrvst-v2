@@ -3,7 +3,6 @@
 namespace App\Actions\Demand;
 
 use App\Enums\PostItemStatus;
-use App\Enums\PostStatus;
 use App\Models\Marketplace\Post;
 use App\Models\Marketplace\PostItem;
 use App\Models\Product\Variety;
@@ -13,18 +12,12 @@ final class UpdateDemandAction
 {
     public function handle(Post $post, array $validated): Post
     {
-        if ($post->status !== PostStatus::Ready) {
-            throw new \LogicException('Only active demand posts can be updated.');
-        }
-
         DB::transaction(function () use ($post, $validated): void {
             $post->update(array_intersect_key($validated, array_flip([
                 'vegetable_id', 'scheduled_date', 'time_slot',
             ])));
 
             if (! empty($validated['items'])) {
-                // Bug #5 fix: only remove ongoing items — fulfilled/unsettled items
-                // represent completed or cancelled transactions and must not be touched.
                 $post->postItems()
                     ->where('status', PostItemStatus::Ongoing)
                     ->delete();

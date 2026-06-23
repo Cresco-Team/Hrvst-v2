@@ -35,7 +35,6 @@ class PostPolicy
         return match ($post->type) {
             PostType::Supply => $user->id === $post->user_id,
             PostType::Demand => $user->id === $post->user_id
-                && $post->status === PostStatus::Ready,
         };
     }
 
@@ -49,10 +48,8 @@ class PostPolicy
     public function archive(User $user, Post $post): bool
     {
         return match ($post->type) {
-            PostType::Supply => $user->id === $post->user_id
-                && in_array($post->status, [PostStatus::Ready], true),
-            PostType::Demand => $user->id === $post->user_id
-                && $post->status !== PostStatus::Ready,
+            PostType::Supply => $user->id === $post->user_id,
+            PostType::Demand => $user->id === $post->user_id,
         };
     }
 

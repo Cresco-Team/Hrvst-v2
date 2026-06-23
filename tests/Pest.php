@@ -1,7 +1,6 @@
 <?php
 
 use App\Enums\PostItemStatus;
-use App\Enums\PostStatus;
 use App\Enums\PostTimeSlot;
 use App\Enums\PostType;
 use App\Models\Address\Barangay;
@@ -149,7 +148,6 @@ function createSupplyPost(User $farmer, Variety $variety, array $overrides = [])
         'user_id' => $farmer->id,
         'vegetable_id' => $variety->vegetable_id,
         'type' => PostType::Supply,
-        'status' => PostStatus::Ready,
         'scheduled_date' => now()->addDays(7)->toDateString(),
         'time_slot' => PostTimeSlot::Morning,
         'estimated_total_weight' => 100,
@@ -174,7 +172,6 @@ function createDemandPost(User $dealer, Variety $variety, array $overrides = [])
         'user_id' => $dealer->id,
         'vegetable_id' => $variety->vegetable_id,
         'type' => PostType::Demand,
-        'status' => PostStatus::Ready,
         'scheduled_date' => now()->addDays(5)->toDateString(),
         'time_slot' => PostTimeSlot::Afternoon,
     ], $overrides));

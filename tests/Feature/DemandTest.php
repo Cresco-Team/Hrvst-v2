@@ -1,7 +1,6 @@
 <?php
 
 use App\Enums\PostItemStatus;
-use App\Enums\PostStatus;
 use App\Enums\PostType;
 use App\Models\Marketplace\Post;
 use App\Models\Marketplace\PostItem;
@@ -85,7 +84,6 @@ describe('CreateDemand', function () {
 
         $post = Post::first();
         expect($post)->not->toBeNull()
-            ->and($post->status)->toBe(PostStatus::Ready)
             ->and($post->type)->toBe(PostType::Demand)
             ->and($post->vegetable_id)->toBe($vegetable->id)
             ->and($post->time_slot->value)->toBe('morning')

@@ -54,7 +54,6 @@ class FarmerService
             'barangay',
             'posts' => fn ($q) => $q
                 ->supply()
-                ->ready()
                 ->whereDate('scheduled_date', today())
                 ->with(['postItems' => fn ($q) => $q->ongoing()]),
         ]);
