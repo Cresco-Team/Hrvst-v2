@@ -23,38 +23,14 @@ class VegetableSharedResource extends JsonResource
             ]),
 
             // with varieties
-            'varieties' => $this->whenLoaded('varieties', function () use ($request) {
-                return $this->varieties->map(function ($variety) use ($request) {
-                    return [
-                        'id' => $variety->id,
-                        'name' => $variety->name,
+            'varieties' => $this->whenLoaded('varieties', function () {
+                return $this->varieties->map(fn ($variety) => [
+                    'id' => $variety->id,
+                    'name' => $variety->name,
 
-                        'supply_count' => $variety->supply_count,
-                        'demand_count' => $variety->demand_count,
-
-                        'latest_price' => $variety->when($variety->relationLoaded('latestPrice'),
-                            fn () => $variety->latestPrice
-                                ? (new PriceHistoryResource($variety->latestPrice))->toArray($request)
-                                : null
-                        ),
-                        'price_trend' => $variety->when($variety->relationLoaded('lastTwoPrices'), function () use ($variety) {
-                            $price = $variety->lastTwoPrices;
-
-                            if ($price->count() < 2) {
-                                return null;
-                            }
-
-                            $latest = (float) $price->first()->price_max;
-                            $previous = (float) $price->last()->price_max;
-
-                            return match (true) {
-                                $latest > $previous => 'up',
-                                $latest < $previous => 'down',
-                                default => 'flat',
-                            };
-                        }),
-                    ];
-                });
+                    'supply_count' => $variety->supply_count,
+                    'demand_count' => $variety->demand_count,
+                ]);
             }),
         ];
     }
