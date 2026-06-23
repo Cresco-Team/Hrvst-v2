@@ -9,13 +9,7 @@ final class UpdateSupplyAction
 {
     public function handle(Post $post, array $validated): Post
     {
-        $post->update(Arr::only($validated, [
-            'vegetable_id',
-            'expected_harvest_month',
-            'estimated_total_weight',
-            'scheduled_date',
-            'time_slot',
-        ]));
+        $post->update(Arr::only($validated, ['scheduled_date', 'time_slot']));
 
         if (array_key_exists('items', $validated)) {
             $this->syncItems($post, $validated['items']);
