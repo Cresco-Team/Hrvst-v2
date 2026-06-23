@@ -24,16 +24,6 @@ class VarietyDetailResource extends JsonResource
                 ],
             ],
 
-            'latest_price' => $this->latestPrice
-                ? (new PriceHistoryResource($this->latestPrice))->toArray($request)
-                : null,
-            'price_updated_human' => $this->latestPrice?->recorded_at->diffForHumans(),
-            'price_updated_date' => $this->latestPrice?->recorded_at->format('M d, Y'),
-
-            'recent_prices' => PriceHistoryResource::collection(
-                $this->recentPrices->sortBy('recorded_at')->values()
-            )->toArray($request),
-
             'supply_count' => $this->supply_count,
             'demand_count' => $this->demand_count,
             'monthly_supply_kg' => (float) ($this->monthly_supply_kg ?? 0),
