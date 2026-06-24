@@ -97,9 +97,9 @@ class Post extends Model implements HasMedia
 
     /* ---------- lifecycle ---------- */
 
-    public function markAsUnsettled(): void
+    public function markAsExpired(): void
     {
-        $this->postItems()->each(fn (PostItem $item) => $item->markAsUnsettled());
+        $this->postItems()->each(fn (PostItem $item) => $item->markAsExpired());
     }
 
     /* ---------- helpers ---------- */

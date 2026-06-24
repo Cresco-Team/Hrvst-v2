@@ -49,9 +49,9 @@ class PostItem extends Model
         return $query->where($this->qualifyColumn('status'), PostItemStatus::Fulfilled);
     }
 
-    public function scopeUnsettled(Builder $query): Builder
+    public function scopeExpired(Builder $query): Builder
     {
-        return $query->where($this->qualifyColumn('status'), PostItemStatus::Unsettled);
+        return $query->where($this->qualifyColumn('status'), PostItemStatus::Expired);
     }
 
     public function scopeOfStatus(Builder $query, PostItemStatus $status): Builder
@@ -67,9 +67,9 @@ class PostItem extends Model
         $this->save();
     }
 
-    public function markAsUnsettled(): void
+    public function markAsExpired(): void
     {
-        $this->status = PostItemStatus::Unsettled;
+        $this->status = PostItemStatus::Expired;
         $this->save();
     }
 }

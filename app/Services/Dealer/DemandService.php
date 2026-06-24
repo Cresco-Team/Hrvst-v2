@@ -18,7 +18,7 @@ class DemandService
         return [
             'total_ongoing' => (clone $query)->ongoing()->count(),
             'total_fulfilled' => (clone $query)->fulfilled()->count(),
-            'total_unsettled' => (clone $query)->unsettled()->count(),
+            'total_expired' => (clone $query)->expired()->count(),
         ];
     }
 

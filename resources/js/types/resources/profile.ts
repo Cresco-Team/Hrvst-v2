@@ -81,13 +81,13 @@ export interface FarmerSupplySummary {
 	total_growing: number
 	total_ongoing: number
 	total_fulfilled: number
-	total_unsettled: number
+	total_expired: number
 }
 
 export interface DealerDemandSummary {
 	total_ongoing: number
 	total_fulfilled: number
-	total_unsettled: number
+	total_expired: number
 }
 
 export interface AdminFarmerSummary {

@@ -187,7 +187,7 @@ const criticalRecs = computed(
                     <Card class="gap-0 py-4">
                         <CardContent class="px-4">
                             <p class="text-xs text-muted-foreground">
-                                Unsettled
+                                Expired
                             </p>
                         </CardContent>
                         <CardContent
@@ -196,7 +196,7 @@ const criticalRecs = computed(
                             <p
                                 class="text-2xl font-bold text-muted-foreground tabular-nums"
                             >
-                                {{ summary?.total_unsettled ?? 0 }}
+                                {{ summary?.total_expired ?? 0 }}
                             </p>
                             <AlertTriangle
                                 class="size-4 text-muted-foreground"

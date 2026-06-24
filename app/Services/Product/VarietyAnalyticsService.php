@@ -10,45 +10,28 @@ use App\Enums\Analytics\VarietyViewerRole;
 
 class VarietyAnalyticsService
 {
-    /**
-     * Ratio thresholds for supply/demand imbalance classification.
-     * Positive = oversupply, negative = undersupply.
-     */
     private const float OVERSUPPLY_THRESHOLD = 0.20;
 
     private const float UNDERSUPPLY_THRESHOLD = -0.20;
 
-    /**
-     * Fulfillment rate below which we flag a mismatch warning.
-     */
     private const float LOW_FULFILLMENT_THRESHOLD = 0.50;
 
-    /**
-     * MoM decline percentage that triggers a declining-volume notice.
-     */
     private const float SUPPLY_DECLINE_THRESHOLD = -20.0;
 
-    // -------------------------------------------------------------------------
-
     /**
-     * Entry point. All inputs are already resolved by VarietyService::show().
-     * No DB calls here — pure computation only.
-     *
      * @param  array<int, array{
      *     month: string,
      *     label: string,
-     *     supply_unsettled_kg: float,
+     *     supply_expired_kg: float,
      *     supply_fulfilled_kg: float,
-     *     demand_unsettled_kg: float,
+     *     demand_expired_kg: float,
      *     demand_fulfilled_kg: float,
-     * }> $monthlyActivity  12-entry rolling array from VarietyActivityService
+     * }> $monthlyActivity
      */
     public function compute(
         array $monthlyActivity,
         VarietyViewerRole $role,
     ): VarietyAnalyticsDTO {
-        // Last 3 complete months — skip index 11 (current, potentially in-progress).
-        // array_slice offset -4 length 3 → indices 8, 9, 10 of 12 total.
         $completeMonths = array_slice($monthlyActivity, -4, 3);
 
         $ratio = $this->computeImbalanceRatio($completeMonths);
@@ -77,18 +60,6 @@ class VarietyAnalyticsService
         );
     }
 
-    // -------------------------------------------------------------------------
-    // Metric computation — private, individually unit-testable if extracted
-    // -------------------------------------------------------------------------
-
-    /**
-     * Computes the supply/demand ratio over the given month windows.
-     *
-     * ratio = (avg_supply_kg - avg_demand_kg) / max(avg_demand_kg, 1)
-     *
-     * > 0 → more supply than demand
-     * < 0 → more demand than supply
-     */
     private function computeImbalanceRatio(array $months): float
     {
         if (empty($months)) {
@@ -96,12 +67,12 @@ class VarietyAnalyticsService
         }
 
         $totalSupply = array_sum(array_map(
-            fn (array $m) => $m['supply_fulfilled_kg'] + $m['supply_unsettled_kg'],
+            fn (array $m) => $m['supply_fulfilled_kg'] + $m['supply_expired_kg'],
             $months,
         ));
 
         $totalDemand = array_sum(array_map(
-            fn (array $m) => $m['demand_fulfilled_kg'] + $m['demand_unsettled_kg'],
+            fn (array $m) => $m['demand_fulfilled_kg'] + $m['demand_expired_kg'],
             $months,
         ));
 
@@ -121,12 +92,7 @@ class VarietyAnalyticsService
         };
     }
 
-    /**
-     * Fulfillment rate = fulfilled_kg / (fulfilled_kg + unsettled_kg) over all months.
-     * Returns null when there is no volume in the window (avoids division by zero noise).
-     *
-     * @param  'supply'|'demand'  $type
-     */
+    /** @param 'supply'|'demand' $type */
     private function computeFulfillmentRate(array $months, string $type): ?float
     {
         $fulfilled = (float) array_sum(array_map(
@@ -134,25 +100,17 @@ class VarietyAnalyticsService
             $months,
         ));
 
-        $unsettled = (float) array_sum(array_map(
-            fn (array $m) => $m["{$type}_unsettled_kg"],
+        $expired = (float) array_sum(array_map(
+            fn (array $m) => $m["{$type}_expired_kg"],
             $months,
         ));
 
-        $total = $fulfilled + $unsettled;
+        $total = $fulfilled + $expired;
 
         return $total > 0.0 ? round($fulfilled / $total, 4) : null;
     }
 
-    /**
-     * Month-over-month volume comparison.
-     * Compares the last complete month (index -2) against the one before it (index -3).
-     *
-     * Returns [supplyMomPct, demandMomPct]. Either value is null when the
-     * prior month had zero volume (no meaningful base to compute from).
-     *
-     * @return array{?float, ?float}
-     */
+    /** @return array{?float, ?float} */
     private function computeVolumeMonthOverMonth(array $monthlyActivity): array
     {
         $count = count($monthlyActivity);
@@ -164,10 +122,10 @@ class VarietyAnalyticsService
             return [null, null];
         }
 
-        $lastSupply = $lastMonth['supply_fulfilled_kg'] + $lastMonth['supply_unsettled_kg'];
-        $prevSupply = $prevMonth['supply_fulfilled_kg'] + $prevMonth['supply_unsettled_kg'];
-        $lastDemand = $lastMonth['demand_fulfilled_kg'] + $lastMonth['demand_unsettled_kg'];
-        $prevDemand = $prevMonth['demand_fulfilled_kg'] + $prevMonth['demand_unsettled_kg'];
+        $lastSupply = $lastMonth['supply_fulfilled_kg'] + $lastMonth['supply_expired_kg'];
+        $prevSupply = $prevMonth['supply_fulfilled_kg'] + $prevMonth['supply_expired_kg'];
+        $lastDemand = $lastMonth['demand_fulfilled_kg'] + $lastMonth['demand_expired_kg'];
+        $prevDemand = $prevMonth['demand_fulfilled_kg'] + $prevMonth['demand_expired_kg'];
 
         $supplyMom = $prevSupply > 0.0
             ? round((($lastSupply - $prevSupply) / $prevSupply) * 100, 2)
@@ -180,13 +138,7 @@ class VarietyAnalyticsService
         return [$supplyMom, $demandMom];
     }
 
-    // -------------------------------------------------------------------------
-    // Recommendations — rule evaluation, role-aware, sorted by severity
-    // -------------------------------------------------------------------------
-
-    /**
-     * @return VarietyRecommendationDTO[]
-     */
+    /** @return VarietyRecommendationDTO[] */
     private function buildRecommendations(
         ImbalanceBand $band,
         ?float $supplyFulfillment,
@@ -196,9 +148,6 @@ class VarietyAnalyticsService
     ): array {
         $recs = [];
 
-        // ── Warning ───────────────────────────────────────────────────────────
-
-        // Undersupply → opportunity signal (role-differentiated messaging)
         if ($band === ImbalanceBand::Undersupply) {
             $body = match ($role) {
                 VarietyViewerRole::Admin => 'Dealer demand is outpacing available supply. Consider prompting more farmers to post.',
@@ -213,41 +162,30 @@ class VarietyAnalyticsService
             );
         }
 
-        // High supply archive rate → price or timing mismatch
-        if (
-            $supplyFulfillment !== null
-            && $supplyFulfillment < self::LOW_FULFILLMENT_THRESHOLD
-        ) {
-            $archivePct = (int) round((1 - $supplyFulfillment) * 100);
+        if ($supplyFulfillment !== null && $supplyFulfillment < self::LOW_FULFILLMENT_THRESHOLD) {
+            $expiredPct = (int) round((1 - $supplyFulfillment) * 100);
 
             $recs[] = new VarietyRecommendationDTO(
                 severity: RecommendationSeverity::Warning,
-                type: 'high_supply_archive_rate',
-                title: 'High Supply Archive Rate',
-                body: "{$archivePct}% of supply posts over the last 3 months unsettled without a match. "
-                    .'This typically indicates a price or delivery timing mismatch with buyers.',
+                type: 'high_supply_expiry_rate',
+                title: 'High Supply Expiry Rate',
+                body: "{$expiredPct}% of supply posts over the last 3 months expired without a match. "
+                    .'This typically indicates a delivery timing mismatch with buyers.',
             );
         }
 
-        // Low demand fulfillment → buyers not finding sufficient supply
-        if (
-            $demandFulfillment !== null
-            && $demandFulfillment < self::LOW_FULFILLMENT_THRESHOLD
-        ) {
-            $archivePct = (int) round((1 - $demandFulfillment) * 100);
+        if ($demandFulfillment !== null && $demandFulfillment < self::LOW_FULFILLMENT_THRESHOLD) {
+            $expiredPct = (int) round((1 - $demandFulfillment) * 100);
 
             $recs[] = new VarietyRecommendationDTO(
                 severity: RecommendationSeverity::Warning,
-                type: 'high_demand_archive_rate',
+                type: 'high_demand_expiry_rate',
                 title: 'Low Demand Fulfillment',
-                body: "{$archivePct}% of demand posts expired unfulfilled over the last 3 months. "
+                body: "{$expiredPct}% of demand posts expired unfulfilled over the last 3 months. "
                     .'Dealers are not finding adequate supply to match their requirements.',
             );
         }
 
-        // ── Info ──────────────────────────────────────────────────────────────
-
-        // Declining supply volume MoM — early warning before it affects fulfillment
         if ($supplyMomPct !== null && $supplyMomPct < self::SUPPLY_DECLINE_THRESHOLD) {
             $dropPct = (int) round(abs($supplyMomPct));
 
@@ -260,7 +198,6 @@ class VarietyAnalyticsService
             );
         }
 
-        // Sort: critical → warning → info
         usort(
             $recs,
             fn (VarietyRecommendationDTO $a, VarietyRecommendationDTO $b) => $this->severityOrder($a->severity) <=> $this->severityOrder($b->severity),

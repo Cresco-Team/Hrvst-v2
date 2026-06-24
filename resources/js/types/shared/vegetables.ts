@@ -1,19 +1,3 @@
-import type { PriceTrend } from '../enums'
-
-export type { PriceTrend }
-
-export interface PriceEntry {
-	price_min: number
-	price_max: number
-	recorded_at: string
-}
-
-export interface LatestPrice {
-	price_min: number
-	price_max: number
-	recorded_at: string
-	freshness: 'recent' | 'stable' | 'very stable' | 'stale'
-}
 
 export interface MunicipalitySupply {
 	name: string
@@ -23,9 +7,9 @@ export interface MunicipalitySupply {
 export interface MonthlyActivity {
 	month: string
 	label: string
-	supply_unsettled_kg: number
+	supply_expired_kg: number
 	supply_fulfilled_kg: number
-	demand_unsettled_kg: number
+	demand_expired_kg: number
 	demand_fulfilled_kg: number
 }
 
@@ -41,12 +25,8 @@ export interface CatalogVariety {
 			name: string
 		}
 	}
-	latest_price: LatestPrice | null
-	price_trend: PriceTrend
-	price_updated_human: string | null
 	supply_count: number
 	demand_count: number
-	recent_prices?: PriceEntry[]
 }
 
 export interface ShowVariety {
@@ -61,10 +41,6 @@ export interface ShowVariety {
 			name: string
 		}
 	}
-	latest_price: LatestPrice | null
-	price_updated_human: string | null
-	price_updated_date: string | null
-	recent_prices: PriceEntry[]
 	supply_count: number
 	demand_count: number
 	supply_municipalities: MunicipalitySupply[]

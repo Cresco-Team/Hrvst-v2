@@ -24,7 +24,7 @@ class VegetableActivityService
             ->whereBetween('posts.created_at', [$start, $end])
             ->whereNull('posts.deleted_at')
             ->whereNull('post_items.deleted_at')
-            ->whereIn('post_items.status', ['unsettled', 'fulfilled'])
+            ->whereIn('post_items.status', ['expired', 'fulfilled'])
             ->groupBy(
                 DB::raw("TO_CHAR(posts.created_at, 'YYYY-MM')"),
                 'posts.type',
@@ -41,17 +41,17 @@ class VegetableActivityService
             $periodRows = $rows->get($key, collect());
 
             $supplyFulfilled = 0.0;
-            $supplyUnsettled = 0.0;
+            $supplyExpired = 0.0;
             $demandFulfilled = 0.0;
-            $demandUnsettled = 0.0;
+            $demandExpired = 0.0;
 
             foreach ($periodRows as $row) {
                 $kg = (float) $row->total_kg;
                 match (true) {
                     $row->type === 'supply' && $row->status === 'fulfilled' => $supplyFulfilled += $kg,
-                    $row->type === 'supply' && $row->status === 'unsettled' => $supplyUnsettled += $kg,
+                    $row->type === 'supply' && $row->status === 'expired' => $supplyExpired += $kg,
                     $row->type === 'demand' && $row->status === 'fulfilled' => $demandFulfilled += $kg,
-                    $row->type === 'demand' && $row->status === 'unsettled' => $demandUnsettled += $kg,
+                    $row->type === 'demand' && $row->status === 'expired' => $demandExpired += $kg,
                     default => null,
                 };
             }
@@ -60,9 +60,9 @@ class VegetableActivityService
                 'month' => $key,
                 'label' => $date->format('M Y'),
                 'supply_fulfilled_kg' => $supplyFulfilled,
-                'supply_unsettled_kg' => $supplyUnsettled,
+                'supply_expired_kg' => $supplyExpired,
                 'demand_fulfilled_kg' => $demandFulfilled,
-                'demand_unsettled_kg' => $demandUnsettled,
+                'demand_expired_kg' => $demandExpired,
             ];
         }
 

@@ -6,5 +6,5 @@ enum PostItemStatus: string
 {
     case Ongoing = 'ongoing';
     case Fulfilled = 'fulfilled';
-    case Unsettled = 'unsettled';
+    case Expired = 'expired';
 }

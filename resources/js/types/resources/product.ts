@@ -1,11 +1,8 @@
 // Mirrors:
-//   app/Http/Resources/Product/PriceHistoryResource.php
 //   app/Http/Resources/Product/VarietyResource.php
 //   app/Http/Resources/Product/VarietyDetailResource.php
 //   app/DTOs/Product/VarietyAnalyticsDTO.php
 //   app/DTOs/Product/VarietyRecommendationDTO.php
-
-import type { PriceFreshness, PriceTrend } from '../enums'
 
 // ─── Analytics ───────────────────────────────────────────────────────────────
 
@@ -25,20 +22,9 @@ export interface VarietyAnalytics {
   imbalance_band: ImbalanceBand
   supply_fulfillment_rate: number | null
   demand_fulfillment_rate: number | null
-  price_momentum_pct: number | null
-  price_weeks_stale: number | null
   supply_volume_mom_pct: number | null
   demand_volume_mom_pct: number | null
   recommendations: VarietyRecommendation[]
-}
-
-// ─── PriceHistoryResource ─────────────────────────────────────────────────────
-
-export interface PriceHistoryResource {
-  price_min: number
-  price_max: number
-  recorded_at: string
-  freshness: PriceFreshness
 }
 
 // ─── VegetableResource ────────────────────────────────────────────────────────
@@ -76,9 +62,9 @@ export interface SupplyMunicipality {
 export interface MonthlyActivity {
   month: string
   label: string
-  supply_unsettled_kg: number
+  supply_expired_kg: number
   supply_fulfilled_kg: number
-  demand_unsettled_kg: number
+  demand_expired_kg: number
   demand_fulfilled_kg: number
 }
 
@@ -86,14 +72,6 @@ export interface VarietyResource {
   id: number
   name: string
   vegetable: VarietyVegetable
-
-  latest_price?: PriceHistoryResource | null
-  price_updated_human?: string
-  price_updated_date?: string
-
-  price_trend?: PriceTrend | null
-
-  recent_prices?: PriceHistoryResource[]
 
   supply_count?: number
   demand_count?: number
@@ -120,12 +98,6 @@ export interface CategoryOption {
 export interface VarietySummary {
   total_varieties: number
   total_vegetables: number
-  price_stats: {
-    updated_week: number
-    updated_month: number
-    stale: number
-    no_price: number
-  }
 }
 
 // ─── VarietyTableRow ──────────────────────────────────────────────────────────
@@ -137,9 +109,6 @@ export interface VarietyTableRow {
   vegetable_id?: number | null
   category?: { id: number; name: string } | null
   image_url?: string | null
-  latest_price?: PriceHistoryResource | null
-  price_updated_human?: string | null
-  price_trend?: PriceTrend | null
   supply_count?: number
   demand_count?: number
   varieties?: VarietyTableRow[]
@@ -172,9 +141,6 @@ export function mapVegetablesToTableRows(vegetables: VegetableResource[]): Varie
       name: v.name,
       is_variety: true,
       vegetable_id: veg.id,
-      latest_price: v.latest_price ?? null,
-      price_updated_human: v.price_updated_human ?? null,
-      price_trend: v.price_trend ?? null,
       supply_count: v.supply_count,
       demand_count: v.demand_count,
     })),

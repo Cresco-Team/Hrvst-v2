@@ -208,7 +208,7 @@ class PostSeeder extends Seeder
         return fake()->randomElement([
             PostItemStatus::Fulfilled,
             PostItemStatus::Fulfilled,
-            PostItemStatus::Unsettled,
+            PostItemStatus::Expired,
         ]);
     }
 
@@ -220,7 +220,7 @@ class PostSeeder extends Seeder
 
         return fake()->randomElement([
             PostItemStatus::Fulfilled,
-            PostItemStatus::Unsettled,
+            PostItemStatus::Expired,
         ]);
     }
 }

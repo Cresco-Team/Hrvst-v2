@@ -130,7 +130,7 @@ function actionsFor(
     switch (String(status)) {
         case 'ongoing':
             return ['edit', 'delete']
-        case 'unsettled':
+        case 'expired':
             return ['edit', 'fulfill', 'delete']
         case 'fulfilled':
             return ['edit', 'archive', 'delete']
@@ -179,8 +179,8 @@ const breadcrumbs: BreadcrumbItem[] = [
                         subtext="awaiting supply"
                     />
                     <LargeCard
-                        title="Unsettled"
-                        :value="summary?.total_unsettled"
+                        title="Expired"
+                        :value="summary?.total_expired"
                         subtext="closed"
                     />
                     <LargeCard
@@ -197,7 +197,7 @@ const breadcrumbs: BreadcrumbItem[] = [
             >
                 <TabsList>
                     <TabsTrigger value="ongoing">Ongoing</TabsTrigger>
-                    <TabsTrigger value="unsettled">Unsettled</TabsTrigger>
+                    <TabsTrigger value="expired">Expired</TabsTrigger>
                     <TabsTrigger value="fulfilled">Fulfilled</TabsTrigger>
                 </TabsList>
             </Tabs>

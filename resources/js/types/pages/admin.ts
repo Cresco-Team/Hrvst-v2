@@ -30,7 +30,6 @@ export interface AdminDashboardKPIs {
   }
   varieties: {
     total_varieties: KpiStat
-    price_updates_week: KpiStat
     needs_attention: KpiStat
   }
 }
@@ -54,7 +53,6 @@ export interface AdminCategoriesProps {
 // ─── admin/vegetables/Index ───────────────────────────────────────────────────
 
 export interface AdminVegetablesFilters {
-  price_filter: string | null
   search: string | null
   category_id: number | null
 }

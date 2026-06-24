@@ -33,7 +33,7 @@ class FarmerDashboardService
         $itemQuery = $this->baseItemQuery($userId);
 
         $ongoing = (clone $itemQuery)->ongoing()->count();
-        $unsettled = (clone $itemQuery)->unsettled()->count();
+        $expired = (clone $itemQuery)->expired()->count();
 
         if ($ongoing === 0) {
             $recs[] = new FarmerDashboardRecommendationDTO(
@@ -44,12 +44,12 @@ class FarmerDashboardService
             );
         }
 
-        if ($unsettled > 0) {
+        if ($expired > 0) {
             $recs[] = new FarmerDashboardRecommendationDTO(
                 severity: 'warning',
-                type: 'unsettled_items',
-                title: 'Unsettled Items',
-                body: "{$unsettled} supply item(s) expired without being fulfilled. Review your pricing or delivery timing.",
+                type: 'expired_items',
+                title: 'expired Items',
+                body: "{$expired} supply item(s) expired without being fulfilled. Review your pricing or delivery timing.",
             );
         }
 

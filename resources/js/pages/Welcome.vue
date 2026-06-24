@@ -23,8 +23,8 @@ const farmerBenefits = [
     },
     {
         icon: TrendingUp,
-        title: 'Track Market Prices',
-        desc: 'See real-time demand trends and prices to sell smarter.',
+        title: 'Market Intelligence',
+        desc: 'See supply and demand trends to make smarter planting and harvest decisions.',
     },
     {
         icon: MapPin,
@@ -75,7 +75,7 @@ const steps = [
     {
         step: '03',
         title: 'Trade directly',
-        desc: 'Connect, negotiate, and close deals — no intermediaries taking a cut, no pricing opacity.',
+        desc: 'Connect, negotiate, and close deals — no intermediaries taking a cut, no information gaps.',
     },
 ]
 </script>
@@ -429,8 +429,8 @@ const steps = [
                                 class="mb-8 text-sm leading-relaxed"
                                 style="color: var(--muted-foreground)"
                             >
-                                Access real-time supply data to find the best
-                                produce at the right price. Connect directly
+                                Access real-time supply data to find the right
+                                produce at the right time. Connect directly
                                 with verified farmers and secure your inventory.
                             </p>
 
