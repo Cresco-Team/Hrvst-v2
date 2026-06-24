@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Dealer;
 
-use App\Actions\PostItem\ArchivePostItemAction;
 use App\Actions\PostItem\FulfillPostItemAction;
 use App\Actions\PostItem\UpdatePostItemAction;
 use App\Enums\PostType;
@@ -37,21 +36,8 @@ class PostItemController extends Controller
 
         $action->handle($postItem);
 
-        return redirect()->route('dealer.demands.index', ['status' => 'unsettled'])
+        return redirect()->route('dealer.demands.index', ['status' => 'ongoing'])
             ->with('flash', ['type' => 'success', 'message' => 'Item marked as fulfilled.']);
-    }
-
-    public function archive(Request $request, PostItem $postItem, ArchivePostItemAction $action): RedirectResponse
-    {
-        $postItem->load('post');
-        Gate::authorize('archive', $postItem);
-
-        abort_if($postItem->post->type !== PostType::Demand, 403);
-
-        $action->handle($postItem);
-
-        return redirect()->route('dealer.demands.index', ['status' => 'unsettled'])
-            ->with('flash', ['type' => 'success', 'message' => 'Item unsettled.']);
     }
 
     public function destroy(Request $request, PostItem $postItem): RedirectResponse
