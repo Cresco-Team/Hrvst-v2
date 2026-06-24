@@ -1,123 +1,93 @@
 <script setup lang="ts">
 import { Deferred, Head, router, useForm } from '@inertiajs/vue3'
-import { Plus, Sprout } from 'lucide-vue-next'
+import { Plus, ShoppingBag } from 'lucide-vue-next'
 import { computed, ref } from 'vue'
 import ConfirmationDialog from '@/components/dialogs/ConfirmationDialog.vue'
 import EmptyState from '@/components/EmptyState.vue'
+import DemandCard from '@/components/features/dealer/DemandCard.vue'
 import DemandForm from '@/components/features/dealer/DemandForm.vue'
 import Heading from '@/components/Heading.vue'
 import LargeCard from '@/components/shared/cards/LargeCard.vue'
-import PostItemCard from '@/components/shared/cards/PostItemCard.vue'
-import PostItemEditDialog from '@/components/shared/dialogs/PostItemEditDialog.vue'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import AppLayout from '@/layouts/AppLayout.vue'
 import dealer from '@/routes/dealer'
-import { index } from '@/routes/dealer/demands'
-import { destroy, update as updatePostItem } from '@/routes/dealer/post-items'
+import { destroy as destroyDemand, index } from '@/routes/dealer/demands'
 import type {
     BreadcrumbItem,
     DealerDemandsProps,
-    PostItemSnapshot,
+    DealerDemandDataFixed,
     VarietyOptionsByVegetable,
     VegetableOptionsByCategory,
 } from '@/types'
 
 const props = defineProps<DealerDemandsProps>()
 
-// ─── Create demand form ───────────────────────────────────────────────────────
+// ─── Demand form (create + edit) ──────────────────────────────────────────────
 
-const formOpen = ref(false)
+const demandFormOpen = ref(false)
+const activeDemand = ref<DealerDemandDataFixed | null>(null)
 
-// ─── PostItem actions ─────────────────────────────────────────────────────────
+function openCreate() {
+    activeDemand.value = null
+    demandFormOpen.value = true
+}
 
-const editItemDialogOpen = ref(false)
-const fulfillDialogOpen = ref(false)
-const archiveDialogOpen = ref(false)
+function openEdit(demand: DealerDemandDataFixed) {
+    activeDemand.value = demand
+    demandFormOpen.value = true
+}
+
+// ─── Delete ───────────────────────────────────────────────────────────────────
+
 const deleteDialogOpen = ref(false)
-
-const itemToEdit = ref<PostItemSnapshot | null>(null)
-const itemToFulfill = ref<PostItemSnapshot | null>(null)
-const itemToArchive = ref<PostItemSnapshot | null>(null)
-const itemToDelete = ref<PostItemSnapshot | null>(null)
-
+const demandToDelete = ref<DealerDemandDataFixed | null>(null)
 const deleteForm = useForm({})
 
-function openEditItem(item: PostItemSnapshot) {
-    itemToEdit.value = item
-    editItemDialogOpen.value = true
-}
-function openFulfill(item: PostItemSnapshot) {
-    itemToFulfill.value = item
-    fulfillDialogOpen.value = true
-}
-function openArchive(item: PostItemSnapshot) {
-    itemToArchive.value = item
-    archiveDialogOpen.value = true
-}
-function openDelete(item: PostItemSnapshot) {
-    itemToDelete.value = item
+function openDelete(demand: DealerDemandDataFixed) {
+    demandToDelete.value = demand
     deleteDialogOpen.value = true
 }
 
 function handleDelete() {
-    if (!itemToDelete.value) return
-    deleteForm.delete(destroy(itemToDelete.value.id).url, {
+    if (!demandToDelete.value) return
+    deleteForm.delete(destroyDemand(demandToDelete.value.id).url, {
         preserveScroll: true,
         onSuccess: () => {
             deleteDialogOpen.value = false
-            itemToDelete.value = null
+            demandToDelete.value = null
         },
     })
 }
 
-// ─── Tabs + pagination ────────────────────────────────────────────────────────
+// ─── Status tabs + pagination ─────────────────────────────────────────────────
 
-const activeTab = computed(() => props.filters.status ?? 'ongoing')
+const currentStatus = computed(() => props.filters.status)
 
-function handleTabChange(value: string | number) {
-    router.visit(
-        index({ query: { status: value === 'ongoing' ? undefined : value } })
-            .url,
-        {
-            preserveState: true,
-            preserveScroll: true,
-            only: ['demands', 'filters', 'summary'],
-        },
-    )
+function handleStatusChange(value: string | number) {
+    router.visit(index({ query: { status: value } }).url, {
+        preserveState: true,
+        preserveScroll: true,
+        only: ['demands', 'filters'],
+    })
 }
 
 function handlePageChange(page: number) {
-    router.visit(dealer.demands.index().url, {
-        data: { page, status: props.filters.status },
+    router.visit(index({ query: { status: props.filters.status, page } }).url, {
         preserveScroll: true,
+        only: ['demands'],
     })
 }
 
-function actionsFor(
-    status: string,
-): Array<'edit' | 'fulfill' | 'archive' | 'delete'> {
-    switch (String(status)) {
-        case 'ongoing':
-            return ['edit', 'delete']
-        case 'expired':
-            return ['edit', 'fulfill', 'delete']
-        case 'fulfilled':
-            return ['edit', 'archive', 'delete']
-        default:
-            return []
-    }
-}
-
 const breadcrumbs: BreadcrumbItem[] = [
-    { title: 'Dealer', href: dealer.demands.index().url },
+    { title: 'Dealer', href: dealer.dashboard().url },
     { title: 'Demands', href: dealer.demands.index().url },
 ]
 </script>
 
 <template>
-    <Head title="My Demands" />
+    <Head title="Demands" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex h-full flex-col gap-6 p-4 lg:p-6">
@@ -126,16 +96,16 @@ const breadcrumbs: BreadcrumbItem[] = [
                     title="My Demands"
                     description="Post purchase requests for farmers."
                 />
-                <Button class="gap-2" @click="formOpen = true">
+                <Button class="gap-2" @click="openCreate">
                     <Plus class="size-4" />
                     New Demand
                 </Button>
             </div>
 
-            <!-- Summary -->
+            <!-- ── Summary ────────────────────────────────────────────── -->
             <Deferred data="summary">
                 <template #fallback>
-                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                    <div class="grid gap-4 sm:grid-cols-3">
                         <Skeleton
                             v-for="i in 3"
                             :key="i"
@@ -143,28 +113,29 @@ const breadcrumbs: BreadcrumbItem[] = [
                         />
                     </div>
                 </template>
-                <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                <div class="grid gap-4 sm:grid-cols-3">
                     <LargeCard
                         title="Ongoing"
                         :value="summary?.total_ongoing"
                         subtext="awaiting supply"
                     />
                     <LargeCard
-                        title="Expired"
-                        :value="summary?.total_expired"
-                        subtext="closed"
-                    />
-                    <LargeCard
                         title="Fulfilled"
                         :value="summary?.total_fulfilled"
                         subtext="completed"
                     />
+                    <LargeCard
+                        title="Expired"
+                        :value="summary?.total_expired"
+                        subtext="expired without supply"
+                    />
                 </div>
             </Deferred>
 
+            <!-- ── Status tabs ────────────────────────────────────────── -->
             <Tabs
-                :model-value="activeTab"
-                @update:model-value="handleTabChange"
+                :model-value="currentStatus"
+                @update:model-value="handleStatusChange"
             >
                 <TabsList>
                     <TabsTrigger value="ongoing">Ongoing</TabsTrigger>
@@ -173,7 +144,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                 </TabsList>
             </Tabs>
 
-            <!-- PostItem grid -->
+            <!-- ── Demand list ────────────────────────────────────────── -->
             <Deferred data="demands">
                 <template #fallback>
                     <div
@@ -182,88 +153,77 @@ const breadcrumbs: BreadcrumbItem[] = [
                         <Skeleton
                             v-for="i in 8"
                             :key="i"
-                            class="h-80 rounded-lg"
+                            class="h-36 rounded-lg"
                         />
                     </div>
                 </template>
 
                 <EmptyState
                     v-if="demands?.data.length === 0"
-                    title="No Demand Items"
-                    description="Post a demand to be picked up by farmers."
-                    :icon="Sprout"
+                    title="No Demands"
+                    description="Post a new demand to get started."
+                    :icon="ShoppingBag"
                 />
 
-                <div
-                    v-else
-                    class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
-                >
-                    <PostItemCard
-                        v-for="item in demands!.data"
-                        :key="item.id"
-                        :item="item"
-                        mode="demand"
-                        :actions="actionsFor(filters.status)"
-                        @edit="openEditItem(item)"
-                        @fulfill="openFulfill(item)"
-                        @archive="openArchive(item)"
-                        @delete="openDelete(item)"
-                    />
-                </div>
-            </Deferred>
+                <template v-else>
+                    <div class="grid gap-4 sm:grid-cols-3">
+                        <DemandCard
+                            v-for="demand in demands!.data"
+                            :key="demand.id"
+                            :demand="demand"
+                            @edit="openEdit(demand)"
+                            @delete="openDelete(demand)"
+                        />
+                    </div>
 
-            <!-- Pagination -->
-            <div
-                v-if="demands && demands.meta.last_page > 1"
-                class="flex items-center justify-between border-t pt-4"
-            >
-                <Button
-                    variant="outline"
-                    size="sm"
-                    :disabled="demands.meta.current_page === 1"
-                    @click="handlePageChange(demands.meta.current_page - 1)"
-                >
-                    Previous
-                </Button>
-                <span class="text-sm text-muted-foreground">
-                    Page {{ demands.meta.current_page }} of
-                    {{ demands.meta.last_page }}
-                </span>
-                <Button
-                    variant="outline"
-                    size="sm"
-                    :disabled="
-                        demands.meta.current_page === demands.meta.last_page
-                    "
-                    @click="handlePageChange(demands.meta.current_page + 1)"
-                >
-                    Next
-                </Button>
-            </div>
+                    <div
+                        v-if="demands && demands.last_page > 1"
+                        class="flex items-center justify-between border-t pt-4"
+                    >
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            :disabled="demands.current_page === 1"
+                            @click="handlePageChange(demands.current_page - 1)"
+                        >
+                            Previous
+                        </Button>
+                        <span class="text-sm text-muted-foreground">
+                            Page {{ demands.current_page }} of
+                            {{ demands.last_page }}
+                        </span>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            :disabled="
+                                demands.current_page === demands.last_page
+                            "
+                            @click="handlePageChange(demands.current_page + 1)"
+                        >
+                            Next
+                        </Button>
+                    </div>
+                </template>
+            </Deferred>
         </div>
     </AppLayout>
 
-    <!-- Create demand -->
     <DemandForm
-        :open="formOpen"
-        :demand="null"
-        :vegetable-options="vegetableOptions as VegetableOptionsByCategory"
-        :variety-options="varietyOptions as VarietyOptionsByVegetable"
-        @update:open="formOpen = $event"
-    />
-
-    <!-- PostItem edit -->
-    <PostItemEditDialog
-        :open="editItemDialogOpen"
-        :item="itemToEdit"
-        :update-url="itemToEdit ? updatePostItem(itemToEdit.id).url : ''"
-        @update:open="editItemDialogOpen = $event"
+        :open="demandFormOpen"
+        :demand="activeDemand"
+        :vegetable-options="
+            vegetableOptions as VegetableOptionsByCategory | undefined
+        "
+        :variety-options="
+            varietyOptions as VarietyOptionsByVegetable | undefined
+        "
+        @update:open="demandFormOpen = $event"
     />
 
     <ConfirmationDialog
         v-model:open="deleteDialogOpen"
-        title="Delete Item"
-        :description="`Permanently delete ${itemToDelete?.name}? This cannot be undone.`"
+        title="Delete Demand"
+        :description="`Permanently delete this demand for ${demandToDelete?.scheduled_date}?`"
         :processing="deleteForm.processing"
         variant="destructive"
         @action="handleDelete"
