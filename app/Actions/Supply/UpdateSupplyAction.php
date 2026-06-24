@@ -15,7 +15,7 @@ final class UpdateSupplyAction
             $this->syncItems($post, $validated['items']);
         }
 
-        return $post->fresh(['vegetable', 'postItems.variety', 'media']);
+        return $post->fresh(['postItems.variety.vegetable']);
     }
 
     private function syncItems(Post $post, array $items): void

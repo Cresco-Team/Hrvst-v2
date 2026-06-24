@@ -13,7 +13,7 @@ final class UpdateDemandAction
     {
         DB::transaction(function () use ($post, $validated): void {
             $post->update(array_intersect_key($validated, array_flip([
-                'vegetable_id', 'scheduled_date', 'time_slot',
+                'scheduled_date', 'time_slot',
             ])));
 
             if (! empty($validated['items'])) {
@@ -32,6 +32,6 @@ final class UpdateDemandAction
             }
         });
 
-        return $post->fresh(['vegetable', 'postItems.variety']);
+        return $post->fresh(['postItems.variety.vegetable']);
     }
 }
