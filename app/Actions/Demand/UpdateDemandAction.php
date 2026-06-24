@@ -5,7 +5,6 @@ namespace App\Actions\Demand;
 use App\Enums\PostItemStatus;
 use App\Models\Marketplace\Post;
 use App\Models\Marketplace\PostItem;
-use App\Models\Product\Variety;
 use Illuminate\Support\Facades\DB;
 
 final class UpdateDemandAction
@@ -22,15 +21,7 @@ final class UpdateDemandAction
                     ->where('status', PostItemStatus::Ongoing)
                     ->delete();
 
-                $varietyIds = collect($validated['items'])->pluck('variety_id');
-                $varieties = Variety::with('latestPrice')
-                    ->whereIn('id', $varietyIds)
-                    ->get()
-                    ->keyBy('id');
-
                 foreach ($validated['items'] as $item) {
-                    $variety = $varieties->get($item['variety_id']);
-
                     PostItem::create([
                         'post_id' => $post->id,
                         'variety_id' => $item['variety_id'],
