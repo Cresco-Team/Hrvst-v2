@@ -1,18 +1,24 @@
 declare namespace App {
 namespace Data {
 namespace Post {
+export type DealerDemandData = {
+id: number,
+user_id: number,
+type: App.Enums.PostType,
+scheduled_date: string,
+time_slot: App.Enums.PostTimeSlot,
+created_at: string,
+created_at_human: string,
+post_items: undefined<number, App.Data.PostItem.PostItemLightData>,
+};
 export type FarmerSupplyData = {
 id: number,
 user_id: number,
-vegetable_id: number,
 type: App.Enums.PostType,
-status: App.Enums.PostStatus,
-scheduled_date: string | null,
-time_slot: App.Enums.PostTimeSlot | null,
-estimated_total_weight: number,
+scheduled_date: string,
+time_slot: App.Enums.PostTimeSlot,
 created_at: string,
 created_at_human: string,
-vegetable: App.Data.Vegetable.VegetableLightData | null,
 post_items: undefined<number, App.Data.PostItem.PostItemLightData>,
 };
 }
