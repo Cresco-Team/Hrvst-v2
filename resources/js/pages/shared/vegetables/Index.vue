@@ -119,7 +119,7 @@ function handlePageChange(page: number) {
             <!-- Header -->
             <Heading
                 title="Vegetables"
-                description="Browse all available vegetables and their current market prices."
+                description="Browse all available vegetables."
             />
 
             <!-- Filters -->

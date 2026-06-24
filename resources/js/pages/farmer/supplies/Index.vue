@@ -125,8 +125,8 @@ const breadcrumbs: BreadcrumbItem[] = [
                         subtext="completed"
                     />
                     <LargeCard
-                        title="Unsettled"
-                        :value="summary?.total_unsettled"
+                        title="Expired"
+                        :value="summary?.total_expired"
                         subtext="expired without fulfillment"
                     />
                 </div>
@@ -139,7 +139,7 @@ const breadcrumbs: BreadcrumbItem[] = [
             >
                 <TabsList>
                     <TabsTrigger value="ongoing">Ongoing</TabsTrigger>
-                    <TabsTrigger value="unsettled">Unsettled</TabsTrigger>
+                    <TabsTrigger value="expired">Expired</TabsTrigger>
                     <TabsTrigger value="fulfilled">Fulfilled</TabsTrigger>
                 </TabsList>
             </Tabs>

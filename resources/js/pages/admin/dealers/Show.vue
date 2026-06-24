@@ -43,8 +43,7 @@ const ongoingItems = computed<DealerPostItemResource[]>(
 )
 const archivedItems = computed<DealerPostItemResource[]>(
     () =>
-        props.dealer?.demand_items?.filter((i) => i.status === 'unsettled') ??
-        [],
+        props.dealer?.demand_items?.filter((i) => i.status === 'expired') ?? [],
 )
 const fulfilledItems = computed<DealerPostItemResource[]>(
     () =>
@@ -199,10 +198,10 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => [
                                             >
                                         </TabsTrigger>
                                         <TabsTrigger
-                                            value="unsettled"
+                                            value="expired"
                                             class="gap-1.5"
                                         >
-                                            <Archive class="size-4" />Unsettled
+                                            <Archive class="size-4" />Expired
                                             <Badge
                                                 variant="secondary"
                                                 class="ml-1 px-1.5 py-0 text-xs"
@@ -231,7 +230,7 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => [
                                     <template
                                         v-for="(items, tab) in {
                                             ongoing: ongoingItems,
-                                            unsettled: archivedItems,
+                                            expired: archivedItems,
                                             fulfilled: fulfilledItems,
                                         }"
                                         :key="tab"
