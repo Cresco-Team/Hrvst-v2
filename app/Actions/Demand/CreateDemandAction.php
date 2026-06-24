@@ -6,7 +6,6 @@ use App\Enums\PostItemStatus;
 use App\Enums\PostType;
 use App\Models\Marketplace\Post;
 use App\Models\Marketplace\PostItem;
-use App\Models\Product\Variety;
 use App\Models\Profiles\DealerProfile;
 use Illuminate\Support\Facades\DB;
 
@@ -23,12 +22,6 @@ final class CreateDemandAction
                 'scheduled_date' => $validated['scheduled_date'],
                 'time_slot' => $validated['time_slot'],
             ]);
-
-            $varietyIds = collect($validated['items'])->pluck('variety_id');
-            $varieties = Variety::with('latestPrice')
-                ->whereIn('id', $varietyIds)
-                ->get()
-                ->keyBy('id');
 
             foreach ($validated['items'] as $item) {
                 PostItem::create([

@@ -8,7 +8,6 @@ import Heading from '@/components/Heading.vue'
 import VarietyAnalyticsSummary from '@/components/shared/charts/VarietyAnalyticsSummary.vue'
 import VarietyRecommendations from '@/components/shared/charts/VarietyRecommendations.vue'
 import VegetableMonthlyChart from '@/components/shared/charts/VegetableMonthlyChart.vue'
-import VegetablePriceChart from '@/components/shared/charts/VegetablePriceChart.vue'
 import DetailSheet from '@/components/dialogs/DetailSheet.vue'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
@@ -280,16 +279,10 @@ function formatKgShort(kg: number): string {
                     />
 
                     <!-- ── Charts ─────────────────────────────────────────────────────── -->
-                    <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
-                        <VegetablePriceChart
-                            v-if="variety.recent_prices?.length"
-                            :recent-prices="variety.recent_prices"
-                        />
-                        <VegetableMonthlyChart
-                            v-if="variety.monthly_activity?.length"
-                            :monthly-activity="variety.monthly_activity"
-                        />
-                    </div>
+                    <VegetableMonthlyChart
+                        v-if="variety.monthly_activity?.length"
+                        :monthly-activity="variety.monthly_activity"
+                    />
 
                     <!-- ── Market Calendar ─────────────────────────────────────────────── -->
                     <div

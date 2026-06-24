@@ -74,13 +74,8 @@ class DashboardService
             'total_varieties' => [
                 'value' => $current['total_varieties'],
             ],
-            'price_updates_week' => [
-                'value' => $current['price_stats']['updated_week'],
-                'label' => 'Updated this week',
-            ],
-            'needs_attention' => [
-                'value' => $current['price_stats']['stale'] + $current['price_stats']['no_price'],
-                'label' => 'Stale/No price',
+            'total_vegetables' => [
+                'value' => $current['total_vegetables'],
             ],
         ];
     }

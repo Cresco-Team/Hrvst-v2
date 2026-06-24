@@ -18,7 +18,13 @@ import { index, show } from '@/routes/vegetables'
 import type { BreadcrumbItem, SharedCategoryProps } from '@/types'
 import type { Paginated } from '@/types/index'
 import type { VegetableResource } from '@/types/resources/product'
-import { Item, ItemDescription, ItemMedia } from '@/components/ui/item'
+import {
+    Item,
+    ItemContent,
+    ItemDescription,
+    ItemMedia,
+    ItemTitle,
+} from '@/components/ui/item'
 
 interface VegetablesFilters {
     search: string | null
@@ -78,7 +84,7 @@ function handleSearch() {
                     category: props.category.slug,
                     search: searchQuery.value || undefined,
                 },
-            }),
+            }).url,
             {
                 preserveState: true,
                 preserveScroll: true,
@@ -94,14 +100,12 @@ function handlePageChange(page: number) {
             query: {
                 category: props.category.slug,
                 search: searchQuery.value || undefined,
-            },
-        }),
-        {
-            data: {
                 page,
-                search: props.filters.search || undefined,
             },
+        }).url,
+        {
             preserveScroll: true,
+            only: ['vegetables'],
         },
     )
 }

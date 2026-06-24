@@ -93,7 +93,7 @@ describe('CreateDemand', function () {
         expect((float) $item1->quantity_kg)->toBe(100.0);
 
         $item2 = $post->postItems->firstWhere('variety_id', $variety2->id);
-        expect($item2->quantity_kg)->toBe(100.0);
+        expect((float) $item2->quantity_kg)->toBe(50.0);
     });
 
     it('demand creation is atomic — no post exists if items fail', function () {

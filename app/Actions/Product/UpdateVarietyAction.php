@@ -10,6 +10,6 @@ class UpdateVarietyAction
     {
         $variety->update($validated);
 
-        return $variety->load('latestPrice');
+        return $variety;
     }
 }

@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 
 #[Fillable(['vegetable_id', 'name'])]
 class Variety extends Model
@@ -26,30 +25,6 @@ class Variety extends Model
     public function postItems(): HasMany
     {
         return $this->hasMany(PostItem::class);
-    }
-
-    public function prices(): HasMany
-    {
-        return $this->hasMany(PriceHistory::class);
-    }
-
-    public function latestPrice(): HasOne
-    {
-        return $this->hasOne(PriceHistory::class)->latest('recorded_at');
-    }
-
-    public function recentPrices(): HasMany
-    {
-        return $this->hasMany(PriceHistory::class)
-            ->latest('recorded_at')
-            ->limit(12);
-    }
-
-    public function lastTwoPrices(): HasMany
-    {
-        return $this->hasMany(PriceHistory::class)
-            ->latest('recorded_at')
-            ->limit(2);
     }
 
     /* ---------- scopes ---------- */

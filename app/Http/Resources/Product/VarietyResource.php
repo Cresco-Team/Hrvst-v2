@@ -17,36 +17,6 @@ class VarietyResource extends JsonResource
                 fn () => new VegetableResource(($this->vegetable))
             ),
 
-            'latest_price' => $this->whenLoaded('latestPrice',
-                fn () => $this->latestPrice
-                    ? (new PriceHistoryResource($this->latestPrice))->toArray($request)
-                    : null
-            ),
-            'price_updated_human' => $this->whenLoaded('latestPrice',
-                fn () => $this->latestPrice?->recorded_at->diffForHumans()
-            ),
-            'price_updated_date' => $this->whenLoaded(
-                'latestPrice',
-                fn () => $this->latestPrice?->recorded_at->format('M d, Y')
-            ),
-
-            'price_trend' => $this->whenLoaded('lastTwoPrices', function () {
-                $prices = $this->lastTwoPrices;
-
-                if ($prices->count() < 2) {
-                    return null;
-                }
-
-                $latest = (float) $prices->first()->price_max;
-                $previous = (float) $prices->last()->price_max;
-
-                return match (true) {
-                    $latest > $previous => 'up',
-                    $latest < $previous => 'down',
-                    default => 'flat',
-                };
-            }),
-
             'supply_count' => $this->whenCounted('supply_count'),
             'demand_count' => $this->whenCounted('demand_count'),
         ];
