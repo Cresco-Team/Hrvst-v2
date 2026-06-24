@@ -31,30 +31,21 @@ class ProductSeeder extends Seeder
             $vegetablesByCategory = [
                 'Leafy Vegetables' => [
                     'Lettuce',
-                    'Cabbage: Scorpio',
-                    'Cabbage: Wonderball',
-                    'Cabbage: Rareball',
-                    'Cabbage: Red',
+                    'Cabbage',
                     'Celery',
                     'Broccoli',
                     'Onion Leeks',
                 ],
                 'Root Vegetables' => [
                     'Carrot',
-                    'Potato: Granola',
-                    'Potato: LBR',
-                    'Radish: Long',
+                    'Potato',
+                    'Radish',
                 ],
                 'Fruiting Vegetables' => [
-                    'Tomato: Green',
-                    'Tomato: Half-Ripe',
+                    'Tomato',
                     'Cucumber',
                     'Zucchini',
-                    'Bell Pepper: California (Open Field)',
-                    'Bell Pepper: California (Greenhouse)',
-                    'Bell Pepper: Sultan',
-                    'Bell Pepper: Dongxin (Green)',
-                    'Bell Pepper: Dongxin (Red)',
+                    'Bell Pepper',
                     'Chayote',
                 ],
                 'Bean Vegetables' => [
@@ -79,35 +70,26 @@ class ProductSeeder extends Seeder
             $varietiesByVegetable = [
                 // Leafy Vegetables
                 'Lettuce' => ['Iceberg', 'Green Ice', 'Romaine'],
-                'Cabbage: Scorpio' => ['1st Class', '2nd Class'],
-                'Cabbage: Wonderball' => ['1st Class', '2nd Class'],
-                'Cabbage: Rareball' => ['1st Class', '2nd Class'],
-                'Cabbage: Red' => ['Good', 'Semi'],
-                'Celery' => ['All'],
-                'Broccoli' => ['Good', 'Semi'],
-                'Onion Leeks' => ['All'],
+                'Cabbage' => ['Scorpio', 'Wonderball', 'Rareball', 'Red', 'Chinese'],
+                'Celery' => ['Any'],
+                'Broccoli' => ['Any'],
+                'Onion Leeks' => ['Any'],
 
                 // Root Vegetables
-                'Carrot' => ['Big', 'ML', 'Medium'],
-                'Potato: Granola' => ['SXL', 'XL', '3XL', 'Extra', 'Marble'],
-                'Potato: LBR' => ['SXL', 'XL', '3XL', 'Extra', 'Marble'],
-                'Radish: Long' => ['Good', 'Good-semi', 'Big'],
+                'Carrot' => ['Any'],
+                'Potato' => ['Granola', 'LBR'],
+                'Radish' => ['Long'],
 
                 // Fruiting Vegetables
-                'Tomato: Green' => ['Big', 'Medium', 'Small'],
-                'Tomato: Half-Ripe' => ['Big', 'Medium', 'Small'],
-                'Cucumber' => ['Good', 'Semi'],
-                'Zucchini' => ['Good', 'Semi'],
-                'Bell Pepper: California (Open Field)' => ['Big'],
-                'Bell Pepper: California (Greenhouse)' => ['Big', 'Medium', 'Small'],
-                'Bell Pepper: Sultan' => ['Big', 'Medium'],
-                'Bell Pepper: Dongxin (Green)' => ['Big'],
-                'Bell Pepper: Dongxin (Red)' => ['Big', 'Medium'],
-                'Chayote' => ['1st Class', '2nd Class', 'Prickly Green'],
+                'Tomato' => ['Any'],
+                'Cucumber' => ['Any'],
+                'Zucchini' => ['Any'],
+                'Bell Pepper' => ['California (Open Field)', 'California (Greenhouse)', 'Sultan', 'Dongxin'],
+                'Chayote' => ['Any'],
 
                 // Bean Vegetables
-                'Snap Beans' => ['1st Class', '2nd Class'],
-                'Garden Peas' => ['All'],
+                'Snap Beans' => ['Any'],
+                'Garden Peas' => ['Any'],
             ];
 
             foreach ($varietiesByVegetable as $vegetableName => $varietyNames) {
