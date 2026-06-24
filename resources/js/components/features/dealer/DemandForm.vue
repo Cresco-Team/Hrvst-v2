@@ -215,7 +215,6 @@ watch(
                         </PopoverContent>
                     </Popover>
                     <p v-if="form.errors.scheduled_date" class="text-xs text-destructive">{{ form.errors.scheduled_date }}</p>
-                    <p v-else class="text-xs text-muted-foreground">Max 3 months ahead</p>
                 </div>
 
                 <div class="space-y-2">
@@ -234,7 +233,6 @@ watch(
                         </SelectContent>
                     </Select>
                     <p v-if="form.errors.time_slot" class="text-xs text-destructive">{{ form.errors.time_slot }}</p>
-                    <p v-else class="text-xs text-muted-foreground">When are you available for pickup?</p>
                 </div>
             </div>
 
@@ -262,6 +260,13 @@ watch(
                 <p v-if="(form.errors as Record<string, string>).items" class="text-xs text-destructive">
                     {{ (form.errors as Record<string, string>).items }}
                 </p>
+
+                <div
+                    v-if="form.items.length === 0"
+                    class="rounded-md border border-dashed p-4 text-center text-sm text-muted-foreground"
+                >
+                    No items yet. Add at least one variety.
+                </div>
 
                 <div
                     v-for="(item, index) in form.items"
@@ -304,7 +309,6 @@ watch(
 
                     <div class="flex h-9 items-center">
                         <Button
-                            v-if="form.items.length > 1"
                             type="button"
                             variant="ghost"
                             size="icon"
@@ -313,7 +317,6 @@ watch(
                         >
                             <Trash2 class="size-4" />
                         </Button>
-                        <div v-else class="size-9" />
                     </div>
                 </div>
             </div>
