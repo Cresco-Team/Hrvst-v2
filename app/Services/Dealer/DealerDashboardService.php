@@ -45,7 +45,7 @@ class DealerDashboardService
             ->demand()
             ->where('user_id', $profile->user_id)
         )
-            ->whereIn('status', [PostItemStatus::Unsettled->value, PostItemStatus::Fulfilled->value])
+            ->whereIn('status', [PostItemStatus::Expired->value, PostItemStatus::Fulfilled->value])
             ->get();
 
         // ── 1. Expiring tomorrow (critical) ──────────────────────────────────

@@ -19,7 +19,7 @@ class SupplyService
         return [
             'total_ongoing' => (clone $itemQuery)->ongoing()->count(),
             'total_fulfilled' => (clone $itemQuery)->fulfilled()->count(),
-            'total_unsettled' => (clone $itemQuery)->unsettled()->count(),
+            'total_expired' => (clone $itemQuery)->expired()->count(),
         ];
     }
 
