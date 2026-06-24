@@ -16,7 +16,6 @@ class UpdateDemandRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'vegetable_id' => ['sometimes', 'integer', 'exists:vegetables,id'],
             'scheduled_date' => ['sometimes', 'date', 'after:today', 'before:'.now()->addMonths(3)->toDateString()],
             'time_slot' => ['sometimes', Rule::enum(PostTimeSlot::class)],
             'items' => ['sometimes', 'array', 'min:1'],

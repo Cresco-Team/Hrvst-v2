@@ -16,7 +16,6 @@ class StoreDemandRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'vegetable_id' => ['required', 'integer', 'exists:vegetables,id'],
             'scheduled_date' => ['required', 'date', 'after:today', 'before:'.now()->addMonths(3)->toDateString()],
             'time_slot' => ['required', Rule::enum(PostTimeSlot::class)],
             'items' => ['required', 'array', 'min:1'],
@@ -28,8 +27,6 @@ class StoreDemandRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'vegetable_id.required' => 'Vegetable is required.',
-            'vegetable_id.exists' => 'Selected vegetable does not exist.',
             'scheduled_date.required' => 'Transaction date is required.',
             'scheduled_date.after' => 'Transaction date must be in the future.',
             'scheduled_date.before' => 'Transaction date cannot be more than 3 months away.',
