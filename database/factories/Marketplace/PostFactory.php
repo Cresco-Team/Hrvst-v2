@@ -2,7 +2,6 @@
 
 namespace Database\Factories\Marketplace;
 
-use App\Enums\PostStatus;
 use App\Enums\PostType;
 use App\Models\Marketplace\Post;
 use App\Models\Product\Vegetable;
@@ -19,8 +18,6 @@ class PostFactory extends Factory
             'user_id' => User::factory(),
             'vegetable_id' => Vegetable::factory(),
             'type' => PostType::Supply,
-            'status' => PostStatus::Growing,
-            'expected_harvest_month' => now()->format('Y-m'),
             'estimated_total_weight' => fake()->randomFloat(2, 50, 1000),
             'scheduled_date' => null,
             'time_slot' => null,

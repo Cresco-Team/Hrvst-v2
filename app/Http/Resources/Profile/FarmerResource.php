@@ -60,12 +60,6 @@ class FarmerResource extends JsonResource
                 'supplyItems',
                 fn () => PostItemResource::collection($this->supplyItems)->resolve($request)
             ),
-
-            // Count of growing posts loaded for the show view
-            'growing_posts_count' => $this->whenLoaded(
-                'growing_posts_count',
-                fn () => $this->posts->count()
-            ),
         ];
     }
 }

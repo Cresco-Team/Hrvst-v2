@@ -46,7 +46,6 @@ export interface FarmerResource {
 
 	// full show view (show())
 	supply_items?: PostItemSnapshot[]
-	growing_posts_count?: number
 }
 
 // ─── DealerResource ───────────────────────────────────────────────────────────
