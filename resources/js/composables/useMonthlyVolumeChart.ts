@@ -24,8 +24,8 @@ export function useMonthlyVolumeChart(activity: MaybeRefOrGetter<MonthlyActivity
           stack: 'supply',
         },
         {
-          label: 'Supply — Unsettled',
-          data: months.map((m) => m.supply_unsettled_kg),
+          label: 'Supply — Expired',
+          data: months.map((m) => m.supply_expired_kg),
           backgroundColor: 'rgba(34, 197, 94, 0.5)',
           borderColor: 'rgb(34, 197, 94)',
           borderWidth: 1,
@@ -40,8 +40,8 @@ export function useMonthlyVolumeChart(activity: MaybeRefOrGetter<MonthlyActivity
           borderRadius: 4,
           stack: 'demand',
         }, {
-          label: 'Demand — Unsettled',
-          data: months.map((m) => m.demand_unsettled_kg),
+          label: 'Demand — Expired',
+          data: months.map((m) => m.demand_expired_kg),
           backgroundColor: 'rgba(249, 115, 22, 0.5)',
           borderColor: 'rgb(249, 115, 22)',
           borderWidth: 1,

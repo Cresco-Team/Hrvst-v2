@@ -80,7 +80,7 @@ export interface DealerPostItemResource {
 
 export type VegetableOption = { id: number; name: string }
 export type VegetableOptionsByCategory = Record<string, VegetableOption[]>
-export type VarietyOption = { id: number; name: string; current_price: { min: number; max: number } | null }
+export type VarietyOption = { id: number; name: string; }
 export type VarietyOptionsByVegetable = Record<string, VarietyOption[]>
 
 // ─── Map types ────────────────────────────────────────────────────────────────

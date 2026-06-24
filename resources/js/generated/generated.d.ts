@@ -42,7 +42,7 @@ image_url: string | null,
 }
 }
 namespace Enums {
-export type PostItemStatus = 'ongoing' | 'fulfilled' | 'unsettled';
+export type PostItemStatus = 'ongoing' | 'fulfilled' | 'expired';
 export type PostTimeSlot = 'morning' | 'afternoon' | 'evening';
 export type PostType = 'supply' | 'demand';
 namespace Analytics {
