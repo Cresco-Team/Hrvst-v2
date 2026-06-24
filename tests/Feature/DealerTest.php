@@ -1,7 +1,6 @@
 <?php
 
 use App\Enums\PostItemStatus;
-use App\Enums\PostStatus;
 use App\Models\Profiles\DealerProfile;
 use App\Models\Profiles\Role;
 use App\Models\User;
@@ -204,13 +203,13 @@ describe('admin dealer details api', function () {
             ->assertJsonCount(1, 'demands');
     });
 
-    it('demands list excludes unsettled posts', function () {
+    it('demands list excludes expired posts', function () {
         $dealer = createDealerUser();
         $variety = createVariety();
-        createDemandPost($dealer, $variety, ['item_status' => PostItemStatus::Unsettled]);
+        createDemandPost($dealer, $variety, ['item_status' => PostItemStatus::Expired]);
 
         // DealerService::details loads postItems scoped to ongoing() only.
-        // A post whose only item is unsettled produces an empty postItems collection → demands = [].
+        // A post whose only item is expired produces an empty postItems collection → demands = [].
         actingAs(createAdminUser())
             ->getJson(route('admin.dealers.api.details', $dealer->dealerProfile))
             ->assertOk()

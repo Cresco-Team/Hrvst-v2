@@ -264,15 +264,15 @@ describe('DemandLifecycle', function () {
             ->post(route('dealer.post-items.archive', $item))
             ->assertRedirect();
 
-        expect($item->fresh()->status)->toBe(PostItemStatus::Unsettled);
+        expect($item->fresh()->status)->toBe(PostItemStatus::Expired);
     });
 
-    it('dealer can fulfill an unsettled demand item', function () {
+    it('dealer can fulfill an expired demand item', function () {
         $dealer = dealerWithProfile();
         [$vegetable, $variety1] = demandVegetableAndVarieties();
         $item = createDemandViaRoute($dealer, $variety1);
 
-        DB::table('post_items')->where('id', $item->id)->update(['status' => 'unsettled']);
+        DB::table('post_items')->where('id', $item->id)->update(['status' => 'expired']);
 
         actingAs($dealer)
             ->post(route('dealer.post-items.fulfill', $item))
@@ -298,7 +298,7 @@ describe('DemandLifecycle', function () {
         $item = createDemandViaRoute($dealer, $variety1);
         $post = $item->post;
 
-        DB::table('post_items')->where('id', $item->id)->update(['status' => 'unsettled']);
+        DB::table('post_items')->where('id', $item->id)->update(['status' => 'expired']);
 
         actingAs($dealer)
             ->delete(route('dealer.demands.destroy', $post))

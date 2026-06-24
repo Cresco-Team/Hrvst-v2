@@ -286,14 +286,14 @@ describe('SupplyLifecycle', function () {
             ->post(route('farmer.post-items.archive', $item))
             ->assertRedirect();
 
-        expect($item->fresh()->status)->toBe(PostItemStatus::Unsettled);
+        expect($item->fresh()->status)->toBe(PostItemStatus::Expired);
     });
 
-    it('farmer can fulfill an unsettled supply item', function () {
+    it('farmer can fulfill an expired supply item', function () {
         $farmer = farmerWithProfile();
         $item = createSupplyViaRoute($farmer, makeVariety(makeVegetable()));
 
-        DB::table('post_items')->where('id', $item->id)->update(['status' => 'unsettled']);
+        DB::table('post_items')->where('id', $item->id)->update(['status' => 'expired']);
 
         actingAs($farmer)
             ->post(route('farmer.post-items.fulfill', $item))
