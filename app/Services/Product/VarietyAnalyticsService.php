@@ -7,7 +7,6 @@ use App\DTOs\Product\VarietyRecommendationDTO;
 use App\Enums\Analytics\ImbalanceBand;
 use App\Enums\Analytics\RecommendationSeverity;
 use App\Enums\Analytics\VarietyViewerRole;
-use App\Models\Product\Variety;
 
 class VarietyAnalyticsService
 {
@@ -23,24 +22,6 @@ class VarietyAnalyticsService
      * Fulfillment rate below which we flag a mismatch warning.
      */
     private const float LOW_FULFILLMENT_THRESHOLD = 0.50;
-
-    /**
-     * Price momentum % bounds for signal rules.
-     */
-    private const float PRICE_SURGE_THRESHOLD = 5.0;
-
-    private const float PRICE_DROP_THRESHOLD = -5.0;
-
-    /**
-     * High fulfillment rate used in conjunction with positive price momentum
-     * to fire the "strong market signal" info recommendation.
-     */
-    private const float HIGH_FULFILLMENT_THRESHOLD = 0.70;
-
-    /**
-     * Price staleness threshold in weeks.
-     */
-    private const float STALE_WEEKS_THRESHOLD = 4.0;
 
     /**
      * MoM decline percentage that triggers a declining-volume notice.
@@ -63,7 +44,6 @@ class VarietyAnalyticsService
      * }> $monthlyActivity  12-entry rolling array from VarietyActivityService
      */
     public function compute(
-        Variety $variety,
         array $monthlyActivity,
         VarietyViewerRole $role,
     ): VarietyAnalyticsDTO {
@@ -76,15 +56,12 @@ class VarietyAnalyticsService
         $supplyFulfillment = $this->computeFulfillmentRate($completeMonths, 'supply');
         $demandFulfillment = $this->computeFulfillmentRate($completeMonths, 'demand');
 
-        [$priceMomentumPct, $priceWeeksStale] = $this->computePriceMetrics($variety);
         [$supplyMomPct, $demandMomPct] = $this->computeVolumeMonthOverMonth($monthlyActivity);
 
         $recommendations = $this->buildRecommendations(
             band: $band,
             supplyFulfillment: $supplyFulfillment,
             demandFulfillment: $demandFulfillment,
-            priceMomentumPct: $priceMomentumPct,
-            priceWeeksStale: $priceWeeksStale,
             supplyMomPct: $supplyMomPct,
             role: $role,
         );
@@ -94,8 +71,6 @@ class VarietyAnalyticsService
             imbalance_band: $band,
             supply_fulfillment_rate: $supplyFulfillment,
             demand_fulfillment_rate: $demandFulfillment,
-            price_momentum_pct: $priceMomentumPct,
-            price_weeks_stale: $priceWeeksStale,
             supply_volume_mom_pct: $supplyMomPct,
             demand_volume_mom_pct: $demandMomPct,
             recommendations: $recommendations,
@@ -170,38 +145,6 @@ class VarietyAnalyticsService
     }
 
     /**
-     * Returns [priceMomentumPct, weeksStale].
-     *
-     * priceMomentumPct — % change from oldest to newest in recentPrices.
-     *                    Null if fewer than 2 price records exist.
-     * weeksStale       — weeks since latestPrice was recorded.
-     *                    Null if no price has ever been set.
-     *
-     * @return array{?float, ?float}
-     */
-    private function computePriceMetrics(Variety $variety): array
-    {
-        $prices = $variety->recentPrices->sortBy('recorded_at')->values();
-
-        $momentumPct = null;
-
-        if ($prices->count() >= 2) {
-            $oldest = (float) $prices->first()->price_max;
-            $newest = (float) $prices->last()->price_max;
-
-            if ($oldest > 0.0) {
-                $momentumPct = round((($newest - $oldest) / $oldest) * 100, 2);
-            }
-        }
-
-        $weeksStale = $variety->latestPrice !== null
-            ? round($variety->latestPrice->recorded_at->diffInDays(now()) / 7, 1)
-            : null;
-
-        return [$momentumPct, $weeksStale];
-    }
-
-    /**
      * Month-over-month volume comparison.
      * Compares the last complete month (index -2) against the one before it (index -3).
      *
@@ -248,29 +191,10 @@ class VarietyAnalyticsService
         ImbalanceBand $band,
         ?float $supplyFulfillment,
         ?float $demandFulfillment,
-        ?float $priceMomentumPct,
-        ?float $priceWeeksStale,
         ?float $supplyMomPct,
         VarietyViewerRole $role,
     ): array {
         $recs = [];
-
-        // ── Critical ──────────────────────────────────────────────────────────
-
-        // Oversupply compounding with falling prices → saturation risk
-        if (
-            $band === ImbalanceBand::Oversupply
-            && $priceMomentumPct !== null
-            && $priceMomentumPct < self::PRICE_DROP_THRESHOLD
-        ) {
-            $recs[] = new VarietyRecommendationDTO(
-                severity: RecommendationSeverity::Critical,
-                type: 'saturation_risk',
-                title: 'Market Saturation Risk',
-                body: 'Supply significantly exceeds demand while prices are falling. '
-                    .'Coordinate delivery timing across farmers to avoid further price pressure.',
-            );
-        }
 
         // ── Warning ───────────────────────────────────────────────────────────
 
@@ -321,40 +245,7 @@ class VarietyAnalyticsService
             );
         }
 
-        // Stale market price — admin only, surfacing an operational gap
-        if (
-            $role === VarietyViewerRole::Admin
-            && $priceWeeksStale !== null
-            && $priceWeeksStale > self::STALE_WEEKS_THRESHOLD
-        ) {
-            $daysStale = (int) round($priceWeeksStale * 7);
-
-            $recs[] = new VarietyRecommendationDTO(
-                severity: RecommendationSeverity::Warning,
-                type: 'stale_price',
-                title: 'Market Price Outdated',
-                body: "The recorded market price has not been updated in {$daysStale} days. "
-                    .'Current listings may not reflect actual trading value.',
-            );
-        }
-
         // ── Info ──────────────────────────────────────────────────────────────
-
-        // Strong market signal — healthy fulfillment + rising price + no oversupply
-        if (
-            $band !== ImbalanceBand::Oversupply
-            && $priceMomentumPct !== null
-            && $priceMomentumPct > self::PRICE_SURGE_THRESHOLD
-            && $supplyFulfillment !== null
-            && $supplyFulfillment >= self::HIGH_FULFILLMENT_THRESHOLD
-        ) {
-            $recs[] = new VarietyRecommendationDTO(
-                severity: RecommendationSeverity::Info,
-                type: 'strong_market_signal',
-                title: 'Strong Market Activity',
-                body: 'High supply fulfillment rates combined with rising prices indicate healthy buyer interest and active trading.',
-            );
-        }
 
         // Declining supply volume MoM — early warning before it affects fulfillment
         if ($supplyMomPct !== null && $supplyMomPct < self::SUPPLY_DECLINE_THRESHOLD) {
