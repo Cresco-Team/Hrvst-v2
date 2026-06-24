@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { useForm } from '@inertiajs/vue3'
-import { PackageCheck, Plus, Trash2 } from 'lucide-vue-next'
+import { CalendarIcon, PackageCheck, Plus, Trash2 } from 'lucide-vue-next'
 import { computed, watch } from 'vue'
+import { CalendarDate, today, getLocalTimeZone } from '@internationalized/date'
 import {
     store,
     update,
@@ -25,6 +26,12 @@ import type {
     VarietyOptionsByVegetable,
     VegetableOptionsByCategory,
 } from '@/types'
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from '@/components/ui/popover'
+import { Calendar } from '@/components/ui/calendar'
 
 interface Props {
     open: boolean
@@ -118,10 +125,19 @@ function handleSubmit(): void {
     }
 }
 
-const minDate = computed(() => {
-    const d = new Date()
-    d.setDate(d.getDate() + 1)
-    return d.toISOString().split('T')[0]
+const minDateValue = computed(() =>
+    today(getLocalTimeZone()).add({ days: 1 })
+)
+
+const calendarDate = computed({
+    get(): CalendarDate | undefined {
+        if (!form.scheduled_date) return undefined
+        const [y, m, d] = form.scheduled_date.split('-').map(Number)
+        return new CalendarDate(y, m, d)
+    },
+    set(val: CalendarDate | undefined): void {
+        form.scheduled_date = val ? val.toString() : ''
+    },
 })
 
 watch(
@@ -219,21 +235,36 @@ watch(
                             >Required</Badge
                         >
                     </Label>
-                    <Input
-                        id="scheduled_date"
-                        v-model="form.scheduled_date"
-                        type="date"
-                        :min="minDate"
-                        :class="{
-                            'border-destructive': form.errors.scheduled_date,
-                        }"
-                    />
-                    <p
-                        v-if="form.errors.scheduled_date"
-                        class="text-xs text-destructive"
-                    >
-                        {{ form.errors.scheduled_date }}
-                    </p>
+                    <Popover>
+                        <PopoverTrigger as-child>
+                            <Button
+                                id="scheduled_date"
+                                variant="outline"
+                                :class="[
+                                    'w-full justify-start text-left font-normal',
+                                    !form.scheduled_date &&
+                                        'text-muted-foreground',
+                                    form.errors.scheduled_date &&
+                                        'border-destructive text-destructive',
+                                ]"
+                            >
+                                <CalendarIcon class="mr-2 h-4 w-4" />
+                                {{
+                                    form.scheduled_date
+                                        ? new Date(form.scheduled_date + 'T00:00:00').toLocaleDateString()
+                                        : 'Pick a date'
+                                }}
+                            </Button>
+                        </PopoverTrigger>
+
+                        <PopoverContent class="w-auto p-0" align="start">
+                            <Calendar
+                                v-model="calendarDate"
+                                :min-value="minDateValue"
+                                initial-focus
+                            />
+                        </PopoverContent>
+                    </Popover>
                 </div>
 
                 <div class="space-y-2">
