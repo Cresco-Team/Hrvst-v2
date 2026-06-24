@@ -48,7 +48,6 @@ class VegetableController extends Controller
                 function () use ($request, $category) {
                     $query = $this->vegetableService->paginated(
                         search: $request->query('search', null),
-                        priceFilter: $request->query('price_filter', null),
                         categoryId: $category?->id,
                     )->paginate(12)
                         ->withQueryString();
@@ -58,7 +57,6 @@ class VegetableController extends Controller
             ),
             'summary' => Inertia::defer(fn () => $this->vegetableService->summary()),
             'filters' => [
-                'price_filter' => $request->query('price_filter', null),
                 'search' => $request->query('search', null),
                 'category' => $request->query('category', null),
             ],
