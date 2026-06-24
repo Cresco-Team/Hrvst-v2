@@ -340,14 +340,6 @@ watch(
                                     :value="String(v.id)"
                                 >
                                     {{ v.name }}
-                                    <span
-                                        v-if="v.current_price"
-                                        class="ml-1 text-xs text-muted-foreground"
-                                    >
-                                        ₱{{ v.current_price.min }}–{{
-                                            v.current_price.max
-                                        }}/kg
-                                    </span>
                                 </SelectItem>
                             </SelectContent>
                         </Select>

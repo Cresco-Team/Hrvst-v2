@@ -54,7 +54,6 @@ const emit = defineEmits<{
     'open-create-variety': [parentRow: VarietyTableRow]
     'open-edit-variety': [row: VarietyTableRow]
     'open-delete-variety': [row: VarietyTableRow]
-    'open-update-price': [row: VarietyTableRow]
     'open-variety-details': [row: VarietyTableRow]
     search: [query: string]
 }>()
@@ -68,7 +67,7 @@ const expanded = ref<ExpandedState>({})
 const columns: ColumnDef<VarietyTableRow>[] = [
     { id: 'expand', header: '', size: 32 },
     { id: 'name', header: 'Name', enableSorting: false },
-    { id: 'meta', header: 'Category / Price', enableSorting: false },
+    { id: 'meta', header: 'Category', enableSorting: false },
     { id: 'activity', header: '', enableSorting: false },
     { id: 'actions', header: '', enableSorting: false },
 ]
@@ -234,87 +233,12 @@ const trendIcon = {
                             </template>
                         </td>
 
-                        <!-- meta column: category (parent) / price (child) -->
+                        <!-- meta column: category (parent) -->
                         <td class="px-3 py-2.5">
                             <template v-if="row.depth === 0">
                                 <Badge variant="secondary">{{
                                     row.original.category?.name
                                 }}</Badge>
-                            </template>
-                            <template v-else>
-                                <div
-                                    v-if="row.original.latest_price"
-                                    class="flex flex-col gap-1"
-                                >
-                                    <div class="flex items-center gap-2">
-                                        <component
-                                            :is="
-                                                row.original.price_trend
-                                                    ? trendIcon[
-                                                          row.original
-                                                              .price_trend
-                                                      ]
-                                                    : Minus
-                                            "
-                                            class="size-3.5 shrink-0 text-muted-foreground"
-                                        />
-                                        <Badge
-                                            variant="secondary"
-                                            class="font-mono text-xs"
-                                        >
-                                            ₱{{
-                                                row.original.latest_price.price_min.toFixed(
-                                                    2,
-                                                )
-                                            }}
-                                            – ₱{{
-                                                row.original.latest_price.price_max.toFixed(
-                                                    2,
-                                                )
-                                            }}
-                                        </Badge>
-                                        <TooltipProvider :delay-duration="200">
-                                            <Tooltip>
-                                                <TooltipTrigger as-child>
-                                                    <div
-                                                        class="size-2 shrink-0 cursor-help rounded-full"
-                                                        :class="
-                                                            freshnessClass[
-                                                                row.original
-                                                                    .latest_price
-                                                                    .freshness ??
-                                                                    ''
-                                                            ] ?? 'bg-gray-400'
-                                                        "
-                                                    />
-                                                </TooltipTrigger>
-                                                <TooltipContent>
-                                                    <p
-                                                        class="text-xs capitalize"
-                                                    >
-                                                        {{
-                                                            row.original
-                                                                .latest_price
-                                                                .freshness
-                                                        }}
-                                                    </p>
-                                                </TooltipContent>
-                                            </Tooltip>
-                                        </TooltipProvider>
-                                    </div>
-                                    <div
-                                        v-if="row.original.price_updated_human"
-                                        class="flex items-center gap-1 text-xs text-muted-foreground"
-                                    >
-                                        <Clock class="size-3 shrink-0" />
-                                        {{ row.original.price_updated_human }}
-                                    </div>
-                                </div>
-                                <span
-                                    v-else
-                                    class="text-xs text-muted-foreground"
-                                    >No price data</span
-                                >
                             </template>
                         </td>
 
@@ -500,32 +424,6 @@ const trendIcon = {
                                             <TooltipContent
                                                 ><p class="text-xs">
                                                     View details
-                                                </p></TooltipContent
-                                            >
-                                        </Tooltip>
-                                    </TooltipProvider>
-                                    <TooltipProvider :delay-duration="200">
-                                        <Tooltip>
-                                            <TooltipTrigger as-child>
-                                                <Button
-                                                    variant="ghost"
-                                                    size="icon-sm"
-                                                    class="text-muted-foreground hover:text-primary"
-                                                    @click="
-                                                        emit(
-                                                            'open-update-price',
-                                                            row.original,
-                                                        )
-                                                    "
-                                                >
-                                                    <ClipboardPlus
-                                                        class="size-4"
-                                                    />
-                                                </Button>
-                                            </TooltipTrigger>
-                                            <TooltipContent
-                                                ><p class="text-xs">
-                                                    Update price
                                                 </p></TooltipContent
                                             >
                                         </Tooltip>
