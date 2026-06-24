@@ -30,8 +30,7 @@ class SupplyService
             ->whereHas('postItems', fn ($q) => $q->ofStatus($status))
             ->with([
                 'media',
-                'vegetable.category',
-                'postItems' => fn ($q) => $q->ofStatus($status)->with('variety'),
+                'postItems' => fn ($q) => $q->ofStatus($status)->with('variety.vegetable'),
             ])
             ->when(
                 $status === PostItemStatus::Ongoing,

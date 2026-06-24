@@ -17,7 +17,6 @@ final class CreateDemandAction
             /** @var Post $post */
             $post = Post::create([
                 'user_id' => $dealer->user_id,
-                'vegetable_id' => $validated['vegetable_id'],
                 'type' => PostType::Demand,
                 'scheduled_date' => $validated['scheduled_date'],
                 'time_slot' => $validated['time_slot'],
@@ -32,7 +31,7 @@ final class CreateDemandAction
                 ]);
             }
 
-            return $post->load(['vegetable', 'postItems.variety']);
+            return $post->load(['postItems.variety.vegetable']);
         });
     }
 }

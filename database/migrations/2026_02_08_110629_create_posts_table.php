@@ -11,7 +11,6 @@ return new class extends Migration
         Schema::create('posts', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('vegetable_id')->constrained()->cascadeOnDelete();
 
             $table->enum('type', ['supply', 'demand']);
 
@@ -22,8 +21,8 @@ return new class extends Migration
             $table->timestamps();
 
             $table->index(
-                ['vegetable_id', 'type', 'created_at'],
-                'idx_posts_vegetable_type_created'
+                ['type', 'created_at'],
+                'idx_posts_type_created'
             );
             $table->index('scheduled_date');
         });

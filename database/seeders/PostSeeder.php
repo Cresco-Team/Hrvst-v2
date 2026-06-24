@@ -8,7 +8,6 @@ use App\Enums\PostType;
 use App\Models\Marketplace\Post;
 use App\Models\Marketplace\PostItem;
 use App\Models\Product\Variety;
-use App\Models\Product\Vegetable;
 use App\Models\Profiles\DealerProfile;
 use App\Models\Profiles\FarmerProfile;
 use Illuminate\Database\Eloquent\Collection;
@@ -21,9 +20,6 @@ class PostSeeder extends Seeder
     private array $varietyIds = [];
 
     private array $varietiesByVegetable = [];
-
-    /** @var array<int> */
-    private array $vegetableIds = [];
 
     private const CHUNK_SIZE = 500;
 
@@ -81,7 +77,6 @@ class PostSeeder extends Seeder
 
                 $postRows[] = [
                     'user_id' => $farmer->user_id,
-                    'vegetable_id' => $this->randomVegetableId(),
                     'type' => PostType::Supply->value,
                     'scheduled_date' => $scheduledDate->toDateString(),
                     'time_slot' => fake()->randomElement(PostTimeSlot::cases())->value,
@@ -112,7 +107,6 @@ class PostSeeder extends Seeder
 
                 $postRows[] = [
                     'user_id' => $dealer->user_id,
-                    'vegetable_id' => $this->randomVegetableId(),
                     'type' => PostType::Demand->value,
                     'scheduled_date' => $scheduledDate->toDateString(),
                     'time_slot' => fake()->randomElement(PostTimeSlot::cases())->value,
@@ -139,7 +133,7 @@ class PostSeeder extends Seeder
         }
 
         $posts = Post::whereDoesntHave('postItems')
-            ->get(['id', 'vegetable_id', 'type', 'scheduled_date', 'created_at']);
+            ->get(['id', 'type', 'scheduled_date', 'created_at']);
 
         $itemRows = [];
 
@@ -152,7 +146,7 @@ class PostSeeder extends Seeder
                 ? fake()->numberBetween(3, 8)
                 : fake()->numberBetween(2, 6);
 
-            foreach ($this->randomVarietyIds($post->vegetable_id, $itemCount) as $varietyId) {
+            foreach ($this->randomVarietyIds($itemCount) as $varietyId) {
                 $itemRows[] = [
                     'post_id' => $post->id,
                     'variety_id' => $varietyId,
@@ -177,7 +171,6 @@ class PostSeeder extends Seeder
     private function loadLookups(): void
     {
         $this->varietyIds = Variety::pluck('id')->toArray();
-        $this->vegetableIds = Vegetable::pluck('id')->toArray();
 
         Variety::all(['id', 'vegetable_id'])->each(function (Variety $v): void {
             $this->varietiesByVegetable[$v->vegetable_id][] = $v->id;
@@ -186,14 +179,9 @@ class PostSeeder extends Seeder
 
     // ── Helpers ───────────────────────────────────────────────────────────────
 
-    private function randomVegetableId(): int
+    private function randomVarietyIds(int $count): array
     {
-        return $this->vegetableIds[array_rand($this->vegetableIds)];
-    }
-
-    private function randomVarietyIds(int $vegetableId, int $count): array
-    {
-        $pool = $this->varietiesByVegetable[$vegetableId] ?? $this->varietyIds;
+        $pool = $this->varietyIds;
         shuffle($pool);
 
         return array_slice($pool, 0, min($count, count($pool)));

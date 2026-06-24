@@ -16,7 +16,7 @@ class DealerDashboardService
      */
     public function expiringDemands(DealerProfile $profile): Collection
     {
-        return PostItem::with(['variety', 'post.vegetable'])
+        return PostItem::with(['variety', 'post'])
             ->ongoing()
             ->whereHas('post', fn (Builder $q) => $q
                 ->demand()
@@ -33,7 +33,7 @@ class DealerDashboardService
     {
         $recs = [];
 
-        $ongoingItems = PostItem::with(['post.vegetable'])
+        $ongoingItems = PostItem::with(['post'])
             ->ongoing()
             ->whereHas('post', fn (Builder $q) => $q
                 ->demand()

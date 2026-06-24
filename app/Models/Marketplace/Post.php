@@ -4,7 +4,6 @@ namespace App\Models\Marketplace;
 
 use App\Enums\PostTimeSlot;
 use App\Enums\PostType;
-use App\Models\Product\Vegetable;
 use App\Models\Profiles\DealerProfile;
 use App\Models\Profiles\FarmerProfile;
 use App\Models\User;
@@ -22,7 +21,6 @@ use Spatie\MediaLibrary\InteractsWithMedia;
 
 #[Fillable([
     'user_id',
-    'vegetable_id',
     'type',
     'scheduled_date',
     'time_slot',
@@ -47,11 +45,6 @@ class Post extends Model implements HasMedia
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
-    }
-
-    public function vegetable(): BelongsTo
-    {
-        return $this->belongsTo(Vegetable::class);
     }
 
     public function postItems(): HasMany

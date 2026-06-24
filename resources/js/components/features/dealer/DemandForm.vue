@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useForm } from '@inertiajs/vue3'
 import { CalendarIcon, Plus, ShoppingBag, Trash2 } from 'lucide-vue-next'
-import { computed, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { CalendarDate, today, getLocalTimeZone } from '@internationalized/date'
 import { store, update } from '@/actions/App/Http/Controllers/Dealer/DemandController'
 import DialogForm from '@/components/dialogs/DialogForm.vue'
@@ -53,6 +53,9 @@ const TIME_SLOT_OPTIONS: { value: PostTimeSlot; label: string }[] = [
     { value: 'evening', label: 'Evening (6 PM – 10 PM)' },
 ]
 
+// UI-only filter — not submitted to backend
+const filterVegetableId = ref<string>('')
+
 let _keyCounter = 0
 const nextKey = (): number => ++_keyCounter
 
@@ -61,12 +64,10 @@ function blankItem(): DemandItem {
 }
 
 const form = useForm<{
-    vegetable_id: string
     scheduled_date: string
     time_slot: PostTimeSlot | ''
     items: DemandItem[]
 }>({
-    vegetable_id: '',
     scheduled_date: '',
     time_slot: 'morning',
     items: [blankItem()],
@@ -74,13 +75,8 @@ const form = useForm<{
 
 const isEditMode = computed(() => !!props.demand)
 
-const minDateValue = computed(() =>
-    today(getLocalTimeZone()).add({ days: 1 })
-)
-
-const maxDateValue = computed(() =>
-    today(getLocalTimeZone()).add({ months: 3 })
-)
+const minDateValue = computed(() => today(getLocalTimeZone()).add({ days: 1 }))
+const maxDateValue = computed(() => today(getLocalTimeZone()).add({ months: 3 }))
 
 const calendarDate = computed({
     get(): CalendarDate | undefined {
@@ -91,6 +87,18 @@ const calendarDate = computed({
     set(val: CalendarDate | undefined): void {
         form.scheduled_date = val ? val.toString() : ''
     },
+})
+
+const filteredVarieties = computed(() => {
+    if (!props.varietyOptions) return {}
+    if (!filterVegetableId.value || !props.vegetableOptions) return props.varietyOptions
+
+    const selectedName = Object.values(props.vegetableOptions)
+        .flat()
+        .find((v) => String(v.id) === filterVegetableId.value)?.name
+
+    if (!selectedName) return props.varietyOptions
+    return { [selectedName]: props.varietyOptions[selectedName] ?? [] }
 })
 
 function addItem(): void {
@@ -124,7 +132,7 @@ watch(
     (isOpen) => {
         if (!isOpen) return
         const d = props.demand
-        form.vegetable_id = String(d?.vegetable?.id ?? '')
+        filterVegetableId.value = ''
         form.scheduled_date = d?.scheduled_date ?? ''
         form.time_slot = (d?.time_slot ?? 'morning') as PostTimeSlot | ''
         form.items = d?.items?.length
@@ -155,29 +163,6 @@ watch(
         </template>
 
         <div class="space-y-6">
-
-            <!-- ── Vegetable ──────────────────────────────────────────── -->
-            <div class="space-y-2">
-                <Label for="vegetable" class="flex items-center gap-1.5">
-                    Vegetable
-                    <Badge variant="secondary" class="text-xs font-normal">Required</Badge>
-                </Label>
-                <Select v-model="form.vegetable_id" :disabled="isEditMode">
-                    <SelectTrigger id="vegetable" :class="{ 'border-destructive': form.errors.vegetable_id }">
-                        <SelectValue placeholder="Select a vegetable..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectGroup v-for="(vegetables, category) in vegetableOptions" :key="category">
-                            <SelectLabel>{{ category }}</SelectLabel>
-                            <SelectItem v-for="v in vegetables" :key="v.id" :value="String(v.id)">
-                                {{ v.name }}
-                            </SelectItem>
-                        </SelectGroup>
-                    </SelectContent>
-                </Select>
-                <p v-if="form.errors.vegetable_id" class="text-xs text-destructive">{{ form.errors.vegetable_id }}</p>
-                <p v-else-if="isEditMode" class="text-xs text-muted-foreground">Vegetable cannot be changed after creation</p>
-            </div>
 
             <!-- ── Schedule ──────────────────────────────────────────── -->
             <div class="grid grid-cols-2 gap-4">
@@ -214,7 +199,9 @@ watch(
                             />
                         </PopoverContent>
                     </Popover>
-                    <p v-if="form.errors.scheduled_date" class="text-xs text-destructive">{{ form.errors.scheduled_date }}</p>
+                    <p v-if="form.errors.scheduled_date" class="text-xs text-destructive">
+                        {{ form.errors.scheduled_date }}
+                    </p>
                 </div>
 
                 <div class="space-y-2">
@@ -232,7 +219,9 @@ watch(
                             </SelectItem>
                         </SelectContent>
                     </Select>
-                    <p v-if="form.errors.time_slot" class="text-xs text-destructive">{{ form.errors.time_slot }}</p>
+                    <p v-if="form.errors.time_slot" class="text-xs text-destructive">
+                        {{ form.errors.time_slot }}
+                    </p>
                 </div>
             </div>
 
@@ -255,6 +244,32 @@ watch(
                         <Plus class="size-3" />
                         Add Variety
                     </Button>
+                </div>
+
+                <!-- Vegetable filter (UI only, not submitted) -->
+                <div v-if="vegetableOptions" class="space-y-1">
+                    <Label class="text-xs text-muted-foreground">Filter by vegetable</Label>
+                    <Select v-model="filterVegetableId">
+                        <SelectTrigger class="h-8 text-xs">
+                            <SelectValue placeholder="All vegetables..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="">All vegetables</SelectItem>
+                            <SelectGroup
+                                v-for="(vegetables, category) in vegetableOptions"
+                                :key="category"
+                            >
+                                <SelectLabel>{{ category }}</SelectLabel>
+                                <SelectItem
+                                    v-for="v in vegetables"
+                                    :key="v.id"
+                                    :value="String(v.id)"
+                                >
+                                    {{ v.name }}
+                                </SelectItem>
+                            </SelectGroup>
+                        </SelectContent>
+                    </Select>
                 </div>
 
                 <p v-if="(form.errors as Record<string, string>).items" class="text-xs text-destructive">
@@ -281,14 +296,25 @@ watch(
                                 <SelectValue placeholder="Select variety..." />
                             </SelectTrigger>
                             <SelectContent>
-                                <template v-for="(varieties, vegetableName) in varietyOptions" :key="vegetableName">
-                                    <SelectItem v-for="v in varieties" :key="v.id" :value="String(v.id)">
-                                        {{ vegetableName }} — {{ v.name }}
+                                <SelectGroup
+                                    v-for="(varieties, vegetableName) in filteredVarieties"
+                                    :key="vegetableName"
+                                >
+                                    <SelectLabel>{{ vegetableName }}</SelectLabel>
+                                    <SelectItem
+                                        v-for="v in varieties"
+                                        :key="v.id"
+                                        :value="String(v.id)"
+                                    >
+                                        {{ v.name }}
                                     </SelectItem>
-                                </template>
+                                </SelectGroup>
                             </SelectContent>
                         </Select>
-                        <p v-if="(form.errors as Record<string, string>)[`items.${index}.variety_id`]" class="text-xs text-destructive">
+                        <p
+                            v-if="(form.errors as Record<string, string>)[`items.${index}.variety_id`]"
+                            class="text-xs text-destructive"
+                        >
                             {{ (form.errors as Record<string, string>)[`items.${index}.variety_id`] }}
                         </p>
                     </div>
@@ -302,7 +328,10 @@ watch(
                             placeholder="kg"
                             :class="{ 'border-destructive': (form.errors as Record<string, string>)[`items.${index}.quantity_kg`] }"
                         />
-                        <p v-if="(form.errors as Record<string, string>)[`items.${index}.quantity_kg`]" class="text-xs text-destructive">
+                        <p
+                            v-if="(form.errors as Record<string, string>)[`items.${index}.quantity_kg`]"
+                            class="text-xs text-destructive"
+                        >
                             {{ (form.errors as Record<string, string>)[`items.${index}.quantity_kg`] }}
                         </p>
                     </div>

@@ -3,7 +3,6 @@
 namespace App\Data\Post;
 
 use App\Data\PostItem\PostItemLightData;
-use App\Data\Vegetable\VegetableLightData;
 use App\Enums\PostTimeSlot;
 use App\Enums\PostType;
 use Carbon\Carbon;
@@ -23,7 +22,6 @@ class FarmerSupplyData extends Data
     public function __construct(
         public int $id,
         public int $user_id,
-        public int $vegetable_id,
         public PostType $type,
         #[WithCast(DateTimeInterfaceCast::class, format: 'F j, Y')]
         #[WithTransformer(DateTimeInterfaceTransformer::class, format: 'F j, Y')]
@@ -32,8 +30,6 @@ class FarmerSupplyData extends Data
         public PostTimeSlot $time_slot,
         public string $created_at,
         public string $created_at_human,
-
-        public ?VegetableLightData $vegetable,
 
         /** @var DataCollection<int, PostItemLightData> */
         #[DataCollectionOf(PostItemLightData::class)]

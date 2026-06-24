@@ -16,7 +16,6 @@ import {
     ItemActions,
     ItemContent,
     ItemDescription,
-    ItemMedia,
     ItemTitle,
 } from '@/components/ui/item'
 import type { FarmerSupplyDataFixed } from '@/types'
@@ -32,20 +31,11 @@ const emit = defineEmits<{
 
 <template>
     <Item variant="outline" class="group transition-all hover:shadow-sm">
-        <ItemMedia variant="image">
-            <img
-                v-if="supply.vegetable?.image_url"
-                :src="supply.vegetable.image_url"
-                :alt="supply.vegetable.name"
-            />
-        </ItemMedia>
-
         <ItemContent>
             <ItemTitle>
-                {{ supply.vegetable?.name }}
+                {{ supply.scheduled_date }}
                 <Badge variant="outline">{{ supply.time_slot }}</Badge>
             </ItemTitle>
-            <ItemDescription>{{ supply.scheduled_date }}</ItemDescription>
             <ItemDescription v-if="supply.post_items?.length">
                 {{ supply.post_items.length }}
                 {{ supply.post_items.length === 1 ? 'variety' : 'varieties' }}
@@ -86,9 +76,9 @@ const emit = defineEmits<{
                             >
                                 {{ item.variety?.name }}
                                 <DropdownMenuShortcut>
-                                    <Badge variant="outline"
-                                        >{{ item.quantity_kg }} kg</Badge
-                                    >
+                                    <Badge variant="outline">
+                                        {{ item.quantity_kg }} kg
+                                    </Badge>
                                 </DropdownMenuShortcut>
                             </DropdownMenuItem>
                         </DropdownMenuGroup>
