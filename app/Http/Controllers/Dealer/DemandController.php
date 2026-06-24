@@ -5,12 +5,12 @@ namespace App\Http\Controllers\Dealer;
 use App\Actions\Demand\CreateDemandAction;
 use App\Actions\Demand\DeleteDemandAction;
 use App\Actions\Demand\UpdateDemandAction;
+use App\Data\Post\DealerDemandData;
 use App\Enums\PostItemStatus;
 use App\Enums\PostType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Dealer\StoreDemandRequest;
 use App\Http\Requests\Dealer\UpdateDemandRequest;
-use App\Http\Resources\Marketplace\PostItemResource;
 use App\Models\Marketplace\Post;
 use App\Services\Dealer\DemandService;
 use Illuminate\Http\RedirectResponse;
@@ -37,7 +37,7 @@ class DemandController extends Controller
             'summary' => Inertia::defer(fn () => $this->demandService->summary($userId)),
             'vegetableOptions' => Inertia::defer(fn () => $this->demandService->vegetableOptions()),
             'varietyOptions' => Inertia::defer(fn () => $this->demandService->varietyOptions()),
-            'demands' => Inertia::defer(fn () => PostItemResource::collection(
+            'demands' => Inertia::defer(fn () => DealerDemandData::collect(
                 $this->demandService->paginated(userId: $userId, status: $status)
             )),
         ]);
