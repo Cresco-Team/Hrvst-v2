@@ -15,12 +15,7 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import AppLayout from '@/layouts/AppLayout.vue'
 import dealer from '@/routes/dealer'
 import { index } from '@/routes/dealer/demands'
-import {
-    archive,
-    destroy,
-    fulfill,
-    update as updatePostItem,
-} from '@/routes/dealer/post-items'
+import { destroy, update as updatePostItem } from '@/routes/dealer/post-items'
 import type {
     BreadcrumbItem,
     DealerDemandsProps,
@@ -47,8 +42,6 @@ const itemToFulfill = ref<PostItemSnapshot | null>(null)
 const itemToArchive = ref<PostItemSnapshot | null>(null)
 const itemToDelete = ref<PostItemSnapshot | null>(null)
 
-const fulfillForm = useForm({})
-const archiveForm = useForm({})
 const deleteForm = useForm({})
 
 function openEditItem(item: PostItemSnapshot) {
@@ -66,28 +59,6 @@ function openArchive(item: PostItemSnapshot) {
 function openDelete(item: PostItemSnapshot) {
     itemToDelete.value = item
     deleteDialogOpen.value = true
-}
-
-function handleFulfill() {
-    if (!itemToFulfill.value) return
-    fulfillForm.post(fulfill(itemToFulfill.value.id).url, {
-        preserveScroll: true,
-        onSuccess: () => {
-            fulfillDialogOpen.value = false
-            itemToFulfill.value = null
-        },
-    })
-}
-
-function handleArchive() {
-    if (!itemToArchive.value) return
-    archiveForm.post(archive(itemToArchive.value.id).url, {
-        preserveScroll: true,
-        onSuccess: () => {
-            archiveDialogOpen.value = false
-            itemToArchive.value = null
-        },
-    })
 }
 
 function handleDelete() {
@@ -287,24 +258,6 @@ const breadcrumbs: BreadcrumbItem[] = [
         :item="itemToEdit"
         :update-url="itemToEdit ? updatePostItem(itemToEdit.id).url : ''"
         @update:open="editItemDialogOpen = $event"
-    />
-
-    <!-- Action dialogs -->
-    <ConfirmationDialog
-        v-model:open="fulfillDialogOpen"
-        title="Fulfill Item"
-        :description="`Mark ${itemToFulfill?.name} as fulfilled?`"
-        :processing="fulfillForm.processing"
-        @action="handleFulfill"
-    />
-
-    <ConfirmationDialog
-        v-model:open="archiveDialogOpen"
-        title="Archive Item"
-        :description="`Archive ${itemToArchive?.name}?`"
-        :processing="archiveForm.processing"
-        variant="destructive"
-        @action="handleArchive"
     />
 
     <ConfirmationDialog
