@@ -38,16 +38,10 @@ export type FarmerSupplyDataFixed =
 
 // ─── DealerDemandResource ─────────────────────────────────────────────────────
 
-export interface DealerDemandResource {
-	id: number
-	scheduled_date: string | null
-	time_slot: PostTimeSlot | null
-	time_slot_label: string | null
-	created_at: string
-	created_at_human: string
-	vegetable?: PostVegetableSnapshot
-	items?: PostItemSnapshot[]
-}
+export type DealerDemandDataFixed =
+	Omit<App.Data.Post.DealerDemandData, 'post_items'> & {
+		post_items: App.Data.PostItem.PostItemLightData[]
+	}
 
 // ─── DealerPostItemResource ───────────────────────────────────────────────────
 
