@@ -14,7 +14,7 @@ return new class extends Migration
             $table->foreignId('variety_id')->constrained()->cascadeOnDelete();
 
             $table->decimal('quantity_kg', 8, 2);
-            $table->string('status')->default('ongoing');
+            $table->enum('status', ['ongoing', 'expired', 'fulfilled'])->default('ongoing');
 
             $table->index(['variety_id', 'status'], 'idx_post_items_variety_status');
 
