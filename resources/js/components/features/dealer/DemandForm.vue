@@ -25,7 +25,7 @@ import {
     SelectValue,
 } from '@/components/ui/select'
 import type {
-    DealerDemandResource,
+    DealerDemandDataFixed,
     PostTimeSlot,
     VarietyOptionsByVegetable,
     VegetableOptionsByCategory,
@@ -39,7 +39,7 @@ interface DemandItem {
 
 interface Props {
     open: boolean
-    demand?: DealerDemandResource | null
+    demand?: DealerDemandDataFixed | null
     vegetableOptions?: VegetableOptionsByCategory
     varietyOptions?: VarietyOptionsByVegetable
 }
@@ -135,11 +135,11 @@ watch(
         filterVegetableId.value = ''
         form.scheduled_date = d?.scheduled_date ?? ''
         form.time_slot = (d?.time_slot ?? 'morning') as PostTimeSlot | ''
-        form.items = d?.items?.length
-            ? d.items.map((i) => ({
+        form.items = d?.post_items?.length
+            ? d.post_items.map((i) => ({
                   _key: nextKey(),
-                  variety_id: String(i.variety_id),
-                  quantity_kg: String(i.quantity_kg),
+                  variety_id: String((i as any).variety_id ?? ''),
+                  quantity_kg: String(i.quantity_kg ?? ''),
               }))
             : [blankItem()]
         form.clearErrors()
