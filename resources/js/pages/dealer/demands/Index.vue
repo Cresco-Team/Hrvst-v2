@@ -211,9 +211,6 @@ const breadcrumbs: BreadcrumbItem[] = [
     <DemandForm
         :open="demandFormOpen"
         :demand="activeDemand"
-        :vegetable-options="
-            vegetableOptions as VegetableOptionsByCategory | undefined
-        "
         :variety-options="
             varietyOptions as VarietyOptionsByVegetable | undefined
         "

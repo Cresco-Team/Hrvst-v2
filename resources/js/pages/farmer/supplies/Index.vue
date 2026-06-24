@@ -211,9 +211,6 @@ const breadcrumbs: BreadcrumbItem[] = [
     <SupplyForm
         :open="supplyFormOpen"
         :supply="activeSupply"
-        :vegetable-options="
-            vegetableOptions as VegetableOptionsByCategory | undefined
-        "
         :variety-options="
             varietyOptions as VarietyOptionsByVegetable | undefined
         "
@@ -223,7 +220,7 @@ const breadcrumbs: BreadcrumbItem[] = [
     <ConfirmationDialog
         v-model:open="deleteDialogOpen"
         title="Delete Supply"
-        :description="`Permanently delete this ${supplyToDelete?.vegetable?.name} supply?`"
+        :description="`Permanently delete this supply for ${supplyToDelete?.scheduled_date}?`"
         :processing="deleteForm.processing"
         variant="destructive"
         @action="handleDelete"

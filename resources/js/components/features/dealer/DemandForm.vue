@@ -245,33 +245,7 @@ watch(
                         Add Variety
                     </Button>
                 </div>
-
-                <!-- Vegetable filter (UI only, not submitted) -->
-                <div v-if="vegetableOptions" class="space-y-1">
-                    <Label class="text-xs text-muted-foreground">Filter by vegetable</Label>
-                    <Select v-model="filterVegetableId">
-                        <SelectTrigger class="h-8 text-xs">
-                            <SelectValue placeholder="All vegetables..." />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="">All vegetables</SelectItem>
-                            <SelectGroup
-                                v-for="(vegetables, category) in vegetableOptions"
-                                :key="category"
-                            >
-                                <SelectLabel>{{ category }}</SelectLabel>
-                                <SelectItem
-                                    v-for="v in vegetables"
-                                    :key="v.id"
-                                    :value="String(v.id)"
-                                >
-                                    {{ v.name }}
-                                </SelectItem>
-                            </SelectGroup>
-                        </SelectContent>
-                    </Select>
-                </div>
-
+                
                 <p v-if="(form.errors as Record<string, string>).items" class="text-xs text-destructive">
                     {{ (form.errors as Record<string, string>).items }}
                 </p>
@@ -306,7 +280,7 @@ watch(
                                         :key="v.id"
                                         :value="String(v.id)"
                                     >
-                                        {{ v.name }}
+                                        {{ vegetableName }}: {{ v.name }}
                                     </SelectItem>
                                 </SelectGroup>
                             </SelectContent>
