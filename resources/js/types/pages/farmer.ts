@@ -27,7 +27,7 @@ export interface FarmerDashboardProps {
 // ─── farmer/supplies/Index ────────────────────────────────────────────────────
 
 export interface FarmerSuppliesFilters {
-	status: 'growing' | PostItemStatus
+	status: PostItemStatus
 }
 
 export interface FarmerSuppliesProps {
@@ -35,7 +35,6 @@ export interface FarmerSuppliesProps {
 	summary: FarmerSupplySummary
 	vegetableOptions: VegetableOptionsByCategory
 	varietyOptions: VarietyOptionsByVegetable
-	growingPosts: Paginated<FarmerSupplyDataFixed> | null
 	supplies: Paginated<FarmerSupplyDataFixed> | null
 }
 
