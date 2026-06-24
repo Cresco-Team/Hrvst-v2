@@ -89,18 +89,6 @@ const calendarDate = computed({
     },
 })
 
-const filteredVarieties = computed(() => {
-    if (!props.varietyOptions) return {}
-    if (!filterVegetableId.value || !props.vegetableOptions) return props.varietyOptions
-
-    const selectedName = Object.values(props.vegetableOptions)
-        .flat()
-        .find((v) => String(v.id) === filterVegetableId.value)?.name
-
-    if (!selectedName) return props.varietyOptions
-    return { [selectedName]: props.varietyOptions[selectedName] ?? [] }
-})
-
 function addItem(): void {
     form.items.push(blankItem())
 }
@@ -154,7 +142,6 @@ watch(
         :description="isEditMode ? 'Update your demand details.' : 'Post a purchase request for farmers.'"
         :form="form"
         :submit-label="isEditMode ? 'Update Demand' : 'Post Demand'"
-        max-width="2xl"
         @update:open="emit('update:open', $event)"
         @submit="handleSubmit"
     >
@@ -165,7 +152,7 @@ watch(
         <div class="space-y-6">
 
             <!-- ── Schedule ──────────────────────────────────────────── -->
-            <div class="grid grid-cols-2 gap-4">
+            <div class="flex justify-between gap-4">
                 <div class="space-y-2">
                     <Label for="scheduled_date" class="flex items-center gap-1.5">
                         Transaction Date
@@ -271,7 +258,7 @@ watch(
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectGroup
-                                    v-for="(varieties, vegetableName) in filteredVarieties"
+                                    v-for="(varieties, vegetableName) in varietyOptions"
                                     :key="vegetableName"
                                 >
                                     <SelectLabel>{{ vegetableName }}</SelectLabel>

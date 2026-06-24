@@ -63,19 +63,6 @@ const form = useForm({
     }>,
 })
 
-const filteredVarieties = computed(() => {
-    if (!props.varietyOptions) return {}
-    if (!filterVegetableId.value || !props.vegetableOptions)
-        return props.varietyOptions
-
-    const selectedName = Object.values(props.vegetableOptions)
-        .flat()
-        .find((v) => String(v.id) === filterVegetableId.value)?.name
-
-    if (!selectedName) return props.varietyOptions
-    return { [selectedName]: props.varietyOptions[selectedName] ?? [] }
-})
-
 function toInputDate(dateStr: string | null | undefined): string {
     if (!dateStr) return ''
     const d = new Date(dateStr)
@@ -164,7 +151,6 @@ watch(
         "
         :form="form"
         :submit-label="isEditMode ? 'Save Changes' : 'Post Supply'"
-        max-width="2xl"
         @update:open="emit('update:open', $event)"
         @submit="handleSubmit"
     >
@@ -174,7 +160,7 @@ watch(
 
         <div class="space-y-6">
             <!-- ── Schedule ──────────────────────────────────────────── -->
-            <div class="grid grid-cols-2 gap-4">
+            <div class="flex justify-between gap-4">
                 <div class="space-y-2">
                     <Label
                         for="scheduled_date"
@@ -314,18 +300,18 @@ watch(
                                 <SelectGroup
                                     v-for="(
                                         varieties, vegetableName
-                                    ) in filteredVarieties"
+                                    ) in varietyOptions"
                                     :key="vegetableName"
                                 >
-                                    <SelectLabel>{{
-                                        vegetableName
-                                    }}</SelectLabel>
+                                    <SelectLabel>
+                                        {{ vegetableName }}
+                                    </SelectLabel>
                                     <SelectItem
                                         v-for="v in varieties"
                                         :key="v.id"
                                         :value="String(v.id)"
                                     >
-                                        {{ v.name }}
+                                        {{ vegetableName }}: {{ v.name }}
                                     </SelectItem>
                                 </SelectGroup>
                             </SelectContent>
