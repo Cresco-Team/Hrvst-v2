@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 use App\Models\Profiles\DealerProfile;
 use App\Models\Profiles\FarmerProfile;
-use Database\Seeders\Product\PriceHistorySeeder;
 use Database\Seeders\Profiles\AdminSeeder;
 use Database\Seeders\Profiles\RoleSeeder;
 use Illuminate\Database\Seeder;
@@ -23,7 +22,6 @@ class DatabaseSeeder extends Seeder
         if (app()->environment('local', 'development')) {
             $this->call([
                 TestUsersSeeder::class,
-                PriceHistorySeeder::class,
             ]);
 
             FarmerProfile::factory(500)->create();
