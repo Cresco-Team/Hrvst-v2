@@ -13,13 +13,12 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import AppLayout from '@/layouts/AppLayout.vue'
 import dealer from '@/routes/dealer'
-import { destroy as destroyDemand, index } from '@/routes/dealer/demands'
+import { destroy, index } from '@/routes/dealer/demands'
 import type {
     BreadcrumbItem,
     DealerDemandsProps,
     DealerDemandDataFixed,
     VarietyOptionsByVegetable,
-    VegetableOptionsByCategory,
 } from '@/types'
 
 const props = defineProps<DealerDemandsProps>()
@@ -52,7 +51,7 @@ function openDelete(demand: DealerDemandDataFixed) {
 
 function handleDelete() {
     if (!demandToDelete.value) return
-    deleteForm.delete(destroyDemand(demandToDelete.value.id).url, {
+    deleteForm.delete(destroy(demandToDelete.value.id).url, {
         preserveScroll: true,
         onSuccess: () => {
             deleteDialogOpen.value = false

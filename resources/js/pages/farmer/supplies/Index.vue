@@ -13,13 +13,12 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import AppLayout from '@/layouts/AppLayout.vue'
 import farmer from '@/routes/farmer'
-import { destroy as destroySupply, index } from '@/routes/farmer/supplies'
+import { destroy, index } from '@/routes/farmer/supplies'
 import type {
     BreadcrumbItem,
     FarmerSuppliesProps,
     FarmerSupplyDataFixed,
     VarietyOptionsByVegetable,
-    VegetableOptionsByCategory,
 } from '@/types'
 
 const props = defineProps<FarmerSuppliesProps>()
@@ -52,7 +51,7 @@ function openDelete(supply: FarmerSupplyDataFixed) {
 
 function handleDelete() {
     if (!supplyToDelete.value) return
-    deleteForm.delete(destroySupply(supplyToDelete.value.id).url, {
+    deleteForm.delete(destroy(supplyToDelete.value.id).url, {
         preserveScroll: true,
         onSuccess: () => {
             deleteDialogOpen.value = false
