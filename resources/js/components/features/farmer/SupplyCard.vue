@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
@@ -16,10 +17,12 @@ import {
     ItemActions,
     ItemContent,
     ItemDescription,
+    ItemMedia,
     ItemTitle,
 } from '@/components/ui/item'
+import { getInitials } from '@/composables/useInitials'
 import type { FarmerSupplyDataFixed } from '@/types'
-import { MoreVertical, SquarePen, Trash } from 'lucide-vue-next'
+import { CalendarClock, MoreVertical, SquarePen, Trash } from 'lucide-vue-next'
 
 const props = defineProps<{ supply: FarmerSupplyDataFixed }>()
 
@@ -31,6 +34,10 @@ const emit = defineEmits<{
 
 <template>
     <Item variant="outline" class="group transition-all hover:shadow-sm">
+        <ItemMedia variant="icon">
+            <CalendarClock />
+        </ItemMedia>
+
         <ItemContent>
             <ItemTitle>
                 {{ supply.scheduled_date }}
@@ -74,7 +81,19 @@ const emit = defineEmits<{
                                 v-for="item in supply.post_items"
                                 :key="item.id"
                             >
-                                {{ item.variety?.name }}
+                                <Avatar class="size-5">
+                                    <AvatarImage
+                                        :src="item.vegetable_image_url!"
+                                        :alt="item.vegetable_name"
+                                    />
+                                    <AvatarFallback>
+                                        {{ getInitials(item.vegetable_name!) }}
+                                    </AvatarFallback>
+                                </Avatar>
+                                <span class="line-clamp-1 max-w-35">
+                                    {{ item.vegetable_name }}:
+                                    {{ item.variety_name }}
+                                </span>
                                 <DropdownMenuShortcut>
                                     <Badge variant="outline">
                                         {{ item.quantity_kg }} kg
