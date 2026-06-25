@@ -26,9 +26,11 @@ namespace PostItem {
 export type PostItemLightData = {
 id: number,
 variety_id: number,
-variety: App.Data.Variety.VarietyLightData | null,
+variety_name: string | null,
+vegetable_name: string | null,
+vegetable_image_url: string | null,
 quantity_kg: number,
-status: App.Enums.PostItemStatus,
+status: App.Enums.PostItemStatus | null,
 };
 }
 namespace Variety {
