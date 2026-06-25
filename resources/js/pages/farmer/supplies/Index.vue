@@ -93,11 +93,11 @@ const breadcrumbs: BreadcrumbItem[] = [
             <div class="flex items-end justify-between">
                 <Heading
                     title="My Supplies"
-                    description="Post and manage your vegetable supply schedules."
+                    description="Schedule vegetable supplies."
                 />
                 <Button class="gap-2" @click="openCreate">
                     <Plus class="size-4" />
-                    New Supply
+                    New Schedule
                 </Button>
             </div>
 
@@ -159,8 +159,8 @@ const breadcrumbs: BreadcrumbItem[] = [
 
                 <EmptyState
                     v-if="supplies?.data.length === 0"
-                    title="No Supplies"
-                    description="Post a new supply to get started."
+                    title="No Schedules"
+                    description="Post a new schedule to get started."
                     :icon="Package"
                 />
 
