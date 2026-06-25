@@ -8,9 +8,7 @@ const props = defineProps<{
 </script>
 
 <template>
-  <div data-slot="table-container" class="relative w-full overflow-auto">
-    <table data-slot="table" :class="cn('w-full caption-bottom text-sm', props.class)">
-      <slot />
-    </table>
+  <div :class="cn('relative [&>[data-slot=input]]:has-[[data-slot=increment]]:pr-5 [&>[data-slot=input]]:has-[[data-slot=decrement]]:pl-5', props.class)">
+    <slot />
   </div>
 </template>

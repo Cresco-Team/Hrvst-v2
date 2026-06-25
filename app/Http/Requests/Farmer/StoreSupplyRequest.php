@@ -36,8 +36,9 @@ class StoreSupplyRequest extends FormRequest
             'items.min' => 'At least one supply item is required.',
             'items.*.variety_id.required' => 'Each item must have a variety.',
             'items.*.variety_id.exists' => 'Selected variety does not exist.',
-            'items.*.quantity_kg.required' => 'Each item must have a quantity.',
-            'items.*.quantity_kg.min' => 'Quantity must be at least 0.1 kg.',
+            'items.*.quantity_kg.required' => 'Each item must have a kilogram.',
+            'items.*.quantity_kg.min' => 'Kilogram must be at least 0.1 kg.',
+            'items.*.quantity_kg.max' => 'Kilogram should not exceed 99,999.',
         ];
     }
 }

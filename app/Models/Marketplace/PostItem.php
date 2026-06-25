@@ -6,6 +6,7 @@ use App\Enums\PostItemStatus;
 use App\Models\Product\Variety;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -57,6 +58,35 @@ class PostItem extends Model
     public function scopeOfStatus(Builder $query, PostItemStatus $status): Builder
     {
         return $query->where($this->qualifyColumn('status'), $status);
+    }
+
+    /* ---------- accessors ---------- */
+
+    public function varietyName(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->relationLoaded('variety')
+                ? $this->variety?->name
+                : null
+        );
+    }
+
+    public function vegetableName(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->relationLoaded('variety') && $this->variety?->relationLoaded('vegetable')
+                ? $this->variety->vegetable?->name
+                : null
+        );
+    }
+
+    public function vegetableImageUrl(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->relationLoaded('variety') && $this->variety?->relationLoaded('vegetable')
+                ? $this->variety->vegetable?->imageUrl
+                : null
+        );
     }
 
     /* ---------- lifecycle ---------- */

@@ -2,7 +2,6 @@
 
 namespace App\Policies\Marketplace;
 
-use App\Enums\PostItemStatus;
 use App\Enums\PostType;
 use App\Models\Marketplace\Post;
 use App\Models\User;
@@ -48,12 +47,8 @@ class PostPolicy
     public function delete(User $user, Post $post): bool
     {
         return match ($post->type) {
-            PostType::Supply => $user->id === $post->user_id || $user->hasRole('admin'),
-            // Demand can only be deleted when no PostItems are still ongoing
+            PostType::Supply => $user->id === $post->user_id,
             PostType::Demand => $user->id === $post->user_id
-                && ! $post->postItems()
-                    ->where('status', PostItemStatus::Ongoing->value)
-                    ->exists(),
         };
     }
 }

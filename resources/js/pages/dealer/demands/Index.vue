@@ -13,13 +13,12 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import AppLayout from '@/layouts/AppLayout.vue'
 import dealer from '@/routes/dealer'
-import { destroy as destroyDemand, index } from '@/routes/dealer/demands'
+import { destroy, index } from '@/routes/dealer/demands'
 import type {
     BreadcrumbItem,
     DealerDemandsProps,
     DealerDemandDataFixed,
     VarietyOptionsByVegetable,
-    VegetableOptionsByCategory,
 } from '@/types'
 
 const props = defineProps<DealerDemandsProps>()
@@ -52,7 +51,7 @@ function openDelete(demand: DealerDemandDataFixed) {
 
 function handleDelete() {
     if (!demandToDelete.value) return
-    deleteForm.delete(destroyDemand(demandToDelete.value.id).url, {
+    deleteForm.delete(destroy(demandToDelete.value.id).url, {
         preserveScroll: true,
         onSuccess: () => {
             deleteDialogOpen.value = false
@@ -82,7 +81,7 @@ function handlePageChange(page: number) {
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Dealer', href: dealer.dashboard().url },
-    { title: 'Demands', href: dealer.demands.index().url },
+    { title: 'Requests', href: dealer.demands.index().url },
 ]
 </script>
 
@@ -93,12 +92,12 @@ const breadcrumbs: BreadcrumbItem[] = [
         <div class="flex h-full flex-col gap-6 p-4 lg:p-6">
             <div class="flex items-end justify-between">
                 <Heading
-                    title="My Demands"
-                    description="Post purchase requests for farmers."
+                    title="My Requests"
+                    description="Schedule vegetable request."
                 />
                 <Button class="gap-2" @click="openCreate">
                     <Plus class="size-4" />
-                    New Demand
+                    New Schedule
                 </Button>
             </div>
 
@@ -113,7 +112,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                         />
                     </div>
                 </template>
-                <div class="grid gap-4 sm:grid-cols-3">
+                <div class="hidden gap-4 sm:grid sm:grid-cols-3">
                     <LargeCard
                         title="Ongoing"
                         :value="summary?.total_ongoing"
@@ -160,8 +159,8 @@ const breadcrumbs: BreadcrumbItem[] = [
 
                 <EmptyState
                     v-if="demands?.data.length === 0"
-                    title="No Demands"
-                    description="Post a new demand to get started."
+                    title="No Requests"
+                    description="Schedule a new request to get started."
                     :icon="ShoppingBag"
                 />
 
@@ -211,9 +210,6 @@ const breadcrumbs: BreadcrumbItem[] = [
     <DemandForm
         :open="demandFormOpen"
         :demand="activeDemand"
-        :vegetable-options="
-            vegetableOptions as VegetableOptionsByCategory | undefined
-        "
         :variety-options="
             varietyOptions as VarietyOptionsByVegetable | undefined
         "
@@ -222,8 +218,8 @@ const breadcrumbs: BreadcrumbItem[] = [
 
     <ConfirmationDialog
         v-model:open="deleteDialogOpen"
-        title="Delete Demand"
-        :description="`Permanently delete this demand for ${demandToDelete?.scheduled_date}?`"
+        title="Delete Request"
+        :description="`Permanently delete this request for ${demandToDelete?.scheduled_date}?`"
         :processing="deleteForm.processing"
         variant="destructive"
         @action="handleDelete"

@@ -13,13 +13,12 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import AppLayout from '@/layouts/AppLayout.vue'
 import farmer from '@/routes/farmer'
-import { destroy as destroySupply, index } from '@/routes/farmer/supplies'
+import { destroy, index } from '@/routes/farmer/supplies'
 import type {
     BreadcrumbItem,
     FarmerSuppliesProps,
     FarmerSupplyDataFixed,
     VarietyOptionsByVegetable,
-    VegetableOptionsByCategory,
 } from '@/types'
 
 const props = defineProps<FarmerSuppliesProps>()
@@ -52,7 +51,7 @@ function openDelete(supply: FarmerSupplyDataFixed) {
 
 function handleDelete() {
     if (!supplyToDelete.value) return
-    deleteForm.delete(destroySupply(supplyToDelete.value.id).url, {
+    deleteForm.delete(destroy(supplyToDelete.value.id).url, {
         preserveScroll: true,
         onSuccess: () => {
             deleteDialogOpen.value = false
@@ -94,11 +93,11 @@ const breadcrumbs: BreadcrumbItem[] = [
             <div class="flex items-end justify-between">
                 <Heading
                     title="My Supplies"
-                    description="Post and manage your vegetable supply schedules."
+                    description="Schedule vegetable supplies."
                 />
                 <Button class="gap-2" @click="openCreate">
                     <Plus class="size-4" />
-                    New Supply
+                    New Schedule
                 </Button>
             </div>
 
@@ -113,7 +112,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                         />
                     </div>
                 </template>
-                <div class="grid gap-4 sm:grid-cols-3">
+                <div class="hidden gap-4 sm:grid sm:grid-cols-3">
                     <LargeCard
                         title="Ongoing"
                         :value="summary?.total_ongoing"
@@ -160,8 +159,8 @@ const breadcrumbs: BreadcrumbItem[] = [
 
                 <EmptyState
                     v-if="supplies?.data.length === 0"
-                    title="No Supplies"
-                    description="Post a new supply to get started."
+                    title="No Schedules"
+                    description="Post a new schedule to get started."
                     :icon="Package"
                 />
 
@@ -211,9 +210,6 @@ const breadcrumbs: BreadcrumbItem[] = [
     <SupplyForm
         :open="supplyFormOpen"
         :supply="activeSupply"
-        :vegetable-options="
-            vegetableOptions as VegetableOptionsByCategory | undefined
-        "
         :variety-options="
             varietyOptions as VarietyOptionsByVegetable | undefined
         "
@@ -223,7 +219,7 @@ const breadcrumbs: BreadcrumbItem[] = [
     <ConfirmationDialog
         v-model:open="deleteDialogOpen"
         title="Delete Supply"
-        :description="`Permanently delete this ${supplyToDelete?.vegetable?.name} supply?`"
+        :description="`Permanently delete this supply for ${supplyToDelete?.scheduled_date}?`"
         :processing="deleteForm.processing"
         variant="destructive"
         @action="handleDelete"
