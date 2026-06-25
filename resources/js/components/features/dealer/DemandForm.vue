@@ -158,7 +158,7 @@ watch(
                         Transaction Date
                         <Badge variant="secondary" class="text-xs font-normal">Required</Badge>
                     </Label>
-                    <Popover>
+                    <Popover v-slot="{ close }">
                         <PopoverTrigger as-child>
                             <Button
                                 id="scheduled_date"
@@ -183,6 +183,7 @@ watch(
                                 :min-value="minDateValue"
                                 :max-value="maxDateValue"
                                 initial-focus
+                                @update:model-value="close"
                             />
                         </PopoverContent>
                     </Popover>

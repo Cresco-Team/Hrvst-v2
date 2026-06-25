@@ -171,7 +171,7 @@ watch(
                             >Required</Badge
                         >
                     </Label>
-                    <Popover>
+                    <Popover v-slot="{ close }">
                         <PopoverTrigger as-child>
                             <Button
                                 id="scheduled_date"
@@ -197,8 +197,10 @@ watch(
                         <PopoverContent class="w-auto p-0" align="start">
                             <Calendar
                                 v-model="calendarDate"
+                                layout="month-and-year"
                                 :min-value="minDateValue"
                                 initial-focus
+                                @update:model-value="close"
                             />
                         </PopoverContent>
                     </Popover>
