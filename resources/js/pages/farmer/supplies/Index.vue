@@ -112,7 +112,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                         />
                     </div>
                 </template>
-                <div class="grid gap-4 sm:grid-cols-3">
+                <div class="hidden gap-4 sm:grid sm:grid-cols-3">
                     <LargeCard
                         title="Ongoing"
                         :value="summary?.total_ongoing"
