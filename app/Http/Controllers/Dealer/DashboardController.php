@@ -28,13 +28,13 @@ class DashboardController extends Controller
             ),
 
             'expiringDemands' => Inertia::defer(
-                fn () => DealerExpiringDemandData::collect($this->dashboardService->expiringDemands($profile))
+                fn () => DealerExpiringDemandData::collect($this->dashboardService->expiringDemands($profile->user_id))
             ),
 
             'recommendations' => Inertia::defer(
                 fn () => array_map(
                     fn ($rec) => $rec->toArray(),
-                    $this->dashboardService->recommendations($profile)
+                    $this->dashboardService->recommendations($profile->user_id)
                 )
             ),
         ]);
