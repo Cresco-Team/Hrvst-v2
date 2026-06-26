@@ -82,7 +82,7 @@ const mainNavItems = computed<NavItem[]>(() => {
         items.push(
             { title: 'Vegetables', href: vegetables.index(), icon: Vegan },
             {
-                title: 'My Demands',
+                title: 'My Schedules',
                 href: dealer.demands.index(),
                 icon: PackageSearch,
             },
@@ -98,7 +98,7 @@ const mainNavItems = computed<NavItem[]>(() => {
         items.push(
             { title: 'Vegetables', href: vegetables.index(), icon: Vegan },
             {
-                title: 'My Supplies',
+                title: 'My Schedules',
                 href: farmer.supplies.index(),
                 icon: Package,
             },
