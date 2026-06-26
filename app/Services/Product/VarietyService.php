@@ -5,13 +5,8 @@ namespace App\Services\Product;
 use App\Enums\Analytics\VarietyViewerRole;
 use App\Enums\PostItemStatus;
 use App\Enums\PostType;
-use App\Http\Resources\Product\VegetableResource;
-use App\Models\Product\Category;
 use App\Models\Product\Variety;
 use App\Models\Product\Vegetable;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\DB;
 
 class VarietyService
@@ -28,72 +23,6 @@ class VarietyService
             'total_varieties' => Variety::count(),
             'total_vegetables' => Vegetable::count(),
         ];
-    }
-
-    public function table(
-        ?string $search = null,
-        ?int $categoryId = null,
-        ?int $userId = null,
-        ?int $perPage = null,
-    ): array {
-        $query = Vegetable::with([
-            'category',
-            'varieties' => function (HasMany $q) use ($search): void {
-                $q->withCount([
-                    'postItems as supply_count' => fn (Builder $q) => $q->ongoing()->whereHas(
-                        'post', fn (Builder $p) => $p->supply()
-                    ),
-                    'postItems as demand_count' => fn (Builder $q) => $q->ongoing()->whereHas(
-                        'post', fn (Builder $p) => $p->demand()
-                    ),
-                ])
-                    ->orderBy('name');
-
-                if ($search) {
-                    $q->where('name', 'like', "%{$search}%");
-                }
-            },
-        ])
-            ->when($categoryId, fn (Builder $q) => $q->where('category_id', $categoryId))
-            ->withCount('varieties')
-            ->orderBy('name');
-
-        if ($search) {
-            $query->where(function (Builder $q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                    ->orWhereHas('varieties', fn (Builder $q) => $q->where('name', 'like', "%{$search}%"));
-            });
-        }
-
-        if ($perPage !== null) {
-            $paginator = $query->whereHas('varieties')->paginate($perPage)->withQueryString();
-
-            return VegetableResource::collection($paginator)->response()->getData(true);
-        }
-
-        return VegetableResource::collection($query->get())->resolve();
-    }
-
-    public function forCatalog(int $perPage = 20, ?string $search = null, ?int $categoryId = null): LengthAwarePaginator
-    {
-        return Variety::with(['vegetable.category'])
-            ->withCount([
-                'postItems as supply_count' => fn (Builder $q) => $q->ongoing()->whereHas(
-                    'post', fn (Builder $p) => $p->supply()
-                ),
-                'postItems as demand_count' => fn (Builder $q) => $q->ongoing()->whereHas(
-                    'post', fn (Builder $p) => $p->demand()
-                ),
-            ])
-            ->when($search, fn (Builder $q) => $q
-                ->where('name', 'like', "%{$search}%")
-                ->orWhereHas('vegetable', fn (Builder $q) => $q->where('name', 'like', "%{$search}%"))
-            )
-            ->when($categoryId, fn (Builder $q) => $q->whereHas(
-                'vegetable', fn ($q) => $q->where('category_id', $categoryId)
-            ))
-            ->orderBy('name')
-            ->paginate($perPage);
     }
 
     public function show(Variety $variety, int $year, int $month, VarietyViewerRole $role): Variety
@@ -119,26 +48,6 @@ class VarietyService
         $variety->analytics = $this->analyticsService->compute($monthlyActivity, $role);
 
         return $variety;
-    }
-
-    public function vegetableOptions(): array
-    {
-        return cache()->remember('vegetable_options', 3600, function () {
-            return Vegetable::with('category')
-                ->get()
-                ->groupBy('category.name')
-                ->map(fn ($vegetables) => $vegetables->pluck('name', 'id')->toArray())
-                ->toArray();
-        });
-    }
-
-    public function categoryOptions(): array
-    {
-        return cache()->remember('category_options', 3600, function () {
-            return Category::orderBy('name')
-                ->get(['id', 'name'])
-                ->toArray();
-        });
     }
 
     private function resolveSupplyMunicipalities(int $varietyId): array

@@ -76,7 +76,7 @@ class VegetableController extends Controller
 
         return Inertia::render('shared/vegetables/Show', [
             'variety' => Inertia::defer(
-                fn () => VarietyDetailData::from($this->varietyService->show($variety, $year, $month, VarietyViewerRole::Marketplace))->resolve()
+                fn () => VarietyDetailData::from($this->varietyService->show($variety, $year, $month, VarietyViewerRole::Marketplace))
             ),
 
             'calendarFilters' => [
