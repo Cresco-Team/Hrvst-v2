@@ -1,12 +1,9 @@
 <script setup lang="ts">
-import { Deferred, Head, router, useForm } from '@inertiajs/vue3'
-import { ShoppingBag } from 'lucide-vue-next'
-import { computed, ref } from 'vue'
-import ConfirmationDialog from '@/components/dialogs/ConfirmationDialog.vue'
-import EmptyState from '@/components/EmptyState.vue'
-import DemandCard from '@/components/features/dealer/DemandCard.vue'
+import { type ColumnDef } from '@tanstack/vue-table'
+import { Deferred, Head, router } from '@inertiajs/vue3'
+import { computed } from 'vue'
+import DataTable from '@/components/shared/tables/DataTable.vue'
 import Heading from '@/components/Heading.vue'
-import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import AppLayout from '@/layouts/AppLayout.vue'
@@ -14,11 +11,6 @@ import dealer from '@/routes/dealer'
 import { archived, index } from '@/routes/dealer/demands'
 import type { BreadcrumbItem, DealerDemandDataFixed, PaginatedData } from '@/types'
 
-// Add DealerArchivedProps to @/types:
-// interface DealerArchivedProps {
-//     filters: { status: string }
-//     demands?: PaginatedData<DealerDemandDataFixed>
-// }
 interface Props {
     filters: { status: string }
     demands?: PaginatedData<DealerDemandDataFixed>
@@ -26,31 +18,30 @@ interface Props {
 
 const props = defineProps<Props>()
 
-// ─── Delete ───────────────────────────────────────────────────────────────────
-// No create/edit on archived items — editing history is a data integrity risk.
-// DemandCard still emits @edit; wire it up if your policy changes. For now,
-// only delete is wired so cards should conditionally hide their edit button
-// (add a :readonly prop to DemandCard to suppress the edit action).
+// ─── Column definitions ───────────────────────────────────────────────────────
 
-const deleteDialogOpen = ref(false)
-const demandToDelete = ref<DealerDemandDataFixed | null>(null)
-const deleteForm = useForm({})
-
-function openDelete(demand: DealerDemandDataFixed) {
-    demandToDelete.value = demand
-    deleteDialogOpen.value = true
-}
-
-function handleDelete() {
-    if (!demandToDelete.value) return
-    deleteForm.delete(`/dealer/demands/${demandToDelete.value.id}`, {
-        preserveScroll: true,
-        onSuccess: () => {
-            deleteDialogOpen.value = false
-            demandToDelete.value = null
-        },
-    })
-}
+const columns: ColumnDef<DealerDemandDataFixed>[] = [
+    {
+        id: 'items',
+        header: 'Items',
+        enableSorting: false,
+    },
+    {
+        accessorKey: 'scheduled_date',
+        header: 'Scheduled',
+        enableSorting: false,
+    },
+    {
+        accessorKey: 'time_slot',
+        header: 'Slot',
+        enableSorting: false,
+    },
+    {
+        accessorKey: 'created_at_human',
+        header: 'Posted',
+        enableSorting: false,
+    },
+]
 
 // ─── Status tabs + pagination ─────────────────────────────────────────────────
 
@@ -70,6 +61,8 @@ function handlePageChange(page: number) {
         only: ['demands'],
     })
 }
+
+// ─── Breadcrumbs ──────────────────────────────────────────────────────────────
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Dealer', href: dealer.dashboard().url },
@@ -99,84 +92,59 @@ const breadcrumbs: BreadcrumbItem[] = [
                 </TabsList>
             </Tabs>
 
-            <!-- ── Demand list ────────────────────────────────────────── -->
+            <!-- ── Table ─────────────────────────────────────────────── -->
             <Deferred data="demands">
                 <template #fallback>
-                    <div
-                        class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
-                    >
+                    <div class="space-y-2">
+                        <Skeleton class="h-10 w-full rounded-lg" />
                         <Skeleton
                             v-for="i in 8"
                             :key="i"
-                            class="h-36 rounded-lg"
+                            class="h-14 w-full rounded-lg"
                         />
                     </div>
                 </template>
 
-                <EmptyState
-                    v-if="demands?.data.length === 0"
-                    :title="
-                        currentStatus === 'expired'
-                            ? 'No Expired Requests'
-                            : 'No Fulfilled Requests'
-                    "
-                    :description="
-                        currentStatus === 'expired'
-                            ? 'Requests that pass their scheduled date without supply appear here.'
-                            : 'Completed requests appear here.'
-                    "
-                    :icon="ShoppingBag"
-                />
-
-                <template v-else>
-                    <div class="grid gap-4 sm:grid-cols-3">
-                        <DemandCard
-                            v-for="demand in demands!.data"
-                            :key="demand.id"
-                            :demand="demand"
-                            :readonly="true"
-                            @delete="openDelete(demand)"
-                        />
-                    </div>
-
-                    <div
-                        v-if="demands && demands.last_page > 1"
-                        class="flex items-center justify-between border-t pt-4"
-                    >
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            :disabled="demands.current_page === 1"
-                            @click="handlePageChange(demands.current_page - 1)"
+                <DataTable
+                    v-if="demands"
+                    :data="demands"
+                    :columns="columns"
+                    :enable-search="false"
+                    entity-name="requests"
+                    empty-message="No archived requests found."
+                    @page-change="handlePageChange"
+                >
+                    <template #cell-items="{ row }">
+                        <div
+                            v-if="row.post_items?.length"
+                            class="space-y-0.5"
                         >
-                            Previous
-                        </Button>
-                        <span class="text-sm text-muted-foreground">
-                            Page {{ demands.current_page }} of
-                            {{ demands.last_page }}
-                        </span>
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            :disabled="
-                                demands.current_page === demands.last_page
-                            "
-                            @click="handlePageChange(demands.current_page + 1)"
-                        >
-                            Next
-                        </Button>
-                    </div>
-                </template>
+                            <p
+                                v-for="item in row.post_items"
+                                :key="item.id"
+                                class="text-sm"
+                            >
+                                <span class="font-medium">{{
+                                    item.vegetable_name
+                                }}</span>
+                                <span class="text-muted-foreground">
+                                    {{ item.variety_name }}</span
+                                >
+                                <span class="text-muted-foreground">
+                                    &mdash; {{ item.quantity_kg }} kg</span
+                                >
+                            </p>
+                        </div>
+                        <span v-else class="text-muted-foreground">&mdash;</span>
+                    </template>
+
+                    <template #cell-time_slot="{ row }">
+                        <span class="capitalize">{{
+                            row.time_slot?.replace(/_/g, ' ') ?? '&mdash;'
+                        }}</span>
+                    </template>
+                </DataTable>
             </Deferred>
         </div>
     </AppLayout>
-
-    <ConfirmationDialog
-        v-model:open="deleteDialogOpen"
-        title="Delete Request"
-        :description="`Permanently delete this request for ${demandToDelete?.scheduled_date}?`"
-        :processing="deleteForm.processing"
-        variant="destructive"
-        @action="handleDelete"
-    />
 </template>
