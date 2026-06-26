@@ -71,25 +71,25 @@ class ProductSeeder extends Seeder
                 // Leafy Vegetables
                 'Lettuce' => ['Iceberg', 'Green Ice', 'Romaine'],
                 'Cabbage' => ['Scorpio', 'Wonderball', 'Rareball', 'Red', 'Chinese'],
-                'Celery' => ['Any'],
-                'Broccoli' => ['Any'],
-                'Onion Leeks' => ['Any'],
+                'Celery' => ['Celery'],
+                'Broccoli' => ['Brocolli'],
+                'Onion Leeks' => ['Onion Leeks'],
 
                 // Root Vegetables
-                'Carrot' => ['Any'],
+                'Carrot' => ['Carrort'],
                 'Potato' => ['Granola', 'LBR'],
                 'Radish' => ['Long'],
 
                 // Fruiting Vegetables
-                'Tomato' => ['Any'],
-                'Cucumber' => ['Any'],
-                'Zucchini' => ['Any'],
+                'Tomato' => ['Tomato'],
+                'Cucumber' => ['Cucumber'],
+                'Zucchini' => ['Zucchini'],
                 'Bell Pepper' => ['California (Open Field)', 'California (Greenhouse)', 'Sultan', 'Dongxin'],
-                'Chayote' => ['Any'],
+                'Chayote' => ['Chayote'],
 
                 // Bean Vegetables
-                'Snap Beans' => ['Any'],
-                'Garden Peas' => ['Any'],
+                'Snap Beans' => ['Snap Beans'],
+                'Garden Peas' => ['Garden Peas'],
             ];
 
             foreach ($varietiesByVegetable as $vegetableName => $varietyNames) {

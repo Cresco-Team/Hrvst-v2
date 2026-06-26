@@ -173,14 +173,14 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => [
                                 <p class="text-sm font-medium">Location</p>
                             </CardContent>
                             <LeafletMap
-                                v-if="farmer.location"
-                                :lat="farmer.location.coordinates.lat"
-                                :lng="farmer.location.coordinates.lng"
+                                v-if="farmer.coordinates"
+                                :lat="farmer.coordinates.lat"
+                                :lng="farmer.coordinates.lng"
                                 :markers="[
                                     {
-                                        lat: farmer.location.coordinates.lat,
-                                        lng: farmer.location.coordinates.lng,
-                                        popup: farmer.location.full_address,
+                                        lat: farmer.coordinates.lat,
+                                        lng: farmer.coordinates.lng,
+                                        popup: farmer.full_address,
                                     },
                                 ]"
                             />

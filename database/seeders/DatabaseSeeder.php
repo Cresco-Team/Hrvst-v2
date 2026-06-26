@@ -27,7 +27,10 @@ class DatabaseSeeder extends Seeder
             FarmerProfile::factory(500)->create();
             DealerProfile::factory(30)->create();
 
-            $this->call([PostSeeder::class]);
+            $this->call([
+                PostSeeder::class,
+                VarietyMonthlyStatsSeeder::class,
+            ]);
         }
 
         $this->command->info('Database seeded successfully!');

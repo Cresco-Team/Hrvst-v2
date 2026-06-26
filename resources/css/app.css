@@ -197,3 +197,7 @@
     letter-spacing: var(--tracking-normal);
     }
 }
+
+html {
+    scrollbar-gutter: stable;
+  }
