@@ -1,3 +1,4 @@
+import { App } from '@/generated/generated'
 import type { PostItemStatus, PostTimeSlot } from '../enums'
 import type { Coordinates } from '../shared'
 
