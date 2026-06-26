@@ -127,7 +127,7 @@ function formatChange(change?: number): string {
                     />
                 </div>
 
-                <div class="grid grid-cols-2 gap-4 md:grid-cols-4">
+                <div class="sm:px-20 md:px-50 lg:px-90 grid grid-cols-2 gap-6">
                     <SmallCard
                         title="Total Farmer Supplies"
                         :value="kpis?.farmers.total_supplies.value"
