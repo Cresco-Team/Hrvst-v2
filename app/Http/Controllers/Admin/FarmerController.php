@@ -87,7 +87,7 @@ class FarmerController extends Controller
 
         return Inertia::render('admin/farmers/Show', [
             'farmer' => Inertia::defer(
-                fn () => FarmerData::from($this->farmerService->show($farmer))->resolve()
+                fn () => FarmerData::from($this->farmerService->show($farmer))
             ),
         ]);
     }
