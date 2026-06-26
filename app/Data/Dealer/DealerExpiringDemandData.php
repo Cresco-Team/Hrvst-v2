@@ -2,9 +2,12 @@
 
 namespace App\Data\Dealer;
 
-use App\Enums\PostItemStatus;
-use App\Models\Marketplace\PostItem;
+use App\Data\PostItem\PostItemLightData;
+use App\Enums\PostTimeSlot;
+use App\Models\Marketplace\Post;
 use Spatie\LaravelData\Data;
+use Spatie\LaravelData\DataCollection;
+use Spatie\LaravelData\Lazy;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
 #[TypeScript]
@@ -12,38 +15,29 @@ class DealerExpiringDemandData extends Data
 {
     public function __construct(
         public int $id,
-        public PostItemStatus $status,
-        public int $variety_id,
-        public string $variety_name,
-        public string $vegetable_name,
-        public float $quantity_kg,
         public ?string $scheduled_date,
-        public ?string $time_slot,
+        public ?PostTimeSlot $time_slot,
         public ?string $time_slot_label,
-        public ?int $days_until_transaction,
         public string $created_at,
         public string $created_at_human,
+        public string|Lazy $image_url,
+        /** @var DataCollection<int, PostItemLightData>|Lazy */
+        public DataCollection|Lazy $items,
     ) {}
 
-    public static function fromModel(PostItem $item): self
+    public static function fromModel(Post $post): self
     {
-        $post = $item->post;
-
         return new self(
-            id: $item->id,
-            status: $item->status,
-            variety_id: $item->variety_id,
-            variety_name: $item->variety_name,
-            vegetable_name: $item->vegetable_name,
-            quantity_kg: (float) $item->quantity_kg,
+            id: $post->id,
             scheduled_date: $post->scheduled_date?->format('M d, Y'),
-            time_slot: $post->time_slot?->value,
+            time_slot: $post->time_slot,  // Fixed: was ->value (string), now passes enum
             time_slot_label: $post->time_slot?->label(),
-            days_until_transaction: $post->scheduled_date
-                ? (int) now()->diffInDays($post->scheduled_date, false)
-                : null,
-            created_at: $item->created_at->format('M d, Y'),
-            created_at_human: $item->created_at->diffForHumans(),
+            created_at: $post->created_at->format('M d, Y'),
+            created_at_human: $post->created_at->diffForHumans(),
+            image_url: Lazy::whenLoaded('media', $post, fn () => $post->getFirstMediaUrl('post_image')),
+            items: Lazy::whenLoaded('postItems', $post, fn () => PostItemLightData::collect(
+                $post->postItems, DataCollection::class
+            )),
         );
     }
 }
