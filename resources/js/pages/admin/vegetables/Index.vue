@@ -175,12 +175,12 @@ function handleSearch(query: string): void {
                     <SmallCard
                         title="Vegetable Varieties"
                         subtext="total"
-                        :value="summary?.total_varieties"
+                        :value="summary?.total_vegetables"
                     />
                     <SmallCard
                         title="Active Varieties"
                         subtext="with supply or demand"
-                        :value="summary?.active_varieties"
+                        :value="summary?.total_varieties"
                     />
                 </div>
             </Deferred>
