@@ -77,7 +77,6 @@ export interface DealerResource {
 // ─── Summary shapes ───────────────────────────────────────────────────────────
 
 export interface FarmerSupplySummary {
-	total_growing: number
 	total_ongoing: number
 	total_fulfilled: number
 	total_expired: number
