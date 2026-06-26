@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Shared;
 
+use App\Data\Variety\VarietyDetailData;
+use App\Data\Vegetable\VegetableSharedData;
 use App\Enums\Analytics\VarietyViewerRole;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Product\VarietyDetailResource;
@@ -52,7 +54,7 @@ class VegetableController extends Controller
                     )->paginate(12)
                         ->withQueryString();
 
-                    return VegetableSharedResource::collection($query);
+                    return VegetableSharedData::collect($query);
                 }
             ),
             'category' => $category,
@@ -74,9 +76,7 @@ class VegetableController extends Controller
 
         return Inertia::render('shared/vegetables/Show', [
             'variety' => Inertia::defer(
-                fn () => (new VarietyDetailResource(
-                    $this->varietyService->show($variety, $year, $month, VarietyViewerRole::Marketplace)
-                ))->resolve()
+                fn () => VarietyDetailData::from($this->varietyService->show($variety, $year, $month, VarietyViewerRole::Marketplace))->resolve()
             ),
 
             'calendarFilters' => [

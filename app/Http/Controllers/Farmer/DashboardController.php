@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Farmer;
 
+use App\Data\Farmer\FarmerExpiringSupplyData;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Marketplace\FarmerSupplyResource;
 use App\Services\Farmer\FarmerDashboardService;
@@ -27,9 +28,7 @@ class DashboardController extends Controller
             ),
 
             'expiringSupplies' => Inertia::defer(
-                fn () => FarmerSupplyResource::collection(
-                    $this->dashboardService->expiringSupplies($profile->user_id)
-                )
+                fn () => FarmerExpiringSupplyData::collect($this->dashboardService->expiringSupplies($profile->user_id))
             ),
 
             'recommendations' => Inertia::defer(

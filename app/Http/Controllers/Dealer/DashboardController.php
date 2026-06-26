@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Dealer;
 
+use App\Data\Dealer\DealerExpiringDemandData;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Marketplace\DealerDemandResource;
 use App\Services\Dealer\DealerDashboardService;
@@ -27,9 +28,7 @@ class DashboardController extends Controller
             ),
 
             'expiringDemands' => Inertia::defer(
-                fn () => DealerDemandResource::collection(
-                    $this->dashboardService->expiringDemands($profile)
-                )
+                fn () => DealerExpiringDemandData::collect($this->dashboardService->expiringDemands($profile))
             ),
 
             'recommendations' => Inertia::defer(

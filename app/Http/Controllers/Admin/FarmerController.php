@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Data\Profile\FarmerData;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Profile\FarmerResource;
 use App\Models\Profiles\FarmerProfile;
@@ -39,7 +40,7 @@ class FarmerController extends Controller
                 'defaultZoom' => 13,
             ],
             'farmers' => $view === 'list'
-                ? Inertia::defer(fn () => FarmerResource::collection(
+                ? Inertia::defer(fn () => FarmerData::collect(
                     $this->farmerService->paginated(
                         perPage: 20,
                         search: $request->query('search', null),
@@ -77,9 +78,7 @@ class FarmerController extends Controller
     {
         Gate::authorize('view', $farmer);
 
-        return response()->json(
-            (new FarmerResource($this->farmerService->details($farmer)))->resolve()
-        );
+        return response()->json(FarmerData::from($this->farmerService->details($farmer)));
     }
 
     public function show(FarmerProfile $farmer): Response
@@ -88,7 +87,7 @@ class FarmerController extends Controller
 
         return Inertia::render('admin/farmers/Show', [
             'farmer' => Inertia::defer(
-                fn () => (new FarmerResource($this->farmerService->show($farmer)))->resolve()
+                fn () => FarmerData::from($this->farmerService->show($farmer))->resolve()
             ),
         ]);
     }
