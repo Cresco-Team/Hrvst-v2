@@ -11,6 +11,7 @@ Route::middleware(['auth', 'verified', 'dealer'])->prefix('dealer')->name('deale
 
     Route::prefix('demands')->name('demands.')->group(function () {
         Route::get('/', [DemandController::class, 'index'])->name('index');
+        Route::get('/archived', [DemandController::class, 'archived'])->name('archived'); // must be before /{demand}
         Route::post('/', [DemandController::class, 'store'])->name('store');
         Route::put('/{demand}', [DemandController::class, 'update'])->name('update');
         Route::delete('/{demand}', [DemandController::class, 'destroy'])->name('destroy');
