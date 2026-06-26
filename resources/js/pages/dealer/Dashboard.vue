@@ -2,6 +2,7 @@
 import { Deferred, Head, router } from '@inertiajs/vue3'
 import {
     AlertTriangle,
+    CalendarCheck,
     CalendarClock,
     CheckCircle2,
     ChevronRight,
@@ -30,6 +31,8 @@ import type {
     DealerDashboardProps,
     DealerRecommendationSeverity,
 } from '@/types'
+import SmallCard from '@/components/shared/cards/SmallCard.vue'
+import { CalendarX } from '@lucide/vue'
 
 const props = defineProps<DealerDashboardProps>()
 
@@ -152,57 +155,25 @@ const criticalRecs = computed(
                     </div>
                 </template>
                 <div class="grid grid-cols-3 gap-4">
-                    <Card class="gap-0 py-4">
-                        <CardContent class="px-4">
-                            <p class="text-xs text-muted-foreground">Ongoing</p>
-                        </CardContent>
-                        <CardContent
-                            class="flex items-end justify-between px-6 pt-0"
-                        >
-                            <p class="text-2xl font-bold tabular-nums">
-                                {{ summary?.total_ongoing ?? 0 }}
-                            </p>
-                            <ShoppingBag class="size-4 text-muted-foreground" />
-                        </CardContent>
-                    </Card>
-
-                    <Card class="gap-0 py-4">
-                        <CardContent class="px-4">
-                            <p class="text-xs text-muted-foreground">
-                                Fulfilled
-                            </p>
-                        </CardContent>
-                        <CardContent
-                            class="flex items-end justify-between px-6 pt-0"
-                        >
-                            <p
-                                class="text-2xl font-bold text-green-600 tabular-nums dark:text-green-400"
-                            >
-                                {{ summary?.total_fulfilled ?? 0 }}
-                            </p>
-                            <CircleCheckBig
-                                class="size-4 text-green-600 dark:text-green-400"
-                            />
-                        </CardContent>
-                    </Card>
-
-                    <Card class="gap-0 py-4">
-                        <CardContent class="px-4">
-                            <p class="text-xs text-muted-foreground">Expired</p>
-                        </CardContent>
-                        <CardContent
-                            class="flex items-end justify-between px-6 pt-0"
-                        >
-                            <p
-                                class="text-2xl font-bold text-muted-foreground tabular-nums"
-                            >
-                                {{ summary?.total_expired ?? 0 }}
-                            </p>
-                            <AlertTriangle
-                                class="size-4 text-muted-foreground"
-                            />
-                        </CardContent>
-                    </Card>
+                    <SmallCard
+                        title="Ongoing"
+                        :value="summary.total_ongoing"
+                        :icon="CalendarClock"
+                    />
+                    <SmallCard
+                        title="Fulfilled"
+                        :value="summary.total_fulfilled"
+                        :icon="CalendarCheck"
+                        value-class="text-green-600"
+                        icon-class="text-green-600"
+                    />
+                    <SmallCard
+                        title="Expired"
+                        :value="summary.total_expired"
+                        :icon="CalendarX"
+                        value-class="text-destructive"
+                        icon-class="text-destructive"
+                    />
                 </div>
             </Deferred>
 
