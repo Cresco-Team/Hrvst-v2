@@ -82,7 +82,6 @@ function submit() {
             v-model="form.name"
             type="text"
             placeholder="Maria Santos"
-            required
           />
           <InputError :message="form.errors.name" />
         </div>
@@ -95,7 +94,6 @@ function submit() {
             v-model="form.phone_number"
             type="tel"
             placeholder="09171234567"
-            required
           />
           <InputError :message="form.errors.phone_number" />
         </div>
