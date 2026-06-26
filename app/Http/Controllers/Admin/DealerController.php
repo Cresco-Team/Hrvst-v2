@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Data\Profile\DealerData;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Profile\DealerResource;
 use App\Models\Profiles\DealerProfile;
@@ -25,10 +26,8 @@ class DealerController extends Controller
 
         return Inertia::render('admin/dealers/Index', [
             'summary' => Inertia::defer(fn () => $this->dealerService->summary()),
-            'dealers' => Inertia::defer(fn () => DealerResource::collection(
-                $this->dealerService->paginated(
-                    search: $request->query('search', null),
-                )
+            'dealers' => Inertia::defer(fn () => DealerData::collect(
+                $this->dealerService->paginated(search: $request->query('search', null)),
             )),
             'filters' => ['search' => $request->query('search', null)],
         ]);
@@ -38,19 +37,15 @@ class DealerController extends Controller
     {
         Gate::authorize('view', $dealer);
 
-        return response()->json(
-            (new DealerResource($this->dealerService->details($dealer)))->resolve()
-        );
+        return response()->json(DealerData::from($this->dealerService->details($dealer)));
     }
 
     public function show(DealerProfile $dealer): Response
     {
         Gate::authorize('view', $dealer);
-
+    
         return Inertia::render('admin/dealers/Show', [
-            'dealer' => Inertia::defer(
-                fn () => (new DealerResource($this->dealerService->show($dealer)))->resolve()
-            ),
+            'dealer' => Inertia::defer(fn () => DealerData::from($this->dealerService->show($dealer))),
         ]);
     }
 

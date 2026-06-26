@@ -204,29 +204,29 @@ function handlePageChange(page: number) {
 
             <!-- Pagination -->
             <div
-                v-if="vegetables && vegetables.meta.last_page > 1"
+                v-if="vegetables && vegetables.last_page > 1"
                 class="flex items-center justify-between border-t pt-4"
             >
                 <Button
                     variant="outline"
                     size="sm"
-                    :disabled="vegetables.meta.current_page === 1"
-                    @click="handlePageChange(vegetables.meta.current_page - 1)"
+                    :disabled="vegetables.current_page === 1"
+                    @click="handlePageChange(vegetables.current_page - 1)"
                 >
                     Previous
                 </Button>
                 <span class="text-sm text-muted-foreground">
-                    Page {{ vegetables.meta.current_page }} of
-                    {{ vegetables.meta.last_page }}
+                    Page {{ vegetables.current_page }} of
+                    {{ vegetables.last_page }}
                 </span>
                 <Button
                     variant="outline"
                     size="sm"
                     :disabled="
-                        vegetables.meta.current_page ===
-                        vegetables.meta.last_page
+                        vegetables.current_page ===
+                        vegetables.last_page
                     "
-                    @click="handlePageChange(vegetables.meta.current_page + 1)"
+                    @click="handlePageChange(vegetables.current_page + 1)"
                 >
                     Next
                 </Button>

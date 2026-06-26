@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin\Vegetable;
 use App\Actions\Product\CreateVarietyAction;
 use App\Actions\Product\DeleteVarietyAction;
 use App\Actions\Product\UpdateVarietyAction;
+use App\Data\Variety\VarietyDetailData;
 use App\Enums\Analytics\VarietyViewerRole;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Product\StoreVarietyRequest;
@@ -35,9 +36,9 @@ class VarietyController extends Controller
 
         return Inertia::render('admin/vegetables/Show', [
             'variety' => Inertia::defer(
-                fn () => (new VarietyDetailResource(
+                fn () => VarietyDetailData::from(
                     $this->varietyService->show($variety, $year, $month, VarietyViewerRole::Admin)
-                ))->resolve()
+                )
             ),
             'calendarFilters' => [
                 'year' => $year,
