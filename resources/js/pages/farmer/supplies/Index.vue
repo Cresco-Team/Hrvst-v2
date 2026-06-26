@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Deferred, Head, router, useForm } from '@inertiajs/vue3'
 import { Package, Plus } from 'lucide-vue-next'
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 import ConfirmationDialog from '@/components/dialogs/ConfirmationDialog.vue'
 import EmptyState from '@/components/EmptyState.vue'
 import SupplyCard from '@/components/features/farmer/SupplyCard.vue'
@@ -10,7 +10,6 @@ import Heading from '@/components/Heading.vue'
 import LargeCard from '@/components/shared/cards/LargeCard.vue'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import AppLayout from '@/layouts/AppLayout.vue'
 import farmer from '@/routes/farmer'
 import { destroy, index } from '@/routes/farmer/supplies'
@@ -60,20 +59,10 @@ function handleDelete() {
     })
 }
 
-// ─── Status tabs + pagination ─────────────────────────────────────────────────
-
-const currentStatus = computed(() => props.filters.status)
-
-function handleStatusChange(value: string | number) {
-    router.visit(index({ query: { status: value } }).url, {
-        preserveState: true,
-        preserveScroll: true,
-        only: ['supplies', 'filters'],
-    })
-}
+// ─── Pagination ───────────────────────────────────────────────────────────────
 
 function handlePageChange(page: number) {
-    router.visit(index({ query: { status: props.filters.status, page } }).url, {
+    router.visit(index({ query: { page } }).url, {
         preserveScroll: true,
         only: ['supplies'],
     })
@@ -131,19 +120,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                 </div>
             </Deferred>
 
-            <!-- ── Status tabs ────────────────────────────────────────── -->
-            <Tabs
-                :model-value="currentStatus"
-                @update:model-value="handleStatusChange"
-            >
-                <TabsList>
-                    <TabsTrigger value="ongoing">Ongoing</TabsTrigger>
-                    <TabsTrigger value="expired">Expired</TabsTrigger>
-                    <TabsTrigger value="fulfilled">Fulfilled</TabsTrigger>
-                </TabsList>
-            </Tabs>
-
-            <!-- ── Supply list ────────────────────────────────────────── -->
+            <!-- ── Supply list (Ongoing only) ─────────────────────────── -->
             <Deferred data="supplies">
                 <template #fallback>
                     <div
@@ -159,7 +136,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 
                 <EmptyState
                     v-if="supplies?.data.length === 0"
-                    title="No Schedules"
+                    title="No Ongoing Schedules"
                     description="Post a new schedule to get started."
                     :icon="Package"
                 />
