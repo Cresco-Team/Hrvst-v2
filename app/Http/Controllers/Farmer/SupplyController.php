@@ -28,16 +28,33 @@ class SupplyController extends Controller
         Gate::authorize('viewAny', Post::class);
 
         $userId = $request->user()->id;
-        $rawStatus = $request->query('status', PostItemStatus::Ongoing->value);
-        $postItemStatus = PostItemStatus::tryFrom($rawStatus) ?? PostItemStatus::Ongoing;
 
         return Inertia::render('farmer/supplies/Index', [
-            'filters' => ['status' => $postItemStatus->value],
             'summary' => Inertia::defer(fn () => $this->supplyService->summary($userId)),
             'vegetableOptions' => Inertia::defer(fn () => $this->supplyService->vegetableOptions()),
             'varietyOptions' => Inertia::defer(fn () => $this->supplyService->varietyOptions()),
             'supplies' => Inertia::defer(fn () => FarmerSupplyData::collect(
-                $this->supplyService->paginatedSupply(userId: $userId, status: $postItemStatus)
+                $this->supplyService->paginatedSupply(userId: $userId, status: PostItemStatus::Ongoing)
+            )),
+        ]);
+    }
+
+    public function archived(Request $request): Response
+    {
+        Gate::authorize('viewAny', Post::class);
+
+        $userId = $request->user()->id;
+        $status = PostItemStatus::tryFrom($request->query('status', PostItemStatus::Expired->value));
+
+        // Guard: only Expired and Fulfilled belong here; reject Ongoing
+        if (! $status || $status === PostItemStatus::Ongoing) {
+            $status = PostItemStatus::Expired;
+        }
+
+        return Inertia::render('farmer/supplies/Archived', [
+            'filters' => ['status' => $status->value],
+            'supplies' => Inertia::defer(fn () => FarmerSupplyData::collect(
+                $this->supplyService->paginatedSupply(userId: $userId, status: $status)
             )),
         ]);
     }

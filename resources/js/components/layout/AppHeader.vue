@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Link, usePage } from '@inertiajs/vue3'
 import {
+    Archive,
     Menu,
     Package,
     PackageSearch,
@@ -37,9 +38,11 @@ import { getInitials } from '@/composables/useInitials'
 import { dashboard } from '@/routes'
 import admin from '@/routes/admin'
 import dealer from '@/routes/dealer'
+import { archived as dealerDemandsArchived } from '@/routes/dealer/demands'
 import farmer from '@/routes/farmer'
-import type { BreadcrumbItem, NavItem } from '@/types'
+import { archived as farmerSuppliesArchived } from '@/routes/farmer/supplies'
 import vegetables from '@/routes/vegetables'
+import type { BreadcrumbItem, NavItem } from '@/types'
 
 type Props = {
     breadcrumbs?: BreadcrumbItem[]
@@ -79,9 +82,14 @@ const mainNavItems = computed<NavItem[]>(() => {
         items.push(
             { title: 'Vegetables', href: vegetables.index(), icon: Vegan },
             {
-                title: 'My Demands',
+                title: 'My Schedules',
                 href: dealer.demands.index(),
                 icon: PackageSearch,
+            },
+            {
+                title: 'Archived',
+                href: dealerDemandsArchived(),
+                icon: Archive,
             },
         )
     }
@@ -90,9 +98,14 @@ const mainNavItems = computed<NavItem[]>(() => {
         items.push(
             { title: 'Vegetables', href: vegetables.index(), icon: Vegan },
             {
-                title: 'My Supplies',
+                title: 'My Schedules',
                 href: farmer.supplies.index(),
                 icon: Package,
+            },
+            {
+                title: 'Archived',
+                href: farmerSuppliesArchived(),
+                icon: Archive,
             },
         )
     }

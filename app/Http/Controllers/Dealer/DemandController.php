@@ -30,13 +30,31 @@ class DemandController extends Controller
         Gate::authorize('viewAny', Post::class);
 
         $userId = $request->user()->id;
-        $status = PostItemStatus::tryFrom($request->query('status', PostItemStatus::Ongoing->value)) ?? PostItemStatus::Ongoing;
 
         return Inertia::render('dealer/demands/Index', [
-            'filters' => ['status' => $status],
             'summary' => Inertia::defer(fn () => $this->demandService->summary($userId)),
             'vegetableOptions' => Inertia::defer(fn () => $this->demandService->vegetableOptions()),
             'varietyOptions' => Inertia::defer(fn () => $this->demandService->varietyOptions()),
+            'demands' => Inertia::defer(fn () => DealerDemandData::collect(
+                $this->demandService->paginated(userId: $userId, status: PostItemStatus::Ongoing)
+            )),
+        ]);
+    }
+
+    public function archived(Request $request): Response
+    {
+        Gate::authorize('viewAny', Post::class);
+
+        $userId = $request->user()->id;
+        $status = PostItemStatus::tryFrom($request->query('status', PostItemStatus::Expired->value));
+
+        // Guard: only Expired and Fulfilled belong here; reject Ongoing
+        if (! $status || $status === PostItemStatus::Ongoing) {
+            $status = PostItemStatus::Expired;
+        }
+
+        return Inertia::render('dealer/demands/Archived', [
+            'filters' => ['status' => $status->value],
             'demands' => Inertia::defer(fn () => DealerDemandData::collect(
                 $this->demandService->paginated(userId: $userId, status: $status)
             )),
