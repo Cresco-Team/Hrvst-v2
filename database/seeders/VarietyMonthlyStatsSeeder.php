@@ -35,16 +35,16 @@ class VarietyMonthlyStatsSeeder extends Seeder
             for ($monthsAgo = 11; $monthsAgo >= 0; $monthsAgo--) {
                 $date = now()->startOfMonth()->subMonths($monthsAgo);
 
-                [$supplyFulfilled, $supplyArchived, $demandFulfilled, $demandArchived]
+                [$supplyFulfilled, $supplyEpired, $demandFulfilled, $demandExpired]
                     = $this->volumesFor($archetype, $monthsAgo);
 
                 $rows[] = [
                     'variety_id' => $varietyId,
                     'period_date' => $date->toDateString(),
                     'supply_fulfilled_kg' => $supplyFulfilled,
-                    'supply_archived_kg' => $supplyArchived,
+                    'supply_expired_kg' => $supplyEpired,
                     'demand_fulfilled_kg' => $demandFulfilled,
-                    'demand_archived_kg' => $demandArchived,
+                    'demand_expired_kg' => $demandExpired,
                     'created_at' => now(),
                     'updated_at' => now(),
                 ];
