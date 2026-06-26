@@ -30,7 +30,7 @@ class FarmerExpiringSupplyData extends Data
         return new self(
             id: $post->id,
             scheduled_date: $post->scheduled_date?->format('M d, Y'),
-            time_slot: $post->time_slot?->value,
+            time_slot: $post->time_slot,
             time_slot_label: $post->time_slot?->label(),
             created_at: $post->created_at->format('M d, Y'),
             created_at_human: $post->created_at->diffForHumans(),
