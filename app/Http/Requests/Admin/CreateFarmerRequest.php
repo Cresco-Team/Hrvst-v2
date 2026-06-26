@@ -23,11 +23,11 @@ class CreateFarmerRequest extends FormRequest
                 Rule::unique('users', 'phone_number'),
             ],
             'email' => ['nullable', 'string', 'email', 'max:255', Rule::unique('users', 'email')],
-            'province_id' => ['sometimes'],  // derived from municipality_id in the action
+            'province_id' => ['sometimes'],
             'municipality_id' => ['required', 'integer', Rule::exists('municipalities', 'id')],
             'barangay_id' => ['required', 'integer', Rule::exists('barangays', 'id')],
-            'latitude' => ['nullable', 'numeric', 'between:-90,90'],
-            'longitude' => ['nullable', 'numeric', 'between:-180,180'],
+            'latitude' => ['required', 'numeric', 'between:-90,90'],
+            'longitude' => ['required', 'numeric', 'between:-180,180'],
         ];
     }
 
@@ -36,6 +36,7 @@ class CreateFarmerRequest extends FormRequest
         return [
             'phone_number.regex' => 'Phone number must be a valid PH mobile number (e.g. 09171234567).',
             'phone_number.unique' => 'This phone number is already registered.',
+            ''
         ];
     }
 }
