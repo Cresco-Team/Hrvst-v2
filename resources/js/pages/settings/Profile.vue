@@ -107,7 +107,7 @@ function handleAvatarChange(event: Event): void {
                     />
 
                     <Form
-                        v-bind="ProfileController.update.form()"
+                        v-bind="ProfileController.update()"
                         class="space-y-4"
                         :options="{ preserveScroll: true }"
                         v-slot="{ errors, processing, recentlySuccessful }"
