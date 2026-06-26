@@ -3,6 +3,7 @@
 namespace App\Data\Farmer;
 
 use App\Data\PostItem\PostItemLightData;
+use App\Enums\PostTimeSlot;
 use App\Models\Marketplace\Post;
 use Spatie\LaravelData\Data;
 use Spatie\LaravelData\DataCollection;
@@ -15,7 +16,7 @@ class FarmerExpiringSupplyData extends Data
     public function __construct(
         public int $id,
         public ?string $scheduled_date,
-        public ?string $time_slot,
+        public ?PostTimeSlot $time_slot,
         public ?string $time_slot_label,
         public string $created_at,
         public string $created_at_human,
