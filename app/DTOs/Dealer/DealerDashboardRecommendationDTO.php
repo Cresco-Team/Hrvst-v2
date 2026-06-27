@@ -2,6 +2,9 @@
 
 namespace App\DTOs\Dealer;
 
+use Spatie\TypeScriptTransformer\Attributes\TypeScript;
+
+#[TypeScript]
 final class DealerDashboardRecommendationDTO
 {
     public function __construct(

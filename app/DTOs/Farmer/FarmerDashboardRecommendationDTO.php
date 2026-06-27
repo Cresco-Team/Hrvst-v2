@@ -2,6 +2,9 @@
 
 namespace App\DTOs\Farmer;
 
+use Spatie\TypeScriptTransformer\Attributes\TypeScript;
+
+#[TypeScript]
 final class FarmerDashboardRecommendationDTO
 {
     public function __construct(

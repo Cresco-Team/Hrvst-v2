@@ -3,7 +3,9 @@
 namespace App\DTOs\Product;
 
 use App\Enums\Analytics\ImbalanceBand;
+use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
+#[TypeScript]
 readonly class VarietyAnalyticsDTO
 {
     /**
