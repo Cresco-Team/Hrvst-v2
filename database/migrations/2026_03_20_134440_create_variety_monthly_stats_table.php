@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('variety_monthly_stats', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('vegetable_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('variety_id')->constrained()->cascadeOnDelete();
 
             $table->date('period_date');
 
@@ -21,7 +21,7 @@ return new class extends Migration
 
             $table->timestamps();
 
-            $table->unique(['vegetable_id', 'period_date']);
+            $table->unique(['variety_id', 'period_date']);
         });
     }
 
