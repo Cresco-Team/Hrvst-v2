@@ -131,7 +131,7 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => [
                                     <p
                                         class="mt-0.5 text-xs text-muted-foreground"
                                     >
-                                        {{ farmer.location?.full_address }}
+                                        {{ farmer.full_address }}
                                     </p>
                                 </div>
                             </div>
