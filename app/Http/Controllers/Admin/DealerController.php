@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\Data\Profile\DealerData;
 use App\Http\Controllers\Controller;
-use App\Http\Resources\Profile\DealerResource;
 use App\Models\Profiles\DealerProfile;
 use App\Services\Admin\DealerService;
 use Illuminate\Http\JsonResponse;
