@@ -47,7 +47,8 @@ class DealerService
             'posts' => fn ($q) => $q
                 ->demand()
                 ->whereDate('scheduled_date', today())
-                ->with(['postItems' => fn ($q) => $q->ongoing()]),
+                ->with(['postItems' => fn ($q) => $q->ongoing()])
+                ->with(['postItems.variety.vegetable']),
         ]);
     }
 

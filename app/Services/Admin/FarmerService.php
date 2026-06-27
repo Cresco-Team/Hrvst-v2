@@ -48,14 +48,14 @@ class FarmerService
     {
         return $farmer->load([
             'user.media',
-            'media',
             'province',
             'municipality',
             'barangay',
             'posts' => fn ($q) => $q
                 ->supply()
                 ->whereDate('scheduled_date', today())
-                ->with(['postItems' => fn ($q) => $q->ongoing()]),
+                ->with(['postItems' => fn ($q) => $q->ongoing()])
+                ->with(['postItems.variety.vegetable'])
         ]);
     }
 
