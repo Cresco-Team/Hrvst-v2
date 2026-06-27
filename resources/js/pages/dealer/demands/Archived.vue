@@ -9,11 +9,11 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import AppLayout from '@/layouts/AppLayout.vue'
 import dealer from '@/routes/dealer'
 import { archived, index } from '@/routes/dealer/demands'
-import type { BreadcrumbItem, DealerDemandDataFixed, PaginatedData } from '@/types'
+import type { BreadcrumbItem, DealerDemandDataFixed, Paginated } from '@/types'
 
 interface Props {
     filters: { status: string }
-    demands?: PaginatedData<DealerDemandDataFixed>
+    demands?: Paginated<DealerDemandDataFixed>
 }
 
 const props = defineProps<Props>()
@@ -78,7 +78,7 @@ const breadcrumbs: BreadcrumbItem[] = [
         <div class="flex h-full flex-col gap-6 p-4 lg:p-6">
             <Heading
                 title="Archived Requests"
-                description="Expired and fulfilled demand schedules."
+                description="Expired and fulfilled request schedules."
             />
 
             <!-- ── Status tabs ────────────────────────────────────────── -->

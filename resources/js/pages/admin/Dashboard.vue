@@ -133,7 +133,7 @@ function formatChange(change?: number): string {
                         :value="kpis?.farmers.total_supplies.value"
                     />
                     <SmallCard
-                        title="Total Dealer Demands"
+                        title="Total Dealer Requests"
                         :value="kpis?.dealers.total_demands.value"
                     />
                 </div>

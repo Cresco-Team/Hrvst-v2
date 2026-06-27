@@ -48,7 +48,7 @@ const columns: ColumnDef<DealerResource>[] = [
     },
     {
         id: 'ongoing_demands_count',
-        header: 'Demands',
+        header: 'Requests',
         accessorFn: (row) => row.ongoing_demands_count ?? 0,
         enableSorting: true,
     },
