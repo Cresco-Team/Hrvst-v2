@@ -20,7 +20,7 @@ import { computed, ref } from 'vue'
 import { Button } from '@/components/ui/button'
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group'
 
-interface PaginatedData<T> {
+interface Paginated<T> {
 	data: T[]
 		current_page: number
 		last_page: number
@@ -29,7 +29,7 @@ interface PaginatedData<T> {
 }
 
 interface Props<TData> {
-	data: PaginatedData<TData>
+	data: Paginated<TData>
 	columns: ColumnDef<TData>[]
 	searchPlaceholder?: string
 	emptyMessage?: string
