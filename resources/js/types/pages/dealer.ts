@@ -1,27 +1,31 @@
 import type { PostItemStatus } from '../enums'
 import type {
 	DealerDemandDataFixed,
-	DealerDemandResource,
 	DealerPostItemResource,
 	VarietyOptionsByVegetable,
 	VegetableOptionsByCategory,
 } from '../resources/marketplace'
 import type { CategoryOption } from '../resources/product'
 import type { DealerDemandSummary } from '../resources/profile'
-import type { MapConfig, Paginated } from '../shared'
+import type { Paginated } from '../shared'
 
-export type DealerRecommendationSeverity = 'critical' | 'warning' | 'info'
+// ─── dealer/Dashboard ─────────────────────────────────────────────────────────
 
-export interface DealerDashboardRecommendation {
-	severity: DealerRecommendationSeverity
-	type: string
-	title: string
-	body: string
-}
+export type DealerRecommendationSeverity = App.Enums.Analytics.RecommendationSeverity
+
+export type DealerDashboardRecommendation =
+	Omit<App.DTOs.Dealer.DealerDashboardRecommendationDTO, 'severity'> & {
+		severity: DealerRecommendationSeverity
+	}
+
+export type DealerExpiringDemandFixed =
+	Omit<App.Data.Dealer.DealerExpiringDemandData, 'items'> & {
+		items?: App.Data.PostItem.PostItemLightData[]
+	}
 
 export interface DealerDashboardProps {
 	summary: DealerDemandSummary
-	expiringDemands: DealerDemandResource[]
+	expiringDemands: DealerExpiringDemandFixed[]
 	recommendations: DealerDashboardRecommendation[]
 }
 

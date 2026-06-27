@@ -8,7 +8,6 @@ import {
     Package,
     PackageCheck,
     Phone,
-    Sprout,
 } from 'lucide-vue-next'
 import { computed } from 'vue'
 import Heading from '@/components/Heading.vue'
@@ -30,21 +29,21 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { getInitials } from '@/composables/useInitials'
 import AppLayout from '@/layouts/AppLayout.vue'
 import admin from '@/routes/admin'
-import type { BreadcrumbItem, PostItemSnapshot, FarmerResource } from '@/types'
+import type { BreadcrumbItem, FarmerResource } from '@/types'
 
 const props = defineProps<{
     farmer?: FarmerResource
 }>()
 
-const ongoingItems = computed<PostItemSnapshot[]>(
+const ongoingItems = computed<App.Data.PostItem.PostItemData[]>(
     () =>
         props.farmer?.supply_items?.filter((i) => i.status === 'ongoing') ?? [],
 )
-const archivedItems = computed<PostItemSnapshot[]>(
+const archivedItems = computed<App.Data.PostItem.PostItemData[]>(
     () =>
         props.farmer?.supply_items?.filter((i) => i.status === 'expired') ?? [],
 )
-const fulfilledItems = computed<PostItemSnapshot[]>(
+const fulfilledItems = computed<App.Data.PostItem.PostItemData[]>(
     () =>
         props.farmer?.supply_items?.filter((i) => i.status === 'fulfilled') ??
         [],
@@ -132,7 +131,7 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => [
                                     <p
                                         class="mt-0.5 text-xs text-muted-foreground"
                                     >
-                                        {{ farmer.location?.full_address }}
+                                        {{ farmer.full_address }}
                                     </p>
                                 </div>
                             </div>

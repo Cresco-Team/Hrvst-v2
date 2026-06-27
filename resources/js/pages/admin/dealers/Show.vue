@@ -29,7 +29,6 @@ import AppLayout from '@/layouts/AppLayout.vue'
 import admin from '@/routes/admin'
 import type {
     BreadcrumbItem,
-    DealerPostItemResource,
     DealerResource,
 } from '@/types'
 
@@ -37,15 +36,15 @@ const props = defineProps<{
     dealer?: DealerResource
 }>()
 
-const ongoingItems = computed<DealerPostItemResource[]>(
+const ongoingItems = computed<App.Data.PostItem.PostItemData[]>(
     () =>
         props.dealer?.demand_items?.filter((i) => i.status === 'ongoing') ?? [],
 )
-const archivedItems = computed<DealerPostItemResource[]>(
+const archivedItems = computed<App.Data.PostItem.PostItemData[]>(
     () =>
         props.dealer?.demand_items?.filter((i) => i.status === 'expired') ?? [],
 )
-const fulfilledItems = computed<DealerPostItemResource[]>(
+const fulfilledItems = computed<App.Data.PostItem.PostItemData[]>(
     () =>
         props.dealer?.demand_items?.filter((i) => i.status === 'fulfilled') ??
         [],

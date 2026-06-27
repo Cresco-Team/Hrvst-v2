@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\Data\Profile\FarmerData;
 use App\Http\Controllers\Controller;
-use App\Http\Resources\Profile\FarmerResource;
 use App\Models\Profiles\FarmerProfile;
 use App\Services\Admin\FarmerMapService;
 use App\Services\Admin\FarmerService;

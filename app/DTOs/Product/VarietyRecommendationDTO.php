@@ -3,7 +3,9 @@
 namespace App\DTOs\Product;
 
 use App\Enums\Analytics\RecommendationSeverity;
+use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
+#[TypeScript]
 readonly class VarietyRecommendationDTO
 {
     public function __construct(

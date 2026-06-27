@@ -157,7 +157,7 @@ function handleDelete() {
                         <span>Address</span>
                     </div>
                     <p class="text-muted-foreground">
-                        {{ farmer.location?.full_address }}
+                        {{ farmer.full_address }}
                     </p>
                 </div>
             </div>

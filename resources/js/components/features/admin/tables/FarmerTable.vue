@@ -52,10 +52,10 @@ const columns: ColumnDef<FarmerResource>[] = [
         accessorFn: (row) => row.ongoing_supplies_count ?? 0,
     },
     {
-        id: 'location',
+        id: 'address',
         header: 'Address',
         accessorFn: (row) =>
-            `${row.location?.barangay}, ${row.location?.municipality}`,
+            `${row.barangay}`,
         enableSorting: true,
     },
     {
@@ -108,16 +108,16 @@ const columns: ColumnDef<FarmerResource>[] = [
             </div>
         </template>
 
-        <template #cell-location="{ row }">
+        <template #cell-address="{ row }">
             <div class="flex items-start gap-2">
                 <MapPin class="mt-0.5 size-4 shrink-0 text-muted-foreground" />
                 <div class="flex flex-col gap-0.5">
                     <span class="font-medium">{{
-                        row.location?.barangay
+                        row.barangay
                     }}</span>
                     <span class="text-xs text-muted-foreground">
-                        {{ row.location?.municipality }},
-                        {{ row.location?.province }}
+                        {{ row.municipality }},
+                        {{ row.province }}
                     </span>
                 </div>
             </div>
