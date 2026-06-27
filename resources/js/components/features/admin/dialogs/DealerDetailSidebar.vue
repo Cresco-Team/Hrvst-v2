@@ -2,6 +2,7 @@
 import { router, useForm, usePage } from '@inertiajs/vue3'
 import {
     Calendar1,
+    CalendarSync,
     Info,
     KeyRound,
     Mail,
@@ -29,15 +30,20 @@ import {
 } from '@/components/ui/dialog'
 import {
     Item,
+    ItemActions,
     ItemContent,
     ItemDescription,
+    ItemGroup,
     ItemMedia,
+    ItemSeparator,
     ItemTitle,
 } from '@/components/ui/item'
 import { Separator } from '@/components/ui/separator'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useInitials } from '@/composables/useInitials'
 import type { DealerResource, FlashMessage } from '@/types'
+import { Empty, EmptyHeader } from '@/components/ui/empty'
+import EmptyState from '@/components/EmptyState.vue'
 
 const props = defineProps<{
     open: boolean
@@ -157,32 +163,49 @@ const handleDelete = () => {
 
             <Separator />
 
-            <Item>
-                <ItemMedia variant="icon" class="bg-primary/10 text-primary">
-                    <Wheat />
-                </ItemMedia>
-                <ItemContent>
-                    <ItemTitle class="flex w-full justify-between">
-                        <p>Today's Demands</p>
-                        <Badge>{{ dealer.demands?.length ?? 0 }}</Badge>
-                    </ItemTitle>
-                    <ItemDescription class="space-x-2 truncate">
-                        <Badge
-                            v-for="demand in dealer.demands"
-                            :key="demand.id"
-                            class="bg-amber-300"
-                        >
-                            {{ demand.variety_name }}
-                        </Badge>
-                        <span
-                            v-if="!dealer.demands?.length"
-                            class="text-xs text-muted-foreground"
-                        >
-                            No demands scheduled today
-                        </span>
-                    </ItemDescription>
-                </ItemContent>
-            </Item>
+            <div class="space-y-4">
+                <div class="space-y-1">
+                    <h3 class="text-lg font-semibold tracking-tight">
+                        Today's Request
+                    </h3>
+                    <p class="text-sm text-muted-foreground">
+                        Expecting {{ dealer.demands?.length ?? 'no' }} request
+                    </p>
+                </div>
+
+                <ItemGroup v-if="dealer.demands?.length">
+                    <template v-for="(item, index) in dealer.demands" :key="item.id">
+                        <ItemSeparator v-if="index !== item.length - 1" />
+                        <Item size="sm">
+                            <ItemMedia variant="image">
+                                <Avatar>
+                                    <AvatarImage
+                                        :src="item.vegetable_image_url"
+                                        :alt="item.vegetable_name"
+                                    />
+                                    <AvatarFallback>{{ item.vegetable_name }}</AvatarFallback>
+                                </Avatar>
+                            </ItemMedia>
+
+                            <ItemContent>
+                                <ItemTitle>{{ item.vegetable_name }}: {{ item.variety_name }}</ItemTitle>
+                            </ItemContent>
+
+                            <ItemActions>
+                                <Badge>{{ item.quantity_kg }} kg</Badge>
+                            </ItemActions>
+                        </Item>
+                        
+                    </template>
+                </ItemGroup>
+
+                <EmptyState
+                    v-else
+                    title="No vegetable requested"
+                    :icon="CalendarSync"
+                    class="mx-5 h-30"
+                />
+            </div>
         </div>
 
         <template #footer>

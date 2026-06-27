@@ -2,6 +2,7 @@
 import { router, useForm, usePage } from '@inertiajs/vue3'
 import {
     Calendar1,
+    CalendarSync,
     Info,
     KeyRound,
     Mail,
@@ -30,15 +31,19 @@ import {
 } from '@/components/ui/dialog'
 import {
     Item,
+    ItemActions,
     ItemContent,
     ItemDescription,
+    ItemGroup,
     ItemMedia,
+    ItemSeparator,
     ItemTitle,
 } from '@/components/ui/item'
 import { Separator } from '@/components/ui/separator'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useInitials } from '@/composables/useInitials'
 import type { FarmerResource, FlashMessage } from '@/types'
+import EmptyState from '@/components/EmptyState.vue'
 
 const props = defineProps<{
     open: boolean
@@ -139,57 +144,65 @@ function handleDelete() {
                         <span>Email</span>
                     </div>
                     <p class="text-muted-foreground">
-                        {{ farmer.user?.email ?? '—' }}
+                        {{ farmer.user?.email }}
                     </p>
                 </div>
                 <div class="flex justify-between text-sm">
                     <div class="flex items-center gap-1.5">
                         <Phone class="size-3.5 text-primary" />
-                        <span>Phone</span>
+                        <span>Phone Number</span>
                     </div>
                     <p class="text-muted-foreground">
                         {{ farmer.user?.phone_number }}
-                    </p>
-                </div>
-                <div class="flex justify-between text-sm">
-                    <div class="flex items-center gap-1.5">
-                        <MapPinHouse class="size-3.5 text-primary" />
-                        <span>Address</span>
-                    </div>
-                    <p class="text-muted-foreground">
-                        {{ farmer.full_address }}
                     </p>
                 </div>
             </div>
 
             <Separator />
 
-            <Item>
-                <ItemMedia variant="icon" class="bg-primary/10 text-primary">
-                    <Wheat />
-                </ItemMedia>
-                <ItemContent>
-                    <ItemTitle class="flex w-full justify-between">
-                        <p>Today's Supplies</p>
-                        <Badge>{{ farmer.supplies?.length ?? 0 }}</Badge>
-                    </ItemTitle>
-                    <ItemDescription class="space-x-2 truncate">
-                        <Badge
-                            v-for="supply in farmer.supplies"
-                            :key="supply.id"
-                            class="bg-amber-300"
-                        >
-                            {{ supply.variety_name }}
-                        </Badge>
-                        <span
-                            v-if="!farmer.supplies?.length"
-                            class="text-xs text-muted-foreground"
-                        >
-                            No supplies scheduled today
-                        </span>
-                    </ItemDescription>
-                </ItemContent>
-            </Item>
+            <div class="space-y-4">
+                <div class="space-y-1">
+                    <h3 class="text-lg font-semibold tracking-tight">
+                        Today's Supply
+                    </h3>
+                    <p class="text-sm text-muted-foreground">
+                        Expecting {{ farmer.supplies?.length ?? 'no' }} vegetable supplies
+                    </p>
+                </div>
+
+                <ItemGroup v-if="farmer.supplies?.length">
+                    <template v-for="(item, index) in farmer.supplies" :key="item.id">
+                        <ItemSeparator v-if="index !== item.length - 1" />
+                        <Item size="sm">
+                            <ItemMedia variant="image">
+                                <Avatar>
+                                    <AvatarImage
+                                        :src="item.vegetable_image_url"
+                                        :alt="item.vegetable_name"
+                                    />
+                                    <AvatarFallback>{{ item.vegetable_name }}</AvatarFallback>
+                                </Avatar>
+                            </ItemMedia>
+
+                            <ItemContent>
+                                <ItemTitle>{{ item.vegetable_name }}: {{ item.variety_name }}</ItemTitle>
+                            </ItemContent>
+
+                            <ItemActions>
+                                <Badge>{{ item.quantity_kg }} kg</Badge>
+                            </ItemActions>
+                        </Item>
+                        
+                    </template>
+                </ItemGroup>
+
+                <EmptyState
+                    v-else
+                    title="No vegetable requested"
+                    :icon="CalendarSync"
+                    class="mx-5 h-30"
+                />
+            </div>
         </div>
 
         <template #footer>
