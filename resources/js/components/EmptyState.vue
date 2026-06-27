@@ -13,7 +13,7 @@ import {
 
 type Props = {
 	title: string
-	description: string
+	description?: string
 	icon?: Component
 	button?: string
 }
@@ -30,12 +30,12 @@ withDefaults(defineProps<Props>(), {
                 <component :is="icon" />
             </EmptyMedia>
             <EmptyTitle>{{ title }}</EmptyTitle>
-            <EmptyDescription>
+            <EmptyDescription v-if="description">
                 {{ description }}
             </EmptyDescription>
         </EmptyHeader>
-        <EmptyContent>
-            <Button v-if="button" size="sm" >
+        <EmptyContent v-if="button">
+            <Button size="sm" >
                 {{ button }}
             </Button>
         </EmptyContent>
