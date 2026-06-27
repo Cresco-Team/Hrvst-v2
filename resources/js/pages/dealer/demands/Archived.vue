@@ -78,7 +78,7 @@ const breadcrumbs: BreadcrumbItem[] = [
         <div class="flex h-full flex-col gap-6 p-4 lg:p-6">
             <Heading
                 title="Archived Requests"
-                description="Expired and fulfilled demand schedules."
+                description="Expired and fulfilled request schedules."
             />
 
             <!-- ── Status tabs ────────────────────────────────────────── -->

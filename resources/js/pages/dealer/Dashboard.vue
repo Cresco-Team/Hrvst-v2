@@ -107,7 +107,7 @@ const criticalRecs = computed(
         <div class="flex flex-col gap-6 p-4 lg:p-6">
             <Heading
                 title="Dashboard"
-                description="Your demand activity at a glance."
+                description="Your scheduled request activity at a glance."
             />
 
             <!-- Critical alert banner -->
@@ -129,8 +129,8 @@ const criticalRecs = computed(
                             {{ criticalRecs.length }}
                             {{
                                 criticalRecs.length === 1
-                                    ? 'demand requires'
-                                    : 'demands require'
+                                    ? 'scheduled request requires'
+                                    : 'scheduled requests require'
                             }}
                             immediate attention
                         </p>
@@ -218,10 +218,10 @@ const criticalRecs = computed(
                             >
                                 <CheckCircle2 class="size-8 text-green-500" />
                                 <p class="text-sm font-medium">
-                                    No expiring demands
+                                    No expiring requests
                                 </p>
                                 <p class="text-xs text-muted-foreground">
-                                    All listings have healthy deadlines.
+                                    All requests have healthy deadlines.
                                 </p>
                             </div>
 
@@ -304,7 +304,7 @@ const criticalRecs = computed(
                             >
                         </div>
                         <CardDescription class="text-xs">
-                            Specific actions to improve your demand listings and
+                            Specific actions to improve your request schedules and
                             attract more farmers.
                         </CardDescription>
                     </CardHeader>
