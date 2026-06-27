@@ -1,5 +1,3 @@
-import { App } from '@/generated/generated'
-import type { PostItemStatus, PostTimeSlot } from '../enums'
 import type { Coordinates } from '../shared'
 
 // ─── Embedded shapes ──────────────────────────────────────────────────────────
@@ -11,33 +9,14 @@ export interface PostVegetableSnapshot {
 	image_url: string
 }
 
-export interface PostItemSnapshot {
-	id: number
-	name: string
-	image_url: string
-	variety_id: number
-	category_name: string
-	quantity_kg: number
-	status: PostItemStatus
-	post_id: number
+export type PostItemSnapshot = App.Data.PostItem.PostItemData
 
-	scheduled_date: string | null
-	time_slot: PostTimeSlot | null
-	time_slot_label: string | null
-	days_until_transaction: number
-
-	created_at: string
-	created_at_human: string
-}
-
-// ─── FarmerSupplyResource ─────────────────────────────────────────────────────
+// ─── FarmerSupplyDataFixed / DealerDemandDataFixed ───────────────────────────
 
 export type FarmerSupplyDataFixed =
-    Omit<App.Data.Post.FarmerSupplyData, 'post_items'> & {
-        post_items: App.Data.PostItem.PostItemLightData[]
-    }
-
-// ─── DealerDemandResource ─────────────────────────────────────────────────────
+	Omit<App.Data.Post.FarmerSupplyData, 'post_items'> & {
+		post_items: App.Data.PostItem.PostItemLightData[]
+	}
 
 export type DealerDemandDataFixed =
 	Omit<App.Data.Post.DealerDemandData, 'post_items'> & {
@@ -46,36 +25,13 @@ export type DealerDemandDataFixed =
 
 // ─── DealerPostItemResource ───────────────────────────────────────────────────
 
-export interface DealerPostItemResource {
-	id: number
-	post_id: number
-	status: PostItemStatus
-
-	variety_id: number
-	variety_name: string
-	variety_image_url: string | null
-	vegetable_id: number
-	vegetable_name: string
-	category_name: string
-
-	quantity_kg: number
-
-	scheduled_date: string | null
-	time_slot: PostTimeSlot | null
-	time_slot_label: string | null
-	days_until_transaction: number | null
-
-	municipality: string | null
-
-	created_at: string
-	created_at_human: string
-}
+export type DealerPostItemResource = App.Data.PostItem.PostItemData
 
 // ─── Option Bag Types ─────────────────────────────────────────────────────────
 
 export type VegetableOption = { id: number; name: string }
 export type VegetableOptionsByCategory = Record<string, VegetableOption[]>
-export type VarietyOption = { id: number; name: string; }
+export type VarietyOption = { id: number; name: string }
 export type VarietyOptionsByVegetable = Record<string, VarietyOption[]>
 
 // ─── Map types ────────────────────────────────────────────────────────────────

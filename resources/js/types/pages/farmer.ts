@@ -7,20 +7,25 @@ import type {
 } from '../resources/marketplace'
 import type { CategoryOption } from '../resources/product'
 import type { FarmerSupplySummary } from '../resources/profile'
-import type { MapConfig, Paginated } from '../shared'
+import type { Paginated } from '../shared'
 
-export type RecommendationSeverity = 'critical' | 'warning' | 'info'
+// ─── farmer/Dashboard ─────────────────────────────────────────────────────────
 
-export interface FarmerDashboardRecommendation {
-	severity: RecommendationSeverity
-	type: string
-	title: string
-	body: string
-}
+export type RecommendationSeverity = App.Enums.Analytics.RecommendationSeverity
+
+export type FarmerDashboardRecommendation =
+	Omit<App.DTOs.Farmer.FarmerDashboardRecommendationDTO, 'severity'> & {
+		severity: RecommendationSeverity
+	}
+
+export type FarmerExpiringSupplyFixed =
+	Omit<App.Data.Farmer.FarmerExpiringSupplyData, 'post_items'> & {
+		items?: App.Data.PostItem.PostItemLightData[]
+	}
 
 export interface FarmerDashboardProps {
 	summary: FarmerSupplySummary
-	expiringSupplies: FarmerSupplyDataFixed[]
+	expiringSupplies: FarmerExpiringSupplyFixed[]
 	recommendations: FarmerDashboardRecommendation[]
 }
 

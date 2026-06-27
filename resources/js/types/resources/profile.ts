@@ -1,78 +1,19 @@
-// resources/js/types/resources/profile.ts — admin-relevant section
-// Add/update FarmerResource and DealerResource to include PostItem-based fields
-
-import type { PostItemStatus } from '../enums'
-import type { DealerPostItemResource, PostItemSnapshot } from './marketplace'
-
-// ─── Shared supply/demand item summary (sidebar) ──────────────────────────────
-
-export interface PostItemSummary {
-	id: number
-	variety_name: string | null
-	quantity_kg: number
-	status: PostItemStatus
-}
 
 // ─── FarmerResource ───────────────────────────────────────────────────────────
 
-export interface FarmerLocation {
-	full_address: string
-	barangay: string | null
-	municipality: string | null
-	province: string | null
-	coordinates: { lat: number; lng: number }
-}
-
-export interface FarmerUser {
-	id: number
-	name: string
-	email: string
-	phone_number: string | null
-	avatar_url: string | null
-}
-
-export interface FarmerResource {
-	id: number
-	joined_at: string
-	joined_at_human: string
-	user?: FarmerUser
-	location?: FarmerLocation
-
-	// list view (paginated)
-	ongoing_supplies_count?: number
-
-	// sidebar detail view (details())
-	supplies?: PostItemSummary[]
-
-	// full show view (show())
-	supply_items?: PostItemSnapshot[]
-}
+export type FarmerResource =
+	Omit<App.Data.Profile.FarmerData, 'supplies' | 'supply_items'> & {
+		supplies?: App.Data.PostItem.PostItemLightData[]
+		supply_items?: App.Data.PostItem.PostItemData[]
+	}
 
 // ─── DealerResource ───────────────────────────────────────────────────────────
 
-export interface DealerUser {
-	id: number
-	name: string
-	email: string
-	phone_number: string | null
-	avatar_url: string | null
-}
-
-export interface DealerResource {
-	id: number
-	joined_at: string
-	joined_at_human: string
-	user?: DealerUser
-
-	// list view
-	ongoing_demands_count?: number
-
-	// sidebar detail view
-	demands?: PostItemSummary[]
-
-	// full show view
-	demand_items?: PostItemSnapshot[]
-}
+export type DealerResource =
+	Omit<App.Data.Profile.DealerData, 'demands' | 'demand_items'> & {
+		demands?: App.Data.PostItem.PostItemLightData[]
+		demand_items?: App.Data.PostItem.PostItemData[]
+	}
 
 // ─── Summary shapes ───────────────────────────────────────────────────────────
 
