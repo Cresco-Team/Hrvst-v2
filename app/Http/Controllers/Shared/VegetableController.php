@@ -66,6 +66,8 @@ class VegetableController extends Controller
 
     public function show(Request $request, Variety $variety): Response
     {
+        $variety->loadMissing('vegetable.category');
+
         $validated = $request->validate([
             'year' => ['sometimes', 'integer', 'min:2020', 'max:2035'],
             'month' => ['sometimes', 'integer', 'min:1', 'max:12'],
@@ -76,9 +78,8 @@ class VegetableController extends Controller
 
         return Inertia::render('shared/vegetables/Show', [
             'variety' => Inertia::defer(
-                fn () => VarietyDetailData::from($this->varietyService->show($variety, $year, $month, VarietyViewerRole::Marketplace))
+                fn () => VarietyDetailData::fromModel($this->varietyService->show($variety, $year, $month, VarietyViewerRole::Marketplace))
             ),
-
             'calendarFilters' => [
                 'year' => $year,
                 'month' => $month,
