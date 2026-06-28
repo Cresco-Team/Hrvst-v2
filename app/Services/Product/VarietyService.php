@@ -42,10 +42,14 @@ class VarietyService
 
         $variety->supply_municipalities = $this->resolveSupplyMunicipalities($variety->id);
 
-        $monthlyActivity = $this->activityService->buildMonthlyActivity($variety->id);
-        $variety->monthly_activity = $monthlyActivity;
-        $variety->variety_calendar = $this->calendarService->buildForMonth($variety->id, $year, $month);
-        $variety->analytics = $this->analyticsService->compute($monthlyActivity, $role);
+        // Single DB query for 3 years. Slice the tail for the 12-month chart;
+        // pass the full 36 months to analytics for a more accurate forecast.
+        $extendedHistory     = $this->activityService->buildMonthlyActivity($variety->id, months: 36);
+        $monthlyActivity     = array_slice($extendedHistory, -12);
+
+        $variety->monthly_activity  = $monthlyActivity;
+        $variety->variety_calendar  = $this->calendarService->buildForMonth($variety->id, $year, $month);
+        $variety->analytics         = $this->analyticsService->compute($monthlyActivity, $role, $extendedHistory);
 
         return $variety;
     }
@@ -69,7 +73,7 @@ class VarietyService
             )
             ->get()
             ->map(fn ($row) => [
-                'name' => $row->municipality_name,
+                'name'     => $row->municipality_name,
                 'total_kg' => (float) $row->total_kg,
             ])
             ->sortByDesc('total_kg')
@@ -77,3 +81,4 @@ class VarietyService
             ->toArray();
     }
 }
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
