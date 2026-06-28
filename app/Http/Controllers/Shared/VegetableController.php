@@ -6,8 +6,6 @@ use App\Data\Variety\VarietyDetailData;
 use App\Data\Vegetable\VegetableSharedData;
 use App\Enums\Analytics\VarietyViewerRole;
 use App\Http\Controllers\Controller;
-use App\Http\Resources\Product\VarietyDetailResource;
-use App\Http\Resources\Product\VegetableSharedResource;
 use App\Models\Product\Category;
 use App\Models\Product\Variety;
 use App\Services\Product\VarietyService;
