@@ -9,12 +9,19 @@ class VarietyActivityService
     /**
      * Build monthly activity data for a given number of past months.
      *
-     * Defaults to 12 months for chart display, but pass 36 when you need
-     * the full 3-year history for forecasting — avoids a second DB round-trip.
+     * Pass months: 36 from VarietyService to get 3-year history in a single
+     * query for forecasting; the chart uses array_slice(-12) of that result.
+     *
+     * `has_data` flags months that have an actual DB row vs zero-padded gaps.
+     * The chart renders both identically (zero bars for gaps), but
+     * computeForecast() must skip padded months to avoid phantom-zero dilution
+     * of seasonal baselines and trend ratios — the root cause of the
+     * demand > supply inversion seen in the forecast.
      *
      * @return array<int, array{
      *     month: string,
      *     label: string,
+     *     has_data: bool,
      *     supply_fulfilled_kg: float,
      *     supply_expired_kg: float,
      *     demand_fulfilled_kg: float,
@@ -49,6 +56,7 @@ class VarietyActivityService
             $result[] = [
                 'month'               => $key,
                 'label'               => $date->format('M Y'),
+                'has_data'            => $row !== null,
                 'supply_fulfilled_kg' => (float) ($row?->supply_fulfilled_kg ?? 0),
                 'supply_expired_kg'   => (float) ($row?->supply_expired_kg ?? 0),
                 'demand_fulfilled_kg' => (float) ($row?->demand_fulfilled_kg ?? 0),
