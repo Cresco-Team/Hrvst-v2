@@ -25,7 +25,6 @@ import type {
 } from '@/types'
 import type { VarietyResource } from '@/types/resources/product'
 import { Card } from '@/components/ui/card'
-import VarietyForecastChart from '@/components/shared/charts/VarietyForecastChart.vue'
 
 interface Props {
     variety?: VarietyResource | null
@@ -283,12 +282,7 @@ function formatKgShort(kg: number): string {
                     <VegetableMonthlyChart
                         v-if="variety.monthly_activity?.length"
                         :monthly-activity="variety.monthly_activity"
-                    />
-
-                    <VarietyForecastChart
-                        v-if="variety.analytics?.forecast?.length && variety.monthly_activity?.length"
-                        :monthly-activity="variety.monthly_activity"
-                        :forecast="variety.analytics.forecast"
+                        :forecast="variety.analytics?.forecast"
                     />
 
                     <!-- ── Market Calendar ─────────────────────────────────────────────── -->

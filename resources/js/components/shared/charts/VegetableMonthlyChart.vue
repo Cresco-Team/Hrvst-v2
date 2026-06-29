@@ -3,27 +3,33 @@ import { AlertCircle } from 'lucide-vue-next'
 import { Bar } from 'vue-chartjs'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useMonthlyVolumeChart } from '@/composables/useMonthlyVolumeChart'
-import type { MonthlyActivity } from '@/types/resources/product'
+import type { ForecastPoint, MonthlyActivity } from '@/types/resources/product'
 
 const props = defineProps<{
     monthlyActivity: MonthlyActivity[]
+    forecast?: ForecastPoint[]
 }>()
 
-const { chartData, chartOptions } = useMonthlyVolumeChart(
+const { chartData, chartOptions, forecastDividerPlugin } = useMonthlyVolumeChart(
     () => props.monthlyActivity,
+    () => props.forecast,
 )
 </script>
 
 <template>
     <Card>
         <CardHeader>
-            <CardTitle class="text-sm font-semibold"
-                >Vegetable Monthly Market Volume</CardTitle
-            >
+            <CardTitle class="text-sm font-semibold">
+                Market Volume &amp; 6-Month Forecast
+            </CardTitle>
         </CardHeader>
         <CardContent>
             <div v-if="chartData" class="relative h-48 w-full sm:h-64">
-                <Bar :data="chartData" :options="chartOptions" />
+                <Bar
+                    :data="chartData"
+                    :options="chartOptions"
+                    :plugins="[forecastDividerPlugin]"
+                />
             </div>
             <div
                 v-else

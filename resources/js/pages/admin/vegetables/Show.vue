@@ -6,7 +6,6 @@ import 'v-calendar/style.css'
 import { computed, ref } from 'vue'
 import Heading from '@/components/Heading.vue'
 import VarietyAnalyticsSummary from '@/components/shared/charts/VarietyAnalyticsSummary.vue'
-import VarietyRecommendations from '@/components/shared/charts/VarietyRecommendations.vue'
 import VarietyMonthlyChart from '@/components/shared/charts/VegetableMonthlyChart.vue'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
@@ -259,15 +258,10 @@ function formatKgShort(kg: number): string {
                     />
 
                     <!-- ── Recommendations ────────────────────────────────────────────── -->
-                    <VarietyRecommendations
-                        v-if="variety.analytics?.recommendations.length"
-                        :recommendations="variety.analytics.recommendations"
-                    />
-
-                    <VarietyForecastChart
-                        v-if="variety.analytics?.forecast?.length && variety.monthly_activity?.length"
+                    <VegetableMonthlyChart
+                        v-if="variety.monthly_activity?.length"
                         :monthly-activity="variety.monthly_activity"
-                        :forecast="variety.analytics.forecast"
+                        :forecast="variety.analytics?.forecast"
                     />
 
                     <!-- ── Charts ─────────────────────────────────────────────────────── -->
