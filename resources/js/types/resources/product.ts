@@ -129,3 +129,10 @@ export function mapVegetablesToTableRows(vegetables: Table[]): VarietyTableRow[]
 		})),
 	}))
 }
+
+export interface ForecastPoint {
+    month: string      // 'YYYY-MM'
+    label: string      // 'Jan 2027'
+    supply_kg: number
+    demand_kg: number
+}

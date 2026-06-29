@@ -264,6 +264,12 @@ function formatKgShort(kg: number): string {
                         :recommendations="variety.analytics.recommendations"
                     />
 
+                    <VarietyForecastChart
+                        v-if="variety.analytics?.forecast?.length && variety.monthly_activity?.length"
+                        :monthly-activity="variety.monthly_activity"
+                        :forecast="variety.analytics.forecast"
+                    />
+
                     <!-- ── Charts ─────────────────────────────────────────────────────── -->
                     <VarietyMonthlyChart
                         v-if="variety.monthly_activity?.length"

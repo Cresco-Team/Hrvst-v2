@@ -6,9 +6,24 @@ use Illuminate\Support\Facades\DB;
 
 class VarietyActivityService
 {
-    public function buildMonthlyActivity(int $varietyId): array
+    /**
+     * Build monthly activity data for a given number of past months.
+     *
+     * Defaults to 12 months for chart display, but pass 36 when you need
+     * the full 3-year history for forecasting — avoids a second DB round-trip.
+     *
+     * @return array<int, array{
+     *     month: string,
+     *     label: string,
+     *     supply_fulfilled_kg: float,
+     *     supply_expired_kg: float,
+     *     demand_fulfilled_kg: float,
+     *     demand_expired_kg: float,
+     * }>
+     */
+    public function buildMonthlyActivity(int $varietyId, int $months = 12): array
     {
-        $start = now()->startOfMonth()->subMonths(11)->toDateString();
+        $start = now()->startOfMonth()->subMonths($months - 1)->toDateString();
 
         $rows = DB::table('variety_monthly_stats')
             ->where('variety_id', $varietyId)
@@ -16,9 +31,9 @@ class VarietyActivityService
             ->select([
                 DB::raw("TO_CHAR(period_date, 'YYYY-MM') as period"),
                 DB::raw('SUM(supply_fulfilled_kg) as supply_fulfilled_kg'),
-                DB::raw('SUM(supply_expired_kg) as supply_expired_kg'),
+                DB::raw('SUM(supply_expired_kg)   as supply_expired_kg'),
                 DB::raw('SUM(demand_fulfilled_kg) as demand_fulfilled_kg'),
-                DB::raw('SUM(demand_expired_kg) as demand_expired_kg'),
+                DB::raw('SUM(demand_expired_kg)   as demand_expired_kg'),
             ])
             ->groupBy(DB::raw("TO_CHAR(period_date, 'YYYY-MM')"))
             ->get()
@@ -26,7 +41,7 @@ class VarietyActivityService
 
         $result = [];
 
-        for ($i = 11; $i >= 0; $i--) {
+        for ($i = $months - 1; $i >= 0; $i--) {
             $date = now()->startOfMonth()->subMonths($i);
             $key  = $date->format('Y-m');
             $row  = $rows->get($key);
