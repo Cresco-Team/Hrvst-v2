@@ -5,24 +5,14 @@ import {
     type ChartOptions,
     Legend,
     LinearScale,
-    LineElement,
-    PointElement,
     Title,
     Tooltip,
 } from 'chart.js'
 import { computed, type MaybeRefOrGetter, toValue } from 'vue'
 import type { ForecastPoint, MonthlyActivity } from '@/types/resources/product'
 
-ChartJS.register(
-    BarElement,
-    CategoryScale,
-    LinearScale,
-    LineElement,
-    PointElement,
-    Title,
-    Tooltip,
-    Legend,
-)
+// LineElement / PointElement removed — forecast is now stacked bars, not lines
+ChartJS.register(BarElement, CategoryScale, LinearScale, Title, Tooltip, Legend)
 
 export function useMonthlyVolumeChart(
     activity: MaybeRefOrGetter<MonthlyActivity[] | null | undefined>,
@@ -34,7 +24,7 @@ export function useMonthlyVolumeChart(
 
         if (!allMonths?.length) return null
 
-        // Last 6 months of actuals for display — forecast covers the next 6
+        // Last 6 months of actuals; forecast covers the next 6
         const historical = allMonths.slice(-6)
         const histLen = historical.length
         const fcLen = fc.length
@@ -44,26 +34,18 @@ export function useMonthlyVolumeChart(
             ...fc.map((m) => m.label),
         ]
 
-        // Actual bar datasets: values at [0..histLen-1], null in forecast positions
+        // Actual values at positions 0..histLen-1, null in forecast zone
         const barData = (values: number[]) => [
             ...values,
             ...Array<null>(fcLen).fill(null),
         ]
 
-        // Bridge point: last actual totals shared by bar and line so the
-        // dashed forecast line visually grows out of the last bar.
-        const lastActual = historical.at(-1)
-        const anchorSupply = lastActual
-            ? lastActual.supply_fulfilled_kg + lastActual.supply_expired_kg
-            : null
-        const anchorDemand = lastActual
-            ? lastActual.demand_fulfilled_kg + lastActual.demand_expired_kg
-            : null
-
-        // Forecast line datasets: nulls → anchor at histLen-1 → forecast values
-        const lineData = (anchor: number | null, values: number[]) => [
-            ...Array<null>(histLen - 1).fill(null),
-            anchor,
+        // Null in actual zone, forecast values at positions histLen..end
+        // Shares the same stack names ('supply' / 'demand') as the actual datasets
+        // so both groups render side-by-side correctly — Chart.js treats null as
+        // "no contribution" for that position, so only non-null datasets render.
+        const forecastBarData = (values: number[]) => [
+            ...Array<null>(histLen).fill(null),
             ...values,
         ]
 
@@ -79,18 +61,15 @@ export function useMonthlyVolumeChart(
                 borderWidth: 1,
                 borderRadius: 4,
                 stack: 'supply',
-                order: 2,
             },
             {
                 type: 'bar',
                 label: 'Supply — Expired',
                 data: barData(historical.map((m) => m.supply_expired_kg)),
-                backgroundColor: 'rgba(34, 197, 94, 0.35)',
+                backgroundColor: 'rgba(34, 197, 94, 0.4)',
                 borderColor: 'rgb(34, 197, 94)',
                 borderWidth: 1,
-                borderRadius: 4,
                 stack: 'supply',
-                order: 2,
             },
             {
                 type: 'bar',
@@ -101,51 +80,43 @@ export function useMonthlyVolumeChart(
                 borderWidth: 1,
                 borderRadius: 4,
                 stack: 'demand',
-                order: 2,
             },
             {
                 type: 'bar',
                 label: 'Demand — Expired',
                 data: barData(historical.map((m) => m.demand_expired_kg)),
-                backgroundColor: 'rgba(249, 115, 22, 0.35)',
+                backgroundColor: 'rgba(249, 115, 22, 0.4)',
                 borderColor: 'rgb(249, 115, 22)',
                 borderWidth: 1,
-                borderRadius: 4,
                 stack: 'demand',
-                order: 2,
             },
         ]
 
-        // ── Forecast lines (only when data exists) ────────────────────────────
+        // ── Forecast bars (lighter shade, same stack groups) ──────────────────
+        // No bridge/anchor — bars simply start at position histLen (Jul 2026),
+        // after the last actual bar (Jun 2026 at position histLen-1).
+        // This eliminates the current-month overlap that caused the visual bug.
         if (fcLen > 0) {
             datasets.push(
                 {
-                    type: 'line',
+                    type: 'bar',
                     label: 'Supply (forecast)',
-                    data: lineData(anchorSupply, fc.map((m) => m.supply_kg)),
-                    borderColor: 'rgb(34, 197, 94)',
-                    backgroundColor: 'transparent',
-                    borderWidth: 2,
-                    borderDash: [6, 4],
-                    pointRadius: 3,
-                    pointHoverRadius: 5,
-                    tension: 0.3,
-                    spanGaps: false,
-                    order: 1,
+                    data: forecastBarData(fc.map((m) => m.supply_kg)),
+                    backgroundColor: 'rgba(34, 197, 94, 0.25)',
+                    borderColor: 'rgba(34, 197, 94, 0.6)',
+                    borderWidth: 1,
+                    borderRadius: 4,
+                    stack: 'supply',
                 },
                 {
-                    type: 'line',
+                    type: 'bar',
                     label: 'Demand (forecast)',
-                    data: lineData(anchorDemand, fc.map((m) => m.demand_kg)),
-                    borderColor: 'rgb(249, 115, 22)',
-                    backgroundColor: 'transparent',
-                    borderWidth: 2,
-                    borderDash: [6, 4],
-                    pointRadius: 3,
-                    pointHoverRadius: 5,
-                    tension: 0.3,
-                    spanGaps: false,
-                    order: 1,
+                    data: forecastBarData(fc.map((m) => m.demand_kg)),
+                    backgroundColor: 'rgba(249, 115, 22, 0.25)',
+                    borderColor: 'rgba(249, 115, 22, 0.6)',
+                    borderWidth: 1,
+                    borderRadius: 4,
+                    stack: 'demand',
                 },
             )
         }
@@ -154,9 +125,8 @@ export function useMonthlyVolumeChart(
     })
 
     /**
-     * Inline plugin — draws a vertical dashed divider between the last actual
-     * bar and the first forecast point, plus a "▸ forecast" label.
-     * No external annotation plugin required.
+     * Draws a vertical dashed separator between the last actual bar (histLen-1)
+     * and the first forecast bar (histLen), positioned at their midpoint.
      */
     const forecastDividerPlugin = {
         id: 'forecastDivider',
@@ -166,13 +136,15 @@ export function useMonthlyVolumeChart(
 
             const months = toValue(activity)
             const histLen = months?.slice(-6).length ?? 0
-            // Divider sits between the last bar (histLen-1) and first forecast
-            const dividerIdx = histLen - 1
-            if (dividerIdx <= 0) return
+            if (histLen <= 0) return
 
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const { ctx, chartArea, scales } = chart as any
-            const xPos: number = scales.x.getPixelForValue(dividerIdx)
+
+            // Midpoint between last actual category center and first forecast category center
+            const xLeft: number = scales.x.getPixelForValue(histLen - 1)
+            const xRight: number = scales.x.getPixelForValue(histLen)
+            const xPos = (xLeft + xRight) / 2
 
             ctx.save()
             ctx.strokeStyle = 'rgba(100,116,139,0.3)'
@@ -211,7 +183,7 @@ export function useMonthlyVolumeChart(
                     label: (ctx) => {
                         const raw = ctx.raw as number | null
                         if (raw === null || raw === undefined) return ''
-                        return ` ${ctx.dataset.label}: ${(raw).toLocaleString('en-PH', { minimumFractionDigits: 0, maximumFractionDigits: 2 })} kg`
+                        return ` ${ctx.dataset.label}: ${raw.toLocaleString('en-PH', { minimumFractionDigits: 0, maximumFractionDigits: 2 })} kg`
                     },
                 },
             },
