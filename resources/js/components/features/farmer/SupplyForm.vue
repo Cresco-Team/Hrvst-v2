@@ -53,6 +53,12 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table'
+import { Skeleton } from '@/components/ui/skeleton'
+import {
+    useVarietyAvailability,
+    netKgClass,
+    formatNetKg,
+} from '@/composables/useVarietyAvailability'
 
 interface Props {
     open: boolean
@@ -80,6 +86,12 @@ const form = useForm({
         status: string
     }>,
 })
+
+const { getState, getData } = useVarietyAvailability(
+    () => form.scheduled_date,
+    () => form.time_slot,
+    () => form.items.map((i) => i.variety_id),
+)
 
 function toInputDate(dateStr: string | null | undefined): string {
     if (!dateStr) return ''
@@ -311,7 +323,7 @@ watch(
                             v-for="(item, index) in form.items"
                             :key="item._key"
                         >
-                            <TableCell class="relative pb-5">
+                            <TableCell class="relative pb-6">
                                 <Select v-model="item.variety_id">
                                     <SelectTrigger
                                         :class="{
@@ -347,11 +359,31 @@ watch(
                                     </SelectContent>
                                 </Select>
 
+                                <!-- Slot availability indicator -->
+                                <div
+                                    v-if="item.variety_id && form.scheduled_date"
+                                    class="mt-1.5 flex items-center gap-1"
+                                >
+                                    <Skeleton
+                                        v-if="getState(item.variety_id).status === 'loading'"
+                                        class="h-3.5 w-20 rounded"
+                                    />
+                                    <template v-else-if="getData(item.variety_id)">
+                                        <span class="text-xs text-muted-foreground">Net:</span>
+                                        <span
+                                            :class="netKgClass(getData(item.variety_id)!.net_kg)"
+                                            class="text-xs font-medium tabular-nums"
+                                        >
+                                            {{ formatNetKg(getData(item.variety_id)!.net_kg) }}
+                                        </span>
+                                    </template>
+                                </div>
+
                                 <p
                                     v-if="
                                         form.errors[`items.${index}.variety_id`]
                                     "
-                                    class="absolute mt-1 text-xs text-destructive"
+                                    class="absolute bottom-1 text-xs text-destructive"
                                 >
                                     {{
                                         form.errors[`items.${index}.variety_id`]
