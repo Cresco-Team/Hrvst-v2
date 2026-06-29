@@ -51,6 +51,6 @@ final class CreateFarmerAction
 
     private function generatePin(): string
     {
-        return str_pad((string) random_int(0, 9999), 4, '0', STR_PAD_LEFT);
+        return str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
     }
 }
