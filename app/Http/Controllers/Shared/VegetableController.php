@@ -43,18 +43,14 @@ class VegetableController extends Controller
         $category = Category::where('slug', $slug)->first();
 
         return Inertia::render('shared/vegetables/Index', [
-            'vegetables' => Inertia::defer(
-                function () use ($request, $category) {
-                    $query = $this->vegetableService->paginated(
+            'vegetables' => Inertia::defer(function () use ($request, $category) {
+                return VegetableSharedData::collect(
+                    $this->vegetableService->paginated(
                         search: $request->query('search', null),
                         categoryId: $category->id,
-                        userId: $request->user()->id,
-                    )->paginate(12)
-                        ->withQueryString();
-
-                    return VegetableSharedData::collect($query);
-                }
-            ),
+                    )->paginate(12)->withQueryString(),
+                );
+        }),
             'category' => $category,
             'filters' => [
                 'search' => $request->query('search', null),
@@ -84,7 +80,7 @@ class VegetableController extends Controller
             ],
             'meta' => [
                 'varietyId' => $variety->id,
-                'varietyLabel' => "{$variety->vegetable->name} {$variety->name}",
+                'varietyLabel' => "{$variety->vegetable->name}: {$variety->name}",
                 'categoryName' => $variety->vegetable->category->name,
                 'categorySlug' => $variety->vegetable->category->slug,
             ],
