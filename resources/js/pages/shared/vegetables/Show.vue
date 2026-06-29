@@ -25,7 +25,6 @@ import type {
 } from '@/types'
 import type { VarietyResource } from '@/types/resources/product'
 import { Card } from '@/components/ui/card'
-import VarietyForecastChart from '@/components/shared/charts/VarietyForecastChart.vue'
 
 interface Props {
     variety?: VarietyResource | null
@@ -235,12 +234,17 @@ function formatKgShort(kg: number): string {
 <template>
     <Head
         :title="
-            variety ? `${variety.vegetable?.name} ${variety.name}` : 'Variety'
+            variety ? `${meta.varietyLabel}` : 'Variety'
         "
     />
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex flex-col gap-6 p-4 lg:p-6">
+            <Heading
+                    :title="meta.varietyLabel"
+                    :description="meta.categoryName"
+                />
+
             <Deferred data="variety">
                 <template #fallback>
                     <div class="flex flex-col gap-6">
@@ -261,12 +265,6 @@ function formatKgShort(kg: number): string {
                 </template>
 
                 <template v-if="variety">
-                    <!-- ── Header ─────────────────────────────────────────────────────── -->
-                    <Heading
-                        :title="`${variety.vegetable?.name} ${variety.name}`"
-                        :description="variety.vegetable?.category?.name"
-                    />
-
                     <!-- ── Analytics Summary ───────────────────────────────────────────── -->
                     <VarietyAnalyticsSummary
                         v-if="variety.analytics"
@@ -283,12 +281,7 @@ function formatKgShort(kg: number): string {
                     <VegetableMonthlyChart
                         v-if="variety.monthly_activity?.length"
                         :monthly-activity="variety.monthly_activity"
-                    />
-
-                    <VarietyForecastChart
-                        v-if="variety.analytics?.forecast?.length && variety.monthly_activity?.length"
-                        :monthly-activity="variety.monthly_activity"
-                        :forecast="variety.analytics.forecast"
+                        :forecast="variety.analytics?.forecast"
                     />
 
                     <!-- ── Market Calendar ─────────────────────────────────────────────── -->

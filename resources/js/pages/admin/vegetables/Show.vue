@@ -6,8 +6,6 @@ import 'v-calendar/style.css'
 import { computed, ref } from 'vue'
 import Heading from '@/components/Heading.vue'
 import VarietyAnalyticsSummary from '@/components/shared/charts/VarietyAnalyticsSummary.vue'
-import VarietyRecommendations from '@/components/shared/charts/VarietyRecommendations.vue'
-import VarietyMonthlyChart from '@/components/shared/charts/VegetableMonthlyChart.vue'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -22,6 +20,9 @@ import type {
     VarietyResource,
 } from '@/types'
 import DetailSheet from '@/components/dialogs/DetailSheet.vue'
+import VarietyRecommendations from '@/components/shared/charts/VarietyRecommendations.vue'
+import VegetableMonthlyChart from '@/components/shared/charts/VegetableMonthlyChart.vue'
+import { Card } from '@/components/ui/card'
 
 const props = defineProps<{
     variety?: VarietyResource
@@ -225,7 +226,7 @@ function formatKgShort(kg: number): string {
 <template>
     <Head
         :title="
-            variety ? `${variety.vegetable?.name} ${variety.name}` : 'Variety'
+            variety ? `${meta.varietyLabel}` : 'Variety'
         "
     />
 
@@ -264,16 +265,11 @@ function formatKgShort(kg: number): string {
                         :recommendations="variety.analytics.recommendations"
                     />
 
-                    <VarietyForecastChart
-                        v-if="variety.analytics?.forecast?.length && variety.monthly_activity?.length"
-                        :monthly-activity="variety.monthly_activity"
-                        :forecast="variety.analytics.forecast"
-                    />
-
                     <!-- ── Charts ─────────────────────────────────────────────────────── -->
-                    <VarietyMonthlyChart
+                    <VegetableMonthlyChart
                         v-if="variety.monthly_activity?.length"
                         :monthly-activity="variety.monthly_activity"
+                        :forecast="variety.analytics?.forecast"
                     />
 
                     <!-- ── Market Calendar ─────────────────────────────────────────────── -->
@@ -615,10 +611,64 @@ function formatKgShort(kg: number): string {
 :deep(.vc-day-content) {
     display: none;
 }
+:deep(.vc-header) {
+    display: none;
+}
 :deep(.vc-dots),
 :deep(.vc-highlights) {
     display: none;
 }
+
+:deep(.vc-container) {
+    --vc-bg: hsl(var(--card));
+    --vc-border: hsl(var(--border));
+    --vc-header-title-color: hsl(var(--foreground));
+    --vc-weekday-color: hsl(var(--muted-foreground));
+    --vc-nav-hover-bg: hsl(var(--muted));
+    --vc-day-content-hover-bg: transparent;
+    --vc-accent-200: hsl(var(--primary) / 0.2);
+    --vc-accent-600: hsl(var(--primary));
+    background-color: hsl(var(--card));
+    color: hsl(var(--foreground));
+    border-color: transparent;
+}
+
+:deep(.vc-header .vc-title),
+:deep(.vc-nav-title),
+:deep(.vc-nav-item) {
+    color: hsl(var(--foreground));
+}
+
+:deep(.vc-nav-item:hover),
+:deep(.vc-nav-item.is-active) {
+    background-color: hsl(var(--muted));
+    color: hsl(var(--foreground));
+}
+
+:deep(.vc-arrow) {
+    color: hsl(var(--muted-foreground));
+}
+:deep(.vc-arrow:hover) {
+    background-color: hsl(var(--muted));
+    color: hsl(var(--foreground));
+}
+
+:deep(.vc-container) {
+    width: 100% !important;
+}
+:deep(.vc-pane-layout),
+:deep(.vc-pane),
+:deep(.vc-weeks) {
+    width: 100%;
+    min-width: 0;
+}
+
+:deep(.vc-week),
+:deep(.vc-weeks) {
+    gap: 2px;
+    padding: 0;
+}
+
 :deep(.vc-day) {
     min-height: 5rem;
     border: 1px solid hsl(var(--border) / 0.4);
@@ -635,9 +685,13 @@ function formatKgShort(kg: number): string {
     border-color: hsl(var(--primary) / 0.6);
     background-color: hsl(var(--primary) / 0.06);
 }
-:deep(.vc-week),
-:deep(.vc-weeks) {
-    gap: 3px;
-    padding: 0;
+
+@media (max-width: 479px) {
+    :deep(.vc-day) {
+        min-height: 3rem;
+    }
+    :deep(.vc-weekday) {
+        font-size: 0.6rem;
+    }
 }
 </style>

@@ -36,7 +36,7 @@ class VarietyController extends Controller
 
         return Inertia::render('admin/vegetables/Show', [
             'variety' => Inertia::defer(
-                fn () => VarietyDetailData::from(
+                fn () => VarietyDetailData::fromModel(
                     $this->varietyService->show($variety, $year, $month, VarietyViewerRole::Admin)
                 )
             ),
@@ -46,7 +46,7 @@ class VarietyController extends Controller
             ],
             'meta' => [
                 'varietyId' => $variety->id,
-                'varietyLabel' => "{$variety->vegetable->name} {$variety->name}",
+                'varietyLabel' => "{$variety->vegetable->name}: {$variety->name}",
                 'categoryName' => $variety->vegetable->category->name,
                 'categorySlug' => $variety->vegetable->category->slug,
             ],

@@ -16,7 +16,6 @@ class VarietyDetailData extends Data
         public string $vegetable_name,
         public int $category_id,
         public string $category_name,
-        public string $category_image_url, // unchanged from the original — it's the vegetable's image, nested oddly under category. Flagging, not relocating, in this pass.
         public int $supply_count,
         public int $demand_count,
         public array $supply_municipalities,
@@ -37,7 +36,6 @@ class VarietyDetailData extends Data
             vegetable_name: $vegetable->name,
             category_id: $category->id,
             category_name: $category->name,
-            category_image_url: $vegetable->getFirstMediaUrl('vegetable_image'),
             supply_count: $variety->supply_count,
             demand_count: $variety->demand_count,
             supply_municipalities: $variety->supply_municipalities,

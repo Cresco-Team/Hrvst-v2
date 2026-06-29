@@ -2,7 +2,7 @@
 import { useForm } from '@inertiajs/vue3'
 import { CalendarIcon, Plus, Trash2 } from 'lucide-vue-next'
 import { computed, watch } from 'vue'
-import { CalendarDate, today, getLocalTimeZone } from '@internationalized/date'
+import { CalendarDate, today, getLocalTimeZone, DateFormatter } from '@internationalized/date'
 import {
     store,
     update,
@@ -42,6 +42,12 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table'
+import { Skeleton } from '@/components/ui/skeleton'
+import {
+    useVarietyAvailability,
+    netKgClass,
+    formatNetKg,
+} from '@/composables/useVarietyAvailability'
 import type {
     DealerDemandDataFixed,
     PostTimeSlot,
@@ -89,6 +95,16 @@ const form = useForm<{
 })
 
 const isEditMode = computed(() => !!props.demand)
+
+const { getState, getData } = useVarietyAvailability(
+    () => form.scheduled_date,
+    () => form.time_slot,
+    () => form.items.map((i) => i.variety_id),
+)
+
+const df = new DateFormatter('en-US', {
+    dateStyle: 'long',
+})
 
 const minDateValue = computed(() => today(getLocalTimeZone()).add({ days: 1 }))
 const maxDateValue = computed(() =>
@@ -198,9 +214,11 @@ watch(
                                 <CalendarIcon class="mr-2 h-4 w-4" />
                                 {{
                                     form.scheduled_date
-                                        ? new Date(
-                                              form.scheduled_date + 'T00:00:00',
-                                          ).toLocaleDateString()
+                                        ? df.format(
+                                              calendarDate!.toDate(
+                                                  getLocalTimeZone(),
+                                              ),
+                                          )
                                         : 'Pick a date'
                                 }}
                             </Button>
@@ -208,7 +226,7 @@ watch(
                         <PopoverContent class="w-auto p-0" align="start">
                             <Calendar
                                 v-model="calendarDate"
-                                layout="month-and-year"
+                                layout="month-only"
                                 :min-value="minDateValue"
                                 :max-value="maxDateValue"
                                 initial-focus
@@ -260,152 +278,168 @@ watch(
             </div>
 
             <!-- ── Demand Items ──────────────────────────────────────── -->
-            <div class="space-y-3">
-                <p v-if="form.errors.items" class="text-xs text-destructive">
-                    {{ form.errors.items }}
-                </p>
+            <Table>
+                <TableHeader>
+                    <TableRow>
+                        <TableHead>
+                            Varieties Needed
+                            <span class="text-destructive">*</span>
+                        </TableHead>
+                        <TableHead class="text-center">
+                            Kilogram
+                            <span class="text-destructive">*</span>
+                        </TableHead>
+                        <TableHead class="text-end">
+                            <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                class="h-7 gap-1.5 text-xs"
+                                @click="addItem"
+                            >
+                                <Plus class="size-3" />
+                            </Button>
+                        </TableHead>
+                    </TableRow>
+                </TableHeader>
 
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead>
-                                Varieties Needed
-                                <span class="text-destructive">*</span>
-                            </TableHead>
-                            <TableHead class="text-center">
-                                Kilogram
-                                <span class="text-destructive">*</span>
-                            </TableHead>
-                            <TableHead class="text-end">
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    size="sm"
-                                    class="h-7 gap-1.5 text-xs"
-                                    @click="addItem"
+                <TableBody>
+                    <TableEmpty v-if="form.items.length === 0" :colspan="3">
+                        <span :class="form.errors.items ? `text-destructive` : ''">
+                            No requests yet. Add at least one request.
+                        </span>
+                    </TableEmpty>
+
+                    <TableRow
+                        v-for="(item, index) in form.items"
+                        :key="item._key"
+                    >
+                        <TableCell class="relative pb-6">
+                            <Select v-model="item.variety_id">
+                                <SelectTrigger
+                                    :class="{
+                                        'border-destructive':
+                                            form.errors[
+                                                `items.${index}.variety_id`
+                                            ],
+                                    }"
                                 >
-                                    <Plus class="size-3" />
-                                </Button>
-                            </TableHead>
-                        </TableRow>
-                    </TableHeader>
+                                    <SelectValue
+                                        placeholder="Select variety..."
+                                    />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectGroup
+                                        v-for="(
+                                            varieties, vegetableName
+                                        ) in varietyOptions"
+                                        :key="vegetableName"
+                                    >
+                                        <SelectLabel>{{
+                                            vegetableName
+                                        }}</SelectLabel>
+                                        <SelectItem
+                                            v-for="v in varieties"
+                                            :key="v.id"
+                                            :value="String(v.id)"
+                                        >
+                                            {{ vegetableName }}:
+                                            {{ v.name }}
+                                        </SelectItem>
+                                    </SelectGroup>
+                                </SelectContent>
+                            </Select>
 
-                    <TableBody>
-                        <TableEmpty v-if="form.items.length === 0" :colspan="3">
-                            No items yet. Add at least one variety.
-                        </TableEmpty>
+                            <!-- Slot availability indicator -->
+                            <div
+                                v-if="item.variety_id && form.scheduled_date"
+                                class="mt-1.5 flex items-center gap-1"
+                            >
+                                <Skeleton
+                                    v-if="getState(item.variety_id).status === 'loading'"
+                                    class="h-3.5 w-20 rounded"
+                                />
+                                <template v-else-if="getData(item.variety_id)">
+                                    <span class="text-xs text-muted-foreground">Net:</span>
+                                    <span
+                                        :class="netKgClass(getData(item.variety_id)!.net_kg)"
+                                        class="text-xs font-medium tabular-nums"
+                                    >
+                                        {{ formatNetKg(getData(item.variety_id)!.net_kg) }}
+                                    </span>
+                                </template>
+                            </div>
 
-                        <TableRow
-                            v-for="(item, index) in form.items"
-                            :key="item._key"
-                        >
-                            <TableCell class="relative pb-5">
-                                <Select v-model="item.variety_id">
-                                    <SelectTrigger
+                            <p
+                                v-if="
+                                    form.errors[`items.${index}.variety_id`]
+                                "
+                                class="absolute bottom-1 text-xs text-destructive"
+                            >
+                                {{
+                                    form.errors[`items.${index}.variety_id`]
+                                }}
+                            </p>
+                        </TableCell>
+
+                        <TableCell class="relative max-w-30 space-y-1 pb-5">
+                            <NumberField
+                                v-model="item.quantity_kg"
+                                :min="0.01"
+                                :max="99999.99"
+                                :step="0.1"
+                                :format-options="{
+                                    style: 'unit',
+                                    unit: 'kilogram',
+                                    unitDisplay: 'short',
+                                    minimumFractionDigits: 0,
+                                    maximumFractionDigits: 1,
+                                }"
+                            >
+                                <NumberFieldContent>
+                                    <NumberFieldDecrement />
+                                    <NumberFieldInput
                                         :class="{
                                             'border-destructive':
                                                 form.errors[
-                                                    `items.${index}.variety_id`
+                                                    `items.${index}.quantity_kg`
                                                 ],
                                         }"
-                                    >
-                                        <SelectValue
-                                            placeholder="Select variety..."
-                                        />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectGroup
-                                            v-for="(
-                                                varieties, vegetableName
-                                            ) in varietyOptions"
-                                            :key="vegetableName"
-                                        >
-                                            <SelectLabel>{{
-                                                vegetableName
-                                            }}</SelectLabel>
-                                            <SelectItem
-                                                v-for="v in varieties"
-                                                :key="v.id"
-                                                :value="String(v.id)"
-                                            >
-                                                {{ vegetableName }}:
-                                                {{ v.name }}
-                                            </SelectItem>
-                                        </SelectGroup>
-                                    </SelectContent>
-                                </Select>
+                                    />
+                                    <NumberFieldIncrement />
+                                </NumberFieldContent>
+                            </NumberField>
 
-                                <p
-                                    v-if="
-                                        form.errors[`items.${index}.variety_id`]
-                                    "
-                                    class="absolute mt-1 text-xs text-destructive"
-                                >
-                                    {{
-                                        form.errors[`items.${index}.variety_id`]
-                                    }}
-                                </p>
-                            </TableCell>
+                            <p
+                                v-if="
+                                    form.errors[
+                                        `items.${index}.quantity_kg`
+                                    ]
+                                "
+                                class="absolute text-xs text-destructive"
+                            >
+                                {{
+                                    form.errors[
+                                        `items.${index}.quantity_kg`
+                                    ]
+                                }}
+                            </p>
+                        </TableCell>
 
-                            <TableCell class="relative max-w-30 space-y-1 pb-5">
-                                <NumberField
-                                    v-model="item.quantity_kg"
-                                    :min="0.01"
-                                    :max="99999.99"
-                                    :step="0.1"
-                                    :format-options="{
-                                        style: 'unit',
-                                        unit: 'kilogram',
-                                        unitDisplay: 'short',
-                                        minimumFractionDigits: 0,
-                                        maximumFractionDigits: 1,
-                                    }"
-                                >
-                                    <NumberFieldContent>
-                                        <NumberFieldDecrement />
-                                        <NumberFieldInput
-                                            :class="{
-                                                'border-destructive':
-                                                    form.errors[
-                                                        `items.${index}.quantity_kg`
-                                                    ],
-                                            }"
-                                        />
-                                        <NumberFieldIncrement />
-                                    </NumberFieldContent>
-                                </NumberField>
-
-                                <p
-                                    v-if="
-                                        form.errors[
-                                            `items.${index}.quantity_kg`
-                                        ]
-                                    "
-                                    class="absolute text-xs text-destructive"
-                                >
-                                    {{
-                                        form.errors[
-                                            `items.${index}.quantity_kg`
-                                        ]
-                                    }}
-                                </p>
-                            </TableCell>
-
-                            <TableCell class="text-end">
-                                <Button
-                                    type="button"
-                                    variant="ghost"
-                                    size="icon"
-                                    class="size-9 text-muted-foreground hover:text-destructive"
-                                    @click="removeItem(index)"
-                                >
-                                    <Trash2 class="size-4" />
-                                </Button>
-                            </TableCell>
-                        </TableRow>
-                    </TableBody>
-                </Table>
-            </div>
+                        <TableCell class="text-end">
+                            <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                class="size-9 text-muted-foreground hover:text-destructive"
+                                @click="removeItem(index)"
+                            >
+                                <Trash2 class="size-4" />
+                            </Button>
+                        </TableCell>
+                    </TableRow>
+                </TableBody>
+            </Table>
         </div>
     </DialogForm>
 </template>
