@@ -234,12 +234,17 @@ function formatKgShort(kg: number): string {
 <template>
     <Head
         :title="
-            variety ? `${variety.vegetable?.name} ${variety.name}` : 'Variety'
+            variety ? `${meta.varietyLabel}` : 'Variety'
         "
     />
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex flex-col gap-6 p-4 lg:p-6">
+            <Heading
+                    :title="meta.varietyLabel"
+                    :description="meta.categoryName"
+                />
+
             <Deferred data="variety">
                 <template #fallback>
                     <div class="flex flex-col gap-6">
@@ -260,12 +265,6 @@ function formatKgShort(kg: number): string {
                 </template>
 
                 <template v-if="variety">
-                    <!-- ── Header ─────────────────────────────────────────────────────── -->
-                    <Heading
-                        :title="`${variety.vegetable?.name} ${variety.name}`"
-                        :description="variety.vegetable?.category?.name"
-                    />
-
                     <!-- ── Analytics Summary ───────────────────────────────────────────── -->
                     <VarietyAnalyticsSummary
                         v-if="variety.analytics"
