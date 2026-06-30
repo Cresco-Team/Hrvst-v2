@@ -10,14 +10,7 @@ class PostPolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->hasRole('farmer')
-            || $user->hasRole('dealer')
-            || $user->hasRole('admin');
-    }
-
-    public function view(User $user): bool
-    {
-        return $this->viewAny($user);
+        return $user->hasRole('dealer') || $user->hasRole('farmer');
     }
 
     public function create(User $user, PostType $type): bool
@@ -30,25 +23,11 @@ class PostPolicy
 
     public function update(User $user, Post $post): bool
     {
-        return match ($post->type) {
-            PostType::Supply => $user->id === $post->user_id,
-            PostType::Demand => $user->id === $post->user_id
-        };
-    }
-
-    public function archive(User $user, Post $post): bool
-    {
-        return match ($post->type) {
-            PostType::Supply => $user->id === $post->user_id,
-            PostType::Demand => $user->id === $post->user_id,
-        };
+        return $user->id === $post->user_id;
     }
 
     public function delete(User $user, Post $post): bool
     {
-        return match ($post->type) {
-            PostType::Supply => $user->id === $post->user_id,
-            PostType::Demand => $user->id === $post->user_id
-        };
+        return $user->id === $post->user_id;
     }
 }

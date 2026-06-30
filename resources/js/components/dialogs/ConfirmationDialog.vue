@@ -9,7 +9,7 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
-import { buttonVariants } from '@/components/ui/button'
+import { Button } from '@/components/ui/button'
 
 type ButtonVariant = 'default' | 'destructive'
 
@@ -49,7 +49,7 @@ const handleAction = () => {
 
 			<AlertDialogFooter>
 				<AlertDialogCancel>Cancel</AlertDialogCancel>
-				<AlertDialogAction @click="handleAction" :class="buttonVariants({ variant: props.variant })" :disabled="props.processing">
+				<AlertDialogAction @click="handleAction" :variant="variant" :disabled="props.processing">
 					{{ actionName }}
 				</AlertDialogAction>
 			</AlertDialogFooter>

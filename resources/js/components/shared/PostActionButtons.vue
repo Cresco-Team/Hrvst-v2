@@ -1,0 +1,103 @@
+<script setup lang="ts">
+import { router } from '@inertiajs/vue3'
+import { Check, X } from 'lucide-vue-next'
+import { computed, ref } from 'vue'
+import ConfirmationDialog from '@/components/dialogs/ConfirmationDialog.vue'
+import { Button } from '@/components/ui/button'
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from '@/components/ui/tooltip'
+
+const props = defineProps<{
+    fulfillUrl: string
+    expireUrl: string
+    label: string
+    only?: string[]
+}>()
+
+type PendingAction = 'fulfill' | 'expire' | null
+
+const pendingAction = ref<PendingAction>(null)
+const processing = ref(false)
+
+const DIALOG_CONFIG = {
+    fulfill: { title: 'Mark as Fulfilled', actionName: 'Fulfill', variant: 'default' as const },
+    expire: { title: 'Mark as Expired', actionName: 'Expire', variant: 'destructive' as const },
+}
+
+const isOpen = computed({
+    get: () => pendingAction.value !== null,
+    set: (value: boolean) => {
+        if (!value) pendingAction.value = null
+    },
+})
+
+const activeConfig = computed(() =>
+    pendingAction.value ? DIALOG_CONFIG[pendingAction.value] : null,
+)
+
+function submit(): void {
+    if (!pendingAction.value) return
+
+    const url = pendingAction.value === 'fulfill' ? props.fulfillUrl : props.expireUrl
+    processing.value = true
+
+    router.post(url, {}, {
+        preserveScroll: true,
+        only: props.only,
+        onFinish: () => {
+            processing.value = false
+            pendingAction.value = null
+        },
+    })
+}
+</script>
+
+<template>
+    <div class="flex items-center gap-1">
+        <TooltipProvider :delay-duration="200">
+            <Tooltip>
+                <TooltipTrigger as-child>
+                    <Button
+                        variant="outline"
+                        size="icon-sm"
+                        class="text-green-600 hover:bg-green-50 hover:text-green-700 dark:hover:bg-green-950/30"
+                        @click="pendingAction = 'fulfill'"
+                    >
+                        <Check class="size-4" />
+                    </Button>
+                </TooltipTrigger>
+                <TooltipContent><p class="text-xs">Mark fulfilled</p></TooltipContent>
+            </Tooltip>
+        </TooltipProvider>
+
+        <TooltipProvider :delay-duration="200">
+            <Tooltip>
+                <TooltipTrigger as-child>
+                    <Button
+                        variant="outline"
+                        size="icon-sm"
+                        class="text-destructive hover:bg-destructive/10"
+                        @click="pendingAction = 'expire'"
+                    >
+                        <X class="size-4" />
+                    </Button>
+                </TooltipTrigger>
+                <TooltipContent><p class="text-xs">Mark expired</p></TooltipContent>
+            </Tooltip>
+        </TooltipProvider>
+    </div>
+
+    <ConfirmationDialog
+        v-model:open="isOpen"
+        :title="activeConfig?.title ?? ''"
+        :description="`Confirm ${label}. This cannot be undone.`"
+        :action-name="activeConfig?.actionName ?? ''"
+        :variant="activeConfig?.variant ?? 'default'"
+        :processing="processing"
+        @action="submit"
+    />
+</template>

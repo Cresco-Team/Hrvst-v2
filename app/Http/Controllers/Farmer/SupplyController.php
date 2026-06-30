@@ -25,7 +25,7 @@ class SupplyController extends Controller
 
     public function index(Request $request): Response
     {
-        Gate::authorize('viewAny', Post::class);
+        Gate::authorize('view', Post::class);
 
         $userId = $request->user()->id;
 

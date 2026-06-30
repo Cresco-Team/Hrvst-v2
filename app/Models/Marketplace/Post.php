@@ -31,6 +31,8 @@ class Post extends Model implements HasMedia
     use InteractsWithMedia;
     use SoftDeletes;
 
+    public const int ACTION_WINDOW_DAYS = 5;
+
     protected function casts(): array
     {
         return [
@@ -49,7 +51,7 @@ class Post extends Model implements HasMedia
 
     public function postItems(): HasMany
     {
-        return $this->hasMany(PostItem::class);
+        return $this->hasMany(PostItem::class)->chaperone();
     }
 
     public function farmerProfile(): HasOneThrough
@@ -86,6 +88,29 @@ class Post extends Model implements HasMedia
     public function scopeDemand(Builder $query): Builder
     {
         return $query->where('type', PostType::Demand);
+    }
+
+    /* ---------- action window ---------- */
+
+    public function isWithinActionWindow(): bool
+    {
+        if ($this->scheduled_date === null) {
+            return false;
+        }
+
+        return today()->between(
+            $this->scheduled_date,
+            $this->scheduled_date->addDays(self::ACTION_WINDOW_DAYS - 1),
+        );
+    }
+
+    public function isPastActionWindow(): bool
+    {
+        if ($this->scheduled_date === null) {
+            return false;
+        }
+
+        return today()->gte($this->scheduled_date->addDays(self::ACTION_WINDOW_DAYS));
     }
 
     /* ---------- lifecycle ---------- */

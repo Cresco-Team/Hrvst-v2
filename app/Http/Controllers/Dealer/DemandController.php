@@ -48,7 +48,6 @@ class DemandController extends Controller
         $userId = $request->user()->id;
         $status = PostItemStatus::tryFrom($request->query('status', PostItemStatus::Expired->value));
 
-        // Guard: only Expired and Fulfilled belong here; reject Ongoing
         if (! $status || $status === PostItemStatus::Ongoing) {
             $status = PostItemStatus::Expired;
         }
