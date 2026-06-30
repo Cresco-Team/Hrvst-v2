@@ -8,15 +8,9 @@ use App\Models\User;
 
 class PostItemPolicy
 {
-    public function create(User $user): bool
-    {
-        return $user->hasRole('farmer') || $user->hasRole('dealr');
-    }
-
     public function update(User $user, PostItem $postItem): bool
     {
-        return $user->id === $postItem->post->user_id
-            && $postItem->status === PostItemStatus::Ongoing;
+        return $user->id === $postItem->post->user_id;
     }
 
     public function delete(User $user, PostItem $postItem): bool
@@ -28,12 +22,12 @@ class PostItemPolicy
     public function fulfill(User $user, PostItem $postItem): bool
     {
         return $user->id === $postItem->post->user_id
-            && $postItem->post->scheduled_date->between(today(), today()->addDays(5)->endOfDay());
+            && $postItem->status === PostItemStatus::Ongoing;
     }
 
-    public function expire(User $user, PostItem $postItem): bool
+    public function archive(User $user, PostItem $postItem): bool
     {
         return $user->id === $postItem->post->user_id
-            && $postItem->post->scheduled_date->between(today(), today()->addDays(5)->endOfDay());
+            && $postItem->status === PostItemStatus::Ongoing;
     }
 }

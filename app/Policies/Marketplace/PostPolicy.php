@@ -8,9 +8,9 @@ use App\Models\User;
 
 class PostPolicy
 {
-    public function view(User $user, Post $post): bool
+    public function viewAny(User $user): bool
     {
-        return $user->id === $post->user_id;
+        return $user->hasRole('dealer') || $user->hasRole('farmer');
     }
 
     public function create(User $user, PostType $type): bool
