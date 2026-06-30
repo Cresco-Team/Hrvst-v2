@@ -20,7 +20,10 @@ class FarmerDashboardService
         return Post::supply()
             ->where('user_id', $userId)
             ->whereHas('postItems', fn (Builder $q) => $q->ongoing())
-            ->whereBetween('scheduled_date', [today(), today()->addDays(5)->endOfDay()])
+            ->whereBetween('scheduled_date', [
+                today()->subDays(Post::ACTION_WINDOW_DAYS - 1),
+                today(),
+            ])
             ->with(['postItems' => fn ($q) => $q->ongoing()->with('variety.vegetable')])
             ->orderBy('scheduled_date')
             ->get();
