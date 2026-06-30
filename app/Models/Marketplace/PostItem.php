@@ -99,6 +99,10 @@ class PostItem extends Model
 
     public function markAsExpired(): void
     {
+        if ($this->status === PostItemStatus::Expired) {
+            return;
+        }
+
         $this->status = PostItemStatus::Expired;
         $this->save();
     }
