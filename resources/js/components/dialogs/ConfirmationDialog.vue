@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import {
 	AlertDialog,
-	AlertDialogAction,
 	AlertDialogCancel,
 	AlertDialogContent,
 	AlertDialogDescription,
@@ -35,7 +34,6 @@ const emit = defineEmits<{
 
 const handleAction = () => {
 	emit('action')
-	open.value = false
 }
 </script>
 
@@ -48,10 +46,15 @@ const handleAction = () => {
 			</AlertDialogHeader>
 
 			<AlertDialogFooter>
-				<AlertDialogCancel>Cancel</AlertDialogCancel>
-				<AlertDialogAction @click="handleAction" :variant="variant" :disabled="props.processing">
-					{{ actionName }}
-				</AlertDialogAction>
+				<AlertDialogCancel :disabled="processing">Cancel</AlertDialogCancel>
+				<Button
+					:variant="props.variant"
+					:disabled="props.processing"
+					@click="handleAction"
+				>
+					<span v-if="processing">Processing…</span>
+					<span v-else>{{ actionName }}</span>
+				</Button>
 			</AlertDialogFooter>
 		</AlertDialogContent>
 	</AlertDialog>
