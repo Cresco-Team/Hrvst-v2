@@ -27,7 +27,7 @@ class DemandController extends Controller
 
     public function index(Request $request): Response
     {
-        Gate::authorize('viewAny', Post::class);
+        Gate::authorize('view', Post::class);
 
         $userId = $request->user()->id;
 
@@ -43,12 +43,11 @@ class DemandController extends Controller
 
     public function archived(Request $request): Response
     {
-        Gate::authorize('viewAny', Post::class);
+        Gate::authorize('view', Post::class);
 
         $userId = $request->user()->id;
         $status = PostItemStatus::tryFrom($request->query('status', PostItemStatus::Expired->value));
 
-        // Guard: only Expired and Fulfilled belong here; reject Ongoing
         if (! $status || $status === PostItemStatus::Ongoing) {
             $status = PostItemStatus::Expired;
         }

@@ -48,7 +48,7 @@ class DashboardController extends Controller
     public function fulfillItem(PostItem $postItem, FulfillPostItemAction $action): RedirectResponse
     {
         $postItem->load('post');
-        Gate::authorize('fulfillOngoing', $postItem);
+        Gate::authorize('fulfill', $postItem);
 
         abort_if($postItem->post->type !== PostType::Demand, 403);
 
@@ -61,7 +61,7 @@ class DashboardController extends Controller
     public function expireItem(PostItem $postItem, ExpirePostItemAction $action): RedirectResponse
     {
         $postItem->load('post');
-        Gate::authorize('expireOngoing', $postItem);
+        Gate::authorize('expire', $postItem);
 
         abort_if($postItem->post->type !== PostType::Demand, 403);
 
