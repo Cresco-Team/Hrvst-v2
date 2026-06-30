@@ -14,19 +14,6 @@ use Illuminate\Support\Facades\Gate;
 
 class PostItemController extends Controller
 {
-    public function update(UpdatePostItemRequest $request, PostItem $postItem, UpdatePostItemAction $action): RedirectResponse
-    {
-        $postItem->load('post');
-        Gate::authorize('update', $postItem);
-
-        abort_if($postItem->post->type !== PostType::Demand, 403);
-
-        $action->handle($postItem, $request->validated());
-
-        return redirect()->route('dealer.demands.index', ['status' => $postItem->status->value])
-            ->with('flash', ['type' => 'success', 'message' => 'Item updated.']);
-    }
-
     public function fulfill(Request $request, PostItem $postItem, FulfillPostItemAction $action): RedirectResponse
     {
         $postItem->load('post');
