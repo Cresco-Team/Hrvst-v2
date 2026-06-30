@@ -27,7 +27,7 @@ class DemandController extends Controller
 
     public function index(Request $request): Response
     {
-        Gate::authorize('view', Post::class);
+        Gate::authorize('viewAny', Post::class);
 
         $userId = $request->user()->id;
 
@@ -43,7 +43,7 @@ class DemandController extends Controller
 
     public function archived(Request $request): Response
     {
-        Gate::authorize('view', Post::class);
+        Gate::authorize('viewAny', Post::class);
 
         $userId = $request->user()->id;
         $status = PostItemStatus::tryFrom($request->query('status', PostItemStatus::Expired->value));
