@@ -8,24 +8,15 @@ use App\Models\User;
 
 class PostItemPolicy
 {
-    public function viewAny(User $user): bool
-    {
-        return false;
-    }
-
-    public function view(User $user, PostItem $postItem): bool
-    {
-        return false;
-    }
-
     public function create(User $user): bool
     {
-        return false;
+        return $user->hasRole('farmer') || $user->hasRole('dealr');
     }
 
     public function update(User $user, PostItem $postItem): bool
     {
-        return $user->id === $postItem->post->user_id;
+        return $user->id === $postItem->post->user_id
+            && $postItem->status === PostItemStatus::Ongoing;
     }
 
     public function delete(User $user, PostItem $postItem): bool
@@ -34,25 +25,15 @@ class PostItemPolicy
             && $postItem->status === PostItemStatus::Ongoing;
     }
 
-    public function restore(User $user, PostItem $postItem): bool
-    {
-        return false;
-    }
-
-    public function forceDelete(User $user, PostItem $postItem): bool
-    {
-        return false;
-    }
-
     public function fulfill(User $user, PostItem $postItem): bool
     {
         return $user->id === $postItem->post->user_id
-            && $postItem->status === PostItemStatus::Expired;
+            && $postItem->post->scheduled_date->between(today(), today()->addDays(5)->endOfDay());
     }
 
-    public function archive(User $user, PostItem $postItem): bool
+    public function expire(User $user, PostItem $postItem): bool
     {
         return $user->id === $postItem->post->user_id
-            && $postItem->status === PostItemStatus::Fulfilled;
+            && $postItem->post->scheduled_date->between(today(), today()->addDays(5)->endOfDay());
     }
 }
