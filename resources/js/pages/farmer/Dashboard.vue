@@ -12,7 +12,9 @@ import {
 } from 'lucide-vue-next'
 import { computed } from 'vue'
 import Heading from '@/components/Heading.vue'
+import PostActionButtons from '@/components/shared/PostActionButtons.vue'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Badge } from '@/components/ui/badge'
 import {
     Card,
     CardContent,
@@ -24,6 +26,7 @@ import { Separator } from '@/components/ui/separator'
 import { Skeleton } from '@/components/ui/skeleton'
 import AppLayout from '@/layouts/AppLayout.vue'
 import farmer from '@/routes/farmer'
+import { fulfill as fulfillItem, expire as expireItem } from '@/routes/farmer/dashboard/items'
 import type {
     BreadcrumbItem,
     FarmerDashboardProps,
@@ -180,7 +183,7 @@ const criticalRecs = computed(
                             <div class="flex items-center gap-2">
                                 <CalendarClock class="size-4 text-amber-500" />
                                 <CardTitle class="text-sm font-semibold"
-                                    >Due Within 3 Days</CardTitle
+                                    >Due Within 5 Days</CardTitle
                                 >
                             </div>
                             <button
@@ -201,7 +204,7 @@ const criticalRecs = computed(
                                 <Skeleton
                                     v-for="i in 3"
                                     :key="i"
-                                    class="h-14 w-full rounded-lg"
+                                    class="h-20 w-full rounded-lg"
                                 />
                             </CardContent>
                         </template>
@@ -220,53 +223,31 @@ const criticalRecs = computed(
                                 </p>
                             </div>
 
-                            <div v-else class="space-y-2">
+                            <div v-else class="space-y-3">
                                 <div
                                     v-for="supply in expiringSupplies"
                                     :key="supply.id"
-                                    class="flex items-center gap-3 rounded-lg border bg-muted/30 px-3 py-2.5"
+                                    class="rounded-lg border bg-muted/30 p-3"
                                 >
-                                    <Avatar class="size-9 shrink-0 rounded-md">
-                                        <AvatarImage
-                                            v-if="
-                                                supply.image_url ||
-                                                supply.vegetable?.image_url
-                                            "
-                                            :src="
-                                                supply.image_url ??
-                                                supply.vegetable!.image_url
-                                            "
-                                            :alt="supply.vegetable?.name"
-                                        />
-                                        <AvatarFallback
-                                            class="rounded-md bg-primary/10 text-xs font-bold text-primary"
+                                    <div
+                                        class="flex items-center justify-between gap-3"
+                                    >
+                                        <div
+                                            class="flex items-center gap-2 text-xs text-muted-foreground"
                                         >
-                                            {{
-                                                supply.vegetable?.name?.charAt(
-                                                    0,
-                                                )
-                                            }}
-                                        </AvatarFallback>
-                                    </Avatar>
-
-                                    <div class="min-w-0 flex-1">
-                                        <p class="truncate text-sm font-medium">
-                                            {{ supply.vegetable?.name }}
-                                        </p>
-                                        <p
-                                            class="text-xs text-muted-foreground"
-                                        >
-                                            {{
-                                                supply.items?.length
-                                                    ? `${supply.items.length} ${supply.items.length === 1 ? 'variety' : 'varieties'}`
-                                                    : '—'
-                                            }}
-                                        </p>
-                                    </div>
-
-                                    <div class="shrink-0 text-right">
-                                        <p
-                                            class="text-xs font-semibold tabular-nums"
+                                            <CalendarClock
+                                                class="size-3.5 shrink-0"
+                                            />
+                                            {{ supply.scheduled_date }}
+                                            <Badge
+                                                v-if="supply.time_slot_label"
+                                                variant="outline"
+                                            >
+                                                {{ supply.time_slot_label }}
+                                            </Badge>
+                                        </div>
+                                        <span
+                                            class="shrink-0 text-xs font-semibold tabular-nums"
                                             :class="
                                                 urgencyClass(
                                                     daysUntil(
@@ -282,12 +263,71 @@ const criticalRecs = computed(
                                                     ),
                                                 )
                                             }}
-                                        </p>
-                                        <p
-                                            class="text-[10px] text-muted-foreground"
+                                        </span>
+                                    </div>
+
+                                    <Separator class="my-2.5" />
+
+                                    <div class="space-y-2">
+                                        <div
+                                            v-for="item in supply.items"
+                                            :key="item.id"
+                                            class="flex items-center gap-2.5"
                                         >
-                                            {{ supply.scheduled_date }}
-                                        </p>
+                                            <Avatar
+                                                class="size-8 shrink-0 rounded-md"
+                                            >
+                                                <AvatarImage
+                                                    v-if="
+                                                        item.vegetable_image_url
+                                                    "
+                                                    :src="
+                                                        item.vegetable_image_url
+                                                    "
+                                                    :alt="
+                                                        item.vegetable_name ??
+                                                        ''
+                                                    "
+                                                />
+                                                <AvatarFallback
+                                                    class="rounded-md bg-primary/10 text-xs font-bold text-primary"
+                                                >
+                                                    {{
+                                                        item.vegetable_name?.charAt(
+                                                            0,
+                                                        )
+                                                    }}
+                                                </AvatarFallback>
+                                            </Avatar>
+
+                                            <div class="min-w-0 flex-1">
+                                                <p
+                                                    class="truncate text-sm font-medium"
+                                                >
+                                                    {{ item.vegetable_name }}:
+                                                    {{ item.variety_name }}
+                                                </p>
+                                                <p
+                                                    class="text-xs text-muted-foreground"
+                                                >
+                                                    {{ item.quantity_kg }} kg
+                                                </p>
+                                            </div>
+
+                                            <PostActionButtons
+                                                :fulfill-url="
+                                                    fulfillItem(item.id).url
+                                                "
+                                                :expire-url="
+                                                    expireItem(item.id).url
+                                                "
+                                                :label="`${item.vegetable_name}: ${item.variety_name}`"
+                                                :only="[
+                                                    'expiringSupplies',
+                                                    'summary',
+                                                ]"
+                                            />
+                                        </div>
                                     </div>
                                 </div>
                             </div>
