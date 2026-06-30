@@ -2,12 +2,17 @@
 
 namespace App\Http\Controllers\Farmer;
 
+use App\Actions\PostItem\ExpirePostItemAction;
+use App\Actions\PostItem\FulfillPostItemAction;
 use App\Data\Farmer\FarmerExpiringSupplyData;
+use App\Enums\PostType;
 use App\Http\Controllers\Controller;
-use App\Http\Resources\Marketplace\FarmerSupplyResource;
+use App\Models\Marketplace\PostItem;
 use App\Services\Farmer\FarmerDashboardService;
 use App\Services\Farmer\SupplyService;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -38,5 +43,31 @@ class DashboardController extends Controller
                 )
             ),
         ]);
+    }
+
+    public function fulfillItem(PostItem $postItem, FulfillPostItemAction $action): RedirectResponse
+    {
+        $postItem->load('post');
+        Gate::authorize('fulfillOngoing', $postItem);
+
+        abort_if($postItem->post->type !== PostType::Supply, 403);
+
+        $action->handle($postItem);
+
+        return back(fallback: route('farmer.dashboard'))
+            ->with('flash', ['type' => 'success', 'message' => 'Item marked as fulfilled.']);
+    }
+
+    public function expireItem(PostItem $postItem, ExpirePostItemAction $action): RedirectResponse
+    {
+        $postItem->load('post');
+        Gate::authorize('expireOngoing', $postItem);
+
+        abort_if($postItem->post->type !== PostType::Supply, 403);
+
+        $action->handle($postItem);
+
+        return back(fallback: route('farmer.dashboard'))
+            ->with('flash', ['type' => 'success', 'message' => 'Item marked as expired.']);
     }
 }
