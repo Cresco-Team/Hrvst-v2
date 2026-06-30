@@ -2,7 +2,7 @@
 
 namespace App\Actions\Post;
 
-use App\Enums\PostItemStatus;
+use App\Models\Marketplace\Post;
 use App\Models\Marketplace\PostItem;
 
 class ExpirePostItemsAction
@@ -12,11 +12,13 @@ class ExpirePostItemsAction
         $count = 0;
 
         PostItem::ongoing()
-            ->whereHas('post', fn ($q) => $q->where('scheduled_date', '<', today())
+            ->whereHas('post', fn ($q) => $q
+                ->where('scheduled_date', '<=', today()->subDays(Post::ACTION_WINDOW_DAYS))
                 ->whereNull('deleted_at')
             )
+            ->with('post')
             ->chunkById(200, function ($items) use (&$count) {
-                $items->toQuery()->update(['status' => PostItemStatus::Expired->value]);
+                $items->each(fn (PostItem $item) => $item->markAsExpired());
                 $count += $items->count();
             });
 
