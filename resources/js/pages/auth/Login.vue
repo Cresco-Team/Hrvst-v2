@@ -1,8 +1,10 @@
 <script setup lang="ts">
+import { ref } from 'vue'
 import { Form, Head } from '@inertiajs/vue3'
 import InputError from '@/components/InputError.vue'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp'
 import { Label } from '@/components/ui/label'
 import { Spinner } from '@/components/ui/spinner'
 import AuthBase from '@/layouts/AuthLayout.vue'
@@ -11,6 +13,8 @@ import { store } from '@/routes/login'
 defineProps<{
   status?: string
 }>()
+
+const pin = ref('')
 </script>
 
 <template>
@@ -29,10 +33,12 @@ defineProps<{
 
     <Form
       v-bind="{ action: store.url(), method: 'post' }"
-      :reset-on-success="['password']"
+      @error="pin = ''"
       v-slot="{ errors, processing }"
       class="flex flex-col gap-6"
     >
+      <input type="hidden" name="password" :value="pin" />
+
       <div class="grid gap-6">
         <div class="grid gap-2">
           <Label for="phone_number">Phone Number</Label>
@@ -50,18 +56,20 @@ defineProps<{
         </div>
 
         <div class="grid gap-2">
-          <Label for="password">PIN</Label>
-          <Input
-            id="password"
-            type="password"
-            name="password"
-            required
-            :tabindex="2"
-            autocomplete="current-password"
-            placeholder="••••"
-            inputmode="numeric"
-            maxlength="4"
-          />
+          <Label for="pin">PIN</Label>
+          <div class="flex justify-center">
+            <InputOTP
+              id="pin"
+              v-model="pin"
+              :maxlength="6"
+              :disabled="processing"
+              :tabindex="2"
+            >
+              <InputOTPGroup>
+                <InputOTPSlot v-for="index in 6" :key="index" :index="index - 1" />
+              </InputOTPGroup>
+            </InputOTP>
+          </div>
           <InputError :message="errors.password" />
         </div>
 

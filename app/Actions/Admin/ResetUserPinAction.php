@@ -12,7 +12,7 @@ final class ResetUserPinAction
      */
     public function handle(User $user): string
     {
-        $plainPin = str_pad((string) random_int(0, 9999), 4, '0', STR_PAD_LEFT);
+        $plainPin = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
 
         $user->update([
             'password' => $plainPin,
