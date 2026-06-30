@@ -9,7 +9,7 @@ class ExpirePostItemsCommand extends Command
 {
     protected $signature = 'post-items:expire';
 
-    protected $description = 'Expire ongoing post items past their scheduled date';
+    protected $description = 'Backstop sweep: force-expire ongoing post items whose action window lapsed but were never displayed';
 
     public function handle(ExpirePostItemsAction $expirePostItems): int
     {
