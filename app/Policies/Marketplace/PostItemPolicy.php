@@ -25,7 +25,7 @@ class PostItemPolicy
             && $postItem->status === PostItemStatus::Ongoing;
     }
 
-    public function archive(User $user, PostItem $postItem): bool
+    public function expire(User $user, PostItem $postItem): bool
     {
         return $user->id === $postItem->post->user_id
             && $postItem->status === PostItemStatus::Ongoing;
