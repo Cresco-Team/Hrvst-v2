@@ -15,6 +15,7 @@ use App\Policies\Marketplace\PostItemPolicy;
 use App\Policies\Marketplace\PostPolicy;
 use App\Policies\Profiles\DealerPolicy;
 use App\Policies\Profiles\FarmerPolicy;
+use App\Policies\VarietyPolicy;
 use App\Policies\VegetablePolicy;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Model;
@@ -45,6 +46,7 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(FarmerProfile::class, FarmerPolicy::class);
         Gate::policy(DealerProfile::class, DealerPolicy::class);
         Gate::policy(Vegetable::class, VegetablePolicy::class);
+        Gate::policy(Variety::class, VarietyPolicy::class);
         Gate::policy(Post::class, PostPolicy::class);
         Gate::policy(PostItem::class, PostItemPolicy::class);
 

@@ -3,10 +3,9 @@
 namespace App\Services\Dealer;
 
 use App\DTOs\Dealer\DealerDashboardRecommendationDTO;
-use App\Enums\PostItemStatus;
+use App\Enums\Analytics\RecommendationSeverity;
 use App\Models\Marketplace\Post;
 use App\Models\Marketplace\PostItem;
-use App\Models\Profiles\DealerProfile;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 
@@ -44,7 +43,7 @@ class DealerDashboardService
 
         if ($ongoing === 0) {
             $recs[] = new DealerDashboardRecommendationDTO(
-                severity: 'info',
+                severity: RecommendationSeverity::Info,
                 type: 'no_active_supply',
                 title: 'No Active Supply',
                 body: 'You have no scheduled requests. Schedule a new request to get started.',
@@ -53,7 +52,7 @@ class DealerDashboardService
 
         if ($expired > 0) {
             $recs[] = new DealerDashboardRecommendationDTO(
-                severity: 'warning',
+                severity: RecommendationSeverity::Warning,
                 type: 'expired_items',
                 title: 'expired Items',
                 body: "{$expired} request item(s) expired without being fulfilled. Review your pricing or delivery timing.",

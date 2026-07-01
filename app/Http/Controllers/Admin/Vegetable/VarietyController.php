@@ -10,11 +10,11 @@ use App\Enums\Analytics\VarietyViewerRole;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Product\StoreVarietyRequest;
 use App\Http\Requests\Admin\Product\UpdateVarietyRequest;
-use App\Http\Resources\Product\VarietyDetailResource;
 use App\Models\Product\Variety;
 use App\Services\Product\VarietyService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -55,6 +55,8 @@ class VarietyController extends Controller
 
     public function store(StoreVarietyRequest $request, CreateVarietyAction $createVariety): RedirectResponse
     {
+        Gate::authorize('create', Variety::class);
+
         $createVariety->handle(validated: $request->validated());
 
         return redirect()->back()
@@ -63,6 +65,8 @@ class VarietyController extends Controller
 
     public function update(UpdateVarietyRequest $request, Variety $variety, UpdateVarietyAction $updateVariety): RedirectResponse
     {
+        Gate::authorize('update', $variety);
+
         $updateVariety->handle(
             variety: $variety,
             validated: $request->validated(),
@@ -74,6 +78,8 @@ class VarietyController extends Controller
 
     public function destroy(Variety $variety, DeleteVarietyAction $deleteVariety): RedirectResponse
     {
+        Gate::authorize('delete', $variety);
+
         $deleteVariety->handle($variety);
 
         return redirect()->back()
