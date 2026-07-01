@@ -9,6 +9,8 @@ import { Label } from '@/components/ui/label'
 import { Spinner } from '@/components/ui/spinner'
 import AuthBase from '@/layouts/AuthLayout.vue'
 import { store } from '@/routes/login'
+import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group'
+import { Phone } from '@lucide/vue'
 
 defineProps<{
   status?: string
@@ -42,16 +44,21 @@ const pin = ref('')
       <div class="grid gap-6">
         <div class="grid gap-2">
           <Label for="phone_number">Phone Number</Label>
-          <Input
-            id="phone_number"
-            type="tel"
-            name="phone_number"
-            required
-            autofocus
-            :tabindex="1"
-            autocomplete="tel"
-            placeholder="09171234567"
-          />
+          <InputGroup>
+            <InputGroupInput
+              id="phone_number"
+              type="tel"
+              name="phone_number"
+              required
+              autofocus
+              :tabindex="1"
+              autocomplete="tel"
+              placeholder="09*********"
+            />
+            <InputGroupAddon>
+              <Phone />
+            </InputGroupAddon>
+          </InputGroup>
           <InputError :message="errors.phone_number" />
         </div>
 

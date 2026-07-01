@@ -9,23 +9,6 @@ use Illuminate\Support\Facades\DB;
 
 class PostItemObserver
 {
-    public function retrieved(PostItem $postItem): void
-    {
-        if ($postItem->status !== PostItemStatus::Ongoing) {
-            return;
-        }
-
-        if (! $postItem->relationLoaded('post')) {
-            return;
-        }
-
-        if (! $postItem->post->isPastActionWindow()) {
-            return;
-        }
-
-        $postItem->markAsExpired();
-    }
-
     public function updated(PostItem $postItem): void
     {
         if (! $postItem->wasChanged('status')) {
