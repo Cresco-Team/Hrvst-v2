@@ -3,6 +3,7 @@
 namespace App\Services\Farmer;
 
 use App\DTOs\Farmer\FarmerDashboardRecommendationDTO;
+use App\Enums\Analytics\RecommendationSeverity;
 use App\Models\Marketplace\Post;
 use App\Models\Marketplace\PostItem;
 use Illuminate\Database\Eloquent\Builder;
@@ -40,7 +41,7 @@ class FarmerDashboardService
 
         if ($ongoing === 0) {
             $recs[] = new FarmerDashboardRecommendationDTO(
-                severity: 'info',
+                severity: RecommendationSeverity::Info,
                 type: 'no_active_supply',
                 title: 'No Active Supply',
                 body: 'You have no scheduled supplies. Post a new supply to get started.',
@@ -49,7 +50,7 @@ class FarmerDashboardService
 
         if ($expired > 0) {
             $recs[] = new FarmerDashboardRecommendationDTO(
-                severity: 'warning',
+                severity: RecommendationSeverity::Warning,
                 type: 'expired_items',
                 title: 'expired Items',
                 body: "{$expired} supply item(s) expired without being fulfilled. Review your pricing or delivery timing.",
