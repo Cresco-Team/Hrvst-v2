@@ -21,7 +21,7 @@ class TestUsersSeeder extends Seeder
                 'name' => 'Farmer Jane',
                 'phone_number' => '09123456789',
                 'email_verified_at' => now(),
-                'password' => '0000',
+                'password' => '000000',
             ]
         );
 
@@ -47,7 +47,7 @@ class TestUsersSeeder extends Seeder
                 'name' => 'Dealer John',
                 'phone_number' => '09171234567',
                 'email_verified_at' => now(),
-                'password' => '0000',
+                'password' => '000000',
             ]
         );
 
