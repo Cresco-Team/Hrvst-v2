@@ -8,7 +8,6 @@ use App\Data\Vegetable\VegetableAdminData;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Vegetable\StoreVegetableRequest;
 use App\Http\Requests\Vegetable\UpdateVegetableRequest;
-use App\Http\Resources\Product\VegetableAdminResource;
 use App\Models\Product\Category;
 use App\Models\Product\Vegetable;
 use App\Services\Product\VegetableService;
