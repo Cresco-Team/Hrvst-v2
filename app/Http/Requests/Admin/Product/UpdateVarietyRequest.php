@@ -3,12 +3,13 @@
 namespace App\Http\Requests\Admin\Product;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
 
 class UpdateVarietyRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return Auth::user()->hasRole('admin');
     }
 
     public function rules(): array
