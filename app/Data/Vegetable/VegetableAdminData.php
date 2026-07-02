@@ -6,7 +6,6 @@ use App\Data\Category\CategoryData;
 use App\Data\Concerns\ResolvesCounts;
 use App\Models\Product\Vegetable;
 use Spatie\LaravelData\Data;
-use Spatie\LaravelData\DataCollection;
 use Spatie\LaravelData\Lazy;
 use Spatie\LaravelData\Optional;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
@@ -18,32 +17,30 @@ class VegetableAdminData extends Data
 
     public function __construct(
         public int $id,
+        public string $vegetable_name,
+        public ?string $variety_name,
+        public ?string $local_name,
         public string $name,
-        public bool $is_variety,
         public string $image_url,
-        public int|Optional $varieties_count,
         public CategoryData|Lazy $category,
-        /** @var DataCollection<int, VarietyAdminRowData>|Lazy */
-        public DataCollection|Lazy $varieties,
-    ) {
-        $this->is_variety = false;
-    }
+        public int|Optional $supply_count,
+        public int|Optional $demand_count,
+    ) {}
 
     public static function fromModel(Vegetable $vegetable): self
     {
         return new self(
             id: $vegetable->id,
-            name: $vegetable->name,
-            is_variety: false,
+            vegetable_name: $vegetable->vegetable_name,
+            variety_name: $vegetable->variety_name,
+            local_name: $vegetable->local_name,
+            name: $vegetable->variety_name
+                ? "{$vegetable->vegetable_name}: {$vegetable->variety_name}"
+                : $vegetable->vegetable_name,
             image_url: $vegetable->getFirstMediaUrl('vegetable_image'),
-            varieties_count: self::resolveCount($vegetable, 'varieties_count'),
             category: Lazy::whenLoaded('category', $vegetable, fn () => CategoryData::fromModel($vegetable->category)),
-            varieties: Lazy::whenLoaded('varieties', $vegetable, fn () => VarietyAdminRowData::collect(
-                $vegetable->varieties->map(fn ($v) => new VarietyAdminRowData(
-                    $v->id, $v->name, true, $v->supply_count, $v->demand_count
-                )),
-                DataCollection::class
-            )),
+            supply_count: self::resolveCount($vegetable, 'supply_count'),
+            demand_count: self::resolveCount($vegetable, 'demand_count'),
         );
     }
 }

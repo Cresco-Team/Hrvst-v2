@@ -48,7 +48,7 @@ class VegetableController extends Controller
                 $this->vegetableService->paginated(
                     search: $request->query('search'),
                     categoryId: $category?->id,
-                )->paginate(3)->withQueryString(),
+                )->paginate(20)->withQueryString(),
             )),
             'summary' => Inertia::defer(fn () => $this->vegetableService->summary()),
             'filters' => ['search' => $request->query('search', null)],
