@@ -8,7 +8,6 @@ import {
     Mail,
     Phone,
     Trash,
-    Wheat,
 } from 'lucide-vue-next'
 import { ref, watch } from 'vue'
 import {
@@ -42,7 +41,6 @@ import { Separator } from '@/components/ui/separator'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useInitials } from '@/composables/useInitials'
 import type { DealerResource, FlashMessage } from '@/types'
-import { Empty, EmptyHeader } from '@/components/ui/empty'
 import EmptyState from '@/components/EmptyState.vue'
 
 const props = defineProps<{
@@ -175,11 +173,12 @@ const handleDelete = () => {
 
                 <ItemGroup v-if="dealer.demands?.length">
                     <template v-for="(item, index) in dealer.demands" :key="item.id">
-                        <ItemSeparator v-if="index !== item.length - 1" />
+                        <ItemSeparator v-if="index !== dealer.demands!.length - 1" />
                         <Item size="sm">
                             <ItemMedia variant="image">
                                 <Avatar>
                                     <AvatarImage
+                                        v-if="item.vegetable_image_url"
                                         :src="item.vegetable_image_url"
                                         :alt="item.vegetable_name"
                                     />
