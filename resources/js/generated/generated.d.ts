@@ -2,7 +2,7 @@ declare namespace App {
 namespace DTOs {
 namespace Dealer {
 export type DealerDashboardRecommendationDTO = {
-readonly severity: string,
+readonly severity: App.Enums.Analytics.RecommendationSeverity,
 readonly type: string,
 readonly title: string,
 readonly body: string,
@@ -10,22 +10,13 @@ readonly body: string,
 }
 namespace Farmer {
 export type FarmerDashboardRecommendationDTO = {
-readonly severity: string,
+readonly severity: App.Enums.Analytics.RecommendationSeverity,
 readonly type: string,
 readonly title: string,
 readonly body: string,
 };
 }
 namespace Product {
-export type VarietyAnalyticsDTO = {
-readonly supply_demand_ratio: number,
-readonly imbalance_band: App.Enums.Analytics.ImbalanceBand,
-readonly supply_fulfillment_rate: number | null,
-readonly demand_fulfillment_rate: number | null,
-readonly supply_volume_mom_pct: number | null,
-readonly demand_volume_mom_pct: number | null,
-readonly recommendations: App.DTOs.Product.VarietyRecommendationDTO[],
-};
 export type VarietyRecommendationDTO = {
 readonly severity: App.Enums.Analytics.RecommendationSeverity,
 readonly type: string,
@@ -107,10 +98,8 @@ image_url: string,
 name: string,
 post_id: number,
 status: App.Enums.PostItemStatus,
-variety: App.Data.Variety.VarietyData | undefined,
-variety_id: number,
-variety_name: string,
 vegetable_id: number,
+variety_name: string,
 vegetable_name: string,
 category_name: string,
 quantity_kg: number,
@@ -123,7 +112,7 @@ created_at_human: string,
 };
 export type PostItemLightData = {
 id: number,
-variety_id: number,
+vegetable_id: number,
 variety_name: string | null,
 vegetable_name: string | null,
 vegetable_image_url: string | null,
@@ -167,56 +156,17 @@ phone_number: string,
 avatar_url: string,
 };
 }
-namespace Variety {
-export type VarietyData = {
-id: number,
-name: string,
-vegetable: App.Data.Vegetable.VegetableData | undefined,
-supply_count: undefined | number,
-demand_count: undefined | number,
-};
-export type VarietyDetailData = {
-id: number,
-name: string,
-vegetable_id: number,
-vegetable_name: string,
-category_id: number,
-category_name: string,
-category_image_url: string,
-supply_count: number,
-demand_count: number,
-supply_municipalities: Array<any>,
-monthly_activity: Array<any>,
-variety_calendar: Array<any>,
-analytics: Array<any> | null,
-};
-export type VarietyLightData = {
-id: number,
-name: string,
-};
-}
 namespace Vegetable {
-export type VarietyAdminRowData = {
-id: number,
-name: string,
-is_variety: boolean,
-supply_count: number,
-demand_count: number,
-};
-export type VarietyCountData = {
-id: number,
-name: string,
-supply_count: number,
-demand_count: number,
-};
 export type VegetableAdminData = {
 id: number,
+vegetable_name: string,
+variety_name: string | null,
+local_name: string | null,
 name: string,
-is_variety: boolean,
 image_url: string,
-varieties_count: undefined | number,
 category: App.Data.Category.CategoryData | undefined,
-varieties: undefined<number, App.Data.Vegetable.VarietyAdminRowData> | undefined,
+supply_count: undefined | number,
+demand_count: undefined | number,
 };
 export type VegetableData = {
 id: number,
@@ -224,7 +174,21 @@ name: string,
 image_url: string,
 varieties_count: undefined | number,
 category: App.Data.Category.CategoryData | undefined,
-varieties: undefined<number, App.Data.Variety.VarietyData> | undefined,
+varieties: undefined<number, unknown> | undefined,
+};
+export type VegetableDetailData = {
+id: number,
+name: string,
+vegetable_id: number,
+vegetable_name: string,
+category_id: number,
+category_name: string,
+supply_count: number,
+demand_count: number,
+supply_municipalities: Array<any>,
+monthly_activity: Array<any>,
+variety_calendar: Array<any>,
+analytics: Array<any> | null,
 };
 export type VegetableLightData = {
 id: number,
@@ -234,11 +198,14 @@ image_url: string | null,
 };
 export type VegetableSharedData = {
 id: number,
+vegetable_name: string,
+variety_name: string | null,
+local_name: string | null,
 name: string,
 image_url: string,
-varieties_count: undefined | number,
 category: App.Data.Category.CategoryData | undefined,
-varieties: undefined<number, App.Data.Vegetable.VarietyCountData> | undefined,
+supply_count: undefined | number,
+demand_count: undefined | number,
 };
 }
 }
