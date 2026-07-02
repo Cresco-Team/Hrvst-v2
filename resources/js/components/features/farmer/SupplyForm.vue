@@ -55,10 +55,10 @@ import {
 } from '@/components/ui/table'
 import { Skeleton } from '@/components/ui/skeleton'
 import {
-    useVarietyAvailability,
+    useVegetableAvailability,
     netKgClass,
     formatNetKg,
-} from '@/composables/useVarietyAvailability'
+} from '@/composables/useVegetableAvailability'
 
 interface Props {
     open: boolean
@@ -87,7 +87,7 @@ const form = useForm({
     }>,
 })
 
-const { getState, getData } = useVarietyAvailability(
+const { getState, getData } = useVegetableAvailability(
     () => form.scheduled_date,
     () => form.time_slot,
     () => form.items.map((i) => i.variety_id),

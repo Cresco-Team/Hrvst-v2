@@ -44,10 +44,10 @@ import {
 } from '@/components/ui/table'
 import { Skeleton } from '@/components/ui/skeleton'
 import {
-    useVarietyAvailability,
+    useVegetableAvailability,
     netKgClass,
     formatNetKg,
-} from '@/composables/useVarietyAvailability'
+} from '@/composables/useVegetableAvailability'
 import type {
     DealerDemandDataFixed,
     PostTimeSlot,
@@ -96,7 +96,7 @@ const form = useForm<{
 
 const isEditMode = computed(() => !!props.demand)
 
-const { getState, getData } = useVarietyAvailability(
+const { getState, getData } = useVegetableAvailability(
     () => form.scheduled_date,
     () => form.time_slot,
     () => form.items.map((i) => i.variety_id),
