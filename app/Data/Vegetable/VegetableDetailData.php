@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Data\Variety;
+namespace App\Data\Vegetable;
 
-use App\Models\Product\Variety;
+use App\Models\Product\Vegetable;
 use Spatie\LaravelData\Data;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
 #[TypeScript]
-class VarietyDetailData extends Data
+class VegetableDetailData extends Data
 {
     public function __construct(
         public int $id,
@@ -24,24 +24,23 @@ class VarietyDetailData extends Data
         public ?array $analytics,
     ) {}
 
-    public static function fromModel(Variety $variety): self
+    public static function fromModel(Vegetable $vegetable): self
     {
-        $vegetable = $variety->vegetable;
         $category = $vegetable->category;
 
         return new self(
-            id: $variety->id,
-            name: $variety->name,
+            id: $vegetable->id,
+            name: $vegetable->variety_name ?? $vegetable->vegetable_name,
             vegetable_id: $vegetable->id,
-            vegetable_name: $vegetable->name,
+            vegetable_name: $vegetable->vegetable_name,
             category_id: $category->id,
             category_name: $category->name,
-            supply_count: $variety->supply_count,
-            demand_count: $variety->demand_count,
-            supply_municipalities: $variety->supply_municipalities,
-            monthly_activity: $variety->monthly_activity,
-            variety_calendar: $variety->variety_calendar,
-            analytics: $variety->analytics?->toArray(),
+            supply_count: $vegetable->supply_count,
+            demand_count: $vegetable->demand_count,
+            supply_municipalities: $vegetable->supply_municipalities,
+            monthly_activity: $vegetable->monthly_activity,
+            variety_calendar: $vegetable->variety_calendar,
+            analytics: $vegetable->analytics?->toArray(),
         );
     }
 }
