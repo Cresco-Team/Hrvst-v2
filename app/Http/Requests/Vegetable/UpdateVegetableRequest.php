@@ -17,15 +17,22 @@ class UpdateVegetableRequest extends FormRequest
     {
         return [
             'category_id' => ['required', 'integer', 'exists:categories,id'],
-            'vegetable_name' => [ 'required', 'string', 'max:255'],
-            'variety_name' => [
-                'nullable', 
-                'string', 
+            'vegetable_name' => [
+                'required',
+                'string',
                 'max:255',
-                Rule::unique('vegetables', 'variety_name')->where(function ($query) {
-                    return $query->where('vegetable_name', $this->vegetable_name);
-                })
+                Rule::unique('vegetables')
+                    ->ignore($this->route('vegetable'))
+                    ->where(function ($query) {
+                        $query->where('category_id', $this->integer('category_id'))
+                            ->where('vegetable_name', $this->input('vegetable_name'));
+
+                        $this->filled('variety_name')
+                            ? $query->where('variety_name', $this->input('variety_name'))
+                            : $query->whereNull('variety_name');
+                    }),
             ],
+            'variety_name' => ['nullable', 'string', 'max:255'],
             'local_name' => ['nullable', 'string', 'max:255'],
             'image' => ['nullable', 'image', 'mimes:jpeg,jpg,png,webp', 'max:5120'],
         ];
