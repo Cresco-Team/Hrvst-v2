@@ -8,17 +8,13 @@ import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import ImageUpload from '@/components/forms/ImageUpload.vue'
-import {
-    Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from '@/components/ui/select'
-import type { CategoryOption } from '@/types'
 import type { VegetableTableRow } from '@/types/resources/product'
 
 const props = defineProps<{
     open: boolean
     vegetable: VegetableTableRow | null
-    categories: CategoryOption[]
-    defaultCategoryId?: number | string
+    categoryId: number
+    categoryName: string
 }>()
 
 const emit = defineEmits<{
@@ -40,9 +36,9 @@ watch(
     () => props.open,
     (isOpen) => {
         if (!isOpen) return
-        form.category_id = String(
-            props.vegetable?.category?.id ?? props.defaultCategoryId ?? '',
-        )
+        // Category is contextual, inherited from the page route
+        // (admin/categories -> admin/vegetables?category=X). Never editable here.
+        form.category_id = String(props.categoryId)
         form.vegetable_name = props.vegetable?.vegetable_name ?? ''
         form.variety_name = props.vegetable?.variety_name ?? ''
         form.local_name = props.vegetable?.local_name ?? ''
@@ -74,7 +70,7 @@ function handleSubmit(): void {
         :title="isEditMode() ? 'Edit Vegetable' : 'Add Vegetable'"
         :description="isEditMode()
             ? 'Update the vegetable, variety, or image.'
-            : 'Create a vegetable. Leave variety blank for a generic entry.'"
+            : `Create a vegetable under ${categoryName}. Leave variety blank for a generic entry.`"
         :submit-label="isEditMode() ? 'Save Changes' : 'Create Vegetable'"
         max-width="md"
         @update:open="emit('update:open', $event)"
@@ -87,23 +83,11 @@ function handleSubmit(): void {
         <template #default>
             <div class="flex flex-col gap-4">
                 <div class="flex flex-col gap-2">
-                    <Label for="veg-category">
-                        Category
-                        <Badge variant="secondary" class="text-xs font-normal">Required</Badge>
-                    </Label>
-                    <Select v-model="form.category_id">
-                        <SelectTrigger id="veg-category" :class="{ 'border-destructive': form.errors.category_id }">
-                            <SelectValue placeholder="Select category" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem v-for="c in categories" :key="c.id" :value="String(c.id)">
-                                {{ c.name }}
-                            </SelectItem>
-                        </SelectContent>
-                    </Select>
-                    <p v-if="form.errors.category_id" class="text-xs text-destructive">
-                        {{ form.errors.category_id }}
-                    </p>
+                    <Label>Category</Label>
+                    <div class="flex h-9 items-center rounded-md border border-input bg-muted/50 px-3 text-sm text-muted-foreground">
+                        {{ categoryName }}
+                    </div>
+                    <p class="text-xs text-muted-foreground">Set by the category you're currently browsing.</p>
                 </div>
 
                 <div class="flex flex-col gap-2">
