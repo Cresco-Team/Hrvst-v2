@@ -22,7 +22,7 @@ const props = defineProps<{
 const emit = defineEmits<{ 'update:open': [value: boolean] }>()
 
 const form = useForm({
-    variety_id: 0,
+    vegetable_id: 0,
     quantity_kg: '',
 })
 
@@ -30,7 +30,7 @@ watch(
     () => props.item,
     (item) => {
         if (!item) return
-        form.variety_id = item.variety_id
+        form.vegetable_id = item.vegetable_id
         form.quantity_kg = String(item.quantity_kg)
     },
     { immediate: true },
