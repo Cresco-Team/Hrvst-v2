@@ -2,9 +2,7 @@
 import { Deferred, Head, router } from '@inertiajs/vue3'
 import { computed, ref } from 'vue'
 import ConfirmationDialog from '@/components/dialogs/ConfirmationDialog.vue'
-import VarietyForm from '@/components/features/admin/forms/VarietyForm.vue'
-import CreateVegetable from '@/components/features/admin/forms/CreateVegetable.vue'
-import UpdateVegetable from '@/components/features/admin/forms/UpdateVegetable.vue'
+import VegetableForm from '@/components/features/admin/forms/VegetableForm.vue'
 import VegetableTable from '@/components/features/admin/tables/VegetableTable.vue'
 import Heading from '@/components/Heading.vue'
 import { Button } from '@/components/ui/button'
@@ -12,15 +10,8 @@ import { Skeleton } from '@/components/ui/skeleton'
 import AppLayout from '@/layouts/AppLayout.vue'
 import admin, { dashboard } from '@/routes/admin'
 import { destroy as destroyVeg, index } from '@/routes/admin/vegetables'
-import type {
-    AdminVegetablesProps,
-    BreadcrumbItem,
-    VarietyResource,
-} from '@/types'
-import {
-    mapVegetablesToTableRows,
-    type VarietyTableRow,
-} from '@/types/resources/product'
+import type { AdminVegetablesProps, BreadcrumbItem } from '@/types'
+import { mapVegetablesToTableRows, type VegetableTableRow } from '@/types/resources/product'
 import SmallCard from '@/components/shared/cards/SmallCard.vue'
 
 const props = defineProps<AdminVegetablesProps>()
@@ -29,117 +20,50 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => [
     { title: 'Admin', href: dashboard().url },
     { title: 'Vegetables', href: admin.categories.index().url },
     ...(props.category
-        ? [
-              {
-                  title: props.category.name,
-                  href: index({ query: { category: props.category.slug } }).url,
-              },
-          ]
+        ? [{ title: props.category.name, href: index({ query: { category: props.category.slug } }).url }]
         : [{ title: 'All Varieties', href: index().url }]),
 ])
 
 const searchQuery = ref(props.filters?.search ?? '')
-const tableVegetables = computed(() =>
-    mapVegetablesToTableRows(props.vegetables.data ?? []),
-)
+const tableVegetables = computed(() => mapVegetablesToTableRows(props.vegetables.data ?? []))
 
-// ── Variety CRUD ───────────────────────────────────────────────────────────────
+// ── Vegetable CRUD — one form handles create/edit, with or without a variety ──
 
-const varietyFormOpen = ref(false)
-const varietyDeleteOpen = ref(false)
-const activeVariety = ref<VarietyResource | null>(null)
-const activeParentVegetable = ref<{ id: number; name: string } | null>(null)
-const varietyDeleteTarget = ref<VarietyTableRow | null>(null)
+const formOpen = ref(false)
+const editTarget = ref<VegetableTableRow | null>(null)
+const deleteOpen = ref(false)
+const deleteTarget = ref<VegetableTableRow | null>(null)
 
-function openCreateVariety(parentRow: VarietyTableRow): void {
-    activeVariety.value = null
-    activeParentVegetable.value = { id: parentRow.id, name: parentRow.name }
-    varietyFormOpen.value = true
+function openCreate(): void {
+    editTarget.value = null
+    formOpen.value = true
 }
 
-function openEditVariety(row: VarietyTableRow): void {
-    const parentVeg = tableVegetables.value.find(
-        (v) => v.id === row.vegetable_id,
-    )
-    activeParentVegetable.value = parentVeg
-        ? { id: parentVeg.id, name: parentVeg.name }
-        : null
-    activeVariety.value = {
-        id: row.id,
-        name: row.name,
-        image_url: row.image_url ?? '',
-        vegetable: {
-            id: row.vegetable_id ?? 0,
-            name: activeParentVegetable.value?.name ?? '',
-            category: null,
-        },
-    } as unknown as VarietyResource
-    varietyFormOpen.value = true
+function openEdit(row: VegetableTableRow): void {
+    editTarget.value = row
+    formOpen.value = true
 }
 
-function openDeleteVariety(row: VarietyTableRow): void {
-    varietyDeleteTarget.value = row
-    varietyDeleteOpen.value = true
+function openDelete(row: VegetableTableRow): void {
+    deleteTarget.value = row
+    deleteOpen.value = true
 }
 
-function handleDeleteVariety(): void {
-    if (!varietyDeleteTarget.value) return
-    router.delete(
-        admin.vegetables.varieties.destroy({
-            variety: varietyDeleteTarget.value.id,
-        }).url,
-        {
-            preserveScroll: true,
-            onSuccess: () => {
-                varietyDeleteOpen.value = false
-                varietyDeleteTarget.value = null
-            },
-        },
-    )
-}
-
-// ── Vegetable CRUD ─────────────────────────────────────────────────────────────
-
-const vegCreateOpen = ref(false)
-const vegUpdateOpen = ref(false)
-const vegDeleteOpen = ref(false)
-const vegEditTarget = ref<VarietyTableRow | null>(null)
-const vegDeleteTarget = ref<VarietyTableRow | null>(null)
-
-function openCreateVegetable(): void {
-    vegCreateOpen.value = true
-}
-
-function openEditVegetable(row: VarietyTableRow): void {
-    vegEditTarget.value = row
-    vegUpdateOpen.value = true
-}
-
-function openDeleteVegetable(row: VarietyTableRow): void {
-    vegDeleteTarget.value = row
-    vegDeleteOpen.value = true
-}
-
-function handleDeleteVegetable(): void {
-    if (!vegDeleteTarget.value) return
-    router.delete(destroyVeg(vegDeleteTarget.value.id).url, {
+function handleDelete(): void {
+    if (!deleteTarget.value) return
+    router.delete(destroyVeg(deleteTarget.value.id).url, {
         preserveScroll: true,
         onSuccess: () => {
-            vegDeleteOpen.value = false
-            vegDeleteTarget.value = null
+            deleteOpen.value = false
+            deleteTarget.value = null
         },
     })
 }
 
-// ── Filtering ─────────────────────────────────────────────────────────────────
-
 function handleSearch(query: string): void {
     searchQuery.value = query
     router.visit(index().url, {
-        data: {
-            search: query || undefined,
-            category: props.category?.slug ?? undefined,
-        },
+        data: { search: query || undefined, category: props.category?.slug ?? undefined },
         preserveState: true,
         preserveScroll: true,
         only: ['vegetables', 'filters'],
@@ -155,16 +79,13 @@ function handleSearch(query: string): void {
             <div class="flex items-end justify-between">
                 <Heading
                     title="Vegetables"
-                    :description="
-                        category
-                            ? `Lists of Varieties for ${category.name}`
-                            : 'Manage all vegetable types and their varieties.'
-                    "
+                    :description="category
+                        ? `Vegetables and varieties for ${category.name}`
+                        : 'Manage all vegetable and variety entries.'"
                 />
-                <Button @click="openCreateVegetable">Add Vegetable</Button>
+                <Button @click="openCreate">Add Vegetable</Button>
             </div>
 
-            <!-- Summary cards -->
             <Deferred data="summary">
                 <template #fallback>
                     <div class="grid gap-4 md:grid-cols-2">
@@ -172,31 +93,18 @@ function handleSearch(query: string): void {
                     </div>
                 </template>
                 <div class="grid gap-4 md:grid-cols-2">
-                    <SmallCard
-                        title="Vegetable Varieties"
-                        subtext="total"
-                        :value="summary?.total_vegetables"
-                    />
-                    <SmallCard
-                        title="Active Varieties"
-                        subtext="with supply or demand"
-                        :value="summary?.total_varieties"
-                    />
+                    <SmallCard title="Vegetables" subtext="distinct names" :value="summary?.total_vegetables" />
+                    <SmallCard title="Varieties" subtext="rows with a named variety" :value="summary?.total_varieties" />
                 </div>
             </Deferred>
 
-            <!-- Hierarchical table -->
             <Deferred data="vegetables">
                 <template #fallback>
                     <div class="flex flex-col gap-3">
                         <Skeleton class="h-9 w-72" />
                         <div class="rounded-lg border">
                             <div class="space-y-2 p-4">
-                                <Skeleton
-                                    v-for="i in 6"
-                                    :key="i"
-                                    class="h-11 w-full"
-                                />
+                                <Skeleton v-for="i in 6" :key="i" class="h-11 w-full" />
                             </div>
                         </div>
                     </div>
@@ -206,77 +114,29 @@ function handleSearch(query: string): void {
                     v-if="vegetables"
                     :vegetables="tableVegetables"
                     :search-query="searchQuery"
-                    @open-edit-vegetable="openEditVegetable"
-                    @open-delete-vegetable="openDeleteVegetable"
-                    @open-create-variety="openCreateVariety"
-                    @open-edit-variety="openEditVariety"
-                    @open-delete-variety="openDeleteVariety"
-                    @open-variety-details="
-                        (row) =>
-                            router.visit(
-                                admin.vegetables.varieties.show({
-                                    variety: row.id,
-                                }).url,
-                            )
-                    "
+                    @open-edit-vegetable="openEdit"
+                    @open-delete-vegetable="openDelete"
+                    @open-vegetable-details="(row) => router.visit(admin.vegetables.show({ vegetable: row.id }).url)"
                     @search="handleSearch"
                 />
             </Deferred>
         </div>
     </AppLayout>
 
-    <!-- Variety forms -->
-    <VarietyForm
-        :open="varietyFormOpen"
-        :variety="activeVariety"
-        :parent-vegetable="activeParentVegetable"
-        @update:open="varietyFormOpen = $event"
-        @success="varietyFormOpen = false"
+    <VegetableForm
+        :open="formOpen"
+        :vegetable="editTarget"
+        :category-id="category.id"
+        :category-name="category.name"
+        @update:open="formOpen = $event"
+        @success="formOpen = false"
     />
 
     <ConfirmationDialog
-        v-model:open="varietyDeleteOpen"
-        title="Delete Variety"
-        :description="`Are you sure you want to delete '${varietyDeleteTarget?.name}'?`"
-        variant="destructive"
-        @action="handleDeleteVariety"
-    />
-
-    <!-- Vegetable forms -->
-    <CreateVegetable
-        :open="vegCreateOpen"
-        :category-id="category?.id"
-        @update:open="vegCreateOpen = $event"
-        @success="vegCreateOpen = false"
-    />
-
-    <UpdateVegetable
-        :open="vegUpdateOpen"
-        :vegetable="vegEditTarget"
-        @update:open="vegUpdateOpen = $event"
-        @success="vegUpdateOpen = false"
-    />
-
-    <ConfirmationDialog
-        v-model:open="vegDeleteOpen"
+        v-model:open="deleteOpen"
         title="Delete Vegetable"
-        :description="
-            (vegDeleteTarget?.varieties?.length ?? 0) > 0
-                ? `'${vegDeleteTarget?.name}' still has varieties. Remove them first.`
-                : `Are you sure you want to delete '${vegDeleteTarget?.name}'?`
-        "
-        :action-name="
-            (vegDeleteTarget?.varieties?.length ?? 0) > 0 ? 'OK' : 'Delete'
-        "
-        :variant="
-            (vegDeleteTarget?.varieties?.length ?? 0) > 0
-                ? 'default'
-                : 'destructive'
-        "
-        @action="
-            (vegDeleteTarget?.varieties?.length ?? 0) > 0
-                ? (vegDeleteOpen = false)
-                : handleDeleteVegetable()
-        "
+        :description="`Are you sure you want to delete '${deleteTarget?.name}'? This cannot be undone.`"
+        variant="destructive"
+        @action="handleDelete"
     />
 </template>
