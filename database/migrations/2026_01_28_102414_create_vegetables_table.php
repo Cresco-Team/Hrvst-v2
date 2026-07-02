@@ -12,12 +12,14 @@ return new class extends Migration
             $table->id();
             $table->foreignId('category_id')->constrained();
 
-            $table->string('name');
-            
+            $table->string('vegetable_name');
+            $table->string('variety_name')->nullable();
+            $table->string('local_name')->nullable();
+
             $table->timestamps();
 
-            $table->index(['category_id', 'name']);
-            $table->unique(['category_id', 'name']);
+            $table->index(['category_id', 'vegetable_name']);
+            $table->unique(['category_id', 'vegetable_name', 'variety_name']);
         });
     }
 
