@@ -48,7 +48,7 @@ class DealerService
                 ->demand()
                 ->whereDate('scheduled_date', today())
                 ->with(['postItems' => fn ($q) => $q->ongoing()])
-                ->with(['postItems.variety.vegetable']),
+                ->with(['postItems.vegetable']),
         ]);
     }
 
@@ -57,7 +57,7 @@ class DealerService
         return $dealer->load([
             'user.media',
             'demandItems' => fn ($q) => $q
-                ->with(['variety.vegetable.category']),
+                ->with(['vegetable.category']),
         ]);
     }
 }

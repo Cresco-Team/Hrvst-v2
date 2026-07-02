@@ -5,12 +5,12 @@ namespace App\Services\Admin;
 use App\Models\Marketplace\Post;
 use App\Models\Profiles\DealerProfile;
 use App\Models\Profiles\FarmerProfile;
-use App\Services\Product\VarietyService;
+use App\Services\Product\VegetableDetailService;
 
 class DashboardService
 {
     public function __construct(
-        private VarietyService $varietyService,
+        private VegetableDetailService $vegetableService,
         private FarmerService $farmerService,
         private DealerService $dealerService,
     ) {}
@@ -68,7 +68,7 @@ class DashboardService
 
     private function getVarietyKPIs(): array
     {
-        $current = $this->varietyService->summary();
+        $current = $this->vegetableService->summary();
 
         return [
             'total_varieties' => [

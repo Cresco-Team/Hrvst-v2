@@ -3,7 +3,7 @@
 namespace App\Services\Admin;
 
 use App\Models\Address\Municipality;
-use App\Models\Product\Variety;
+use App\Models\Product\Vegetable;
 use App\Models\Profiles\FarmerProfile;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -26,19 +26,19 @@ class FarmerMapService
 
     public function getSupplyOptions(): array
     {
-        return Variety::query()
+        return Vegetable::query()
             ->whereHas('postItems', fn (Builder $q) => $q
                 ->ongoing()
                 ->whereHas('post', fn (Builder $q) => $q->supply())
             )
-            ->with('vegetable.category')
-            ->orderBy('name')
+            ->with('category')
+            ->orderBy('vegetable_name')
             ->get()
-            ->groupBy('vegetable.category.name')
-            ->map(fn ($varieties) => $varieties->map(fn ($variety) => [
-                'id' => $variety->id,
-                'name' => "{$variety->vegetable->name} {$variety->name}",
-                'category' => $variety->vegetable->category->name,
+            ->groupBy('category.name')
+            ->map(fn ($rows) => $rows->map(fn ($v) => [
+                'id' => $v->id,
+                'name' => $v->variety_name ? "{$v->vegetable_name} {$v->variety_name}" : $v->vegetable_name,
+                'category' => $v->category->name,
             ])->values()->toArray())
             ->toArray();
     }
@@ -56,11 +56,7 @@ class FarmerMapService
                 'barangay',
                 'posts' => fn ($q) => $q
                     ->supply()
-                    ->with([
-                        'postItems' => fn ($q) => $q
-                            ->ongoing()
-                            ->with('variety.vegetable'),
-                    ]),
+                    ->with(['postItems' => fn ($q) => $q->ongoing()->with('vegetable')]),
             ]);
 
         if ($municipalityId) {
@@ -103,11 +99,11 @@ class FarmerMapService
                     'barangay' => $farmer->barangay?->name,
                     'ongoing_supplies_count' => $ongoingItems->count(),
                     'supplies_summary' => $ongoingItems
-                        ->groupBy(fn ($item) => $item->variety->vegetable->name)
+                        ->groupBy(fn ($item) => $item->vegetable->vegetable_name)
                         ->map(fn ($items, string $vegetableName) => [
                             'vegetable' => $vegetableName,
                             'count' => $items->count(),
-                            'varieties' => $items->pluck('variety.name')->unique()->values()->toArray(),
+                            'varieties' => $items->pluck('vegetable.variety_name')->filter()->unique()->values()->toArray(),
                         ])
                         ->values()
                         ->toArray(),
