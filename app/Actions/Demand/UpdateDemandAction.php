@@ -24,7 +24,7 @@ final class UpdateDemandAction
                 foreach ($validated['items'] as $item) {
                     PostItem::create([
                         'post_id' => $post->id,
-                        'variety_id' => $item['variety_id'],
+                        'vegetable_id' => $item['vegetable_id'],
                         'quantity_kg' => $item['quantity_kg'],
                         'status' => PostItemStatus::Ongoing,
                     ]);
@@ -32,6 +32,6 @@ final class UpdateDemandAction
             }
         });
 
-        return $post->fresh(['postItems.variety.vegetable']);
+        return $post->fresh(['postItems.vegetable']);
     }
 }

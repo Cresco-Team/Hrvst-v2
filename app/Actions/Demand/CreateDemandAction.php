@@ -25,13 +25,13 @@ final class CreateDemandAction
             foreach ($validated['items'] as $item) {
                 PostItem::create([
                     'post_id' => $post->id,
-                    'variety_id' => $item['variety_id'],
+                    'vegetable_id' => $item['vegetable_id'],
                     'quantity_kg' => $item['quantity_kg'],
                     'status' => PostItemStatus::Ongoing,
                 ]);
             }
 
-            return $post->load(['postItems.variety.vegetable']);
+            return $post->load(['postItems.vegetable']);
         });
     }
 }
