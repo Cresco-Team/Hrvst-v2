@@ -7,7 +7,7 @@ use App\Enums\PostTimeSlot;
 use App\Enums\PostType;
 use App\Models\Marketplace\Post;
 use App\Models\Marketplace\PostItem;
-use App\Models\Product\Variety;
+use App\Models\Product\Vegetable;
 use App\Models\Profiles\DealerProfile;
 use App\Models\Profiles\FarmerProfile;
 use Illuminate\Database\Eloquent\Collection;
@@ -17,9 +17,7 @@ use Illuminate\Support\Facades\DB;
 
 class PostSeeder extends Seeder
 {
-    private array $varietyIds = [];
-
-    private array $varietiesByVegetable = [];
+    private array $vegetableIds = [];
 
     private const CHUNK_SIZE = 500;
 
@@ -27,8 +25,8 @@ class PostSeeder extends Seeder
     {
         $this->loadLookups();
 
-        if (empty($this->varietyIds)) {
-            $this->command->warn('No varieties found. Run ProductSeeder first.');
+        if (empty($this->vegetableIds)) {
+            $this->command->warn('No vegetables found. Run ProductSeeder first.');
 
             return;
         }
@@ -60,8 +58,6 @@ class PostSeeder extends Seeder
         ));
     }
 
-    // ── Supply ────────────────────────────────────────────────────────────────
-
     private function seedSupplyPosts(Collection $farmers): void
     {
         $postRows = [];
@@ -89,8 +85,6 @@ class PostSeeder extends Seeder
 
         $this->bulkInsertWithItems($postRows);
     }
-
-    // ── Demand ────────────────────────────────────────────────────────────────
 
     private function seedDemandPosts(Collection $dealers): void
     {
@@ -120,8 +114,6 @@ class PostSeeder extends Seeder
         $this->bulkInsertWithItems($postRows);
     }
 
-    // ── Shared insert ─────────────────────────────────────────────────────────
-
     private function bulkInsertWithItems(array $postRows): void
     {
         if (empty($postRows)) {
@@ -141,15 +133,14 @@ class PostSeeder extends Seeder
             $isPast = Carbon::parse($post->scheduled_date)->isPast();
             $isSupply = $post->type === PostType::Supply;
 
-            // Supply: 3–8 items | Demand: 2–6 items
             $itemCount = $isSupply
                 ? fake()->numberBetween(3, 8)
                 : fake()->numberBetween(2, 6);
 
-            foreach ($this->randomVarietyIds($itemCount) as $varietyId) {
+            foreach ($this->randomVegetableIds($itemCount) as $vegetableId) {
                 $itemRows[] = [
                     'post_id' => $post->id,
-                    'variety_id' => $varietyId,
+                    'vegetable_id' => $vegetableId,
                     'quantity_kg' => fake()->randomFloat(2, 20, 1000),
                     'status' => $isSupply
                         ? $this->resolveSupplyStatus($isPast)->value
@@ -166,22 +157,14 @@ class PostSeeder extends Seeder
         }
     }
 
-    // ── Lookups ───────────────────────────────────────────────────────────────
-
     private function loadLookups(): void
     {
-        $this->varietyIds = Variety::pluck('id')->toArray();
-
-        Variety::all(['id', 'vegetable_id'])->each(function (Variety $v): void {
-            $this->varietiesByVegetable[$v->vegetable_id][] = $v->id;
-        });
+        $this->vegetableIds = Vegetable::pluck('id')->toArray();
     }
 
-    // ── Helpers ───────────────────────────────────────────────────────────────
-
-    private function randomVarietyIds(int $count): array
+    private function randomVegetableIds(int $count): array
     {
-        $pool = $this->varietyIds;
+        $pool = $this->vegetableIds;
         shuffle($pool);
 
         return array_slice($pool, 0, min($count, count($pool)));

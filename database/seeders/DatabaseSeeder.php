@@ -29,7 +29,7 @@ class DatabaseSeeder extends Seeder
 
             $this->call([
                 PostSeeder::class,
-                VarietyMonthlyStatsSeeder::class,
+                VegetableMonthlyStatsSeeder::class,
             ]);
         }
 
