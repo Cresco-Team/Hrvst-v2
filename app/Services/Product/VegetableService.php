@@ -4,7 +4,6 @@ namespace App\Services\Product;
 
 use App\Models\Product\Vegetable;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\DB;
 
 class VegetableService
@@ -29,7 +28,6 @@ class VegetableService
     {
         return [
             'total_vegetables' => Vegetable::count(),
-            'total_varieties' => DB::table('varieties')->count(),
         ];
     }
 }
