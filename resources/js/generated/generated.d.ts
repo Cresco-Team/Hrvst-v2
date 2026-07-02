@@ -17,6 +17,21 @@ readonly body: string,
 };
 }
 namespace Product {
+export type VarietyAnalyticsDTO = {
+supply_demand_ratio: number,
+imbalance_band: App.Enums.Analytics.ImbalanceBand,
+supply_fulfillment_rate: number | null,
+demand_fulfillment_rate: number | null,
+supply_volume_mom_pct: number | null,
+demand_volume_mom_pct: number | null,
+recommendations: App.DTOs.Product.VarietyRecommendationDTO[],
+forecast: {
+month: string,
+label: string,
+supply_kg: number,
+demand_kg: number,
+}[],
+};
 export type VarietyRecommendationDTO = {
 readonly severity: App.Enums.Analytics.RecommendationSeverity,
 readonly type: string,
@@ -42,7 +57,7 @@ time_slot_label: string | null,
 created_at: string,
 created_at_human: string,
 image_url: undefined | string,
-items: undefined<number, App.Data.PostItem.PostItemLightData> | undefined,
+items: App.Data.PostItem.PostItemLightData[] | undefined,
 };
 }
 namespace Farmer {
@@ -54,7 +69,7 @@ time_slot_label: string | null,
 created_at: string,
 created_at_human: string,
 image_url: undefined | string,
-items: undefined<number, App.Data.PostItem.PostItemLightData> | undefined,
+items: App.Data.PostItem.PostItemLightData[] | undefined,
 };
 }
 namespace Post {
@@ -66,7 +81,7 @@ scheduled_date: string,
 time_slot: App.Enums.PostTimeSlot,
 created_at: string,
 created_at_human: string,
-post_items: undefined<number, App.Data.PostItem.PostItemLightData>,
+post_items: App.Data.PostItem.PostItemLightData[] | unknown,
 };
 export type FarmerSupplyData = {
 id: number,
@@ -76,7 +91,7 @@ scheduled_date: string,
 time_slot: App.Enums.PostTimeSlot,
 created_at: string,
 created_at_human: string,
-post_items: undefined<number, App.Data.PostItem.PostItemLightData>,
+post_items: App.Data.PostItem.PostItemLightData[],
 };
 export type PostData = {
 id: number,
@@ -88,7 +103,7 @@ days_until_transaction: number | null,
 created_at: string,
 created_at_human: string,
 image_url: undefined | string,
-items: undefined<number, App.Data.PostItem.PostItemData> | undefined,
+items: App.Data.PostItem.PostItemData[] | undefined,
 };
 }
 namespace PostItem {
@@ -131,8 +146,8 @@ joined_at: string,
 joined_at_human: string,
 user: App.Data.Profile.UserData | undefined,
 ongoing_demands_count: undefined | number,
-demands: undefined<number, App.Data.PostItem.PostItemLightData> | undefined,
-demand_items: undefined<number, App.Data.PostItem.PostItemData> | undefined,
+demands: App.Data.PostItem.PostItemLightData[] | undefined,
+demand_items: App.Data.PostItem.PostItemData[] | undefined,
 };
 export type FarmerData = {
 id: number,
@@ -145,8 +160,8 @@ municipality: undefined | string | null,
 province: undefined | string | null,
 coordinates: App.Data.Profile.CoordinatesData,
 ongoing_supplies_count: undefined | number,
-supplies: undefined<number, App.Data.PostItem.PostItemLightData> | undefined,
-supply_items: undefined<number, App.Data.PostItem.PostItemData> | undefined,
+supplies: undefined | Array<any>,
+supply_items: App.Data.PostItem.PostItemData[] | undefined,
 };
 export type UserData = {
 id: number,
@@ -174,7 +189,7 @@ name: string,
 image_url: string,
 varieties_count: undefined | number,
 category: App.Data.Category.CategoryData | undefined,
-varieties: undefined<number, unknown> | undefined,
+varieties: unknown[] | undefined,
 };
 export type VegetableDetailData = {
 id: number,
