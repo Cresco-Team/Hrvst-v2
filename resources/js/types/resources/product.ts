@@ -40,7 +40,7 @@ export interface VegetableResource {
 	demand_count?: number
 	supply_municipalities?: SupplyMunicipality[]
 	monthly_activity?: MonthlyActivity[]
-	variety_calendar?: Record
+	variety_calendar?: <Record
 		string,
 		Record<string, { type: 'supply' | 'demand'; total_kg: number; posts_count: number }[]>
 	>
