@@ -1,27 +1,13 @@
-
-// ─── Analytics ───────────────────────────────────────────────────────────────
+// ─── Analytics (unchanged) ──────────────────────────────────────────────────
 
 export type ImbalanceBand          = App.Enums.Analytics.ImbalanceBand
 export type RecommendationSeverity = App.Enums.Analytics.RecommendationSeverity
-
-// Alias — VarietyRecommendationDTO is now generated.
 export type VarietyRecommendation = App.DTOs.Product.VarietyRecommendationDTO
-
 export type VarietyAnalytics = App.DTOs.Product.VarietyAnalyticsDTO
 
-// ─── VarietyResource ──────────────────────────────────────────────────────────
-// Http Resource — not generated.
-// VarietyDetailData IS generated but types complex fields as Array<any>,
-// making it useless for calendar/activity data. Keep this precise version.
+// ─── VegetableResource — replaces old VarietyResource ────────────────────────
 
-export interface VarietyVegetable {
-	id: number
-	name: string
-	image_url: string
-	category: VarietyCategory | null
-}
-
-export interface VarietyCategory {
+export interface VegetableCategory {
 	id: number
 	name: string
 	slug: string
@@ -41,40 +27,27 @@ export interface MonthlyActivity {
 	demand_fulfilled_kg: number
 }
 
-export interface VarietyResource {
+export interface VegetableResource {
 	id: number
-	name: string
-	vegetable: VarietyVegetable
+	vegetable_name: string
+	variety_name: string | null
+	local_name: string | null
+	name: string // display name — "Tomato" or "Tomato: Cherry"
+	image_url: string
+	category: VegetableCategory | null
 
 	supply_count?: number
 	demand_count?: number
-	monthly_supply_kg?: number
-	monthly_demand_kg?: number
 	supply_municipalities?: SupplyMunicipality[]
 	monthly_activity?: MonthlyActivity[]
-	variety_calendar?: Record<
+	variety_calendar?: Record
 		string,
 		Record<string, { type: 'supply' | 'demand'; total_kg: number; posts_count: number }[]>
 	>
 	analytics?: VarietyAnalytics | null
 }
 
-// ─── VegetableResource ────────────────────────────────────────────────────────
-// Http Resource — not generated. Marketplace-facing views only.
-
-export interface VegetableResource {
-	id: number
-	name: string
-	is_variety: boolean
-	image_url: string
-	category: { id: number; name: string } | null
-	varieties_count?: number
-	varieties: VarietyResource[] | null
-}
-
 // ─── Option Bag Types ─────────────────────────────────────────────────────────
-
-export type VegetableOptions = Record<string, Record<string, string>>
 
 export interface CategoryOption {
 	id: number
@@ -82,57 +55,44 @@ export interface CategoryOption {
 	slug: string
 }
 
-export interface VarietySummary {
+export interface VegetableSummary {
 	total_varieties: number
 	total_vegetables: number
 }
 
-// ─── VarietyTableRow ──────────────────────────────────────────────────────────
+// ─── Flat admin table row — no more parent/child ──────────────────────────────
 
-export interface VarietyTableRow {
+export interface VegetableTableRow {
 	id: number
+	vegetable_name: string
+	variety_name: string | null
+	local_name: string | null
 	name: string
-	is_variety: boolean
-	vegetable_id?: number | null
-	category?: { id: number; name: string } | null
-	image_url?: string | null
+	category: { id: number; name: string } | null
+	image_url: string | null
 	supply_count?: number
 	demand_count?: number
-	varieties?: VarietyTableRow[]
 }
 
-// ─── Admin Table shape ────────────────────────────────────────────────────────
+export type Table = App.Data.Vegetable.VegetableAdminData
 
-export type Table =
-	Omit<App.Data.Vegetable.VegetableAdminData, 'varieties' | 'category'> & {
-		category: App.Data.Category.CategoryData | null
-		varieties: App.Data.Vegetable.VarietyAdminRowData[] | null
-	}
-
-// ─── Mapper ───────────────────────────────────────────────────────────────────
-
-export function mapVegetablesToTableRows(vegetables: Table[]): VarietyTableRow[] {
+export function mapVegetablesToTableRows(vegetables: Table[]): VegetableTableRow[] {
 	return vegetables.map((veg) => ({
 		id: veg.id,
+		vegetable_name: veg.vegetable_name,
+		variety_name: veg.variety_name,
+		local_name: veg.local_name,
 		name: veg.name,
-		is_variety: false,
-		image_url: veg.image_url,
 		category: veg.category,
-		varieties_count: veg.varieties_count,
-		varieties: (veg.varieties ?? []).map((v): VarietyTableRow => ({
-			id: v.id,
-			name: v.name,
-			is_variety: true,
-			vegetable_id: veg.id,
-			supply_count: v.supply_count,
-			demand_count: v.demand_count,
-		})),
+		image_url: veg.image_url,
+		supply_count: veg.supply_count,
+		demand_count: veg.demand_count,
 	}))
 }
 
 export interface ForecastPoint {
-    month: string      // 'YYYY-MM'
-    label: string      // 'Jan 2027'
+    month: string
+    label: string
     supply_kg: number
     demand_kg: number
 }
