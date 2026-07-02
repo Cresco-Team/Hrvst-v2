@@ -11,12 +11,12 @@ return new class extends Migration
         Schema::create('post_items', function (Blueprint $table) {
             $table->id();
             $table->foreignId('post_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('variety_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('vegetable_id')->constrained()->cascadeOnDelete();
 
             $table->decimal('quantity_kg', 8, 2);
             $table->enum('status', ['ongoing', 'expired', 'fulfilled'])->default('ongoing');
 
-            $table->index(['variety_id', 'status'], 'idx_post_items_variety_status');
+            $table->index(['vegetable_id', 'status'], 'idx_post_items_vegetable_status');
 
             $table->softDeletes();
             $table->timestamps();
