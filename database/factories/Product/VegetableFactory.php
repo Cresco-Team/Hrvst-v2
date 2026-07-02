@@ -14,7 +14,16 @@ class VegetableFactory extends Factory
     {
         return [
             'category_id' => Category::inRandomOrder()->first()->id,
-            'name' => fake()->unique()->word(),
+            'vegetable_name' => fake()->unique()->word(),
+            'variety_name' => null,
+            'local_name' => null,
         ];
+    }
+
+    public function withVariety(): static
+    {
+        return $this->state(fn () => [
+            'variety_name' => fake()->word(),
+        ]);
     }
 }
