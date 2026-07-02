@@ -1,11 +1,39 @@
-// ─── Analytics (unchanged) ──────────────────────────────────────────────────
+// ─── Analytics ───────────────────────────────────────────────────────────────
 
 export type ImbalanceBand          = App.Enums.Analytics.ImbalanceBand
 export type RecommendationSeverity = App.Enums.Analytics.RecommendationSeverity
 export type VarietyRecommendation = App.DTOs.Product.VarietyRecommendationDTO
 export type VarietyAnalytics = App.DTOs.Product.VarietyAnalyticsDTO
 
-// ─── VegetableResource — replaces old VarietyResource ────────────────────────
+// ─── Market calendar — mirrors VegetableCalendarService::mergeIntoSchedule() ──
+
+export type CalendarTimeSlot = 'morning' | 'afternoon' | 'evening' | 'unscheduled'
+
+export interface CalendarScheduleItem {
+	post_id: number
+	type: 'supply' | 'demand'
+	variety_name: string
+	quantity_kg: number
+	status: string
+}
+
+export interface CalendarSlotData {
+	supply_kg: number
+	demand_kg: number
+	net_kg: number
+	supply_posts_count: number
+	demand_posts_count: number
+	items: CalendarScheduleItem[]
+}
+
+export type VarietyDaySchedule = Partial<Record<CalendarTimeSlot, CalendarSlotData>>
+
+export interface VarietyCalendarFilters {
+	year: number
+	month: number
+}
+
+// ─── VegetableResource ────────────────────────────────────────────────────────
 
 export interface VegetableCategory {
 	id: number
@@ -27,14 +55,6 @@ export interface MonthlyActivity {
 	demand_fulfilled_kg: number
 }
 
-export interface VarietyCalendarSlotItem {
-	type: 'supply' | 'demand'
-	total_kg: number
-	posts_count: number
-}
-
-export type VarietyCalendarDaySchedule = Record<string, VarietyCalendarSlotItem[]>
-
 export interface VegetableResource {
 	id: number
 	vegetable_name: string
@@ -48,11 +68,13 @@ export interface VegetableResource {
 	demand_count?: number
 	supply_municipalities?: SupplyMunicipality[]
 	monthly_activity?: MonthlyActivity[]
-	variety_calendar?: Record<string, VarietyCalendarDaySchedule>
+	variety_calendar?: Record<string, VarietyDaySchedule>
 	analytics?: VarietyAnalytics | null
 }
 
 // ─── Option Bag Types ─────────────────────────────────────────────────────────
+
+export type VegetableOptions = Record<string, Record<string, string>>
 
 export interface CategoryOption {
 	id: number
@@ -65,7 +87,7 @@ export interface VegetableSummary {
 	total_vegetables: number
 }
 
-// ─── Flat admin table row — no more parent/child ──────────────────────────────
+// ─── Flat admin table row ───────────────────────────────────────────────────
 
 export interface VegetableTableRow {
 	id: number
@@ -88,7 +110,7 @@ export function mapVegetablesToTableRows(vegetables: Table[]): VegetableTableRow
 		variety_name: veg.variety_name,
 		local_name: veg.local_name,
 		name: veg.name,
-		category: veg.category,
+		category: veg.category ?? null,
 		image_url: veg.image_url,
 		supply_count: veg.supply_count,
 		demand_count: veg.demand_count,
