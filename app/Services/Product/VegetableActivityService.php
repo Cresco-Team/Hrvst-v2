@@ -4,7 +4,7 @@ namespace App\Services\Product;
 
 use Illuminate\Support\Facades\DB;
 
-class VarietyActivityService
+class VegetableActivityService
 {
     /**
      * Build monthly activity data for a given number of past months.
@@ -28,12 +28,12 @@ class VarietyActivityService
      *     demand_expired_kg: float,
      * }>
      */
-    public function buildMonthlyActivity(int $varietyId, int $months = 12): array
+    public function buildMonthlyActivity(int $vegetableId, int $months = 12): array
     {
         $start = now()->startOfMonth()->subMonths($months - 1)->toDateString();
 
-        $rows = DB::table('variety_monthly_stats')
-            ->where('variety_id', $varietyId)
+        $rows = DB::table('vegetable_monthly_stats')
+            ->where('vegetable_id', $vegetableId)
             ->where('period_date', '>=', $start)
             ->select([
                 DB::raw("TO_CHAR(period_date, 'YYYY-MM') as period"),

@@ -17,22 +17,17 @@ import type {
     CalendarTimeSlot,
     VarietyCalendarFilters,
     VarietyDaySchedule,
-    VarietyResource,
 } from '@/types'
+import type { VegetableResource } from '@/types/resources/product'
 import DetailSheet from '@/components/dialogs/DetailSheet.vue'
 import VarietyRecommendations from '@/components/shared/charts/VarietyRecommendations.vue'
 import VegetableMonthlyChart from '@/components/shared/charts/VegetableMonthlyChart.vue'
 import { Card } from '@/components/ui/card'
 
 const props = defineProps<{
-    variety?: VarietyResource
+    variety?: VegetableResource
     calendarFilters: VarietyCalendarFilters
-    meta: {
-        varietyId: number
-        varietyLabel: string
-        categoryName: string
-        categorySlug: string
-    }
+    meta: { varietyId: number; varietyLabel: string; categoryName: string; categorySlug: string }
 }>()
 
 const breadcrumbs = computed<BreadcrumbItem[]>(() => [
@@ -46,7 +41,7 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => [
     },
     {
         title: props.meta.varietyLabel,
-        href: admin.vegetables.varieties.show(props.meta.varietyId).url,
+        href: admin.vegetables.show({vegetable: props.meta.varietyId}).url,
     },
 ])
 
@@ -82,7 +77,7 @@ function navigateMonth(direction: 1 | -1): void {
         year--
     }
 
-    router.visit(admin.vegetables.varieties.show(props.meta.varietyId).url, {
+    router.visit(admin.vegetables.show({vegetable: props.meta.varietyId}).url, {
         data: { year, month },
         preserveState: true,
         preserveScroll: true,
@@ -92,7 +87,7 @@ function navigateMonth(direction: 1 | -1): void {
 
 function goToToday(): void {
     const now = new Date()
-    router.visit(admin.vegetables.varieties.show(props.meta.varietyId).url, {
+    router.visit(admin.vegetables.show({vegetable: props.meta.varietyId}).url, {
         data: { year: now.getFullYear(), month: now.getMonth() + 1 },
         preserveState: true,
         preserveScroll: true,

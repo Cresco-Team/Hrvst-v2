@@ -5,13 +5,11 @@ import type {
 	VarietyOptionsByVegetable,
 	VegetableOptionsByCategory,
 } from '../resources/marketplace'
-import type { CategoryOption } from '../resources/product'
+import type { CategoryOption, RecommendationSeverity } from '../resources/product'
 import type { FarmerSupplySummary } from '../resources/profile'
 import type { Paginated } from '../shared'
 
 // ─── farmer/Dashboard ─────────────────────────────────────────────────────────
-
-export type RecommendationSeverity = App.Enums.Analytics.RecommendationSeverity
 
 export type FarmerDashboardRecommendation =
 	Omit<App.DTOs.Farmer.FarmerDashboardRecommendationDTO, 'severity'> & {

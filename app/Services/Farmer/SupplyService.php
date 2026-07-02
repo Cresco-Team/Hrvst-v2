@@ -5,7 +5,6 @@ namespace App\Services\Farmer;
 use App\Enums\PostItemStatus;
 use App\Models\Marketplace\Post;
 use App\Models\Marketplace\PostItem;
-use App\Models\Product\Variety;
 use App\Models\Product\Vegetable;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
@@ -28,10 +27,7 @@ class SupplyService
         return Post::supply()
             ->where('user_id', $userId)
             ->whereHas('postItems', fn ($q) => $q->ofStatus($status))
-            ->with([
-                'media',
-                'postItems' => fn ($q) => $q->ofStatus($status)->with('variety.vegetable'),
-            ])
+            ->with(['media', 'postItems' => fn ($q) => $q->ofStatus($status)->with('vegetable')])
             ->when(
                 $status === PostItemStatus::Ongoing,
                 fn ($q) => $q->orderBy('scheduled_date'),
@@ -40,29 +36,15 @@ class SupplyService
             ->paginate($perPage);
     }
 
-    public function vegetableOptions(): array
-    {
-        return cache()->remember('farmer_supply_vegetable_options', 3600, fn () => Vegetable::with('category')
-            ->orderBy('name')
-            ->get()
-            ->groupBy(fn ($v) => $v->category->name)
-            ->map(fn ($vegetables) => $vegetables->map(fn ($v) => [
-                'id' => $v->id,
-                'name' => $v->name,
-            ])->values()->toArray())
-            ->toArray()
-        );
-    }
-
     public function varietyOptions(): array
     {
-        return cache()->remember('farmer_supply_variety_options', 3600, fn () => Variety::with(['vegetable'])
-            ->orderBy('name')
+        return cache()->remember('farmer_supply_variety_options', 3600, fn () => Vegetable::query()
+            ->orderByRaw('variety_name IS NULL, variety_name')
             ->get()
-            ->groupBy(fn ($v) => $v->vegetable->name)
-            ->map(fn ($varieties) => $varieties->map(fn ($v) => [
+            ->groupBy('vegetable_name')
+            ->map(fn ($rows) => $rows->map(fn ($v) => [
                 'id' => $v->id,
-                'name' => $v->name,
+                'name' => $v->variety_name ?? $v->vegetable_name,
             ])->values()->toArray())
             ->toArray()
         );

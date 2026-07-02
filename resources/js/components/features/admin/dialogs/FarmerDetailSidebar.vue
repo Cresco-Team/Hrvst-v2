@@ -6,10 +6,8 @@ import {
     Info,
     KeyRound,
     Mail,
-    MapPinHouse,
     Phone,
     Trash,
-    Wheat,
 } from 'lucide-vue-next'
 import { ref, watch } from 'vue'
 import {
@@ -172,11 +170,12 @@ function handleDelete() {
 
                 <ItemGroup v-if="farmer.supplies?.length">
                     <template v-for="(item, index) in farmer.supplies" :key="item.id">
-                        <ItemSeparator v-if="index !== item.length - 1" />
+                        <ItemSeparator v-if="index !== farmer.supplies!.length - 1" />
                         <Item size="sm">
                             <ItemMedia variant="image">
                                 <Avatar>
                                     <AvatarImage
+                                        v-if="item.vegetable_image_url"
                                         :src="item.vegetable_image_url"
                                         :alt="item.vegetable_name"
                                     />

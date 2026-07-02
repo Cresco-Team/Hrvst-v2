@@ -6,7 +6,6 @@ use App\Data\PostItem\PostItemData;
 use App\Enums\PostType;
 use App\Models\Marketplace\Post;
 use Spatie\LaravelData\Data;
-use Spatie\LaravelData\DataCollection;
 use Spatie\LaravelData\Lazy;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
@@ -23,8 +22,8 @@ class PostData extends Data
         public string $created_at,
         public string $created_at_human,
         public string|Lazy $image_url,
-        /** @var DataCollection<int, PostItemData>|Lazy */
-        public DataCollection|Lazy $items,
+        /** @var PostItemData[]|Lazy */
+        public array|Lazy $items,
     ) {}
 
     public static function fromModel(Post $post): self
@@ -42,7 +41,7 @@ class PostData extends Data
             created_at_human: $post->created_at->diffForHumans(),
             image_url: Lazy::whenLoaded('media', $post, fn () => $post->getFirstMediaUrl('post_image')),
             items: Lazy::whenLoaded('postItems', $post, fn () => PostItemData::collect(
-                $post->postItems, DataCollection::class
+                $post->postItems
             )),
         );
     }

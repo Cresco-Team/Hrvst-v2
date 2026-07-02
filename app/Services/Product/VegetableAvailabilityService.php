@@ -5,21 +5,21 @@ namespace App\Services\Product;
 use App\Enums\PostItemStatus;
 use App\Models\Marketplace\PostItem;
 
-class VarietyAvailabilityService
+class VegetableAvailabilityService
 {
     /**
-     * Returns the aggregate supply_kg, demand_kg, and net_kg for a variety
+     * Returns the aggregate supply_kg, demand_kg, and net_kg for a vegetable
      * on a specific date. If $timeSlot is provided, the result is scoped to
      * that slot; otherwise it aggregates all slots for the day.
      *
      * Only Ongoing post items are counted — Fulfilled and Expired are excluded
      * because they no longer represent active market pressure.
      */
-    public function slotSummary(int $varietyId, string $date, ?string $timeSlot): array
+    public function slotSummary(int $vegetableId, string $date, ?string $timeSlot): array
     {
         $row = PostItem::query()
             ->join('posts', 'posts.id', '=', 'post_items.post_id')
-            ->where('post_items.variety_id', $varietyId)
+            ->where('post_items.vegetable_id', $vegetableId)
             ->whereDate('posts.scheduled_date', $date)
             ->when($timeSlot, fn ($q) => $q->where('posts.time_slot', $timeSlot))
             ->where('post_items.status', PostItemStatus::Ongoing->value)

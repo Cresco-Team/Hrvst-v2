@@ -55,7 +55,7 @@ class FarmerService
                 ->supply()
                 ->whereDate('scheduled_date', today())
                 ->with(['postItems' => fn ($q) => $q->ongoing()])
-                ->with(['postItems.variety.vegetable'])
+                ->with(['postItems.vegetable'])
         ]);
     }
 
@@ -69,7 +69,7 @@ class FarmerService
             'barangay',
             'posts' => fn ($q) => $q->supply(),
             'supplyItems' => fn ($q) => $q
-                ->with(['variety.vegetable.category', 'post']),
+                ->with(['vegetable.category', 'post']),
         ]);
     }
 }

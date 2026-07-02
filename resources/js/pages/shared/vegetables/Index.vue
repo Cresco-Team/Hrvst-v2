@@ -56,23 +56,6 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ]
 
-// ─── Derived ─────────────────────────────────────────────────────────────────
-
-// Only render vegetable groups that actually have varieties.
-const vegetableGroups = computed(() =>
-    (props.vegetables?.data ?? []).filter(
-        (veg) => (veg.varieties?.length ?? 0) > 0,
-    ),
-)
-
-// Flat variety count across all visible groups.
-const totalVarieties = computed(() =>
-    vegetableGroups.value.reduce(
-        (sum, veg) => sum + (veg.varieties?.length ?? 0),
-        0,
-    ),
-)
-
 // ─── Handlers ─────────────────────────────────────────────────────────────────
 function handleSearch() {
     if (searchDebounce) clearTimeout(searchDebounce)
@@ -116,13 +99,11 @@ function handlePageChange(page: number) {
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex h-full flex-col gap-6 p-4 lg:p-6">
-            <!-- Header -->
             <Heading
                 title="Vegetables"
-                description="Browse all available vegetables."
+                description="Browse all available vegetables and varieties."
             />
 
-            <!-- Filters -->
             <div class="flex flex-wrap gap-3">
                 <InputGroup class="w-full sm:max-w-xs">
                     <InputGroupAddon>
@@ -130,79 +111,52 @@ function handlePageChange(page: number) {
                     </InputGroupAddon>
                     <InputGroupInput
                         v-model="searchQuery"
-                        placeholder="Search vegetables..."
+                        placeholder="Search vegetables or varieties..."
                         @input="handleSearch"
                     />
                     <InputGroupAddon align="inline-end">
-                        {{ totalVarieties }} results
+                        {{ vegetables?.total ?? 0 }} results
                     </InputGroupAddon>
                 </InputGroup>
             </div>
 
-            <!-- Grouped carousels -->
             <Deferred data="vegetables">
                 <template #fallback>
-                    <div class="flex flex-col gap-8">
-                        <div
-                            v-for="g in 2"
-                            :key="g"
-                            class="flex flex-col gap-3"
-                        >
-                            <Skeleton class="h-5 w-32" />
-                            <!-- Mirror carousel skeleton: same basis breakpoints -->
-                            <div class="flex gap-4 overflow-hidden">
-                                <Skeleton
-                                    v-for="i in 4"
-                                    :key="i"
-                                    class="aspect-3/4 shrink-0 basis-4/5 rounded-xl sm:basis-1/2 md:basis-1/3 lg:basis-1/4"
-                                />
-                            </div>
-                        </div>
+                    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                        <Skeleton v-for="i in 8" :key="i" class="aspect-3/4 rounded-xl" />
                     </div>
                 </template>
 
                 <EmptyState
-                    v-if="!vegetableGroups.length"
-                    title="No varieties found"
+                    v-if="!vegetables?.data.length"
+                    title="No vegetables found"
                     description="Try adjusting your search or category filter."
                 />
 
-                <div v-else class="grid gap-4 md:grid-cols-2">
-                    <Item
-                        v-for="vegetable in vegetableGroups"
+                <div v-else class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                    <Link
+                        v-for="vegetable in vegetables.data"
                         :key="vegetable.id"
-                        variant="outline"
+                        :href="show({ vegetable: vegetable.id }).url"
                     >
-                        <ItemMedia variant="image">
-                            <img
-                                :src="vegetable.image_url"
-                                :alt="vegetable.name"
-                            />
-                        </ItemMedia>
+                        <Item variant="outline" class="h-full transition-all hover:shadow-sm">
+                            <ItemMedia variant="image">
+                                <img :src="vegetable.image_url" :alt="vegetable.name" />
+                            </ItemMedia>
 
-                        <ItemContent class="flex-1">
-                            <ItemTitle class="line-clamp-1">
-                                {{ vegetable.name }}
-                            </ItemTitle>
-                            <ItemDescription
-                                class="flex w-full flex-wrap justify-end space-x-2"
-                            >
-                                <Link
-                                    v-for="variety in vegetable.varieties"
-                                    :key="variety.id"
-                                    :href="show({ variety: variety.id }).url"
-                                >
-                                    <Button size="sm" variant="outline">{{
-                                        variety.name
-                                    }}</Button>
-                                </Link>
-                            </ItemDescription>
-                        </ItemContent>
-                    </Item>
+                            <ItemContent>
+                                <ItemTitle class="line-clamp-1">
+                                    {{ vegetable.name }}
+                                </ItemTitle>
+                                <ItemDescription v-if="vegetable.local_name" class="text-xs">
+                                    {{ vegetable.local_name }}
+                                </ItemDescription>
+                            </ItemContent>
+                        </Item>
+                    </Link>
                 </div>
             </Deferred>
 
-            <!-- Pagination -->
             <div
                 v-if="vegetables && vegetables.last_page > 1"
                 class="flex items-center justify-between border-t pt-4"
@@ -216,16 +170,12 @@ function handlePageChange(page: number) {
                     Previous
                 </Button>
                 <span class="text-sm text-muted-foreground">
-                    Page {{ vegetables.current_page }} of
-                    {{ vegetables.last_page }}
+                    Page {{ vegetables.current_page }} of {{ vegetables.last_page }}
                 </span>
                 <Button
                     variant="outline"
                     size="sm"
-                    :disabled="
-                        vegetables.current_page ===
-                        vegetables.last_page
-                    "
+                    :disabled="vegetables.current_page === vegetables.last_page"
                     @click="handlePageChange(vegetables.current_page + 1)"
                 >
                     Next

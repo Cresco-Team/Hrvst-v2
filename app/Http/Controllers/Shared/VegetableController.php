@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers\Shared;
 
-use App\Data\Variety\VarietyDetailData;
+use App\Data\Vegetable\VegetableDetailData;
 use App\Data\Vegetable\VegetableSharedData;
 use App\Enums\Analytics\VarietyViewerRole;
 use App\Http\Controllers\Controller;
 use App\Models\Product\Category;
-use App\Models\Product\Variety;
-use App\Services\Product\VarietyService;
+use App\Models\Product\Vegetable;
+use App\Services\Product\VegetableDetailService;
 use App\Services\Product\VegetableService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -19,7 +19,7 @@ class VegetableController extends Controller
 {
     public function __construct(
         private VegetableService $vegetableService,
-        private VarietyService $varietyService,
+        private VegetableDetailService $vegetableDetailService,
     ) {}
 
     public function category(): Response
@@ -58,9 +58,9 @@ class VegetableController extends Controller
         ]);
     }
 
-    public function show(Request $request, Variety $variety): Response
+    public function show(Request $request, Vegetable $vegetable): Response
     {
-        $variety->loadMissing('vegetable.category');
+        $vegetable->loadMissing('category');
 
         $validated = $request->validate([
             'year' => ['sometimes', 'integer', 'min:2020', 'max:2035'],
@@ -72,17 +72,19 @@ class VegetableController extends Controller
 
         return Inertia::render('shared/vegetables/Show', [
             'variety' => Inertia::defer(
-                fn () => VarietyDetailData::fromModel($this->varietyService->show($variety, $year, $month, VarietyViewerRole::Marketplace))
+                fn () => VegetableDetailData::fromModel($this->vegetableDetailService->show($vegetable, $year, $month, VarietyViewerRole::Marketplace))
             ),
             'calendarFilters' => [
                 'year' => $year,
                 'month' => $month,
             ],
             'meta' => [
-                'varietyId' => $variety->id,
-                'varietyLabel' => "{$variety->vegetable->name}: {$variety->name}",
-                'categoryName' => $variety->vegetable->category->name,
-                'categorySlug' => $variety->vegetable->category->slug,
+                'varietyId' => $vegetable->id,
+                'varietyLabel' => $vegetable->variety_name
+                    ? "{$vegetable->vegetable_name}: {$vegetable->variety_name}"
+                    : $vegetable->vegetable_name,
+                'categoryName' => $vegetable->category->name,
+                'categorySlug' => $vegetable->category->slug,
             ],
         ]);
     }

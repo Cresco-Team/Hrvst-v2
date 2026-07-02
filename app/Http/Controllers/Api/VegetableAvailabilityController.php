@@ -3,17 +3,17 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Product\Variety;
-use App\Services\Product\VarietyAvailabilityService;
+use App\Models\Product\Vegetable;
+use App\Services\Product\VegetableAvailabilityService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
-class VarietyAvailabilityController extends Controller
+class VegetableAvailabilityController extends Controller
 {
-    public function __construct(private VarietyAvailabilityService $service) {}
+    public function __construct(private VegetableAvailabilityService $service) {}
 
-    public function slotSummary(Request $request, Variety $variety): JsonResponse
+    public function slotSummary(Request $request, Vegetable $vegetable): JsonResponse
     {
         $validated = $request->validate([
             'date'      => ['required', 'date_format:Y-m-d'],
@@ -22,7 +22,7 @@ class VarietyAvailabilityController extends Controller
 
         return response()->json(
             $this->service->slotSummary(
-                varietyId: $variety->id,
+                vegetableId: $vegetable->id,
                 date:      $validated['date'],
                 timeSlot:  $validated['time_slot'] ?? null,
             )

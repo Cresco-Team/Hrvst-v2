@@ -25,7 +25,7 @@ class FarmerDashboardService
                 today()->subDays(Post::ACTION_WINDOW_DAYS - 1),
                 today(),
             ])
-            ->with(['postItems' => fn ($q) => $q->ongoing()->with('variety.vegetable')])
+            ->with(['postItems' => fn ($q) => $q->ongoing()->with('vegetable')])
             ->orderBy('scheduled_date')
             ->get();
     }

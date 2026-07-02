@@ -7,7 +7,6 @@ use App\Data\PostItem\PostItemData;
 use App\Data\PostItem\PostItemLightData;
 use App\Models\Profiles\DealerProfile;
 use Spatie\LaravelData\Data;
-use Spatie\LaravelData\DataCollection;
 use Spatie\LaravelData\Lazy;
 use Spatie\LaravelData\Optional;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
@@ -23,10 +22,10 @@ class DealerData extends Data
         public string $joined_at_human,
         public UserData|Lazy $user,
         public int|Optional $ongoing_demands_count,
-        /** @var DataCollection<int, PostItemLightData>|Lazy */
-        public DataCollection|Lazy $demands,
-        /** @var DataCollection<int, PostItemData>|Lazy */
-        public DataCollection|Lazy $demand_items,
+        /** @var PostItemLightData[]|Lazy */
+        public array|Lazy $demands,
+        /** @var PostItemData[]|Lazy */
+        public array_diff_key|Lazy $demand_items,
     ) {}
 
     public static function fromModel(DealerProfile $dealer): self
@@ -41,10 +40,9 @@ class DealerData extends Data
                 $dealer->posts->flatMap(
                     fn ($post) => $post->relationLoaded('postItems') ? $post->postItems : collect()
                 ),
-                DataCollection::class,
             )),
             demand_items: Lazy::whenLoaded('demandItems', $dealer, fn () => PostItemData::collect(
-                $dealer->demandItems, DataCollection::class
+                $dealer->demandItems
             )),
         );
     }

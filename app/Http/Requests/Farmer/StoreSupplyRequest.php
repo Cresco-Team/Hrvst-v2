@@ -21,7 +21,7 @@ class StoreSupplyRequest extends FormRequest
             'scheduled_date' => ['required', 'date', 'after:today'],
             'time_slot' => ['required', Rule::enum(PostTimeSlot::class)],
             'items' => ['required', 'array', 'min:1'],
-            'items.*.variety_id' => ['required', 'integer', 'exists:varieties,id'],
+            'items.*.vegetable_id' => ['required', 'integer', 'exists:vegetables,id'],
             'items.*.quantity_kg' => ['required', 'numeric', 'min:0.1', 'max:99999'],
         ];
     }
@@ -34,8 +34,8 @@ class StoreSupplyRequest extends FormRequest
             'time_slot.required' => 'A preferred time slot is required.',
             'items.required' => 'At least one supply item is required.',
             'items.min' => 'At least one supply item is required.',
-            'items.*.variety_id.required' => 'Each item must have a variety.',
-            'items.*.variety_id.exists' => 'Selected variety does not exist.',
+            'items.*.vegetable_id.required' => 'Each item must have a vegetable.',
+            'items.*.vegetable_id.exists' => 'Selected vegetable does not exist.',
             'items.*.quantity_kg.required' => 'Each item must have a kilogram.',
             'items.*.quantity_kg.min' => 'Kilogram must be at least 0.1 kg.',
             'items.*.quantity_kg.max' => 'Kilogram should not exceed 99,999.',

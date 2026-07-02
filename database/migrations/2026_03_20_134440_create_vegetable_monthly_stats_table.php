@@ -8,9 +8,9 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('variety_monthly_stats', function (Blueprint $table) {
+        Schema::create('vegetable_monthly_stats', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('variety_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('vegetable_id')->constrained()->cascadeOnDelete();
 
             $table->date('period_date');
 
@@ -21,12 +21,12 @@ return new class extends Migration
 
             $table->timestamps();
 
-            $table->unique(['variety_id', 'period_date']);
+            $table->unique(['vegetable_id', 'period_date']);
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('variety_monthly_stats');
+        Schema::dropIfExists('vegetable_monthly_stats');
     }
 };

@@ -15,7 +15,7 @@ final class UpdateSupplyAction
             $this->syncItems($post, $validated['items']);
         }
 
-        return $post->fresh(['postItems.variety.vegetable']);
+        return $post->fresh(['postItems.vegetable']);
     }
 
     private function syncItems(Post $post, array $items): void
@@ -30,7 +30,7 @@ final class UpdateSupplyAction
         }
 
         foreach ($incoming as $item) {
-            $data = Arr::only($item, ['variety_id', 'quantity_kg']);
+            $data = Arr::only($item, ['vegetable_id', 'quantity_kg']);
 
             if (! empty($item['id'])) {
                 $post->postItems()->where('id', $item['id'])->update($data);

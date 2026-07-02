@@ -2,7 +2,7 @@
 
 namespace App\Models\Product;
 
-use App\Models\Marketplace\Post;
+use App\Models\Marketplace\PostItem;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -14,7 +14,7 @@ use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
-#[Fillable(['category_id', 'name'])]
+#[Fillable(['category_id', 'vegetable_name', 'variety_name', 'local_name'])]
 class Vegetable extends Model implements HasMedia
 {
     use HasFactory, InteractsWithMedia;
@@ -28,21 +28,32 @@ class Vegetable extends Model implements HasMedia
         return $this->belongsTo(Category::class);
     }
 
-    public function varieties(): HasMany
+    public function postItems(): HasMany
     {
-        return $this->hasMany(Variety::class);
-    }
-
-    public function posts(): HasMany
-    {
-        return $this->hasMany(Post::class);
+        return $this->hasMany(PostItem::class);
     }
 
     /* ---------- scopes ---------- */
 
     public function scopeSearch(Builder $query, ?string $search): void
     {
-        $query->when($search, fn (Builder $q) => $q->where('name', 'ilike', "%{$search}%"));
+        $query->when($search, fn (Builder $q) => $q->where(
+            fn (Builder $inner) => $inner
+                ->where('vegetable_name', 'ilike', "%{$search}%")
+                ->orWhere('variety_name', 'ilike', "%{$search}%")
+                ->orWhere('local_name', 'ilike', "%{$search}%")
+        ));
+    }
+
+    /* ---------- accessors ---------- */
+
+    public function displayName(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->variety_name
+                ? "{$this->vegetable_name}: {$this->variety_name}"
+                : $this->vegetable_name,
+        );
     }
 
     public function registerMediaCollections(): void

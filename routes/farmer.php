@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Controllers\Farmer\DashboardController;
-use App\Http\Controllers\Farmer\PostItemController;
 use App\Http\Controllers\Farmer\SupplyController;
 use Illuminate\Support\Facades\Route;
 

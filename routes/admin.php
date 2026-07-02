@@ -4,7 +4,6 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DealerController;
 use App\Http\Controllers\Admin\FarmerController;
 use App\Http\Controllers\Admin\UserController;
-use App\Http\Controllers\Admin\Vegetable\VarietyController;
 use App\Http\Controllers\Admin\Vegetable\VegetableController;
 use Illuminate\Support\Facades\Route;
 
@@ -32,17 +31,11 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
 
     Route::prefix('vegetables')->name('vegetables.')->group(function () {
         Route::get('/', [VegetableController::class, 'index'])->name('index');
+        Route::get('/{vegetable}', [VegetableController::class, 'show'])->name('show');
 
         Route::post('/', [VegetableController::class, 'store'])->name('store');
         Route::put('/{vegetable}', [VegetableController::class, 'update'])->name('update');
         Route::delete('/{vegetable}', [VegetableController::class, 'destroy'])->name('destroy');
-
-        Route::prefix('varieties')->name('varieties.')->group(function () {
-            Route::get('/{variety}', [VarietyController::class, 'show'])->name('show');
-            Route::post('/', [VarietyController::class, 'store'])->name('store');
-            Route::put('/{variety}', [VarietyController::class, 'update'])->name('update');
-            Route::delete('/{variety}', [VarietyController::class, 'destroy'])->name('destroy');
-        });
     });
 
     /* ---------- farmers ---------- */

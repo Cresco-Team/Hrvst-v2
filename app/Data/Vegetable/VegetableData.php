@@ -7,7 +7,6 @@ use App\Data\Concerns\ResolvesCounts;
 use App\Data\Variety\VarietyData;
 use App\Models\Product\Vegetable;
 use Spatie\LaravelData\Data;
-use Spatie\LaravelData\DataCollection;
 use Spatie\LaravelData\Lazy;
 use Spatie\LaravelData\Optional;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
@@ -23,8 +22,8 @@ class VegetableData extends Data
         public string $image_url,
         public int|Optional $varieties_count,
         public CategoryData|Lazy $category,
-        /** @var DataCollection<int, VarietyData>|Lazy */
-        public DataCollection|Lazy $varieties,
+        /** @var VarietyData[]|Lazy */
+        public array|Lazy $varieties,
     ) {}
 
     public static function fromModel(Vegetable $vegetable): self
@@ -36,7 +35,7 @@ class VegetableData extends Data
             varieties_count: self::resolveCount($vegetable, 'varieties_count'),
             category: Lazy::whenLoaded('category', $vegetable, fn () => CategoryData::fromModel($vegetable->category)),
             varieties: Lazy::whenLoaded('varieties', $vegetable, fn () => VarietyData::collect(
-                $vegetable->varieties, DataCollection::class
+                $vegetable->varieties
             )),
         );
     }

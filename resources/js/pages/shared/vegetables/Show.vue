@@ -23,11 +23,11 @@ import type {
     VarietyCalendarFilters,
     VarietyDaySchedule,
 } from '@/types'
-import type { VarietyResource } from '@/types/resources/product'
+import type { VegetableResource } from '@/types/resources/product'
 import { Card } from '@/components/ui/card'
 
 interface Props {
-    variety?: VarietyResource | null
+    variety?: VegetableResource
     calendarFilters: VarietyCalendarFilters
     meta: {
         varietyId: number
