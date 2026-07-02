@@ -17,14 +17,16 @@ class UpdateVegetableRequest extends FormRequest
     {
         return [
             'category_id' => ['required', 'integer', 'exists:categories,id'],
-            'name' => [
-                'required',
-                'string',
+            'vegetable_name' => [ 'required', 'string', 'max:255'],
+            'variety_name' => [
+                'nullable', 
+                'string', 
                 'max:255',
-                Rule::unique('vegetables', 'name')
-                    ->where('category_id', $this->integer('category_id'))
-                    ->ignore($this->route('vegetable')),
+                Rule::unique('vegetables', 'variety_name')->where(function ($query) {
+                    return $query->where('vegetable_name', $this->vegetable_name);
+                })
             ],
+            'local_name' => ['nullable', 'string', 'max:255'],
             'image' => ['nullable', 'image', 'mimes:jpeg,jpg,png,webp', 'max:5120'],
         ];
     }
@@ -34,8 +36,8 @@ class UpdateVegetableRequest extends FormRequest
         return [
             'category_id.required' => 'Please select a category.',
             'category_id.exists' => 'The selected category does not exist.',
-            'name.required' => 'Vegetable name is required.',
-            'name.unique' => 'A vegetable with this name already exists in the selected category.',
+            'vegetable_name.required' => 'Vegetable name is required.',
+            'vegetable_name.unique' => 'This vegetable/variety combination already exists in the selected category.',
             'image.image' => 'The file must be an image.',
             'image.mimes' => 'Image must be JPEG, PNG, or WebP format.',
             'image.max' => 'Image size cannot exceed 5MB.',
