@@ -7,7 +7,6 @@ import {
     today,
     getLocalTimeZone,
     DateFormatter,
-    DateValue,
 } from '@internationalized/date'
 import {
     store,
@@ -81,7 +80,7 @@ const form = useForm({
     items: [] as Array<{
         _key: number
         id: number | null
-        variety_id: string
+        vegetable_id: string
         quantity_kg: number | null
         status: string
     }>,
@@ -90,7 +89,7 @@ const form = useForm({
 const { getState, getData } = useVegetableAvailability(
     () => form.scheduled_date,
     () => form.time_slot,
-    () => form.items.map((i) => i.variety_id),
+    () => form.items.map((i) => i.vegetable_id),
 )
 
 function toInputDate(dateStr: string | null | undefined): string {
@@ -103,7 +102,7 @@ function blankItem() {
     return {
         _key: nextKey(),
         id: null,
-        variety_id: '',
+        vegetable_id: '',
         quantity_kg: null,
         status: 'ongoing',
     }
@@ -135,14 +134,9 @@ function handleSubmit(): void {
     }
 }
 
-const df = new DateFormatter('en-US', {
-    dateStyle: 'long',
-})
-
+const df = new DateFormatter('en-US', { dateStyle: 'long' })
 const minDateValue = computed(() => today(getLocalTimeZone()).add({ days: 1 }))
-const maxDateValue = computed(() =>
-    today(getLocalTimeZone()).add({ months: 3 }),
-)
+const maxDateValue = computed(() => today(getLocalTimeZone()).add({ months: 3 }))
 
 const calendarDate = computed({
     get(): CalendarDate | undefined {
@@ -166,9 +160,9 @@ watch(
             ? (s.post_items ?? []).map((item) => ({
                   _key: nextKey(),
                   id: item.id,
-                  variety_id: String((item as any).variety_id ?? ''),
+                  vegetable_id: String(item.vegetable_id ?? ''),
                   quantity_kg: item.quantity_kg ?? 0,
-                  status: (item as any).status ?? 'ongoing',
+                  status: item.status ?? 'ongoing',
               }))
             : [blankItem()]
         form.clearErrors()
@@ -179,28 +173,18 @@ watch(
 <template>
     <DialogForm
         :open="open"
-        :title="
-            isEditMode
-                ? `Edit ${supply?.scheduled_date} supplies`
-                : 'New Supply Schedule'
-        "
+        :title="isEditMode ? `Edit ${supply?.scheduled_date} supplies` : 'New Supply Schedule'"
         :form="form"
         :submit-label="isEditMode ? 'Save Changes' : 'Create Schedule'"
         @update:open="emit('update:open', $event)"
         @submit="handleSubmit"
     >
         <div class="space-y-6">
-            <!-- ── Schedule ──────────────────────────────────────────── -->
             <div class="flex justify-between gap-4">
                 <div class="space-y-2">
-                    <Label
-                        for="scheduled_date"
-                        class="flex items-center gap-1.5"
-                    >
+                    <Label for="scheduled_date" class="flex items-center gap-1.5">
                         Delivery Day
-                        <Badge variant="destructive" class="text-xs font-normal"
-                            >Required</Badge
-                        >
+                        <Badge variant="destructive" class="text-xs font-normal">Required</Badge>
                     </Label>
                     <Popover v-slot="{ close }">
                         <PopoverTrigger as-child>
@@ -209,22 +193,12 @@ watch(
                                 variant="outline"
                                 :class="[
                                     'w-full justify-start text-left font-normal',
-                                    !form.scheduled_date &&
-                                        'text-muted-foreground',
-                                    form.errors.scheduled_date &&
-                                        'border-destructive text-destructive',
+                                    !form.scheduled_date && 'text-muted-foreground',
+                                    form.errors.scheduled_date && 'border-destructive text-destructive',
                                 ]"
                             >
                                 <CalendarIcon class="mr-2 h-4 w-4" />
-                                {{
-                                    form.scheduled_date
-                                        ? df.format(
-                                              calendarDate!.toDate(
-                                                  getLocalTimeZone(),
-                                              ),
-                                          )
-                                        : 'Pick a date'
-                                }}
+                                {{ form.scheduled_date ? df.format(calendarDate!.toDate(getLocalTimeZone())) : 'Pick a date' }}
                             </Button>
                         </PopoverTrigger>
                         <PopoverContent class="w-auto p-0" align="start">
@@ -238,10 +212,7 @@ watch(
                             />
                         </PopoverContent>
                     </Popover>
-                    <p
-                        v-if="form.errors.scheduled_date"
-                        class="text-xs text-destructive"
-                    >
+                    <p v-if="form.errors.scheduled_date" class="text-xs text-destructive">
                         {{ form.errors.scheduled_date }}
                     </p>
                 </div>
@@ -249,60 +220,31 @@ watch(
                 <div class="space-y-2">
                     <Label for="time_slot" class="flex items-center gap-1.5">
                         Time Slot
-                        <Badge variant="destructive" class="text-xs font-normal"
-                            >Required</Badge
-                        >
+                        <Badge variant="destructive" class="text-xs font-normal">Required</Badge>
                     </Label>
                     <Select v-model="form.time_slot">
-                        <SelectTrigger
-                            id="time_slot"
-                            :class="{
-                                'border-destructive': form.errors.time_slot,
-                            }"
-                        >
+                        <SelectTrigger id="time_slot" :class="{ 'border-destructive': form.errors.time_slot }">
                             <SelectValue placeholder="Select time..." />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="morning"
-                                >Morning (6 AM – 12 PM)</SelectItem
-                            >
-                            <SelectItem value="afternoon"
-                                >Afternoon (12 PM – 6 PM)</SelectItem
-                            >
-                            <SelectItem value="evening"
-                                >Evening (6 PM – 10 PM)</SelectItem
-                            >
+                            <SelectItem value="morning">Morning (6 AM – 12 PM)</SelectItem>
+                            <SelectItem value="afternoon">Afternoon (12 PM – 6 PM)</SelectItem>
+                            <SelectItem value="evening">Evening (6 PM – 10 PM)</SelectItem>
                         </SelectContent>
                     </Select>
-                    <p
-                        v-if="form.errors.time_slot"
-                        class="text-xs text-destructive"
-                    >
+                    <p v-if="form.errors.time_slot" class="text-xs text-destructive">
                         {{ form.errors.time_slot }}
                     </p>
                 </div>
             </div>
 
-            <!-- ── Supply Items ──────────────────────────────────────── -->
             <Table>
                 <TableHeader>
                     <TableRow>
-                        <TableHead>
-                            Supplies
-                            <span class="text-destructive">*</span>
-                        </TableHead>
-                        <TableHead class="text-center">
-                            Kilogram
-                            <span class="text-destructive">*</span>
-                        </TableHead>
+                        <TableHead>Supplies <span class="text-destructive">*</span></TableHead>
+                        <TableHead class="text-center">Kilogram <span class="text-destructive">*</span></TableHead>
                         <TableHead class="text-end">
-                            <Button
-                                type="button"
-                                variant="outline"
-                                size="sm"
-                                class="h-7 gap-1.5 text-xs"
-                                @click="addItem"
-                            >
+                            <Button type="button" variant="outline" size="sm" class="h-7 gap-1.5 text-xs" @click="addItem">
                                 <Plus class="size-3" />
                             </Button>
                         </TableHead>
@@ -316,75 +258,34 @@ watch(
                         </span>
                     </TableEmpty>
 
-                    <TableRow
-                        v-for="(item, index) in form.items"
-                        :key="item._key"
-                    >
+                    <TableRow v-for="(item, index) in form.items" :key="item._key">
                         <TableCell class="relative pb-6">
-                            <Select v-model="item.variety_id">
-                                <SelectTrigger
-                                    :class="{
-                                        'border-destructive':
-                                            form.errors[
-                                                `items.${index}.variety_id`
-                                            ],
-                                    }"
-                                >
-                                    <SelectValue
-                                        placeholder="Select supply..."
-                                    />
+                            <Select v-model="item.vegetable_id">
+                                <SelectTrigger :class="{ 'border-destructive': form.errors[`items.${index}.vegetable_id`] }">
+                                    <SelectValue placeholder="Select supply..." />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectGroup
-                                        v-for="(
-                                            varieties, vegetableName
-                                        ) in varietyOptions"
-                                        :key="vegetableName"
-                                    >
-                                        <SelectLabel>
-                                            {{ vegetableName }}
-                                        </SelectLabel>
-                                        <SelectItem
-                                            v-for="v in varieties"
-                                            :key="v.id"
-                                            :value="String(v.id)"
-                                        >
-                                            {{ vegetableName }}:
-                                            {{ v.name }}
+                                    <SelectGroup v-for="(varieties, vegetableName) in varietyOptions" :key="vegetableName">
+                                        <SelectLabel>{{ vegetableName }}</SelectLabel>
+                                        <SelectItem v-for="v in varieties" :key="v.id" :value="String(v.id)">
+                                            {{ vegetableName }}: {{ v.name }}
                                         </SelectItem>
                                     </SelectGroup>
                                 </SelectContent>
                             </Select>
 
-                            <!-- Slot availability indicator -->
-                            <div
-                                v-if="item.variety_id && form.scheduled_date"
-                                class="absolute bottom-1 text-xs"
-                            >
-                                <Skeleton
-                                    v-if="getState(item.variety_id).status === 'loading'"
-                                    class="h-3.5 w-20 rounded"
-                                />
-                                <template v-else-if="getData(item.variety_id)">
+                            <div v-if="item.vegetable_id && form.scheduled_date" class="absolute bottom-1 text-xs">
+                                <Skeleton v-if="getState(item.vegetable_id).status === 'loading'" class="h-3.5 w-20 rounded" />
+                                <template v-else-if="getData(item.vegetable_id)">
                                     <span class="text-xs text-muted-foreground">Net:</span>
-                                    <span
-                                        :class="netKgClass(getData(item.variety_id)!.net_kg)"
-                                        class="text-xs font-medium tabular-nums"
-                                    >
-                                        {{ formatNetKg(getData(item.variety_id)!.net_kg) }}
+                                    <span :class="netKgClass(getData(item.vegetable_id)!.net_kg)" class="text-xs font-medium tabular-nums">
+                                        {{ formatNetKg(getData(item.vegetable_id)!.net_kg) }}
                                     </span>
                                 </template>
                             </div>
 
-                            <p
-                                v-if="
-                                    form.errors[`items.${index}.variety_id`]
-                                "
-                                class="absolute bottom-1 text-xs text-destructive"
-                            >
-                                {{
-                                    form.errors[`items.${index}.variety_id`]
-                                }}
+                            <p v-if="form.errors[`items.${index}.vegetable_id`]" class="absolute bottom-1 text-xs text-destructive">
+                                {{ form.errors[`items.${index}.vegetable_id`] }}
                             </p>
                         </TableCell>
 
@@ -394,52 +295,21 @@ watch(
                                 :min="0.01"
                                 :max="99999.99"
                                 :step="0.1"
-                                :format-options="{
-                                    style: 'unit',
-                                    unit: 'kilogram',
-                                    unitDisplay: 'short',
-                                    minimumFractionDigits: 0,
-                                    maximumFractionDigits: 1,
-                                }"
+                                :format-options="{ style: 'unit', unit: 'kilogram', unitDisplay: 'short', minimumFractionDigits: 0, maximumFractionDigits: 1 }"
                             >
                                 <NumberFieldContent>
                                     <NumberFieldDecrement />
-                                    <NumberFieldInput
-                                        :class="{
-                                            'border-destructive':
-                                                form.errors[
-                                                    `items.${index}.quantity_kg`
-                                                ],
-                                        }"
-                                    />
+                                    <NumberFieldInput :class="{ 'border-destructive': form.errors[`items.${index}.quantity_kg`] }" />
                                     <NumberFieldIncrement />
                                 </NumberFieldContent>
                             </NumberField>
-
-                            <p
-                                v-if="
-                                    form.errors[
-                                        `items.${index}.quantity_kg`
-                                    ]
-                                "
-                                class="absolute text-xs text-destructive"
-                            >
-                                {{
-                                    form.errors[
-                                        `items.${index}.quantity_kg`
-                                    ]
-                                }}
+                            <p v-if="form.errors[`items.${index}.quantity_kg`]" class="absolute text-xs text-destructive">
+                                {{ form.errors[`items.${index}.quantity_kg`] }}
                             </p>
                         </TableCell>
 
                         <TableCell class="text-end">
-                            <Button
-                                type="button"
-                                variant="ghost"
-                                size="icon"
-                                class="size-9 text-muted-foreground hover:text-destructive"
-                                @click="removeItem(index)"
-                            >
+                            <Button type="button" variant="ghost" size="icon" class="size-9 text-muted-foreground hover:text-destructive" @click="removeItem(index)">
                                 <Trash2 class="size-4" />
                             </Button>
                         </TableCell>
