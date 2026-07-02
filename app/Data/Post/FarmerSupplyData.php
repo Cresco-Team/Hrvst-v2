@@ -11,7 +11,6 @@ use Spatie\LaravelData\Attributes\WithCast;
 use Spatie\LaravelData\Attributes\WithTransformer;
 use Spatie\LaravelData\Casts\DateTimeInterfaceCast;
 use Spatie\LaravelData\Data;
-use Spatie\LaravelData\DataCollection;
 use Spatie\LaravelData\Transformers\DateTimeInterfaceTransformer;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 use Spatie\TypeScriptTransformer\Attributes\TypeScriptType;
@@ -31,8 +30,8 @@ class FarmerSupplyData extends Data
         public string $created_at,
         public string $created_at_human,
 
-        /** @var DataCollection<int, PostItemLightData> */
+        /** @var PostItemLightData[] */
         #[DataCollectionOf(PostItemLightData::class)]
-        public ?DataCollection $post_items,
+        public ?array $post_items,
     ) {}
 }

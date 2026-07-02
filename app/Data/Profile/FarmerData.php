@@ -7,7 +7,6 @@ use App\Data\PostItem\PostItemData;
 use App\Data\PostItem\PostItemLightData;
 use App\Models\Profiles\FarmerProfile;
 use Spatie\LaravelData\Data;
-use Spatie\LaravelData\DataCollection;
 use Spatie\LaravelData\Lazy;
 use Spatie\LaravelData\Optional;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
@@ -28,10 +27,10 @@ class FarmerData extends Data
         public string|Lazy|null $province,
         public CoordinatesData $coordinates,
         public int|Optional $ongoing_supplies_count,
-        /** @var DataCollection<int, PostItemLightData>|Lazy */
-        public DataCollection|Lazy $supplies,
-        /** @var DataCollection<int, PostItemData>|Lazy */
-        public DataCollection|Lazy $supply_items,
+        /** @var PostItemLightData[|Lazy */
+        public array|Lazy $supplies,
+        /** @var PostItemData[]|Lazy */
+        public array_diff_key|Lazy $supply_items,
     ) {}
 
     public static function fromModel(FarmerProfile $farmer): self
@@ -55,10 +54,9 @@ class FarmerData extends Data
                 $farmer->posts->flatMap(
                     fn ($post) => $post->relationLoaded('postItems') ? $post->postItems : collect()
                 ),
-                DataCollection::class,
             )),
             supply_items: Lazy::whenLoaded('supplyItems', $farmer, fn () => PostItemData::collect(
-                $farmer->supplyItems, DataCollection::class
+                $farmer->supplyItems
             )),
         );
     }
