@@ -27,12 +27,20 @@ export interface MonthlyActivity {
 	demand_fulfilled_kg: number
 }
 
+export interface VarietyCalendarSlotItem {
+	type: 'supply' | 'demand'
+	total_kg: number
+	posts_count: number
+}
+
+export type VarietyCalendarDaySchedule = Record<string, VarietyCalendarSlotItem[]>
+
 export interface VegetableResource {
 	id: number
 	vegetable_name: string
 	variety_name: string | null
 	local_name: string | null
-	name: string // display name — "Tomato" or "Tomato: Cherry"
+	name: string
 	image_url: string
 	category: VegetableCategory | null
 
@@ -40,10 +48,7 @@ export interface VegetableResource {
 	demand_count?: number
 	supply_municipalities?: SupplyMunicipality[]
 	monthly_activity?: MonthlyActivity[]
-	variety_calendar?: <Record
-		string,
-		Record<string, { type: 'supply' | 'demand'; total_kg: number; posts_count: number }[]>
-	>
+	variety_calendar?: Record<string, VarietyCalendarDaySchedule>
 	analytics?: VarietyAnalytics | null
 }
 
