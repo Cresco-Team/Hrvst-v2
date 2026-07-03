@@ -11,7 +11,7 @@ import {
     UserPlus,
     UserRoundPlus,
     Users,
-} from 'lucide-vue-next'
+} from '@lucide/vue'
 import { computed, ref, watch } from 'vue'
 import { toast } from 'vue-sonner'
 import EmptyState from '@/components/EmptyState.vue'
@@ -220,7 +220,7 @@ if (storedView && storedView !== props.view) {
             <div class="flex items-end justify-between">
                 <Heading
                     title="Farmers"
-                    description="Manage farmers and their active plantings."
+                    description="Manage farmers and their supplies."
                 />
 
                 <div class="flex items-center gap-2">
@@ -271,27 +271,23 @@ if (storedView && storedView !== props.view) {
                 >
                     <SmallCard
                         title="Total Farmers"
-                        :value="summary.total_farmers"
-                        subtext="all approved farmers"
-                        :icon="Users"
+                        :value="summary.total_farmers.toLocaleString()"
+                        subtext="all registered"
                     />
                     <SmallCard
                         title="New Farmers"
-                        :value="summary.new_farmers_this_month"
-                        subtext="registered this month"
-                        :icon="UserPlus"
+                        :value="summary.new_farmers_this_month.toLocaleString()"
+                        subtext="new this month"
                     />
                     <SmallCard
                         title="Total Supplies"
-                        :value="summary.total_supplies"
+                        :value="summary.total_supplies.toLocaleString()"
                         subtext="all supplies posted"
-                        :icon="Package"
                     />
                     <SmallCard
                         title="New Supplies"
-                        :value="summary.new_supplies_this_month"
+                        :value="summary.new_supplies_this_month.toLocaleString()"
                         subtext="supplies this month"
-                        :icon="PackagePlus"
                     />
                 </div>
             </Deferred>
