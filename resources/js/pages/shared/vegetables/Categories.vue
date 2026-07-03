@@ -40,7 +40,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                 >
                     <Item
                         variant="outline"
-                        class="transition-all hover:shadow-sm"
+                        class="transition-all hover:shadow-sm bg-primary/10 hover:bg-primary/5"
                     >
                         <ItemMedia
                             variant="icon"

@@ -21,38 +21,39 @@ import {
     ItemTitle,
 } from '@/components/ui/item'
 import { getInitials } from '@/composables/useInitials'
-import type { FarmerSupplyDataFixed } from '@/types'
+import type { DealerDemandDataFixed } from '@/types'
 import { CalendarClock, MoreVertical, SquarePen, Trash } from 'lucide-vue-next'
 
-const props = defineProps<{ supply: FarmerSupplyDataFixed }>()
+const props = defineProps<{ demand: DealerDemandDataFixed }>()
 
 const emit = defineEmits<{
-    edit: [supply: FarmerSupplyDataFixed]
-    delete: [supply: FarmerSupplyDataFixed]
+    edit: [demand: DealerDemandDataFixed]
+    delete: [demand: DealerDemandDataFixed]
 }>()
 </script>
 
 <template>
-    <Item variant="outline" class="group transition-all hover:shadow-sm">
-        <ItemMedia variant="icon">
+    <Item variant="outline" class="group bg-primary/10 transition-all hover:shadow-sm">
+        <ItemMedia variant="icon" class="bg-primary/10">
             <CalendarClock />
         </ItemMedia>
 
         <ItemContent>
             <ItemTitle>
-                {{ supply.scheduled_date }}
-                <Badge variant="outline">{{ supply.time_slot }}</Badge>
+                {{ demand.scheduled_date }}
+                <Badge variant="outline">{{ demand.time_slot }}</Badge>
             </ItemTitle>
-            <ItemDescription v-if="supply.post_items?.length">
-                {{ supply.post_items.length }}
-                {{ supply.post_items.length === 1 ? 'variety' : 'varieties' }}
+            <ItemDescription v-if="demand.post_items?.length">
+                {{ demand.post_items.length }}
+                {{ demand.post_items.length === 1 ? 'variety' : 'varieties' }}
+                needed
             </ItemDescription>
         </ItemContent>
 
         <ItemActions>
             <DropdownMenu>
                 <DropdownMenuTrigger as-child>
-                    <Button variant="ghost" size="icon-sm">
+                    <Button variant="ghost" size="icon-sm" class="hover:bg-0">
                         <MoreVertical class="size-4" />
                     </Button>
                 </DropdownMenuTrigger>
@@ -60,25 +61,25 @@ const emit = defineEmits<{
                 <DropdownMenuContent align="end">
                     <DropdownMenuLabel>Actions</DropdownMenuLabel>
                     <DropdownMenuGroup>
-                        <DropdownMenuItem @click="emit('edit', supply)">
+                        <DropdownMenuItem @click="emit('edit', demand)">
                             <SquarePen />
-                            Edit Supply
+                            Edit Demand
                         </DropdownMenuItem>
                         <DropdownMenuItem
                             class="text-destructive focus:text-destructive"
-                            @click="emit('delete', supply)"
+                            @click="emit('delete', demand)"
                         >
                             <Trash />
-                            Delete Supply
+                            Delete Demand
                         </DropdownMenuItem>
                     </DropdownMenuGroup>
 
-                    <template v-if="supply.post_items?.length">
+                    <template v-if="demand.post_items?.length">
                         <DropdownMenuSeparator />
-                        <DropdownMenuLabel>Varieties</DropdownMenuLabel>
+                        <DropdownMenuLabel>Varieties Needed</DropdownMenuLabel>
                         <DropdownMenuGroup>
                             <DropdownMenuItem
-                                v-for="item in supply.post_items"
+                                v-for="item in demand.post_items"
                                 :key="item.id"
                             >
                                 <Avatar class="size-5">
@@ -90,10 +91,12 @@ const emit = defineEmits<{
                                         {{ getInitials(item.vegetable_name!) }}
                                     </AvatarFallback>
                                 </Avatar>
+
                                 <span class="line-clamp-1 max-w-35">
                                     {{ item.vegetable_name }}:
                                     {{ item.variety_name }}
                                 </span>
+
                                 <DropdownMenuShortcut>
                                     <Badge variant="outline">
                                         {{ item.quantity_kg }} kg

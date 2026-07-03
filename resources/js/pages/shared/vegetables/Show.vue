@@ -509,13 +509,6 @@ function formatKgShort(kg: number): string {
                                     class="h-1.5 w-1.5 rounded-full bg-emerald-500"
                                 />
                                 Supply
-                                <span class="text-muted-foreground/60"
-                                    >({{
-                                        selectedSchedule[slot.key]!
-                                            .supply_posts_count
-                                    }}
-                                    posts)</span
-                                >
                             </span>
                             <span
                                 class="font-semibold text-emerald-600 tabular-nums dark:text-emerald-400"
@@ -535,13 +528,6 @@ function formatKgShort(kg: number): string {
                                     class="h-1.5 w-1.5 rounded-full bg-amber-500"
                                 />
                                 Demand
-                                <span class="text-muted-foreground/60"
-                                    >({{
-                                        selectedSchedule[slot.key]!
-                                            .demand_posts_count
-                                    }}
-                                    posts)</span
-                                >
                             </span>
                             <span
                                 class="font-semibold text-amber-600 tabular-nums dark:text-amber-400"
@@ -560,9 +546,9 @@ function formatKgShort(kg: number): string {
                                 class="rounded-full px-2 py-0.5 text-[10px] font-bold tabular-nums"
                                 :class="
                                     selectedSchedule[slot.key]!.net_kg > 0
-                                        ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300'
+                                        ? 'bg-destructive/20 text-destructive dark:bg-destructive/40'
                                         : selectedSchedule[slot.key]!.net_kg < 0
-                                          ? 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300'
+                                          ? 'bg-orange-100 text-orange-700'
                                           : 'bg-muted text-muted-foreground'
                                 "
                             >
@@ -575,41 +561,7 @@ function formatKgShort(kg: number): string {
                         </div>
                     </div>
 
-                    <!-- Individual items -->
-                    <div class="flex flex-col gap-2 pl-4">
-                        <div
-                            v-for="(item, idx) in selectedSchedule[slot.key]!
-                                .items"
-                            :key="idx"
-                            class="flex items-center justify-between rounded-lg border bg-muted/30 px-3 py-2"
-                        >
-                            <div class="flex min-w-0 items-center gap-2">
-                                <span
-                                    class="shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase"
-                                    :class="
-                                        item.type === 'supply'
-                                            ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300'
-                                            : 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300'
-                                    "
-                                >
-                                    {{ item.type }}
-                                </span>
-                                <span class="truncate text-xs font-medium">{{
-                                    item.variety_name
-                                }}</span>
-                            </div>
-                            <div
-                                class="ml-2 flex shrink-0 flex-col items-end gap-0.5"
-                            >
-                                <span
-                                    class="text-sm font-semibold tabular-nums"
-                                    >{{ formatKg(item.quantity_kg) }}</span
-                                >
-                            </div>
-                        </div>
-                    </div>
-
-                    <Separator class="mt-4" />
+                    
                 </div>
             </template>
         </div>

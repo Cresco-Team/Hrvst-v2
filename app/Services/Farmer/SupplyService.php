@@ -4,24 +4,11 @@ namespace App\Services\Farmer;
 
 use App\Enums\PostItemStatus;
 use App\Models\Marketplace\Post;
-use App\Models\Marketplace\PostItem;
 use App\Models\Product\Vegetable;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Database\Eloquent\Builder;
 
 class SupplyService
 {
-    public function summary(int $userId): array
-    {
-        $itemQuery = PostItem::whereHas('post', fn (Builder $q) => $q->supply()->where('user_id', $userId));
-
-        return [
-            'total_ongoing' => (clone $itemQuery)->ongoing()->count(),
-            'total_fulfilled' => (clone $itemQuery)->fulfilled()->count(),
-            'total_expired' => (clone $itemQuery)->expired()->count(),
-        ];
-    }
-
     public function paginatedSupply(int $userId, PostItemStatus $status = PostItemStatus::Ongoing, int $perPage = 20): LengthAwarePaginator
     {
         return Post::supply()

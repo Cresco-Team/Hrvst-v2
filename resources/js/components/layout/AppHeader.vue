@@ -43,6 +43,7 @@ import farmer from '@/routes/farmer'
 import { archived as farmerSuppliesArchived } from '@/routes/farmer/supplies'
 import vegetables from '@/routes/vegetables'
 import type { BreadcrumbItem, NavItem } from '@/types'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip'
 
 type Props = {
     breadcrumbs?: BreadcrumbItem[]
@@ -86,11 +87,6 @@ const mainNavItems = computed<NavItem[]>(() => {
                 href: dealer.demands.index(),
                 icon: PackageSearch,
             },
-            {
-                title: 'Archived',
-                href: dealerDemandsArchived(),
-                icon: Archive,
-            },
         )
     }
 
@@ -102,11 +98,32 @@ const mainNavItems = computed<NavItem[]>(() => {
                 href: farmer.supplies.index(),
                 icon: Package,
             },
+        )
+    }
+
+    return items
+})
+
+const rightNavItems = computed<NavItem[]>(() => {
+    const items: NavItem[] = []
+
+    if (page.props.auth.user.roles.includes('dealer')) {
+        items.push(
             {
-                title: 'Archived',
+                title: 'Archives',
+                href: dealerDemandsArchived(),
+                icon: Archive,
+            }
+        )
+    }
+
+    if (page.props.auth.user.roles.includes('farmer')) {
+        items.push(
+            {
+                title: 'Archives',
                 href: farmerSuppliesArchived(),
                 icon: Archive,
-            },
+            }
         )
     }
 
@@ -211,6 +228,44 @@ const mainNavItems = computed<NavItem[]>(() => {
                 </div>
 
                 <div class="ml-auto flex items-center space-x-2">
+                    <div class="relative flex items-center space-x-1">
+                        <div class="hidden space-x-1 lg:flex">
+                            <template
+                                v-for="item in rightNavItems"
+                                :key="item.title"
+                            >
+                                <TooltipProvider :delay-duration="0">
+                                    <Tooltip>
+                                        <TooltipTrigger>
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                as-child
+                                                class="group h-9 w-9 cursor-pointer"
+                                            >
+                                                <Link
+                                                    :href="item.href"
+                                                    rel="noopener noreferrer"
+                                                >
+                                                    <span class="sr-only">{{
+                                                        item.title
+                                                    }}</span>
+                                                    <component
+                                                        :is="item.icon"
+                                                        class="size-5 opacity-80 group-hover:opacity-100"
+                                                    />
+                                                </Link>
+                                            </Button>
+                                        </TooltipTrigger>
+                                        <TooltipContent>
+                                            <p>{{ item.title }}</p>
+                                        </TooltipContent>
+                                    </Tooltip>
+                                </TooltipProvider>
+                            </template>
+                        </div>
+                    </div>
+
                     <DropdownMenu>
                         <DropdownMenuTrigger :as-child="true">
                             <Button
