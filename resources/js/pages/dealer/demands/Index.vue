@@ -4,7 +4,7 @@ import { Plus, ShoppingBag } from 'lucide-vue-next'
 import { ref } from 'vue'
 import ConfirmationDialog from '@/components/dialogs/ConfirmationDialog.vue'
 import EmptyState from '@/components/EmptyState.vue'
-import DemandCard from '@/components/features/dealer/DemandCard.vue'
+import DemandItem from '@/components/features/dealer/DemandItem.vue'
 import DemandForm from '@/components/features/dealer/DemandForm.vue'
 import Heading from '@/components/Heading.vue'
 import LargeCard from '@/components/shared/cards/LargeCard.vue'
@@ -90,36 +90,6 @@ const breadcrumbs: BreadcrumbItem[] = [
                 </Button>
             </div>
 
-            <!-- ── Summary ────────────────────────────────────────────── -->
-            <Deferred data="summary">
-                <template #fallback>
-                    <div class="grid gap-4 sm:grid-cols-3">
-                        <Skeleton
-                            v-for="i in 3"
-                            :key="i"
-                            class="h-24 rounded-lg"
-                        />
-                    </div>
-                </template>
-                <div class="hidden gap-4 sm:grid sm:grid-cols-3">
-                    <LargeCard
-                        title="Ongoing"
-                        :value="summary?.total_ongoing"
-                        subtext="awaiting supply"
-                    />
-                    <LargeCard
-                        title="Fulfilled"
-                        :value="summary?.total_fulfilled"
-                        subtext="completed"
-                    />
-                    <LargeCard
-                        title="Expired"
-                        :value="summary?.total_expired"
-                        subtext="expired without supply"
-                    />
-                </div>
-            </Deferred>
-
             <!-- ── Demand list (Ongoing only) ─────────────────────────── -->
             <Deferred data="demands">
                 <template #fallback>
@@ -142,8 +112,8 @@ const breadcrumbs: BreadcrumbItem[] = [
                 />
 
                 <template v-else>
-                    <div class="grid gap-4 sm:grid-cols-3">
-                        <DemandCard
+                    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                        <DemandItem
                             v-for="demand in demands!.data"
                             :key="demand.id"
                             :demand="demand"

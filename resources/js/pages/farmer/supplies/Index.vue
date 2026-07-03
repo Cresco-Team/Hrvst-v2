@@ -4,7 +4,7 @@ import { Package, Plus } from 'lucide-vue-next'
 import { ref } from 'vue'
 import ConfirmationDialog from '@/components/dialogs/ConfirmationDialog.vue'
 import EmptyState from '@/components/EmptyState.vue'
-import SupplyCard from '@/components/features/farmer/SupplyCard.vue'
+import SupplyItem from '@/components/features/farmer/SupplyItem.vue'
 import SupplyForm from '@/components/features/farmer/SupplyForm.vue'
 import Heading from '@/components/Heading.vue'
 import LargeCard from '@/components/shared/cards/LargeCard.vue'
@@ -90,36 +90,6 @@ const breadcrumbs: BreadcrumbItem[] = [
                 </Button>
             </div>
 
-            <!-- ── Summary ────────────────────────────────────────────── -->
-            <Deferred data="summary">
-                <template #fallback>
-                    <div class="grid gap-4 sm:grid-cols-3">
-                        <Skeleton
-                            v-for="i in 3"
-                            :key="i"
-                            class="h-24 rounded-lg"
-                        />
-                    </div>
-                </template>
-                <div class="hidden gap-4 sm:grid sm:grid-cols-3">
-                    <LargeCard
-                        title="Ongoing"
-                        :value="summary?.total_ongoing"
-                        subtext="awaiting fulfillment"
-                    />
-                    <LargeCard
-                        title="Fulfilled"
-                        :value="summary?.total_fulfilled"
-                        subtext="completed"
-                    />
-                    <LargeCard
-                        title="Expired"
-                        :value="summary?.total_expired"
-                        subtext="expired without fulfillment"
-                    />
-                </div>
-            </Deferred>
-
             <!-- ── Supply list (Ongoing only) ─────────────────────────── -->
             <Deferred data="supplies">
                 <template #fallback>
@@ -142,8 +112,8 @@ const breadcrumbs: BreadcrumbItem[] = [
                 />
 
                 <template v-else>
-                    <div class="grid gap-4 sm:grid-cols-3">
-                        <SupplyCard
+                    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                        <SupplyItem
                             v-for="supply in supplies!.data"
                             :key="supply.id"
                             :supply="supply"
