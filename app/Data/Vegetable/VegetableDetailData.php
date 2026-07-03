@@ -11,12 +11,11 @@ class VegetableDetailData extends Data
 {
     public function __construct(
         public int $id,
-        public string $name,
         public int $vegetable_id,
         public string $vegetable_name,
         public ?string $variety_name,
+        public string $display_name,
         public int $category_id,
-        public string $category_name,
         public int $supply_count,
         public int $demand_count,
         public array $supply_municipalities,
@@ -31,12 +30,11 @@ class VegetableDetailData extends Data
 
         return new self(
             id: $vegetable->id,
-            name: $vegetable->variety_name ?? $vegetable->vegetable_name,
             vegetable_id: $vegetable->id,
             vegetable_name: $vegetable->vegetable_name,
             variety_name: $vegetable->variety_name,
+            display_name: $vegetable->display_name,
             category_id: $category->id,
-            category_name: $category->name,
             supply_count: $vegetable->supply_count,
             demand_count: $vegetable->demand_count,
             supply_municipalities: $vegetable->supply_municipalities,

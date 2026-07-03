@@ -20,7 +20,7 @@ class VegetableSharedData extends Data
         public string $vegetable_name,
         public ?string $variety_name,
         public ?string $local_name,
-        public string $name,
+        public string $display_name,
         public string $image_url,
         public CategoryData|Lazy $category,
         public int|Optional $supply_count,
@@ -34,10 +34,8 @@ class VegetableSharedData extends Data
             vegetable_name: $vegetable->vegetable_name,
             variety_name: $vegetable->variety_name,
             local_name: $vegetable->local_name,
-            name: $vegetable->variety_name
-                ? "{$vegetable->vegetable_name}: {$vegetable->variety_name}"
-                : $vegetable->vegetable_name,
-            image_url: $vegetable->getFirstMediaUrl('vegetable_image'),
+            display_name: $vegetable->display_name,
+            image_url: $vegetable->image_url,
             category: Lazy::whenLoaded('category', $vegetable, fn () => CategoryData::fromModel($vegetable->category)),
             supply_count: self::resolveCount($vegetable, 'supply_count'),
             demand_count: self::resolveCount($vegetable, 'demand_count'),
