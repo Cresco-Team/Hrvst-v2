@@ -130,7 +130,7 @@ function handleDelete() {
                     }}</ItemTitle>
                     <ItemDescription class="flex items-center gap-3">
                         <Calendar1 class="size-4" />
-                        Joined {{ farmer.joined_at_human }}
+                        Joined {{ farmer.joined_at }} ({{ farmer.joined_at_human }})
                     </ItemDescription>
                 </ItemContent>
             </Item>

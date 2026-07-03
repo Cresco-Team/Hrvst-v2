@@ -4,11 +4,9 @@ namespace App\Data\Vegetable;
 
 use App\Data\Category\CategoryData;
 use App\Data\Concerns\ResolvesCounts;
-use App\Data\Variety\VarietyData;
 use App\Models\Product\Vegetable;
 use Spatie\LaravelData\Data;
 use Spatie\LaravelData\Lazy;
-use Spatie\LaravelData\Optional;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
 #[TypeScript]
@@ -18,25 +16,24 @@ class VegetableData extends Data
 
     public function __construct(
         public int $id,
-        public string $name,
+        public string $vegetable_name,
+        public ?string $variety_name,
+        public ?string $local_name,
+        public ?string $display_name,
         public string $image_url,
-        public int|Optional $varieties_count,
         public CategoryData|Lazy $category,
-        /** @var VarietyData[]|Lazy */
-        public array|Lazy $varieties,
     ) {}
 
     public static function fromModel(Vegetable $vegetable): self
     {
         return new self(
             id: $vegetable->id,
-            name: $vegetable->name,
+            vegetable_name: $vegetable->vegetable_name,
+            variety_name: $vegetable->variety_name,
+            local_name: $vegetable->local_name,
+            display_name: $vegetable->display_name,
             image_url: $vegetable->getFirstMediaUrl('vegetable_image'),
-            varieties_count: self::resolveCount($vegetable, 'varieties_count'),
             category: Lazy::whenLoaded('category', $vegetable, fn () => CategoryData::fromModel($vegetable->category)),
-            varieties: Lazy::whenLoaded('varieties', $vegetable, fn () => VarietyData::collect(
-                $vegetable->varieties
-            )),
         );
     }
 }

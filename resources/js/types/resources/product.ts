@@ -1,5 +1,7 @@
 // ─── Analytics ───────────────────────────────────────────────────────────────
 
+import { Paginated } from "../shared"
+
 export type ImbalanceBand          = App.Enums.Analytics.ImbalanceBand
 export type RecommendationSeverity = App.Enums.Analytics.RecommendationSeverity
 export type VarietyRecommendation = App.DTOs.Product.VarietyRecommendationDTO
@@ -60,7 +62,7 @@ export interface VegetableResource {
 	vegetable_name: string
 	variety_name: string | null
 	local_name: string | null
-	name: string
+	display_name: string
 	image_url: string
 	category: VegetableCategory | null
 
@@ -71,6 +73,8 @@ export interface VegetableResource {
 	variety_calendar?: Record<string, VarietyDaySchedule>
 	analytics?: VarietyAnalytics | null
 }
+
+export type VegetableAdminData = App.Data.Vegetable.VegetableAdminData
 
 // ─── Option Bag Types ─────────────────────────────────────────────────────────
 
@@ -99,22 +103,6 @@ export interface VegetableTableRow {
 	image_url: string | null
 	supply_count?: number
 	demand_count?: number
-}
-
-export type Table = App.Data.Vegetable.VegetableAdminData
-
-export function mapVegetablesToTableRows(vegetables: Table[]): VegetableTableRow[] {
-	return vegetables.map((veg) => ({
-		id: veg.id,
-		vegetable_name: veg.vegetable_name,
-		variety_name: veg.variety_name,
-		local_name: veg.local_name,
-		name: veg.name,
-		category: veg.category ?? null,
-		image_url: veg.image_url,
-		supply_count: veg.supply_count,
-		demand_count: veg.demand_count,
-	}))
 }
 
 export interface ForecastPoint {

@@ -8,11 +8,12 @@ import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import ImageUpload from '@/components/forms/ImageUpload.vue'
-import type { VegetableTableRow } from '@/types/resources/product'
+import type { VegetableAdminData } from '@/types/resources/product'
+import { Vegan } from '@lucide/vue'
 
 const props = defineProps<{
     open: boolean
-    vegetable: VegetableTableRow | null
+    vegetable: VegetableAdminData | null
     categoryId: number
     categoryName: string
 }>()
@@ -36,8 +37,6 @@ watch(
     () => props.open,
     (isOpen) => {
         if (!isOpen) return
-        // Category is contextual, inherited from the page route
-        // (admin/categories -> admin/vegetables?category=X). Never editable here.
         form.category_id = String(props.categoryId)
         form.vegetable_name = props.vegetable?.vegetable_name ?? ''
         form.variety_name = props.vegetable?.variety_name ?? ''
@@ -68,38 +67,27 @@ function handleSubmit(): void {
         :open="open"
         :form="form"
         :title="isEditMode() ? 'Edit Vegetable' : 'Add Vegetable'"
-        :description="isEditMode()
-            ? 'Update the vegetable, variety, or image.'
-            : `Create a vegetable under ${categoryName}. Leave variety blank for a generic entry.`"
-        :submit-label="isEditMode() ? 'Save Changes' : 'Create Vegetable'"
+        :submit-label="isEditMode() ? 'Update' : 'Create'"
         max-width="md"
         @update:open="emit('update:open', $event)"
         @submit="handleSubmit"
     >
         <template #icon>
-            <Leaf class="size-5 text-primary" />
+            <Vegan class="size-5 text-primary" />
         </template>
 
         <template #default>
             <div class="flex flex-col gap-4">
                 <div class="flex flex-col gap-2">
-                    <Label>Category</Label>
-                    <div class="flex h-9 items-center rounded-md border border-input bg-muted/50 px-3 text-sm text-muted-foreground">
-                        {{ categoryName }}
-                    </div>
-                    <p class="text-xs text-muted-foreground">Set by the category you're currently browsing.</p>
-                </div>
-
-                <div class="flex flex-col gap-2">
                     <Label for="veg-name">
                         Vegetable Name
-                        <Badge variant="secondary" class="text-xs font-normal">Required</Badge>
+                        <Badge variant="destructive" class="text-xs font-normal">Required</Badge>
                     </Label>
                     <Input
                         id="veg-name"
                         v-model="form.vegetable_name"
-                        placeholder="e.g. Tomato, Cabbage, Carrot"
                         :class="{ 'border-destructive': form.errors.vegetable_name }"
+                        placeholder="..."
                     />
                     <p v-if="form.errors.vegetable_name" class="text-xs text-destructive">
                         {{ form.errors.vegetable_name }}
@@ -107,12 +95,15 @@ function handleSubmit(): void {
                 </div>
 
                 <div class="flex flex-col gap-2">
-                    <Label for="veg-variety">Variety <span class="text-muted-foreground font-normal">(optional)</span></Label>
+                    <Label for="veg-variety">
+                        Variety Name
+                        <Badge variant="outline" class="text-xs font-normal">Optional</Badge>
+                    </Label>
                     <Input
                         id="veg-variety"
                         v-model="form.variety_name"
-                        placeholder="e.g. Cherry, Roma — leave blank for generic"
                         :class="{ 'border-destructive': form.errors.variety_name }"
+                        placeholder="..."
                     />
                     <p v-if="form.errors.variety_name" class="text-xs text-destructive">
                         {{ form.errors.variety_name }}
@@ -120,8 +111,15 @@ function handleSubmit(): void {
                 </div>
 
                 <div class="flex flex-col gap-2">
-                    <Label for="veg-local">Local Name <span class="text-muted-foreground font-normal">(optional)</span></Label>
-                    <Input id="veg-local" v-model="form.local_name" placeholder="Regional / vernacular name" />
+                    <Label for="veg-local">
+                        Local Name
+                        <Badge variant="outline" class="text-xs font-normal">Optional</Badge>
+                    </Label>
+                    <Input 
+                        id="veg-local" 
+                        v-model="form.local_name" 
+                        placeholder="..."
+                    />
                 </div>
 
                 <ImageUpload

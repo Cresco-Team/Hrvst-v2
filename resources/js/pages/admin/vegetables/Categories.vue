@@ -22,7 +22,7 @@ const breadcrumbs: BreadcrumbItem[] = [
         <div class="flex flex-col gap-6 p-4 lg:p-6">
             <Heading
                 title="Vegetable Categories"
-                description="Select a category to browse its vegetables and varieties."
+                description="Select a category to browse its vegetables"
             />
 
             <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">

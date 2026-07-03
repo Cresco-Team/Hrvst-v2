@@ -3,10 +3,7 @@
 
 import type { MunicipalityOption, SupplyOption } from '../resources/marketplace'
 import type {
-  CategoryOption,
-  Table,
   VegetableSummary,
-  VegetableOptions,
 } from '../resources/product'
 import type {
   AdminDealerSummary,
@@ -60,7 +57,7 @@ export interface AdminVegetablesProps {
   category: { id: number; name: string; slug: string }
   summary: VegetableSummary
   filters: AdminVegetablesFilters
-  vegetables: Paginated<Table>
+  vegetables: Paginated<App.Data.Vegetable.VegetableAdminData>
 }
 
 // ─── admin/farmers/Index ──────────────────────────────────────────────────────

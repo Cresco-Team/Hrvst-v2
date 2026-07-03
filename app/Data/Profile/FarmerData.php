@@ -37,7 +37,7 @@ class FarmerData extends Data
     {
         return new self(
             id: $farmer->id,
-            joined_at: $farmer->created_at->toDateString(),
+            joined_at: $farmer->created_at->format('F j, Y'),
             joined_at_human: $farmer->created_at->diffForHumans(),
             user: Lazy::whenLoaded('user', $farmer, fn () => UserData::fromModel($farmer->user)),
             full_address: implode(', ', array_filter([

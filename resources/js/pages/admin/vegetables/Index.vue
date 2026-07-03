@@ -10,9 +10,8 @@ import { Skeleton } from '@/components/ui/skeleton'
 import AppLayout from '@/layouts/AppLayout.vue'
 import admin, { dashboard } from '@/routes/admin'
 import { destroy as destroyVeg, index } from '@/routes/admin/vegetables'
-import type { AdminVegetablesProps, BreadcrumbItem } from '@/types'
-import { mapVegetablesToTableRows, type VegetableTableRow } from '@/types/resources/product'
-import SmallCard from '@/components/shared/cards/SmallCard.vue'
+import type { AdminVegetablesProps, BreadcrumbItem, VegetableAdminData } from '@/types'
+import { Plus } from '@lucide/vue'
 
 const props = defineProps<AdminVegetablesProps>()
 
@@ -25,26 +24,23 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => [
 ])
 
 const searchQuery = ref(props.filters?.search ?? '')
-const tableVegetables = computed(() => mapVegetablesToTableRows(props.vegetables.data ?? []))
-
-// ── Vegetable CRUD — one form handles create/edit, with or without a variety ──
 
 const formOpen = ref(false)
-const editTarget = ref<VegetableTableRow | null>(null)
+const editTarget = ref<VegetableAdminData | null>(null)
 const deleteOpen = ref(false)
-const deleteTarget = ref<VegetableTableRow | null>(null)
+const deleteTarget = ref<VegetableAdminData | null>(null)
 
 function openCreate(): void {
     editTarget.value = null
     formOpen.value = true
 }
 
-function openEdit(row: VegetableTableRow): void {
+function openEdit(row: VegetableAdminData): void {
     editTarget.value = row
     formOpen.value = true
 }
 
-function openDelete(row: VegetableTableRow): void {
+function openDelete(row: VegetableAdminData): void {
     deleteTarget.value = row
     deleteOpen.value = true
 }
@@ -57,6 +53,14 @@ function handleDelete(): void {
             deleteOpen.value = false
             deleteTarget.value = null
         },
+    })
+}
+
+function handlePageChange(page: number) {
+    router.visit(admin.vegetables.index().url, {
+        data: { page, search: searchQuery.value || undefined },
+        preserveState: true,
+        preserveScroll: true,
     })
 }
 
@@ -83,20 +87,11 @@ function handleSearch(query: string): void {
                         ? `Vegetables and varieties for ${category.name}`
                         : 'Manage all vegetable and variety entries.'"
                 />
-                <Button @click="openCreate">Add Vegetable</Button>
+                <Button @click="openCreate">
+                    <Plus />
+                    Add Vegetable
+                </Button>
             </div>
-
-            <Deferred data="summary">
-                <template #fallback>
-                    <div class="grid gap-4 md:grid-cols-2">
-                        <Skeleton v-for="i in 2" :key="i" class="h-20" />
-                    </div>
-                </template>
-                <div class="grid gap-4 md:grid-cols-2">
-                    <SmallCard title="Vegetables" subtext="distinct names" :value="summary?.total_vegetables" />
-                    <SmallCard title="Varieties" subtext="rows with a named variety" :value="summary?.total_varieties" />
-                </div>
-            </Deferred>
 
             <Deferred data="vegetables">
                 <template #fallback>
@@ -112,11 +107,12 @@ function handleSearch(query: string): void {
 
                 <VegetableTable
                     v-if="vegetables"
-                    :vegetables="tableVegetables"
+                    :vegetables="vegetables"
                     :search-query="searchQuery"
                     @open-edit-vegetable="openEdit"
                     @open-delete-vegetable="openDelete"
                     @open-vegetable-details="(row) => router.visit(admin.vegetables.show({ vegetable: row.id }).url)"
+                    @page-change="handlePageChange"
                     @search="handleSearch"
                 />
             </Deferred>
@@ -135,7 +131,7 @@ function handleSearch(query: string): void {
     <ConfirmationDialog
         v-model:open="deleteOpen"
         title="Delete Vegetable"
-        :description="`Are you sure you want to delete '${deleteTarget?.name}'? This cannot be undone.`"
+        :description="`Are you sure you want to delete '${deleteTarget?.display_name}'? This cannot be undone.`"
         variant="destructive"
         @action="handleDelete"
     />

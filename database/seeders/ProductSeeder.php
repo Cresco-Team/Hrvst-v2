@@ -26,44 +26,53 @@ class ProductSeeder extends Seeder
                     $name => Category::firstOrCreate(['name' => $name]),
                 ]);
 
-            // ── Vegetables + varieties (flat) ────────────────────────────────
+            // ── Vegetables + varieties (flat), local_name applies at the
+            // vegetable level — every variety under it shares the same
+            // common/regional name. Override per-variety only if you have
+            // a confirmed case where that's actually wrong.
+            //
+            // ⚠ Local names below are best-effort, not verified against a
+            // Cordilleran/Ilocano linguistic source. Confirm with a local
+            // before this reaches real farmer/dealer users.
             $catalog = [
                 'Leafy Vegetables' => [
-                    'Lettuce' => ['Iceberg', 'Green Ice', 'Romaine'],
-                    'Cabbage' => ['Scorpio', 'Wonderball', 'Rareball', 'Red', 'Chinese'],
-                    'Celery' => ['Celery'],
-                    'Broccoli' => ['Brocolli'],
-                    'Onion Leeks' => ['Onion Leeks'],
+                    'Lettuce' => ['local_name' => 'Letsugas', 'varieties' => ['Iceberg', 'Green Ice', 'Romaine']],
+                    'Cabbage' => ['local_name' => 'Repolyo', 'varieties' => ['Scorpio', 'Wonderball', 'Rareball', 'Red', 'Chinese']],
+                    'Celery' => ['local_name' => null, 'varieties' => ['Celery']],
+                    'Broccoli' => ['local_name' => null, 'varieties' => ['Brocolli']],
+                    'Onion Leeks' => ['local_name' => null, 'varieties' => ['Onion Leeks']],
                 ],
                 'Root Vegetables' => [
-                    'Carrot' => ['Carrort'],
-                    'Potato' => ['Granola', 'LBR'],
-                    'Radish' => ['Long'],
+                    'Carrot' => ['local_name' => 'Karot', 'varieties' => ['Carrort']],
+                    'Potato' => ['local_name' => 'Patatas', 'varieties' => ['Granola', 'LBR']],
+                    'Radish' => ['local_name' => 'Labanos', 'varieties' => ['Long']],
                 ],
                 'Fruiting Vegetables' => [
-                    'Tomato' => ['Tomato'],
-                    'Cucumber' => ['Cucumber'],
-                    'Zucchini' => ['Zucchini'],
-                    'Bell Pepper' => ['California (Open Field)', 'California (Greenhouse)', 'Sultan', 'Dongxin'],
-                    'Chayote' => ['Chayote'],
+                    'Tomato' => ['local_name' => 'Kamatis', 'varieties' => ['Tomato']],
+                    'Cucumber' => ['local_name' => 'Pipino', 'varieties' => ['Cucumber']],
+                    'Zucchini' => ['local_name' => null, 'varieties' => ['Zucchini']],
+                    'Bell Pepper' => ['local_name' => null, 'varieties' => ['California (Open Field)', 'California (Greenhouse)', 'Sultan', 'Dongxin']],
+                    'Chayote' => ['local_name' => 'Sayote', 'varieties' => ['Chayote']],
                 ],
                 'Bean Vegetables' => [
-                    'Snap Beans' => ['Snap Beans'],
-                    'Garden Peas' => ['Garden Peas'],
+                    'Snap Beans' => ['local_name' => null, 'varieties' => ['Snap Beans']],
+                    'Garden Peas' => ['local_name' => 'Gisantes', 'varieties' => ['Garden Peas']],
                 ],
             ];
 
             foreach ($catalog as $categoryName => $vegetables) {
-                foreach ($vegetables as $vegetableName => $varietyNames) {
-                    foreach ($varietyNames as $varietyName) {
-                        // Self-named "variety" (legacy of the old FK model) means
-                        // no real variety distinction — normalize to null.
+                foreach ($vegetables as $vegetableName => $entry) {
+                    $localName = $entry['local_name'];
+
+                    foreach ($entry['varieties'] as $varietyName) {
                         $normalizedVariety = $varietyName === $vegetableName ? null : $varietyName;
 
                         Vegetable::firstOrCreate([
                             'category_id' => $categories[$categoryName]->id,
                             'vegetable_name' => $vegetableName,
                             'variety_name' => $normalizedVariety,
+                        ], [
+                            'local_name' => $localName,
                         ]);
                     }
                 }
@@ -71,6 +80,6 @@ class ProductSeeder extends Seeder
 
         });
 
-        $this->command->info('✓ Products seeded');
+        $this->command->info('✓ Vegetable seeded');
     }
 }

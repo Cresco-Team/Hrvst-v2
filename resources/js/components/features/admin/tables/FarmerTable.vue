@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import type { ColumnDef } from '@tanstack/vue-table'
 import {
-    ChevronDownIcon,
-    ChevronRightIcon,
     ClipboardList,
     Mail,
     MapPin,
@@ -12,20 +10,13 @@ import {
 import DataTable from '@/components/shared/tables/DataTable.vue'
 import { Button } from '@/components/ui/button'
 import {
-    Item,
-    ItemContent,
-    ItemDescription,
-    ItemMedia,
-    ItemTitle,
-} from '@/components/ui/item'
-import {
     Tooltip,
     TooltipContent,
     TooltipProvider,
     TooltipTrigger,
 } from '@/components/ui/tooltip'
-import { getInitials } from '@/composables/useInitials'
 import type { FarmerResource, Paginated } from '@/types'
+import AppTooltip from '@/components/templates/AppTooltip.vue'
 
 defineProps<{
     farmers: Paginated<FarmerResource>
@@ -124,6 +115,9 @@ const columns: ColumnDef<FarmerResource>[] = [
         </template>
 
         <template #cell-joined="{ row }">
+            <AppTooltip :content="`Joined on ${row.joined_at}`" :delay-duration="200">
+                <span class="cursor-help text-sm">{{ row.joined_at }}</span>
+            </AppTooltip>
             <TooltipProvider :delay-duration="200">
                 <Tooltip>
                     <TooltipTrigger as-child>
