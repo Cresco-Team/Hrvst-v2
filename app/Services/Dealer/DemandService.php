@@ -4,25 +4,12 @@ namespace App\Services\Dealer;
 
 use App\Enums\PostItemStatus;
 use App\Models\Marketplace\Post;
-use App\Models\Marketplace\PostItem;
-use App\Models\Product\Variety;
 use App\Models\Product\Vegetable;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 
 class DemandService
 {
-    public function summary(int $userId): array
-    {
-        $query = PostItem::whereHas('post', fn (Builder $q) => $q->demand()->where('user_id', $userId));
-
-        return [
-            'total_ongoing' => (clone $query)->ongoing()->count(),
-            'total_fulfilled' => (clone $query)->fulfilled()->count(),
-            'total_expired' => (clone $query)->expired()->count(),
-        ];
-    }
-
     public function paginated(int $userId, PostItemStatus $status, int $perPage = 20): LengthAwarePaginator
     {
         return Post::demand()
