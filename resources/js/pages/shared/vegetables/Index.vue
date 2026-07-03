@@ -25,6 +25,7 @@ import {
     ItemMedia,
     ItemTitle,
 } from '@/components/ui/item'
+import VegetableItem from '@/components/shared/cards/VegetableItem.vue'
 
 interface VegetablesFilters {
     search: string | null
@@ -134,26 +135,11 @@ function handlePageChange(page: number) {
                 />
 
                 <div v-else class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                    <Link
+                    <VegetableItem
                         v-for="vegetable in vegetables.data"
                         :key="vegetable.id"
-                        :href="show({ vegetable: vegetable.id }).url"
-                    >
-                        <Item variant="outline" class="h-full transition-all hover:shadow-sm">
-                            <ItemMedia variant="image">
-                                <img :src="vegetable.image_url" :alt="vegetable.name" />
-                            </ItemMedia>
-
-                            <ItemContent>
-                                <ItemTitle class="line-clamp-1">
-                                    {{ vegetable.name }}
-                                </ItemTitle>
-                                <ItemDescription v-if="vegetable.local_name" class="text-xs">
-                                    {{ vegetable.local_name }}
-                                </ItemDescription>
-                            </ItemContent>
-                        </Item>
-                    </Link>
+                        :vegetable="vegetable"
+                    />
                 </div>
             </Deferred>
 
