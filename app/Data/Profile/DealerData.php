@@ -32,7 +32,7 @@ class DealerData extends Data
     {
         return new self(
             id: $dealer->id,
-            joined_at: $dealer->created_at->toDateString(),
+            joined_at: $dealer->created_at->format('F j, Y'),
             joined_at_human: $dealer->created_at->diffForHumans(),
             user: Lazy::whenLoaded('user', $dealer, fn () => UserData::fromModel($dealer->user)),
             ongoing_demands_count: self::resolveCount($dealer, 'ongoing_demands_count'),
