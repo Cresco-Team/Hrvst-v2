@@ -13,6 +13,7 @@ import { destroy as destroyVeg, index } from '@/routes/admin/vegetables'
 import type { AdminVegetablesProps, BreadcrumbItem } from '@/types'
 import { mapVegetablesToTableRows, type VegetableTableRow } from '@/types/resources/product'
 import SmallCard from '@/components/shared/cards/SmallCard.vue'
+import { Plus } from '@lucide/vue'
 
 const props = defineProps<AdminVegetablesProps>()
 
@@ -26,8 +27,6 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => [
 
 const searchQuery = ref(props.filters?.search ?? '')
 const tableVegetables = computed(() => mapVegetablesToTableRows(props.vegetables.data ?? []))
-
-// ── Vegetable CRUD — one form handles create/edit, with or without a variety ──
 
 const formOpen = ref(false)
 const editTarget = ref<VegetableTableRow | null>(null)
@@ -83,20 +82,11 @@ function handleSearch(query: string): void {
                         ? `Vegetables and varieties for ${category.name}`
                         : 'Manage all vegetable and variety entries.'"
                 />
-                <Button @click="openCreate">Add Vegetable</Button>
+                <Button @click="openCreate">
+                    <Plus />
+                    Add Vegetable
+                </Button>
             </div>
-
-            <Deferred data="summary">
-                <template #fallback>
-                    <div class="grid gap-4 md:grid-cols-2">
-                        <Skeleton v-for="i in 2" :key="i" class="h-20" />
-                    </div>
-                </template>
-                <div class="grid gap-4 md:grid-cols-2">
-                    <SmallCard title="Vegetables" subtext="distinct names" :value="summary?.total_vegetables" />
-                    <SmallCard title="Varieties" subtext="rows with a named variety" :value="summary?.total_varieties" />
-                </div>
-            </Deferred>
 
             <Deferred data="vegetables">
                 <template #fallback>
