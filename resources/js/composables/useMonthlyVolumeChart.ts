@@ -11,7 +11,6 @@ import {
 import { computed, type MaybeRefOrGetter, toValue } from 'vue'
 import type { ForecastPoint, MonthlyActivity } from '@/types/resources/product'
 
-// LineElement / PointElement removed — forecast is now stacked bars, not lines
 ChartJS.register(BarElement, CategoryScale, LinearScale, Title, Tooltip, Legend)
 
 export function useMonthlyVolumeChart(
@@ -24,7 +23,6 @@ export function useMonthlyVolumeChart(
 
         if (!allMonths?.length) return null
 
-        // Last 6 months of actuals; forecast covers the next 6
         const historical = allMonths.slice(-6)
         const histLen = historical.length
         const fcLen = fc.length
@@ -34,22 +32,15 @@ export function useMonthlyVolumeChart(
             ...fc.map((m) => m.label),
         ]
 
-        // Actual values at positions 0..histLen-1, null in forecast zone
         const barData = (values: number[]) => [
             ...values,
             ...Array<null>(fcLen).fill(null),
         ]
-
-        // Null in actual zone, forecast values at positions histLen..end
-        // Shares the same stack names ('supply' / 'demand') as the actual datasets
-        // so both groups render side-by-side correctly — Chart.js treats null as
-        // "no contribution" for that position, so only non-null datasets render.
         const forecastBarData = (values: number[]) => [
             ...Array<null>(histLen).fill(null),
             ...values,
         ]
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const datasets: any[] = [
             // ── Actual stacked bars ───────────────────────────────────────────
             {
@@ -66,8 +57,8 @@ export function useMonthlyVolumeChart(
                 type: 'bar',
                 label: 'Supply — Expired',
                 data: barData(historical.map((m) => m.supply_expired_kg)),
-                backgroundColor: 'rgba(34, 197, 94, 0.4)',
-                borderColor: 'rgb(34, 197, 94)',
+                backgroundColor: 'rgba(166, 166, 166, 0.3)',
+                borderColor: 'rgb(166, 166, 166)',
                 borderWidth: 1,
                 stack: 'supply',
             },
@@ -85,17 +76,13 @@ export function useMonthlyVolumeChart(
                 type: 'bar',
                 label: 'Demand — Expired',
                 data: barData(historical.map((m) => m.demand_expired_kg)),
-                backgroundColor: 'rgba(249, 115, 22, 0.4)',
-                borderColor: 'rgb(249, 115, 22)',
+                backgroundColor: 'rgba(166, 166, 166, 0.3)',
+                borderColor: 'rgb(166, 166, 166)',
                 borderWidth: 1,
                 stack: 'demand',
             },
         ]
 
-        // ── Forecast bars (lighter shade, same stack groups) ──────────────────
-        // No bridge/anchor — bars simply start at position histLen (Jul 2026),
-        // after the last actual bar (Jun 2026 at position histLen-1).
-        // This eliminates the current-month overlap that caused the visual bug.
         if (fcLen > 0) {
             datasets.push(
                 {
@@ -124,10 +111,6 @@ export function useMonthlyVolumeChart(
         return { labels: allLabels, datasets }
     })
 
-    /**
-     * Draws a vertical dashed separator between the last actual bar (histLen-1)
-     * and the first forecast bar (histLen), positioned at their midpoint.
-     */
     const forecastDividerPlugin = {
         id: 'forecastDivider',
         afterDraw(chart: ChartJS) {
@@ -138,10 +121,8 @@ export function useMonthlyVolumeChart(
             const histLen = months?.slice(-6).length ?? 0
             if (histLen <= 0) return
 
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const { ctx, chartArea, scales } = chart as any
 
-            // Midpoint between last actual category center and first forecast category center
             const xLeft: number = scales.x.getPixelForValue(histLen - 1)
             const xRight: number = scales.x.getPixelForValue(histLen)
             const xPos = (xLeft + xRight) / 2
