@@ -11,7 +11,7 @@ withDefaults(defineProps<Props>(), {
 </script>
 
 <template>
-    <header :class="variant === 'small' ? '' : 'mb-8 space-y-0.5'">
+    <header>
         <h1
             :class="
                 variant === 'small'
