@@ -67,7 +67,7 @@ class VegetableController extends Controller
         $year = (int) ($validated['year'] ?? now()->year);
         $month = (int) ($validated['month'] ?? now()->month);
 
-        return Inertia::render('admin/vegetables/Show', [
+        return Inertia::render('shared/vegetables/Show', [
             'variety' => Inertia::defer(
                 fn () => VegetableDetailData::fromModel(
                     $this->vegetableDetailService->show($vegetable, $year, $month, VarietyViewerRole::Admin)
