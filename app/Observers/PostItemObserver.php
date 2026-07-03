@@ -17,17 +17,16 @@ class PostItemObserver
 
         $postItem->loadMissing('post');
 
-        $varietyId  = $postItem->variety_id;
-        $periodDate = $postItem->post->created_at->startOfMonth()->toDateString();
+        $vegetableId = $postItem->vegetable_id;
+        $periodDate  = $postItem->post->created_at->startOfMonth()->toDateString();
 
-        $newStatus = $postItem->status;
-        $newColumn = $this->resolveColumn($postItem->post->type, $newStatus);
+        $newColumn = $this->resolveColumn($postItem->post->type, $postItem->status);
 
         if ($newColumn !== null) {
-            $this->upsertRow($varietyId, $periodDate);
+            $this->upsertRow($vegetableId, $periodDate);
 
-            DB::table('variety_monthly_stats')
-                ->where('variety_id', $varietyId)
+            DB::table('vegetable_monthly_stats')
+                ->where('vegetable_id', $vegetableId)
                 ->where('period_date', $periodDate)
                 ->increment($newColumn, (float) $postItem->quantity_kg);
         }
@@ -43,8 +42,8 @@ class PostItemObserver
             if ($oldColumn !== null) {
                 $qty = (float) $postItem->quantity_kg;
 
-                DB::table('variety_monthly_stats')
-                    ->where('variety_id', $varietyId)
+                DB::table('vegetable_monthly_stats')
+                    ->where('vegetable_id', $vegetableId)
                     ->where('period_date', $periodDate)
                     ->update([
                         $oldColumn => DB::raw("GREATEST({$oldColumn} - {$qty}, 0)"),
@@ -63,12 +62,12 @@ class PostItemObserver
             return;
         }
 
-        $qty        = (float) $postItem->quantity_kg;
-        $varietyId  = $postItem->variety_id;
-        $periodDate = $postItem->post->created_at->startOfMonth()->toDateString();
+        $qty         = (float) $postItem->quantity_kg;
+        $vegetableId = $postItem->vegetable_id;
+        $periodDate  = $postItem->post->created_at->startOfMonth()->toDateString();
 
-        DB::table('variety_monthly_stats')
-            ->where('variety_id', $varietyId)
+        DB::table('vegetable_monthly_stats')
+            ->where('vegetable_id', $vegetableId)
             ->where('period_date', $periodDate)
             ->update([
                 $column => DB::raw("GREATEST({$column} - {$qty}, 0)"),
@@ -86,11 +85,11 @@ class PostItemObserver
         };
     }
 
-    private function upsertRow(int $varietyId, string $periodDate): void
+    private function upsertRow(int $vegetableId, string $periodDate): void
     {
-        DB::table('variety_monthly_stats')->upsert(
+        DB::table('vegetable_monthly_stats')->upsert(
             [[
-                'variety_id'          => $varietyId,
+                'vegetable_id'        => $vegetableId,
                 'period_date'         => $periodDate,
                 'supply_expired_kg'   => 0,
                 'supply_fulfilled_kg' => 0,
@@ -99,7 +98,7 @@ class PostItemObserver
                 'created_at'          => now(),
                 'updated_at'          => now(),
             ]],
-            ['variety_id', 'period_date'],
+            ['vegetable_id', 'period_date'],
             ['updated_at'],
         );
     }
