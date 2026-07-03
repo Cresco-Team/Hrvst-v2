@@ -153,8 +153,8 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => [
                                     <CalendarDays
                                         class="size-4 shrink-0"
                                     /><span
-                                        >Joined
-                                        {{ farmer.joined_at_human }}</span
+                                        >Joined:
+                                        {{ farmer.joined_at }}</span
                                     >
                                 </div>
                             </div>
@@ -188,17 +188,17 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => [
                         <!-- Stats -->
                         <div class="hidden gap-3 sm:grid sm:grid-cols-3">
                             <SmallCard
-                                title="Total Items"
-                                :value="totalItems"
+                                title="Total vegetable supplies"
+                                :value="totalItems.toLocaleString()"
                             />
                             <SmallCard
                                 title="Total Quantity"
-                                :value="totalQuantity"
+                                :value="totalQuantity.toLocaleString()"
                                 subtext="kg"
                             />
                             <SmallCard
                                 title="Ongoing Items"
-                                :value="ongoingItems.length"
+                                :value="ongoingItems.length.toLocaleString()"
                             />
                         </div>
 
@@ -297,9 +297,7 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => [
                                                                 class="font-mono text-sm font-medium text-foreground"
                                                             >
                                                                 {{
-                                                                    item.quantity_kg.toFixed(
-                                                                        2,
-                                                                    )
+                                                                    item.quantity_kg.toLocaleString()
                                                                 }}
                                                                 kg
                                                             </span>

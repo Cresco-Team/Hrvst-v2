@@ -16,6 +16,7 @@ import {
     TooltipTrigger,
 } from '@/components/ui/tooltip'
 import type { FarmerResource, Paginated } from '@/types'
+import AppTooltip from '@/components/templates/AppTooltip.vue'
 
 defineProps<{
     farmers: Paginated<FarmerResource>
@@ -114,6 +115,9 @@ const columns: ColumnDef<FarmerResource>[] = [
         </template>
 
         <template #cell-joined="{ row }">
+            <AppTooltip :content="`Joined on ${row.joined_at}`" :delay-duration="200">
+                <span class="cursor-help text-sm">{{ row.joined_at }}</span>
+            </AppTooltip>
             <TooltipProvider :delay-duration="200">
                 <Tooltip>
                     <TooltipTrigger as-child>
