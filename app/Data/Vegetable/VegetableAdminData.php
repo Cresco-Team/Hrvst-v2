@@ -29,14 +29,15 @@ class VegetableAdminData extends Data
 
     public static function fromModel(Vegetable $vegetable): self
     {
+        $local = $vegetable->local_name ? " ({$vegetable->local_name})" : '';
         return new self(
             id: $vegetable->id,
             vegetable_name: $vegetable->vegetable_name,
             variety_name: $vegetable->variety_name,
             local_name: $vegetable->local_name,
             name: $vegetable->variety_name
-                ? "{$vegetable->vegetable_name}: {$vegetable->variety_name}"
-                : $vegetable->vegetable_name,
+                ? "{$vegetable->vegetable_name}: {$vegetable->variety_name}{$local}"
+                : "{$vegetable->vegetable_name}{$local}",
             image_url: $vegetable->getFirstMediaUrl('vegetable_image'),
             category: Lazy::whenLoaded('category', $vegetable, fn () => CategoryData::fromModel($vegetable->category)),
             supply_count: self::resolveCount($vegetable, 'supply_count'),
