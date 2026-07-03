@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import type { ColumnDef } from '@tanstack/vue-table'
 import {
-    ChevronDownIcon,
-    ChevronRightIcon,
     ClipboardList,
     Mail,
     MapPin,
@@ -12,19 +10,11 @@ import {
 import DataTable from '@/components/shared/tables/DataTable.vue'
 import { Button } from '@/components/ui/button'
 import {
-    Item,
-    ItemContent,
-    ItemDescription,
-    ItemMedia,
-    ItemTitle,
-} from '@/components/ui/item'
-import {
     Tooltip,
     TooltipContent,
     TooltipProvider,
     TooltipTrigger,
 } from '@/components/ui/tooltip'
-import { getInitials } from '@/composables/useInitials'
 import type { FarmerResource, Paginated } from '@/types'
 
 defineProps<{
