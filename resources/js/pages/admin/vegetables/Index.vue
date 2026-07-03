@@ -10,9 +10,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import AppLayout from '@/layouts/AppLayout.vue'
 import admin, { dashboard } from '@/routes/admin'
 import { destroy as destroyVeg, index } from '@/routes/admin/vegetables'
-import type { AdminVegetablesProps, BreadcrumbItem } from '@/types'
-import { mapVegetablesToTableRows, type VegetableTableRow } from '@/types/resources/product'
-import SmallCard from '@/components/shared/cards/SmallCard.vue'
+import type { AdminVegetablesProps, BreadcrumbItem, VegetableAdminData } from '@/types'
 import { Plus } from '@lucide/vue'
 
 const props = defineProps<AdminVegetablesProps>()
@@ -26,24 +24,23 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => [
 ])
 
 const searchQuery = ref(props.filters?.search ?? '')
-const tableVegetables = computed(() => mapVegetablesToTableRows(props.vegetables.data ?? []))
 
 const formOpen = ref(false)
-const editTarget = ref<VegetableTableRow | null>(null)
+const editTarget = ref<VegetableAdminData | null>(null)
 const deleteOpen = ref(false)
-const deleteTarget = ref<VegetableTableRow | null>(null)
+const deleteTarget = ref<VegetableAdminData | null>(null)
 
 function openCreate(): void {
     editTarget.value = null
     formOpen.value = true
 }
 
-function openEdit(row: VegetableTableRow): void {
+function openEdit(row: VegetableAdminData): void {
     editTarget.value = row
     formOpen.value = true
 }
 
-function openDelete(row: VegetableTableRow): void {
+function openDelete(row: VegetableAdminData): void {
     deleteTarget.value = row
     deleteOpen.value = true
 }
@@ -56,6 +53,14 @@ function handleDelete(): void {
             deleteOpen.value = false
             deleteTarget.value = null
         },
+    })
+}
+
+function handlePageChange(page: number) {
+    router.visit(admin.vegetables.index().url, {
+        data: { page, search: searchQuery.value || undefined },
+        preserveState: true,
+        preserveScroll: true,
     })
 }
 
@@ -102,11 +107,12 @@ function handleSearch(query: string): void {
 
                 <VegetableTable
                     v-if="vegetables"
-                    :vegetables="tableVegetables"
+                    :vegetables="vegetables"
                     :search-query="searchQuery"
                     @open-edit-vegetable="openEdit"
                     @open-delete-vegetable="openDelete"
                     @open-vegetable-details="(row) => router.visit(admin.vegetables.show({ vegetable: row.id }).url)"
+                    @page-change="handlePageChange"
                     @search="handleSearch"
                 />
             </Deferred>
@@ -125,7 +131,7 @@ function handleSearch(query: string): void {
     <ConfirmationDialog
         v-model:open="deleteOpen"
         title="Delete Vegetable"
-        :description="`Are you sure you want to delete '${deleteTarget?.name}'? This cannot be undone.`"
+        :description="`Are you sure you want to delete '${deleteTarget?.display_name}'? This cannot be undone.`"
         variant="destructive"
         @action="handleDelete"
     />
