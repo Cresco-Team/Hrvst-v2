@@ -108,7 +108,7 @@ function triggerFileInput() {
         <Label class="flex items-center gap-1.5">
             <ImageIcon class="size-3.5" />
             Variety Image
-            <Badge v-if="required" variant="secondary" class="text-xs font-normal">Required</Badge>
+            <Badge v-if="required" variant="destructive" class="text-xs font-normal">Required</Badge>
         </Label>
 
         <!-- Upload Area -->
@@ -155,7 +155,7 @@ function triggerFileInput() {
             {{ error }}
         </p>
         <p v-else class="text-xs text-muted-foreground">
-            Image will be automatically optimized and converted to WebP format
+            Accepted image formats are JPEG, PNG, and WebP
         </p>
     </div>
 </template>
