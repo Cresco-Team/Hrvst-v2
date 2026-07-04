@@ -88,20 +88,14 @@ function formatChange(change?: number): string {
                     <LargeCard
                         title="Total Varieties"
                         subtext="recorded"
-                        :value="kpis?.varieties.total_varieties.value"
-                        :change="
-                            formatChange(kpis?.varieties.total_varieties.change)
-                        "
-                        :trendColor="
-                            getTrendColor(kpis?.varieties.total_varieties.trend)
-                        "
+                        :value="kpis?.vegetables.total_vegetables.value"
                         cardClass="bg-linear-to-br from-orange-500/10 via-amber-500/10 to-yellow-500/30"
                     />
 
                     <LargeCard
                         title="Total Farmers"
                         subtext="registered"
-                        :value="kpis?.farmers.total_farmers.value"
+                        :value="kpis?.farmers.total_farmers.value.toLocaleString()"
                         :change="
                             formatChange(kpis?.farmers.total_farmers.change)
                         "
@@ -115,7 +109,7 @@ function formatChange(change?: number): string {
                     <LargeCard
                         title="Total Dealers"
                         subtext="registered"
-                        :value="kpis?.dealers.total_dealers.value"
+                        :value="kpis?.dealers.total_dealers.value.toLocaleString()"
                         :change="
                             formatChange(kpis?.dealers.total_dealers.change)
                         "
@@ -130,11 +124,11 @@ function formatChange(change?: number): string {
                 <div class="sm:px-20 md:px-50 lg:px-90 grid grid-cols-2 gap-6">
                     <SmallCard
                         title="Total Farmer Supplies"
-                        :value="kpis?.farmers.total_supplies.value"
+                        :value="kpis?.farmers.total_supplies.value.toLocaleString()"
                     />
                     <SmallCard
                         title="Total Dealer Requests"
-                        :value="kpis?.dealers.total_demands.value"
+                        :value="kpis?.dealers.total_demands.value.toLocaleString()"
                     />
                 </div>
             </Deferred>
