@@ -100,10 +100,9 @@ class FarmerMapService
                     'ongoing_supplies_count' => $ongoingItems->count(),
                     'supplies_summary' => $ongoingItems
                         ->groupBy(fn ($item) => $item->vegetable->vegetable_name)
-                        ->map(fn ($items, string $vegetableName) => [
-                            'vegetable' => $vegetableName,
+                        ->map(fn ($items) => [
                             'count' => $items->count(),
-                            'varieties' => $items->pluck('vegetable.variety_name')->filter()->unique()->values()->toArray(),
+                            'varieties' => $items->pluck('vegetable.display_name')->filter()->unique()->values()->toArray(),
                         ])
                         ->values()
                         ->toArray(),
