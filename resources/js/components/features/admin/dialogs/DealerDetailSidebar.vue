@@ -180,14 +180,13 @@ const handleDelete = () => {
                                     <AvatarImage
                                         v-if="item.vegetable_image_url"
                                         :src="item.vegetable_image_url"
-                                        :alt="item.vegetable_name"
+                                        :alt="item.display_name"
                                     />
-                                    <AvatarFallback>{{ item.vegetable_name }}</AvatarFallback>
                                 </Avatar>
                             </ItemMedia>
 
                             <ItemContent>
-                                <ItemTitle>{{ item.vegetable_name }}: {{ item.variety_name }}</ItemTitle>
+                                <ItemTitle>{{ item.display_name }}</ItemTitle>
                             </ItemContent>
 
                             <ItemActions>

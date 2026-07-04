@@ -85,16 +85,12 @@ const emit = defineEmits<{
                                 <Avatar class="size-5">
                                     <AvatarImage
                                         :src="item.vegetable_image_url!"
-                                        :alt="item.vegetable_name"
+                                        :alt="item.display_name"
                                     />
-                                    <AvatarFallback>
-                                        {{ getInitials(item.vegetable_name!) }}
-                                    </AvatarFallback>
                                 </Avatar>
 
                                 <span class="line-clamp-1 max-w-35">
-                                    {{ item.vegetable_name }}:
-                                    {{ item.variety_name }}
+                                    {{ item.display_name }}
                                 </span>
 
                                 <DropdownMenuShortcut>
