@@ -9,7 +9,6 @@ use App\Enums\PostType;
 use App\Http\Controllers\Controller;
 use App\Models\Marketplace\PostItem;
 use App\Services\Farmer\FarmerDashboardService;
-use App\Services\Farmer\SupplyService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -29,13 +28,6 @@ class DashboardController extends Controller
         return Inertia::render('farmer/Dashboard', [
             'expiringSupplies' => Inertia::defer(
                 fn () => FarmerExpiringSupplyData::collect($this->dashboardService->expiringSupplies($profile->user_id))
-            ),
-
-            'recommendations' => Inertia::defer(
-                fn () => array_map(
-                    fn ($rec) => $rec->toArray(),
-                    $this->dashboardService->recommendations($profile->user_id)
-                )
             ),
         ]);
     }
