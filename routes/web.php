@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AddressController;
 use App\Http\Controllers\ChangePinController;
+use App\Http\Controllers\OnboardingController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -17,6 +18,8 @@ Route::get('/address/barangays', [AddressController::class, 'barangays'])->name(
 Route::middleware(['auth'])->group(function () {
     Route::get('change-pin', [ChangePinController::class, 'show'])->name('change-pin.show');
     Route::post('change-pin', [ChangePinController::class, 'update'])->name('change-pin.update');
+
+    Route::post('onboarding/complete', [OnboardingController::class, 'complete'])->name('onboarding.complete');
 });
 
 /* ---------- authenticated & verified ---------- */
