@@ -18,7 +18,7 @@ class StoreSupplyRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'scheduled_date' => ['required', 'date', 'after:today'],
+            'scheduled_date' => ['required', 'date', 'after:today', 'before:'.now()->addMonths(3)->toDateString()],
             'time_slot' => ['required', Rule::enum(PostTimeSlot::class)],
             'items' => ['required', 'array', 'min:1'],
             'items.*.vegetable_id' => ['required', 'integer', 'exists:vegetables,id'],
@@ -31,6 +31,7 @@ class StoreSupplyRequest extends FormRequest
         return [
             'scheduled_date.required' => 'Scheduled delivery date is required.',
             'scheduled_date.after' => 'Scheduled date must be in the future.',
+            'scheduled_date.before' => 'Scheduled date cannot be more than 3 months away.',
             'time_slot.required' => 'A preferred time slot is required.',
             'items.required' => 'At least one supply item is required.',
             'items.min' => 'At least one supply item is required.',

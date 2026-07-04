@@ -17,7 +17,7 @@ class UpdateSupplyRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'scheduled_date' => ['sometimes', 'date', 'after:today'],
+            'scheduled_date' => ['sometimes', 'date', 'after:today', 'before:'.now()->addMonths(3)->toDateString()],
             'time_slot' => ['sometimes', Rule::enum(PostTimeSlot::class)],
             'items' => ['sometimes', 'array', 'min:1'],
             'items.*.id' => ['nullable', 'integer'],
@@ -30,6 +30,7 @@ class UpdateSupplyRequest extends FormRequest
     {
         return [
             'scheduled_date.after' => 'Scheduled date must be in the future.',
+            'scheduled_date.before' => 'Scheduled date cannot be more than 3 months away.',
             'items.min' => 'At least one supply item is required.',
             'items.*.vegetable_id.required_with' => 'Each item must have a vegetable.',
             'items.*.vegetable_id.exists' => 'Selected vegetable does not exist.',
