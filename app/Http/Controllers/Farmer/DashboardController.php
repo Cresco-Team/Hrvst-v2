@@ -19,7 +19,6 @@ use Inertia\Response;
 class DashboardController extends Controller
 {
     public function __construct(
-        private readonly SupplyService $supplyService,
         private readonly FarmerDashboardService $dashboardService,
     ) {}
 
