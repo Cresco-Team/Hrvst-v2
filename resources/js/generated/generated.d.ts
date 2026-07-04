@@ -1,21 +1,5 @@
 declare namespace App {
 namespace DTOs {
-namespace Dealer {
-export type DealerDashboardRecommendationDTO = {
-readonly severity: App.Enums.Analytics.RecommendationSeverity,
-readonly type: string,
-readonly title: string,
-readonly body: string,
-};
-}
-namespace Farmer {
-export type FarmerDashboardRecommendationDTO = {
-readonly severity: App.Enums.Analytics.RecommendationSeverity,
-readonly type: string,
-readonly title: string,
-readonly body: string,
-};
-}
 namespace Product {
 export type VarietyAnalyticsDTO = {
 supply_demand_ratio: number,
@@ -128,8 +112,7 @@ created_at_human: string,
 export type PostItemLightData = {
 id: number,
 vegetable_id: number,
-variety_name: string | null,
-vegetable_name: string | null,
+display_name: string | null,
 vegetable_image_url: string | null,
 quantity_kg: number,
 status: App.Enums.PostItemStatus | null,

@@ -16,6 +16,7 @@ type Props = {
 	description?: string
 	icon?: Component
 	button?: string
+    iconClass?: string
 }
 
 withDefaults(defineProps<Props>(), {
@@ -26,8 +27,8 @@ withDefaults(defineProps<Props>(), {
 <template>
     <Empty class="border border-dashed mx-20">
         <EmptyHeader>
-            <EmptyMedia variant="icon">
-                <component :is="icon" />
+            <EmptyMedia variant="icon" class="bg-primary/10">
+                <component :is="icon" :class="iconClass" />
             </EmptyMedia>
             <EmptyTitle>{{ title }}</EmptyTitle>
             <EmptyDescription v-if="description">

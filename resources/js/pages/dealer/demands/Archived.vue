@@ -124,11 +124,9 @@ const breadcrumbs: BreadcrumbItem[] = [
                                 :key="item.id"
                                 class="text-sm"
                             >
-                                <span class="font-medium">{{
-                                    item.vegetable_name
-                                }}</span>
-                                <span class="text-muted-foreground">
-                                    {{ item.variety_name }}</span
+                                <span class="font-medium">
+                                    {{ item.display_name }}
+                                </span
                                 >
                                 <span class="text-muted-foreground">
                                     &mdash; {{ item.quantity_kg }} kg</span
