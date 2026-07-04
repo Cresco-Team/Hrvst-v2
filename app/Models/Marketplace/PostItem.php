@@ -80,6 +80,15 @@ class PostItem extends Model
         );
     }
 
+    public function localName(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->relationLoaded('vegetable')
+                ? $this->vegetable?->local_name
+                : null
+        );
+    }
+
     public function displayName(): Attribute
     {
         return Attribute::make(
