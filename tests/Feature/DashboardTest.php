@@ -2,15 +2,59 @@
 
 use App\Models\User;
 
+use function Pest\Laravel\actingAs;
+
 test('guests are redirected to the login page', function () {
-    $response = $this->get(route('dashboard'));
-    $response->assertRedirect(route('login'));
+    $this->get(route('dashboard'))->assertRedirect(route('login'));
 });
 
-test('authenticated users are redirected from dashboard based on role', function () {
+test('admin is redirected to admin dashboard', function () {
+    actingAs(createAdminUser())
+        ->get(route('dashboard'))
+        ->assertRedirect(route('admin.dashboard'));
+});
+
+describe('farmer redirect', function () {
+    it('goes to supplies index when onboarding is incomplete', function () {
+        $farmer = createFarmerUser();
+
+        actingAs($farmer)
+            ->get(route('dashboard'))
+            ->assertRedirect(route('farmer.supplies.index'));
+    });
+
+    it('goes to farmer dashboard once onboarding is complete', function () {
+        $farmer = createFarmerUser();
+        $farmer->forceFill(['onboarding_completed_at' => now()])->save();
+
+        actingAs($farmer)
+            ->get(route('dashboard'))
+            ->assertRedirect(route('farmer.dashboard'));
+    });
+});
+
+describe('dealer redirect', function () {
+    it('goes to demands index when onboarding is incomplete', function () {
+        $dealer = createDealerUser();
+
+        actingAs($dealer)
+            ->get(route('dashboard'))
+            ->assertRedirect(route('dealer.demands.index'));
+    });
+
+    it('goes to dealer dashboard once onboarding is complete', function () {
+        $dealer = createDealerUser();
+        $dealer->forceFill(['onboarding_completed_at' => now()])->save();
+
+        actingAs($dealer)
+            ->get(route('dashboard'))
+            ->assertRedirect(route('dealer.dashboard'));
+    });
+});
+
+test('authenticated user with no role is redirected to categories', function () {
     $user = User::factory()->create(['must_change_pin' => false]);
     $this->actingAs($user);
 
-    $response = $this->get(route('dashboard'));
-    $response->assertRedirect(route('categories'));
+    $this->get(route('dashboard'))->assertRedirect(route('categories'));
 });

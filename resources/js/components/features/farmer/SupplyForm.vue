@@ -33,6 +33,7 @@ import {
 import { Calendar } from '@/components/ui/calendar'
 import type {
     FarmerSupplyDataFixed,
+    PostTimeSlot,
     VarietyOptionsByVegetable,
     VegetableOptionsByCategory,
 } from '@/types'
@@ -155,7 +156,7 @@ watch(
         if (!isOpen) return
 
         form.scheduled_date = s ? toInputDate(s.scheduled_date) : ''
-        form.time_slot = s?.time_slot ?? ''
+        form.time_slot = (s?.time_slot ?? '') as PostTimeSlot | ''
         form.items = s
             ? (s.post_items ?? []).map((item) => ({
                   _key: nextKey(),

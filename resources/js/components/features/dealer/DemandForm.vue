@@ -154,7 +154,7 @@ watch(
     ([isOpen, d]) => {
         if (!isOpen) return
         form.scheduled_date = d ? toInputDate(d.scheduled_date) : ''
-        form.time_slot = (d?.time_slot ?? 'morning') as PostTimeSlot | ''
+        form.time_slot = (d?.time_slot ?? '') as PostTimeSlot | ''
         form.items = d?.post_items?.length
             ? d.post_items.map((i) => ({
                   _key: nextKey(),

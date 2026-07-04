@@ -2,7 +2,8 @@
 
 use App\Http\Controllers\AddressController;
 use App\Http\Controllers\ChangePinController;
-use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\OnboardingController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -17,29 +18,15 @@ Route::get('/address/barangays', [AddressController::class, 'barangays'])->name(
 Route::middleware(['auth'])->group(function () {
     Route::get('change-pin', [ChangePinController::class, 'show'])->name('change-pin.show');
     Route::post('change-pin', [ChangePinController::class, 'update'])->name('change-pin.update');
+
+    Route::post('onboarding/complete', [OnboardingController::class, 'complete'])->name('onboarding.complete');
 });
 
 /* ---------- authenticated & verified ---------- */
 
 Route::middleware(['auth', 'verified'])->group(function () {
 
-    Route::get('dashboard', function () {
-        $user = Auth::user();
-
-        if ($user->hasRole('admin')) {
-            return redirect()->route('admin.dashboard');
-        }
-
-        if ($user->hasRole('farmer')) {
-            return redirect()->route('farmer.dashboard');
-        }
-
-        if ($user->hasRole('dealer')) {
-            return redirect()->route('dealer.dashboard');
-        }
-
-        return redirect()->route('categories');
-    })->name('dashboard');
+    Route::get('dashboard', DashboardController::class)->name('dashboard');
 });
 
 /* ---------- development only ---------- */

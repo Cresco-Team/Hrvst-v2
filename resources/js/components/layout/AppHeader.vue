@@ -7,8 +7,9 @@ import {
     PackageSearch,
     ShoppingBag,
     Vegan,
-} from 'lucide-vue-next'
-import { computed } from 'vue'
+    CircleHelp,
+} from '@lucide/vue'
+import { computed, ref } from 'vue'
 import AppLogo from '@/components/layout/AppLogo.vue'
 import AppLogoIcon from '@/components/layout/AppLogoIcon.vue'
 import Breadcrumbs from '@/components/layout/Breadcrumbs.vue'
@@ -44,6 +45,7 @@ import { archived as farmerSuppliesArchived } from '@/routes/farmer/supplies'
 import vegetables from '@/routes/vegetables'
 import type { BreadcrumbItem, NavItem } from '@/types'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip'
+import { useOnboardingGuide } from '@/composables/useOnboardingGuide'
 
 type Props = {
     breadcrumbs?: BreadcrumbItem[]
@@ -56,6 +58,19 @@ const props = withDefaults(defineProps<Props>(), {
 const page = usePage()
 const auth = computed(() => page.props.auth)
 const { isCurrentUrl, whenCurrentUrl } = useCurrentUrl()
+const mobileMenuOpen = ref(false)
+const { open: openOnboarding } = useOnboardingGuide()
+
+const showOnboardingTrigger = computed(
+    () =>
+        page.props.auth.user.roles.includes('farmer') ||
+        page.props.auth.user.roles.includes('dealer'),
+)
+
+function openOnboardingFromMobile(): void {
+    mobileMenuOpen.value = false
+    openOnboarding()
+}
 
 const activeItemStyles =
     'text-neutral-900 dark:bg-neutral-800 dark:text-neutral-100'
@@ -137,48 +152,40 @@ const rightNavItems = computed<NavItem[]>(() => {
             <div class="mx-auto flex h-16 items-center px-4 md:max-w-7xl">
                 <!-- Mobile menu -->
                 <div class="lg:hidden">
-                    <Sheet>
+                    <Sheet v-model:open="mobileMenuOpen">
                         <SheetTrigger :as-child="true">
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                class="mr-2 h-9 w-9"
-                            >
+                            <Button variant="ghost" size="icon" class="mr-2 h-9 w-9">
                                 <Menu class="h-5 w-5" />
                             </Button>
                         </SheetTrigger>
                         <SheetContent side="left" class="w-[300px] p-6">
-                            <SheetTitle class="sr-only"
-                                >Navigation Menu</SheetTitle
-                            >
+                            <SheetTitle class="sr-only">Navigation Menu</SheetTitle>
                             <SheetHeader class="flex justify-start text-left">
-                                <AppLogoIcon
-                                    class="size-6 fill-current text-black dark:text-white"
-                                />
+                                <AppLogoIcon class="size-6 fill-current text-black dark:text-white" />
                             </SheetHeader>
-                            <div
-                                class="flex h-full flex-1 flex-col justify-between space-y-4 py-6"
-                            >
+                            <div class="flex h-full flex-1 flex-col justify-between space-y-4 py-6">
                                 <nav class="-mx-3 space-y-1">
                                     <Link
                                         v-for="item in mainNavItems"
                                         :key="item.title"
                                         :href="item.href"
                                         class="flex items-center gap-x-3 rounded-lg px-3 py-2 text-sm font-medium hover:bg-accent"
-                                        :class="
-                                            whenCurrentUrl(
-                                                item.href,
-                                                activeItemStyles,
-                                            )
-                                        "
+                                        :class="whenCurrentUrl(item.href, activeItemStyles)"
+                                        @click="mobileMenuOpen = false"
                                     >
-                                        <component
-                                            v-if="item.icon"
-                                            :is="item.icon"
-                                            class="h-5 w-5"
-                                        />
+                                        <component v-if="item.icon" :is="item.icon" class="h-5 w-5" />
                                         {{ item.title }}
                                     </Link>
+
+                                    <button
+                                        v-if="showOnboardingTrigger"
+                                        type="button"
+                                        class="flex w-full items-center gap-x-3 rounded-lg px-3 py-2 text-left text-sm font-medium hover:bg-accent"
+                                        @click="openOnboardingFromMobile"
+                                    >
+                                        <CircleHelp class="h-5 w-5" />
+                                        How it works
+                                    </button>
                                 </nav>
                             </div>
                         </SheetContent>
@@ -230,6 +237,25 @@ const rightNavItems = computed<NavItem[]>(() => {
                 <div class="ml-auto flex items-center space-x-2">
                     <div class="relative flex items-center space-x-1">
                         <div class="hidden space-x-1 lg:flex">
+                            <TooltipProvider v-if="showOnboardingTrigger" :delay-duration="0">
+                                <Tooltip>
+                                    <TooltipTrigger as-child>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            class="group h-9 w-9 cursor-pointer"
+                                            @click="openOnboarding"
+                                        >
+                                            <span class="sr-only">How it works</span>
+                                            <CircleHelp class="size-5 opacity-80 group-hover:opacity-100" />
+                                        </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                        <p>How it works</p>
+                                    </TooltipContent>
+                                </Tooltip>
+                            </TooltipProvider>
+
                             <template
                                 v-for="item in rightNavItems"
                                 :key="item.title"

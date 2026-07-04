@@ -2,6 +2,7 @@
 import { watch } from 'vue'
 import { toast } from 'vue-sonner'
 import { Toaster } from '@/components/ui/sonner'
+import OnboardingGuide from '@/components/OnboardingGuide.vue'
 import { useFlash } from '@/composables/useFlash'
 import AppLayout from '@/layouts/app/AppHeaderLayout.vue'
 import type { BreadcrumbItem } from '@/types'
@@ -19,7 +20,6 @@ const { flash } = useFlash()
 watch(
   () => flash.value,
   (newFlash) => {
-    // 'pin' type is handled by the page that triggers it — never toast a PIN
     if (!newFlash?.message || newFlash.type === 'pin') return
 
     if (newFlash.type === 'error') {
@@ -36,5 +36,6 @@ watch(
   <AppLayout :breadcrumbs="breadcrumbs">
     <slot />
     <Toaster richColors position="top-right" />
+    <OnboardingGuide />
   </AppLayout>
 </template>

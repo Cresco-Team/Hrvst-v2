@@ -17,6 +17,7 @@ return new class extends Migration
             $table->boolean('must_change_pin')->default(false);
             $table->string('phone_number')->unique();
             $table->rememberToken();
+            $table->timestamp('onboarding_completed_at')->nullable();
             $table->timestamps();
         });
 
