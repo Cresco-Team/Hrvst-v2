@@ -19,7 +19,7 @@ class UpdateDemandRequest extends FormRequest
             'scheduled_date' => ['sometimes', 'date', 'after:today', 'before:'.now()->addMonths(3)->toDateString()],
             'time_slot' => ['sometimes', Rule::enum(PostTimeSlot::class)],
             'items' => ['sometimes', 'array', 'min:1'],
-            'items.*.vegetable_id' => ['required_with:items', 'integer', 'exists:varieties,id'],
+            'items.*.vegetable_id' => ['required_with:items', 'integer', 'exists:vegetables,id'],
             'items.*.quantity_kg' => ['required_with:items', 'numeric', 'min:0.1', 'max:99999'],
         ];
     }
