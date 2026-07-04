@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { router } from '@inertiajs/vue3'
-import { Check, X } from 'lucide-vue-next'
 import { computed, ref } from 'vue'
 import ConfirmationDialog from '@/components/dialogs/ConfirmationDialog.vue'
 import { Button } from '@/components/ui/button'
@@ -10,6 +9,7 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from '@/components/ui/tooltip'
+import { CircleCheck, CircleX } from '@lucide/vue'
 
 const props = defineProps<{
     fulfillUrl: string
@@ -62,12 +62,12 @@ function submit(): void {
             <Tooltip>
                 <TooltipTrigger as-child>
                     <Button
-                        variant="outline"
-                        size="icon-sm"
-                        class="text-green-600 hover:bg-green-50 hover:text-green-700 dark:hover:bg-green-950/30"
+                        variant="ghost"
+                        size="icon"
+                        class="text-primary hover:text-primary/80"
                         @click="pendingAction = 'fulfill'"
                     >
-                        <Check class="size-4" />
+                        <CircleCheck class="size-6" />
                     </Button>
                 </TooltipTrigger>
                 <TooltipContent><p class="text-xs">Mark fulfilled</p></TooltipContent>
@@ -78,12 +78,12 @@ function submit(): void {
             <Tooltip>
                 <TooltipTrigger as-child>
                     <Button
-                        variant="outline"
+                        variant="ghost"
                         size="icon-sm"
-                        class="text-destructive hover:bg-destructive/10"
+                        class="text-destructive hover:text-destructive/80"
                         @click="pendingAction = 'expire'"
                     >
-                        <X class="size-4" />
+                        <CircleX class="size-6" />
                     </Button>
                 </TooltipTrigger>
                 <TooltipContent><p class="text-xs">Mark expired</p></TooltipContent>
