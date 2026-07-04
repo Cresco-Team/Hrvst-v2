@@ -56,7 +56,7 @@ class FarmerController extends Controller
 
         $validated = $request->validate([
             'municipality_id' => 'nullable|exists:municipalities,id',
-            'variety_id' => 'nullable|exists:varieties,id',
+            'vegetable_id' => 'nullable|exists:vegetables,id',
             'bounds' => 'nullable|array',
             'bounds.north' => 'required_with:bounds|numeric',
             'bounds.south' => 'required_with:bounds|numeric',
@@ -66,7 +66,7 @@ class FarmerController extends Controller
 
         $farmers = $this->farmerMapService->getFarmersForMap(
             municipalityId: $validated['municipality_id'] ?? null,
-            varietyId: $validated['variety_id'] ?? null,
+            vegetableId: $validated['vegetable_id'] ?? null,
             bounds: $validated['bounds'] ?? null,
         );
 
