@@ -9,7 +9,6 @@ use App\Models\Address\Province;
 use App\Models\Marketplace\Post;
 use App\Models\Marketplace\PostItem;
 use App\Models\Product\Category;
-use App\Models\Product\Variety;
 use App\Models\Product\Vegetable;
 use App\Models\Profiles\DealerProfile;
 use App\Models\Profiles\FarmerProfile;
@@ -129,13 +128,14 @@ function createDealerUser(array $overrides = []): User
 
 // ─── Products ────────────────────────────────────────────────────────────────
 
-function createVegetable(
-    string $categoryName = 'Test Category',
-    string $vegetableName = 'Test Vegetable',
-    string $varietyName = 'Test Variety',
-): Vegetable {
-    $category = Category::create(['name' => $categoryName]);
-    return Vegetable::create(['category_id' => $category->id, 'vegetable_name' => $vegetableName]);
+function createVegetable(): Vegetable
+{
+    $category = Category::firstOrcreate(['name' => 'Leafy Greens']);
+
+    return Vegetable::create([
+        'category_id' => $category->id,
+        'vegetable_name' => 'Vegetable '.uniqid(),
+    ]);
 }
 
 // ─── Posts ───────────────────────────────────────────────────────────────────
@@ -147,7 +147,6 @@ function createSupplyPost(User $farmer, Vegetable $vegetable, array $overrides =
         'type' => PostType::Supply,
         'scheduled_date' => now()->addDays(7)->toDateString(),
         'time_slot' => PostTimeSlot::Morning,
-        'estimated_total_weight' => 100,
     ], $overrides));
 
     PostItem::create([
