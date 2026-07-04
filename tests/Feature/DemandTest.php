@@ -10,6 +10,7 @@ use App\Models\Profiles\DealerProfile;
 use App\Models\Profiles\Role;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 use function Pest\Laravel\actingAs;
 
@@ -190,8 +191,6 @@ describe('UpdateDemand', function () {
         $item = createDemandViaRoute($dealer, $vegetable);
         $item->update(['status' => PostItemStatus::Expired]);
         $post = $item->post;
-
-        $this->withoutExceptionHandling();
 
         actingAs($dealer)
             ->put(route('dealer.demands.update', $post), [

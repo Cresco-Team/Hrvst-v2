@@ -3,13 +3,11 @@
 use App\Enums\PostType;
 use App\Models\Marketplace\Post;
 use App\Models\Marketplace\PostItem;
-use App\Models\Product\Category;
 use App\Models\Product\Vegetable;
 use App\Models\Profiles\FarmerProfile;
 use App\Models\Profiles\Role;
 use App\Models\User;
 use Database\Seeders\AddressSeeder;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 use function Pest\Laravel\actingAs;
@@ -28,16 +26,6 @@ function farmerWithProfile(): User
     FarmerProfile::factory()->for($user)->create();
 
     return $user;
-}
-
-function makeVegetable(): Vegetable
-{
-    $category = Category::firstOrCreate(['name' => 'Leafy Greens']);
-
-    return Vegetable::create([
-        'category_id' => $category->id,
-        'vegetable_name' => 'Vegetable '.uniqid(),
-    ]);
 }
 
 function validSupplyPayload(array $vegetable, ?string $scheduledDate = null): array
@@ -74,8 +62,8 @@ describe('CreateSupply', function () {
 
     it('farmer can create a supply with items in a single request', function () {
         $farmer = farmerWithProfile();
-        $vegetable1 = makeVegetable();
-        $vegetable2 = makeVegetable();
+        $vegetable1 = createVegetable();
+        $vegetable2 = createVegetable();
 
         actingAs($farmer)
             ->post(route('farmer.supplies.store'), validSupplyPayload([$vegetable1, $vegetable2]))
@@ -92,7 +80,7 @@ describe('CreateSupply', function () {
 
     it('creation is atomic — no post exists if items fail', function () {
         $farmer = farmerWithProfile();
-        $vegetable = makeVegetable();
+        $vegetable = createVegetable();
 
         actingAs($farmer)
             ->post(route('farmer.supplies.store'), [
@@ -109,7 +97,7 @@ describe('CreateSupply', function () {
 
     it('rejects a past scheduled_date', function () {
         $farmer = farmerWithProfile();
-        $vegetable = makeVegetable();
+        $vegetable = createVegetable();
 
         actingAs($farmer)
             ->post(route('farmer.supplies.store'), validSupplyPayload([$vegetable], now()->subDay()->toDateString()))
@@ -118,7 +106,7 @@ describe('CreateSupply', function () {
 
     it('rejects scheduled_date beyond 3 months', function () {
         $farmer = farmerWithProfile();
-        $vegetable = makeVegetable();
+        $vegetable = createVegetable();
 
         actingAs($farmer)
             ->post(route('farmer.supplies.store'), validSupplyPayload([$vegetable], now()->addMonths(4)->toDateString()))
@@ -135,7 +123,7 @@ describe('CreateSupply', function () {
 
     it('rejects an empty items array', function () {
         $farmer = farmerWithProfile();
-        $vegetable = makeVegetable();
+        $vegetable = createVegetable();
 
         actingAs($farmer)
             ->post(route('farmer.supplies.store'), [
@@ -148,7 +136,7 @@ describe('CreateSupply', function () {
 
     it('rejects item with zero quantity', function () {
         $farmer = farmerWithProfile();
-        $vegetable = makeVegetable();
+        $vegetable = createVegetable();
 
         actingAs($farmer)
             ->post(route('farmer.supplies.store'), [
@@ -164,7 +152,7 @@ describe('CreateSupply', function () {
     it('non-farmer cannot create a supply', function () {
         $dealer = User::factory()->create();
         $dealer->roles()->attach(Role::where('name', 'dealer')->firstOrCreate(['name' => 'dealer']));
-        $vegetable = makeVegetable();
+        $vegetable = createVegetable();
 
         actingAs($dealer)
             ->post(route('farmer.supplies.store'), validSupplyPayload([$vegetable]))
@@ -178,7 +166,7 @@ describe('UpdateSupply', function () {
 
     it('farmer can update scheduled_date', function () {
         $farmer = farmerWithProfile();
-        $vegetable = makeVegetable();
+        $vegetable = createVegetable();
         $item = createSupplyViaRoute($farmer, $vegetable);
         $post = $item->post;
 
@@ -194,7 +182,7 @@ describe('UpdateSupply', function () {
     it('farmer cannot update another farmer\'s supply', function () {
         $farmer = farmerWithProfile();
         $other = farmerWithProfile();
-        $item = createSupplyViaRoute($other, makeVegetable());
+        $item = createSupplyViaRoute($other, createVegetable());
         $post = $item->post;
 
         actingAs($farmer)
@@ -212,7 +200,7 @@ describe('SupplyLifecycle', function () {
 
     it('farmer can delete a supply', function () {
         $farmer = farmerWithProfile();
-        $item = createSupplyViaRoute($farmer, makeVegetable());
+        $item = createSupplyViaRoute($farmer, createVegetable());
         $post = $item->post;
 
         actingAs($farmer)
@@ -224,7 +212,7 @@ describe('SupplyLifecycle', function () {
 
     it('deleting a supply soft-deletes the post record', function () {
         $farmer = farmerWithProfile();
-        $item = createSupplyViaRoute($farmer, makeVegetable());
+        $item = createSupplyViaRoute($farmer, createVegetable());
         $post = $item->post;
 
         actingAs($farmer)
