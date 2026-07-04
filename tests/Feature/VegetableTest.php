@@ -1,7 +1,6 @@
 <?php
 
 use App\Models\Product\Category;
-use App\Models\Product\Variety;
 use App\Models\Product\Vegetable;
 use App\Models\Profiles\Role;
 use App\Models\User;
@@ -190,7 +189,7 @@ describe('vegetable update', function () {
             ])
             ->assertForbidden();
 
-        expect($this->vegetable->fresh()->name)->toBe('Pechay');
+        expect($this->vegetable->fresh()->vegetable_name)->toBe('Pechay');
     });
 
     it('redirects guests to login', function () {
