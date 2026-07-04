@@ -48,7 +48,7 @@ export interface DealerDemandsProps {
 export interface DealerMarketplaceFilters {
 	search: string | null
 	category_id: number | null
-	variety_id: number | null
+	vegetable_id: number | null
 	municipality_id: number | null
 }
 

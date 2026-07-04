@@ -46,7 +46,7 @@ export interface FarmerSuppliesProps {
 export interface FarmerMarketplaceFilters {
 	search: string | null
 	category_id: number | null
-	variety_id: number | null
+	vegetable_id: number | null
 	date_from: string | null
 	date_to: string | null
 }

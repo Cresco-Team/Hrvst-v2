@@ -24,9 +24,8 @@ export interface AdminDashboardKPIs {
     total_dealers: KpiStat
     total_demands: KpiStat
   }
-  varieties: {
-    total_varieties: KpiStat
-    needs_attention: KpiStat
+  vegetables: {
+    total_vegetables: KpiStat
   }
 }
 
