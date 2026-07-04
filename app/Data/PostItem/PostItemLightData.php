@@ -12,8 +12,6 @@ class PostItemLightData extends Data
     public function __construct(
         public int $id,
         public int $vegetable_id,
-        public ?string $variety_name,
-        public ?string $vegetable_name,
         public ?string $display_name,
         public ?string $vegetable_image_url,
         public float $quantity_kg,
