@@ -112,8 +112,6 @@ created_at_human: string,
 export type PostItemLightData = {
 id: number,
 vegetable_id: number,
-variety_name: string | null,
-vegetable_name: string | null,
 display_name: string | null,
 vegetable_image_url: string | null,
 quantity_kg: number,
