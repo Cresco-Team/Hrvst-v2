@@ -2,20 +2,12 @@
 
 namespace App\Services\Farmer;
 
-use App\DTOs\Farmer\FarmerDashboardRecommendationDTO;
-use App\Enums\Analytics\RecommendationSeverity;
 use App\Models\Marketplace\Post;
-use App\Models\Marketplace\PostItem;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 
 class FarmerDashboardService
 {
-    private function baseItemQuery(int $userId): Builder
-    {
-        return PostItem::whereHas('post', fn (Builder $q) => $q->supply()->where('user_id', $userId));
-    }
-
     public function expiringSupplies(int $userId): Collection
     {
         return Post::supply()
@@ -28,35 +20,5 @@ class FarmerDashboardService
             ->with(['postItems' => fn ($q) => $q->ongoing()->with('vegetable')])
             ->orderBy('scheduled_date')
             ->get();
-    }
-
-    /** @return FarmerDashboardRecommendationDTO[] */
-    public function recommendations(int $userId): array
-    {
-        $recs = [];
-        $itemQuery = $this->baseItemQuery($userId);
-
-        $ongoing = (clone $itemQuery)->ongoing()->count();
-        $expired = (clone $itemQuery)->expired()->count();
-
-        if ($ongoing === 0) {
-            $recs[] = new FarmerDashboardRecommendationDTO(
-                severity: RecommendationSeverity::Info,
-                type: 'no_active_supply',
-                title: 'No Active Supply',
-                body: 'You have no scheduled supplies. Post a new supply to get started.',
-            );
-        }
-
-        if ($expired > 0) {
-            $recs[] = new FarmerDashboardRecommendationDTO(
-                severity: RecommendationSeverity::Warning,
-                type: 'expired_items',
-                title: 'expired Items',
-                body: "{$expired} supply item(s) expired without being fulfilled. Review your pricing or delivery timing.",
-            );
-        }
-
-        return $recs;
     }
 }
