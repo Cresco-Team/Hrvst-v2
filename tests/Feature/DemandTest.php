@@ -31,16 +31,6 @@ function dealerWithProfile(): User
     return $user;
 }
 
-function makeVegetable(): Vegetable
-{
-    $category = Category::firstOrCreate(['name' => 'Leafy Greens']);
-
-    return Vegetable::create([
-        'category_id' => $category->id,
-        'vegetable_name' => 'Vegetable '.uniqid(),
-    ]);
-}
-
 function validDemandPayload(array $vegetable, ?string $scheduledDate = null): array
 {
     return [
@@ -77,8 +67,8 @@ describe('CreateDemand', function () {
 
     it('dealer can create a demand with items in a single request', function () {
         $dealer = dealerWithProfile();
-        $vegetable1 = makeVegetable();
-        $vegetable2 = makeVegetable();
+        $vegetable1 = createVegetable();
+        $vegetable2 = createVegetable();
 
         actingAs($dealer)
             ->post(route('dealer.demands.store'), validDemandPayload([$vegetable1, $vegetable2]))
@@ -95,7 +85,7 @@ describe('CreateDemand', function () {
 
     it('demand creation is atomic — no post exists if items fail', function () {
         $dealer = dealerWithProfile();
-        $vegetable = makeVegetable();
+        $vegetable = createVegetable();
 
         actingAs($dealer)
             ->post(route('dealer.demands.store'), [
@@ -113,7 +103,7 @@ describe('CreateDemand', function () {
 
     it('rejects past scheduled_date', function () {
         $dealer = dealerWithProfile();
-        $vegetable = makeVegetable();
+        $vegetable = createVegetable();
 
         actingAs($dealer)
             ->post(route('dealer.demands.store'), validDemandPayload([$vegetable], now()->subDay()->toDateString()))
@@ -122,7 +112,7 @@ describe('CreateDemand', function () {
 
     it('rejects scheduled_date beyond 3 months', function () {
         $dealer = dealerWithProfile();
-        $vegetable = makeVegetable();
+        $vegetable = createVegetable();
 
         actingAs($dealer)
             ->post(route('dealer.demands.store'), validDemandPayload([$vegetable], now()->addMonths(4)->toDateString()))
@@ -139,7 +129,7 @@ describe('CreateDemand', function () {
 
     it('rejects empty items array', function () {
         $dealer = dealerWithProfile();
-        $vegetable = makeVegetable();
+        $vegetable = createVegetable();
 
         actingAs($dealer)
             ->post(route('dealer.demands.store'), [
@@ -152,7 +142,7 @@ describe('CreateDemand', function () {
 
     it('rejects item with zero quantity', function () {
         $dealer = dealerWithProfile();
-        $vegetable = makeVegetable();
+        $vegetable = createVegetable();
 
         actingAs($dealer)
             ->post(route('dealer.demands.store'), [
@@ -167,7 +157,7 @@ describe('CreateDemand', function () {
 
     it('non-dealer cannot create a demand', function () {
         $user = User::factory()->create();
-        $vegetable = makeVegetable();
+        $vegetable = createVegetable();
 
         actingAs($user)
             ->post(route('dealer.demands.store'), validDemandPayload([$vegetable]))
@@ -213,7 +203,7 @@ describe('UpdateDemand', function () {
     it('dealer cannot update another dealer\'s demand', function () {
         $dealer = dealerWithProfile();
         $other = dealerWithProfile();
-        $item = createDemandViaRoute($other, makeVegetable());
+        $item = createDemandViaRoute($other, createVegetable());
         $post = $item->post;
 
         actingAs($dealer)
@@ -228,7 +218,7 @@ describe('UpdateDemand', function () {
 describe('DemandLifecycle', function () {
     it('dealer can delete a demand', function () {
         $dealer = dealerWithProfile();
-        $item = createDemandViaRoute($dealer, makeVegetable());
+        $item = createDemandViaRoute($dealer, createVegetable());
         $post = $item->post;
 
         actingAs($dealer)
@@ -240,7 +230,7 @@ describe('DemandLifecycle', function () {
 
     it('deleting a demand soft-deletes the post record', function () {
         $dealer = dealerWithProfile();
-        $item = createDemandViaRoute($dealer, makeVegetable());
+        $item = createDemandViaRoute($dealer, createVegetable());
         $post = $item->post;
 
         actingAs($dealer)
