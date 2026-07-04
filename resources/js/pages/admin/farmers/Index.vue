@@ -5,12 +5,8 @@ import {
     List,
     Loader2,
     MapIcon,
-    Package,
-    PackagePlus,
     SearchX,
-    UserPlus,
     UserRoundPlus,
-    Users,
 } from '@lucide/vue'
 import { computed, ref, watch } from 'vue'
 import { toast } from 'vue-sonner'
@@ -46,7 +42,7 @@ const props = defineProps<AdminFarmersProps>()
 const currentView = ref<'list' | 'map'>(props.view)
 const markers = ref<FarmerMarker[]>([])
 const selectedMunicipality = ref<string | null>(null)
-const selectedVariety = ref<string | null>(null)
+const selectedVegetable = ref<string | null>(null)
 const loadingMarkers = ref(false)
 const sidebarOpen = ref(false)
 const selectedFarmer = ref<FarmerResource | null>(null)
@@ -100,7 +96,7 @@ async function fetchMarkers() {
         const params: Record<string, unknown> = {}
         if (selectedMunicipality.value)
             params.municipality_id = selectedMunicipality.value
-        if (selectedVariety.value) params.variety_id = selectedVariety.value
+        if (selectedVegetable.value) params.vegetable_id = selectedVegetable.value
         if (mapBounds.value) params.bounds = mapBounds.value
 
         const { data } = await axios.get<{
@@ -191,12 +187,12 @@ function handleBoundsChange(bounds: {
 
 function handleClearFilters() {
     selectedMunicipality.value = null
-    selectedVariety.value = null
+    selectedVegetable.value = null
 }
 
 /* -- Watchers -- */
 watch(
-    [currentView, selectedMunicipality, selectedVariety, mapBounds],
+    [currentView, selectedMunicipality, selectedVegetable, mapBounds],
     () => {
         if (currentView.value === 'map') {
             fetchMarkers()
@@ -369,11 +365,11 @@ if (storedView && storedView !== props.view) {
                         :municipalities="filters.municipalities"
                         :plantings="filters.supplies"
                         :selected-municipality="selectedMunicipality"
-                        :selected-variety="selectedVariety"
+                        :selected-variety="selectedVegetable"
                         @update:selected-municipality="
                             selectedMunicipality = $event
                         "
-                        @update:selected-variety="selectedVariety = $event"
+                        @update:selected-variety="selectedVegetable = $event"
                         @clear="handleClearFilters"
                     />
 
