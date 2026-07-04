@@ -4,6 +4,7 @@ use App\Enums\PostItemStatus;
 use App\Models\Profiles\DealerProfile;
 use App\Models\Profiles\Role;
 use App\Models\User;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Testing\AssertableInertia as Assert;
 
 use function Pest\Laravel\actingAs;
@@ -13,6 +14,7 @@ beforeEach(function () {
     Role::firstOrCreate(['name' => 'admin']);
     Role::firstOrCreate(['name' => 'farmer']);
     Role::firstOrCreate(['name' => 'dealer']);
+    Storage::fake('public');
 });
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -194,8 +196,8 @@ describe('admin dealer details api', function () {
 
     it('demands list includes ongoing demand data', function () {
         $dealer = createDealerUser();
-        $variety = createVariety();
-        createDemandPost($dealer, $variety);
+        $vegetable = createVegetable();
+        createDemandPost($dealer, $vegetable, ['scheduled_date' => today()->toDateString()]);
 
         actingAs(createAdminUser())
             ->getJson(route('admin.dealers.api.details', $dealer->dealerProfile))
@@ -205,8 +207,8 @@ describe('admin dealer details api', function () {
 
     it('demands list excludes expired posts', function () {
         $dealer = createDealerUser();
-        $variety = createVariety();
-        createDemandPost($dealer, $variety, ['item_status' => PostItemStatus::Expired]);
+        $vegetable = createVegetable();
+        createDemandPost($dealer, $vegetable, ['item_status' => PostItemStatus::Expired]);
 
         // DealerService::details loads postItems scoped to ongoing() only.
         // A post whose only item is expired produces an empty postItems collection → demands = [].

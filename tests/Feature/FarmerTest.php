@@ -239,20 +239,20 @@ describe('admin farmer markers api', function () {
             ->assertJsonPath('total', 2);
     });
 
-    it('variety_id filter returns only farmers with an ongoing supply for that variety', function () {
-        $variety = createVariety();
-        $otherVariety = createVariety('Other Category', 'Other Vegetable', 'Other Variety');
+    it('vegetable_id filter returns only farmers with an ongoing supply for that vegetable', function () {
+        $vegetable = createVegetable();
+        $otherVariety = createVegetable();
 
         $match = createFarmerUser();
-        createSupplyPost($match, $variety);
+        createSupplyPost($match, $vegetable);
 
         $noMatch = createFarmerUser();
         createSupplyPost($noMatch, $otherVariety);
 
-        createFarmerUser(); // no supply at all
+        createFarmerUser();
 
         actingAs(createAdminUser())
-            ->getJson(route('admin.farmers.api.markers', ['variety_id' => $variety->id]))
+            ->getJson(route('admin.farmers.api.markers', ['vegetable_id' => $vegetable->id]))
             ->assertOk()
             ->assertJsonPath('total', 1);
     });
@@ -263,9 +263,9 @@ describe('admin farmer markers api', function () {
             ->assertUnprocessable();
     });
 
-    it('rejects an invalid variety_id with a validation error', function () {
+    it('rejects an invalid vegetable_id with a validation error', function () {
         actingAs(createAdminUser())
-            ->getJson(route('admin.farmers.api.markers', ['variety_id' => 999999]))
+            ->getJson(route('admin.farmers.api.markers', ['vegetable_id' => 999999]))
             ->assertUnprocessable();
     });
 });
@@ -281,7 +281,10 @@ describe('admin farmer details api', function () {
         actingAs(createAdminUser())
             ->getJson(route('admin.farmers.api.details', $farmer->farmerProfile))
             ->assertOk()
-            ->assertJsonStructure(['id', 'joined_at', 'user', 'location']);
+            ->assertJsonStructure([
+                'id', 'joined_at', 'joined_at_human', 'user',
+                'full_address', 'coordinates' => ['lat', 'lng'],
+            ]);
     });
 
     it('user block contains name and email', function () {
@@ -293,14 +296,15 @@ describe('admin farmer details api', function () {
             ->assertJsonStructure(['user' => ['name', 'email']]);
     });
 
-    it('location block contains all address components', function () {
+    it('response includes all address components as flat top-level keys', function () {
         $farmer = createFarmerUser();
 
         actingAs(createAdminUser())
             ->getJson(route('admin.farmers.api.details', $farmer->farmerProfile))
             ->assertOk()
             ->assertJsonStructure([
-                'location' => ['province', 'municipality', 'barangay', 'full_address', 'coordinates'],
+                'province', 'municipality', 'barangay', 'full_address',
+                'coordinates' => ['lat', 'lng'],
             ]);
     });
 
@@ -315,8 +319,8 @@ describe('admin farmer details api', function () {
 
     it('supplies list includes ongoing supply data', function () {
         $farmer = createFarmerUser();
-        $variety = createVariety();
-        createSupplyPost($farmer, $variety);
+        $vegetable = createVegetable();
+        createSupplyPost($farmer, $vegetable, ['scheduled_date' => today()->toDateString()]);
 
         actingAs(createAdminUser())
             ->getJson(route('admin.farmers.api.details', $farmer->farmerProfile))
