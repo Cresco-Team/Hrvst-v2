@@ -45,7 +45,7 @@ class FarmerMapService
 
     public function getFarmersForMap(
         ?int $municipalityId = null,
-        ?int $varietyId = null,
+        ?int $vegetableId = null,
         ?array $bounds = null,
     ): array {
         $query = FarmerProfile::query()
@@ -63,12 +63,12 @@ class FarmerMapService
             $query->where('municipality_id', $municipalityId);
         }
 
-        if ($varietyId) {
+        if ($vegetableId) {
             $query->whereHas('posts', fn (Builder $q) => $q
                 ->supply()
                 ->whereHas('postItems', fn (Builder $q) => $q
                     ->ongoing()
-                    ->where('variety_id', $varietyId)
+                    ->where('vegetable_id', $vegetableId)
                 )
             );
         }

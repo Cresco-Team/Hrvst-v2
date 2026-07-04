@@ -20,7 +20,7 @@ class DashboardService
         return [
             'farmers' => $this->getFarmerKPIs(),
             'dealers' => $this->getDealerKPIs(),
-            'varieties' => $this->getVarietyKPIs(),
+            'vegetables' => $this->getVarietyKPIs(),
         ];
     }
 
@@ -71,9 +71,6 @@ class DashboardService
         $current = $this->vegetableService->summary();
 
         return [
-            'total_varieties' => [
-                'value' => $current['total_varieties'],
-            ],
             'total_vegetables' => [
                 'value' => $current['total_vegetables'],
             ],

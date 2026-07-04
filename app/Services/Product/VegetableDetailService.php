@@ -20,7 +20,6 @@ class VegetableDetailService
     {
         return [
             'total_vegetables' => Vegetable::distinct('vegetable_name')->count('vegetable_name'),
-            'total_varieties' => Vegetable::whereNotNull('variety_name')->count(),
         ];
     }
 
