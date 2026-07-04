@@ -29,6 +29,7 @@ class User extends Authenticatable implements HasMedia
             'password' => 'hashed',
             'two_factor_confirmed_at' => 'datetime',
             'must_change_pin' => 'boolean',
+            'onboarding_completed_at' => 'datetime',
         ];
     }
 
@@ -55,6 +56,12 @@ class User extends Authenticatable implements HasMedia
     public function hasRole(string $role): bool
     {
         return $this->roles()->where('name', $role)->exists();
+    }
+
+    public function needsOnboarding(): bool
+    {
+        return $this->onboarding_completed_at === null
+            && ($this->hasRole('farmer') || $this->hasRole('dealer'));
     }
 
     public function registerMediaCollections(): void
