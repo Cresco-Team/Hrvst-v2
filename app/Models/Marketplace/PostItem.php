@@ -80,6 +80,23 @@ class PostItem extends Model
         );
     }
 
+    public function displayName(): Attribute
+    {
+        return Attribute::make(
+            get: function () {
+                if (! $this->relationLoaded('vegetable')) {
+                    return null;
+                }
+
+                $local = $this->local_name ? " ({$this->local_name})" : '';
+
+                return $this->variety_name
+                    ? "{$this->vegetable_name}: {$this->variety_name}{$local}"
+                    : "{$this->vegetable_name}{$local}";
+            }
+        );
+    }
+
     public function vegetableImageUrl(): Attribute
     {
         return Attribute::make(
