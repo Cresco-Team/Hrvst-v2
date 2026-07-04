@@ -10,7 +10,7 @@ import CardTitle from '@/components/ui/card/CardTitle.vue'
 const props = withDefaults(
 	defineProps<{
 		title?: string
-		value?: number
+		value?: number | string
 		subtext?: string
 		change?: string
 		badge?: Component | Record<string, any> | null
