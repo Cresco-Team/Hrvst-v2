@@ -28,10 +28,6 @@ class DashboardController extends Controller
         $profile = $request->user()->farmerProfile;
 
         return Inertia::render('farmer/Dashboard', [
-            'summary' => Inertia::defer(
-                fn () => $this->supplyService->summary($profile->user_id)
-            ),
-
             'expiringSupplies' => Inertia::defer(
                 fn () => FarmerExpiringSupplyData::collect($this->dashboardService->expiringSupplies($profile->user_id))
             ),

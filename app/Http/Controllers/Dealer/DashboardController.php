@@ -28,10 +28,6 @@ class DashboardController extends Controller
         $profile = $request->user()->dealerProfile;
 
         return Inertia::render('dealer/Dashboard', [
-            'summary' => Inertia::defer(
-                fn () => $this->demandService->summary($profile->user_id)
-            ),
-
             'expiringDemands' => Inertia::defer(
                 fn () => DealerExpiringDemandData::collect($this->dashboardService->expiringDemands($profile->user_id))
             ),

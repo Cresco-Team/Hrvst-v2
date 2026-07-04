@@ -132,40 +132,6 @@ const criticalRecs = computed(
                 </div>
             </Deferred>
 
-            <!-- Summary cards -->
-            <Deferred data="summary">
-                <template #fallback>
-                    <div class="grid grid-cols-3 gap-4">
-                        <Skeleton
-                            v-for="i in 3"
-                            :key="i"
-                            class="h-24 rounded-lg"
-                        />
-                    </div>
-                </template>
-                <div class="grid grid-cols-3 gap-4">
-                    <SmallCard
-                        title="Ongoing"
-                        :value="summary.total_ongoing"
-                        :icon="CalendarClock"
-                    />
-                    <SmallCard
-                        title="Fulfilled"
-                        :value="summary.total_fulfilled"
-                        :icon="CalendarCheck"
-                        value-class="text-green-600"
-                        icon-class="text-green-600"
-                    />
-                    <SmallCard
-                        title="Expired"
-                        :value="summary.total_expired"
-                        :icon="CalendarX"
-                        value-class="text-destructive"
-                        icon-class="text-destructive"
-                    />
-                </div>
-            </Deferred>
-
             <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
                 <!-- Action needed -->
                 <Card>
