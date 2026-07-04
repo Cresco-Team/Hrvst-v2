@@ -129,24 +129,21 @@ function createDealerUser(array $overrides = []): User
 
 // ─── Products ────────────────────────────────────────────────────────────────
 
-function createVariety(
+function createVegetable(
     string $categoryName = 'Test Category',
     string $vegetableName = 'Test Vegetable',
     string $varietyName = 'Test Variety',
-): Variety {
+): Vegetable {
     $category = Category::create(['name' => $categoryName]);
-    $vegetable = Vegetable::create(['category_id' => $category->id, 'name' => $vegetableName]);
-
-    return Variety::create(['vegetable_id' => $vegetable->id, 'name' => $varietyName]);
+    return Vegetable::create(['category_id' => $category->id, 'vegetable_name' => $vegetableName]);
 }
 
 // ─── Posts ───────────────────────────────────────────────────────────────────
 
-function createSupplyPost(User $farmer, Variety $variety, array $overrides = []): Post
+function createSupplyPost(User $farmer, Vegetable $vegetable, array $overrides = []): Post
 {
     $post = Post::create(array_merge([
         'user_id' => $farmer->id,
-        'vegetable_id' => $variety->vegetable_id,
         'type' => PostType::Supply,
         'scheduled_date' => now()->addDays(7)->toDateString(),
         'time_slot' => PostTimeSlot::Morning,
@@ -155,7 +152,7 @@ function createSupplyPost(User $farmer, Variety $variety, array $overrides = [])
 
     PostItem::create([
         'post_id' => $post->id,
-        'variety_id' => $variety->id,
+        'vegetable_id' => $vegetable->id,
         'quantity_kg' => 100,
         'status' => PostItemStatus::Ongoing,
     ]);
@@ -163,14 +160,13 @@ function createSupplyPost(User $farmer, Variety $variety, array $overrides = [])
     return $post;
 }
 
-function createDemandPost(User $dealer, Variety $variety, array $overrides = []): Post
+function createDemandPost(User $dealer, Vegetable $vegetable, array $overrides = []): Post
 {
     $itemStatus = $overrides['item_status'] ?? PostItemStatus::Ongoing;
     unset($overrides['item_status']);
 
     $post = Post::create(array_merge([
         'user_id' => $dealer->id,
-        'vegetable_id' => $variety->vegetable_id,
         'type' => PostType::Demand,
         'scheduled_date' => now()->addDays(5)->toDateString(),
         'time_slot' => PostTimeSlot::Afternoon,
@@ -178,7 +174,7 @@ function createDemandPost(User $dealer, Variety $variety, array $overrides = [])
 
     PostItem::create([
         'post_id' => $post->id,
-        'variety_id' => $variety->id,
+        'vegetable_id' => $vegetable->id,
         'quantity_kg' => 50,
         'status' => $itemStatus,
     ]);
