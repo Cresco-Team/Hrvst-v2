@@ -17,7 +17,7 @@ import {
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { useOnboardingGuide } from '@/composables/useOnboardingGuide'
-import { store } from '@/routes/password/confirm'
+import { complete } from '@/actions/App/Http/Controllers/OnboardingController'
 
 interface OnboardingStep {
 	icon: Component
@@ -93,7 +93,7 @@ function finish(): void {
 	close()
 
 	if (wasForced) {
-		router.post(store().url, {}, { preserveScroll: true })
+		router.post(complete().url, {}, { preserveScroll: true })
 	}
 }
 
