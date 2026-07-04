@@ -174,7 +174,7 @@ describe('must_change_pin middleware', function () {
     it('does not redirect to change-pin when flag is false', function () {
         actingAs(makeFarmer(['must_change_pin' => false]))
             ->get('/dashboard')
-            ->assertRedirectContains('/farmer');
+            ->assertRedirectContains('/farmer/supplies');
     });
 });
 
