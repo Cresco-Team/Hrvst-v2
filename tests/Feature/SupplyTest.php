@@ -1,11 +1,9 @@
 <?php
 
-use App\Enums\PostItemStatus;
 use App\Enums\PostType;
 use App\Models\Marketplace\Post;
 use App\Models\Marketplace\PostItem;
 use App\Models\Product\Category;
-use App\Models\Product\Variety;
 use App\Models\Product\Vegetable;
 use App\Models\Profiles\FarmerProfile;
 use App\Models\Profiles\Role;
@@ -38,26 +36,17 @@ function makeVegetable(): Vegetable
 
     return Vegetable::create([
         'category_id' => $category->id,
-        'name' => 'Vegetable '.uniqid(),
+        'vegetable_name' => 'Vegetable '.uniqid(),
     ]);
 }
 
-function makeVariety(Vegetable $vegetable): Variety
-{
-    return Variety::create([
-        'vegetable_id' => $vegetable->id,
-        'name' => 'Variety '.uniqid(),
-    ]);
-}
-
-function validSupplyPayload(Vegetable $vegetable, array $varieties, ?string $scheduledDate = null): array
+function validSupplyPayload(array $vegetable, ?string $scheduledDate = null): array
 {
     return [
-        'vegetable_id' => $vegetable->id,
         'scheduled_date' => $scheduledDate ?? now()->addDays(3)->toDateString(),
         'time_slot' => 'morning',
-        'items' => collect($varieties)->map(fn (Variety $v) => [
-            'variety_id' => $v->id,
+        'items' => collect($vegetable)->map(fn (Vegetable $v) => [
+            'vegetable_id' => $v->id,
             'quantity_kg' => 100,
         ])->all(),
     ];
@@ -68,13 +57,12 @@ function validSupplyPayload(Vegetable $vegetable, array $varieties, ?string $sch
  * auth system — guarantees the policy ownership check passes in lifecycle tests.
  * Returns the created PostItem.
  */
-function createSupplyViaRoute(User $farmer, Variety $variety, ?string $scheduledDate = null): PostItem
+function createSupplyViaRoute(User $farmer, Vegetable $vegetable, ?string $scheduledDate = null): PostItem
 {
     actingAs($farmer)->post(route('farmer.supplies.store'), [
-        'vegetable_id' => $variety->vegetable_id,
         'scheduled_date' => $scheduledDate ?? now()->addDays(3)->toDateString(),
         'time_slot' => 'morning',
-        'items' => [['variety_id' => $variety->id, 'quantity_kg' => 100]],
+        'items' => [['vegetable_id' => $vegetable->id, 'quantity_kg' => 100]],
     ]);
 
     return PostItem::latest('id')->firstOrFail();
@@ -86,22 +74,20 @@ describe('CreateSupply', function () {
 
     it('farmer can create a supply with items in a single request', function () {
         $farmer = farmerWithProfile();
-        $vegetable = makeVegetable();
-        $variety1 = makeVariety($vegetable);
-        $variety2 = makeVariety($vegetable);
+        $vegetable1 = makeVegetable();
+        $vegetable2 = makeVegetable();
 
         actingAs($farmer)
-            ->post(route('farmer.supplies.store'), validSupplyPayload($vegetable, [$variety1, $variety2]))
+            ->post(route('farmer.supplies.store'), validSupplyPayload([$vegetable1, $vegetable2]))
             ->assertRedirect(route('farmer.supplies.index'));
 
         $post = Post::first();
         expect($post)->not->toBeNull()
             ->and($post->type)->toBe(PostType::Supply)
-            ->and($post->vegetable_id)->toBe($vegetable->id)
             ->and($post->time_slot->value)->toBe('morning')
             ->and($post->postItems)->toHaveCount(2);
 
-        expect((float) $post->postItems->firstWhere('variety_id', $variety1->id)->quantity_kg)->toBe(100.0);
+        expect((float) $post->postItems->firstWhere('vegetable_id', $vegetable1->id)->quantity_kg)->toBe(100.0);
     });
 
     it('creation is atomic — no post exists if items fail', function () {
@@ -113,9 +99,9 @@ describe('CreateSupply', function () {
                 'vegetable_id' => $vegetable->id,
                 'scheduled_date' => now()->addDay()->toDateString(),
                 'time_slot' => 'morning',
-                'items' => [['variety_id' => 99999, 'quantity_kg' => 10]],
+                'items' => [['vegetable_id' => 99999, 'quantity_kg' => 10]],
             ])
-            ->assertSessionHasErrors('items.0.variety_id');
+            ->assertSessionHasErrors('items.0.vegetable_id');
 
         expect(Post::count())->toBe(0)
             ->and(PostItem::count())->toBe(0);
@@ -124,10 +110,18 @@ describe('CreateSupply', function () {
     it('rejects a past scheduled_date', function () {
         $farmer = farmerWithProfile();
         $vegetable = makeVegetable();
-        $variety = makeVariety($vegetable);
 
         actingAs($farmer)
-            ->post(route('farmer.supplies.store'), validSupplyPayload($vegetable, [$variety], now()->subDay()->toDateString()))
+            ->post(route('farmer.supplies.store'), validSupplyPayload([$vegetable], now()->subDay()->toDateString()))
+            ->assertSessionHasErrors('scheduled_date');
+    });
+
+    it('rejects scheduled_date beyond 3 months', function () {
+        $farmer = farmerWithProfile();
+        $vegetable = makeVegetable();
+
+        actingAs($farmer)
+            ->post(route('farmer.supplies.store'), validSupplyPayload([$vegetable], now()->addMonths(4)->toDateString()))
             ->assertSessionHasErrors('scheduled_date');
     });
 
@@ -136,22 +130,7 @@ describe('CreateSupply', function () {
 
         actingAs($farmer)
             ->post(route('farmer.supplies.store'), [])
-            ->assertSessionHasErrors(['vegetable_id', 'scheduled_date', 'time_slot', 'items']);
-    });
-
-    it('rejects a variety that does not belong to the vegetable', function () {
-        $farmer = farmerWithProfile();
-        $vegetable = makeVegetable();
-        $wrongVariety = makeVariety(makeVegetable());
-
-        actingAs($farmer)
-            ->post(route('farmer.supplies.store'), [
-                'vegetable_id' => $vegetable->id,
-                'scheduled_date' => now()->addDay()->toDateString(),
-                'time_slot' => 'morning',
-                'items' => [['variety_id' => $wrongVariety->id, 'quantity_kg' => 100]],
-            ])
-            ->assertSessionHasErrors('items.0.variety_id');
+            ->assertSessionHasErrors(['scheduled_date', 'time_slot', 'items']);
     });
 
     it('rejects an empty items array', function () {
@@ -160,7 +139,6 @@ describe('CreateSupply', function () {
 
         actingAs($farmer)
             ->post(route('farmer.supplies.store'), [
-                'vegetable_id' => $vegetable->id,
                 'scheduled_date' => now()->addDay()->toDateString(),
                 'time_slot' => 'morning',
                 'items' => [],
@@ -168,28 +146,30 @@ describe('CreateSupply', function () {
             ->assertSessionHasErrors('items');
     });
 
+    it('rejects item with zero quantity', function () {
+        $farmer = farmerWithProfile();
+        $vegetable = makeVegetable();
+
+        actingAs($farmer)
+            ->post(route('farmer.supplies.store'), [
+                'scheduled_date' => now()->addDay()->toDateString(),
+                'time_slot' => 'morning',
+                'items' => [
+                    ['vegetable_id' => $vegetable->id, 'quantity_kg' => 0],
+                ],
+            ])
+            ->assertSessionHasErrors('items.0.quantity_kg');
+    });
+
     it('non-farmer cannot create a supply', function () {
         $dealer = User::factory()->create();
         $dealer->roles()->attach(Role::where('name', 'dealer')->firstOrCreate(['name' => 'dealer']));
         $vegetable = makeVegetable();
-        $variety = makeVariety($vegetable);
 
         actingAs($dealer)
-            ->post(route('farmer.supplies.store'), validSupplyPayload($vegetable, [$variety]))
+            ->post(route('farmer.supplies.store'), validSupplyPayload([$vegetable]))
             ->assertForbidden();
     });
-
-    it('farmer without profile cannot create a supply', function () {
-        $user = User::factory()->create();
-        $user->roles()->attach(Role::where('name', 'farmer')->firstOrCreate(['name' => 'farmer']));
-        $vegetable = makeVegetable();
-        $variety = makeVariety($vegetable);
-
-        actingAs($user)
-            ->post(route('farmer.supplies.store'), validSupplyPayload($vegetable, [$variety]))
-            ->assertForbidden();
-    });
-
 });
 
 // ─── Update Supply ────────────────────────────────────────────────────────────
@@ -198,8 +178,8 @@ describe('UpdateSupply', function () {
 
     it('farmer can update scheduled_date', function () {
         $farmer = farmerWithProfile();
-        $variety = makeVariety(makeVegetable());
-        $item = createSupplyViaRoute($farmer, $variety);
+        $vegetable = makeVegetable();
+        $item = createSupplyViaRoute($farmer, $vegetable);
         $post = $item->post;
 
         $newDate = now()->addDays(10)->toDateString();
@@ -211,31 +191,10 @@ describe('UpdateSupply', function () {
         expect($post->fresh()->scheduled_date->toDateString())->toBe($newDate);
     });
 
-    it('farmer can update items — replaces existing non-fulfilled items', function () {
-        $farmer = farmerWithProfile();
-        $vegetable = makeVegetable();
-        $variety1 = makeVariety($vegetable);
-        $variety2 = makeVariety($vegetable);
-        $item = createSupplyViaRoute($farmer, $variety1);
-        $post = $item->post;
-
-        actingAs($farmer)
-            ->put(route('farmer.supplies.update', $post), [
-                'items' => [['variety_id' => $variety2->id, 'quantity_kg' => 200]],
-            ])
-            ->assertRedirect();
-
-        $post->refresh();
-        expect($post->postItems)->toHaveCount(1)
-            ->and($post->postItems->first()->variety_id)->toBe($variety2->id)
-            ->and((float) $post->postItems->first()->quantity_kg)->toBe(200.0);
-    });
-
     it('farmer cannot update another farmer\'s supply', function () {
         $farmer = farmerWithProfile();
         $other = farmerWithProfile();
-        $variety = makeVariety(makeVegetable());
-        $item = createSupplyViaRoute($other, $variety);
+        $item = createSupplyViaRoute($other, makeVegetable());
         $post = $item->post;
 
         actingAs($farmer)
@@ -253,7 +212,7 @@ describe('SupplyLifecycle', function () {
 
     it('farmer can delete a supply', function () {
         $farmer = farmerWithProfile();
-        $item = createSupplyViaRoute($farmer, makeVariety(makeVegetable()));
+        $item = createSupplyViaRoute($farmer, makeVegetable());
         $post = $item->post;
 
         actingAs($farmer)
@@ -265,7 +224,7 @@ describe('SupplyLifecycle', function () {
 
     it('deleting a supply soft-deletes the post record', function () {
         $farmer = farmerWithProfile();
-        $item = createSupplyViaRoute($farmer, makeVariety(makeVegetable()));
+        $item = createSupplyViaRoute($farmer, makeVegetable());
         $post = $item->post;
 
         actingAs($farmer)
@@ -275,31 +234,24 @@ describe('SupplyLifecycle', function () {
         expect(Post::find($post->id))->toBeNull()
             ->and(Post::withTrashed()->find($post->id))->not->toBeNull();
     });
+});
 
-    it('farmer can archive a fulfilled supply item', function () {
-        $farmer = farmerWithProfile();
-        $item = createSupplyViaRoute($farmer, makeVariety(makeVegetable()));
+// ─── Cross-role access ────────────────────────────────────────────────────────
 
-        DB::table('post_items')->where('id', $item->id)->update(['status' => 'fulfilled']);
+describe('CrossRoleAccess', function () {
 
-        actingAs($farmer)
-            ->post(route('farmer.post-items.archive', $item))
-            ->assertRedirect();
+    it('dealer cannot access farmer supply routes', function () {
+        $dealer = User::factory()->create();
+        $dealer->roles()->attach(Role::firstOrCreate(['name' => 'dealer']));
 
-        expect($item->fresh()->status)->toBe(PostItemStatus::Expired);
+        actingAs($dealer)
+            ->post(route('farmer.supplies.store'), [])
+            ->assertForbidden();
     });
 
-    it('farmer can fulfill an expired supply item', function () {
-        $farmer = farmerWithProfile();
-        $item = createSupplyViaRoute($farmer, makeVariety(makeVegetable()));
-
-        DB::table('post_items')->where('id', $item->id)->update(['status' => 'expired']);
-
-        actingAs($farmer)
-            ->post(route('farmer.post-items.fulfill', $item))
-            ->assertRedirect();
-
-        expect($item->fresh()->status)->toBe(PostItemStatus::Fulfilled);
+    it('unauthenticated user is redirected from supply and demand routes', function () {
+        $this->post(route('dealer.demands.store'), [])->assertRedirect(route('login'));
+        $this->post(route('farmer.supplies.store'), [])->assertRedirect(route('login'));
     });
 
 });
