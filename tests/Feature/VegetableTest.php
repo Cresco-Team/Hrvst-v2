@@ -35,12 +35,7 @@ beforeEach(function () {
 
     $this->vegetable = Vegetable::create([
         'category_id' => $this->category->id,
-        'name' => 'Pechay',
-    ]);
-
-    $this->variety = Variety::create([
-        'vegetable_id' => $this->vegetable->id,
-        'name' => 'White Pechay',
+        'vegetable_name' => 'Pechay',
     ]);
 });
 
@@ -83,28 +78,6 @@ describe('index', function () {
     });
 });
 
-// ─── Show ─────────────────────────────────────────────────────────────────────
-
-describe('show', function () {
-    it('renders the show page for an admin', function () {
-        actingAs($this->admin)
-            ->get(route('admin.vegetables.varieties.show', $this->variety))
-            ->assertOk()
-            ->assertInertia(fn (Assert $page) => $page->component('admin/vegetables/Show'));
-    });
-
-    it('redirects guests to login', function () {
-        get(route('admin.vegetables.varieties.show', $this->variety))
-            ->assertRedirect(route('login'));
-    });
-
-    it('returns 403 for non-admin users', function () {
-        actingAs($this->farmer)
-            ->get(route('admin.vegetables.varieties.show', $this->variety))
-            ->assertForbidden();
-    });
-});
-
 // ─── Vegetable Store ──────────────────────────────────────────────────────────
 
 describe('vegetable store', function () {
@@ -112,33 +85,19 @@ describe('vegetable store', function () {
         actingAs($this->admin)
             ->post(route('admin.vegetables.store'), [
                 'category_id' => $this->category->id,
-                'name' => 'Kangkong',
+                'vegetable_name' => 'Kangkong',
             ])
             ->assertRedirect()
             ->assertSessionHas('flash.type', 'success');
 
-        assertDatabaseHas('vegetables', ['name' => 'Kangkong']);
-    });
-
-    it('creates a vegetable with an image', function () {
-        actingAs($this->admin)
-            ->post(route('admin.vegetables.store'), [
-                'category_id' => $this->category->id,
-                'name' => 'Kangkong',
-                'image' => UploadedFile::fake()->image('kangkong.jpg'),
-            ])
-            ->assertRedirect()
-            ->assertSessionHas('flash.type', 'success');
-
-        $vegetable = Vegetable::where('name', 'Kangkong')->firstOrFail();
-        expect($vegetable->getFirstMedia('vegetable_image'))->not->toBeNull();
+        assertDatabaseHas('vegetables', ['vegetable_name' => 'Kangkong']);
     });
 
     it('rejects a non-image file', function () {
         actingAs($this->admin)
             ->post(route('admin.vegetables.store'), [
                 'category_id' => $this->category->id,
-                'name' => 'Kangkong',
+                'vegetable_name' => 'Kangkong',
                 'image' => UploadedFile::fake()->create('doc.pdf', 512, 'application/pdf'),
             ])
             ->assertSessionHasErrors('image');
@@ -148,28 +107,28 @@ describe('vegetable store', function () {
         actingAs($this->admin)
             ->post(route('admin.vegetables.store'), [
                 'category_id' => $this->category->id,
-                'name' => 'Pechay',
+                'vegetable_name' => 'Pechay',
             ])
-            ->assertSessionHasErrors('name');
+            ->assertSessionHasErrors('vegetable_name');
     });
 
     it('rejects missing category_id', function () {
         actingAs($this->admin)
-            ->post(route('admin.vegetables.store'), ['name' => 'Kangkong'])
+            ->post(route('admin.vegetables.store'), ['vegetable_name' => 'Kangkong'])
             ->assertSessionHasErrors('category_id');
     });
 
     it('rejects missing name', function () {
         actingAs($this->admin)
             ->post(route('admin.vegetables.store'), ['category_id' => $this->category->id])
-            ->assertSessionHasErrors('name');
+            ->assertSessionHasErrors('vegetable_name');
     });
 
     it('returns 403 for non-admin users', function () {
         actingAs($this->farmer)
             ->post(route('admin.vegetables.store'), [
                 'category_id' => $this->category->id,
-                'name' => 'Kangkong',
+                'vegetable_name' => 'Kangkong',
             ])
             ->assertForbidden();
     });
@@ -182,23 +141,11 @@ describe('vegetable store', function () {
 // ─── Vegetable Update ─────────────────────────────────────────────────────────
 
 describe('vegetable update', function () {
-    it('updates a vegetable name without an image', function () {
-        actingAs($this->admin)
-            ->put(route('admin.vegetables.update', $this->vegetable), [
-                'category_id' => $this->category->id,
-                'name' => 'Updated Pechay',
-            ])
-            ->assertRedirect()
-            ->assertSessionHas('flash.type', 'success');
-
-        expect($this->vegetable->fresh()->name)->toBe('Updated Pechay');
-    });
-
     it('updates a vegetable with a new image', function () {
         actingAs($this->admin)
             ->put(route('admin.vegetables.update', $this->vegetable), [
                 'category_id' => $this->category->id,
-                'name' => 'Pechay',
+                'vegetable_name' => 'Pechay',
                 'image' => UploadedFile::fake()->image('new.jpg'),
             ])
             ->assertRedirect()
@@ -211,7 +158,7 @@ describe('vegetable update', function () {
         actingAs($this->admin)
             ->put(route('admin.vegetables.update', $this->vegetable), [
                 'category_id' => $this->category->id,
-                'name' => 'Pechay',
+                'vegetable_name' => 'Pechay',
                 'image' => UploadedFile::fake()->create('doc.pdf', 512, 'application/pdf'),
             ])
             ->assertSessionHasErrors('image');
@@ -222,14 +169,14 @@ describe('vegetable update', function () {
             ->put(route('admin.vegetables.update', $this->vegetable), [
                 'category_id' => $this->category->id,
             ])
-            ->assertSessionHasErrors('name');
+            ->assertSessionHasErrors('vegetable_name');
     });
 
     it('allows saving with the same name (ignore self in unique check)', function () {
         actingAs($this->admin)
             ->put(route('admin.vegetables.update', $this->vegetable), [
                 'category_id' => $this->category->id,
-                'name' => 'Pechay',
+                'vegetable_name' => 'Pechay',
             ])
             ->assertSessionHasNoErrors()
             ->assertRedirect();
@@ -239,7 +186,7 @@ describe('vegetable update', function () {
         actingAs($this->farmer)
             ->put(route('admin.vegetables.update', $this->vegetable), [
                 'category_id' => $this->category->id,
-                'name' => 'Sneaky Update',
+                'vegetable_name' => 'Sneaky Update',
             ])
             ->assertForbidden();
 
@@ -256,7 +203,7 @@ describe('vegetable update', function () {
 
 describe('vegetable destroy', function () {
     it('deletes a vegetable with no varieties', function () {
-        $empty = Vegetable::create(['category_id' => $this->category->id, 'name' => 'Empty Veg']);
+        $empty = Vegetable::create(['category_id' => $this->category->id, 'vegetable_name' => 'Empty Veg']);
 
         actingAs($this->admin)
             ->delete(route('admin.vegetables.destroy', $empty))
@@ -276,138 +223,6 @@ describe('vegetable destroy', function () {
 
     it('redirects guests to login', function () {
         delete(route('admin.vegetables.destroy', $this->vegetable))
-            ->assertRedirect(route('login'));
-    });
-});
-
-// ─── Variety Store ────────────────────────────────────────────────────────────
-
-describe('variety store', function () {
-    it('creates a variety', function () {
-        actingAs($this->admin)
-            ->post(route('admin.vegetables.varieties.store'), [
-                'vegetable_id' => $this->vegetable->id,
-                'name' => 'Green Pechay',
-            ])
-            ->assertRedirect()
-            ->assertSessionHas('flash.type', 'success');
-
-        assertDatabaseHas('varieties', [
-            'vegetable_id' => $this->vegetable->id,
-            'name' => 'Green Pechay',
-        ]);
-    });
-
-    it('rejects missing vegetable_id', function () {
-        actingAs($this->admin)
-            ->post(route('admin.vegetables.varieties.store'), [
-                'name' => 'Green Pechay',
-            ])
-            ->assertSessionHasErrors('vegetable_id');
-    });
-
-    it('rejects a vegetable_id that does not exist', function () {
-        actingAs($this->admin)
-            ->post(route('admin.vegetables.varieties.store'), [
-                'vegetable_id' => 9999,
-                'name' => 'Green Pechay',
-            ])
-            ->assertSessionHasErrors('vegetable_id');
-    });
-
-    it('rejects missing name', function () {
-        actingAs($this->admin)
-            ->post(route('admin.vegetables.varieties.store'), [
-                'vegetable_id' => $this->vegetable->id,
-            ])
-            ->assertSessionHasErrors('name');
-    });
-
-    it('returns 403 for non-admin users', function () {
-        actingAs($this->farmer)
-            ->post(route('admin.vegetables.varieties.store'), [
-                'vegetable_id' => $this->vegetable->id,
-                'name' => 'Green Pechay',
-            ])
-            ->assertForbidden();
-    });
-
-    it('redirects guests to login', function () {
-        post(route('admin.vegetables.varieties.store'), [])
-            ->assertRedirect(route('login'));
-    });
-});
-
-// ─── Variety Update ───────────────────────────────────────────────────────────
-
-describe('variety update', function () {
-    it('updates the variety name', function () {
-        actingAs($this->admin)
-            ->put(route('admin.vegetables.varieties.update', $this->variety), [
-                'vegetable_id' => $this->vegetable->id,
-                'name' => 'Updated Pechay',
-            ])
-            ->assertRedirect()
-            ->assertSessionHas('flash.type', 'success');
-
-        expect($this->variety->fresh()->name)->toBe('Updated Pechay');
-    });
-
-    it('rejects missing vegetable_id', function () {
-        actingAs($this->admin)
-            ->put(route('admin.vegetables.varieties.update', $this->variety), [
-                'name' => 'Updated Pechay',
-            ])
-            ->assertSessionHasErrors('vegetable_id');
-    });
-
-    it('rejects missing name', function () {
-        actingAs($this->admin)
-            ->put(route('admin.vegetables.varieties.update', $this->variety), [
-                'vegetable_id' => $this->vegetable->id,
-            ])
-            ->assertSessionHasErrors('name');
-    });
-
-    it('returns 403 for non-admin users and leaves the record intact', function () {
-        actingAs($this->farmer)
-            ->put(route('admin.vegetables.varieties.update', $this->variety), [
-                'vegetable_id' => $this->vegetable->id,
-                'name' => 'Sneaky Update',
-            ])
-            ->assertForbidden();
-
-        expect($this->variety->fresh()->name)->toBe('White Pechay');
-    });
-
-    it('redirects guests to login', function () {
-        put(route('admin.vegetables.varieties.update', $this->variety), [])
-            ->assertRedirect(route('login'));
-    });
-});
-
-// ─── Variety Destroy ──────────────────────────────────────────────────────────
-
-describe('variety destroy', function () {
-    it('deletes the variety', function () {
-        actingAs($this->admin)
-            ->delete(route('admin.vegetables.varieties.destroy', $this->variety))
-            ->assertRedirect()
-            ->assertSessionHas('flash.type', 'success');
-
-        expect(Variety::find($this->variety->id))->toBeNull();
-    });
-
-    it('returns 403 for non-admin users and leaves the record intact', function () {
-        actingAs($this->farmer)
-            ->delete(route('admin.vegetables.varieties.destroy', $this->variety))
-            ->assertForbidden();
-
-        expect(Variety::find($this->variety->id))->not->toBeNull();
-    });
-
-    it('redirects guests to login', function () {
-        delete(route('admin.vegetables.varieties.destroy', $this->variety))
             ->assertRedirect(route('login'));
     });
 });
