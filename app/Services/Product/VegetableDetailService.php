@@ -39,7 +39,7 @@ class VegetableDetailService
         $vegetable->demand_count = (int) ($counts->demand_count ?? 0);
         $vegetable->supply_municipalities = $this->resolveSupplyMunicipalities($vegetable->id);
 
-        $extendedHistory = $this->activityService->buildMonthlyActivity($vegetable->id, months: 36);
+        $extendedHistory = $this->activityService->buildMonthlyActivity($vegetable->id, months: 60);
         $monthlyActivity = array_slice($extendedHistory, -12);
 
         $vegetable->monthly_activity = $monthlyActivity;
