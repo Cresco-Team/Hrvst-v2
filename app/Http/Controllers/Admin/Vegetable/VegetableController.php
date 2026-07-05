@@ -5,8 +5,7 @@ namespace App\Http\Controllers\Admin\Vegetable;
 use App\Actions\Product\CreateVegetableAction;
 use App\Actions\Product\UpdateVegetableAction;
 use App\Data\Vegetable\VegetableAdminData;
-use App\Data\Vegetable\VegetableDetailData;
-use App\Enums\Analytics\VarietyViewerRole;
+use App\Http\Controllers\Concerns\RendersVegetableShow;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Vegetable\StoreVegetableRequest;
 use App\Http\Requests\Vegetable\UpdateVegetableRequest;
@@ -22,6 +21,8 @@ use Inertia\Response;
 
 class VegetableController extends Controller
 {
+    use RendersVegetableShow;
+
     public function __construct(
         private VegetableService $vegetableService,
         private VegetableDetailService $vegetableDetailService,
@@ -57,32 +58,7 @@ class VegetableController extends Controller
 
     public function show(Request $request, Vegetable $vegetable): Response
     {
-        $vegetable->loadMissing('category');
-
-        $validated = $request->validate([
-            'year' => ['sometimes', 'integer', 'min:2020', 'max:2035'],
-            'month' => ['sometimes', 'integer', 'min:1', 'max:12'],
-        ]);
-
-        $year = (int) ($validated['year'] ?? now()->year);
-        $month = (int) ($validated['month'] ?? now()->month);
-
-        return Inertia::render('shared/vegetables/Show', [
-            'variety' => Inertia::defer(
-                fn () => VegetableDetailData::fromModel(
-                    $this->vegetableDetailService->show($vegetable, $year, $month, VarietyViewerRole::Admin)
-                )
-            ),
-            'calendarFilters' => ['year' => $year, 'month' => $month],
-            'meta' => [
-                'varietyId' => $vegetable->id,
-                'varietyLabel' => $vegetable->variety_name
-                    ? "{$vegetable->vegetable_name}: {$vegetable->variety_name}"
-                    : $vegetable->vegetable_name,
-                'categoryName' => $vegetable->category->name,
-                'categorySlug' => $vegetable->category->slug,
-            ],
-        ]);
+        return $this->renderVegetableShow($request, $vegetable, $this->vegetableDetailService);
     }
 
     public function store(StoreVegetableRequest $request, CreateVegetableAction $createVegetable): RedirectResponse

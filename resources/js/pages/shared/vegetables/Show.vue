@@ -15,6 +15,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { useCapitalize } from '@/lib/utils'
 import { categories, dashboard } from '@/routes'
+import adminRoutes, { dashboard as adminDashboard } from '@/routes/admin'
 import vegetables from '@/routes/vegetables'
 import type {
     BreadcrumbItem,
@@ -40,23 +41,50 @@ interface Props {
 const props = defineProps<Props>()
 
 // ─── Routing context ──────────────────────────────────────────────────────────
+// Same page serves both /admin/vegetables/{id} and /vegetables/{id}. Breadcrumbs
+// must route back into whichever namespace the user is actually in — a shared
+// component is not license to assume a shared URL space.
 
-const breadcrumbs = computed<BreadcrumbItem[]>(() => [
-    {
-        title: useCapitalize(usePage().props.auth.user.roles[0]),
-        href: dashboard().url,
-    },
-    { title: 'Vegetables', href: categories().url },
-    {
-        title: props.meta.categoryName,
-        href: vegetables.index({ query: { category: props.meta.categorySlug } })
-            .url,
-    },
-    {
-        title: props.meta.varietyLabel,
-        href: vegetables.show(props.meta.varietyId).url,
-    },
-])
+const isAdmin = computed(() =>
+    usePage().props.auth.user.roles.includes('admin'),
+)
+
+const breadcrumbs = computed<BreadcrumbItem[]>(() => {
+    if (isAdmin.value) {
+        return [
+            { title: 'Admin', href: adminDashboard().url },
+            { title: 'Vegetables', href: adminRoutes.categories.index().url },
+            {
+                title: props.meta.categoryName,
+                href: adminRoutes.vegetables.index({
+                    query: { category: props.meta.categorySlug },
+                }).url,
+            },
+            {
+                title: props.meta.varietyLabel,
+                href: adminRoutes.vegetables.show(props.meta.varietyId).url,
+            },
+        ]
+    }
+
+    return [
+        {
+            title: useCapitalize(usePage().props.auth.user.roles[0]),
+            href: dashboard().url,
+        },
+        { title: 'Vegetables', href: categories().url },
+        {
+            title: props.meta.categoryName,
+            href: vegetables.index({
+                query: { category: props.meta.categorySlug },
+            }).url,
+        },
+        {
+            title: props.meta.varietyLabel,
+            href: vegetables.show(props.meta.varietyId).url,
+        },
+    ]
+})
 
 // ─── Calendar — month navigation ──────────────────────────────────────────────
 
@@ -77,6 +105,12 @@ const monthLabel = computed(() =>
     ),
 )
 
+function showRoute(): { url: string } {
+    return isAdmin.value
+        ? adminRoutes.vegetables.show(props.meta.varietyId)
+        : vegetables.show(props.meta.varietyId)
+}
+
 function navigateMonth(direction: 1 | -1): void {
     let month = calendarMonth.value + direction
     let year = calendarYear.value
@@ -90,7 +124,7 @@ function navigateMonth(direction: 1 | -1): void {
         year--
     }
 
-    router.visit(vegetables.show(props.meta.varietyId).url, {
+    router.visit(showRoute().url, {
         data: { year, month },
         preserveState: true,
         preserveScroll: true,
@@ -100,7 +134,7 @@ function navigateMonth(direction: 1 | -1): void {
 
 function goToToday(): void {
     const now = new Date()
-    router.visit(vegetables.show(props.meta.varietyId).url, {
+    router.visit(showRoute().url, {
         data: { year: now.getFullYear(), month: now.getMonth() + 1 },
         preserveState: true,
         preserveScroll: true,
@@ -157,21 +191,9 @@ const TIME_SLOTS: Array<{
     label: string
     dotClass: string
 }> = [
-    {
-        key: 'morning',
-        label: 'Morning (6 AM – 12 PM)',
-        dotClass: 'bg-amber-400',
-    },
-    {
-        key: 'afternoon',
-        label: 'Afternoon (12 PM – 6 PM)',
-        dotClass: 'bg-emerald-500',
-    },
-    {
-        key: 'evening',
-        label: 'Evening (6 PM – 10 PM)',
-        dotClass: 'bg-indigo-500',
-    },
+    { key: 'morning', label: 'Morning (6 AM – 12 PM)', dotClass: 'bg-amber-400' },
+    { key: 'afternoon', label: 'Afternoon (12 PM – 6 PM)', dotClass: 'bg-emerald-500' },
+    { key: 'evening', label: 'Evening (6 PM – 10 PM)', dotClass: 'bg-indigo-500' },
     { key: 'unscheduled', label: 'No time slot', dotClass: 'bg-slate-400' },
 ]
 
