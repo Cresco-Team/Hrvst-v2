@@ -33,7 +33,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 
                     <WasteRankingCard
                         title="Most Wasted Supply"
-                        description="Farmers posted these but no dealer claimed them in time."
+                        description="Forecasted supply likely to go unclaimed this month and the next 3, based on 5 years of seasonal trends."
                         :items="topWastedSupply"
                         unit-label="kg wasted"
                     />
