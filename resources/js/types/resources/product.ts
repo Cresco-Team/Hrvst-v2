@@ -70,7 +70,7 @@ export interface VegetableResource {
 	demand_count?: number
 	supply_municipalities?: SupplyMunicipality[]
 	monthly_activity?: MonthlyActivity[]
-	variety_calendar?: Record<string, VegetableDaySchedule>
+	vegetable_calendar?: Record<string, VegetableDaySchedule>
 	analytics?: VarietyAnalytics | null
 }
 

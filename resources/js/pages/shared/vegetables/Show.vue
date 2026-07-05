@@ -140,9 +140,9 @@ function goToToday(): void {
 // ─── Calendar — VCalendar attributes ─────────────────────────────────────────
 
 const calendarAttributes = computed(() => {
-    if (!props.vegetable?.variety_calendar) return []
+    if (!props.vegetable?.vegetable_calendar) return []
 
-    return Object.entries(props.vegetable.variety_calendar).map(
+    return Object.entries(props.vegetable.vegetable_calendar).map(
         ([dateStr, daySchedule]) => ({
             key: dateStr,
             dates: [new Date(`${dateStr}T00:00:00`)],
@@ -171,7 +171,7 @@ const selectedDateLabel = computed(() => {
 })
 
 function handleDayClick(day: { id: string }): void {
-    const schedule = props.vegetable?.variety_calendar?.[day.id]
+    const schedule = props.vegetable?.vegetable_calendar?.[day.id]
     if (!schedule) return
 
     selectedDateStr.value = day.id
@@ -211,10 +211,10 @@ function formatNetBadge(net: number): string {
 
 const dailyTotals = computed(() => {
     const map: Record<string, { supplyKg: number; demandKg: number }> = {}
-    if (!props.vegetable?.variety_calendar) return map
+    if (!props.vegetable?.vegetable_calendar) return map
 
     for (const [dateStr, daySchedule] of Object.entries(
-        props.vegetable.variety_calendar,
+        props.vegetable.vegetable_calendar,
     )) {
         let supplyKg = 0
         let demandKg = 0

@@ -20,7 +20,7 @@ class VegetableDetailData extends Data
         public int $demand_count,
         public array $supply_municipalities,
         public array $monthly_activity,
-        public array $variety_calendar,
+        public array $vegetable_calendar,
         public ?array $analytics,
     ) {}
 
@@ -39,7 +39,7 @@ class VegetableDetailData extends Data
             demand_count: $vegetable->demand_count,
             supply_municipalities: $vegetable->supply_municipalities,
             monthly_activity: $vegetable->monthly_activity,
-            variety_calendar: $vegetable->variety_calendar,
+            vegetable_calendar: $vegetable->vegetable_calendar,
             analytics: $vegetable->analytics?->toArray(),
         );
     }

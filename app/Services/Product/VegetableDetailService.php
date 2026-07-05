@@ -43,7 +43,7 @@ class VegetableDetailService
         $monthlyActivity = array_slice($extendedHistory, -12);
 
         $vegetable->monthly_activity = $monthlyActivity;
-        $vegetable->variety_calendar = $this->calendarService->buildForMonth($vegetable->id, $year, $month);
+        $vegetable->vegetable_calendar = $this->calendarService->buildForMonth($vegetable->id, $year, $month);
         $vegetable->analytics = $this->analyticsService->compute($monthlyActivity, $role, $extendedHistory);
 
         return $vegetable;
