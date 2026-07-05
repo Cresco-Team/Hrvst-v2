@@ -5,28 +5,14 @@ import type {
 	VarietyOptionsByVegetable,
 	VegetableOptionsByCategory,
 } from '../resources/marketplace'
-import type { CategoryOption } from '../resources/product'
+import type { CategoryOption, VegetableWasteData } from '../resources/product'
 import type { DealerDemandSummary } from '../resources/profile'
 import type { Paginated } from '../shared'
 
 // ─── dealer/Dashboard ─────────────────────────────────────────────────────────
 
-export type DealerRecommendationSeverity = App.Enums.Analytics.RecommendationSeverity
-
-export type DealerDashboardRecommendation =
-	Omit<App.DTOs.Dealer.DealerDashboardRecommendationDTO, 'severity'> & {
-		severity: DealerRecommendationSeverity
-	}
-
-export type DealerExpiringDemandFixed =
-	Omit<App.Data.Dealer.DealerExpiringDemandData, 'items'> & {
-		items?: App.Data.PostItem.PostItemLightData[]
-	}
-
 export interface DealerDashboardProps {
-	summary: DealerDemandSummary
-	expiringDemands: DealerExpiringDemandFixed[]
-	recommendations: DealerDashboardRecommendation[]
+	topWastedSupply?: VegetableWasteData[]
 }
 
 // ─── dealer/demands/Index ─────────────────────────────────────────────────────

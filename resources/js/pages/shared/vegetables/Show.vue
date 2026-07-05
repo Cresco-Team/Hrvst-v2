@@ -5,8 +5,8 @@ import { Calendar } from 'v-calendar'
 import { computed, ref } from 'vue'
 import 'v-calendar/style.css'
 import Heading from '@/components/Heading.vue'
-import VarietyAnalyticsSummary from '@/components/shared/charts/VarietyAnalyticsSummary.vue'
-import VarietyRecommendations from '@/components/shared/charts/VarietyRecommendations.vue'
+import VegetableAnalyticsSummary from '@/components/shared/charts/VegetableAnalyticsSummary.vue'
+import VegetableRecommendations from '@/components/shared/charts/VegetableRecommendations.vue'
 import VegetableMonthlyChart from '@/components/shared/charts/VegetableMonthlyChart.vue'
 import DetailSheet from '@/components/dialogs/DetailSheet.vue'
 import { Button } from '@/components/ui/button'
@@ -15,23 +15,24 @@ import { Skeleton } from '@/components/ui/skeleton'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { useCapitalize } from '@/lib/utils'
 import { categories, dashboard } from '@/routes'
+import adminRoutes, { dashboard as adminDashboard } from '@/routes/admin'
 import vegetables from '@/routes/vegetables'
 import type {
     BreadcrumbItem,
     CalendarSlotData,
     CalendarTimeSlot,
-    VarietyCalendarFilters,
-    VarietyDaySchedule,
+    VegetableCalendarFilters,
+    VegetableDaySchedule,
 } from '@/types'
 import type { VegetableResource } from '@/types/resources/product'
 import { Card } from '@/components/ui/card'
 
 interface Props {
-    variety?: VegetableResource
-    calendarFilters: VarietyCalendarFilters
+    vegetable?: VegetableResource
+    calendarFilters: VegetableCalendarFilters
     meta: {
-        varietyId: number
-        varietyLabel: string
+        vegetableId: number
+        vegetableLabel: string
         categoryName: string
         categorySlug: string
     }
@@ -39,24 +40,46 @@ interface Props {
 
 const props = defineProps<Props>()
 
-// ─── Routing context ──────────────────────────────────────────────────────────
+const isAdmin = computed(() =>
+    usePage().props.auth.user.roles.includes('admin'),
+)
 
-const breadcrumbs = computed<BreadcrumbItem[]>(() => [
-    {
-        title: useCapitalize(usePage().props.auth.user.roles[0]),
-        href: dashboard().url,
-    },
-    { title: 'Vegetables', href: categories().url },
-    {
-        title: props.meta.categoryName,
-        href: vegetables.index({ query: { category: props.meta.categorySlug } })
-            .url,
-    },
-    {
-        title: props.meta.varietyLabel,
-        href: vegetables.show(props.meta.varietyId).url,
-    },
-])
+const breadcrumbs = computed<BreadcrumbItem[]>(() => {
+    if (isAdmin.value) {
+        return [
+            { title: 'Admin', href: adminDashboard().url },
+            { title: 'Vegetables', href: adminRoutes.categories.index().url },
+            {
+                title: props.meta.categoryName,
+                href: adminRoutes.vegetables.index({
+                    query: { category: props.meta.categorySlug },
+                }).url,
+            },
+            {
+                title: props.meta.vegetableLabel,
+                href: adminRoutes.vegetables.show(props.meta.vegetableId).url,
+            },
+        ]
+    }
+
+    return [
+        {
+            title: useCapitalize(usePage().props.auth.user.roles[0]),
+            href: dashboard().url,
+        },
+        { title: 'Vegetables', href: categories().url },
+        {
+            title: props.meta.categoryName,
+            href: vegetables.index({
+                query: { category: props.meta.categorySlug },
+            }).url,
+        },
+        {
+            title: props.meta.vegetableLabel,
+            href: vegetables.show(props.meta.vegetableId).url,
+        },
+    ]
+})
 
 // ─── Calendar — month navigation ──────────────────────────────────────────────
 
@@ -77,6 +100,12 @@ const monthLabel = computed(() =>
     ),
 )
 
+function showRoute(): { url: string } {
+    return isAdmin.value
+        ? adminRoutes.vegetables.show(props.meta.vegetableId)
+        : vegetables.show(props.meta.vegetableId)
+}
+
 function navigateMonth(direction: 1 | -1): void {
     let month = calendarMonth.value + direction
     let year = calendarYear.value
@@ -90,30 +119,30 @@ function navigateMonth(direction: 1 | -1): void {
         year--
     }
 
-    router.visit(vegetables.show(props.meta.varietyId).url, {
+    router.visit(showRoute().url, {
         data: { year, month },
         preserveState: true,
         preserveScroll: true,
-        only: ['variety', 'calendarFilters'],
+        only: ['vegetable', 'calendarFilters'],
     })
 }
 
 function goToToday(): void {
     const now = new Date()
-    router.visit(vegetables.show(props.meta.varietyId).url, {
+    router.visit(showRoute().url, {
         data: { year: now.getFullYear(), month: now.getMonth() + 1 },
         preserveState: true,
         preserveScroll: true,
-        only: ['variety', 'calendarFilters'],
+        only: ['vegetable', 'calendarFilters'],
     })
 }
 
 // ─── Calendar — VCalendar attributes ─────────────────────────────────────────
 
 const calendarAttributes = computed(() => {
-    if (!props.variety?.variety_calendar) return []
+    if (!props.vegetable?.vegetable_calendar) return []
 
-    return Object.entries(props.variety.variety_calendar).map(
+    return Object.entries(props.vegetable.vegetable_calendar).map(
         ([dateStr, daySchedule]) => ({
             key: dateStr,
             dates: [new Date(`${dateStr}T00:00:00`)],
@@ -126,7 +155,7 @@ const calendarAttributes = computed(() => {
 
 const sheetOpen = ref(false)
 const selectedDateStr = ref<string | null>(null)
-const selectedSchedule = ref<VarietyDaySchedule | null>(null)
+const selectedSchedule = ref<VegetableDaySchedule | null>(null)
 
 const selectedDateLabel = computed(() => {
     if (!selectedDateStr.value) return ''
@@ -142,7 +171,7 @@ const selectedDateLabel = computed(() => {
 })
 
 function handleDayClick(day: { id: string }): void {
-    const schedule = props.variety?.variety_calendar?.[day.id]
+    const schedule = props.vegetable?.vegetable_calendar?.[day.id]
     if (!schedule) return
 
     selectedDateStr.value = day.id
@@ -157,21 +186,9 @@ const TIME_SLOTS: Array<{
     label: string
     dotClass: string
 }> = [
-    {
-        key: 'morning',
-        label: 'Morning (6 AM – 12 PM)',
-        dotClass: 'bg-amber-400',
-    },
-    {
-        key: 'afternoon',
-        label: 'Afternoon (12 PM – 6 PM)',
-        dotClass: 'bg-emerald-500',
-    },
-    {
-        key: 'evening',
-        label: 'Evening (6 PM – 10 PM)',
-        dotClass: 'bg-indigo-500',
-    },
+    { key: 'morning', label: 'Morning (6 AM – 12 PM)', dotClass: 'bg-amber-400' },
+    { key: 'afternoon', label: 'Afternoon (12 PM – 6 PM)', dotClass: 'bg-emerald-500' },
+    { key: 'evening', label: 'Evening (6 PM – 10 PM)', dotClass: 'bg-indigo-500' },
     { key: 'unscheduled', label: 'No time slot', dotClass: 'bg-slate-400' },
 ]
 
@@ -194,10 +211,10 @@ function formatNetBadge(net: number): string {
 
 const dailyTotals = computed(() => {
     const map: Record<string, { supplyKg: number; demandKg: number }> = {}
-    if (!props.variety?.variety_calendar) return map
+    if (!props.vegetable?.vegetable_calendar) return map
 
     for (const [dateStr, daySchedule] of Object.entries(
-        props.variety.variety_calendar,
+        props.vegetable.vegetable_calendar,
     )) {
         let supplyKg = 0
         let demandKg = 0
@@ -234,18 +251,18 @@ function formatKgShort(kg: number): string {
 <template>
     <Head
         :title="
-            variety ? `${meta.varietyLabel}` : 'Variety'
+            meta.vegetableLabel
         "
     />
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex flex-col gap-6 p-4 lg:p-6">
             <Heading
-                    :title="meta.varietyLabel"
+                    :title="meta.vegetableLabel"
                     :description="meta.categoryName"
                 />
 
-            <Deferred data="variety">
+            <Deferred data="vegetable">
                 <template #fallback>
                     <div class="flex flex-col gap-6">
                         <Skeleton class="h-8 w-64" />
@@ -264,24 +281,24 @@ function formatKgShort(kg: number): string {
                     </div>
                 </template>
 
-                <template v-if="variety">
+                <template v-if="vegetable">
                     <!-- ── Analytics Summary ───────────────────────────────────────────── -->
-                    <VarietyAnalyticsSummary
-                        v-if="variety.analytics"
-                        :analytics="variety.analytics"
+                    <VegetableAnalyticsSummary
+                        v-if="vegetable.analytics"
+                        :analytics="vegetable.analytics"
                     />
 
                     <!-- ── Recommendations ────────────────────────────────────────────── -->
-                    <VarietyRecommendations
-                        v-if="variety.analytics?.recommendations.length"
-                        :recommendations="variety.analytics.recommendations"
+                    <VegetableRecommendations
+                        v-if="vegetable.analytics?.recommendations.length"
+                        :recommendations="vegetable.analytics.recommendations"
                     />
 
                     <!-- ── Charts ─────────────────────────────────────────────────────── -->
                     <VegetableMonthlyChart
-                        v-if="variety.monthly_activity?.length"
-                        :monthly-activity="variety.monthly_activity"
-                        :forecast="variety.analytics?.forecast"
+                        v-if="vegetable.monthly_activity?.length"
+                        :monthly-activity="vegetable.monthly_activity"
+                        :forecast="vegetable.analytics?.forecast"
                     />
 
                     <!-- ── Market Calendar ─────────────────────────────────────────────── -->
@@ -296,7 +313,7 @@ function formatKgShort(kg: number): string {
                                 </h2>
                                 <p class="text-sm text-muted-foreground">
                                     All scheduled supply and demand posts for
-                                    this variety by date.
+                                    this vegetable by date.
                                 </p>
                             </div>
 
@@ -348,18 +365,6 @@ function formatKgShort(kg: number): string {
                                     />
                                     Demand
                                 </div>
-                                <Separator class="my-1" />
-                                <div
-                                    v-for="slot in TIME_SLOTS"
-                                    :key="slot.key"
-                                    class="flex items-center gap-1.5"
-                                >
-                                    <span
-                                        class="h-2 w-2 rounded-full"
-                                        :class="slot.dotClass"
-                                    />
-                                    {{ slot.label }}
-                                </div>
                             </div>
                         </div>
 
@@ -373,7 +378,7 @@ function formatKgShort(kg: number): string {
                             >
                                 <template #day-content="{ day }">
                                     <div
-                                        class="vc-day-tile flex h-full w-full cursor-pointer flex-col p-1"
+                                        class="vc-day-tile flex bg-muted border rounded-b-xs h-full w-full cursor-pointer flex-col p-2 m-2"
                                         :class="{ 'opacity-30': !day.inMonth }"
                                         @click="handleDayClick(day)"
                                     >

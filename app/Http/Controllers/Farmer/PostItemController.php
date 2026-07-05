@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Farmer;
 
+use App\Actions\PostItem\ExpirePostItemAction;
 use App\Actions\PostItem\FulfillPostItemAction;
 use App\Enums\PostType;
 use App\Http\Controllers\Controller;
@@ -16,25 +17,35 @@ class PostItemController extends Controller
     {
         $postItem->load('post');
         Gate::authorize('fulfill', $postItem);
-
         abort_if($postItem->post->type !== PostType::Supply, 403);
 
         $action->handle($postItem);
 
-        return redirect()->route('farmer.supplies.index', ['status' => 'ongoing'])
+        return back(fallback: route('farmer.supplies.index'))
             ->with('flash', ['type' => 'success', 'message' => 'Item marked as fulfilled.']);
+    }
+
+    public function expire(Request $request, PostItem $postItem, ExpirePostItemAction $action): RedirectResponse
+    {
+        $postItem->load('post');
+        Gate::authorize('expire', $postItem);
+        abort_if($postItem->post->type !== PostType::Supply, 403);
+
+        $action->handle($postItem);
+
+        return back(fallback: route('farmer.supplies.index'))
+            ->with('flash', ['type' => 'success', 'message' => 'Item marked as expired.']);
     }
 
     public function destroy(Request $request, PostItem $postItem): RedirectResponse
     {
         $postItem->load('post');
         Gate::authorize('delete', $postItem);
-
         abort_if($postItem->post->type !== PostType::Supply, 403);
 
         $postItem->delete();
 
-        return redirect()->route('farmer.supplies.index', ['status' => 'ongoing'])
+        return back(fallback: route('farmer.supplies.index'))
             ->with('flash', ['type' => 'success', 'message' => 'Item deleted.']);
     }
 }

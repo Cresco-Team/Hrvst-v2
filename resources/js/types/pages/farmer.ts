@@ -5,26 +5,14 @@ import type {
 	VarietyOptionsByVegetable,
 	VegetableOptionsByCategory,
 } from '../resources/marketplace'
-import type { CategoryOption, RecommendationSeverity } from '../resources/product'
+import type { CategoryOption, VegetableWasteData } from '../resources/product'
 import type { FarmerSupplySummary } from '../resources/profile'
 import type { Paginated } from '../shared'
 
 // ─── farmer/Dashboard ─────────────────────────────────────────────────────────
 
-export type FarmerDashboardRecommendation =
-	Omit<App.DTOs.Farmer.FarmerDashboardRecommendationDTO, 'severity'> & {
-		severity: RecommendationSeverity
-	}
-
-export type FarmerExpiringSupplyFixed =
-	Omit<App.Data.Farmer.FarmerExpiringSupplyData, 'post_items'> & {
-		items?: App.Data.PostItem.PostItemLightData[]
-	}
-
 export interface FarmerDashboardProps {
-	summary: FarmerSupplySummary
-	expiringSupplies: FarmerExpiringSupplyFixed[]
-	recommendations: FarmerDashboardRecommendation[]
+	topWastedDemand?: VegetableWasteData[]
 }
 
 // ─── farmer/supplies/Index ────────────────────────────────────────────────────

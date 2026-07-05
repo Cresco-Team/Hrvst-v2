@@ -2,7 +2,7 @@
 
 namespace App\Services\Product;
 
-use App\Enums\Analytics\VarietyViewerRole;
+use App\Enums\Analytics\VegetableViewerRole;
 use App\Enums\PostItemStatus;
 use App\Enums\PostType;
 use App\Models\Product\Vegetable;
@@ -23,7 +23,7 @@ class VegetableDetailService
         ];
     }
 
-    public function show(Vegetable $vegetable, int $year, int $month, VarietyViewerRole $role): Vegetable
+    public function show(Vegetable $vegetable, int $year, int $month, VegetableViewerRole $role): Vegetable
     {
         $counts = $vegetable->postItems()
             ->ongoing()
@@ -43,7 +43,7 @@ class VegetableDetailService
         $monthlyActivity = array_slice($extendedHistory, -12);
 
         $vegetable->monthly_activity = $monthlyActivity;
-        $vegetable->variety_calendar = $this->calendarService->buildForMonth($vegetable->id, $year, $month);
+        $vegetable->vegetable_calendar = $this->calendarService->buildForMonth($vegetable->id, $year, $month);
         $vegetable->analytics = $this->analyticsService->compute($monthlyActivity, $role, $extendedHistory);
 
         return $vegetable;

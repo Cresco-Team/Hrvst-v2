@@ -28,7 +28,7 @@ class DealerDemandData extends Data
         public PostTimeSlot $time_slot,
         public string $created_at,
         public string $created_at_human,
-
+        public bool $needs_action,
         /** @var PostItemLightData[]|Lazy */
         #[DataCollectionOf(PostItemLightData::class)]
         public ?array $post_items,

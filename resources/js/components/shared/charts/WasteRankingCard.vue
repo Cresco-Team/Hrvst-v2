@@ -1,0 +1,74 @@
+<script setup lang="ts">
+import { Vegan } from 'lucide-vue-next'
+import { computed } from 'vue'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import type { VegetableWasteData } from '@/types/resources/product'
+
+const props = defineProps<{
+    title: string
+    description: string
+    items?: VegetableWasteData[]
+    unitLabel?: string
+}>()
+
+const maxKg = computed(() =>
+    Math.max(...(props.items ?? []).map((i) => i.wasted_kg), 1),
+)
+
+function barPct(kg: number): string {
+    return `${Math.round((kg / maxKg.value) * 100)}%`
+}
+</script>
+
+<template>
+    <Card>
+        <CardHeader>
+            <CardTitle class="text-sm font-semibold">{{ title }}</CardTitle>
+            <CardDescription>{{ description }}</CardDescription>
+        </CardHeader>
+        <CardContent>
+            <div
+                v-if="!items?.length"
+                class="flex h-24 items-center justify-center text-center text-sm text-muted-foreground"
+            >
+                No waste recorded for this period.
+            </div>
+
+            <ol v-else class="flex flex-col gap-3">
+                <li
+                    v-for="(item, index) in items"
+                    :key="item.id"
+                    class="flex items-center gap-3"
+                >
+                    <span
+                        class="flex size-6 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-bold text-muted-foreground"
+                    >
+                        {{ index + 1 }}
+                    </span>
+
+                    <Avatar class="size-8 shrink-0 rounded-md">
+                        <AvatarImage :src="item.image_url" :alt="item.display_name" />
+                        <AvatarFallback class="rounded-md bg-primary/10">
+                            <Vegan class="size-4 text-primary" />
+                        </AvatarFallback>
+                    </Avatar>
+
+                    <div class="min-w-0 flex-1">
+                        <p class="truncate text-sm font-medium">{{ item.display_name }}</p>
+                        <div class="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-muted">
+                            <div
+                                class="h-full rounded-full bg-destructive/70"
+                                :style="{ width: barPct(item.wasted_kg) }"
+                            />
+                        </div>
+                    </div>
+
+                    <span class="shrink-0 text-xs font-semibold tabular-nums text-muted-foreground">
+                        {{ item.wasted_kg.toLocaleString() }} {{ unitLabel ?? 'kg' }}
+                    </span>
+                </li>
+            </ol>
+        </CardContent>
+    </Card>
+</template>

@@ -1,7 +1,7 @@
 <?php
 
 use App\DTOs\Product\VarietyAnalyticsDTO;
-use App\Enums\Analytics\VarietyViewerRole;
+use App\Enums\Analytics\VegetableViewerRole;
 use App\Models\Product\Variety;
 use App\Services\Product\VarietyAnalyticsService;
 use Carbon\Carbon;
@@ -23,7 +23,7 @@ test('computes analytics dto and recommendations', function () {
         ];
     }
 
-    $dto = $service->compute($monthlyActivity, VarietyViewerRole::Admin);
+    $dto = $service->compute($monthlyActivity, VegetableViewerRole::Admin);
 
     expect($dto)->toBeInstanceOf(VarietyAnalyticsDTO::class);
     expect($dto->imbalance_band->value)->toBe('balanced');

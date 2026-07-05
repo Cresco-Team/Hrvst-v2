@@ -113,6 +113,13 @@ class Post extends Model implements HasMedia
         return today()->gte($this->scheduled_date->addDays(self::ACTION_WINDOW_DAYS));
     }
 
+    public function needsAction(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->scheduled_date !== null && ! $this->scheduled_date->isFuture()
+        );
+    }
+
     /* ---------- lifecycle ---------- */
 
     public function markAsExpired(): void

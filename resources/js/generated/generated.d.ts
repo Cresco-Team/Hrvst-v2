@@ -65,6 +65,7 @@ scheduled_date: string,
 time_slot: App.Enums.PostTimeSlot,
 created_at: string,
 created_at_human: string,
+needs_action: boolean,
 post_items: App.Data.PostItem.PostItemLightData[] | unknown,
 };
 export type FarmerSupplyData = {
@@ -75,6 +76,7 @@ scheduled_date: string,
 time_slot: App.Enums.PostTimeSlot,
 created_at: string,
 created_at_human: string,
+needs_action: boolean,
 post_items: App.Data.PostItem.PostItemLightData[],
 };
 export type PostData = {
@@ -206,6 +208,12 @@ category: App.Data.Category.CategoryData | undefined,
 supply_count: undefined | number,
 demand_count: undefined | number,
 };
+export type VegetableWasteData = {
+id: number,
+display_name: string,
+image_url: string,
+wasted_kg: number,
+};
 }
 }
 namespace Enums {
@@ -215,7 +223,7 @@ export type PostType = 'supply' | 'demand';
 namespace Analytics {
 export type ImbalanceBand = 'oversupply' | 'balanced' | 'undersupply';
 export type RecommendationSeverity = 'critical' | 'warning' | 'info';
-export type VarietyViewerRole = 'admin' | 'marketplace';
+export type VegetableViewerRole = 'admin' | 'marketplace';
 }
 }
 }

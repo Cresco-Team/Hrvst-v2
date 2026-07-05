@@ -6,7 +6,7 @@ use App\DTOs\Product\VarietyAnalyticsDTO;
 use App\DTOs\Product\VarietyRecommendationDTO;
 use App\Enums\Analytics\ImbalanceBand;
 use App\Enums\Analytics\RecommendationSeverity;
-use App\Enums\Analytics\VarietyViewerRole;
+use App\Enums\Analytics\VegetableViewerRole;
 
 class VarietyAnalyticsService
 {
@@ -25,7 +25,7 @@ class VarietyAnalyticsService
 
     public function compute(
         array $monthlyActivity,
-        VarietyViewerRole $role,
+        VegetableViewerRole $role,
         array $extendedHistory = [],
     ): VarietyAnalyticsDTO {
         $completeMonths = array_slice($monthlyActivity, -4, 3);
@@ -263,14 +263,16 @@ class VarietyAnalyticsService
         ?float $supplyFulfillment,
         ?float $demandFulfillment,
         ?float $supplyMomPct,
-        VarietyViewerRole $role,
+        VegetableViewerRole $role,
     ): array {
         $recs = [];
 
+        // ── Undersupply: actionable by everyone, but the action differs per role ──
         if ($band === ImbalanceBand::Undersupply) {
             $body = match ($role) {
-                VarietyViewerRole::Admin       => 'Dealer demand is outpacing available supply. Consider prompting more farmers to post.',
-                VarietyViewerRole::Marketplace => 'Buyers are actively looking for this variety. Good time to post your available harvest.',
+                VegetableViewerRole::Admin  => 'Dealer demand is outpacing available supply. Consider prompting more farmers to post.',
+                VegetableViewerRole::Farmer => 'Buyers are actively looking for this variety. Good time to post your available harvest.',
+                VegetableViewerRole::Dealer => 'Supply is currently scarce for this variety. Expect longer wait times, or consider adjusting your requested quantity.',
             };
 
             $recs[] = new VarietyRecommendationDTO(
@@ -281,7 +283,14 @@ class VarietyAnalyticsService
             );
         }
 
-        if ($supplyFulfillment !== null && $supplyFulfillment < self::LOW_FULFILLMENT_THRESHOLD) {
+        // ── Supply expiry: only Farmer and Admin can act on it. A dealer cannot
+        // control how much of a farmer's harvest goes unfulfilled — showing them
+        // this metric is noise, not insight. ──
+        if (
+            $supplyFulfillment !== null
+            && $supplyFulfillment < self::LOW_FULFILLMENT_THRESHOLD
+            && $role !== VegetableViewerRole::Dealer
+        ) {
             $expiredPct = (int) round((1 - $supplyFulfillment) * 100);
 
             $recs[] = new VarietyRecommendationDTO(
@@ -293,7 +302,13 @@ class VarietyAnalyticsService
             );
         }
 
-        if ($demandFulfillment !== null && $demandFulfillment < self::LOW_FULFILLMENT_THRESHOLD) {
+        // ── Demand expiry: only Dealer and Admin can act on it. A farmer has no
+        // lever over dealer demand posting — this is the mirror of the block above. ──
+        if (
+            $demandFulfillment !== null
+            && $demandFulfillment < self::LOW_FULFILLMENT_THRESHOLD
+            && $role !== VegetableViewerRole::Farmer
+        ) {
             $expiredPct = (int) round((1 - $demandFulfillment) * 100);
 
             $recs[] = new VarietyRecommendationDTO(
@@ -305,6 +320,17 @@ class VarietyAnalyticsService
             );
         }
 
+        // ── Declining supply volume: deliberately shown to ALL roles, unlike the
+        // two blocks above. This is not an oversight — it's a different kind of
+        // recommendation. The expiry-rate recs are "your posts aren't converting,"
+        // which only makes sense to the party whose posts they are. This one is
+        // forward-looking market intelligence: supply is shrinking. A dealer needs
+        // that signal just as much as a farmer does — it tells them to expect
+        // scarcity and adjust their requested quantity or timing *before* it bites
+        // them, which is a real, distinct action from anything in the Undersupply
+        // block above (that one reacts to a snapshot; this one reacts to a trend).
+        // Don't collapse this into the same filtering rule as the other two just
+        // for consistency — consistency isn't the goal, correctness per rec is.
         if ($supplyMomPct !== null && $supplyMomPct < self::SUPPLY_DECLINE_THRESHOLD) {
             $dropPct = (int) round(abs($supplyMomPct));
 
