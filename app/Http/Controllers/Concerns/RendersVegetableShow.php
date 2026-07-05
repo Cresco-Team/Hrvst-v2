@@ -27,9 +27,12 @@ trait RendersVegetableShow
         $year = (int) ($validated['year'] ?? now()->year);
         $month = (int) ($validated['month'] ?? now()->month);
 
-        $role = $request->user()->hasRole('admin')
-            ? VarietyViewerRole::Admin
-            : VarietyViewerRole::Marketplace;
+        $role = match (true) {
+            $request->user()->hasRole('admin') => VarietyViewerRole::Admin,
+            $request->user()->hasRole('farmer') => VarietyViewerRole::Farmer,
+            $request->user()->hasRole('dealer') => VarietyViewerRole::Dealer,
+            default => throw new \RuntimeException('User has no recognized role for variety viewer context.'),
+        };
 
         return Inertia::render('shared/vegetables/Show', [
             'variety' => Inertia::defer(
