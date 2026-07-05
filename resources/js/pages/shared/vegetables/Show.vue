@@ -21,15 +21,15 @@ import type {
     BreadcrumbItem,
     CalendarSlotData,
     CalendarTimeSlot,
-    VarietyCalendarFilters,
-    VarietyDaySchedule,
+    VegetableCalendarFilters,
+    VegetableDaySchedule,
 } from '@/types'
 import type { VegetableResource } from '@/types/resources/product'
 import { Card } from '@/components/ui/card'
 
 interface Props {
     vegetable?: VegetableResource
-    calendarFilters: VarietyCalendarFilters
+    calendarFilters: VegetableCalendarFilters
     meta: {
         vegetableId: number
         vegetableLabel: string
@@ -123,7 +123,7 @@ function navigateMonth(direction: 1 | -1): void {
         data: { year, month },
         preserveState: true,
         preserveScroll: true,
-        only: ['variety', 'calendarFilters'],
+        only: ['vegetable', 'calendarFilters'],
     })
 }
 
@@ -133,7 +133,7 @@ function goToToday(): void {
         data: { year: now.getFullYear(), month: now.getMonth() + 1 },
         preserveState: true,
         preserveScroll: true,
-        only: ['variety', 'calendarFilters'],
+        only: ['vegetable', 'calendarFilters'],
     })
 }
 
@@ -155,7 +155,7 @@ const calendarAttributes = computed(() => {
 
 const sheetOpen = ref(false)
 const selectedDateStr = ref<string | null>(null)
-const selectedSchedule = ref<VarietyDaySchedule | null>(null)
+const selectedSchedule = ref<VegetableDaySchedule | null>(null)
 
 const selectedDateLabel = computed(() => {
     if (!selectedDateStr.value) return ''
@@ -251,7 +251,7 @@ function formatKgShort(kg: number): string {
 <template>
     <Head
         :title="
-            vegetable ? `${meta.vegetableLabel}` : 'Variety'
+            meta.vegetableLabel
         "
     />
 

@@ -28,9 +28,9 @@ export interface CalendarSlotData {
 	items: CalendarScheduleItem[]
 }
 
-export type VarietyDaySchedule = Partial<Record<CalendarTimeSlot, CalendarSlotData>>
+export type VegetableDaySchedule = Partial<Record<CalendarTimeSlot, CalendarSlotData>>
 
-export interface VarietyCalendarFilters {
+export interface VegetableCalendarFilters {
 	year: number
 	month: number
 }
@@ -70,7 +70,7 @@ export interface VegetableResource {
 	demand_count?: number
 	supply_municipalities?: SupplyMunicipality[]
 	monthly_activity?: MonthlyActivity[]
-	variety_calendar?: Record<string, VarietyDaySchedule>
+	variety_calendar?: Record<string, VegetableDaySchedule>
 	analytics?: VarietyAnalytics | null
 }
 
