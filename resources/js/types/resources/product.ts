@@ -76,6 +76,8 @@ export interface VegetableResource {
 
 export type VegetableAdminData = App.Data.Vegetable.VegetableAdminData
 
+export type VegetableWasteData = App.Data.Vegetable.VegetableWasteData
+
 // ─── Option Bag Types ─────────────────────────────────────────────────────────
 
 export type VegetableOptions = Record<string, Record<string, string>>
