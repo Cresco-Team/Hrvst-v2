@@ -26,6 +26,7 @@ export interface DealerDemandsProps {
 	summary: DealerDemandSummary
 	vegetableOptions: VegetableOptionsByCategory
 	varietyOptions: VarietyOptionsByVegetable
+	needsAction?: DealerDemandDataFixed[]
 	demands: Paginated<DealerDemandDataFixed> | null
 }
 

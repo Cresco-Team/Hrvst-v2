@@ -26,6 +26,7 @@ export interface FarmerSuppliesProps {
 	summary: FarmerSupplySummary
 	vegetableOptions: VegetableOptionsByCategory
 	varietyOptions: VarietyOptionsByVegetable
+	needsAction?: FarmerSupplyDataFixed[]
 	supplies: Paginated<FarmerSupplyDataFixed> | null
 }
 

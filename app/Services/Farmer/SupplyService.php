@@ -6,14 +6,30 @@ use App\Enums\PostItemStatus;
 use App\Models\Marketplace\Post;
 use App\Models\Product\Vegetable;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Collection;
 
 class SupplyService
 {
+    public function needsAction(int $userId): Collection
+    {
+        return Post::supply()
+            ->where('user_id', $userId)
+            ->whereHas('postItems', fn ($q) => $q->ongoing())
+            ->whereDate('scheduled_date', '<=', today())
+            ->with(['media', 'postItems' => fn ($q) => $q->ongoing()->with('vegetable')])
+            ->orderBy('scheduled_date')
+            ->get();
+    }
+
     public function paginatedSupply(int $userId, PostItemStatus $status = PostItemStatus::Ongoing, int $perPage = 20): LengthAwarePaginator
     {
         return Post::supply()
             ->where('user_id', $userId)
             ->whereHas('postItems', fn ($q) => $q->ofStatus($status))
+            ->when(
+                $status === PostItemStatus::Ongoing,
+                fn ($q) => $q->whereDate('scheduled_date', '>', today()),
+            )
             ->with(['media', 'postItems' => fn ($q) => $q->ofStatus($status)->with('vegetable')])
             ->when(
                 $status === PostItemStatus::Ongoing,

@@ -34,7 +34,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 
                     <WasteRankingCard
                         title="Most Unmet Demand"
-                        description="Dealers requested these but supply never arrived."
+                        description="Forecasted unmet demand for this month and the next 3, based on 5 years of seasonal trends."
                         :items="topWastedDemand"
                         unit-label="kg unmet"
                     />
