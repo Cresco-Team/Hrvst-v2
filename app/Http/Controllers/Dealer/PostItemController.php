@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Dealer;
 
+use App\Actions\PostItem\ExpirePostItemAction;
 use App\Actions\PostItem\FulfillPostItemAction;
 use App\Enums\PostType;
 use App\Http\Controllers\Controller;
@@ -20,7 +21,7 @@ class PostItemController extends Controller
 
         $action->handle($postItem);
 
-        return back(fallback: route('farmer.supplies.index'))
+        return back(fallback: route('dealer.demands.index'))
             ->with('flash', ['type' => 'success', 'message' => 'Item marked as fulfilled.']);
     }
 
@@ -28,11 +29,11 @@ class PostItemController extends Controller
     {
         $postItem->load('post');
         Gate::authorize('expire', $postItem);
-        abort_if($postItem->post->type !== PostType::Supply, 403);
+        abort_if($postItem->post->type !== PostType::Demand, 403);
 
         $action->handle($postItem);
 
-        return back(fallback: route('farmer.supplies.index'))
+        return back(fallback: route('dealer.demands.index'))
             ->with('flash', ['type' => 'success', 'message' => 'Item marked as expired.']);
     }
 
@@ -45,7 +46,7 @@ class PostItemController extends Controller
 
         $postItem->delete();
 
-        return back(fallback: route('farmer.supplies.index'))
+        return back(fallback: route('dealer.demands.index'))
             ->with('flash', ['type' => 'success', 'message' => 'Item deleted.']);
     }
 }
