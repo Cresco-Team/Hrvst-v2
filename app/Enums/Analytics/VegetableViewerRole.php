@@ -2,7 +2,7 @@
 
 namespace App\Enums\Analytics;
 
-enum VarietyViewerRole: string
+enum VegetableViewerRole: string
 {
     case Admin = 'admin';
     case Farmer = 'farmer';

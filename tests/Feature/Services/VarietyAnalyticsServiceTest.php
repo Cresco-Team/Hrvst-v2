@@ -1,7 +1,7 @@
 <?php
 
 use App\Enums\Analytics\ImbalanceBand;
-use App\Enums\Analytics\VarietyViewerRole;
+use App\Enums\Analytics\VegetableViewerRole;
 use App\Services\Product\VarietyAnalyticsService;
 
 /**
@@ -60,14 +60,14 @@ it('confirms the fixture actually produces an undersupply band with a supply dec
     // below silently testing against zero recommendations.
     $dto = (new VarietyAnalyticsService())->compute(
         undersupplyMonthlyActivity(),
-        VarietyViewerRole::Admin,
+        VegetableViewerRole::Admin,
     );
 
     expect($dto->imbalance_band)->toBe(ImbalanceBand::Undersupply)
         ->and($dto->supply_volume_mom_pct)->toBeLessThan(-20.0);
 });
 
-it('filters recommendation types by viewer role', function (VarietyViewerRole $role, array $expectedTypes) {
+it('filters recommendation types by viewer role', function (VegetableViewerRole $role, array $expectedTypes) {
     $dto = (new VarietyAnalyticsService())->compute(
         undersupplyMonthlyActivity(),
         $role,
@@ -78,7 +78,7 @@ it('filters recommendation types by viewer role', function (VarietyViewerRole $r
     expect($types)->toEqualCanonicalizing($expectedTypes);
 })->with([
     'admin sees every recommendation type — nothing filtered' => [
-        VarietyViewerRole::Admin,
+        VegetableViewerRole::Admin,
         [
             'supply_opportunity',
             'high_supply_expiry_rate',
@@ -87,7 +87,7 @@ it('filters recommendation types by viewer role', function (VarietyViewerRole $r
         ],
     ],
     'farmer sees supply-side recs, not demand expiry — they cannot act on dealer demand' => [
-        VarietyViewerRole::Farmer,
+        VegetableViewerRole::Farmer,
         [
             'supply_opportunity',
             'high_supply_expiry_rate',
@@ -95,7 +95,7 @@ it('filters recommendation types by viewer role', function (VarietyViewerRole $r
         ],
     ],
     'dealer sees demand-side recs, not supply expiry — they cannot act on farmer supply' => [
-        VarietyViewerRole::Dealer,
+        VegetableViewerRole::Dealer,
         [
             'supply_opportunity',
             'high_demand_expiry_rate',
@@ -105,9 +105,9 @@ it('filters recommendation types by viewer role', function (VarietyViewerRole $r
 ]);
 
 it('gives each role role-specific undersupply copy, not a shared generic sentence', function () {
-    $admin = (new VarietyAnalyticsService())->compute(undersupplyMonthlyActivity(), VarietyViewerRole::Admin);
-    $farmer = (new VarietyAnalyticsService())->compute(undersupplyMonthlyActivity(), VarietyViewerRole::Farmer);
-    $dealer = (new VarietyAnalyticsService())->compute(undersupplyMonthlyActivity(), VarietyViewerRole::Dealer);
+    $admin = (new VarietyAnalyticsService())->compute(undersupplyMonthlyActivity(), VegetableViewerRole::Admin);
+    $farmer = (new VarietyAnalyticsService())->compute(undersupplyMonthlyActivity(), VegetableViewerRole::Farmer);
+    $dealer = (new VarietyAnalyticsService())->compute(undersupplyMonthlyActivity(), VegetableViewerRole::Dealer);
 
     $bodyFor = fn ($dto) => collect($dto->recommendations)
         ->firstWhere('type', 'supply_opportunity')

@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Concerns;
 
 use App\Data\Vegetable\VegetableDetailData;
-use App\Enums\Analytics\VarietyViewerRole;
+use App\Enums\Analytics\VegetableViewerRole;
 use App\Models\Product\Vegetable;
 use App\Services\Product\VegetableDetailService;
 use Illuminate\Http\Request;
@@ -28,9 +28,9 @@ trait RendersVegetableShow
         $month = (int) ($validated['month'] ?? now()->month);
 
         $role = match (true) {
-            $request->user()->hasRole('admin') => VarietyViewerRole::Admin,
-            $request->user()->hasRole('farmer') => VarietyViewerRole::Farmer,
-            $request->user()->hasRole('dealer') => VarietyViewerRole::Dealer,
+            $request->user()->hasRole('admin') => VegetableViewerRole::Admin,
+            $request->user()->hasRole('farmer') => VegetableViewerRole::Farmer,
+            $request->user()->hasRole('dealer') => VegetableViewerRole::Dealer,
             default => throw new \RuntimeException('User has no recognized role for variety viewer context.'),
         };
 

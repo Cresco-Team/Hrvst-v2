@@ -223,7 +223,7 @@ export type PostType = 'supply' | 'demand';
 namespace Analytics {
 export type ImbalanceBand = 'oversupply' | 'balanced' | 'undersupply';
 export type RecommendationSeverity = 'critical' | 'warning' | 'info';
-export type VarietyViewerRole = 'admin' | 'marketplace';
+export type VegetableViewerRole = 'admin' | 'marketplace';
 }
 }
 }

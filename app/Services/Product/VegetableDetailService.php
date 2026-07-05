@@ -2,7 +2,7 @@
 
 namespace App\Services\Product;
 
-use App\Enums\Analytics\VarietyViewerRole;
+use App\Enums\Analytics\VegetableViewerRole;
 use App\Enums\PostItemStatus;
 use App\Enums\PostType;
 use App\Models\Product\Vegetable;
@@ -23,7 +23,7 @@ class VegetableDetailService
         ];
     }
 
-    public function show(Vegetable $vegetable, int $year, int $month, VarietyViewerRole $role): Vegetable
+    public function show(Vegetable $vegetable, int $year, int $month, VegetableViewerRole $role): Vegetable
     {
         $counts = $vegetable->postItems()
             ->ongoing()

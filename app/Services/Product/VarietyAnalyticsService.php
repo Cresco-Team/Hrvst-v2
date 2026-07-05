@@ -6,7 +6,7 @@ use App\DTOs\Product\VarietyAnalyticsDTO;
 use App\DTOs\Product\VarietyRecommendationDTO;
 use App\Enums\Analytics\ImbalanceBand;
 use App\Enums\Analytics\RecommendationSeverity;
-use App\Enums\Analytics\VarietyViewerRole;
+use App\Enums\Analytics\VegetableViewerRole;
 
 class VarietyAnalyticsService
 {
@@ -25,7 +25,7 @@ class VarietyAnalyticsService
 
     public function compute(
         array $monthlyActivity,
-        VarietyViewerRole $role,
+        VegetableViewerRole $role,
         array $extendedHistory = [],
     ): VarietyAnalyticsDTO {
         $completeMonths = array_slice($monthlyActivity, -4, 3);
@@ -263,16 +263,16 @@ class VarietyAnalyticsService
         ?float $supplyFulfillment,
         ?float $demandFulfillment,
         ?float $supplyMomPct,
-        VarietyViewerRole $role,
+        VegetableViewerRole $role,
     ): array {
         $recs = [];
 
         // ── Undersupply: actionable by everyone, but the action differs per role ──
         if ($band === ImbalanceBand::Undersupply) {
             $body = match ($role) {
-                VarietyViewerRole::Admin  => 'Dealer demand is outpacing available supply. Consider prompting more farmers to post.',
-                VarietyViewerRole::Farmer => 'Buyers are actively looking for this variety. Good time to post your available harvest.',
-                VarietyViewerRole::Dealer => 'Supply is currently scarce for this variety. Expect longer wait times, or consider adjusting your requested quantity.',
+                VegetableViewerRole::Admin  => 'Dealer demand is outpacing available supply. Consider prompting more farmers to post.',
+                VegetableViewerRole::Farmer => 'Buyers are actively looking for this variety. Good time to post your available harvest.',
+                VegetableViewerRole::Dealer => 'Supply is currently scarce for this variety. Expect longer wait times, or consider adjusting your requested quantity.',
             };
 
             $recs[] = new VarietyRecommendationDTO(
@@ -289,7 +289,7 @@ class VarietyAnalyticsService
         if (
             $supplyFulfillment !== null
             && $supplyFulfillment < self::LOW_FULFILLMENT_THRESHOLD
-            && $role !== VarietyViewerRole::Dealer
+            && $role !== VegetableViewerRole::Dealer
         ) {
             $expiredPct = (int) round((1 - $supplyFulfillment) * 100);
 
@@ -307,7 +307,7 @@ class VarietyAnalyticsService
         if (
             $demandFulfillment !== null
             && $demandFulfillment < self::LOW_FULFILLMENT_THRESHOLD
-            && $role !== VarietyViewerRole::Farmer
+            && $role !== VegetableViewerRole::Farmer
         ) {
             $expiredPct = (int) round((1 - $demandFulfillment) * 100);
 
