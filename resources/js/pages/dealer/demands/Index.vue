@@ -90,6 +90,32 @@ const breadcrumbs: BreadcrumbItem[] = [
                 </Button>
             </div>
 
+            <Deferred data="needsAction">
+                <template #fallback>
+                    <Skeleton class="h-20 w-full rounded-lg" />
+                </template>
+
+                <div v-if="needsAction?.length" class="flex flex-col gap-3">
+                    <div class="flex items-center gap-2">
+                        <TriangleAlert class="size-4 text-destructive" />
+                        <h2 class="text-sm font-semibold">Needs Action</h2>
+                        <span class="text-xs text-muted-foreground">
+                            {{ needsAction.length }} deliver{{ needsAction.length === 1 ? 'y has' : 'ies have' }} arrived
+                        </span>
+                    </div>
+
+                    <div class="flex flex-col gap-2">
+                        <DemandItem
+                            v-for="demand in needsAction"
+                            :key="demand.id"
+                            :demand="demand"
+                            @edit="openEdit(demand)"
+                            @delete="openDelete(demand)"
+                        />
+                    </div>
+                </div>
+            </Deferred>
+
             <!-- ── Demand list (Ongoing only) ─────────────────────────── -->
             <Deferred data="demands">
                 <template #fallback>

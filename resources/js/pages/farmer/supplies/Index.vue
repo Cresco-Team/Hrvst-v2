@@ -7,7 +7,6 @@ import EmptyState from '@/components/EmptyState.vue'
 import SupplyItem from '@/components/features/farmer/SupplyItem.vue'
 import SupplyForm from '@/components/features/farmer/SupplyForm.vue'
 import Heading from '@/components/Heading.vue'
-import LargeCard from '@/components/shared/cards/LargeCard.vue'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import AppLayout from '@/layouts/AppLayout.vue'
@@ -89,6 +88,32 @@ const breadcrumbs: BreadcrumbItem[] = [
                     New Schedule
                 </Button>
             </div>
+
+            <Deferred data="needsAction">
+                <template #fallback>
+                    <Skeleton class="h-20 w-full rounded-lg" />
+                </template>
+
+                <div v-if="needsAction?.length" class="flex flex-col gap-3">
+                    <div class="flex items-center gap-2">
+                        <TriangleAlert class="size-4 text-destructive" />
+                        <h2 class="text-sm font-semibold">Needs Action</h2>
+                        <span class="text-xs text-muted-foreground">
+                            {{ needsAction.length }} deliver{{ needsAction.length === 1 ? 'y has' : 'ies have' }} arrived
+                        </span>
+                    </div>
+
+                    <div class="flex flex-col gap-2">
+                        <SupplyItem
+                            v-for="supply in needsAction"
+                            :key="supply.id"
+                            :supply="supply"
+                            @edit="openEdit(supply)"
+                            @delete="openDelete(supply)"
+                        />
+                    </div>
+                </div>
+            </Deferred>
 
             <!-- ── Supply list (Ongoing only) ─────────────────────────── -->
             <Deferred data="supplies">
