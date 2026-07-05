@@ -5,13 +5,15 @@ import type {
 	VarietyOptionsByVegetable,
 	VegetableOptionsByCategory,
 } from '../resources/marketplace'
-import type { CategoryOption } from '../resources/product'
+import type { CategoryOption, VegetableWasteData } from '../resources/product'
 import type { DealerDemandSummary } from '../resources/profile'
 import type { Paginated } from '../shared'
 
 // ─── dealer/Dashboard ─────────────────────────────────────────────────────────
 
-export interface DealerDashboardProps {}
+export interface DealerDashboardProps {
+	topWastedSupply?: VegetableWasteData[]
+}
 
 // ─── dealer/demands/Index ─────────────────────────────────────────────────────
 

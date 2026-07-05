@@ -5,13 +5,15 @@ import type {
 	VarietyOptionsByVegetable,
 	VegetableOptionsByCategory,
 } from '../resources/marketplace'
-import type { CategoryOption, RecommendationSeverity } from '../resources/product'
+import type { CategoryOption, VegetableWasteData } from '../resources/product'
 import type { FarmerSupplySummary } from '../resources/profile'
 import type { Paginated } from '../shared'
 
 // ─── farmer/Dashboard ─────────────────────────────────────────────────────────
 
-export interface FarmerDashboardProps {}
+export interface FarmerDashboardProps {
+	topWastedDemand?: VegetableWasteData[]
+}
 
 // ─── farmer/supplies/Index ────────────────────────────────────────────────────
 
