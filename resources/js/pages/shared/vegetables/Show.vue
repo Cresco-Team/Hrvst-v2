@@ -378,7 +378,7 @@ function formatKgShort(kg: number): string {
                             >
                                 <template #day-content="{ day }">
                                     <div
-                                        class="vc-day-tile flex bg-muted border rounded-b-xs h-full w-full cursor-pointer flex-col p-2 m-2"
+                                        class="vc-day-tile flex bg-muted border hover:bg-primary/10 rounded-b-xs h-full w-full cursor-pointer flex-col p-2 m-2"
                                         :class="{ 'opacity-30': !day.inMonth }"
                                         @click="handleDayClick(day)"
                                     >
