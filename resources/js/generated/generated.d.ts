@@ -65,6 +65,7 @@ scheduled_date: string,
 time_slot: App.Enums.PostTimeSlot,
 created_at: string,
 created_at_human: string,
+needs_action: boolean,
 post_items: App.Data.PostItem.PostItemLightData[] | unknown,
 };
 export type FarmerSupplyData = {
@@ -75,6 +76,7 @@ scheduled_date: string,
 time_slot: App.Enums.PostTimeSlot,
 created_at: string,
 created_at_human: string,
+needs_action: boolean,
 post_items: App.Data.PostItem.PostItemLightData[],
 };
 export type PostData = {
@@ -205,6 +207,12 @@ image_url: string,
 category: App.Data.Category.CategoryData | undefined,
 supply_count: undefined | number,
 demand_count: undefined | number,
+};
+export type VegetableWasteData = {
+id: number,
+display_name: string,
+image_url: string,
+wasted_kg: number,
 };
 }
 }
