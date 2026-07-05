@@ -5,8 +5,8 @@ import { Calendar } from 'v-calendar'
 import { computed, ref } from 'vue'
 import 'v-calendar/style.css'
 import Heading from '@/components/Heading.vue'
-import VarietyAnalyticsSummary from '@/components/shared/charts/VarietyAnalyticsSummary.vue'
-import VarietyRecommendations from '@/components/shared/charts/VarietyRecommendations.vue'
+import VegetableAnalyticsSummary from '@/components/shared/charts/VegetableAnalyticsSummary.vue'
+import VegetableRecommendations from '@/components/shared/charts/VegetableRecommendations.vue'
 import VegetableMonthlyChart from '@/components/shared/charts/VegetableMonthlyChart.vue'
 import DetailSheet from '@/components/dialogs/DetailSheet.vue'
 import { Button } from '@/components/ui/button'
@@ -283,13 +283,13 @@ function formatKgShort(kg: number): string {
 
                 <template v-if="vegetable">
                     <!-- ── Analytics Summary ───────────────────────────────────────────── -->
-                    <VarietyAnalyticsSummary
+                    <VegetableAnalyticsSummary
                         v-if="vegetable.analytics"
                         :analytics="vegetable.analytics"
                     />
 
                     <!-- ── Recommendations ────────────────────────────────────────────── -->
-                    <VarietyRecommendations
+                    <VegetableRecommendations
                         v-if="vegetable.analytics?.recommendations.length"
                         :recommendations="vegetable.analytics.recommendations"
                     />
