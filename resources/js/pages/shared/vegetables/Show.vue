@@ -313,7 +313,7 @@ function formatKgShort(kg: number): string {
                                 </h2>
                                 <p class="text-sm text-muted-foreground">
                                     All scheduled supply and demand posts for
-                                    this variety by date.
+                                    this vegetable by date.
                                 </p>
                             </div>
 
@@ -365,18 +365,6 @@ function formatKgShort(kg: number): string {
                                     />
                                     Demand
                                 </div>
-                                <Separator class="my-1" />
-                                <div
-                                    v-for="slot in TIME_SLOTS"
-                                    :key="slot.key"
-                                    class="flex items-center gap-1.5"
-                                >
-                                    <span
-                                        class="h-2 w-2 rounded-full"
-                                        :class="slot.dotClass"
-                                    />
-                                    {{ slot.label }}
-                                </div>
                             </div>
                         </div>
 
@@ -390,7 +378,7 @@ function formatKgShort(kg: number): string {
                             >
                                 <template #day-content="{ day }">
                                     <div
-                                        class="vc-day-tile flex h-full w-full cursor-pointer flex-col p-1"
+                                        class="vc-day-tile flex bg-muted border rounded-b-xs h-full w-full cursor-pointer flex-col p-2 m-2"
                                         :class="{ 'opacity-30': !day.inMonth }"
                                         @click="handleDayClick(day)"
                                     >
