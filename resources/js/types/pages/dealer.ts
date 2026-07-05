@@ -11,23 +11,7 @@ import type { Paginated } from '../shared'
 
 // ─── dealer/Dashboard ─────────────────────────────────────────────────────────
 
-export type DealerRecommendationSeverity = App.Enums.Analytics.RecommendationSeverity
-
-export type DealerDashboardRecommendation =
-	Omit<App.DTOs.Dealer.DealerDashboardRecommendationDTO, 'severity'> & {
-		severity: DealerRecommendationSeverity
-	}
-
-export type DealerExpiringDemandFixed =
-	Omit<App.Data.Dealer.DealerExpiringDemandData, 'items'> & {
-		items?: App.Data.PostItem.PostItemLightData[]
-	}
-
-export interface DealerDashboardProps {
-	summary: DealerDemandSummary
-	expiringDemands: DealerExpiringDemandFixed[]
-	recommendations: DealerDashboardRecommendation[]
-}
+export interface DealerDashboardProps {}
 
 // ─── dealer/demands/Index ─────────────────────────────────────────────────────
 

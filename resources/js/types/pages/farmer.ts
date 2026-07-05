@@ -11,21 +11,7 @@ import type { Paginated } from '../shared'
 
 // ─── farmer/Dashboard ─────────────────────────────────────────────────────────
 
-export type FarmerDashboardRecommendation =
-	Omit<App.DTOs.Farmer.FarmerDashboardRecommendationDTO, 'severity'> & {
-		severity: RecommendationSeverity
-	}
-
-export type FarmerExpiringSupplyFixed =
-	Omit<App.Data.Farmer.FarmerExpiringSupplyData, 'post_items'> & {
-		items?: App.Data.PostItem.PostItemLightData[]
-	}
-
-export interface FarmerDashboardProps {
-	summary: FarmerSupplySummary
-	expiringSupplies: FarmerExpiringSupplyFixed[]
-	recommendations: FarmerDashboardRecommendation[]
-}
+export interface FarmerDashboardProps {}
 
 // ─── farmer/supplies/Index ────────────────────────────────────────────────────
 
