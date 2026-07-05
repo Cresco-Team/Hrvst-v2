@@ -5,5 +5,6 @@ namespace App\Enums\Analytics;
 enum VarietyViewerRole: string
 {
     case Admin = 'admin';
-    case Marketplace = 'marketplace';
+    case Farmer = 'farmer';
+    case Dealer = 'dealer';
 }
