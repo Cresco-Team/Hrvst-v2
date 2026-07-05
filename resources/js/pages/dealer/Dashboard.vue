@@ -32,8 +32,8 @@ const breadcrumbs: BreadcrumbItem[] = [
                     </template>
 
                     <WasteRankingCard
-                        title="Most Wasted Supply"
-                        description="Forecasted supply likely to go unclaimed this month and the next 3, based on 5 years of seasonal trends."
+                        title="Top Surplus Vegetables (Best to Buy)"
+                        description="Predicted unsold supply over the next 4 months, based on 5-year historical trends."
                         :items="topWastedSupply"
                         unit-label="kg wasted"
                     />
