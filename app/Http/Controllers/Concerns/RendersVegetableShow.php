@@ -35,17 +35,15 @@ trait RendersVegetableShow
         };
 
         return Inertia::render('shared/vegetables/Show', [
-            'variety' => Inertia::defer(
+            'vegetable' => Inertia::defer(
                 fn () => VegetableDetailData::fromModel(
                     $vegetableDetailService->show($vegetable, $year, $month, $role)
                 )
             ),
             'calendarFilters' => ['year' => $year, 'month' => $month],
             'meta' => [
-                'varietyId' => $vegetable->id,
-                'varietyLabel' => $vegetable->variety_name
-                    ? "{$vegetable->vegetable_name}: {$vegetable->variety_name}"
-                    : $vegetable->vegetable_name,
+                'vegetableId' => $vegetable->id,
+                'vegetableLabel' => $vegetable->display_name,
                 'categoryName' => $vegetable->category->name,
                 'categorySlug' => $vegetable->category->slug,
             ],

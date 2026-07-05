@@ -28,22 +28,17 @@ import type { VegetableResource } from '@/types/resources/product'
 import { Card } from '@/components/ui/card'
 
 interface Props {
-    variety?: VegetableResource
+    vegetable?: VegetableResource
     calendarFilters: VarietyCalendarFilters
     meta: {
-        varietyId: number
-        varietyLabel: string
+        vegetableId: number
+        vegetableLabel: string
         categoryName: string
         categorySlug: string
     }
 }
 
 const props = defineProps<Props>()
-
-// ─── Routing context ──────────────────────────────────────────────────────────
-// Same page serves both /admin/vegetables/{id} and /vegetables/{id}. Breadcrumbs
-// must route back into whichever namespace the user is actually in — a shared
-// component is not license to assume a shared URL space.
 
 const isAdmin = computed(() =>
     usePage().props.auth.user.roles.includes('admin'),
@@ -61,8 +56,8 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => {
                 }).url,
             },
             {
-                title: props.meta.varietyLabel,
-                href: adminRoutes.vegetables.show(props.meta.varietyId).url,
+                title: props.meta.vegetableLabel,
+                href: adminRoutes.vegetables.show(props.meta.vegetableId).url,
             },
         ]
     }
@@ -80,8 +75,8 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => {
             }).url,
         },
         {
-            title: props.meta.varietyLabel,
-            href: vegetables.show(props.meta.varietyId).url,
+            title: props.meta.vegetableLabel,
+            href: vegetables.show(props.meta.vegetableId).url,
         },
     ]
 })
@@ -107,8 +102,8 @@ const monthLabel = computed(() =>
 
 function showRoute(): { url: string } {
     return isAdmin.value
-        ? adminRoutes.vegetables.show(props.meta.varietyId)
-        : vegetables.show(props.meta.varietyId)
+        ? adminRoutes.vegetables.show(props.meta.vegetableId)
+        : vegetables.show(props.meta.vegetableId)
 }
 
 function navigateMonth(direction: 1 | -1): void {
@@ -145,9 +140,9 @@ function goToToday(): void {
 // ─── Calendar — VCalendar attributes ─────────────────────────────────────────
 
 const calendarAttributes = computed(() => {
-    if (!props.variety?.variety_calendar) return []
+    if (!props.vegetable?.variety_calendar) return []
 
-    return Object.entries(props.variety.variety_calendar).map(
+    return Object.entries(props.vegetable.variety_calendar).map(
         ([dateStr, daySchedule]) => ({
             key: dateStr,
             dates: [new Date(`${dateStr}T00:00:00`)],
@@ -176,7 +171,7 @@ const selectedDateLabel = computed(() => {
 })
 
 function handleDayClick(day: { id: string }): void {
-    const schedule = props.variety?.variety_calendar?.[day.id]
+    const schedule = props.vegetable?.variety_calendar?.[day.id]
     if (!schedule) return
 
     selectedDateStr.value = day.id
@@ -216,10 +211,10 @@ function formatNetBadge(net: number): string {
 
 const dailyTotals = computed(() => {
     const map: Record<string, { supplyKg: number; demandKg: number }> = {}
-    if (!props.variety?.variety_calendar) return map
+    if (!props.vegetable?.variety_calendar) return map
 
     for (const [dateStr, daySchedule] of Object.entries(
-        props.variety.variety_calendar,
+        props.vegetable.variety_calendar,
     )) {
         let supplyKg = 0
         let demandKg = 0
@@ -256,18 +251,18 @@ function formatKgShort(kg: number): string {
 <template>
     <Head
         :title="
-            variety ? `${meta.varietyLabel}` : 'Variety'
+            vegetable ? `${meta.vegetableLabel}` : 'Variety'
         "
     />
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex flex-col gap-6 p-4 lg:p-6">
             <Heading
-                    :title="meta.varietyLabel"
+                    :title="meta.vegetableLabel"
                     :description="meta.categoryName"
                 />
 
-            <Deferred data="variety">
+            <Deferred data="vegetable">
                 <template #fallback>
                     <div class="flex flex-col gap-6">
                         <Skeleton class="h-8 w-64" />
@@ -286,24 +281,24 @@ function formatKgShort(kg: number): string {
                     </div>
                 </template>
 
-                <template v-if="variety">
+                <template v-if="vegetable">
                     <!-- ── Analytics Summary ───────────────────────────────────────────── -->
                     <VarietyAnalyticsSummary
-                        v-if="variety.analytics"
-                        :analytics="variety.analytics"
+                        v-if="vegetable.analytics"
+                        :analytics="vegetable.analytics"
                     />
 
                     <!-- ── Recommendations ────────────────────────────────────────────── -->
                     <VarietyRecommendations
-                        v-if="variety.analytics?.recommendations.length"
-                        :recommendations="variety.analytics.recommendations"
+                        v-if="vegetable.analytics?.recommendations.length"
+                        :recommendations="vegetable.analytics.recommendations"
                     />
 
                     <!-- ── Charts ─────────────────────────────────────────────────────── -->
                     <VegetableMonthlyChart
-                        v-if="variety.monthly_activity?.length"
-                        :monthly-activity="variety.monthly_activity"
-                        :forecast="variety.analytics?.forecast"
+                        v-if="vegetable.monthly_activity?.length"
+                        :monthly-activity="vegetable.monthly_activity"
+                        :forecast="vegetable.analytics?.forecast"
                     />
 
                     <!-- ── Market Calendar ─────────────────────────────────────────────── -->
