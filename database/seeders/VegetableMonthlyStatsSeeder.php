@@ -16,7 +16,6 @@ class VegetableMonthlyStatsSeeder extends Seeder
 
         if ($vegetables->isEmpty()) {
             $this->command->warn('No vegetables found. Run ProductSeeder first.');
-
             return;
         }
 
@@ -32,7 +31,7 @@ class VegetableMonthlyStatsSeeder extends Seeder
         foreach ($vegetables as $index => $vegetableId) {
             $archetype = $archetypes[$index % count($archetypes)];
 
-            for ($monthsAgo = 11; $monthsAgo >= 0; $monthsAgo--) {
+            for ($monthsAgo = 59; $monthsAgo >= 0; $monthsAgo--) {
                 $date = now()->startOfMonth()->subMonths($monthsAgo);
 
                 [$supplyFulfilled, $supplyEpired, $demandFulfilled, $demandExpired]
@@ -56,10 +55,9 @@ class VegetableMonthlyStatsSeeder extends Seeder
         }
 
         $this->command->info(sprintf(
-            'Seeded %d rows across %d vegetables (4 archetypes, ~%d each).',
+            'Seeded %d rows across %d vegetables (5-year cyclic archetypes).',
             count($rows),
             $vegetables->count(),
-            (int) ceil($vegetables->count() / 4),
         ));
     }
 
@@ -75,7 +73,7 @@ class VegetableMonthlyStatsSeeder extends Seeder
 
     private function oversupplySteady(int $monthsAgo): array
     {
-        $supplyBase = 8_000 + (11 - $monthsAgo) * 150;
+        $supplyBase = 8_000 + (59 - $monthsAgo) * 30;
         $demandBase = 2_600;
 
         return $this->split($supplyBase, 0.62, $demandBase, 0.15);
@@ -84,7 +82,7 @@ class VegetableMonthlyStatsSeeder extends Seeder
     private function undersupplyDemand(int $monthsAgo): array
     {
         $supplyBase = 2_000;
-        $demandBase = 5_500 + (11 - $monthsAgo) * 200;
+        $demandBase = 5_500 + (59 - $monthsAgo) * 40;
 
         return $this->split($supplyBase, 0.12, $demandBase, 0.60);
     }
@@ -99,14 +97,16 @@ class VegetableMonthlyStatsSeeder extends Seeder
 
     private function postSeasonalCrash(int $monthsAgo): array
     {
+        $cycle = $monthsAgo % 12;
+
         $supplyBase = match (true) {
-            $monthsAgo >= 5 && $monthsAgo <= 7 => 9_000,
+            $cycle >= 5 && $cycle <= 7 => 9_000,
             $monthsAgo === 2 => 3_500,
             $monthsAgo === 1 => 525,
             default => 1_200,
         };
 
-        $demandBase = ($monthsAgo >= 5 && $monthsAgo <= 7) ? 7_000 : 900;
+        $demandBase = ($cycle >= 5 && $cycle <= 7) ? 7_000 : 900;
 
         return $this->split($supplyBase, 0.28, $demandBase, 0.25);
     }
