@@ -188,7 +188,7 @@ supply_count: number,
 demand_count: number,
 supply_municipalities: Array<any>,
 monthly_activity: Array<any>,
-variety_calendar: Array<any>,
+vegetable_calendar: Array<any>,
 analytics: Array<any> | null,
 };
 export type VegetableLightData = {
@@ -208,6 +208,14 @@ category: App.Data.Category.CategoryData | undefined,
 supply_count: undefined | number,
 demand_count: undefined | number,
 };
+export type VegetableStabilityData = {
+id: number,
+display_name: string,
+image_url: string,
+wasted_kg: number,
+confidence: string,
+months_observed: number,
+};
 export type VegetableWasteData = {
 id: number,
 display_name: string,
@@ -223,7 +231,7 @@ export type PostType = 'supply' | 'demand';
 namespace Analytics {
 export type ImbalanceBand = 'oversupply' | 'balanced' | 'undersupply';
 export type RecommendationSeverity = 'critical' | 'warning' | 'info';
-export type VegetableViewerRole = 'admin' | 'marketplace';
+export type VegetableViewerRole = 'admin' | 'farmer' | 'dealer';
 }
 }
 }
