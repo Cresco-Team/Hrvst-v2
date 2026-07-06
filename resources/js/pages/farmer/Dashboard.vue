@@ -43,8 +43,8 @@ const breadcrumbs: BreadcrumbItem[] = [
                 <Deferred data="mostStableWastedDemand">
                     <template #fallback><Skeleton class="h-56 w-full rounded-xl" /></template>
                     <WasteRankingCard
-                        title="Year-Round Gap: Consistently Unmet Demand"
-                        description="High, steady unmet demand with no strong season — a standing opportunity, not a timing play."
+                        title="Year-Round Shortages (Best to Sell)"
+                        description="Vegetables with steady, unfilled demand all year long. A reliable opportunity."
                         :items="mostStableWastedDemand"
                         :initial-visible="3"
                         unit-label="kg/mo avg"
