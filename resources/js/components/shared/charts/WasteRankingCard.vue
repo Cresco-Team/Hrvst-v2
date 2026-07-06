@@ -67,12 +67,12 @@ function maturityTooltip(item: RankedItem): string | undefined {
 
             <template v-else>
                 <ol class="flex flex-col gap-1">
-                    <li v-for="(item, index) in visible" :key="item.id">
+                    <li v-for="(item, index) in visible" :key="item.id" class="group">
                         <Link
                             :href="show(item.id).url"
                             class="group -mx-2 flex items-center gap-3 rounded-lg px-2 py-1.5 transition-colors hover:bg-muted"
                         >
-                            <span class="flex size-6 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-bold text-muted-foreground">
+                            <span class="flex size-6 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-bold text-muted-foreground group-hover:bg-primary duration-200">
                                 {{ index + 1 }}
                             </span>
 
@@ -96,7 +96,7 @@ function maturityTooltip(item: RankedItem): string | undefined {
                                     </Badge>
                                 </div>
                                 <div class="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-muted">
-                                    <div class="h-full rounded-full bg-destructive/70" :style="{ width: barPct(item.wasted_kg) }" />
+                                    <div class="h-full rounded-full bg-primary/70" :style="{ width: barPct(item.wasted_kg) }" />
                                 </div>
                             </div>
 

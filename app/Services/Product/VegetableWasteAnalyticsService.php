@@ -11,7 +11,7 @@ use InvalidArgumentException;
 
 class VegetableWasteAnalyticsService
 {
-    private const int FORECAST_LIMIT = 3;
+    private const int FORECAST_LIMIT = 10;
     private const int STABILITY_LIMIT = 10;
 
     /** This month + 3 coming months. */

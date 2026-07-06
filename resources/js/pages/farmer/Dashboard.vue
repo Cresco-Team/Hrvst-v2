@@ -36,6 +36,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                         title="Top Supply Shortages (Best to Sell)"
                         description="Predicted shortages over the next 4 months, based on 5-year historical trends."
                         :items="topWastedDemand"
+                        :initial-visible="3"
                         unit-label="kg unmet"
                     />
                 </Deferred>

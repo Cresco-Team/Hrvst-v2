@@ -274,7 +274,6 @@ watch(
                             <div v-if="item.vegetable_id && form.scheduled_date" class="mt-1.5 flex items-center gap-1">
                                 <Skeleton v-if="getState(item.vegetable_id).status === 'loading'" class="h-3.5 w-20 rounded" />
                                 <template v-else-if="getData(item.vegetable_id)">
-                                    <span class="text-xs text-muted-foreground">Net:</span>
                                     <span :class="netKgClass(getData(item.vegetable_id)!.net_kg)" class="text-xs font-medium tabular-nums">
                                         {{ formatNetKg(getData(item.vegetable_id)!.net_kg) }}
                                     </span>
@@ -289,7 +288,7 @@ watch(
                         <TableCell class="relative max-w-30 space-y-1 pb-5">
                             <NumberField
                                 v-model="item.quantity_kg"
-                                :min="0.01"
+                                :min="0.00"
                                 :max="99999.99"
                                 :step="0.1"
                                 :format-options="{ style: 'unit', unit: 'kilogram', unitDisplay: 'short', minimumFractionDigits: 0, maximumFractionDigits: 1 }"
