@@ -36,27 +36,27 @@ class ProductSeeder extends Seeder
             // before this reaches real farmer/dealer users.
             $catalog = [
                 'Leafy Vegetables' => [
-                    'Lettuce' => ['local_name' => 'Letsugas', 'varieties' => ['Iceberg', 'Green Ice', 'Romaine']],
-                    'Cabbage' => ['local_name' => 'Repolyo', 'varieties' => ['Scorpio', 'Wonderball', 'Rareball', 'Red', 'Chinese']],
-                    'Celery' => ['local_name' => null, 'varieties' => ['Celery']],
-                    'Broccoli' => ['local_name' => null, 'varieties' => ['Brocolli']],
-                    'Onion Leeks' => ['local_name' => null, 'varieties' => ['Onion Leeks']],
+                    'Lettuce' => ['local_name' => 'Letsugas', 'varieties' => ['Iceberg', 'Green Ice']],
+                    'Cabbage' => ['local_name' => 'Repolyo', 'varieties' => ['Wonderball', 'Chinese']],
+                    'Celery' => ['local_name' => 'kintsay', 'varieties' => ['Celery']],
+                    'Broccoli' => ['local_name' => 'Brokoli', 'varieties' => ['Brocolli']],
                 ],
                 'Root Vegetables' => [
-                    'Carrot' => ['local_name' => 'Karot', 'varieties' => ['Carrort']],
+                    'Carrot' => ['local_name' => 'Karot', 'varieties' => ['Carrot']],
                     'Potato' => ['local_name' => 'Patatas', 'varieties' => ['Granola', 'LBR']],
-                    'Radish' => ['local_name' => 'Labanos', 'varieties' => ['Long']],
+                    'Radish' => ['local_name' => 'Labanos', 'varieties' => ['Radish']],
                 ],
                 'Fruiting Vegetables' => [
                     'Tomato' => ['local_name' => 'Kamatis', 'varieties' => ['Tomato']],
                     'Cucumber' => ['local_name' => 'Pipino', 'varieties' => ['Cucumber']],
-                    'Zucchini' => ['local_name' => null, 'varieties' => ['Zucchini']],
-                    'Bell Pepper' => ['local_name' => null, 'varieties' => ['California (Open Field)', 'California (Greenhouse)', 'Sultan', 'Dongxin']],
+                    'Zucchini' => ['local_name' => 'Sukini', 'varieties' => ['Zucchini']],
+                    'Bell Pepper' => ['local_name' => null, 'varieties' => ['Sultan', 'Dongxin']],
                     'Chayote' => ['local_name' => 'Sayote', 'varieties' => ['Chayote']],
                 ],
                 'Bean Vegetables' => [
-                    'Snap Beans' => ['local_name' => null, 'varieties' => ['Snap Beans']],
+                    'Snap Beans' => ['local_name' => 'Baguio Beans', 'varieties' => ['Snap Beans']],
                     'Garden Peas' => ['local_name' => 'Gisantes', 'varieties' => ['Garden Peas']],
+                    'Chinese Long Beans' => ['local_name' => 'Sitaw', 'varieties' => ['Chinese Long Beans']],
                 ],
             ];
 
