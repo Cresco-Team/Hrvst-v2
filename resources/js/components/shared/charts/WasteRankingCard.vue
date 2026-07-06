@@ -3,17 +3,19 @@ import { Link } from '@inertiajs/vue3'
 import { ArrowRight, ChevronDown, ChevronUp, Vegan } from 'lucide-vue-next'
 import { computed, ref } from 'vue'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { show } from '@/routes/vegetables'
-import type { VegetableWasteData } from '@/types/resources/product'
+import type { VegetableStabilityData, VegetableWasteData } from '@/types/resources/product'
+
+type RankedItem = VegetableWasteData | VegetableStabilityData
 
 const props = defineProps<{
     title: string
     description: string
-    items?: VegetableWasteData[]
+    items?: RankedItem[]
     unitLabel?: string
-    /** Omit to always show the full list (forecast usage). Set to enable expand/collapse. */
     initialVisible?: number
 }>()
 
@@ -29,11 +31,23 @@ const hasMore = computed(
     () => !!props.initialVisible && (props.items?.length ?? 0) > props.initialVisible,
 )
 const hiddenCount = computed(() => (props.items?.length ?? 0) - (props.initialVisible ?? 0))
-
 const maxKg = computed(() => Math.max(...(props.items ?? []).map((i) => i.wasted_kg), 1))
 
 function barPct(kg: number): string {
     return `${Math.round((kg / maxKg.value) * 100)}%`
+}
+
+function maturityLabel(item: RankedItem): string | null {
+    if (!('confidence' in item)) return null
+    if (item.confidence === 'early') return 'Early data'
+    if (item.confidence === 'developing') return 'Building history'
+    return null
+}
+
+function maturityTooltip(item: RankedItem): string | undefined {
+    return 'months_observed' in item
+        ? `Based on ${item.months_observed} month${item.months_observed === 1 ? '' : 's'} of data`
+        : undefined
 }
 </script>
 
@@ -70,7 +84,17 @@ function barPct(kg: number): string {
                             </Avatar>
 
                             <div class="min-w-0 flex-1">
-                                <p class="truncate text-sm font-medium">{{ item.display_name }}</p>
+                                <div class="flex items-center gap-1.5">
+                                    <p class="truncate text-sm font-medium">{{ item.display_name }}</p>
+                                    <Badge
+                                        v-if="maturityLabel(item)"
+                                        variant="outline"
+                                        :title="maturityTooltip(item)"
+                                        class="shrink-0 px-1.5 py-0 text-[10px] font-normal text-muted-foreground"
+                                    >
+                                        {{ maturityLabel(item) }}
+                                    </Badge>
+                                </div>
                                 <div class="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-muted">
                                     <div class="h-full rounded-full bg-destructive/70" :style="{ width: barPct(item.wasted_kg) }" />
                                 </div>
