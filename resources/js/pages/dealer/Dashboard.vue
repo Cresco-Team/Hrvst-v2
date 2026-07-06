@@ -38,6 +38,17 @@ const breadcrumbs: BreadcrumbItem[] = [
                         unit-label="kg wasted"
                     />
                 </Deferred>
+
+                <Deferred data="mostStableWastedSupply">
+                    <template #fallback><Skeleton class="h-56 w-full rounded-xl" /></template>
+                    <WasteRankingCard
+                        title="Year-Round Surpluses (Best to Source)"
+                        description="Items with steady extra supply all year long. A reliable option for continuous bulk buying."
+                        :items="mostStableWastedSupply"
+                        :initial-visible="3"
+                        unit-label="kg/mo avg"
+                    />
+                </Deferred>
             </div>
         </div>
     </AppLayout>

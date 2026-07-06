@@ -13,6 +13,7 @@ import type { Paginated } from '../shared'
 
 export interface DealerDashboardProps {
 	topWastedSupply?: VegetableWasteData[]
+	mostStableWastedSupply?: VegetableWasteData[]
 }
 
 // ─── dealer/demands/Index ─────────────────────────────────────────────────────
