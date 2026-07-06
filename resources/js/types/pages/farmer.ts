@@ -5,7 +5,7 @@ import type {
 	VarietyOptionsByVegetable,
 	VegetableOptionsByCategory,
 } from '../resources/marketplace'
-import type { CategoryOption, VegetableWasteData } from '../resources/product'
+import type { CategoryOption, VegetableStabilityData, VegetableWasteData } from '../resources/product'
 import type { FarmerSupplySummary } from '../resources/profile'
 import type { Paginated } from '../shared'
 
@@ -13,7 +13,7 @@ import type { Paginated } from '../shared'
 
 export interface FarmerDashboardProps {
 	topWastedDemand?: VegetableWasteData[]
-	mostStableWastedDemand?: VegetableWasteData[]
+	mostStableWastedDemand?: VegetableStabilityData[]
 }
 
 // ─── farmer/supplies/Index ────────────────────────────────────────────────────

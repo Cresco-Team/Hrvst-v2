@@ -1,7 +1,5 @@
 // ─── Analytics ───────────────────────────────────────────────────────────────
 
-import { Paginated } from "../shared"
-
 export type ImbalanceBand          = App.Enums.Analytics.ImbalanceBand
 export type RecommendationSeverity = App.Enums.Analytics.RecommendationSeverity
 export type VarietyRecommendation = App.DTOs.Product.VarietyRecommendationDTO
@@ -77,6 +75,7 @@ export interface VegetableResource {
 export type VegetableAdminData = App.Data.Vegetable.VegetableAdminData
 
 export type VegetableWasteData = App.Data.Vegetable.VegetableWasteData
+export type VegetableStabilityData = App.Data.Vegetable.VegetableStabilityData
 
 // ─── Option Bag Types ─────────────────────────────────────────────────────────
 
