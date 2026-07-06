@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Farmer;
 
+use App\Data\Vegetable\VegetableStabilityData;
 use App\Data\Vegetable\VegetableWasteData;
 use App\Http\Controllers\Controller;
 use App\Services\Product\VegetableWasteAnalyticsService;
@@ -21,7 +22,7 @@ class DashboardController extends Controller
                 fn () => VegetableWasteData::collect($this->wasteAnalytics->topWastedDemand())
             ),
             'mostStableWastedDemand' => Inertia::defer(
-                fn () => VegetableWasteData::collect($this->wasteAnalytics->mostStableWastedDemand())
+                fn () => VegetableStabilityData::collect($this->wasteAnalytics->mostStableWastedDemand())
             ),
         ]);
     }
