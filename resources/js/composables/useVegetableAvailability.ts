@@ -14,13 +14,20 @@ type AvailabilityState =
     | { status: 'error' }
 
 export function netKgClass(netKg: number): string {
-    if (netKg > 0) return 'text-emerald-600 dark:text-emerald-400'
-    if (netKg < 0) return 'text-destructive'
+    if (netKg > 0) return 'text-destructive'
+    if (netKg < 0) return 'text-orange-500'
     return 'text-muted-foreground'
 }
 
-export function formatNetKg(netKg: number): string {
-    return `${netKg > 0 ? '+' : ''}${netKg.toFixed(1)} kg`
+export function formatNetKg(net: number): string {
+    const abs = Math.abs(net)
+    const formatted = abs.toLocaleString('en-PH', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 2,
+    })
+    if (net > 0) return `${formatted} kg surplus`
+    if (net < 0) return `${formatted} kg unmet`
+    return 'Balanced'
 }
 
 export function useVegetableAvailability(
