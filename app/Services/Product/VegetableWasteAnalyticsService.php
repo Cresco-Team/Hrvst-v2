@@ -24,7 +24,11 @@ class VegetableWasteAnalyticsService
     private const float TREND_CEIL = 1.40;
 
     /** Below this, a coefficient of variation is a coin flip, not a signal. */
-    private const int MIN_MONTHS_FOR_STABILITY = 24;
+    private const int MIN_MONTHS_FOR_STABILITY = 6;
+
+    private const int CONFIDENCE_DEVELOPING_MONTHS = 12;
+    private const int CONFIDENCE_ESTABLISHED_MONTHS = 36;
+    private const int CONFIDENCE_STRONG_MONTHS = 60;
 
     /** "Quite high" = top quartile of mean expired_kg among vegetables with enough history to trust. */
     private const float STABILITY_QUARTILE = 0.75;
@@ -162,8 +166,6 @@ class VegetableWasteAnalyticsService
             ->map(fn (Collection $history) => $this->computeStability($history, $column))
             ->filter();
 
-        // Need a real population to compute a meaningful quartile from —
-        // 3 vegetables don't have a "top 25%," they have an opinion.
         if ($stats->count() < 4) {
             return [];
         }
@@ -173,10 +175,9 @@ class VegetableWasteAnalyticsService
         $candidates = $stats
             ->filter(fn (array $s) => $s['mean'] >= $meanFloor)
             ->sortBy('cv')
-            ->take($limit)
-            ->map(fn (array $s) => $s['mean']);
+            ->take($limit);
 
-        return $this->hydrate($candidates);
+        return $this->hydrateStability($candidates);
     }
 
     /**
@@ -204,7 +205,42 @@ class VegetableWasteAnalyticsService
             0.0,
         ) / ($values->count() - 1);
 
-        return ['mean' => $mean, 'cv' => sqrt($variance) / $mean];
+        return [
+            'mean' => $mean,
+            'cv' => sqrt($variance) / $mean,
+            'months' => $history->count(),
+        ];
+    }
+
+    private function hydrateStability(Collection $stats): array
+    {
+        if ($stats->isEmpty()) {
+            return [];
+        }
+
+        return Vegetable::whereIn('id', $stats->keys())
+            ->get()
+            ->sortBy(fn (Vegetable $v) => $stats[$v->id]['cv'])
+            ->map(fn (Vegetable $v) => [
+                'id' => $v->id,
+                'display_name' => $v->display_name,
+                'image_url' => $v->image_url,
+                'wasted_kg' => round($stats[$v->id]['mean'], 2),
+                'confidence' => $this->confidenceFor($stats[$v->id]['months']),
+                'months_observed' => $stats[$v->id]['months'],
+            ])
+            ->values()
+            ->toArray();
+    }
+
+    private function confidenceFor(int $months): string
+    {
+        return match (true) {
+            $months >= self::CONFIDENCE_STRONG_MONTHS => 'strong',
+            $months >= self::CONFIDENCE_ESTABLISHED_MONTHS => 'established',
+            $months >= self::CONFIDENCE_DEVELOPING_MONTHS => 'developing',
+            default => 'early',
+        };
     }
 
     /** Nearest-rank percentile — fine for this population size, no need for a stats library. */
