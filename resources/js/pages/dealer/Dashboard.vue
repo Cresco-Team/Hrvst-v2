@@ -35,6 +35,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                         title="Top Surplus Vegetables (Best to Buy)"
                         description="Predicted unsold supply over the next 4 months, based on 5-year historical trends."
                         :items="topWastedSupply"
+                        :initial-visible="3"
                         unit-label="kg wasted"
                     />
                 </Deferred>
