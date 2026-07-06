@@ -267,6 +267,21 @@ class VarietyAnalyticsService
     ): array {
         $recs = [];
 
+        if ($band === ImbalanceBand::Oversupply) {
+            $body = match ($role) {
+                VegetableViewerRole::Admin  => 'Supply is currently exceeding dealer demand. Consider highlighting this variety to dealers or slowing farmer intake.',
+                VegetableViewerRole::Farmer => 'This variety is currently oversupplied. Consider delaying your next harvest posting or choosing an under-demanded slot.',
+                VegetableViewerRole::Dealer => 'There is surplus supply for this variety right now — a good time to increase your order to help absorb it before it expires.',
+            };
+        
+            $recs[] = new VarietyRecommendationDTO(
+                severity: RecommendationSeverity::Warning,
+                type:     'oversupply_opportunity',
+                title:    'Unmatched Farmer Supply',
+                body:     $body,
+            );
+        }
+
         // ── Undersupply: actionable by everyone, but the action differs per role ──
         if ($band === ImbalanceBand::Undersupply) {
             $body = match ($role) {
