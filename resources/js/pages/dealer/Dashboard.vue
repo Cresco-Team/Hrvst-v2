@@ -31,12 +31,16 @@ const breadcrumbs: BreadcrumbItem[] = [
                         <Skeleton class="h-56 w-full rounded-xl" />
                     </template>
 
-                    <WasteRankingCard
-                        title="Top Surplus Vegetables (Best to Buy)"
-                        description="Predicted unsold supply over the next 4 months, based on 5-year historical trends."
-                        :items="topWastedSupply"
-                        unit-label="kg wasted"
-                    />
+                    <Deferred data="mostStableWastedSupply">
+                        <template #fallback><Skeleton class="h-56 w-full rounded-xl" /></template>
+                        <WasteRankingCard
+                            title="Year-Round Gap: Consistently Unmet Demand"
+                            description="High, steady wasted supply with no strong season — a standing opportunity, not a timing play."
+                            :items="mostStableWastedSupply"
+                            :initial-visible="3"
+                            unit-label="kg/mo avg"
+                        />
+                    </Deferred>
                 </Deferred>
             </div>
         </div>
