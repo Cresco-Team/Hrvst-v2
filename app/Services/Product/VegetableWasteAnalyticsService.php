@@ -60,9 +60,7 @@ class VegetableWasteAnalyticsService
 
     private function resolveForecast(string $column, int $limit): array
     {
-        $byVegetable = $this->fetchHistoryByColumn($column);
-
-        $forecasts = $byVegetable
+        $forecasts = $this->fetchHistoryByColumn($column)
             ->map(fn (Collection $history) => $this->forecastColumn($history, $column))
             ->filter(fn (float $value) => $value > 0.0)
             ->sortDesc()
@@ -161,7 +159,7 @@ class VegetableWasteAnalyticsService
     private function resolveStability(string $column, int $limit): array
     {
         $stats = $this->fetchHistoryByColumn($column)
-            ->map(fn (Collection $history) => $this->computeStability($history))
+            ->map(fn (Collection $history) => $this->computeStability($history, $column))
             ->filter();
 
         // Need a real population to compute a meaningful quartile from —
@@ -175,9 +173,10 @@ class VegetableWasteAnalyticsService
         $candidates = $stats
             ->filter(fn (array $s) => $s['mean'] >= $meanFloor)
             ->sortBy('cv')
-            ->take($limit);
+            ->take($limit)
+            ->map(fn (array $s) => $s['mean']);
 
-        return $this->hydrate($candidates->map(fn (array $s) => $s['mean']));
+        return $this->hydrate($candidates);
     }
 
     /**
@@ -245,8 +244,7 @@ class VegetableWasteAnalyticsService
     /**
      * Excludes the current month — it's partial, and letting a half-recorded
      * month into either the seasonal weighting or the variance calc corrupts
-     * both. This was a latent bug in the forecast method before this widget
-     * existed; fixing it here, upstream of both consumers, in one place.
+     * both.
      */
     private function fetchHistoryByColumn(string $column): Collection
     {
