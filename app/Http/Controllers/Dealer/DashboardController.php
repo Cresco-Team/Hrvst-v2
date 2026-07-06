@@ -21,7 +21,7 @@ class DashboardController extends Controller
                 fn () => VegetableWasteData::collect($this->wasteForecast->topWastedSupply())
             ),
             'mostStableWastedSupply' => Inertia::defer(
-                fn () => VegetableWasteData::collect($this->wasteAnalytics->mostStableWastedSupply())
+                fn () => VegetableWasteData::collect($this->wasteForecast->mostStableWastedSupply())
             ),
         ]);
     }
