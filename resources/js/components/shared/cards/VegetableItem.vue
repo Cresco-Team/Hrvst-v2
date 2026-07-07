@@ -19,7 +19,7 @@ defineProps<Props>()
     <Link :href="show({ vegetable: vegetable.id }).url" class="group">
         <Item
             variant="outline"
-            class="bg-primary/10 h-full transition-all hover:bg-primary/5 hover:shadow-sm"
+            class="transition-all hover:shadow-sm bg-primary/10 hover:bg-primary/5 hover:border-l-4 hover:border-l-primary"
         >
             <ItemMedia variant="image">
                 <Avatar>
