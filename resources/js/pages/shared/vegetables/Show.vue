@@ -27,6 +27,7 @@ import type {
 import type { VegetableResource } from '@/types/resources/product'
 import { useCalendarBalance, BALANCE_DOT_CLASS, type CalendarViewerRole } from '@/composables/useCalendarBalance'
 import { Card } from '@/components/ui/card'
+import VegetableMarketCalendar from '@/components/shared/VegetableMarketCalendar.vue'
 
 interface Props {
     vegetable?: VegetableResource
@@ -312,99 +313,12 @@ const calendarAttributes = computed(() => {
                     />
 
                     <!-- ── Market Calendar ─────────────────────────────────────────────── -->
-                    <div
-                        class="grid grid-cols-1 gap-4 lg:grid-cols-[220px_1fr]"
-                    >
-                        <!-- Sidebar -->
-                        <div class="flex flex-col gap-4">
-                            <div class="flex flex-col gap-0.5">
-                                <h2 class="text-base font-medium">
-                                    Market Calendar
-                                </h2>
-                                <p class="text-sm text-muted-foreground">
-                                    All scheduled supply and demand posts for
-                                    this vegetable by date.
-                                </p>
-                            </div>
-
-                            <div class="flex items-center gap-2">
-                                <Button
-                                    variant="outline"
-                                    size="icon"
-                                    aria-label="Previous month"
-                                    @click="navigateMonth(-1)"
-                                >
-                                    <ChevronLeft class="size-4" />
-                                </Button>
-                                <span
-                                    class="min-w-[5rem] text-center text-sm font-semibold tabular-nums"
-                                >
-                                    {{ monthLabel }}
-                                </span>
-                                <Button
-                                    variant="outline"
-                                    size="icon"
-                                    aria-label="Next month"
-                                    @click="navigateMonth(1)"
-                                >
-                                    <ChevronRight class="size-4" />
-                                </Button>
-                            </div>
-
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                class="w-fit text-xs text-muted-foreground"
-                                @click="goToToday"
-                            >
-                                Today
-                            </Button>
-
-                            <div class="flex flex-col gap-2 text-xs text-muted-foreground">
-                                <div v-for="item in legend" :key="item.label" class="flex items-center gap-1.5">
-                                    <span class="h-2 w-2 rounded-full" :class="BALANCE_DOT_CLASS[item.color]" />
-                                    {{ item.label }}
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Calendar grid -->
-                        <Card class="p-2">
-                            <Calendar
-                                :key="`${calendarYear}-${calendarMonth}`"
-                                :attributes="calendarAttributes"
-                                :initial-page="calendarPage"
-                                expanded
-                            >
-                                <template #day-content="{ day }">
-                                    <div
-                                        class="vc-day-tile flex bg-muted border rounded-b-xs h-full w-full cursor-pointer flex-col p-2 m-2"
-                                        :class="{ 'opacity-30': !day.inMonth }"
-                                        @click="handleDayClick(day)"
-                                    >
-                                        <span
-                                            class="mb-auto text-xs leading-none font-semibold"
-                                            >{{ day.label }}</span
-                                        >
-
-                                        <template v-if="dailyTotals[day.id]">
-                                            <div
-                                                class="mt-1 flex flex-col gap-0.5"
-                                            >
-                                            <template v-if="dailyTotals[day.id]">
-                                                <span
-                                                    class="mt-auto size-2.5 self-center rounded-full"
-                                                    :class="BALANCE_DOT_CLASS[balanceFor(day.id)!.color]"
-                                                    :title="balanceFor(day.id)!.label"
-                                                />
-                                            </template>
-                                            </div>
-                                        </template>
-                                    </div>
-                                </template>
-                            </Calendar>
-                        </Card>
-                    </div>
+                    <VegetableMarketCalendar
+                        v-if="vegetable.vegetable_calendar"
+                        :calendar="vegetable.vegetable_calendar"
+                        :calendar-filters="calendarFilters"
+                        :vegetable-id="meta.vegetableId"
+                    />
                 </template>
             </Deferred>
         </div>
