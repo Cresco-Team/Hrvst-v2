@@ -210,6 +210,21 @@ describe('UpdateDemand', function () {
             ->assertForbidden();
     });
 
+    it('updating quantity on an overdue demand does not fail because scheduled_date is unchanged', function () {
+        $dealer = dealerWithProfile();
+        $vegetable = createVegetable();
+        $item = createDemandViaRoute($dealer, $vegetable);
+        $post = $item->post;
+        $post->update(['scheduled_date' => now()->subDay()->toDateString()]); // force overdue
+    
+        actingAs($dealer)
+            ->put(route('dealer.demands.update', $post), [
+                'scheduled_date' => $post->scheduled_date->format('Y-m-d'),
+                'items' => [['vegetable_id' => $vegetable->id, 'quantity_kg' => 75]],
+            ])
+            ->assertSessionHasNoErrors();
+    });
+
 });
 
 // ─── Demand Item Lifecycle ────────────────────────────────────────────────────

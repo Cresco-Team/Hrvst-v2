@@ -192,6 +192,21 @@ describe('UpdateSupply', function () {
             ->assertForbidden();
     });
 
+    it('updating quantity on an overdue supply does not fail because scheduled_date is unchanged', function () {
+        $dealer = farmerWithProfile();
+        $vegetable = createVegetable();
+        $item = createSupplyViaRoute($dealer, $vegetable);
+        $post = $item->post;
+        $post->update(['scheduled_date' => now()->subDay()->toDateString()]); // force overdue
+    
+        actingAs($dealer)
+            ->put(route('farmer.supplies.update', $post), [
+                'scheduled_date' => $post->scheduled_date->format('Y-m-d'),
+                'items' => [['vegetable_id' => $vegetable->id, 'quantity_kg' => 75]],
+            ])
+            ->assertSessionHasNoErrors();
+    });
+
 });
 
 // ─── Supply Lifecycle ─────────────────────────────────────────────────────────
