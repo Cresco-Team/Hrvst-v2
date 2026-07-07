@@ -12,8 +12,10 @@ recommendations: App.DTOs.Product.VarietyRecommendationDTO[],
 forecast: {
 month: string,
 label: string,
-supply_kg: number,
-demand_kg: number,
+supply_fulfilled_kg: number,
+supply_expired_kg: number,
+demand_fulfilled_kg: number,
+demand_expired_kg: number,
 }[],
 };
 export type VarietyRecommendationDTO = {
