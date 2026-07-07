@@ -15,6 +15,7 @@ export interface DayBalance {
 
 const RATIO_HIGH = 0.6
 const RATIO_LOW = 0.2
+
 const ADMIN_HIGH_MULTIPLIER = 1.4
 const ADMIN_LOW_MULTIPLIER = 0.6
 

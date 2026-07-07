@@ -1,15 +1,12 @@
 <script setup lang="ts">
-import { Deferred, Head, router, usePage } from '@inertiajs/vue3'
-import { ChevronLeft, ChevronRight } from 'lucide-vue-next'
-import { Calendar } from 'v-calendar'
+import { Deferred, Head, usePage } from '@inertiajs/vue3'
 import { computed, ref } from 'vue'
-import 'v-calendar/style.css'
 import Heading from '@/components/Heading.vue'
 import VegetableAnalyticsSummary from '@/components/shared/charts/VegetableAnalyticsSummary.vue'
 import VegetableRecommendations from '@/components/shared/charts/VegetableRecommendations.vue'
 import VegetableMonthlyChart from '@/components/shared/charts/VegetableMonthlyChart.vue'
+import VegetableMarketCalendar from '@/components/shared/VegetableMarketCalendar.vue'
 import DetailSheet from '@/components/dialogs/DetailSheet.vue'
-import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { Skeleton } from '@/components/ui/skeleton'
 import AppLayout from '@/layouts/AppLayout.vue'
@@ -19,15 +16,11 @@ import adminRoutes, { dashboard as adminDashboard } from '@/routes/admin'
 import vegetables from '@/routes/vegetables'
 import type {
     BreadcrumbItem,
-    CalendarSlotData,
     CalendarTimeSlot,
     VegetableCalendarFilters,
     VegetableDaySchedule,
 } from '@/types'
 import type { VegetableResource } from '@/types/resources/product'
-import { useCalendarBalance, BALANCE_DOT_CLASS, type CalendarViewerRole } from '@/composables/useCalendarBalance'
-import { Card } from '@/components/ui/card'
-import VegetableMarketCalendar from '@/components/shared/VegetableMarketCalendar.vue'
 
 interface Props {
     vegetable?: VegetableResource
@@ -83,72 +76,7 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => {
     ]
 })
 
-// ─── Calendar — month navigation ──────────────────────────────────────────────
-
-const calendarYear = computed(() => props.calendarFilters.year)
-const calendarMonth = computed(() => props.calendarFilters.month)
-const calendarPage = computed(() => ({
-    year: calendarYear.value,
-    month: calendarMonth.value,
-}))
-
-const monthLabel = computed(() =>
-    new Date(calendarYear.value, calendarMonth.value - 1, 1).toLocaleString(
-        'en-PH',
-        {
-            month: 'long',
-            year: 'numeric',
-        },
-    ),
-)
-
-function showRoute(): { url: string } {
-    return isAdmin.value
-        ? adminRoutes.vegetables.show(props.meta.vegetableId)
-        : vegetables.show(props.meta.vegetableId)
-}
-
-function navigateMonth(direction: 1 | -1): void {
-    let month = calendarMonth.value + direction
-    let year = calendarYear.value
-
-    if (month > 12) {
-        month = 1
-        year++
-    }
-    if (month < 1) {
-        month = 12
-        year--
-    }
-
-    router.visit(showRoute().url, {
-        data: { year, month },
-        preserveState: true,
-        preserveScroll: true,
-        only: ['vegetable', 'calendarFilters'],
-    })
-}
-
-function goToToday(): void {
-    const now = new Date()
-    router.visit(showRoute().url, {
-        data: { year: now.getFullYear(), month: now.getMonth() + 1 },
-        preserveState: true,
-        preserveScroll: true,
-        only: ['vegetable', 'calendarFilters'],
-    })
-}
-
-// ─── Calendar — VCalendar attributes ─────────────────────────────────────────
-
-const viewerRole = computed<CalendarViewerRole>(() => {
-    const roles = usePage().props.auth.user.roles
-    if (roles.includes('admin')) return 'admin'
-    if (roles.includes('dealer')) return 'dealer'
-    return 'farmer'
-})
-
-// ─── Calendar — day detail sheet ─────────────────────────────────────────────
+// ─── Day detail sheet ─────────────────────────────────────────────────────────
 
 const sheetOpen = ref(false)
 const selectedDateStr = ref<string | null>(null)
@@ -167,16 +95,14 @@ const selectedDateLabel = computed(() => {
     )
 })
 
-function handleDayClick(day: { id: string }): void {
-    const schedule = props.vegetable?.vegetable_calendar?.[day.id]
+function handleDaySelect(dateStr: string): void {
+    const schedule = props.vegetable?.vegetable_calendar?.[dateStr]
     if (!schedule) return
 
-    selectedDateStr.value = day.id
+    selectedDateStr.value = dateStr
     selectedSchedule.value = schedule
     sheetOpen.value = true
 }
-
-// ─── Calendar — time slot config ─────────────────────────────────────────────
 
 const TIME_SLOTS: Array<{
     key: CalendarTimeSlot
@@ -203,75 +129,17 @@ function formatNetBadge(net: number): string {
     if (net < 0) return `${formatted} kg unmet`
     return 'Balanced'
 }
-
-// ─── Calendar — inline day totals ─────────────────────────────────────────────
-
-const dailyTotals = computed(() => {
-    const map: Record<string, { supplyKg: number; demandKg: number }> = {}
-    if (!props.vegetable?.vegetable_calendar) return map
-
-    for (const [dateStr, daySchedule] of Object.entries(
-        props.vegetable.vegetable_calendar,
-    )) {
-        let supplyKg = 0
-        let demandKg = 0
-        for (const slotData of Object.values(
-            daySchedule,
-        ) as CalendarSlotData[]) {
-            supplyKg += slotData.supply_kg
-            demandKg += slotData.demand_kg
-        }
-        if (supplyKg > 0 || demandKg > 0) map[dateStr] = { supplyKg, demandKg }
-    }
-    return map
-})
-
-const maxDailyKg = computed(() => {
-    let max = 0
-    for (const { supplyKg, demandKg } of Object.values(dailyTotals.value)) {
-        if (supplyKg > max) max = supplyKg
-        if (demandKg > max) max = demandKg
-    }
-    return max || 1
-})
-
-function barPct(kg: number): string {
-    return `${Math.round((kg / maxDailyKg.value) * 100)}%`
-}
-
-function formatKgShort(kg: number): string {
-    if (kg >= 1000) return `${(kg / 1000).toFixed(1)}t`
-    return kg % 1 === 0 ? `${kg}` : `${kg.toFixed(1)}`
-}
-
-const { balanceFor, legend } = useCalendarBalance(dailyTotals, viewerRole)
-
-const calendarAttributes = computed(() => {
-    if (!props.vegetable?.vegetable_calendar) return []
-
-    return Object.entries(props.vegetable.vegetable_calendar).map(
-        ([dateStr, daySchedule]) => ({
-            key: dateStr,
-            dates: [new Date(`${dateStr}T00:00:00`)],
-            customData: { dateStr, daySchedule },
-        }),
-    )
-})
 </script>
 
 <template>
-    <Head
-        :title="
-            meta.vegetableLabel
-        "
-    />
+    <Head :title="meta.vegetableLabel" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex flex-col gap-6 p-4 lg:p-6">
             <Heading
-                    :title="meta.vegetableLabel"
-                    :description="meta.categoryName"
-                />
+                :title="meta.vegetableLabel"
+                :description="meta.categoryName"
+            />
 
             <Deferred data="vegetable">
                 <template #fallback>
@@ -318,6 +186,7 @@ const calendarAttributes = computed(() => {
                         :calendar="vegetable.vegetable_calendar"
                         :calendar-filters="calendarFilters"
                         :vegetable-id="meta.vegetableId"
+                        @day-select="handleDaySelect"
                     />
                 </template>
             </Deferred>
@@ -407,8 +276,6 @@ const calendarAttributes = computed(() => {
                             </span>
                         </div>
                     </div>
-
-                    
                 </div>
             </template>
         </div>
@@ -418,92 +285,3 @@ const calendarAttributes = computed(() => {
         </p>
     </DetailSheet>
 </template>
-
-<style scoped>
-:deep(.vc-day-content) {
-    display: none;
-}
-:deep(.vc-header) {
-    display: none;
-}
-:deep(.vc-dots),
-:deep(.vc-highlights) {
-    display: none;
-}
-
-:deep(.vc-container) {
-    --vc-bg: hsl(var(--card));
-    --vc-border: hsl(var(--border));
-    --vc-header-title-color: hsl(var(--foreground));
-    --vc-weekday-color: hsl(var(--muted-foreground));
-    --vc-nav-hover-bg: hsl(var(--muted));
-    --vc-day-content-hover-bg: transparent;
-    --vc-accent-200: hsl(var(--primary) / 0.2);
-    --vc-accent-600: hsl(var(--primary));
-    background-color: hsl(var(--card));
-    color: hsl(var(--foreground));
-    border-color: transparent;
-}
-
-:deep(.vc-header .vc-title),
-:deep(.vc-nav-title),
-:deep(.vc-nav-item) {
-    color: hsl(var(--foreground));
-}
-
-:deep(.vc-nav-item:hover),
-:deep(.vc-nav-item.is-active) {
-    background-color: hsl(var(--muted));
-    color: hsl(var(--foreground));
-}
-
-:deep(.vc-arrow) {
-    color: hsl(var(--muted-foreground));
-}
-:deep(.vc-arrow:hover) {
-    background-color: hsl(var(--muted));
-    color: hsl(var(--foreground));
-}
-
-:deep(.vc-container) {
-    width: 100% !important;
-}
-:deep(.vc-pane-layout),
-:deep(.vc-pane),
-:deep(.vc-weeks) {
-    width: 100%;
-    min-width: 0;
-}
-
-:deep(.vc-week),
-:deep(.vc-weeks) {
-    gap: 2px;
-    padding: 0;
-}
-
-:deep(.vc-day) {
-    min-height: 5rem;
-    border: 1px solid hsl(var(--border) / 0.4);
-    border-radius: 0.375rem;
-    background-color: hsl(var(--muted) / 0.2);
-    padding: 0;
-    overflow: hidden;
-    transition: background-color 0.15s;
-}
-:deep(.vc-day:hover) {
-    background-color: hsl(var(--muted) / 0.5);
-}
-:deep(.vc-day.is-today) {
-    border-color: hsl(var(--primary) / 0.6);
-    background-color: hsl(var(--primary) / 0.06);
-}
-
-@media (max-width: 479px) {
-    :deep(.vc-day) {
-        min-height: 3rem;
-    }
-    :deep(.vc-weekday) {
-        font-size: 0.6rem;
-    }
-}
-</style>
