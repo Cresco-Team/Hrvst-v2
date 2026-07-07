@@ -48,6 +48,7 @@ import {
     netKgClass,
     formatNetKg,
 } from '@/composables/useVegetableAvailability'
+import { toInputDate } from '@/composables/useDateFormat'
 import type {
     DealerDemandDataFixed,
     PostTimeSlot,
@@ -116,12 +117,6 @@ const calendarDate = computed({
         form.scheduled_date = val ? val.toString() : ''
     },
 })
-
-function toInputDate(dateStr: string | null | undefined): string {
-    if (!dateStr) return ''
-    const d = new Date(dateStr)
-    return isNaN(d.getTime()) ? '' : d.toISOString().slice(0, 10)
-}
 
 function addItem(): void {
     form.items.push(blankItem())

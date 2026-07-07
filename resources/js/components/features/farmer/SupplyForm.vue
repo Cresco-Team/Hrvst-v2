@@ -59,6 +59,7 @@ import {
     netKgClass,
     formatNetKg,
 } from '@/composables/useVegetableAvailability'
+import { toInputDate } from '@/composables/useDateFormat'
 
 interface Props {
     open: boolean
@@ -92,12 +93,6 @@ const { getState, getData } = useVegetableAvailability(
     () => form.time_slot,
     () => form.items.map((i) => i.vegetable_id),
 )
-
-function toInputDate(dateStr: string | null | undefined): string {
-    if (!dateStr) return ''
-    const d = new Date(dateStr)
-    return isNaN(d.getTime()) ? '' : d.toISOString().slice(0, 10)
-}
 
 function blankItem() {
     return {

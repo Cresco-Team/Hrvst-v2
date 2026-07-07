@@ -20,7 +20,14 @@ class VarietyAnalyticsDTO
         /**
          * 6-month forward forecast derived from 3-year seasonal history.
          *
-         * @var array<int, array{month: string, label: string, supply_kg: float, demand_kg: float}>
+         * @var array<int, array{
+         *     month: string,
+         *     label: string,
+         *     supply_fulfilled_kg: float,
+         *     supply_expired_kg: float,
+         *     demand_fulfilled_kg: float,
+         *     demand_expired_kg: float,
+         * }>
          */
         public array $forecast = [],
     ) {}

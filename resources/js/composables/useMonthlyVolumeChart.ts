@@ -1,4 +1,5 @@
 import {
+    BarController,
     BarElement,
     CategoryScale,
     Chart as ChartJS,
@@ -11,7 +12,26 @@ import {
 import { computed, type MaybeRefOrGetter, toValue } from 'vue'
 import type { ForecastPoint, MonthlyActivity } from '@/types/resources/product'
 
-ChartJS.register(BarElement, CategoryScale, LinearScale, Title, Tooltip, Legend)
+ChartJS.register(BarController, BarElement, CategoryScale, LinearScale, Title, Tooltip, Legend)
+
+type MetricKey = 'supply_fulfilled_kg' | 'supply_expired_kg' | 'demand_fulfilled_kg' | 'demand_expired_kg'
+
+interface SeriesConfig {
+    key: MetricKey
+    label: string
+    rgb: string
+    stack: 'supply' | 'demand'
+    historicalAlpha: number
+    forecastAlpha: number
+    radius: number
+}
+
+const SERIES: SeriesConfig[] = [
+    { key: 'supply_fulfilled_kg', label: 'Supply — Fulfilled', rgb: '34, 197, 94', stack: 'supply', historicalAlpha: 0.9, forecastAlpha: 0.35, radius: 4 },
+    { key: 'supply_expired_kg', label: 'Supply — Expired', rgb: '166, 166, 166', stack: 'supply', historicalAlpha: 0.3, forecastAlpha: 0.15, radius: 0 },
+    { key: 'demand_fulfilled_kg', label: 'Demand — Fulfilled', rgb: '249, 115, 22', stack: 'demand', historicalAlpha: 0.9, forecastAlpha: 0.35, radius: 4 },
+    { key: 'demand_expired_kg', label: 'Demand — Expired', rgb: '166, 166, 166', stack: 'demand', historicalAlpha: 0.3, forecastAlpha: 0.15, radius: 0 },
+]
 
 export function useMonthlyVolumeChart(
     activity: MaybeRefOrGetter<MonthlyActivity[] | null | undefined>,
@@ -25,88 +45,28 @@ export function useMonthlyVolumeChart(
 
         const historical = allMonths.slice(-6)
         const histLen = historical.length
-        const fcLen = fc.length
 
-        const allLabels = [
-            ...historical.map((m) => m.label),
-            ...fc.map((m) => m.label),
-        ]
+        const allLabels = [...historical.map((m) => m.label), ...fc.map((m) => m.label)]
 
-        const barData = (values: number[]) => [
-            ...values,
-            ...Array<null>(fcLen).fill(null),
-        ]
-        const forecastBarData = (values: number[]) => [
-            ...Array<null>(histLen).fill(null),
-            ...values,
-        ]
+        const datasets = SERIES.map((series) => {
+            const historicalValues = historical.map((m) => (m as any)[series.key] as number)
+            const forecastValues = fc.map((m) => m[series.key])
 
-        const datasets: any[] = [
-            // ── Actual stacked bars ───────────────────────────────────────────
-            {
-                type: 'bar',
-                label: 'Supply — Fulfilled',
-                data: barData(historical.map((m) => m.supply_fulfilled_kg)),
-                backgroundColor: 'rgba(34, 197, 94, 0.9)',
-                borderColor: 'rgb(34, 197, 94)',
-                borderWidth: 1,
-                borderRadius: 4,
-                stack: 'supply',
-            },
-            {
-                type: 'bar',
-                label: 'Supply — Expired',
-                data: barData(historical.map((m) => m.supply_expired_kg)),
-                backgroundColor: 'rgba(166, 166, 166, 0.3)',
-                borderColor: 'rgb(166, 166, 166)',
-                borderWidth: 1,
-                stack: 'supply',
-            },
-            {
-                type: 'bar',
-                label: 'Demand — Fulfilled',
-                data: barData(historical.map((m) => m.demand_fulfilled_kg)),
-                backgroundColor: 'rgba(249, 115, 22, 0.9)',
-                borderColor: 'rgb(249, 115, 22)',
-                borderWidth: 1,
-                borderRadius: 4,
-                stack: 'demand',
-            },
-            {
-                type: 'bar',
-                label: 'Demand — Expired',
-                data: barData(historical.map((m) => m.demand_expired_kg)),
-                backgroundColor: 'rgba(166, 166, 166, 0.3)',
-                borderColor: 'rgb(166, 166, 166)',
-                borderWidth: 1,
-                stack: 'demand',
-            },
-        ]
+            const isForecastIndex = (dataIndex: number) => dataIndex >= histLen
 
-        if (fcLen > 0) {
-            datasets.push(
-                {
-                    type: 'bar',
-                    label: 'Supply (forecast)',
-                    data: forecastBarData(fc.map((m) => m.supply_kg)),
-                    backgroundColor: 'rgba(34, 197, 94, 0.25)',
-                    borderColor: 'rgba(34, 197, 94, 0.6)',
-                    borderWidth: 1,
-                    borderRadius: 4,
-                    stack: 'supply',
-                },
-                {
-                    type: 'bar',
-                    label: 'Demand (forecast)',
-                    data: forecastBarData(fc.map((m) => m.demand_kg)),
-                    backgroundColor: 'rgba(249, 115, 22, 0.25)',
-                    borderColor: 'rgba(249, 115, 22, 0.6)',
-                    borderWidth: 1,
-                    borderRadius: 4,
-                    stack: 'demand',
-                },
-            )
-        }
+            return {
+                type: 'bar' as const,
+                label: series.label,
+                data: [...historicalValues, ...forecastValues],
+                backgroundColor: (ctx: any) =>
+                    `rgba(${series.rgb}, ${isForecastIndex(ctx.dataIndex) ? series.forecastAlpha : series.historicalAlpha})`,
+                borderColor: (ctx: any) => `rgba(${series.rgb}, ${isForecastIndex(ctx.dataIndex) ? 0.7 : 1})`,
+                borderWidth: 1,
+                borderDash: (ctx: any) => (isForecastIndex(ctx.dataIndex) ? [4, 3] : []),
+                borderRadius: series.radius,
+                stack: series.stack,
+            }
+        })
 
         return { labels: allLabels, datasets }
     })
@@ -152,12 +112,7 @@ export function useMonthlyVolumeChart(
         plugins: {
             legend: {
                 position: 'bottom',
-                labels: {
-                    boxWidth: 8,
-                    boxHeight: 8,
-                    padding: 8,
-                    font: { size: 10 },
-                },
+                labels: { boxWidth: 8, boxHeight: 8, padding: 8, font: { size: 10 } },
             },
             tooltip: {
                 callbacks: {
@@ -173,20 +128,13 @@ export function useMonthlyVolumeChart(
             x: {
                 stacked: true,
                 grid: { display: false },
-                ticks: {
-                    font: { size: 11 },
-                    maxRotation: 45,
-                    maxTicksLimit: 12,
-                },
+                ticks: { font: { size: 11 }, maxRotation: 45, maxTicksLimit: 12 },
             },
             y: {
                 stacked: true,
                 beginAtZero: true,
                 grid: { color: 'rgba(0,0,0,0.05)' },
-                ticks: {
-                    font: { size: 11 },
-                    callback: (value) => `${value} kg`,
-                },
+                ticks: { font: { size: 11 }, callback: (value) => `${value} kg` },
             },
         },
     }

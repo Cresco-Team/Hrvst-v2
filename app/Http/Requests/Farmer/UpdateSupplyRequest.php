@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Farmer;
 
 use App\Enums\PostTimeSlot;
+use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -17,7 +18,15 @@ class UpdateSupplyRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'scheduled_date' => ['sometimes', 'date', 'after:today', 'before:'.now()->addMonths(3)->toDateString()],
+            'scheduled_date' => [
+                'sometimes',
+                'date',
+                Rule::when(
+                    $this->scheduledDateIsChanging(),
+                    ['after:today'],
+                ),
+                'before:'.now()->addMonths(3)->toDateString(),
+            ],
             'time_slot' => ['sometimes', Rule::enum(PostTimeSlot::class)],
             'items' => ['sometimes', 'array', 'min:1'],
             'items.*.id' => ['nullable', 'integer'],
@@ -37,5 +46,24 @@ class UpdateSupplyRequest extends FormRequest
             'items.*.quantity_kg.required_with' => 'Each item must have a quantity.',
             'items.*.quantity_kg.min' => 'Quantity must be at least 0.1 kg.',
         ];
+    }
+    
+    private function scheduledDateIsChanging(): bool
+    {
+        if (! $this->filled('scheduled_date')) {
+            return false;
+        }
+
+        $currentDate = $this->route('supply')?->scheduled_date;
+
+        if ($currentDate === null) {
+            return true;
+        }
+
+        try {
+            return ! Carbon::parse($this->input('scheduled_date'))->isSameDay($currentDate);
+        } catch (\Exception) {
+            return true;
+        }
     }
 }

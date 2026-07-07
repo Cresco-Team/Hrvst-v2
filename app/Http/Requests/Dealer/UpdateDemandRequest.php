@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Dealer;
 
 use App\Enums\PostTimeSlot;
+use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -16,7 +17,15 @@ class UpdateDemandRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'scheduled_date' => ['sometimes', 'date', 'after:today', 'before:'.now()->addMonths(3)->toDateString()],
+            'scheduled_date' => [
+                'sometimes',
+                'date',
+                Rule::when(
+                    $this->scheduledDateIsChanging(),
+                    ['after:today'],
+                ),
+                'before:'.now()->addMonths(3)->toDateString(),
+            ],
             'time_slot' => ['sometimes', Rule::enum(PostTimeSlot::class)],
             'items' => ['sometimes', 'array', 'min:1'],
             'items.*.vegetable_id' => ['required_with:items', 'integer', 'exists:vegetables,id'],
@@ -35,5 +44,24 @@ class UpdateDemandRequest extends FormRequest
             'items.*.quantity_kg.required_with' => 'Each item must have a quantity.',
             'items.*.quantity_kg.min' => 'Quantity is too low.',
         ];
+    }
+
+    private function scheduledDateIsChanging(): bool
+    {
+        if (! $this->filled('scheduled_date')) {
+            return false;
+        }
+
+        $currentDate = $this->route('demand')?->scheduled_date;
+
+        if ($currentDate === null) {
+            return true;
+        }
+
+        try {
+            return ! Carbon::parse($this->input('scheduled_date'))->isSameDay($currentDate);
+        } catch (\Exception) {
+            return true;
+        }
     }
 }
