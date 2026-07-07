@@ -25,6 +25,7 @@ import type {
     VegetableDaySchedule,
 } from '@/types'
 import type { VegetableResource } from '@/types/resources/product'
+import { useCalendarBalance, BALANCE_DOT_CLASS, type CalendarViewerRole } from '@/composables/useCalendarBalance'
 import { Card } from '@/components/ui/card'
 
 interface Props {
@@ -139,16 +140,11 @@ function goToToday(): void {
 
 // ─── Calendar — VCalendar attributes ─────────────────────────────────────────
 
-const calendarAttributes = computed(() => {
-    if (!props.vegetable?.vegetable_calendar) return []
-
-    return Object.entries(props.vegetable.vegetable_calendar).map(
-        ([dateStr, daySchedule]) => ({
-            key: dateStr,
-            dates: [new Date(`${dateStr}T00:00:00`)],
-            customData: { dateStr, daySchedule },
-        }),
-    )
+const viewerRole = computed<CalendarViewerRole>(() => {
+    const roles = usePage().props.auth.user.roles
+    if (roles.includes('admin')) return 'admin'
+    if (roles.includes('dealer')) return 'dealer'
+    return 'farmer'
 })
 
 // ─── Calendar — day detail sheet ─────────────────────────────────────────────
@@ -246,6 +242,20 @@ function formatKgShort(kg: number): string {
     if (kg >= 1000) return `${(kg / 1000).toFixed(1)}t`
     return kg % 1 === 0 ? `${kg}` : `${kg.toFixed(1)}`
 }
+
+const { balanceFor, legend } = useCalendarBalance(dailyTotals, viewerRole)
+
+const calendarAttributes = computed(() => {
+    if (!props.vegetable?.vegetable_calendar) return []
+
+    return Object.entries(props.vegetable.vegetable_calendar).map(
+        ([dateStr, daySchedule]) => ({
+            key: dateStr,
+            dates: [new Date(`${dateStr}T00:00:00`)],
+            customData: { dateStr, daySchedule },
+        }),
+    )
+})
 </script>
 
 <template>
@@ -350,20 +360,10 @@ function formatKgShort(kg: number): string {
                                 Today
                             </Button>
 
-                            <div
-                                class="flex flex-col gap-2 text-xs text-muted-foreground"
-                            >
-                                <div class="flex items-center gap-1.5">
-                                    <span
-                                        class="h-2 w-2 rounded-full bg-emerald-500"
-                                    />
-                                    Supply
-                                </div>
-                                <div class="flex items-center gap-1.5">
-                                    <span
-                                        class="h-2 w-2 rounded-full bg-yellow-400"
-                                    />
-                                    Demand
+                            <div class="flex flex-col gap-2 text-xs text-muted-foreground">
+                                <div v-for="item in legend" :key="item.label" class="flex items-center gap-1.5">
+                                    <span class="h-2 w-2 rounded-full" :class="BALANCE_DOT_CLASS[item.color]" />
+                                    {{ item.label }}
                                 </div>
                             </div>
                         </div>
@@ -391,85 +391,13 @@ function formatKgShort(kg: number): string {
                                             <div
                                                 class="mt-1 flex flex-col gap-0.5"
                                             >
-                                                <template
-                                                    v-if="
-                                                        dailyTotals[day.id]
-                                                            .supplyKg
-                                                    "
-                                                >
-                                                    <div
-                                                        class="flex items-center gap-1"
-                                                    >
-                                                        <div
-                                                            class="relative h-1.5 flex-1 overflow-hidden rounded-full bg-emerald-100 dark:bg-emerald-950"
-                                                        >
-                                                            <div
-                                                                class="absolute inset-y-0 left-0 rounded-full bg-emerald-500"
-                                                                :style="{
-                                                                    width: barPct(
-                                                                        dailyTotals[
-                                                                            day
-                                                                                .id
-                                                                        ]
-                                                                            .supplyKg,
-                                                                    ),
-                                                                }"
-                                                            />
-                                                        </div>
-                                                    </div>
-                                                    <span
-                                                        class="text-[9px] leading-none text-emerald-600 dark:text-emerald-400"
-                                                    >
-                                                        S
-                                                        {{
-                                                            formatKgShort(
-                                                                dailyTotals[
-                                                                    day.id
-                                                                ].supplyKg,
-                                                            )
-                                                        }}kg
-                                                    </span>
-                                                </template>
-
-                                                <template
-                                                    v-if="
-                                                        dailyTotals[day.id]
-                                                            .demandKg
-                                                    "
-                                                >
-                                                    <div
-                                                        class="flex items-center gap-1"
-                                                    >
-                                                        <div
-                                                            class="relative h-1.5 flex-1 overflow-hidden rounded-full bg-amber-100 dark:bg-amber-950"
-                                                        >
-                                                            <div
-                                                                class="absolute inset-y-0 left-0 rounded-full bg-amber-500"
-                                                                :style="{
-                                                                    width: barPct(
-                                                                        dailyTotals[
-                                                                            day
-                                                                                .id
-                                                                        ]
-                                                                            .demandKg,
-                                                                    ),
-                                                                }"
-                                                            />
-                                                        </div>
-                                                    </div>
-                                                    <span
-                                                        class="text-[9px] leading-none text-amber-600 dark:text-amber-400"
-                                                    >
-                                                        D
-                                                        {{
-                                                            formatKgShort(
-                                                                dailyTotals[
-                                                                    day.id
-                                                                ].demandKg,
-                                                            )
-                                                        }}kg
-                                                    </span>
-                                                </template>
+                                            <template v-if="dailyTotals[day.id]">
+                                                <span
+                                                    class="mt-auto size-2.5 self-center rounded-full"
+                                                    :class="BALANCE_DOT_CLASS[balanceFor(day.id)!.color]"
+                                                    :title="balanceFor(day.id)!.label"
+                                                />
+                                            </template>
                                             </div>
                                         </template>
                                     </div>
