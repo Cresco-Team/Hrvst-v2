@@ -247,7 +247,7 @@ function submit() {
   <!-- PIN reveal modal — shown once after successful creation -->
   <Dialog :open="pinModalOpen" @update:open="!$event && onPinModalClose()">
     <DialogContent
-      class="max-w-fit"
+      class="sm:max-w-fit"
       @pointer-down-outside.prevent
       @escape-key-down.prevent
     >
@@ -261,7 +261,7 @@ function submit() {
 
       <div class="flex flex-col items-center gap-3 py-6">
         <p class="text-sm text-muted-foreground">Temporary PIN</p>
-        <p class="font-mono text-6xl font-bold tracking-[0.5em]">
+        <p class="font-mono text-5xl sm:text-6xl font-bold tracking-[0.5em]">
           {{ revealedPin }}
         </p>
         <p class="text-xs text-muted-foreground text-center max-w-[220px]">
