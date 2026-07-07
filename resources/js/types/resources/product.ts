@@ -109,6 +109,8 @@ export interface VegetableTableRow {
 export interface ForecastPoint {
     month: string
     label: string
-    supply_kg: number
-    demand_kg: number
+    supply_fulfilled_kg: number
+    supply_expired_kg: number
+    demand_fulfilled_kg: number
+    demand_expired_kg: number
 }
