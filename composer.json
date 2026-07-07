@@ -19,6 +19,7 @@
         "laravel/nightwatch": "^1.24",
         "laravel/tinker": "^3.0",
         "laravel/wayfinder": "^0.1.9",
+        "league/flysystem-aws-s3-v3": "^3.35",
         "spatie/laravel-data": "^4.23",
         "spatie/laravel-medialibrary": "^11.21",
         "spatie/laravel-typescript-transformer": "^3.3"
