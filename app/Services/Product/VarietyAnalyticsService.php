@@ -15,12 +15,9 @@ class VarietyAnalyticsService
     private const float LOW_FULFILLMENT_THRESHOLD = 0.50;
     private const float SUPPLY_DECLINE_THRESHOLD  = -20.0;
 
-    // ±40% cap prevents runaway extrapolation from anomalous recent months
     private const float TREND_FLOOR = 0.60;
     private const float TREND_CEIL  = 1.40;
 
-    // Minimum real (non-padded) months required before we trust a trend ratio.
-    // Below this we fall back to a pure seasonal average (trend multiplier = 1.0).
     private const int MIN_MONTHS_FOR_TREND = 12;
 
     public function compute(
@@ -62,24 +59,21 @@ class VarietyAnalyticsService
     // ── Forecast ──────────────────────────────────────────────────────────────
 
     /**
-     * 6-month forward forecast using weighted seasonal average + compound trend.
+     * 6-month forward forecast derived from 3-year seasonal history.
      *
-     * Root cause of the previous "demand > supply" inversion:
-     * buildMonthlyActivity(months: 36) zero-pads the 24 months before the DB
-     * history begins. Those phantom zeros contaminate both the seasonal
-     * baseline (halving values via weighted average) and the trend ratio
-     * (inflating it by treating zero months as legitimate low-activity months).
-     *
-     * Fix: filter the 36-month history to `has_data === true` entries only,
-     * then build seasonal baselines and compute trend from real rows only.
-     *
-     * @return array<int, array{month: string, label: string, supply_kg: float, demand_kg: float}>
+     * @var array<int, array{
+     *     month: string,
+     *     label: string,
+     *     supply_fulfilled_kg: float,
+     *     supply_expired_kg: float,
+     *     demand_fulfilled_kg: float,
+     *     demand_expired_kg: float,
+     * }>
      */
     private function computeForecast(array $history): array
     {
         $currentMonthKey = now()->format('Y-m');
 
-        // ── 1. Real months only — exclude current (partial) AND zero-padded gaps ─
         $realHistory = array_values(array_filter(
             $history,
             fn ($e) => $e['month'] !== $currentMonthKey && ($e['has_data'] ?? true),
@@ -91,7 +85,7 @@ class VarietyAnalyticsService
             return [];
         }
 
-        // ── 2. Seasonal baseline — group real months by calendar month ──────────
+        // ── Seasonal baseline — keep fulfilled/expired split, don't collapse them ──
         $byCalendarMonth = [];
 
         foreach ($realHistory as $entry) {
@@ -99,13 +93,15 @@ class VarietyAnalyticsService
             $year     = (int) substr($entry['month'], 0, 4);
 
             $byCalendarMonth[$calMonth][] = [
-                'year'      => $year,
-                'supply_kg' => $entry['supply_fulfilled_kg'] + $entry['supply_expired_kg'],
-                'demand_kg' => $entry['demand_fulfilled_kg'] + $entry['demand_expired_kg'],
+                'year'                => $year,
+                'supply_fulfilled_kg' => $entry['supply_fulfilled_kg'],
+                'supply_expired_kg'   => $entry['supply_expired_kg'],
+                'demand_fulfilled_kg' => $entry['demand_fulfilled_kg'],
+                'demand_expired_kg'   => $entry['demand_expired_kg'],
             ];
         }
 
-        // ── 3. Trend ratio — only apply when enough real history exists ─────────
+        // ── Trend ratio — unchanged, still computed on totals from raw history ────
         $supplyMonthlyGrowth = 1.0;
         $demandMonthlyGrowth = 1.0;
 
@@ -136,9 +132,9 @@ class VarietyAnalyticsService
             $demandMonthlyGrowth = $demandTrend ** (1 / 6);
         }
 
-        // ── 4. Generate 6 forecast months ──────────────────────────────────────
+        // ── Generate 6 forecast months, now carrying the fulfilled/expired split ──
         $forecast = [];
-        $weights  = [3, 2, 1]; // most-recent year → highest weight
+        $weights  = [3, 2, 1];
 
         for ($i = 1; $i <= 6; $i++) {
             $futureDate = now()->startOfMonth()->addMonths($i);
@@ -147,30 +143,36 @@ class VarietyAnalyticsService
             $entries = $byCalendarMonth[$calMonth] ?? [];
 
             if (empty($entries)) {
-                continue; // no real historical data for this calendar month
+                continue;
             }
 
             usort($entries, fn ($a, $b) => $b['year'] <=> $a['year']);
 
-            $totalWeight = 0;
-            $supplySum   = 0.0;
-            $demandSum   = 0.0;
+            $totalWeight        = 0;
+            $supplyFulfilledSum = 0.0;
+            $supplyExpiredSum   = 0.0;
+            $demandFulfilledSum = 0.0;
+            $demandExpiredSum   = 0.0;
 
             foreach (array_slice($entries, 0, 3) as $idx => $entry) {
-                $w           = $weights[$idx] ?? 1;
-                $totalWeight += $w;
-                $supplySum   += $entry['supply_kg'] * $w;
-                $demandSum   += $entry['demand_kg'] * $w;
+                $w = $weights[$idx] ?? 1;
+                $totalWeight        += $w;
+                $supplyFulfilledSum += $entry['supply_fulfilled_kg'] * $w;
+                $supplyExpiredSum   += $entry['supply_expired_kg'] * $w;
+                $demandFulfilledSum += $entry['demand_fulfilled_kg'] * $w;
+                $demandExpiredSum   += $entry['demand_expired_kg'] * $w;
             }
 
-            $baseSupply = $supplySum / $totalWeight;
-            $baseDemand = $demandSum / $totalWeight;
+            $supplyFactor = $supplyMonthlyGrowth ** $i;
+            $demandFactor = $demandMonthlyGrowth ** $i;
 
             $forecast[] = [
-                'month'      => $futureDate->format('Y-m'),
-                'label'      => $futureDate->format('M Y'),
-                'supply_kg'  => max(0.0, round($baseSupply * ($supplyMonthlyGrowth ** $i), 2)),
-                'demand_kg'  => max(0.0, round($baseDemand * ($demandMonthlyGrowth ** $i), 2)),
+                'month'               => $futureDate->format('Y-m'),
+                'label'               => $futureDate->format('M Y'),
+                'supply_fulfilled_kg' => max(0.0, round(($supplyFulfilledSum / $totalWeight) * $supplyFactor, 2)),
+                'supply_expired_kg'   => max(0.0, round(($supplyExpiredSum / $totalWeight) * $supplyFactor, 2)),
+                'demand_fulfilled_kg' => max(0.0, round(($demandFulfilledSum / $totalWeight) * $demandFactor, 2)),
+                'demand_expired_kg'   => max(0.0, round(($demandExpiredSum / $totalWeight) * $demandFactor, 2)),
             ];
         }
 
