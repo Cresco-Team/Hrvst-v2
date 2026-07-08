@@ -12,7 +12,7 @@ use InvalidArgumentException;
 class VegetableWasteAnalyticsService
 {
     private const int FORECAST_LIMIT = 10;
-    private const int STABILITY_LIMIT = 10;
+    private const int MAX_STABILITY_LIMIT = 10;
 
     /** This month + 3 coming months. */
     private const int FORECAST_MONTHS = 4;
@@ -138,13 +138,13 @@ class VegetableWasteAnalyticsService
     // ── Year-round stability ──────────────────────────────────────────────────
 
     /** High, steady unmet demand with no strong seasonal pattern — a chronic gap, not a timing play. */
-    public function mostStableWastedDemand(int $limit = self::STABILITY_LIMIT): array
+    public function mostStableWastedDemand(int $limit = self::MAX_STABILITY_LIMIT): array
     {
         return $this->stabilityByColumn('demand_expired_kg', $limit);
     }
 
     /** High, steady unclaimed supply with no strong seasonal pattern. */
-    public function mostStableWastedSupply(int $limit = self::STABILITY_LIMIT): array
+    public function mostStableWastedSupply(int $limit = self::MAX_STABILITY_LIMIT): array
     {
         return $this->stabilityByColumn('supply_expired_kg', $limit);
     }
