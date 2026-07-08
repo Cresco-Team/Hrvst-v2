@@ -20,6 +20,10 @@ class VarietyAnalyticsService
 
     private const int MIN_MONTHS_FOR_TREND = 12;
 
+    private const int MIN_MONTHS_FOR_FORECAST = 12;
+    private const int CONFIDENCE_ESTABLISHED_MONTHS = 36;
+    private const int CONFIDENCE_STRONG_MONTHS = 60;
+
     public function compute(
         array $monthlyActivity,
         VegetableViewerRole $role,
@@ -44,6 +48,10 @@ class VarietyAnalyticsService
 
         $forecast = $this->computeForecast($extendedHistory ?: $monthlyActivity);
 
+        $forecastSource = $extendedHistory ?: $monthlyActivity;
+        $monthsObserved = $this->countRealMonths($forecastSource);
+        $forecast = $this->computeForecast($forecastSource);
+
         return new VarietyAnalyticsDTO(
             supply_demand_ratio:     $ratio,
             imbalance_band:          $band,
@@ -52,14 +60,36 @@ class VarietyAnalyticsService
             supply_volume_mom_pct:   $supplyMomPct,
             demand_volume_mom_pct:   $demandMomPct,
             recommendations:         $recommendations,
+            months_of_history:       $monthsObserved,
+            forecast_confidence:     $this->forecastConfidence($monthsObserved),
             forecast:                $forecast,
         );
+    }
+
+    private function countRealMonths(array $history): int
+    {
+        $currentMonthKey = now()->format('Y-m');
+
+        return count(array_filter(
+            $history,
+            fn ($e) => $e['month'] !== $currentMonthKey && ($e['has_data'] ?? true),
+        ));
+    }
+
+    private function forecastConfidence(int $monthsObserved): string
+    {
+        return match (true) {
+            $monthsObserved < self::MIN_MONTHS_FOR_FORECAST => 'insufficient',
+            $monthsObserved >= self::CONFIDENCE_STRONG_MONTHS => 'strong',
+            $monthsObserved >= self::CONFIDENCE_ESTABLISHED_MONTHS => 'established',
+            default => 'developing',
+        };
     }
 
     // ── Forecast ──────────────────────────────────────────────────────────────
 
     /**
-     * 6-month forward forecast derived from 3-year seasonal history.
+     * 6-month forward forecast derived from 5-year seasonal history.
      *
      * @var array<int, array{
      *     month: string,
@@ -72,6 +102,10 @@ class VarietyAnalyticsService
      */
     private function computeForecast(array $history): array
     {
+        if ($this->countRealMonths($history) < self::MIN_MONTHS_FOR_FORECAST) {
+            return [];
+        }
+
         $currentMonthKey = now()->format('Y-m');
 
         $realHistory = array_values(array_filter(
@@ -81,9 +115,6 @@ class VarietyAnalyticsService
 
         $realCount = count($realHistory);
 
-        if ($realCount < 3) {
-            return [];
-        }
 
         // ── Seasonal baseline — keep fulfilled/expired split, don't collapse them ──
         $byCalendarMonth = [];
