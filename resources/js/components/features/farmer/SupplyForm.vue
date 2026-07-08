@@ -54,9 +54,9 @@ const { getState, getData } = useVegetableAvailability(
 
 const varietyLabelById = computed(() => {
     const map = new Map<string, string>()
-    for (const [vegetableName, varieties] of Object.entries(props.varietyOptions ?? {})) {
+    for (const varieties of Object.values(props.varietyOptions ?? {})) {
         for (const variety of varieties) {
-            map.set(String(variety.id), `${vegetableName}: ${variety.name}`)
+            map.set(String(variety.id), variety.name)
         }
     }
     return map
@@ -213,7 +213,7 @@ watch(
             <Table>
                 <TableHeader>
                     <TableRow>
-                        <TableHead>Supplies <span class="text-destructive">*</span></TableHead>
+                        <TableHead>Vegetable Supplies <span class="text-destructive">*</span></TableHead>
                         <TableHead class="text-center">Kilogram <span class="text-destructive">*</span></TableHead>
                         <TableHead class="text-end">
                             <Button type="button" variant="outline" size="sm" class="h-7 gap-1.5 text-xs" @click="addItem">
@@ -265,20 +265,20 @@ watch(
                                         </span>
                                     </div>
 
-                                    <ComboboxEmpty>No variety found.</ComboboxEmpty>
+                                    <ComboboxEmpty>No vegetable found.</ComboboxEmpty>
 
                                     <ComboboxViewport>
                                         <ComboboxGroup
-                                            v-for="(varieties, vegetableName) in varietyOptions"
-                                            :key="vegetableName"
-                                            :heading="vegetableName"
+                                            v-for="(varieties, categoryName) in varietyOptions"
+                                            :key="categoryName"
+                                            :heading="categoryName"
                                         >
                                             <ComboboxItem
                                                 v-for="v in varieties"
                                                 :key="v.id"
                                                 :value="String(v.id)"
                                             >
-                                                {{ vegetableName }}: {{ v.name }}
+                                                {{ v.name }}
                                                 <ComboboxItemIndicator>
                                                     <Check class="size-4" />
                                                 </ComboboxItemIndicator>
