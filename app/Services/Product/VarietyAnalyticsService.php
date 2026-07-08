@@ -7,6 +7,7 @@ use App\DTOs\Product\VarietyRecommendationDTO;
 use App\Enums\Analytics\ImbalanceBand;
 use App\Enums\Analytics\RecommendationSeverity;
 use App\Enums\Analytics\VegetableViewerRole;
+use Illuminate\Support\Collection;
 
 class VarietyAnalyticsService
 {
@@ -19,10 +20,13 @@ class VarietyAnalyticsService
     private const float TREND_CEIL  = 1.40;
 
     private const int MIN_MONTHS_FOR_TREND = 12;
-
     private const int MIN_MONTHS_FOR_FORECAST = 12;
     private const int CONFIDENCE_ESTABLISHED_MONTHS = 36;
     private const int CONFIDENCE_STRONG_MONTHS = 60;
+
+    public function __construct(
+        private PlatformActivityService $platformActivity,
+    ) {}
 
     public function compute(
         array $monthlyActivity,
@@ -45,8 +49,6 @@ class VarietyAnalyticsService
             supplyMomPct: $supplyMomPct,
             role: $role,
         );
-
-        $forecast = $this->computeForecast($extendedHistory ?: $monthlyActivity);
 
         $forecastSource = $extendedHistory ?: $monthlyActivity;
         $monthsObserved = $this->countRealMonths($forecastSource);
@@ -86,26 +88,13 @@ class VarietyAnalyticsService
         };
     }
 
-    // ── Forecast ──────────────────────────────────────────────────────────────
+    // ── Forecast, normalized by active-user counts ──────────────────────────────────────────────────────────────
 
     /**
      * 6-month forward forecast derived from 5-year seasonal history.
-     *
-     * @var array<int, array{
-     *     month: string,
-     *     label: string,
-     *     supply_fulfilled_kg: float,
-     *     supply_expired_kg: float,
-     *     demand_fulfilled_kg: float,
-     *     demand_expired_kg: float,
-     * }>
      */
     private function computeForecast(array $history): array
     {
-        if ($this->countRealMonths($history) < self::MIN_MONTHS_FOR_FORECAST) {
-            return [];
-        }
-
         $currentMonthKey = now()->format('Y-m');
 
         $realHistory = array_values(array_filter(
@@ -115,24 +104,34 @@ class VarietyAnalyticsService
 
         $realCount = count($realHistory);
 
+        if ($realCount < self::MIN_MONTHS_FOR_FORECAST) {
+            return [];
+        }
 
-        // ── Seasonal baseline — keep fulfilled/expired split, don't collapse them ──
+        $activeCounts = $this->platformActivity->monthlyActiveCounts();
+
+        // ── Seasonal baseline, converted to per-capita so headcount growth
+        // between years doesn't inflate later years' weighting. ──────────────
         $byCalendarMonth = [];
 
-        foreach ($realHistory as $entry) {
-            $calMonth = (int) substr($entry['month'], 5, 2);
-            $year     = (int) substr($entry['month'], 0, 4);
+        foreach ($realHistory as $row) {
+            $calMonth = (int) substr($row['month'], 5, 2);
+            $year     = (int) substr($row['month'], 0, 4);
+
+            [$farmers, $dealers] = $this->activeCountsFor($row['month'], $activeCounts);
 
             $byCalendarMonth[$calMonth][] = [
-                'year'                => $year,
-                'supply_fulfilled_kg' => $entry['supply_fulfilled_kg'],
-                'supply_expired_kg'   => $entry['supply_expired_kg'],
-                'demand_fulfilled_kg' => $entry['demand_fulfilled_kg'],
-                'demand_expired_kg'   => $entry['demand_expired_kg'],
+                'year'                        => $year,
+                'supply_fulfilled_per_capita' => $row['supply_fulfilled_kg'] / $farmers,
+                'supply_expired_per_capita'   => $row['supply_expired_kg'] / $farmers,
+                'demand_fulfilled_per_capita' => $row['demand_fulfilled_kg'] / $dealers,
+                'demand_expired_per_capita'   => $row['demand_expired_kg'] / $dealers,
             ];
         }
 
-        // ── Trend ratio — unchanged, still computed on totals from raw history ────
+        // ── Trend, computed on per-capita sums — this is the actual fix.
+        // A vegetable's genuine demand trend is isolated from "we signed up
+        // 400 more farmers this quarter." ────────────────────────────────────
         $supplyMonthlyGrowth = 1.0;
         $demandMonthlyGrowth = 1.0;
 
@@ -140,17 +139,10 @@ class VarietyAnalyticsService
             $recentSlice = array_slice($realHistory, -6);
             $priorSlice  = array_slice($realHistory, $realCount - 12, 6);
 
-            $sumVolume = static function (array $slice, string $type): float {
-                return (float) array_sum(array_map(
-                    fn ($m) => $m["{$type}_fulfilled_kg"] + $m["{$type}_expired_kg"],
-                    $slice,
-                ));
-            };
-
-            $recentSupply = $sumVolume($recentSlice, 'supply');
-            $priorSupply  = $sumVolume($priorSlice, 'supply');
-            $recentDemand = $sumVolume($recentSlice, 'demand');
-            $priorDemand  = $sumVolume($priorSlice, 'demand');
+            $recentSupply = $this->perCapitaVolumeSum($recentSlice, 'supply', 'active_farmers', $activeCounts);
+            $priorSupply  = $this->perCapitaVolumeSum($priorSlice, 'supply', 'active_farmers', $activeCounts);
+            $recentDemand = $this->perCapitaVolumeSum($recentSlice, 'demand', 'active_dealers', $activeCounts);
+            $priorDemand  = $this->perCapitaVolumeSum($priorSlice, 'demand', 'active_dealers', $activeCounts);
 
             $supplyTrend = $priorSupply > 0.0
                 ? max(self::TREND_FLOOR, min(self::TREND_CEIL, $recentSupply / $priorSupply))
@@ -163,15 +155,23 @@ class VarietyAnalyticsService
             $demandMonthlyGrowth = $demandTrend ** (1 / 6);
         }
 
-        // ── Generate 6 forecast months, now carrying the fulfilled/expired split ──
+        // ── Snapshot of CURRENT active counts — used to convert the forecasted
+        // per-capita figures back into absolute kg. We deliberately do NOT
+        // compound future headcount growth here: for a 6-month horizon,
+        // assuming activity stays near its current level is a far safer bet
+        // than extrapolating whatever growth rate happened historically. ─────
+        $latestMonth = end($realHistory)['month'] ?? null;
+        [$currentFarmers, $currentDealers] = $latestMonth
+            ? $this->activeCountsFor($latestMonth, $activeCounts)
+            : [1, 1];
+
         $forecast = [];
         $weights  = [3, 2, 1];
 
         for ($i = 1; $i <= 6; $i++) {
             $futureDate = now()->startOfMonth()->addMonths($i);
             $calMonth   = (int) $futureDate->month;
-
-            $entries = $byCalendarMonth[$calMonth] ?? [];
+            $entries    = $byCalendarMonth[$calMonth] ?? [];
 
             if (empty($entries)) {
                 continue;
@@ -179,19 +179,19 @@ class VarietyAnalyticsService
 
             usort($entries, fn ($a, $b) => $b['year'] <=> $a['year']);
 
-            $totalWeight        = 0;
-            $supplyFulfilledSum = 0.0;
-            $supplyExpiredSum   = 0.0;
-            $demandFulfilledSum = 0.0;
-            $demandExpiredSum   = 0.0;
+            $totalWeight = 0;
+            $supplyFulfilledPC = 0.0;
+            $supplyExpiredPC   = 0.0;
+            $demandFulfilledPC = 0.0;
+            $demandExpiredPC   = 0.0;
 
             foreach (array_slice($entries, 0, 3) as $idx => $entry) {
                 $w = $weights[$idx] ?? 1;
-                $totalWeight        += $w;
-                $supplyFulfilledSum += $entry['supply_fulfilled_kg'] * $w;
-                $supplyExpiredSum   += $entry['supply_expired_kg'] * $w;
-                $demandFulfilledSum += $entry['demand_fulfilled_kg'] * $w;
-                $demandExpiredSum   += $entry['demand_expired_kg'] * $w;
+                $totalWeight       += $w;
+                $supplyFulfilledPC += $entry['supply_fulfilled_per_capita'] * $w;
+                $supplyExpiredPC   += $entry['supply_expired_per_capita'] * $w;
+                $demandFulfilledPC += $entry['demand_fulfilled_per_capita'] * $w;
+                $demandExpiredPC   += $entry['demand_expired_per_capita'] * $w;
             }
 
             $supplyFactor = $supplyMonthlyGrowth ** $i;
@@ -200,14 +200,38 @@ class VarietyAnalyticsService
             $forecast[] = [
                 'month'               => $futureDate->format('Y-m'),
                 'label'               => $futureDate->format('M Y'),
-                'supply_fulfilled_kg' => max(0.0, round(($supplyFulfilledSum / $totalWeight) * $supplyFactor, 2)),
-                'supply_expired_kg'   => max(0.0, round(($supplyExpiredSum / $totalWeight) * $supplyFactor, 2)),
-                'demand_fulfilled_kg' => max(0.0, round(($demandFulfilledSum / $totalWeight) * $demandFactor, 2)),
-                'demand_expired_kg'   => max(0.0, round(($demandExpiredSum / $totalWeight) * $demandFactor, 2)),
+                'supply_fulfilled_kg' => max(0.0, round(($supplyFulfilledPC / $totalWeight) * $supplyFactor * $currentFarmers, 2)),
+                'supply_expired_kg'   => max(0.0, round(($supplyExpiredPC / $totalWeight) * $supplyFactor * $currentFarmers, 2)),
+                'demand_fulfilled_kg' => max(0.0, round(($demandFulfilledPC / $totalWeight) * $demandFactor * $currentDealers, 2)),
+                'demand_expired_kg'   => max(0.0, round(($demandExpiredPC / $totalWeight) * $demandFactor * $currentDealers, 2)),
             ];
         }
 
         return $forecast;
+    }
+
+    /** @return array{0: int, 1: int} [active_farmers, active_dealers], floored at 1 to avoid divide-by-zero */
+    private function activeCountsFor(string $monthKey, Collection $activeCounts): array
+    {
+        $row = $activeCounts->get($monthKey);
+
+        return [
+            max(1, (int) ($row->active_farmers ?? 1)),
+            max(1, (int) ($row->active_dealers ?? 1)),
+        ];
+    }
+
+    /** @param 'supply'|'demand' $role */
+    private function perCapitaVolumeSum(array $slice, string $role, string $countColumn, Collection $activeCounts): float
+    {
+        $sum = 0.0;
+
+        foreach ($slice as $row) {
+            $count = max(1, (int) ($activeCounts->get($row['month'])->{$countColumn} ?? 1));
+            $sum  += ($row["{$role}_fulfilled_kg"] + $row["{$role}_expired_kg"]) / $count;
+        }
+
+        return $sum;
     }
 
     // ── Existing analytics (unchanged) ───────────────────────────────────────
