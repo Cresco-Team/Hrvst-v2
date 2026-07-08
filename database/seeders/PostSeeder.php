@@ -65,9 +65,9 @@ class PostSeeder extends Seeder
         foreach ($farmers as $farmer) {
             for ($i = 0; $i < fake()->numberBetween(10, 20); $i++) {
                 $scheduledDate = Carbon::parse(
-                    fake()->boolean(55)
-                        ? fake()->dateTimeBetween('now', '+45 days')
-                        : fake()->dateTimeBetween('-60 days', '-1 day')
+                    fake()->boolean(24)
+                        ? fake()->dateTimeBetween('now', '+60 days')
+                        : fake()->dateTimeBetween('-360 days', '-1 day')
                 );
                 $createdAt = $scheduledDate->copy()->subDays(fake()->numberBetween(3, 20))->toDateTimeString();
 
@@ -94,8 +94,8 @@ class PostSeeder extends Seeder
             for ($i = 0; $i < fake()->numberBetween(10, 20); $i++) {
                 $scheduledDate = Carbon::parse(
                     fake()->boolean(60)
-                        ? fake()->dateTimeBetween('now', '+30 days')
-                        : fake()->dateTimeBetween('-40 days', '-1 day')
+                        ? fake()->dateTimeBetween('now', '+60 days')
+                        : fake()->dateTimeBetween('-360 days', '-1 day')
                 );
                 $createdAt = $scheduledDate->copy()->subDays(fake()->numberBetween(1, 14))->toDateTimeString();
 
@@ -134,14 +134,14 @@ class PostSeeder extends Seeder
             $isSupply = $post->type === PostType::Supply;
 
             $itemCount = $isSupply
-                ? fake()->numberBetween(3, 8)
+                ? fake()->numberBetween(2, 6)
                 : fake()->numberBetween(2, 6);
 
             foreach ($this->randomVegetableIds($itemCount) as $vegetableId) {
                 $itemRows[] = [
                     'post_id' => $post->id,
                     'vegetable_id' => $vegetableId,
-                    'quantity_kg' => fake()->randomFloat(2, 20, 1000),
+                    'quantity_kg' => fake()->randomFloat(2, 20, 500),
                     'status' => $isSupply
                         ? $this->resolveSupplyStatus($isPast)->value
                         : $this->resolveDemandStatus($isPast)->value,

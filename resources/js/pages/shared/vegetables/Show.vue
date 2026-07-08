@@ -146,6 +146,8 @@ function handleDaySelect(dateStr: string): void {
                         v-if="vegetable.monthly_activity?.length"
                         :monthly-activity="vegetable.monthly_activity"
                         :forecast="vegetable.analytics?.forecast"
+                        :months-of-history="vegetable.analytics?.forecast"
+                        :forecast-confidence="vegetable.analytics?.forecast_confidence"
                     />
 
                     <!-- ── Market Calendar ─────────────────────────────────────────────── -->

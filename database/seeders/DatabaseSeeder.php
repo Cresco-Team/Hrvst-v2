@@ -24,7 +24,7 @@ class DatabaseSeeder extends Seeder
                 TestUsersSeeder::class,
             ]);
 
-            FarmerProfile::factory(500)->create();
+            FarmerProfile::factory(30)->create();
             DealerProfile::factory(30)->create();
 
             $this->call([
