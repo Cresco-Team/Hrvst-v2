@@ -32,7 +32,15 @@ class VarietyAnalyticsDTO
             'demand_fulfillment_rate' => $this->demand_fulfillment_rate,
             'supply_volume_mom_pct'   => $this->supply_volume_mom_pct,
             'demand_volume_mom_pct'   => $this->demand_volume_mom_pct,
-            'recommendations'         => array_map(/* unchanged */ ...),
+            'recommendations' => array_map(
+                fn (VarietyRecommendationDTO $r) => [
+                    'severity' => $r->severity->value,
+                    'type'     => $r->type,
+                    'title'    => $r->title,
+                    'body'     => $r->body,
+                ],
+                $this->recommendations,
+            ),
             'months_of_history'       => $this->months_of_history,
             'forecast_confidence'     => $this->forecast_confidence,
             'forecast'                => $this->forecast,
