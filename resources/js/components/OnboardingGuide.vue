@@ -28,18 +28,18 @@ interface OnboardingStep {
 const FARMER_STEPS: OnboardingStep[] = [
 	{
 		icon: Sprout,
-		title: 'Post a Supply',
-		body: 'Tell dealers what vegetables you have ready, how much, and your preferred pickup day and time.',
+		title: 'Schedule a Supply',
+		body: 'Tell other farmers and dealers what vegetables you have ready, estimated kilo, and your preferred pickup day and time.',
 	},
 	{
 		icon: CalendarClock,
-		title: 'Wait for Pickup Day',
-		body: 'Dealers browsing supplies can see your posting. You don\'t need to do anything until your scheduled date.',
+		title: 'Wait for Delivery Day',
+		body: 'Sit back, relax, and wait. You don\'t need to do anything until your scheduled date.',
 	},
 	{
 		icon: PackageCheck,
 		title: 'Mark it Fulfilled',
-		body: 'Once a dealer picks up your delivery, mark the item as fulfilled from your dashboard.',
+		body: 'Once you delivered it to Trading Post, mark the vegetable as fulfilled from your supplies.',
 	},
 ]
 
