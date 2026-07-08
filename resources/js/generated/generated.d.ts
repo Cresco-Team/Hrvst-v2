@@ -9,14 +9,9 @@ demand_fulfillment_rate: number | null,
 supply_volume_mom_pct: number | null,
 demand_volume_mom_pct: number | null,
 recommendations: App.DTOs.Product.VarietyRecommendationDTO[],
-forecast: {
-month: string,
-label: string,
-supply_fulfilled_kg: number,
-supply_expired_kg: number,
-demand_fulfilled_kg: number,
-demand_expired_kg: number,
-}[],
+months_of_history: number,
+forecast_confidence: string,
+forecast: object[],
 };
 export type VarietyRecommendationDTO = {
 readonly severity: App.Enums.Analytics.RecommendationSeverity,
