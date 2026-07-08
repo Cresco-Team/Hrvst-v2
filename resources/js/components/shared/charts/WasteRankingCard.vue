@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { show } from '@/routes/vegetables'
 import type { VegetableStabilityData, VegetableWasteData } from '@/types/resources/product'
+import AppTooltip from '@/components/templates/AppTooltip.vue'
 
 type RankedItem = VegetableWasteData | VegetableStabilityData
 
@@ -17,6 +18,7 @@ const props = defineProps<{
     items?: RankedItem[]
     unitLabel?: string
     initialVisible?: number
+    guideQuestion: string
 }>()
 
 const expanded = ref(false)
@@ -54,7 +56,9 @@ function maturityTooltip(item: RankedItem): string | undefined {
 <template>
     <Card>
         <CardHeader>
-            <CardTitle class="text-sm font-semibold">{{ title }}</CardTitle>
+            <AppTooltip :content="guideQuestion">
+                <CardTitle class="text-sm font-semibold cursor-help">{{ title }}</CardTitle>
+            </AppTooltip>
             <CardDescription>{{ description }}</CardDescription>
         </CardHeader>
         <CardContent>
