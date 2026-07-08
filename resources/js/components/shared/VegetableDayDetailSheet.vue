@@ -2,6 +2,7 @@
 import { Separator } from '@/components/ui/separator'
 import DetailSheet from '@/components/dialogs/DetailSheet.vue'
 import type { CalendarTimeSlot, VegetableDaySchedule } from '@/types'
+import { CircleQuestionMark, LucideIcon, Moon, Sunrise, Sunset } from '@lucide/vue'
 
 interface Props {
     open: boolean
@@ -18,12 +19,12 @@ const emit = defineEmits<{
 const TIME_SLOTS: Array<{
     key: CalendarTimeSlot
     label: string
-    dotClass: string
+    icon: LucideIcon
 }> = [
-    { key: 'morning', label: 'Morning (6 AM – 12 PM)', dotClass: 'bg-amber-400' },
-    { key: 'afternoon', label: 'Afternoon (12 PM – 6 PM)', dotClass: 'bg-emerald-500' },
-    { key: 'evening', label: 'Evening (6 PM – 10 PM)', dotClass: 'bg-indigo-500' },
-    { key: 'unscheduled', label: 'No time slot', dotClass: 'bg-slate-400' },
+    { key: 'morning', label: 'Morning (6 AM – 12 PM)', icon: Sunrise },
+    { key: 'afternoon', label: 'Afternoon (12 PM – 6 PM)', icon: Sunset },
+    { key: 'evening', label: 'Evening (6 PM – 10 PM)', icon: Moon },
+    { key: 'unscheduled', label: 'No time slot', icon: CircleQuestionMark },
 ]
 
 function formatKg(kg: number): string {
@@ -53,10 +54,7 @@ function formatNetBadge(net: number): string {
                 <div v-if="schedule[slot.key]">
                     <!-- Slot header -->
                     <div class="mb-3 flex items-center gap-2">
-                        <span
-                            class="h-2.5 w-2.5 shrink-0 rounded-full"
-                            :class="slot.dotClass"
-                        />
+                        <component :is="slot.icon" class="size-5" />
                         <span class="text-sm font-semibold">{{ slot.label }}</span>
                     </div>
 

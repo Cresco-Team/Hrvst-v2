@@ -38,6 +38,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                         :items="topWastedDemand"
                         :initial-visible="3"
                         unit-label="kg unmet"
+                        guide-question="What should I plant to catch a coming shortage?"
                     />
                 </Deferred>
 
@@ -49,6 +50,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                         :items="mostStableWastedDemand"
                         :initial-visible="3"
                         unit-label="kg/mo avg"
+                        guide-question="What's a safe bet all year round?"
                     />
                 </Deferred>
             </div>

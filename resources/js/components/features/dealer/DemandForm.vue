@@ -14,15 +14,11 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Table, TableBody, TableCell, TableEmpty, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Skeleton } from '@/components/ui/skeleton'
-import { useVegetableAvailability, netKgClass, formatNetKg } from '@/composables/useVegetableAvailability'
+import { useVegetableAvailability, netKgClassDealer, formatNetKgDealer } from '@/composables/useVegetableAvailability'
 import { toInputDate } from '@/composables/useDateFormat'
 import type { DealerDemandDataFixed, PostTimeSlot, VarietyOptionsByVegetable, VegetableOptionsByCategory } from '@/types'
-
-interface DemandItem {
-    _key: number
-    vegetable_id: string
-    quantity_kg: number | null
-}
+import { Combobox, ComboboxAnchor, ComboboxEmpty, ComboboxGroup, ComboboxInput, ComboboxItem, ComboboxItemIndicator, ComboboxList, ComboboxTrigger, ComboboxViewport } from '@/components/ui/combobox'
+import { ChevronsUpDown, Search } from '@lucide/vue'
 
 interface Props {
     open: boolean
@@ -34,30 +30,22 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), { demand: null })
 const emit = defineEmits<{ 'update:open': [value: boolean] }>()
 
-const TIME_SLOT_OPTIONS: { value: PostTimeSlot; label: string }[] = [
-    { value: 'morning', label: 'Morning (6 AM – 12 PM)' },
-    { value: 'afternoon', label: 'Afternoon (12 PM – 6 PM)' },
-    { value: 'evening', label: 'Evening (6 PM – 10 PM)' },
-]
+const isEditMode = computed(() => !!props.demand)
 
 let _keyCounter = 0
 const nextKey = (): number => ++_keyCounter
 
-function blankItem(): DemandItem {
-    return { _key: nextKey(), vegetable_id: '', quantity_kg: null }
-}
-
-const form = useForm<{
-    scheduled_date: string
-    time_slot: PostTimeSlot | ''
-    items: DemandItem[]
-}>({
+const form = useForm({
     scheduled_date: '',
     time_slot: '',
-    items: [blankItem()],
+    items: [] as Array<{
+        _key: number
+        id: number | null
+        vegetable_id: string
+        quantity_kg: number | null
+        status: string
+    }>,
 })
-
-const isEditMode = computed(() => !!props.demand)
 
 const { getState, getData } = useVegetableAvailability(
     () => form.scheduled_date,
@@ -65,20 +53,33 @@ const { getState, getData } = useVegetableAvailability(
     () => form.items.map((i) => i.vegetable_id),
 )
 
-const df = new DateFormatter('en-US', { dateStyle: 'long' })
-const minDateValue = computed(() => today(getLocalTimeZone()).add({ days: 1 }))
-const maxDateValue = computed(() => today(getLocalTimeZone()).add({ months: 3 }))
-
-const calendarDate = computed({
-    get(): CalendarDate | undefined {
-        if (!form.scheduled_date) return undefined
-        const [y, m, d] = form.scheduled_date.split('-').map(Number)
-        return new CalendarDate(y, m, d)
-    },
-    set(val: CalendarDate | undefined): void {
-        form.scheduled_date = val ? val.toString() : ''
-    },
+const varietyLabelById = computed(() => {
+    const map = new Map<string, string>()
+    for (const varieties of Object.values(props.varietyOptions ?? {})) {
+        for (const variety of varieties) {
+            map.set(String(variety.id), variety.name)
+        }
+    }
+    return map
 })
+
+function varietyFilterFunction<T extends { value: unknown }>(items: T[], term: string): T[] {
+    const needle = term.toLowerCase()
+    return items.filter((item) => {
+        const label = varietyLabelById.value.get(String(item.value)) ?? ''
+        return label.toLowerCase().includes(needle)
+    })
+}
+
+function blankItem() {
+    return {
+        _key: nextKey(),
+        id: null,
+        vegetable_id: '',
+        quantity_kg: null,
+        status: 'ongoing',
+    }
+}
 
 function addItem(): void {
     form.items.push(blankItem())
@@ -95,7 +96,7 @@ function handleSubmit(): void {
         onSuccess: () => {
             emit('update:open', false)
             form.reset()
-            form.items = [blankItem()]
+            form.items = []
         },
     }
 
@@ -106,17 +107,35 @@ function handleSubmit(): void {
     }
 }
 
+const df = new DateFormatter('en-US', { dateStyle: 'long' })
+const minDateValue = computed(() => today(getLocalTimeZone()).add({ days: 1 }))
+const maxDateValue = computed(() => today(getLocalTimeZone()).add({ months: 3 }))
+
+const calendarDate = computed({
+    get(): CalendarDate | undefined {
+        if (!form.scheduled_date) return undefined
+        const [y, m, d] = form.scheduled_date.split('-').map(Number)
+        return new CalendarDate(y, m, d)
+    },
+    set(val: CalendarDate | undefined): void {
+        form.scheduled_date = val ? val.toString() : ''
+    },
+})
+
 watch(
     () => [props.open, props.demand] as const,
     ([isOpen, d]) => {
         if (!isOpen) return
+
         form.scheduled_date = d ? toInputDate(d.scheduled_date) : ''
         form.time_slot = (d?.time_slot ?? '') as PostTimeSlot | ''
-        form.items = d?.post_items?.length
-            ? d.post_items.map((i) => ({
+        form.items = d
+            ? (d.post_items ?? []).map((item) => ({
                   _key: nextKey(),
-                  vegetable_id: String(i.vegetable_id ?? ''),
-                  quantity_kg: i.quantity_kg ?? null,
+                  id: item.id,
+                  vegetable_id: String(item.vegetable_id ?? ''),
+                  quantity_kg: item.quantity_kg ?? 0,
+                  status: item.status ?? 'ongoing',
               }))
             : [blankItem()]
         form.clearErrors()
@@ -127,7 +146,7 @@ watch(
 <template>
     <DialogForm
         :open="open"
-        :title="isEditMode ? `Edit ${demand?.scheduled_date} supplies` : 'New Request Schedule'"
+        :title="isEditMode ? `Edit ${demand?.scheduled_date} Schedule` : 'New Request Schedule'"
         :form="form"
         :submit-label="isEditMode ? 'Save Changes' : 'Create Schedule'"
         @update:open="emit('update:open', $event)"
@@ -173,17 +192,17 @@ watch(
 
                 <div class="space-y-2">
                     <Label for="time_slot" class="flex items-center gap-1.5">
-                        Preferred Time Slot
+                        Time Slot
                         <Badge variant="destructive" class="text-xs font-normal">Required</Badge>
                     </Label>
                     <Select v-model="form.time_slot">
                         <SelectTrigger id="time_slot" :class="{ 'border-destructive': form.errors.time_slot }">
-                            <SelectValue placeholder="Select a time slot..." />
+                            <SelectValue placeholder="Select time..." />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem v-for="opt in TIME_SLOT_OPTIONS" :key="opt.value" :value="opt.value">
-                                {{ opt.label }}
-                            </SelectItem>
+                            <SelectItem value="morning">Morning (6 AM – 12 PM)</SelectItem>
+                            <SelectItem value="afternoon">Afternoon (12 PM – 6 PM)</SelectItem>
+                            <SelectItem value="evening">Evening (6 PM – 10 PM)</SelectItem>
                         </SelectContent>
                     </Select>
                     <p v-if="form.errors.time_slot" class="text-xs text-destructive">
@@ -195,7 +214,7 @@ watch(
             <Table>
                 <TableHeader>
                     <TableRow>
-                        <TableHead>Varieties Needed <span class="text-destructive">*</span></TableHead>
+                        <TableHead>Vegetables Needed <span class="text-destructive">*</span></TableHead>
                         <TableHead class="text-center">Kilogram <span class="text-destructive">*</span></TableHead>
                         <TableHead class="text-end">
                             <Button type="button" variant="outline" size="sm" class="h-7 gap-1.5 text-xs" @click="addItem">
@@ -208,31 +227,73 @@ watch(
                 <TableBody>
                     <TableEmpty v-if="form.items.length === 0" :colspan="3">
                         <span :class="form.errors.items ? `text-destructive` : ''">
-                            No requests yet. Add at least one request.
+                            No requests yet. Add at least one vegetable request.
                         </span>
                     </TableEmpty>
 
                     <TableRow v-for="(item, index) in form.items" :key="item._key">
                         <TableCell class="relative pb-6">
-                            <Select v-model="item.vegetable_id">
-                                <SelectTrigger :class="{ 'border-destructive': form.errors[`items.${index}.vegetable_id`] }">
-                                    <SelectValue placeholder="Select variety..." />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectGroup v-for="(varieties, vegetableName) in varietyOptions" :key="vegetableName">
-                                        <SelectLabel>{{ vegetableName }}</SelectLabel>
-                                        <SelectItem v-for="v in varieties" :key="v.id" :value="String(v.id)">
-                                            {{ vegetableName }}: {{ v.name }}
-                                        </SelectItem>
-                                    </SelectGroup>
-                                </SelectContent>
-                            </Select>
+                            <Combobox
+                                :model-value="item.vegetable_id"
+                                :filter-function="varietyFilterFunction"
+                                @update:model-value="(value) => (item.vegetable_id = value == null ? '' : String(value))"
+                            >
+                                <ComboboxAnchor as-child class="w-full">
+                                    <ComboboxTrigger as-child>
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            role="combobox"
+                                            :class="[
+                                                'w-full justify-between font-normal',
+                                                !item.vegetable_id && 'text-muted-foreground',
+                                                form.errors[`items.${index}.vegetable_id`] && 'border-destructive text-destructive',
+                                            ]"
+                                        >
+                                            <span class="truncate">
+                                                {{ varietyLabelById.get(item.vegetable_id) ?? 'Select vegetable...' }}
+                                            </span>
+                                            <ChevronsUpDown class="ml-2 size-4 shrink-0 opacity-50" />
+                                        </Button>
+                                    </ComboboxTrigger>
+                                </ComboboxAnchor>
+
+                                <ComboboxList class="w-(--reka-combobox-anchor-width)">
+                                    <div class="relative">
+                                        <ComboboxInput class="pl-9" placeholder="Search vegetable or variety..." />
+                                        <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                                            <Search class="size-4 text-muted-foreground" />
+                                        </span>
+                                    </div>
+
+                                    <ComboboxEmpty>No vegetable found.</ComboboxEmpty>
+
+                                    <ComboboxViewport>
+                                        <ComboboxGroup
+                                            v-for="(varieties, categoryName) in varietyOptions"
+                                            :key="categoryName"
+                                            :heading="categoryName"
+                                        >
+                                            <ComboboxItem
+                                                v-for="v in varieties"
+                                                :key="v.id"
+                                                :value="String(v.id)"
+                                            >
+                                                {{ v.name }}
+                                                <ComboboxItemIndicator>
+                                                    <Check class="size-4" />
+                                                </ComboboxItemIndicator>
+                                            </ComboboxItem>
+                                        </ComboboxGroup>
+                                    </ComboboxViewport>
+                                </ComboboxList>
+                            </Combobox>
 
                             <div v-if="item.vegetable_id && form.scheduled_date" class="mt-1.5 flex items-center gap-1">
                                 <Skeleton v-if="getState(item.vegetable_id).status === 'loading'" class="h-3.5 w-20 rounded" />
                                 <template v-else-if="getData(item.vegetable_id)">
-                                    <span :class="netKgClass(getData(item.vegetable_id)!.net_kg)" class="text-xs font-medium tabular-nums">
-                                        {{ formatNetKg(getData(item.vegetable_id)!.net_kg) }}
+                                    <span :class="netKgClassDealer(getData(item.vegetable_id)!.net_kg)" class="text-xs font-medium tabular-nums">
+                                        {{ formatNetKgDealer(getData(item.vegetable_id)!.net_kg) }}
                                     </span>
                                 </template>
                             </div>
