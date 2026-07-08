@@ -3,58 +3,20 @@ import { useForm } from '@inertiajs/vue3'
 import { CalendarIcon, Plus, Trash2 } from 'lucide-vue-next'
 import { computed, watch } from 'vue'
 import { CalendarDate, today, getLocalTimeZone, DateFormatter } from '@internationalized/date'
-import {
-    store,
-    update,
-} from '@/actions/App/Http/Controllers/Dealer/DemandController'
+import { store, update } from '@/actions/App/Http/Controllers/Dealer/DemandController'
 import DialogForm from '@/components/dialogs/DialogForm.vue'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
 import { Label } from '@/components/ui/label'
-import {
-    NumberField,
-    NumberFieldContent,
-    NumberFieldDecrement,
-    NumberFieldIncrement,
-    NumberFieldInput,
-} from '@/components/ui/number-field'
-import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from '@/components/ui/popover'
-import {
-    Select,
-    SelectContent,
-    SelectGroup,
-    SelectItem,
-    SelectLabel,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select'
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableEmpty,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from '@/components/ui/table'
+import { NumberField, NumberFieldContent, NumberFieldDecrement, NumberFieldIncrement, NumberFieldInput } from '@/components/ui/number-field'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Table, TableBody, TableCell, TableEmpty, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Skeleton } from '@/components/ui/skeleton'
-import {
-    useVegetableAvailability,
-    netKgClass,
-    formatNetKg,
-} from '@/composables/useVegetableAvailability'
+import { useVegetableAvailability, netKgClass, formatNetKg } from '@/composables/useVegetableAvailability'
 import { toInputDate } from '@/composables/useDateFormat'
-import type {
-    DealerDemandDataFixed,
-    PostTimeSlot,
-    VarietyOptionsByVegetable,
-    VegetableOptionsByCategory,
-} from '@/types'
+import type { DealerDemandDataFixed, PostTimeSlot, VarietyOptionsByVegetable, VegetableOptionsByCategory } from '@/types'
 
 interface DemandItem {
     _key: number

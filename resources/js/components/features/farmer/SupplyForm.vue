@@ -1,64 +1,22 @@
 <script setup lang="ts">
 import { useForm } from '@inertiajs/vue3'
-import { CalendarIcon, Plus, Trash2 } from 'lucide-vue-next'
+import { CalendarIcon, Check, ChevronsUpDown, Plus, Search, Trash2 } from 'lucide-vue-next'
 import { computed, watch } from 'vue'
-import {
-    CalendarDate,
-    today,
-    getLocalTimeZone,
-    DateFormatter,
-} from '@internationalized/date'
-import {
-    store,
-    update,
-} from '@/actions/App/Http/Controllers/Farmer/SupplyController'
+import { CalendarDate, today, getLocalTimeZone, DateFormatter } from '@internationalized/date'
+import { store, update } from '@/actions/App/Http/Controllers/Farmer/SupplyController'
 import DialogForm from '@/components/dialogs/DialogForm.vue'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
-import {
-    Select,
-    SelectContent,
-    SelectGroup,
-    SelectItem,
-    SelectLabel,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select'
-import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from '@/components/ui/popover'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Combobox, ComboboxAnchor, ComboboxEmpty, ComboboxGroup, ComboboxInput, ComboboxItem, ComboboxItemIndicator, ComboboxList, ComboboxTrigger, ComboboxViewport } from '@/components/ui/combobox'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Calendar } from '@/components/ui/calendar'
-import type {
-    FarmerSupplyDataFixed,
-    PostTimeSlot,
-    VarietyOptionsByVegetable,
-    VegetableOptionsByCategory,
-} from '@/types'
-import {
-    NumberField,
-    NumberFieldContent,
-    NumberFieldDecrement,
-    NumberFieldIncrement,
-    NumberFieldInput,
-} from '@/components/ui/number-field'
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableEmpty,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from '@/components/ui/table'
+import type { FarmerSupplyDataFixed, PostTimeSlot, VarietyOptionsByVegetable, VegetableOptionsByCategory } from '@/types'
+import { NumberField, NumberFieldContent, NumberFieldDecrement, NumberFieldIncrement, NumberFieldInput } from '@/components/ui/number-field'
+import { Table, TableBody, TableCell, TableEmpty, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Skeleton } from '@/components/ui/skeleton'
-import {
-    useVegetableAvailability,
-    netKgClass,
-    formatNetKg,
-} from '@/composables/useVegetableAvailability'
+import { useVegetableAvailability, netKgClass, formatNetKg } from '@/composables/useVegetableAvailability'
 import { toInputDate } from '@/composables/useDateFormat'
 
 interface Props {
@@ -93,6 +51,24 @@ const { getState, getData } = useVegetableAvailability(
     () => form.time_slot,
     () => form.items.map((i) => i.vegetable_id),
 )
+
+const varietyLabelById = computed(() => {
+    const map = new Map<string, string>()
+    for (const [vegetableName, varieties] of Object.entries(props.varietyOptions ?? {})) {
+        for (const variety of varieties) {
+            map.set(String(variety.id), `${vegetableName}: ${variety.name}`)
+        }
+    }
+    return map
+})
+
+function varietyFilterFunction<T extends { value: unknown }>(items: T[], term: string): T[] {
+    const needle = term.toLowerCase()
+    return items.filter((item) => {
+        const label = varietyLabelById.value.get(String(item.value)) ?? ''
+        return label.toLowerCase().includes(needle)
+    })
+}
 
 function blankItem() {
     return {
@@ -256,19 +232,61 @@ watch(
 
                     <TableRow v-for="(item, index) in form.items" :key="item._key">
                         <TableCell class="relative pb-6">
-                            <Select v-model="item.vegetable_id">
-                                <SelectTrigger :class="{ 'border-destructive': form.errors[`items.${index}.vegetable_id`] }">
-                                    <SelectValue placeholder="Select supply..." />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectGroup v-for="(varieties, vegetableName) in varietyOptions" :key="vegetableName">
-                                        <SelectLabel>{{ vegetableName }}</SelectLabel>
-                                        <SelectItem v-for="v in varieties" :key="v.id" :value="String(v.id)">
-                                            {{ vegetableName }}: {{ v.name }}
-                                        </SelectItem>
-                                    </SelectGroup>
-                                </SelectContent>
-                            </Select>
+                            <Combobox
+                                :model-value="item.vegetable_id"
+                                :filter-function="varietyFilterFunction"
+                                @update:model-value="(value) => (item.vegetable_id = value == null ? '' : String(value))"
+                            >
+                                <ComboboxAnchor as-child class="w-full">
+                                    <ComboboxTrigger as-child>
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            role="combobox"
+                                            :class="[
+                                                'w-full justify-between font-normal',
+                                                !item.vegetable_id && 'text-muted-foreground',
+                                                form.errors[`items.${index}.vegetable_id`] && 'border-destructive text-destructive',
+                                            ]"
+                                        >
+                                            <span class="truncate">
+                                                {{ varietyLabelById.get(item.vegetable_id) ?? 'Select supply...' }}
+                                            </span>
+                                            <ChevronsUpDown class="ml-2 size-4 shrink-0 opacity-50" />
+                                        </Button>
+                                    </ComboboxTrigger>
+                                </ComboboxAnchor>
+
+                                <ComboboxList class="w-(--reka-combobox-anchor-width)">
+                                    <div class="relative">
+                                        <ComboboxInput class="pl-9" placeholder="Search vegetable or variety..." />
+                                        <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                                            <Search class="size-4 text-muted-foreground" />
+                                        </span>
+                                    </div>
+
+                                    <ComboboxEmpty>No variety found.</ComboboxEmpty>
+
+                                    <ComboboxViewport>
+                                        <ComboboxGroup
+                                            v-for="(varieties, vegetableName) in varietyOptions"
+                                            :key="vegetableName"
+                                            :heading="vegetableName"
+                                        >
+                                            <ComboboxItem
+                                                v-for="v in varieties"
+                                                :key="v.id"
+                                                :value="String(v.id)"
+                                            >
+                                                {{ vegetableName }}: {{ v.name }}
+                                                <ComboboxItemIndicator>
+                                                    <Check class="size-4" />
+                                                </ComboboxItemIndicator>
+                                            </ComboboxItem>
+                                        </ComboboxGroup>
+                                    </ComboboxViewport>
+                                </ComboboxList>
+                            </Combobox>
 
                             <div v-if="item.vegetable_id && form.scheduled_date" class="absolute bottom-1 text-xs">
                                 <Skeleton v-if="getState(item.vegetable_id).status === 'loading'" class="h-3.5 w-20 rounded" />
