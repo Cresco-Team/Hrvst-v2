@@ -14,7 +14,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Table, TableBody, TableCell, TableEmpty, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Skeleton } from '@/components/ui/skeleton'
-import { useVegetableAvailability, netKgClass, formatNetKg } from '@/composables/useVegetableAvailability'
+import { useVegetableAvailability, netKgClassDealer, formatNetKgDealer } from '@/composables/useVegetableAvailability'
 import { toInputDate } from '@/composables/useDateFormat'
 import type { DealerDemandDataFixed, PostTimeSlot, VarietyOptionsByVegetable, VegetableOptionsByCategory } from '@/types'
 import { Combobox, ComboboxAnchor, ComboboxEmpty, ComboboxGroup, ComboboxInput, ComboboxItem, ComboboxItemIndicator, ComboboxList, ComboboxTrigger, ComboboxViewport } from '@/components/ui/combobox'
@@ -292,8 +292,8 @@ watch(
                             <div v-if="item.vegetable_id && form.scheduled_date" class="mt-1.5 flex items-center gap-1">
                                 <Skeleton v-if="getState(item.vegetable_id).status === 'loading'" class="h-3.5 w-20 rounded" />
                                 <template v-else-if="getData(item.vegetable_id)">
-                                    <span :class="netKgClass(getData(item.vegetable_id)!.net_kg)" class="text-xs font-medium tabular-nums">
-                                        {{ formatNetKg(getData(item.vegetable_id)!.net_kg) }}
+                                    <span :class="netKgClassDealer(getData(item.vegetable_id)!.net_kg)" class="text-xs font-medium tabular-nums">
+                                        {{ formatNetKgDealer(getData(item.vegetable_id)!.net_kg) }}
                                     </span>
                                 </template>
                             </div>

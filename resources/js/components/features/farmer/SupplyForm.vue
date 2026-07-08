@@ -16,7 +16,7 @@ import type { FarmerSupplyDataFixed, PostTimeSlot, VarietyOptionsByVegetable, Ve
 import { NumberField, NumberFieldContent, NumberFieldDecrement, NumberFieldIncrement, NumberFieldInput } from '@/components/ui/number-field'
 import { Table, TableBody, TableCell, TableEmpty, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Skeleton } from '@/components/ui/skeleton'
-import { useVegetableAvailability, netKgClass, formatNetKg } from '@/composables/useVegetableAvailability'
+import { useVegetableAvailability, netKgClassFarmer, formatNetKgFarmer } from '@/composables/useVegetableAvailability'
 import { toInputDate } from '@/composables/useDateFormat'
 
 interface Props {
@@ -291,8 +291,8 @@ watch(
                             <div v-if="item.vegetable_id && form.scheduled_date" class="absolute bottom-1 text-xs">
                                 <Skeleton v-if="getState(item.vegetable_id).status === 'loading'" class="h-3.5 w-20 rounded" />
                                 <template v-else-if="getData(item.vegetable_id)">
-                                    <span :class="netKgClass(getData(item.vegetable_id)!.net_kg)" class="text-xs font-medium tabular-nums">
-                                        {{ formatNetKg(getData(item.vegetable_id)!.net_kg) }}
+                                    <span :class="netKgClassFarmer(getData(item.vegetable_id)!.net_kg)" class="text-xs font-medium tabular-nums">
+                                        {{ formatNetKgFarmer(getData(item.vegetable_id)!.net_kg) }}
                                     </span>
                                 </template>
                             </div>

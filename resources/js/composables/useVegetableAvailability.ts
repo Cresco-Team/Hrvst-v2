@@ -13,20 +13,37 @@ type AvailabilityState =
     | { status: 'loaded'; data: AvailabilityData }
     | { status: 'error' }
 
-export function netKgClass(netKg: number): string {
+export function netKgClassFarmer(netKg: number): string {
     if (netKg > 0) return 'text-destructive'
-    if (netKg < 0) return 'text-orange-500'
+    if (netKg < 0) return 'text-primary'
     return 'text-muted-foreground'
 }
 
-export function formatNetKg(net: number): string {
+export function netKgClassDealer(netKg: number): string {
+    if (netKg > 0) return 'text-primary'
+    if (netKg < 0) return 'text-destructive'
+    return 'text-muted-foreground'
+}
+
+export function formatNetKgFarmer(net: number): string {
     const abs = Math.abs(net)
     const formatted = abs.toLocaleString('en-PH', {
         minimumFractionDigits: 0,
         maximumFractionDigits: 2,
     })
-    if (net > 0) return `${formatted} kg surplus`
-    if (net < 0) return `${formatted} kg unmet`
+    if (net > 0) return `${formatted} kg excess supply`
+    if (net < 0) return `${formatted} kg needed`
+    return 'Balanced'
+}
+
+export function formatNetKgDealer(net: number): string {
+    const abs = Math.abs(net)
+    const formatted = abs.toLocaleString('en-PH', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 2,
+    })
+    if (net > 0) return `${formatted} kg supply`
+    if (net < 0) return `${formatted} kg excess demand`
     return 'Balanced'
 }
 
