@@ -3,19 +3,42 @@ import { Head, Link, usePage } from '@inertiajs/vue3'
 import {
     ArrowRight,
     BarChart3,
+    Download,
     MapPin,
     Package,
     ShieldCheck,
+    Share,
     Sprout,
     Store,
     TrendingUp,
 } from 'lucide-vue-next'
+import { ref } from 'vue'
 import AppLogoIcon from '@/components/layout/AppLogoIcon.vue'
 import { dashboard, login, logout } from '@/routes'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog'
+import { usePwaInstall } from '@/composables/usePwaInstall'
 
 const page = usePage()
+
+const { canInstall, isIos, install } = usePwaInstall()
+const iosInstructionsOpen = ref(false)
+
+async function handleInstallClick(): Promise<void> {
+    if (isIos) {
+        iosInstructionsOpen.value = true
+        return
+    }
+
+    await install()
+}
 
 const farmerBenefits = [
     {
@@ -129,7 +152,18 @@ const steps = [
                     <span class="text-lg font-semibold tracking-tight">Hrvst</span>
                 </Link>
 
-                <div class="flex items-center">
+                <div class="flex items-center gap-2">
+                    <Button
+                        v-if="canInstall"
+                        variant="outline"
+                        size="sm"
+                        class="gap-2 font-semibold"
+                        @click="handleInstallClick"
+                    >
+                        <Download class="size-4" />
+                        Install App
+                    </Button>
+
                     <template v-if="page.props.auth.user">
                         <Link :href="logout()">
                             <Button variant="ghost" size="sm" class="font-bold">
@@ -156,7 +190,7 @@ const steps = [
         <!-- ═══════════════════════════════════════ HERO ═══ -->
         <section class="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6 pt-20 text-center">
             <div class="relative max-w-5xl">
-                <Badge variant="outline" class="border-primary bg-primary/10 text-green-600 text-xs px-4 py-1.5 font-bold tracking-widest my-4">
+                <Badge variant="outline" class="border-primary bg-primary/10 text-primary text-xs px-4 py-1.5 font-bold tracking-widest my-4">
                     <Sprout class="size-3.5 shrink-0" />
                     TRADING POST · TEAM CRESCO
                 </Badge>
@@ -508,6 +542,22 @@ const steps = [
                 </p>
             </div>
         </footer>
+
+        <!-- ═══════════════════════════════════════ PWA — iOS INSTALL INSTRUCTIONS ═══ -->
+        <Dialog v-model:open="iosInstructionsOpen">
+            <DialogContent class="sm:max-w-sm">
+                <DialogHeader>
+                    <DialogTitle class="flex items-center gap-2">
+                        <Share class="size-4" />
+                        Install on iOS
+                    </DialogTitle>
+                    <DialogDescription>
+                        Tap the Share button in Safari's toolbar, then select
+                        "Add to Home Screen."
+                    </DialogDescription>
+                </DialogHeader>
+            </DialogContent>
+        </Dialog>
     </div>
 </template>
 
