@@ -54,12 +54,16 @@ export function useVegetableAvailability(
 ) {
     const cache = ref<Record<string, AvailabilityState>>({})
 
+    function isComplete(vegetableId: string): boolean {
+        return !!vegetableId && !!getDate() && !!getTimeSlot()
+    }
+
     function cacheKey(vegetableId: string): string {
         return `${vegetableId}:${getDate()}:${getTimeSlot()}`
     }
 
     function getState(vegetableId: string): AvailabilityState {
-        if (!vegetableId || !getDate()) return { status: 'idle' }
+        if (!isComplete(vegetableId)) return { status: 'idle' }
         return cache.value[cacheKey(vegetableId)] ?? { status: 'idle' }
     }
 
@@ -69,7 +73,7 @@ export function useVegetableAvailability(
     }
 
     async function fetchOne(vegetableId: string): Promise<void> {
-        if (!vegetableId || !getDate()) return
+        if (!isComplete(vegetableId)) return
 
         const key = cacheKey(vegetableId)
         const existing = cache.value[key]
@@ -78,9 +82,10 @@ export function useVegetableAvailability(
         cache.value[key] = { status: 'loading' }
 
         try {
-            const params: Record<string, string> = { date: getDate() }
-            const slot = getTimeSlot()
-            if (slot) params.time_slot = slot
+            const params: Record<string, string> = {
+                date: getDate(),
+                time_slot: getTimeSlot(),
+            }
 
             const url = slotSummary(Number(vegetableId), { query: params }).url
             const res = await fetch(url, {
