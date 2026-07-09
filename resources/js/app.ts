@@ -8,7 +8,6 @@ import 'leaflet/dist/leaflet.css'
 import 'leaflet.markercluster/dist/MarkerCluster.css'
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css'
 import 'vue-sonner/style.css'
-import 'vue-sonner/style.css'
 import { useRegisterSW } from 'virtual:pwa-register/vue'
 
 const appName = import.meta.env.VITE_APP_NAME || 'Hrvst'
@@ -36,5 +35,4 @@ useRegisterSW({
     },
 })
 
-// This will set light / dark mode on page load...
 initializeTheme()
