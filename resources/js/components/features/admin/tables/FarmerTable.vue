@@ -1,20 +1,8 @@
 <script setup lang="ts">
 import type { ColumnDef } from '@tanstack/vue-table'
-import {
-    ClipboardList,
-    Mail,
-    MapPin,
-    Package,
-    Phone,
-} from 'lucide-vue-next'
+import { ClipboardList, Mail, MapPin, Package, Phone } from 'lucide-vue-next'
 import DataTable from '@/components/shared/tables/DataTable.vue'
 import { Button } from '@/components/ui/button'
-import {
-    Tooltip,
-    TooltipContent,
-    TooltipProvider,
-    TooltipTrigger,
-} from '@/components/ui/tooltip'
 import type { FarmerResource, Paginated } from '@/types'
 import AppTooltip from '@/components/templates/AppTooltip.vue'
 
@@ -78,12 +66,12 @@ const columns: ColumnDef<FarmerResource>[] = [
                         class="flex items-center gap-2 text-xs text-muted-foreground"
                     >
                         <div class="flex items-center gap-1">
-                            <Mail class="size-3" />
-                            {{ row.user?.email }}
-                        </div>
-                        <div class="flex items-center gap-1">
                             <Phone class="size-3" />
                             {{ row.user?.phone_number }}
+                        </div>
+                        <div v-if="row.user?.email" class="flex items-center gap-1">
+                            <Mail class="size-3" />
+                            {{ row.user.email }}
                         </div>
                     </div>
                 </div>
@@ -115,42 +103,23 @@ const columns: ColumnDef<FarmerResource>[] = [
         </template>
 
         <template #cell-joined="{ row }">
-            <AppTooltip :content="`Joined on ${row.joined_at}`" :delay-duration="200">
-                <span class="cursor-help text-sm">{{ row.joined_at }}</span>
+            <AppTooltip :content="`Joined on ${row.joined_at}`">
+                <span class="cursor-help text-sm">{{ row.joined_at_human }}</span>
             </AppTooltip>
-            <TooltipProvider :delay-duration="200">
-                <Tooltip>
-                    <TooltipTrigger as-child>
-                        <div class="cursor-help text-sm">
-                            {{ row.joined_at_human }}
-                        </div>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                        <p class="text-xs">Joined on {{ row.joined_at }}</p>
-                    </TooltipContent>
-                </Tooltip>
-            </TooltipProvider>
         </template>
 
         <template #cell-actions="{ row }">
             <div class="flex items-center gap-1.5">
-                <TooltipProvider :delay-duration="200">
-                    <Tooltip>
-                        <TooltipTrigger as-child>
-                            <Button
-                                variant="ghost"
-                                size="icon-sm"
-                                class="text-muted-foreground hover:text-foreground"
-                                @click="$emit('view-farmer', row)"
-                            >
-                                <ClipboardList class="size-4" />
-                            </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                            <p class="text-xs">View details</p>
-                        </TooltipContent>
-                    </Tooltip>
-                </TooltipProvider>
+                <AppTooltip content="View details">
+                    <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        class="text-muted-foreground hover:text-foreground"
+                        @click="$emit('view-farmer', row)"
+                    >
+                        <ClipboardList class="size-4" />
+                    </Button>
+                </AppTooltip>
             </div>
         </template>
     </DataTable>

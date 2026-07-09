@@ -1,16 +1,9 @@
 <script setup lang="ts" generic="TData extends object">
-import { computed } from 'vue'
+import { computed, watch } from 'vue'
 import type { InertiaForm } from '@inertiajs/vue3'
 import { Button } from '@/components/ui/button'
-import {
-	Dialog,
-	DialogContent,
-	DialogDescription,
-	DialogFooter,
-	DialogHeader,
-	DialogTitle,
-} from '@/components/ui/dialog'
 import { Spinner } from '@/components/ui/spinner'
+import { useResponsiveDialog } from '@/composables/useResponsiveDialog'
 
 interface Props {
 	open: boolean
@@ -37,11 +30,22 @@ const emit = defineEmits<{
 	submit: []
 }>()
 
-function handleClose() {
-	if (props.form.processing) return
+const { isDesktop, Modal } = useResponsiveDialog()
+
+const isOpen = computed({
+	get: () => props.open,
+	set: (val: boolean) => emit('update:open', val),
+})
+
+watch(isOpen, (open) => {
+	if (open) return
 	if (props.resetOnClose) props.form.reset()
 	props.form.clearErrors()
-	emit('update:open', false)
+})
+
+function handleClose() {
+	if (props.form.processing) return
+	isOpen.value = false
 }
 
 function handleSubmit() {
@@ -49,52 +53,42 @@ function handleSubmit() {
 }
 
 const maxWidthClass = computed(() => {
+	if (!isDesktop.value) return ''
 	const widths = {
-		sm: 'sm:max-w-sm',
-		md: 'sm:max-w-md',
-		lg: 'sm:max-w-lg',
-		xl: 'sm:max-w-xl',
-		'2xl': 'sm:max-w-2xl',
+		sm: 'sm:max-w-sm', md: 'sm:max-w-md', lg: 'sm:max-w-lg', xl: 'sm:max-w-xl', '2xl': 'sm:max-w-2xl',
 	}
 	return widths[props.maxWidth]
 })
 </script>
 
 <template>
-	<Dialog :open="open" @update:open="handleClose">
-		<DialogContent class="flex max-h-[85vh] flex-col gap-0 p-0" :class="maxWidthClass">
-			<!-- Fixed Header -->
-			<DialogHeader class="space-y-2 border-b px-6 py-4">
-				<DialogTitle class="flex items-center gap-2">
+	<component :is="Modal.Root" v-model:open="isOpen">
+		<component :is="Modal.Content" class="flex max-h-[85vh] flex-col gap-0 p-0" :class="maxWidthClass">
+			<component :is="Modal.Header" class="space-y-2 border-b px-6 py-4" :class="{ 'text-left': isDesktop }">
+				<component :is="Modal.Title" class="flex items-center gap-2">
 					<slot name="icon" />
 					{{ title }}
-				</DialogTitle>
-				<DialogDescription v-if="description || $slots.description">
-					<slot name="description">
-						{{ description }}
-					</slot>
-				</DialogDescription>
-			</DialogHeader>
+				</component>
+				<component :is="Modal.Description" v-if="description || $slots.description">
+					<slot name="description">{{ description }}</slot>
+				</component>
+			</component>
 
-			<!-- Scrollable Content — exposes errors and processing to field components -->
 			<div class="flex-1 overflow-y-auto px-6 py-4">
 				<slot :errors="form.errors" :processing="form.processing" />
 			</div>
 
-			<!-- Fixed Footer -->
-			<DialogFooter v-if="showFooter" class="border-t px-6 py-4">
+			<component :is="Modal.Footer" v-if="showFooter" class="border-t px-6 py-4" :class="{ 'pt-2': !isDesktop }">
 				<div class="flex w-full gap-2 sm:justify-end">
 					<slot name="footer-actions" :form="form">
-						<Button variant="outline" :disabled="form.processing" @click="handleClose">
-							{{ cancelLabel }}
-						</Button>
+						<Button variant="outline" :disabled="form.processing" @click="handleClose">{{ cancelLabel }}</Button>
 						<Button :disabled="form.processing" @click="handleSubmit">
 							<Spinner v-if="form.processing" class="mr-2 size-4" />
 							{{ submitLabel }}
 						</Button>
 					</slot>
 				</div>
-			</DialogFooter>
-		</DialogContent>
-	</Dialog>
+			</component>
+		</component>
+	</component>
 </template>

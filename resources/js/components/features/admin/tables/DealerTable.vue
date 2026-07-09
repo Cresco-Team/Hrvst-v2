@@ -1,31 +1,10 @@
 <script setup lang="ts">
 import type { ColumnDef } from '@tanstack/vue-table'
-import {
-    ChevronDownIcon,
-    ChevronRightIcon,
-    ClipboardList,
-    Mail,
-    Package,
-    Phone,
-} from 'lucide-vue-next'
+import { ClipboardList, Mail, Package, Phone } from 'lucide-vue-next'
 import DataTable from '@/components/shared/tables/DataTable.vue'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
-import {
-    Item,
-    ItemContent,
-    ItemDescription,
-    ItemMedia,
-    ItemTitle,
-} from '@/components/ui/item'
-import {
-    Tooltip,
-    TooltipContent,
-    TooltipProvider,
-    TooltipTrigger,
-} from '@/components/ui/tooltip'
-import { getInitials } from '@/composables/useInitials'
 import type { DealerResource, Paginated } from '@/types'
+import AppTooltip from '@/components/templates/AppTooltip.vue'
 
 defineProps<{
     dealers: Paginated<DealerResource>
@@ -102,39 +81,24 @@ const columns: ColumnDef<DealerResource>[] = [
         </template>
 
         <template #cell-joined_at="{ row }">
-            <TooltipProvider v-if="row.joined_at" :delay-duration="200">
-                <Tooltip>
-                    <TooltipTrigger as-child>
-                        <div class="cursor-help text-sm">
-                            {{ row.joined_at_human }}
-                        </div>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                        <p class="text-xs">Joined on: {{ row.joined_at }}</p>
-                    </TooltipContent>
-                </Tooltip>
-            </TooltipProvider>
+            <AppTooltip :content="`Joined on ${row.joined_at}`">
+                <span class="cursor-help text-sm">{{ row.joined_at_human }}</span>
+            </AppTooltip>
         </template>
 
         <template #cell-actions="{ row }">
             <div class="flex items-center gap-1.5">
-                <TooltipProvider :delay-duration="200">
-                    <Tooltip>
-                        <TooltipTrigger as-child>
-                            <Button
-                                variant="ghost"
-                                size="icon-sm"
-                                class="text-muted-foreground hover:text-foreground"
-                                @click="$emit('view-dealer', row)"
-                            >
-                                <ClipboardList class="size-4" />
-                            </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                            <p class="text-xs">View details</p>
-                        </TooltipContent>
-                    </Tooltip>
-                </TooltipProvider>
+                
+                <AppTooltip content="View details">
+                    <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        class="text-muted-foreground hover:text-foreground"
+                        @click="$emit('view-dealer', row)"
+                    >
+                        <ClipboardList class="size-4" />
+                    </Button>
+                </AppTooltip>
             </div>
         </template>
     </DataTable>

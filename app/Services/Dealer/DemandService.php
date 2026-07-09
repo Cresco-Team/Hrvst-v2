@@ -42,12 +42,13 @@ class DemandService
     public function varietyOptions(): array
     {
         return cache()->remember('dealer_demand_variety_options', 3600, fn () => Vegetable::query()
+            ->with('category')
             ->orderByRaw('variety_name IS NULL, variety_name')
             ->get()
-            ->groupBy('vegetable_name')
+            ->groupBy(fn (Vegetable $v) => $v->category->name)
             ->map(fn ($rows) => $rows->map(fn ($v) => [
                 'id' => $v->id,
-                'name' => $v->variety_name ?? $v->vegetable_name,
+                'name' => $v->display_name,
             ])->values()->toArray())
             ->toArray()
         );

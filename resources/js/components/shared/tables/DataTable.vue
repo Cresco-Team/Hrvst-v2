@@ -36,7 +36,6 @@ interface Props<TData> {
 	entityName?: string
 	enableSearch?: boolean
 	enableExpand?: boolean
-	// ✅ NEW: Server-side search support
 	searchQuery?: string
 }
 
@@ -51,14 +50,12 @@ const props = withDefaults(defineProps<Props<TData>>(), {
 
 const emit = defineEmits<{
 	'page-change': [page: number]
-	search: [query: string] // ✅ NEW: Emit search to parent for server-side handling
+	search: [query: string]
 }>()
 
-/* -- local state -- */
 const localSearchQuery = ref(props.searchQuery)
 const expanded = ref<ExpandedState>({})
 
-/* -- table instance -- */
 const table = useVueTable({
 	get data() {
 		return props.data.data
@@ -79,13 +76,11 @@ const table = useVueTable({
 	getExpandedRowModel: getExpandedRowModel(),
 	getCoreRowModel: getCoreRowModel(),
 	getSortedRowModel: getSortedRowModel(),
-	// ❌ REMOVED: getFilteredRowModel() - This was causing client-side filtering on server-paginated data
 	...(props.enableExpand ? { getExpandedRowModel: getExpandedRowModel() } : {}),
 	manualPagination: true,
 	manualFiltering: true, // ✅ NEW: Tell TanStack we're handling filtering server-side
 })
 
-/* -- pagination helpers -- */
 const hasPrevPage = computed(() => props.data.current_page > 1)
 const hasNextPage = computed(() => props.data.current_page < props.data.last_page)
 
@@ -94,21 +89,17 @@ const paginationRange = computed(() => ({
 	end: Math.min(props.data.current_page * props.data.per_page, props.data.total),
 }))
 
-/* -- sort icon helper -- */
 function sortIcon(state: string | false) {
 	if (state === 'asc') return ChevronUp
 	if (state === 'desc') return ChevronDown
 	return ChevronsUpDown
 }
 
-/* -- search handler with debounce -- */
 let searchTimeout: ReturnType<typeof setTimeout> | null = null
 
 function handleSearchInput() {
-	// Clear existing timeout
 	if (searchTimeout) clearTimeout(searchTimeout)
 
-	// Debounce search (wait 300ms after user stops typing)
 	searchTimeout = setTimeout(() => {
 		emit('search', localSearchQuery.value)
 	}, 300)
@@ -136,7 +127,7 @@ function handleSearchInput() {
         <!-- table -->
         <div class="rounded-lg border">
             <table class="w-full text-sm">
-                <thead class="bg-muted/60">
+                <thead class="bg-muted">
                     <tr>
                         <th v-for="header in table.getHeaderGroups()[0].headers" :key="header.id"
                             class="px-4 py-3 text-left font-medium text-muted-foreground">
@@ -159,7 +150,7 @@ function handleSearchInput() {
                 <tbody>
                     <template v-for="row in table.getRowModel().rows" :key="row.id">
                         <!-- main row -->
-                        <tr class="border-t hover:bg-muted/40 transition-colors">
+                        <tr class="border-t hover:bg-primary/10 transition-colors">
                             <td v-for="cell in row.getVisibleCells()" :key="cell.id" class="px-4 py-3">
                                 <!-- custom cell rendering via slots -->
                                 <slot :name="`cell-${cell.column.id}`" :row="row.original" :cell="cell">

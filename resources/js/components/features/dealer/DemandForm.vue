@@ -11,7 +11,7 @@ import { Calendar } from '@/components/ui/calendar'
 import { Label } from '@/components/ui/label'
 import { NumberField, NumberFieldContent, NumberFieldDecrement, NumberFieldIncrement, NumberFieldInput } from '@/components/ui/number-field'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Select, SelectContent, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Table, TableBody, TableCell, TableEmpty, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useVegetableAvailability, netKgClassDealer, formatNetKgDealer } from '@/composables/useVegetableAvailability'
@@ -217,7 +217,14 @@ watch(
                         <TableHead>Vegetables Needed <span class="text-destructive">*</span></TableHead>
                         <TableHead class="text-center">Kilogram <span class="text-destructive">*</span></TableHead>
                         <TableHead class="text-end">
-                            <Button type="button" variant="outline" size="sm" class="h-7 gap-1.5 text-xs" @click="addItem">
+                            <Button 
+                                type="button" 
+                                variant="outline" 
+                                size="icon-sm" 
+                                class="h-7 gap-1.5 text-xs" 
+                                aria-label="Add request row"
+                                @click="addItem"
+                            >
                                 <Plus class="size-3" />
                             </Button>
                         </TableHead>
@@ -232,20 +239,20 @@ watch(
                     </TableEmpty>
 
                     <TableRow v-for="(item, index) in form.items" :key="item._key">
-                        <TableCell class="relative pb-6">
+                        <TableCell class="relative px-0 pb-6 align-top">
                             <Combobox
                                 :model-value="item.vegetable_id"
                                 :filter-function="varietyFilterFunction"
                                 @update:model-value="(value) => (item.vegetable_id = value == null ? '' : String(value))"
                             >
-                                <ComboboxAnchor as-child class="w-full">
+                                <ComboboxAnchor as-child class="max-w-35 sm:max-w-full">
                                     <ComboboxTrigger as-child>
                                         <Button
                                             type="button"
                                             variant="outline"
                                             role="combobox"
                                             :class="[
-                                                'w-full justify-between font-normal',
+                                                'justify-between font-normal',
                                                 !item.vegetable_id && 'text-muted-foreground',
                                                 form.errors[`items.${index}.vegetable_id`] && 'border-destructive text-destructive',
                                             ]"
@@ -253,7 +260,7 @@ watch(
                                             <span class="truncate">
                                                 {{ varietyLabelById.get(item.vegetable_id) ?? 'Select vegetable...' }}
                                             </span>
-                                            <ChevronsUpDown class="ml-2 size-4 shrink-0 opacity-50" />
+                                            <ChevronsUpDown class="ml-2 size-4 shrink-0 text-muted-foreground" />
                                         </Button>
                                     </ComboboxTrigger>
                                 </ComboboxAnchor>
@@ -274,11 +281,7 @@ watch(
                                             :key="categoryName"
                                             :heading="categoryName"
                                         >
-                                            <ComboboxItem
-                                                v-for="v in varieties"
-                                                :key="v.id"
-                                                :value="String(v.id)"
-                                            >
+                                            <ComboboxItem v-for="v in varieties" :key="v.id" :value="String(v.id)">
                                                 {{ v.name }}
                                                 <ComboboxItemIndicator>
                                                     <Check class="size-4" />
@@ -289,10 +292,13 @@ watch(
                                 </ComboboxList>
                             </Combobox>
 
-                            <div v-if="item.vegetable_id && form.scheduled_date" class="mt-1.5 flex items-center gap-1">
+                            <div v-if="item.vegetable_id && form.scheduled_date" class="absolute bottom-1 text-xs">
                                 <Skeleton v-if="getState(item.vegetable_id).status === 'loading'" class="h-3.5 w-20 rounded" />
                                 <template v-else-if="getData(item.vegetable_id)">
-                                    <span :class="netKgClassDealer(getData(item.vegetable_id)!.net_kg)" class="text-xs font-medium tabular-nums">
+                                    <span
+                                        :class="netKgClassDealer(getData(item.vegetable_id)!.net_kg)" 
+                                        class="text-xs font-medium tabular-nums"
+                                    >
                                         {{ formatNetKgDealer(getData(item.vegetable_id)!.net_kg) }}
                                     </span>
                                 </template>
@@ -303,7 +309,7 @@ watch(
                             </p>
                         </TableCell>
 
-                        <TableCell class="relative max-w-30 space-y-1 pb-5">
+                        <TableCell class="relative px-0 pb-5 align-top">
                             <NumberField
                                 v-model="item.quantity_kg"
                                 :min="0.00"
@@ -322,7 +328,7 @@ watch(
                             </p>
                         </TableCell>
 
-                        <TableCell class="text-end">
+                        <TableCell class="text-end align-top">
                             <Button type="button" variant="ghost" size="icon" class="size-9 text-muted-foreground hover:text-destructive" @click="removeItem(index)">
                                 <Trash2 class="size-4" />
                             </Button>
