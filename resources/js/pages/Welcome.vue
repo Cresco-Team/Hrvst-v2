@@ -156,7 +156,7 @@ const steps = [
         <!-- ═══════════════════════════════════════ HERO ═══ -->
         <section class="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6 pt-20 text-center">
             <div class="relative max-w-5xl">
-                <Badge variant="outline" class="border-primary bg-primary/10 text-green-600 text-xs px-4 py-1.5 font-bold tracking-widest my-4">
+                <Badge variant="outline" class="border-primary bg-primary/10 text-primary text-xs px-4 py-1.5 font-bold tracking-widest my-4">
                     <Sprout class="size-3.5 shrink-0" />
                     TRADING POST · TEAM CRESCO
                 </Badge>
