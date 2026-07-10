@@ -3,12 +3,12 @@ import { computed } from 'vue'
 import type { FlashMessage } from '@/types'
 
 export function useFlash() {
-  const page = usePage()
+    const page = usePage()
 
-  const flash = computed(() => {
-    const shared = page.props as Record<string, unknown>
-    return (shared.flash as FlashMessage | undefined) ?? null
-  })
+    const flash = computed(() => {
+        const shared = page.props as Record<string, unknown>
+        return (shared.flash as FlashMessage | undefined) ?? null
+    })
 
-  return { flash }
+    return { flash }
 }

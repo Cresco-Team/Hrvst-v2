@@ -1,4 +1,3 @@
-
 // ─── /categories ──────────────────────────────────────────────────────────
 
 export interface SharedCategoriesProps {
@@ -12,7 +11,7 @@ export interface SharedCategoriesProps {
 // ─── /categories/vegetables ─────────────────────────────────────────────────────────
 
 export interface SharedCategoryProps {
-        id: number
-        name: string
-        slug: string
+    id: number
+    name: string
+    slug: string
 }

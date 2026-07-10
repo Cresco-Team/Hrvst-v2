@@ -77,7 +77,8 @@ export function useVegetableAvailability(
 
         const key = cacheKey(vegetableId)
         const existing = cache.value[key]
-        if (existing?.status === 'loaded' || existing?.status === 'loading') return
+        if (existing?.status === 'loaded' || existing?.status === 'loading')
+            return
 
         cache.value[key] = { status: 'loading' }
 
@@ -89,7 +90,10 @@ export function useVegetableAvailability(
 
             const url = slotSummary(Number(vegetableId), { query: params }).url
             const res = await fetch(url, {
-                headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+                headers: {
+                    Accept: 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
             })
             if (!res.ok) throw new Error(`HTTP ${res.status}`)
 
@@ -106,7 +110,9 @@ export function useVegetableAvailability(
     })
 
     watch([getDate, getTimeSlot], () => {
-        getVegetableIds().filter(Boolean).forEach((id) => void fetchOne(id))
+        getVegetableIds()
+            .filter(Boolean)
+            .forEach((id) => void fetchOne(id))
     })
 
     return { getState, getData }

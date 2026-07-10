@@ -15,10 +15,12 @@ export * from './ui'
 import type { Auth } from './auth'
 import type { FlashMessage } from './shared'
 
-export type AppPageProps<T extends Record<string, unknown> = Record<string, unknown>> = T & {
-	name: string
-	auth: Auth
-	sidebarOpen: boolean
-	flash: FlashMessage
-	[key: string]: unknown
+export type AppPageProps<
+    T extends Record<string, unknown> = Record<string, unknown>,
+> = T & {
+    name: string
+    auth: Auth
+    sidebarOpen: boolean
+    flash: FlashMessage
+    [key: string]: unknown
 }
