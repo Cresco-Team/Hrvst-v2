@@ -142,6 +142,8 @@ function handleDaySelect(dateStr: string): void {
                         :recommendations="vegetable.analytics.recommendations"
                     />
 
+                    <Separator class="inline-block sm:hidden" />
+
                     <!-- ── Charts ─────────────────────────────────────────────────────── -->
                     <VegetableMonthlyChart
                         v-if="vegetable.monthly_activity?.length"
@@ -151,7 +153,7 @@ function handleDaySelect(dateStr: string): void {
                         :forecast-confidence="vegetable.analytics?.forecast_confidence"
                     />
 
-                    <Separator/>
+                    <Separator class="inline-block sm:hidden" />
 
                     <!-- ── Market Calendar ─────────────────────────────────────────────── -->
                     <VegetableMarketCalendar
