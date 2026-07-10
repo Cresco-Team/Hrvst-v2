@@ -7,7 +7,7 @@ import CardDescription from '@/components/ui/card/CardDescription.vue'
 import CardHeader from '@/components/ui/card/CardHeader.vue'
 import CardTitle from '@/components/ui/card/CardTitle.vue'
 
-const props = withDefaults(
+withDefaults(
 	defineProps<{
 		title?: string
 		value?: number | string

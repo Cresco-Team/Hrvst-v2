@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import axios from 'axios'
 import {
     AlarmClockCheck,
     Archive,
@@ -57,8 +56,6 @@ const canEdit = computed(() => props.actions?.includes('edit') ?? false)
 const canFulfill = computed(() => props.actions?.includes('fulfill') ?? false)
 const canArchive = computed(() => props.actions?.includes('archive') ?? false)
 const canDelete = computed(() => props.actions?.includes('delete') ?? false)
-
-const isPending = ref(false)
 
 const qtyLabel = computed(() =>
     mode.value === 'supply' ? 'AVAILABLE' : 'NEEDED',

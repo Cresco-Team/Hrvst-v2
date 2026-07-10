@@ -7,7 +7,6 @@ import EmptyState from '@/components/EmptyState.vue'
 import DemandForm from '@/components/features/dealer/DemandForm.vue'
 import DemandItem from '@/components/features/dealer/DemandItem.vue'
 import Heading from '@/components/Heading.vue'
-import LargeCard from '@/components/shared/cards/LargeCard.vue'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import AppLayout from '@/layouts/AppLayout.vue'
@@ -20,7 +19,7 @@ import type {
     VarietyOptionsByVegetable,
 } from '@/types'
 
-const props = defineProps<DealerDemandsProps>()
+defineProps<DealerDemandsProps>()
 
 // ─── Demand form (create + edit) ──────────────────────────────────────────────
 

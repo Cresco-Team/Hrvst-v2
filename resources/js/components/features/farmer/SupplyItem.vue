@@ -24,7 +24,7 @@ import { Item, ItemActions, ItemContent, ItemDescription, ItemMedia, ItemTitle }
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import type { FarmerSupplyDataFixed } from '@/types'
 
-const props = defineProps<{ supply: FarmerSupplyDataFixed }>()
+defineProps<{ supply: FarmerSupplyDataFixed }>()
 
 const emit = defineEmits<{
     edit: [supply: FarmerSupplyDataFixed]

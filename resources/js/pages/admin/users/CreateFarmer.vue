@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Head, usePage } from '@inertiajs/vue3'
 import { useForm } from '@inertiajs/vue3'
-import { computed, reactive, ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { storeFarmer } from '@/actions/App/Http/Controllers/Admin/UserController'
 import FarmLocationPicker from '@/components/forms/FarmLocationPicker.vue'
 import Heading from '@/components/Heading.vue'

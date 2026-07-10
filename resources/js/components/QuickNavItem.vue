@@ -5,7 +5,7 @@ import type { Component } from 'vue'
 import type { RouteDefinition } from '@/wayfinder'
 import { Item, ItemContent, ItemDescription, ItemMedia, ItemTitle } from './ui/item'
 
-const props = withDefaults(
+withDefaults(
 	defineProps<{
 		href: RouteDefinition<'get'> | undefined
 		title: string

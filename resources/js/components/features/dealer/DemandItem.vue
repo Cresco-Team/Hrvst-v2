@@ -24,7 +24,7 @@ import { Item, ItemActions, ItemContent, ItemDescription, ItemMedia, ItemTitle }
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import type { DealerDemandDataFixed } from '@/types'
 
-const props = defineProps<{ demand: DealerDemandDataFixed }>()
+defineProps<{ demand: DealerDemandDataFixed }>()
 
 const emit = defineEmits<{
     edit: [demand: DealerDemandDataFixed]

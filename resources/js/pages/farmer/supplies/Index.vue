@@ -19,7 +19,7 @@ import type {
     VarietyOptionsByVegetable,
 } from '@/types'
 
-const props = defineProps<FarmerSuppliesProps>()
+defineProps<FarmerSuppliesProps>()
 
 // ─── Supply form (create + edit) ─────────────────────────────────────────────
 
