@@ -43,7 +43,7 @@ const confidenceTooltip: Record<string, string> = {
 </script>
 
 <template>
-    <Card class="rounded-none border-none shadow-none sm:rounded sm:border sm:shadow-sm">
+    <Card class="rounded-none border-0 shadow-none sm:rounded sm:border sm:shadow-sm">
         <CardHeader class="flex flex-row items-center justify-between gap-2 space-y-0 px-3 py-3 sm:px-6 sm:py-6">
             <CardTitle>
                 {{ hasForecast() ? ' 6-Month Forecast' : 'Market Volume' }}
