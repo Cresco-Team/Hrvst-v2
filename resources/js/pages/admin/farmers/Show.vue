@@ -18,6 +18,7 @@ import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import {
     Item,
+    ItemActions,
     ItemContent,
     ItemDescription,
     ItemGroup,
@@ -276,33 +277,26 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => [
                                                 >
                                                     <ItemMedia variant="image">
                                                         <img
-                                                            :src="
-                                                                item.image_url
-                                                            "
-                                                            :alt="item.name"
+                                                            :src="item.image_url"
+                                                            :alt="item.display_name"
                                                         />
                                                     </ItemMedia>
                                                     <ItemContent
                                                         class="min-w-0"
                                                     >
-                                                        <ItemTitle
-                                                            class="line-clamp-1 text-sm"
-                                                        >
-                                                            {{ item.name }}
+                                                        <ItemTitle class="line-clamp-1 text-sm">
+                                                            {{ item.display_name }}
                                                         </ItemTitle>
-                                                        <ItemDescription
-                                                            class="mt-0.5 flex items-center gap-1.5"
-                                                        >
-                                                            <span
-                                                                class="font-mono text-sm font-medium text-foreground"
-                                                            >
-                                                                {{
-                                                                    item.quantity_kg.toLocaleString()
-                                                                }}
-                                                                kg
+                                                        <ItemDescription class="mt-0.5 flex items-center gap-1.5">
+                                                            <span class="text-sm font-medium text-foreground">
+                                                                {{ item.scheduled_date }}
                                                             </span>
                                                         </ItemDescription>
                                                     </ItemContent>
+
+                                                    <ItemActions>
+                                                        <span class="font-mono">{{ item.quantity_kg.toLocaleString() }} </span>kg
+                                                    </ItemActions>
                                                 </Item>
                                             </ItemGroup>
                                         </TabsContent>
