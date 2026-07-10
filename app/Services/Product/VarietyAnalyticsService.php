@@ -11,17 +11,24 @@ use Illuminate\Support\Collection;
 
 class VarietyAnalyticsService
 {
-    private const float OVERSUPPLY_THRESHOLD  = 0.20;
+    private const float OVERSUPPLY_THRESHOLD = 0.20;
+
     private const float UNDERSUPPLY_THRESHOLD = -0.20;
+
     private const float LOW_FULFILLMENT_THRESHOLD = 0.50;
-    private const float SUPPLY_DECLINE_THRESHOLD  = -20.0;
+
+    private const float SUPPLY_DECLINE_THRESHOLD = -20.0;
 
     private const float TREND_FLOOR = 0.60;
-    private const float TREND_CEIL  = 1.40;
+
+    private const float TREND_CEIL = 1.40;
 
     private const int MIN_MONTHS_FOR_TREND = 12;
+
     private const int MIN_MONTHS_FOR_FORECAST = 12;
+
     private const int CONFIDENCE_ESTABLISHED_MONTHS = 36;
+
     private const int CONFIDENCE_STRONG_MONTHS = 60;
 
     public function __construct(
@@ -35,8 +42,8 @@ class VarietyAnalyticsService
     ): VarietyAnalyticsDTO {
         $completeMonths = array_slice($monthlyActivity, -4, 3);
 
-        $ratio             = $this->computeImbalanceRatio($completeMonths);
-        $band              = $this->classifyBand($ratio);
+        $ratio = $this->computeImbalanceRatio($completeMonths);
+        $band = $this->classifyBand($ratio);
         $supplyFulfillment = $this->computeFulfillmentRate($completeMonths, 'supply');
         $demandFulfillment = $this->computeFulfillmentRate($completeMonths, 'demand');
 
@@ -55,16 +62,16 @@ class VarietyAnalyticsService
         $forecast = $this->computeForecast($forecastSource);
 
         return new VarietyAnalyticsDTO(
-            supply_demand_ratio:     $ratio,
-            imbalance_band:          $band,
+            supply_demand_ratio: $ratio,
+            imbalance_band: $band,
             supply_fulfillment_rate: $supplyFulfillment,
             demand_fulfillment_rate: $demandFulfillment,
-            supply_volume_mom_pct:   $supplyMomPct,
-            demand_volume_mom_pct:   $demandMomPct,
-            recommendations:         $recommendations,
-            months_of_history:       $monthsObserved,
-            forecast_confidence:     $this->forecastConfidence($monthsObserved),
-            forecast:                $forecast,
+            supply_volume_mom_pct: $supplyMomPct,
+            demand_volume_mom_pct: $demandMomPct,
+            recommendations: $recommendations,
+            months_of_history: $monthsObserved,
+            forecast_confidence: $this->forecastConfidence($monthsObserved),
+            forecast: $forecast,
         );
     }
 
@@ -116,16 +123,16 @@ class VarietyAnalyticsService
 
         foreach ($realHistory as $row) {
             $calMonth = (int) substr($row['month'], 5, 2);
-            $year     = (int) substr($row['month'], 0, 4);
+            $year = (int) substr($row['month'], 0, 4);
 
             [$farmers, $dealers] = $this->activeCountsFor($row['month'], $activeCounts);
 
             $byCalendarMonth[$calMonth][] = [
-                'year'                        => $year,
+                'year' => $year,
                 'supply_fulfilled_per_capita' => $row['supply_fulfilled_kg'] / $farmers,
-                'supply_expired_per_capita'   => $row['supply_expired_kg'] / $farmers,
+                'supply_expired_per_capita' => $row['supply_expired_kg'] / $farmers,
                 'demand_fulfilled_per_capita' => $row['demand_fulfilled_kg'] / $dealers,
-                'demand_expired_per_capita'   => $row['demand_expired_kg'] / $dealers,
+                'demand_expired_per_capita' => $row['demand_expired_kg'] / $dealers,
             ];
         }
 
@@ -137,12 +144,12 @@ class VarietyAnalyticsService
 
         if ($realCount >= self::MIN_MONTHS_FOR_TREND) {
             $recentSlice = array_slice($realHistory, -6);
-            $priorSlice  = array_slice($realHistory, $realCount - 12, 6);
+            $priorSlice = array_slice($realHistory, $realCount - 12, 6);
 
             $recentSupply = $this->perCapitaVolumeSum($recentSlice, 'supply', 'active_farmers', $activeCounts);
-            $priorSupply  = $this->perCapitaVolumeSum($priorSlice, 'supply', 'active_farmers', $activeCounts);
+            $priorSupply = $this->perCapitaVolumeSum($priorSlice, 'supply', 'active_farmers', $activeCounts);
             $recentDemand = $this->perCapitaVolumeSum($recentSlice, 'demand', 'active_dealers', $activeCounts);
-            $priorDemand  = $this->perCapitaVolumeSum($priorSlice, 'demand', 'active_dealers', $activeCounts);
+            $priorDemand = $this->perCapitaVolumeSum($priorSlice, 'demand', 'active_dealers', $activeCounts);
 
             $supplyTrend = $priorSupply > 0.0
                 ? max(self::TREND_FLOOR, min(self::TREND_CEIL, $recentSupply / $priorSupply))
@@ -166,12 +173,12 @@ class VarietyAnalyticsService
             : [1, 1];
 
         $forecast = [];
-        $weights  = [3, 2, 1];
+        $weights = [3, 2, 1];
 
         for ($i = 1; $i <= 6; $i++) {
             $futureDate = now()->startOfMonth()->addMonths($i);
-            $calMonth   = (int) $futureDate->month;
-            $entries    = $byCalendarMonth[$calMonth] ?? [];
+            $calMonth = (int) $futureDate->month;
+            $entries = $byCalendarMonth[$calMonth] ?? [];
 
             if (empty($entries)) {
                 continue;
@@ -181,29 +188,29 @@ class VarietyAnalyticsService
 
             $totalWeight = 0;
             $supplyFulfilledPC = 0.0;
-            $supplyExpiredPC   = 0.0;
+            $supplyExpiredPC = 0.0;
             $demandFulfilledPC = 0.0;
-            $demandExpiredPC   = 0.0;
+            $demandExpiredPC = 0.0;
 
             foreach (array_slice($entries, 0, 3) as $idx => $entry) {
                 $w = $weights[$idx] ?? 1;
-                $totalWeight       += $w;
+                $totalWeight += $w;
                 $supplyFulfilledPC += $entry['supply_fulfilled_per_capita'] * $w;
-                $supplyExpiredPC   += $entry['supply_expired_per_capita'] * $w;
+                $supplyExpiredPC += $entry['supply_expired_per_capita'] * $w;
                 $demandFulfilledPC += $entry['demand_fulfilled_per_capita'] * $w;
-                $demandExpiredPC   += $entry['demand_expired_per_capita'] * $w;
+                $demandExpiredPC += $entry['demand_expired_per_capita'] * $w;
             }
 
             $supplyFactor = $supplyMonthlyGrowth ** $i;
             $demandFactor = $demandMonthlyGrowth ** $i;
 
             $forecast[] = [
-                'month'               => $futureDate->format('Y-m'),
-                'label'               => $futureDate->format('M Y'),
+                'month' => $futureDate->format('Y-m'),
+                'label' => $futureDate->format('M Y'),
                 'supply_fulfilled_kg' => max(0.0, round(($supplyFulfilledPC / $totalWeight) * $supplyFactor * $currentFarmers, 2)),
-                'supply_expired_kg'   => max(0.0, round(($supplyExpiredPC / $totalWeight) * $supplyFactor * $currentFarmers, 2)),
+                'supply_expired_kg' => max(0.0, round(($supplyExpiredPC / $totalWeight) * $supplyFactor * $currentFarmers, 2)),
                 'demand_fulfilled_kg' => max(0.0, round(($demandFulfilledPC / $totalWeight) * $demandFactor * $currentDealers, 2)),
-                'demand_expired_kg'   => max(0.0, round(($demandExpiredPC / $totalWeight) * $demandFactor * $currentDealers, 2)),
+                'demand_expired_kg' => max(0.0, round(($demandExpiredPC / $totalWeight) * $demandFactor * $currentDealers, 2)),
             ];
         }
 
@@ -228,7 +235,7 @@ class VarietyAnalyticsService
 
         foreach ($slice as $row) {
             $count = max(1, (int) ($activeCounts->get($row['month'])->{$countColumn} ?? 1));
-            $sum  += ($row["{$role}_fulfilled_kg"] + $row["{$role}_expired_kg"]) / $count;
+            $sum += ($row["{$role}_fulfilled_kg"] + $row["{$role}_expired_kg"]) / $count;
         }
 
         return $sum;
@@ -252,7 +259,7 @@ class VarietyAnalyticsService
             $months,
         ));
 
-        $count     = count($months);
+        $count = count($months);
         $avgSupply = $totalSupply / $count;
         $avgDemand = $totalDemand / $count;
 
@@ -262,9 +269,9 @@ class VarietyAnalyticsService
     private function classifyBand(float $ratio): ImbalanceBand
     {
         return match (true) {
-            $ratio > self::OVERSUPPLY_THRESHOLD  => ImbalanceBand::Oversupply,
+            $ratio > self::OVERSUPPLY_THRESHOLD => ImbalanceBand::Oversupply,
             $ratio < self::UNDERSUPPLY_THRESHOLD => ImbalanceBand::Undersupply,
-            default                               => ImbalanceBand::Balanced,
+            default => ImbalanceBand::Balanced,
         };
     }
 
@@ -326,32 +333,32 @@ class VarietyAnalyticsService
 
         if ($band === ImbalanceBand::Oversupply) {
             $body = match ($role) {
-                VegetableViewerRole::Admin  => 'Supply is currently exceeding dealer demand. Consider highlighting this variety to dealers or slowing farmer intake.',
+                VegetableViewerRole::Admin => 'Supply is currently exceeding dealer demand. Consider highlighting this variety to dealers or slowing farmer intake.',
                 VegetableViewerRole::Farmer => 'This variety is currently oversupplied. Consider delaying your next harvest posting or choosing an under-demanded slot.',
                 VegetableViewerRole::Dealer => 'There is surplus supply for this variety right now — a good time to increase your order to help absorb it before it expires.',
             };
-        
+
             $recs[] = new VarietyRecommendationDTO(
                 severity: RecommendationSeverity::Warning,
-                type:     'oversupply_opportunity',
-                title:    'Unmatched Farmer Supply',
-                body:     $body,
+                type: 'oversupply_opportunity',
+                title: 'Unmatched Farmer Supply',
+                body: $body,
             );
         }
 
         // ── Undersupply: actionable by everyone, but the action differs per role ──
         if ($band === ImbalanceBand::Undersupply) {
             $body = match ($role) {
-                VegetableViewerRole::Admin  => 'Dealer demand is outpacing available supply. Consider prompting more farmers to post.',
+                VegetableViewerRole::Admin => 'Dealer demand is outpacing available supply. Consider prompting more farmers to post.',
                 VegetableViewerRole::Farmer => 'Buyers are actively looking for this variety. Good time to post your available harvest.',
                 VegetableViewerRole::Dealer => 'Supply is currently scarce for this variety. Expect longer wait times, or consider adjusting your requested quantity.',
             };
 
             $recs[] = new VarietyRecommendationDTO(
                 severity: RecommendationSeverity::Warning,
-                type:     'supply_opportunity',
-                title:    'Unfulfilled Dealer Demand',
-                body:     $body,
+                type: 'supply_opportunity',
+                title: 'Unfulfilled Dealer Demand',
+                body: $body,
             );
         }
 
@@ -367,9 +374,9 @@ class VarietyAnalyticsService
 
             $recs[] = new VarietyRecommendationDTO(
                 severity: RecommendationSeverity::Warning,
-                type:     'high_supply_expiry_rate',
-                title:    'High Supply Expiry Rate',
-                body:     "{$expiredPct}% of supply posts over the last 3 months expired without a match. "
+                type: 'high_supply_expiry_rate',
+                title: 'High Supply Expiry Rate',
+                body: "{$expiredPct}% of supply posts over the last 3 months expired without a match. "
                     .'This typically indicates a delivery timing mismatch with buyers.',
             );
         }
@@ -385,9 +392,9 @@ class VarietyAnalyticsService
 
             $recs[] = new VarietyRecommendationDTO(
                 severity: RecommendationSeverity::Warning,
-                type:     'high_demand_expiry_rate',
-                title:    'Low Demand Fulfillment',
-                body:     "{$expiredPct}% of demand posts expired unfulfilled over the last 3 months. "
+                type: 'high_demand_expiry_rate',
+                title: 'Low Demand Fulfillment',
+                body: "{$expiredPct}% of demand posts expired unfulfilled over the last 3 months. "
                     .'Dealers are not finding adequate supply to match their requirements.',
             );
         }
@@ -408,9 +415,9 @@ class VarietyAnalyticsService
 
             $recs[] = new VarietyRecommendationDTO(
                 severity: RecommendationSeverity::Info,
-                type:     'declining_supply_volume',
-                title:    'Supply Volume Declining',
-                body:     "Supply volume dropped {$dropPct}% compared to last month. "
+                type: 'declining_supply_volume',
+                title: 'Supply Volume Declining',
+                body: "Supply volume dropped {$dropPct}% compared to last month. "
                     .'Monitor whether this is seasonal or signals a structural reduction.',
             );
         }
@@ -427,8 +434,8 @@ class VarietyAnalyticsService
     {
         return match ($severity) {
             RecommendationSeverity::Critical => 0,
-            RecommendationSeverity::Warning  => 1,
-            RecommendationSeverity::Info     => 2,
+            RecommendationSeverity::Warning => 1,
+            RecommendationSeverity::Info => 2,
         };
     }
 }

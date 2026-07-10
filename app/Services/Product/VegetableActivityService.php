@@ -50,17 +50,17 @@ class VegetableActivityService
 
         for ($i = $months - 1; $i >= 0; $i--) {
             $date = now()->startOfMonth()->subMonths($i);
-            $key  = $date->format('Y-m');
-            $row  = $rows->get($key);
+            $key = $date->format('Y-m');
+            $row = $rows->get($key);
 
             $result[] = [
-                'month'               => $key,
-                'label'               => $date->format('M Y'),
-                'has_data'            => $row !== null,
+                'month' => $key,
+                'label' => $date->format('M Y'),
+                'has_data' => $row !== null,
                 'supply_fulfilled_kg' => (float) ($row?->supply_fulfilled_kg ?? 0),
-                'supply_expired_kg'   => (float) ($row?->supply_expired_kg ?? 0),
+                'supply_expired_kg' => (float) ($row?->supply_expired_kg ?? 0),
                 'demand_fulfilled_kg' => (float) ($row?->demand_fulfilled_kg ?? 0),
-                'demand_expired_kg'   => (float) ($row?->demand_expired_kg ?? 0),
+                'demand_expired_kg' => (float) ($row?->demand_expired_kg ?? 0),
             ];
         }
 

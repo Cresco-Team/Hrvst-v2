@@ -4,7 +4,6 @@ namespace App\Services\Product;
 
 use App\Models\Product\Vegetable;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\DB;
 
 class VegetableService
 {

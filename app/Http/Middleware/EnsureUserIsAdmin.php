@@ -12,7 +12,9 @@ class EnsureUserIsAdmin
     {
         $user = $request->user();
 
-        if (!$user || !$user->hasRole('admin')) abort(403, 'Access denied. Admins only area.');
+        if (! $user || ! $user->hasRole('admin')) {
+            abort(403, 'Access denied. Admins only area.');
+        }
 
         return $next($request);
     }

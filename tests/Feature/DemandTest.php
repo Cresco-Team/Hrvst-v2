@@ -4,12 +4,10 @@ use App\Enums\PostItemStatus;
 use App\Enums\PostType;
 use App\Models\Marketplace\Post;
 use App\Models\Marketplace\PostItem;
-use App\Models\Product\Category;
 use App\Models\Product\Vegetable;
 use App\Models\Profiles\DealerProfile;
 use App\Models\Profiles\Role;
 use App\Models\User;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 use function Pest\Laravel\actingAs;
@@ -81,7 +79,7 @@ describe('CreateDemand', function () {
             ->and($post->time_slot->value)->toBe('morning')
             ->and($post->postItems)->toHaveCount(2);
 
-            expect((float) $post->postItems->firstWhere('vegetable_id', $vegetable1->id)->quantity_kg)->toBe(100.0);
+        expect((float) $post->postItems->firstWhere('vegetable_id', $vegetable1->id)->quantity_kg)->toBe(100.0);
     });
 
     it('demand creation is atomic — no post exists if items fail', function () {
@@ -194,7 +192,7 @@ describe('UpdateDemand', function () {
 
         actingAs($dealer)
             ->put(route('dealer.demands.update', $post), [
-                'scheduled_date' => now()->addDay(5)->toDateString()
+                'scheduled_date' => now()->addDay(5)->toDateString(),
             ])
             ->assertForbidden();
     });
@@ -216,7 +214,7 @@ describe('UpdateDemand', function () {
         $item = createDemandViaRoute($dealer, $vegetable);
         $post = $item->post;
         $post->update(['scheduled_date' => now()->subDay()->toDateString()]); // force overdue
-    
+
         actingAs($dealer)
             ->put(route('dealer.demands.update', $post), [
                 'scheduled_date' => $post->scheduled_date->format('Y-m-d'),

@@ -4,13 +4,14 @@ namespace Database\Seeders;
 
 use App\Models\Profiles\DealerProfile;
 use App\Models\Profiles\FarmerProfile;
-use Illuminate\Support\Collection;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 class PlatformActivitySeeder extends Seeder
 {
     private const int HISTORY_MONTHS = 60;
+
     private const int CHUNK_SIZE = 500;
 
     /**
@@ -32,6 +33,7 @@ class PlatformActivitySeeder extends Seeder
 
         if ($farmerUserIds->isEmpty() && $dealerUserIds->isEmpty()) {
             $this->command->warn('No farmer/dealer profiles found. Seed profiles first.');
+
             return;
         }
 

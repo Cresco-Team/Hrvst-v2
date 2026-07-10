@@ -16,15 +16,15 @@ class VegetableAvailabilityController extends Controller
     public function slotSummary(Request $request, Vegetable $vegetable): JsonResponse
     {
         $validated = $request->validate([
-            'date'      => ['required', 'date_format:Y-m-d'],
+            'date' => ['required', 'date_format:Y-m-d'],
             'time_slot' => ['nullable', Rule::in(['morning', 'afternoon', 'evening'])],
         ]);
 
         return response()->json(
             $this->service->slotSummary(
                 vegetableId: $vegetable->id,
-                date:      $validated['date'],
-                timeSlot:  $validated['time_slot'] ?? null,
+                date: $validated['date'],
+                timeSlot: $validated['time_slot'] ?? null,
             )
         );
     }

@@ -18,7 +18,7 @@ class PostItemObserver
         $postItem->loadMissing('post');
 
         $vegetableId = $postItem->vegetable_id;
-        $periodDate  = $postItem->post->created_at->startOfMonth()->toDateString();
+        $periodDate = $postItem->post->created_at->startOfMonth()->toDateString();
 
         $newColumn = $this->resolveColumn($postItem->post->type, $postItem->status);
 
@@ -32,7 +32,7 @@ class PostItemObserver
         }
 
         $rawOldStatus = $postItem->getOriginal('status');
-        $oldStatus    = $rawOldStatus instanceof PostItemStatus
+        $oldStatus = $rawOldStatus instanceof PostItemStatus
             ? $rawOldStatus
             : PostItemStatus::tryFrom($rawOldStatus);
 
@@ -62,9 +62,9 @@ class PostItemObserver
             return;
         }
 
-        $qty         = (float) $postItem->quantity_kg;
+        $qty = (float) $postItem->quantity_kg;
         $vegetableId = $postItem->vegetable_id;
-        $periodDate  = $postItem->post->created_at->startOfMonth()->toDateString();
+        $periodDate = $postItem->post->created_at->startOfMonth()->toDateString();
 
         DB::table('vegetable_monthly_stats')
             ->where('vegetable_id', $vegetableId)
@@ -77,9 +77,9 @@ class PostItemObserver
     private function resolveColumn(PostType $type, PostItemStatus $status): ?string
     {
         return match (true) {
-            $type === PostType::Supply && $status === PostItemStatus::Expired   => 'supply_expired_kg',
+            $type === PostType::Supply && $status === PostItemStatus::Expired => 'supply_expired_kg',
             $type === PostType::Supply && $status === PostItemStatus::Fulfilled => 'supply_fulfilled_kg',
-            $type === PostType::Demand && $status === PostItemStatus::Expired   => 'demand_expired_kg',
+            $type === PostType::Demand && $status === PostItemStatus::Expired => 'demand_expired_kg',
             $type === PostType::Demand && $status === PostItemStatus::Fulfilled => 'demand_fulfilled_kg',
             default => null,
         };
@@ -89,14 +89,14 @@ class PostItemObserver
     {
         DB::table('vegetable_monthly_stats')->upsert(
             [[
-                'vegetable_id'        => $vegetableId,
-                'period_date'         => $periodDate,
-                'supply_expired_kg'   => 0,
+                'vegetable_id' => $vegetableId,
+                'period_date' => $periodDate,
+                'supply_expired_kg' => 0,
                 'supply_fulfilled_kg' => 0,
-                'demand_expired_kg'   => 0,
+                'demand_expired_kg' => 0,
                 'demand_fulfilled_kg' => 0,
-                'created_at'          => now(),
-                'updated_at'          => now(),
+                'created_at' => now(),
+                'updated_at' => now(),
             ]],
             ['vegetable_id', 'period_date'],
             ['updated_at'],

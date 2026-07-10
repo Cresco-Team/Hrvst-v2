@@ -42,7 +42,7 @@ class DealerController extends Controller
     public function show(DealerProfile $dealer): Response
     {
         Gate::authorize('view', $dealer);
-    
+
         return Inertia::render('admin/dealers/Show', [
             'dealer' => Inertia::defer(fn () => DealerData::from($this->dealerService->show($dealer))),
         ]);

@@ -198,7 +198,7 @@ describe('UpdateSupply', function () {
         $item = createSupplyViaRoute($dealer, $vegetable);
         $post = $item->post;
         $post->update(['scheduled_date' => now()->subDay()->toDateString()]); // force overdue
-    
+
         actingAs($dealer)
             ->put(route('farmer.supplies.update', $post), [
                 'scheduled_date' => $post->scheduled_date->format('Y-m-d'),

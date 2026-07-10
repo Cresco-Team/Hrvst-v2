@@ -14,7 +14,6 @@ use App\Policies\Marketplace\PostItemPolicy;
 use App\Policies\Marketplace\PostPolicy;
 use App\Policies\Profiles\DealerPolicy;
 use App\Policies\Profiles\FarmerPolicy;
-use App\Policies\VarietyPolicy;
 use App\Policies\VegetablePolicy;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Model;
