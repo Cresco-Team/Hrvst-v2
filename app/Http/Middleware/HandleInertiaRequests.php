@@ -31,6 +31,7 @@ class HandleInertiaRequests extends Middleware
                 'user' => $user ? [
                     'id' => $user->id,
                     'name' => $user->name,
+                    'phone_number' => $user->phone_number,
                     'email' => $user->email,
                     'roles' => $user->roles->pluck('name'),
                     'avatar' => $user->getFirstMediaUrl('avatar') ?: null,
