@@ -27,6 +27,7 @@ import AppLayout from '@/layouts/AppLayout.vue'
 import admin from '@/routes/admin'
 import { storeFarmer } from '@/actions/App/Http/Controllers/Admin/UserController'
 import type { BreadcrumbItem, FlashMessage } from '@/types'
+import { Badge } from '@/components/ui/badge'
 
 interface Municipality {
   id: number
@@ -131,100 +132,124 @@ function submit() {
         description="Verify the farmer's physical ID before registering their account."
       />
 
-      <form class="max-w-xl space-y-6" @submit.prevent="submit">
-        <!-- Name -->
-        <div class="grid gap-2">
-          <Label for="name">Full Name</Label>
-          <Input
-            id="name"
-            v-model="form.name"
-            type="text"
-            placeholder="Juan dela Cruz"
-          />
-          <InputError :message="form.errors.name" />
-        </div>
+      <form class="space-y-10" @submit.prevent="submit">
+        <div class="grid sm:grid-cols-3 border rounded p-6 gap-4">
+          <!-- Name -->
+          <div class="grid gap-2">
+            <Label for="name">
+              Full Name
+              <Badge variant="destructive">Required</Badge>
+            </Label>
+            <Input
+              id="name"
+              v-model="form.name"
+              type="text"
+              placeholder="..."
+            />
+            <InputError :message="form.errors.name" />
+          </div>
 
-        <!-- Phone -->
-        <div class="grid gap-2">
-          <Label for="phone_number">Phone Number</Label>
-          <Input
-            id="phone_number"
-            v-model="form.phone_number"
-            type="tel"
-            placeholder="09171234567"
-          />
-          <InputError :message="form.errors.phone_number" />
-        </div>
+          <!-- Phone -->
+          <div class="grid gap-2">
+            <Label for="phone_number">
+              Phone Number
+              <Badge variant="destructive">Required</Badge>
+            </Label>
+            <Input
+              id="phone_number"
+              v-model="form.phone_number"
+              type="tel"
+              placeholder="09*********"
+            />
+            <InputError :message="form.errors.phone_number" />
+          </div>
 
-        <!-- Email (optional) -->
-        <div class="grid gap-2">
-          <Label for="email">
-            Email
-            <span class="text-muted-foreground font-normal">(optional)</span>
+          <!-- Email (optional) -->
+          <div class="grid gap-2">
+            <Label for="email">
+              Email
+              <Badge variant="outline">Optional</Badge>
+            </Label>
+            <Input
+              id="email"
+              v-model="form.email"
+              type="email"
+              placeholder="..."
+            />
+            <InputError :message="form.errors.email" />
+          </div>
+        </div>
+        
+        <div class="sm:flex gap-10 border rounded p-5 shadow">
+
+          <!-- Address -->
+          <div class="flex flex-col sm:w-1/3 gap-4">
+
+            <!-- Municipality -->
+            <div class="grid gap-2">
+              <Label for="municipality_id">
+                Municipality
+                <Badge variant="destructive">Required</Badge>
+              </Label>
+              <Select
+                :model-value="String(form.municipality_id)"
+                required
+                @update:model-value="onMunicipalityChange"
+              >
+                <SelectTrigger id="municipality_id" class="w-full sm:w-3/4">
+                  <SelectValue placeholder="Select municipality" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem
+                    v-for="m in municipalities"
+                    :key="m.id"
+                    :value="String(m.id)"
+                  >
+                    {{ m.name }}
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+              <InputError :message="form.errors.municipality_id" />
+            </div>
+
+            <!-- Barangay -->
+            <div class="grid gap-2">
+              <Label for="barangay_id">
+                Barangay
+                <Badge variant="destructive">Required</Badge>
+              </Label>
+              <Select
+                :model-value="String(form.barangay_id)"
+                :disabled="!form.municipality_id || loadingBarangays"
+                required
+                @update:model-value="v => (form.barangay_id = v)"
+              >
+                <SelectTrigger id="barangay_id" class="w-full sm:w-3/4">
+                  <SelectValue
+                    :placeholder="loadingBarangays ? 'Loading…' : 'Select barangay'"
+                  />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem
+                    v-for="b in barangays"
+                    :key="b.id"
+                    :value="String(b.id)"
+                  >
+                    {{ b.name }}
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+              <InputError :message="form.errors.barangay_id" />
+            </div>
+          </div>
+
+          <!-- Location -->
+          <!-- Farm location map -->
+        <div class="grid gap-2 sm:w-1/2">
+          <Label>
+            Farm Location
+            <Badge variant="destructive">Required</Badge>
           </Label>
-          <Input
-            id="email"
-            v-model="form.email"
-            type="email"
-            placeholder="juan@example.com"
-          />
-          <InputError :message="form.errors.email" />
-        </div>
-
-        <!-- Municipality -->
-        <div class="grid gap-2">
-          <Label for="municipality_id">Municipality</Label>
-          <Select
-            :model-value="String(form.municipality_id)"
-            required
-            @update:model-value="onMunicipalityChange"
-          >
-            <SelectTrigger id="municipality_id">
-              <SelectValue placeholder="Select municipality" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem
-                v-for="m in municipalities"
-                :key="m.id"
-                :value="String(m.id)"
-              >
-                {{ m.name }}
-              </SelectItem>
-            </SelectContent>
-          </Select>
-          <InputError :message="form.errors.municipality_id" />
-        </div>
-
-        <!-- Barangay -->
-        <div class="grid gap-2">
-          <Label for="barangay_id">Barangay</Label>
-          <Select
-            :model-value="String(form.barangay_id)"
-            :disabled="!form.municipality_id || loadingBarangays"
-            required
-            @update:model-value="v => (form.barangay_id = v)"
-          >
-            <SelectTrigger id="barangay_id">
-              <SelectValue
-                :placeholder="loadingBarangays ? 'Loading…' : 'Select barangay'"
-              />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem
-                v-for="b in barangays"
-                :key="b.id"
-                :value="String(b.id)"
-              >
-                {{ b.name }}
-              </SelectItem>
-            </SelectContent>
-          </Select>
-          <InputError :message="form.errors.barangay_id" />
-        </div>
-
-        <!-- Farm location map -->
-        <div class="grid gap-2">
-          <Label>Farm Location</Label>
           <FarmLocationPicker
             :municipality-coords="mapCenter"
             :model-value="{ lat: form.latitude, lng: form.longitude }"
@@ -232,6 +257,7 @@ function submit() {
             :lng-error="form.errors.longitude"
             @update:model-value="({ lat, lng }) => { form.latitude = lat; form.longitude = lng }"
           />
+        </div>
         </div>
 
         <div class="flex gap-3">

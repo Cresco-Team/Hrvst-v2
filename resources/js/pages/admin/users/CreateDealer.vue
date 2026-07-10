@@ -18,6 +18,7 @@ import AppLayout from '@/layouts/AppLayout.vue'
 import admin from '@/routes/admin'
 import { storeDealer } from '@/actions/App/Http/Controllers/Admin/UserController'
 import type { BreadcrumbItem, FlashMessage } from '@/types'
+import { Badge } from '@/components/ui/badge'
 
 const breadcrumbs: BreadcrumbItem[] = [
   { title: 'Admin', href: admin.dashboard().url },
@@ -73,27 +74,34 @@ function submit() {
         description="Verify the dealer's physical ID before registering their account."
       />
 
-      <form class="max-w-xl space-y-6" @submit.prevent="submit">
-        <!-- Name -->
+      <form class="space-y-6" @submit.prevent="submit">
+        <div class="grid sm:grid-cols-3 border rounded p-6 gap-4">
+          <!-- Name -->
         <div class="grid gap-2">
-          <Label for="name">Full Name</Label>
+          <Label for="name">
+            Full Name
+            <Badge variant="destructive">Required</Badge>
+          </Label>
           <Input
             id="name"
             v-model="form.name"
             type="text"
-            placeholder="Maria Santos"
+            placeholder="..."
           />
           <InputError :message="form.errors.name" />
         </div>
 
         <!-- Phone -->
         <div class="grid gap-2">
-          <Label for="phone_number">Phone Number</Label>
+          <Label for="phone_number">
+            Phone Number
+            <Badge variant="destructive">Required</Badge>
+          </Label>
           <Input
             id="phone_number"
             v-model="form.phone_number"
             type="tel"
-            placeholder="09171234567"
+            placeholder="09*********"
           />
           <InputError :message="form.errors.phone_number" />
         </div>
@@ -102,16 +110,18 @@ function submit() {
         <div class="grid gap-2">
           <Label for="email">
             Email
-            <span class="text-muted-foreground font-normal">(optional)</span>
+            <Badge variant="outline">Optional</Badge>
           </Label>
           <Input
             id="email"
             v-model="form.email"
             type="email"
-            placeholder="maria@example.com"
+            placeholder="..."
           />
           <InputError :message="form.errors.email" />
         </div>
+        </div>
+        
 
         <div class="flex gap-3">
           <Button type="submit" :disabled="form.processing">
