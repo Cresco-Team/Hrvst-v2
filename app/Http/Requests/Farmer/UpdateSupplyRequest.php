@@ -47,7 +47,7 @@ class UpdateSupplyRequest extends FormRequest
             'items.*.quantity_kg.min' => 'Quantity must be at least 0.1 kg.',
         ];
     }
-    
+
     private function scheduledDateIsChanging(): bool
     {
         if (! $this->filled('scheduled_date')) {

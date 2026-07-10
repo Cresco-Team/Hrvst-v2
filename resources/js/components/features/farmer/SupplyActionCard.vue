@@ -12,11 +12,11 @@ import { Item, ItemActions, ItemContent, ItemDescription, ItemMedia, ItemTitle }
 import { Marker, MarkerContent, MarkerIcon } from '@/components/ui/marker';
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
+import { daysOverdue, isDueToday, urgencyClass, urgencyLabel } from '@/composables/usePostItemUrgency';
 import farmer from '@/routes/farmer';
 import type { FarmerExpiringSupplyFixed } from '@/types';
-import { daysOverdue, isDueToday, urgencyClass, urgencyLabel } from '@/composables/usePostItemUrgency';
 
-const props = defineProps<{
+defineProps<{
     expiringSupplies: FarmerExpiringSupplyFixed[]
 }>()
 

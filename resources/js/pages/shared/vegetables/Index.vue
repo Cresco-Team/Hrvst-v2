@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { Deferred, Head, Link, router, usePage } from '@inertiajs/vue3'
+import { Deferred, Head, router, usePage } from '@inertiajs/vue3'
 import { Search } from 'lucide-vue-next'
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 import EmptyState from '@/components/EmptyState.vue'
 import Heading from '@/components/Heading.vue'
 import VegetableItem from '@/components/shared/cards/VegetableItem.vue'
@@ -11,18 +11,11 @@ import {
     InputGroupAddon,
     InputGroupInput,
 } from '@/components/ui/input-group'
-import {
-    Item,
-    ItemContent,
-    ItemDescription,
-    ItemMedia,
-    ItemTitle,
-} from '@/components/ui/item'
 import { Skeleton } from '@/components/ui/skeleton'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { useCapitalize } from '@/lib/utils'
 import { categories, dashboard } from '@/routes'
-import { index, show } from '@/routes/vegetables'
+import { index } from '@/routes/vegetables'
 import type { BreadcrumbItem, SharedCategoryProps } from '@/types'
 import type { Paginated } from '@/types/index'
 import type { VegetableResource } from '@/types/resources/product'

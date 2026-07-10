@@ -52,7 +52,7 @@ class Vegetable extends Model implements HasMedia
         return Attribute::make(
             get: function () {
                 $local = $this->local_name ? " ({$this->local_name})" : '';
-                
+
                 return $this->variety_name
                     ? "{$this->vegetable_name}: {$this->variety_name}{$local}"
                     : "{$this->vegetable_name}{$local}";

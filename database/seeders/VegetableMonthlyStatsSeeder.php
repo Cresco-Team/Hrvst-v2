@@ -16,6 +16,7 @@ class VegetableMonthlyStatsSeeder extends Seeder
 
         if ($vegetables->isEmpty()) {
             $this->command->warn('No vegetables found. Run ProductSeeder first.');
+
             return;
         }
 

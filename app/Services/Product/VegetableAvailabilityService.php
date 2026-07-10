@@ -37,7 +37,7 @@ class VegetableAvailabilityService
         return [
             'supply_kg' => $supply,
             'demand_kg' => $demand,
-            'net_kg'    => round($supply - $demand, 2),
+            'net_kg' => round($supply - $demand, 2),
         ];
     }
 }

@@ -2,11 +2,9 @@
 
 namespace App\Data\PostItem;
 
-use App\Data\Variety\VarietyData;
 use App\Enums\PostItemStatus;
 use App\Models\Marketplace\PostItem;
 use Spatie\LaravelData\Data;
-use Spatie\LaravelData\Lazy;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
 #[TypeScript]

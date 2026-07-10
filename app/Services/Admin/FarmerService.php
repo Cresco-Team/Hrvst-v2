@@ -35,13 +35,13 @@ class FarmerService
                     ->ongoing(),
             ]);
 
-            if ($search) {
-                $query->whereHas('user', function (Builder $q) use ($search) {
-                    $q->where('name', 'ilike', "%{$search}%")
-                        ->orWhere('email', 'ilike', "%{$search}%")
-                        ->orWhere('phone_number', 'ilike', "%{$search}%");
-                });
-            }
+        if ($search) {
+            $query->whereHas('user', function (Builder $q) use ($search) {
+                $q->where('name', 'ilike', "%{$search}%")
+                    ->orWhere('email', 'ilike', "%{$search}%")
+                    ->orWhere('phone_number', 'ilike', "%{$search}%");
+            });
+        }
 
         return $query->orderBy('created_at', 'desc')->paginate($perPage);
     }
@@ -57,7 +57,7 @@ class FarmerService
                 ->supply()
                 ->whereDate('scheduled_date', today())
                 ->with(['postItems' => fn ($q) => $q->ongoing()])
-                ->with(['postItems.vegetable'])
+                ->with(['postItems.vegetable']),
         ]);
     }
 

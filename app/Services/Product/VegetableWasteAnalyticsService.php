@@ -12,6 +12,7 @@ use InvalidArgumentException;
 class VegetableWasteAnalyticsService
 {
     private const int FORECAST_LIMIT = 10;
+
     private const int MAX_STABILITY_LIMIT = 10;
 
     /** This month + 3 coming months. */
@@ -21,13 +22,16 @@ class VegetableWasteAnalyticsService
     private const int HISTORY_YEARS = 5;
 
     private const float TREND_FLOOR = 0.60;
+
     private const float TREND_CEIL = 1.40;
 
     /** Below this, a coefficient of variation is a coin flip, not a signal. */
     private const int MIN_MONTHS_FOR_STABILITY = 6;
 
     private const int CONFIDENCE_DEVELOPING_MONTHS = 12;
+
     private const int CONFIDENCE_ESTABLISHED_MONTHS = 36;
+
     private const int CONFIDENCE_STRONG_MONTHS = 60;
 
     /** "Quite high" = top quartile of mean expired_kg among vegetables with enough history to trust. */

@@ -82,7 +82,9 @@ class VegetableCalendarService
 
         foreach ($items as $item) {
             [$date, $slot] = [$item->date, $item->slot];
-            if (! isset($schedule[$date][$slot])) continue;
+            if (! isset($schedule[$date][$slot])) {
+                continue;
+            }
 
             $schedule[$date][$slot]['items'][] = [
                 'post_id' => $item->post_id,

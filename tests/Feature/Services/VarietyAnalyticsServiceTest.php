@@ -58,7 +58,7 @@ it('confirms the fixture actually produces an undersupply band with a supply dec
     // Guards the test itself — if a future change to the ratio/decline math shifts
     // which array indices matter, this fails loudly instead of the role assertions
     // below silently testing against zero recommendations.
-    $dto = (new VarietyAnalyticsService())->compute(
+    $dto = (new VarietyAnalyticsService)->compute(
         undersupplyMonthlyActivity(),
         VegetableViewerRole::Admin,
     );
@@ -68,7 +68,7 @@ it('confirms the fixture actually produces an undersupply band with a supply dec
 });
 
 it('filters recommendation types by viewer role', function (VegetableViewerRole $role, array $expectedTypes) {
-    $dto = (new VarietyAnalyticsService())->compute(
+    $dto = (new VarietyAnalyticsService)->compute(
         undersupplyMonthlyActivity(),
         $role,
     );
@@ -105,9 +105,9 @@ it('filters recommendation types by viewer role', function (VegetableViewerRole 
 ]);
 
 it('gives each role role-specific undersupply copy, not a shared generic sentence', function () {
-    $admin = (new VarietyAnalyticsService())->compute(undersupplyMonthlyActivity(), VegetableViewerRole::Admin);
-    $farmer = (new VarietyAnalyticsService())->compute(undersupplyMonthlyActivity(), VegetableViewerRole::Farmer);
-    $dealer = (new VarietyAnalyticsService())->compute(undersupplyMonthlyActivity(), VegetableViewerRole::Dealer);
+    $admin = (new VarietyAnalyticsService)->compute(undersupplyMonthlyActivity(), VegetableViewerRole::Admin);
+    $farmer = (new VarietyAnalyticsService)->compute(undersupplyMonthlyActivity(), VegetableViewerRole::Farmer);
+    $dealer = (new VarietyAnalyticsService)->compute(undersupplyMonthlyActivity(), VegetableViewerRole::Dealer);
 
     $bodyFor = fn ($dto) => collect($dto->recommendations)
         ->firstWhere('type', 'supply_opportunity')

@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\DB;
 class PlatformActivityService
 {
     private const int HISTORY_YEARS = 5;
+
     private const int CACHE_TTL_SECONDS = 43200;
 
     /**

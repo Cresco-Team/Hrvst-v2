@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { useForm } from '@inertiajs/vue3'
 import { Vegan } from '@lucide/vue'
-import { Leaf } from 'lucide-vue-next'
 import { watch } from 'vue'
 import DialogForm from '@/components/dialogs/DialogForm.vue'
 import ImageUpload from '@/components/forms/ImageUpload.vue'
