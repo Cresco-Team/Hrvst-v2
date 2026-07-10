@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/tooltip'
 import { useMonthlyVolumeChart } from '@/composables/useMonthlyVolumeChart'
 import type { ForecastPoint, MonthlyActivity } from '@/types/resources/product'
+import EmptyState from '@/components/EmptyState.vue'
 
 const props = defineProps<{
     monthlyActivity: MonthlyActivity[]
@@ -42,10 +43,10 @@ const confidenceTooltip: Record<string, string> = {
 </script>
 
 <template>
-    <Card>
-        <CardHeader class="flex flex-row items-center justify-between gap-2 space-y-0">
-            <CardTitle class="text-sm font-semibold">
-                Market Volume{{ hasForecast() ? ' & 6-Month Forecast' : '' }}
+    <Card class="rounded-none border-none shadow-none sm:rounded sm:border sm:shadow-sm">
+        <CardHeader class="flex flex-row items-center justify-between gap-2 space-y-0 px-3 py-3 sm:px-6 sm:py-6">
+            <CardTitle>
+                {{ hasForecast() ? ' 6-Month Forecast' : 'Market Volume' }}
             </CardTitle>
 
             <TooltipProvider v-if="hasForecast() && forecastConfidence" :delay-duration="200">
@@ -64,7 +65,7 @@ const confidenceTooltip: Record<string, string> = {
                 </Tooltip>
             </TooltipProvider>
         </CardHeader>
-        <CardContent>
+        <CardContent class="px-0 sm:px-6">
             <div v-if="chartData" class="relative h-48 w-full sm:h-64">
                 <Bar
                     :data="chartData"
@@ -72,13 +73,13 @@ const confidenceTooltip: Record<string, string> = {
                     :plugins="[forecastDividerPlugin]"
                 />
             </div>
-            <div
+            
+            <EmptyState
                 v-else
-                class="flex items-center gap-2 rounded-lg border border-dashed p-6 text-sm text-muted-foreground"
-            >
-                <AlertCircle class="size-4 shrink-0" />
-                No completed market activity recorded for this vegetable.
-            </div>
+                title="No completed activity record"
+                :icon="AlertCircle"
+            />
+            <div
 
             <div
                 v-if="chartData && !hasForecast() && (monthsOfHistory ?? 0) < MIN_MONTHS_FOR_FORECAST"
