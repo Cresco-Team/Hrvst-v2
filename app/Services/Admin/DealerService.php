@@ -31,9 +31,9 @@ class DealerService
 
         if ($search) {
             $query->whereHas('user', function (Builder $q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('email', 'like', "%{$search}%")
-                    ->orWhere('phone_number', 'like', "%{$search}%");
+                $q->where('name', 'ilike', "%{$search}%")
+                    ->orWhere('email', 'ilike', "%{$search}%")
+                    ->orWhere('phone_number', 'ilike', "%{$search}%");
             });
         }
 
