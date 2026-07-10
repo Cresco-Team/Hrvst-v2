@@ -158,7 +158,7 @@ function handleDayClick(day: { id: string }): void {
         </div>
 
         <!-- Calendar grid -->
-        <Card class="rounded-none border-x-0 shadow-none sm:rounded-lg sm:border sm:shadow-sm">
+        <Card class="rounded-none border-none shadow-none sm:rounded-lg sm:border sm:shadow-sm">
             <Calendar
                 :key="`${calendarYear}-${calendarMonth}`"
                 :attributes="calendarAttributes"
