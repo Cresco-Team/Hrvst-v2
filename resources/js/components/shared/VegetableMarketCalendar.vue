@@ -131,13 +131,13 @@ function handleDayClick(day: { id: string }): void {
         <!-- Sidebar -->
         <div class="flex flex-col gap-4">
             <div class="flex flex-col gap-0.5">
-                <h2 class="text-base font-medium">Market Calendar</h2>
-                <p class="text-sm text-muted-foreground">
-                    All scheduled supply and demand posts for this vegetable by date.
+                <h2 class="font-semibold">Market Calendar</h2>
+                <p class="hidden sm:inline-block text-muted-foreground text-sm">
+                    All scheduled supply and demand.
                 </p>
             </div>
 
-            <div class="flex items-center gap-2">
+            <div class="flex justify-center items-center gap-2">
                 <Button variant="outline" size="icon" aria-label="Previous month" @click="navigateMonth(-1)">
                     <ChevronLeft class="size-4" />
                 </Button>
@@ -149,12 +149,8 @@ function handleDayClick(day: { id: string }): void {
                 </Button>
             </div>
 
-            <Button variant="ghost" size="sm" class="w-fit text-xs text-muted-foreground" @click="goToToday">
-                Today
-            </Button>
-
-            <div class="flex flex-col gap-2 text-xs text-muted-foreground">
-                <div v-for="item in legend" :key="item.label" class="flex items-center gap-1.5">
+            <div class="flex sm:flex-col justify-center gap-3 text-xs text-muted-foreground">
+                <div v-for="item in legend" :key="item.label" class="flex items-center gap-0.5">
                     <span class="h-2 w-2 rounded-full" :class="BALANCE_DOT_CLASS[item.color]" />
                     {{ item.label }}
                 </div>
@@ -162,7 +158,7 @@ function handleDayClick(day: { id: string }): void {
         </div>
 
         <!-- Calendar grid -->
-        <Card class="p-2">
+        <Card class="rounded-none border-0 px-4 shadow-none sm:rounded sm:border sm:shadow">
             <Calendar
                 :key="`${calendarYear}-${calendarMonth}`"
                 :attributes="calendarAttributes"

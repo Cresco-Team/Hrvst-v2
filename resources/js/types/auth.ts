@@ -1,6 +1,7 @@
 export type User = {
 	id: number
 	name: string
+	phone_number: number
 	email: string
 	roles: string[]
 	avatar?: string

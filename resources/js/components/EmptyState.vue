@@ -25,7 +25,7 @@ withDefaults(defineProps<Props>(), {
 </script>
 
 <template>
-    <Empty class="border border-dashed mx-20">
+    <Empty class="border border-dashed">
         <EmptyHeader>
             <EmptyMedia variant="icon" class="bg-primary/10">
                 <component :is="icon" :class="iconClass" />

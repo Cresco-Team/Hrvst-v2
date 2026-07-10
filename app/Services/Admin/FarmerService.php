@@ -35,11 +35,13 @@ class FarmerService
                     ->ongoing(),
             ]);
 
-        if ($search) {
-            $query->whereHas(
-                'user', fn (Builder $q) => $q->where('name', 'like', "%{$search}%")
-            );
-        }
+            if ($search) {
+                $query->whereHas('user', function (Builder $q) use ($search) {
+                    $q->where('name', 'ilike', "%{$search}%")
+                        ->orWhere('email', 'ilike', "%{$search}%")
+                        ->orWhere('phone_number', 'ilike', "%{$search}%");
+                });
+            }
 
         return $query->orderBy('created_at', 'desc')->paginate($perPage);
     }

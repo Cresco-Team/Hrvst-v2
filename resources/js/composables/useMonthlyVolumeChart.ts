@@ -27,11 +27,22 @@ interface SeriesConfig {
 }
 
 const SERIES: SeriesConfig[] = [
-    { key: 'supply_fulfilled_kg', label: 'Supply — Fulfilled', rgb: '34, 197, 94', stack: 'supply', historicalAlpha: 0.9, forecastAlpha: 0.35, radius: 4 },
-    { key: 'supply_expired_kg', label: 'Supply — Expired', rgb: '166, 166, 166', stack: 'supply', historicalAlpha: 0.3, forecastAlpha: 0.15, radius: 0 },
-    { key: 'demand_fulfilled_kg', label: 'Demand — Fulfilled', rgb: '249, 115, 22', stack: 'demand', historicalAlpha: 0.9, forecastAlpha: 0.35, radius: 4 },
-    { key: 'demand_expired_kg', label: 'Demand — Expired', rgb: '166, 166, 166', stack: 'demand', historicalAlpha: 0.3, forecastAlpha: 0.15, radius: 0 },
+    { key: 'supply_fulfilled_kg', label: 'Fulfilled Suply', rgb: '34, 197, 94', stack: 'supply', historicalAlpha: 0.9, forecastAlpha: 0.35, radius: 4 },
+    { key: 'supply_expired_kg', label: 'Expired Supply', rgb: '166, 166, 166', stack: 'supply', historicalAlpha: 0.3, forecastAlpha: 0.15, radius: 0 },
+    { key: 'demand_fulfilled_kg', label: 'Fulfilled Demand', rgb: '249, 115, 22', stack: 'demand', historicalAlpha: 0.9, forecastAlpha: 0.35, radius: 4 },
+    { key: 'demand_expired_kg', label: 'Expired Demand', rgb: '166, 166, 166', stack: 'demand', historicalAlpha: 0.3, forecastAlpha: 0.15, radius: 0 },
 ]
+
+function formatKgAxis(value: number): string {
+    if (Math.abs(value) >= 1000) {
+        const scaled = value / 1000
+        return `${scaled.toLocaleString('en-PH', {
+            minimumFractionDigits: 0,
+            maximumFractionDigits: scaled % 1 === 0 ? 0 : 1,
+        })}k kg`
+    }
+    return `${value} kg`
+}
 
 export function useMonthlyVolumeChart(
     activity: MaybeRefOrGetter<MonthlyActivity[] | null | undefined>,
@@ -134,7 +145,10 @@ export function useMonthlyVolumeChart(
                 stacked: true,
                 beginAtZero: true,
                 grid: { color: 'rgba(0,0,0,0.05)' },
-                ticks: { font: { size: 11 }, callback: (value) => `${value} kg` },
+                ticks: {
+                    font: { size: 11 },
+                    callback: (value) => formatKgAxis(Number(value)),
+                },
             },
         },
     }

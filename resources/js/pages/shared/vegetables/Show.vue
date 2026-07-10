@@ -15,6 +15,7 @@ import adminRoutes, { dashboard as adminDashboard } from '@/routes/admin'
 import vegetables from '@/routes/vegetables'
 import type { BreadcrumbItem, VegetableCalendarFilters, VegetableDaySchedule } from '@/types'
 import type { VegetableResource } from '@/types/resources/product'
+import { Separator } from '@/components/ui/separator'
 
 interface Props {
     vegetable?: VegetableResource
@@ -141,6 +142,8 @@ function handleDaySelect(dateStr: string): void {
                         :recommendations="vegetable.analytics.recommendations"
                     />
 
+                    <Separator class="inline-block sm:hidden" />
+
                     <!-- ── Charts ─────────────────────────────────────────────────────── -->
                     <VegetableMonthlyChart
                         v-if="vegetable.monthly_activity?.length"
@@ -149,6 +152,8 @@ function handleDaySelect(dateStr: string): void {
                         :months-of-history="vegetable.analytics?.forecast"
                         :forecast-confidence="vegetable.analytics?.forecast_confidence"
                     />
+
+                    <Separator class="inline-block sm:hidden" />
 
                     <!-- ── Market Calendar ─────────────────────────────────────────────── -->
                     <VegetableMarketCalendar
