@@ -59,7 +59,7 @@ const demandConfig = computed(() =>
 </script>
 
 <template>
-    <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
+    <div class="grid grid-cols-2 gap-3 sm:grid-cols-3">
         <!-- Market Balance -->
         <SmallCard
             title="Market Balance"
@@ -67,6 +67,7 @@ const demandConfig = computed(() =>
             :value-class="bandConfig.valueClass"
             :subtext="ratioLabel"
             subtext-below
+            class="col-span-2 sm:col-span-1"
         />
 
         <!-- Supply Fulfillment -->
