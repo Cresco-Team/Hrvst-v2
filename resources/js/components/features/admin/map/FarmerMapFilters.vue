@@ -81,7 +81,10 @@ const clearFilters = () => {
             >
                 <X class="size-3.5" />
                 Clear
-                <Badge variant="secondary" class="ml-1 px-1.5 py-0">
+                <Badge
+                    variant="secondary"
+                    class="ml-1 px-1.5 py-0"
+                >
                     {{ activeFilterCount }}
                 </Badge>
             </Button>

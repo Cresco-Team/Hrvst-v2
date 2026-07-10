@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { AlertCircle, Info } from 'lucide-vue-next'
 import { Bar } from 'vue-chartjs'
+import EmptyState from '@/components/EmptyState.vue'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
@@ -11,7 +12,6 @@ import {
 } from '@/components/ui/tooltip'
 import { useMonthlyVolumeChart } from '@/composables/useMonthlyVolumeChart'
 import type { ForecastPoint, MonthlyActivity } from '@/types/resources/product'
-import EmptyState from '@/components/EmptyState.vue'
 
 const props = defineProps<{
     monthlyActivity: MonthlyActivity[]
@@ -49,10 +49,16 @@ const confidenceTooltip: Record<string, string> = {
                 {{ hasForecast() ? ' 6-Month Forecast' : 'Market Volume' }}
             </CardTitle>
 
-            <TooltipProvider v-if="hasForecast() && forecastConfidence" :delay-duration="200">
+            <TooltipProvider
+                v-if="hasForecast() && forecastConfidence"
+                :delay-duration="200"
+            >
                 <Tooltip>
                     <TooltipTrigger as-child>
-                        <Badge variant="outline" class="cursor-help gap-1 text-xs font-normal">
+                        <Badge
+                            variant="outline"
+                            class="cursor-help gap-1 text-xs font-normal"
+                        >
                             <Info class="size-3" />
                             {{ confidenceLabel[forecastConfidence] ?? 'Forecast' }}
                         </Badge>
@@ -66,7 +72,10 @@ const confidenceTooltip: Record<string, string> = {
             </TooltipProvider>
         </CardHeader>
         <CardContent class="px-0 sm:px-6">
-            <div v-if="chartData" class="relative h-48 w-full sm:h-64">
+            <div
+                v-if="chartData"
+                class="relative h-48 w-full sm:h-64"
+            >
                 <Bar
                     :data="chartData"
                     :options="chartOptions"
@@ -79,7 +88,6 @@ const confidenceTooltip: Record<string, string> = {
                 title="No completed activity record"
                 :icon="AlertCircle"
             />
-            <div
 
             <div
                 v-if="chartData && !hasForecast() && (monthsOfHistory ?? 0) < MIN_MONTHS_FOR_FORECAST"

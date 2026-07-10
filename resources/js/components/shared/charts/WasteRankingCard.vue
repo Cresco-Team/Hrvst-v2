@@ -2,13 +2,13 @@
 import { Link } from '@inertiajs/vue3'
 import { ArrowRight, ChevronDown, ChevronUp, Vegan } from 'lucide-vue-next'
 import { computed, ref } from 'vue'
+import AppTooltip from '@/components/templates/AppTooltip.vue'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { show } from '@/routes/vegetables'
 import type { VegetableStabilityData, VegetableWasteData } from '@/types/resources/product'
-import AppTooltip from '@/components/templates/AppTooltip.vue'
 
 type RankedItem = VegetableWasteData | VegetableStabilityData
 
@@ -71,7 +71,11 @@ function maturityTooltip(item: RankedItem): string | undefined {
 
             <template v-else>
                 <ol class="flex flex-col gap-1">
-                    <li v-for="(item, index) in visible" :key="item.id" class="group">
+                    <li
+                        v-for="(item, index) in visible"
+                        :key="item.id"
+                        class="group"
+                    >
                         <Link
                             :href="show(item.id).url"
                             class="group -mx-2 flex items-center gap-3 rounded-lg px-2 py-1.5 transition-colors hover:bg-muted"
@@ -81,7 +85,10 @@ function maturityTooltip(item: RankedItem): string | undefined {
                             </span>
 
                             <Avatar class="size-8 shrink-0 rounded-md">
-                                <AvatarImage :src="item.image_url" :alt="item.display_name" />
+                                <AvatarImage
+                                    :src="item.image_url"
+                                    :alt="item.display_name"
+                                />
                                 <AvatarFallback class="rounded-md bg-primary/10">
                                     <Vegan class="size-4 text-primary" />
                                 </AvatarFallback>
@@ -100,7 +107,10 @@ function maturityTooltip(item: RankedItem): string | undefined {
                                     </Badge>
                                 </div>
                                 <div class="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-muted">
-                                    <div class="h-full rounded-full bg-primary/70" :style="{ width: barPct(item.wasted_kg) }" />
+                                    <div
+                                        class="h-full rounded-full bg-primary/70"
+                                        :style="{ width: barPct(item.wasted_kg) }"
+                                    />
                                 </div>
                             </div>
 
@@ -120,7 +130,10 @@ function maturityTooltip(item: RankedItem): string | undefined {
                     class="mt-2 w-fit gap-1.5 px-2 text-xs text-muted-foreground"
                     @click="expanded = !expanded"
                 >
-                    <component :is="expanded ? ChevronUp : ChevronDown" class="size-3.5" />
+                    <component
+                        :is="expanded ? ChevronUp : ChevronDown"
+                        class="size-3.5"
+                    />
                     {{ expanded ? 'Show less' : `Show ${hiddenCount} more` }}
                 </Button>
             </template>

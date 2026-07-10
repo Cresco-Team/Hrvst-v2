@@ -1,14 +1,14 @@
 <script setup lang="ts">
+import { EllipsisVertical, Eye, Pen, Trash, Vegan } from '@lucide/vue'
 import {
     type ColumnDef,
 } from '@tanstack/vue-table'
+import DataTable from '@/components/shared/tables/DataTable.vue'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
-import type { VegetableAdminData } from '@/types/resources/product'
-import { Paginated } from '@/types'
-import DataTable from '@/components/shared/tables/DataTable.vue'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { EllipsisVertical, Eye, Pen, Trash, Vegan } from '@lucide/vue'
+import type { Paginated } from '@/types'
+import type { VegetableAdminData } from '@/types/resources/product'
 
 const props = defineProps<{
     vegetables: Paginated<VegetableAdminData>
@@ -69,7 +69,10 @@ const columns: ColumnDef<VegetableAdminData>[] = [
                 </Avatar>
                 <div class="flex flex-col">
                     <span class="font-semibold">{{ row.vegetable_name }} {{ row.variety_name ? `: ${row.variety_name}` : ''}}</span>
-                    <span v-if="row.local_name" class="text-xs font-normal text-muted-foreground">
+                    <span
+                        v-if="row.local_name"
+                        class="text-xs font-normal text-muted-foreground"
+                    >
                         {{ row.local_name }}
                     </span>
                 </div>
@@ -106,17 +109,26 @@ const columns: ColumnDef<VegetableAdminData>[] = [
 
                     <DropdownMenuContent>
                         <DropdownMenuGroup>
-                            <DropdownMenuItem @click="emit('open-vegetable-details', row)" class="cursor-pointer">
+                            <DropdownMenuItem
+                                class="cursor-pointer"
+                                @click="emit('open-vegetable-details', row)"
+                            >
                                 <Eye />
                                 View Details
                             </DropdownMenuItem>
 
-                            <DropdownMenuItem @click="emit('open-edit-vegetable', row)" class="cursor-pointer">
+                            <DropdownMenuItem
+                                class="cursor-pointer"
+                                @click="emit('open-edit-vegetable', row)"
+                            >
                                 <Pen />
                                 Edit
                             </DropdownMenuItem>
 
-                            <DropdownMenuItem @click="emit('open-delete-vegetable', row)" class="cursor-pointer text-destructive focus:text-destructive">
+                            <DropdownMenuItem
+                                class="cursor-pointer text-destructive focus:text-destructive"
+                                @click="emit('open-delete-vegetable', row)"
+                            >
                                 <Trash />
                                 Delete
                             </DropdownMenuItem>

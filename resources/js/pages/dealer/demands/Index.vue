@@ -4,8 +4,8 @@ import { Plus, ShoppingBag } from 'lucide-vue-next'
 import { ref } from 'vue'
 import ConfirmationDialog from '@/components/dialogs/ConfirmationDialog.vue'
 import EmptyState from '@/components/EmptyState.vue'
-import DemandItem from '@/components/features/dealer/DemandItem.vue'
 import DemandForm from '@/components/features/dealer/DemandForm.vue'
+import DemandItem from '@/components/features/dealer/DemandItem.vue'
 import Heading from '@/components/Heading.vue'
 import LargeCard from '@/components/shared/cards/LargeCard.vue'
 import { Button } from '@/components/ui/button'
@@ -84,7 +84,10 @@ const breadcrumbs: BreadcrumbItem[] = [
                     title="My Requests"
                     description="Schedule vegetable request."
                 />
-                <Button class="gap-2" @click="openCreate">
+                <Button
+                    class="gap-2"
+                    @click="openCreate"
+                >
                     <Plus class="size-4" />
                     New Schedule
                 </Button>
@@ -95,7 +98,10 @@ const breadcrumbs: BreadcrumbItem[] = [
                     <Skeleton class="h-20 w-full rounded-lg" />
                 </template>
 
-                <div v-if="needsAction?.length" class="flex flex-col gap-3">
+                <div
+                    v-if="needsAction?.length"
+                    class="flex flex-col gap-3"
+                >
                     <div class="flex items-center gap-2">
                         <TriangleAlert class="size-4 text-destructive" />
                         <h2 class="text-sm font-semibold">Needs Action</h2>
@@ -119,9 +125,7 @@ const breadcrumbs: BreadcrumbItem[] = [
             <!-- ── Demand list (Ongoing only) ─────────────────────────── -->
             <Deferred data="demands">
                 <template #fallback>
-                    <div
-                        class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
-                    >
+                    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                         <Skeleton
                             v-for="i in 8"
                             :key="i"

@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { Deferred, Head, Link, router } from '@inertiajs/vue3'
-import axios from 'axios'
 import {
     List,
     Loader2,
@@ -8,14 +7,21 @@ import {
     SearchX,
     UserRoundPlus,
 } from '@lucide/vue'
+import axios from 'axios'
 import { computed, ref, watch } from 'vue'
 import { toast } from 'vue-sonner'
+import {
+    details as farmerDetails,
+    markers as farmerMarkers,
+} from '@/actions/App/Http/Controllers/Admin/FarmerController'
 import EmptyState from '@/components/EmptyState.vue'
+import FarmerBarangaySheet from '@/components/features/admin/dialogs/FarmerBarangaySheet.vue'
 import FarmerDetailSidebar from '@/components/features/admin/dialogs/FarmerDetailSidebar.vue'
 import FarmerMap from '@/components/features/admin/map/FarmerMap.vue'
 import FarmerMapFilters from '@/components/features/admin/map/FarmerMapFilters.vue'
 import FarmerTable from '@/components/features/admin/tables/FarmerTable.vue'
 import Heading from '@/components/Heading.vue'
+import SmallCard from '@/components/shared/cards/SmallCard.vue'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
@@ -29,12 +35,6 @@ import type {
     FarmerMarker,
     FarmerResource,
 } from '@/types'
-import {
-    details as farmerDetails,
-    markers as farmerMarkers,
-} from '@/actions/App/Http/Controllers/Admin/FarmerController'
-import SmallCard from '@/components/shared/cards/SmallCard.vue'
-import FarmerBarangaySheet from '@/components/features/admin/dialogs/FarmerBarangaySheet.vue'
 
 const props = defineProps<AdminFarmersProps>()
 
@@ -220,7 +220,10 @@ if (storedView && storedView !== props.view) {
                 />
 
                 <div class="flex items-center gap-2">
-                    <Button as-child variant="outline">
+                    <Button
+                        as-child
+                        variant="outline"
+                    >
                         <Link :href="users.farmers.create()">
                             <UserRoundPlus :size="20" />
                             Register Farmer
@@ -255,16 +258,16 @@ if (storedView && storedView !== props.view) {
             <!-- Summary Cards -->
             <Deferred data="summary">
                 <template #fallback>
-                    <div
-                        class="grid gap-4 md:grid-cols-2 lg:grid-cols-4 lg:gap-2"
-                    >
-                        <Skeleton v-for="i in 4" :key="i" class="h-20" />
+                    <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4 lg:gap-2">
+                        <Skeleton
+                            v-for="i in 4"
+                            :key="i"
+                            class="h-20"
+                        />
                     </div>
                 </template>
 
-                <div
-                    class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4 lg:gap-2"
-                >
+                <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4 lg:gap-2">
                     <SmallCard
                         title="Total Farmers"
                         :value="summary.total_farmers.toLocaleString()"
@@ -327,9 +330,7 @@ if (storedView && storedView !== props.view) {
                 v-if="isMapView"
                 class="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_320px]"
             >
-                <div
-                    class="relative h-full min-h-[600px] w-full overflow-hidden rounded-lg border shadow-sm"
-                >
+                <div class="relative h-full min-h-[600px] w-full overflow-hidden rounded-lg border shadow-sm">
                     <Transition
                         enter-active-class="transition-opacity duration-200"
                         leave-active-class="transition-opacity duration-200"
@@ -340,13 +341,9 @@ if (storedView && storedView !== props.view) {
                             v-if="loadingMarkers"
                             class="absolute inset-0 z-30 flex items-center justify-center bg-background/80 backdrop-blur-sm"
                         >
-                            <div
-                                class="flex items-center gap-2 rounded-lg border bg-card p-4 shadow-lg"
-                            >
+                            <div class="flex items-center gap-2 rounded-lg border bg-card p-4 shadow-lg">
                                 <Loader2 class="size-4 animate-spin" />
-                                <span class="text-sm font-medium"
-                                    >Loading farmers...</span
-                                >
+                                <span class="text-sm font-medium">Loading farmers...</span>
                             </div>
                         </div>
                     </Transition>
@@ -377,17 +374,13 @@ if (storedView && storedView !== props.view) {
                         <p class="mb-3 text-sm font-semibold">Map Statistics</p>
                         <div class="space-y-2 text-sm">
                             <div class="flex items-center justify-between">
-                                <span class="text-muted-foreground"
-                                    >Visible farmers</span
-                                >
+                                <span class="text-muted-foreground">Visible farmers</span>
                                 <span class="font-mono font-medium">{{
                                     markers.length
                                 }}</span>
                             </div>
                             <div class="flex items-center justify-between">
-                                <span class="text-muted-foreground"
-                                    >Total active plantings</span
-                                >
+                                <span class="text-muted-foreground">Total active plantings</span>
                                 <span class="font-mono font-medium">{{
                                     totalVisiblePlantings
                                 }}</span>
@@ -399,41 +392,29 @@ if (storedView && storedView !== props.view) {
                         <p class="mb-3 text-sm font-semibold">Legend</p>
                         <div class="space-y-2 text-xs">
                             <div class="flex items-center gap-2">
-                                <div
-                                    class="size-3 shrink-0 rounded-full bg-blue-500"
-                                />
+                                <div class="size-3 shrink-0 rounded-full bg-blue-500"/>
                                 <span>Cluster (multiple farmers)</span>
                             </div>
                             <div class="flex items-center gap-2">
-                                <div
-                                    class="size-3 shrink-0 rounded-full bg-green-500"
-                                />
+                                <div class="size-3 shrink-0 rounded-full bg-green-500"/>
                                 <span>Leafy vegetables</span>
                             </div>
                             <div class="flex items-center gap-2">
-                                <div
-                                    class="size-3 shrink-0 rounded-full bg-orange-500"
-                                />
+                                <div class="size-3 shrink-0 rounded-full bg-orange-500"/>
                                 <span>Root vegetables</span>
                             </div>
                             <div class="flex items-center gap-2">
-                                <div
-                                    class="size-3 shrink-0 rounded-full bg-red-500"
-                                />
+                                <div class="size-3 shrink-0 rounded-full bg-red-500"/>
                                 <span>Fruiting vegetables</span>
                             </div>
                             <div class="flex items-center gap-2">
-                                <div
-                                    class="size-3 shrink-0 rounded-full bg-gray-500"
-                                />
+                                <div class="size-3 shrink-0 rounded-full bg-gray-500"/>
                                 <span>Other varieties</span>
                             </div>
                         </div>
                     </div>
 
-                    <div
-                        class="rounded-lg border border-dashed bg-muted/30 p-4"
-                    >
+                    <div class="rounded-lg border border-dashed bg-muted/30 p-4">
                         <p class="mb-2 text-xs font-medium">How to use</p>
                         <ul class="space-y-1 text-xs text-muted-foreground">
                             <li>• Click markers to view farmer details</li>

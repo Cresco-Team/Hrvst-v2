@@ -110,9 +110,15 @@ function handleSearchInput() {
     <div class="flex flex-col gap-4">
         <!-- toolbar -->
         <div class="flex items-center justify-between">
-            <InputGroup v-if="enableSearch" class="max-w-xs">
-                <InputGroupInput v-model="localSearchQuery" :placeholder="searchPlaceholder"
-                    @input="handleSearchInput" />
+            <InputGroup
+                v-if="enableSearch"
+                class="max-w-xs"
+            >
+                <InputGroupInput
+                    v-model="localSearchQuery"
+                    :placeholder="searchPlaceholder"
+                    @input="handleSearchInput"
+                />
                 <InputGroupAddon>
                     <Search />
                 </InputGroupAddon>
@@ -129,18 +135,32 @@ function handleSearchInput() {
             <table class="w-full text-sm">
                 <thead class="bg-muted">
                     <tr>
-                        <th v-for="header in table.getHeaderGroups()[0].headers" :key="header.id"
-                            class="px-4 py-3 text-left font-medium text-muted-foreground">
+                        <th
+                            v-for="header in table.getHeaderGroups()[0].headers"
+                            :key="header.id"
+                            class="px-4 py-3 text-left font-medium text-muted-foreground"
+                        >
                             <template v-if="header.column.getCanSort()">
-                                <button class="flex items-center gap-1 hover:text-foreground transition-colors"
-                                    @click="header.column.toggleSorting(header.column.getIsSorted() === 'asc')">
-                                    <FlexRender :render="header.column.columnDef.header" :props="header.getContext()" />
-                                    <component :is="sortIcon(header.column.getIsSorted())" class="size-3.5" />
+                                <button
+                                    class="flex items-center gap-1 hover:text-foreground transition-colors"
+                                    @click="header.column.toggleSorting(header.column.getIsSorted() === 'asc')"
+                                >
+                                    <FlexRender
+                                        :render="header.column.columnDef.header"
+                                        :props="header.getContext()"
+                                    />
+                                    <component
+                                        :is="sortIcon(header.column.getIsSorted())"
+                                        class="size-3.5"
+                                    />
                                 </button>
                             </template>
                             <template v-else>
                                 <template v-if="!header.isPlaceholder">
-                                    <FlexRender :render="header.column.columnDef.header" :props="header.getContext()" />
+                                    <FlexRender
+                                        :render="header.column.columnDef.header"
+                                        :props="header.getContext()"
+                                    />
                                 </template>
                             </template>
                         </th>
@@ -148,26 +168,47 @@ function handleSearchInput() {
                 </thead>
 
                 <tbody>
-                    <template v-for="row in table.getRowModel().rows" :key="row.id">
+                    <template
+                        v-for="row in table.getRowModel().rows"
+                        :key="row.id"
+                    >
                         <!-- main row -->
                         <tr class="border-t hover:bg-primary/10 transition-colors">
-                            <td v-for="cell in row.getVisibleCells()" :key="cell.id" class="px-4 py-3">
+                            <td
+                                v-for="cell in row.getVisibleCells()"
+                                :key="cell.id"
+                                class="px-4 py-3"
+                            >
                                 <!-- custom cell rendering via slots -->
-                                <slot :name="`cell-${cell.column.id}`" :row="row.original" :cell="cell">
+                                <slot
+                                    :name="`cell-${cell.column.id}`"
+                                    :row="row.original"
+                                    :cell="cell"
+                                >
                                     <!-- default cell rendering -->
-                                    <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
+                                    <FlexRender
+                                        :render="cell.column.columnDef.cell"
+                                        :props="cell.getContext()"
+                                    />
                                 </slot>
                             </td>
                         </tr>
 
                         <!-- expandable row (optional) -->
-                        <slot v-if="enableExpand && row.getIsExpanded()" name="expanded-row" :row="row.original"
-                            :colspan="columns.length" />
+                        <slot
+                            v-if="enableExpand && row.getIsExpanded()"
+                            name="expanded-row"
+                            :row="row.original"
+                            :colspan="columns.length"
+                        />
                     </template>
 
                     <!-- empty state -->
                     <tr v-if="table.getRowModel().rows.length === 0">
-                        <td :colspan="columns.length" class="px-4 py-8 text-center text-muted-foreground">
+                        <td
+                            :colspan="columns.length"
+                            class="px-4 py-8 text-center text-muted-foreground"
+                        >
                             <slot name="empty">
                                 {{ emptyMessage }}
                             </slot>
@@ -186,8 +227,12 @@ function handleSearchInput() {
             </span>
 
             <div class="flex items-center gap-1.5">
-                <Button variant="outline" size="icon-sm" :disabled="!hasPrevPage"
-                    @click="$emit('page-change', data.current_page - 1)">
+                <Button
+                    variant="outline"
+                    size="icon-sm"
+                    :disabled="!hasPrevPage"
+                    @click="$emit('page-change', data.current_page - 1)"
+                >
                     <ChevronLeft class="size-4" />
                 </Button>
 
@@ -195,8 +240,12 @@ function handleSearchInput() {
                     {{ data.current_page }} / {{ data.last_page }}
                 </span>
 
-                <Button variant="outline" size="icon-sm" :disabled="!hasNextPage"
-                    @click="$emit('page-change', data.current_page + 1)">
+                <Button
+                    variant="outline"
+                    size="icon-sm"
+                    :disabled="!hasNextPage"
+                    @click="$emit('page-change', data.current_page + 1)"
+                >
                     <ChevronRight class="size-4" />
                 </Button>
             </div>

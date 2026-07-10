@@ -4,7 +4,7 @@ import importPlugin from 'eslint-plugin-import'
 import vue from 'eslint-plugin-vue'
 
 export default defineConfigWithVueTs(
-	vue.configs['flat/essential'],
+	vue.configs['flat/recommended'],
 	vueTsConfigs.recommended,
 	{
 		ignores: [
@@ -14,7 +14,7 @@ export default defineConfigWithVueTs(
 			'bootstrap/ssr',
 			'tailwind.config.js',
 			'vite.config.ts',
-			'resources/js/components/ui/*',
+			'resources/js/components/ui/**/*',
 		],
 	},
 	{
@@ -52,4 +52,31 @@ export default defineConfigWithVueTs(
 		},
 	},
 	prettier,
+	{
+		files: ['resources/js/**/*.vue'],
+		rules: {
+			'vue/html-indent': ['error', 4],
+			'vue/max-attributes-per-line': [
+				'error',
+				{
+					singleline: { max: 1 },
+					multiline: { max: 1 },
+				},
+			],
+			'vue/html-closing-bracket-newline': [
+				'error',
+				{
+					singleline: 'never',
+					multiline: 'always',
+				},
+			],
+			'vue/first-attribute-linebreak': [
+				'error',
+				{
+					singleline: 'beside',
+					multiline: 'below',
+				},
+			],
+		}
+	}
 )

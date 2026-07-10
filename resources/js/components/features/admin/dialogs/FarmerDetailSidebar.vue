@@ -17,6 +17,7 @@ import {
 import { resetPin } from '@/actions/App/Http/Controllers/Admin/UserController'
 import ConfirmationDialog from '@/components/dialogs/ConfirmationDialog.vue'
 import DetailSheet from '@/components/dialogs/DetailSheet.vue'
+import EmptyState from '@/components/EmptyState.vue'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -41,7 +42,6 @@ import { Separator } from '@/components/ui/separator'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useInitials } from '@/composables/useInitials'
 import type { FarmerResource, FlashMessage } from '@/types'
-import EmptyState from '@/components/EmptyState.vue'
 
 const props = defineProps<{
     open: boolean
@@ -93,7 +93,10 @@ function handleDelete() {
         @update:open="!$event && $emit('close')"
     >
         <!-- Loading skeleton -->
-        <div v-if="loading" class="space-y-6">
+        <div
+            v-if="loading"
+            class="space-y-6"
+        >
             <div class="flex items-start gap-4">
                 <Skeleton class="size-16 shrink-0 rounded-lg" />
                 <div class="flex-1 space-y-2">
@@ -108,7 +111,10 @@ function handleDelete() {
         </div>
 
         <!-- Farmer details -->
-        <div v-else-if="farmer" class="space-y-6">
+        <div
+            v-else-if="farmer"
+            class="space-y-6"
+        >
             <Item variant="outline">
                 <ItemMedia>
                     <Avatar class="size-16">
@@ -117,9 +123,7 @@ function handleDelete() {
                             :src="farmer.user.avatar_url"
                             :alt="farmer.user.name"
                         />
-                        <AvatarFallback
-                            class="bg-primary/10 text-lg font-semibold text-primary"
-                        >
+                        <AvatarFallback class="bg-primary/10 text-lg font-semibold text-primary">
                             {{ getInitials(farmer.user?.name) }}
                         </AvatarFallback>
                     </Avatar>
@@ -169,7 +173,10 @@ function handleDelete() {
                 </div>
 
                 <ItemGroup v-if="farmer.supplies?.length">
-                    <template v-for="(item, index) in farmer.supplies" :key="item.id">
+                    <template
+                        v-for="(item, index) in farmer.supplies"
+                        :key="item.id"
+                    >
                         <ItemSeparator v-if="index !== farmer.supplies!.length - 1" />
                         <Item size="sm">
                             <ItemMedia variant="image">
@@ -207,7 +214,10 @@ function handleDelete() {
             <div v-if="loading">
                 <Skeleton class="h-9 w-full" />
             </div>
-            <div v-else-if="farmer" class="flex justify-end gap-2">
+            <div
+                v-else-if="farmer"
+                class="flex justify-end gap-2"
+            >
                 <Button
                     variant="outline"
                     size="sm"
@@ -223,8 +233,14 @@ function handleDelete() {
                     :disabled="resetPinForm.processing"
                     @click="handleResetPin"
                 >
-                    <Spinner v-if="resetPinForm.processing" class="size-3.5" />
-                    <KeyRound v-else class="size-4" />
+                    <Spinner
+                        v-if="resetPinForm.processing"
+                        class="size-3.5"
+                    />
+                    <KeyRound
+                        v-else
+                        class="size-4"
+                    />
                     Reset PIN
                 </Button>
 
@@ -234,8 +250,14 @@ function handleDelete() {
                     :disabled="deleteForm.processing"
                     @click="isDeleteDialogOpen = true"
                 >
-                    <Spinner v-if="deleteForm.processing" class="size-3.5" />
-                    <Trash v-else class="size-4" />
+                    <Spinner
+                        v-if="deleteForm.processing"
+                        class="size-3.5"
+                    />
+                    <Trash
+                        v-else
+                        class="size-4"
+                    />
                     Delete
                 </Button>
             </div>
@@ -273,15 +295,16 @@ function handleDelete() {
                 <p class="font-mono text-5xl sm:text-6xl font-bold tracking-[0.5em]">
                     {{ revealedPin }}
                 </p>
-                <p
-                    class="max-w-[220px] text-center text-xs text-muted-foreground"
-                >
+                <p class="max-w-[220px] text-center text-xs text-muted-foreground">
                     The farmer will be asked to set a new PIN on their next
                     login.
                 </p>
             </div>
 
-            <Button class="w-full" @click="pinModalOpen = false">Done</Button>
+            <Button
+                class="w-full"
+                @click="pinModalOpen = false"
+            >Done</Button>
         </DialogContent>
     </Dialog>
 </template>

@@ -8,6 +8,8 @@ import {
 	Sprout,
 } from 'lucide-vue-next'
 import { computed, onMounted, ref, type Component } from 'vue'
+import { complete } from '@/actions/App/Http/Controllers/OnboardingController'
+import { Button } from '@/components/ui/button'
 import {
 	Dialog,
 	DialogContent,
@@ -15,9 +17,7 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from '@/components/ui/dialog'
-import { Button } from '@/components/ui/button'
 import { useOnboardingGuide } from '@/composables/useOnboardingGuide'
-import { complete } from '@/actions/App/Http/Controllers/OnboardingController'
 
 interface OnboardingStep {
 	icon: Component
@@ -112,45 +112,55 @@ onMounted(() => {
 </script>
 
 <template>
-	<Dialog :open="isOpen" @update:open="handleOpenChange">
-		<DialogContent
-			class="sm:max-w-md"
-			@pointer-down-outside="wasForced && $event.preventDefault()"
-			@escape-key-down="wasForced && $event.preventDefault()"
-		>
-			<DialogHeader class="items-center text-center">
-				<div
-					class="mb-2 flex size-14 items-center justify-center rounded-full bg-primary/10 text-primary"
-				>
-					<component :is="steps[currentStep].icon" class="size-7" />
-				</div>
-				<DialogTitle>{{ steps[currentStep].title }}</DialogTitle>
-				<DialogDescription>{{ steps[currentStep].body }}</DialogDescription>
-			</DialogHeader>
+    <Dialog
+        :open="isOpen"
+        @update:open="handleOpenChange"
+    >
+        <DialogContent
+            class="sm:max-w-md"
+            @pointer-down-outside="wasForced && $event.preventDefault()"
+            @escape-key-down="wasForced && $event.preventDefault()"
+        >
+            <DialogHeader class="items-center text-center">
+                <div class="mb-2 flex size-14 items-center justify-center rounded-full bg-primary/10 text-primary">
+                    <component
+                        :is="steps[currentStep].icon"
+                        class="size-7"
+                    />
+                </div>
+                <DialogTitle>{{ steps[currentStep].title }}</DialogTitle>
+                <DialogDescription>{{ steps[currentStep].body }}</DialogDescription>
+            </DialogHeader>
 
-			<div class="flex items-center justify-center gap-1.5 py-2">
-				<span
-					v-for="(_, index) in steps"
-					:key="index"
-					class="size-1.5 rounded-full transition-colors"
-					:class="index === currentStep ? 'bg-primary' : 'bg-muted'"
-				/>
-			</div>
+            <div class="flex items-center justify-center gap-1.5 py-2">
+                <span
+                    v-for="(_, index) in steps"
+                    :key="index"
+                    class="size-1.5 rounded-full transition-colors"
+                    :class="index === currentStep ? 'bg-primary' : 'bg-muted'"
+                />
+            </div>
 
-			<div class="flex justify-end gap-2">
-				<Button
-					v-if="!wasForced || currentStep > 0"
-					variant="ghost"
-					size="sm"
-					@click="currentStep > 0 ? currentStep-- : finish()"
-				>
-					{{ currentStep > 0 ? 'Back' : 'Close' }}
-				</Button>
-				<Button size="sm" @click="next">
-					<CircleCheck v-if="isLastStep" class="size-4" />
-					{{ isLastStep ? "Let's Go" : 'Next' }}
-				</Button>
-			</div>
-		</DialogContent>
-	</Dialog>
+            <div class="flex justify-end gap-2">
+                <Button
+                    v-if="!wasForced || currentStep > 0"
+                    variant="ghost"
+                    size="sm"
+                    @click="currentStep > 0 ? currentStep-- : finish()"
+                >
+                    {{ currentStep > 0 ? 'Back' : 'Close' }}
+                </Button>
+                <Button
+                    size="sm"
+                    @click="next"
+                >
+                    <CircleCheck
+                        v-if="isLastStep"
+                        class="size-4"
+                    />
+                    {{ isLastStep ? "Let's Go" : 'Next' }}
+                </Button>
+            </div>
+        </DialogContent>
+    </Dialog>
 </template>

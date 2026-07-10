@@ -37,7 +37,10 @@ const props = withDefaults(
     <Card :class="['gap-2 overflow-hidden hover:shadow-md transition-all bg-linear-to-br', cardClass]">
         <CardContent class="flex items-center justify-between">
             <CardDescription>{{ title }}</CardDescription>
-            <Badge v-if="change" variant="outline">
+            <Badge
+                v-if="change"
+                variant="outline"
+            >
                 <component 
                     :is="badge" 
                     :class="trendColor" 
@@ -45,8 +48,8 @@ const props = withDefaults(
                 <span :class="trendColor">{{ change }}</span>
             </Badge>
             <component 
-                v-else-if="icon" 
                 :is="icon" 
+                v-else-if="icon" 
                 :class="iconColor" 
             />
 

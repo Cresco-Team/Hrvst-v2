@@ -28,9 +28,7 @@ const passwordInput = useTemplateRef('passwordInput')
             title="Delete account"
             description="Delete your account and all of its resources"
         />
-        <div
-            class="space-y-4 rounded-lg border border-red-100 bg-red-50 p-4 dark:border-red-200/10 dark:bg-red-700/10"
-        >
+        <div class="space-y-4 rounded-lg border border-red-100 bg-red-50 p-4 dark:border-red-200/10 dark:bg-red-700/10">
             <div class="relative space-y-0.5 text-red-600 dark:text-red-100">
                 <p class="font-medium">Warning</p>
                 <p class="text-sm">
@@ -39,26 +37,25 @@ const passwordInput = useTemplateRef('passwordInput')
             </div>
             <Dialog>
                 <DialogTrigger as-child>
-                    <Button variant="destructive" data-test="delete-user-button"
-                        >Delete account</Button
-                    >
+                    <Button
+                        variant="destructive"
+                        data-test="delete-user-button"
+                    >Delete account</Button>
                 </DialogTrigger>
                 <DialogContent>
                     <Form
+                        v-slot="{ errors, processing, reset, clearErrors }"
                         v-bind="ProfileController.destroy.form()"
                         reset-on-success
-                        @error="() => passwordInput?.$el?.focus()"
                         :options="{
                             preserveScroll: true,
                         }"
                         class="space-y-6"
-                        v-slot="{ errors, processing, reset, clearErrors }"
+                        @error="() => passwordInput?.$el?.focus()"
                     >
                         <DialogHeader class="space-y-3">
-                            <DialogTitle
-                                >Are you sure you want to delete your
-                                account?</DialogTitle
-                            >
+                            <DialogTitle>Are you sure you want to delete your
+                                account?</DialogTitle>
                             <DialogDescription>
                                 Once your account is deleted, all of its
                                 resources and data will also be permanently
@@ -69,14 +66,15 @@ const passwordInput = useTemplateRef('passwordInput')
                         </DialogHeader>
 
                         <div class="grid gap-2">
-                            <Label for="password" class="sr-only"
-                                >Password</Label
-                            >
+                            <Label
+                                for="password"
+                                class="sr-only"
+                            >Password</Label>
                             <Input
                                 id="password"
+                                ref="passwordInput"
                                 type="password"
                                 name="password"
-                                ref="passwordInput"
                                 placeholder="Password"
                             />
                             <InputError :message="errors.password" />

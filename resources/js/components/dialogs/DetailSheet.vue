@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { computed } from 'vue'
 import { useMediaQuery } from '@vueuse/core'
+import { computed } from 'vue'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import {
     Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle,
@@ -27,7 +27,10 @@ const effectiveSide = computed(() =>
 </script>
 
 <template>
-    <Sheet :open="open" @update:open="$emit('update:open', $event)">
+    <Sheet
+        :open="open"
+        @update:open="$emit('update:open', $event)"
+    >
         <SheetContent
             :side="effectiveSide"
             class="flex flex-col gap-0 p-0 sm:max-w-[480px] max-h-[85vh] sm:max-h-none"
@@ -45,7 +48,10 @@ const effectiveSide = computed(() =>
                 </div>
             </ScrollArea>
 
-            <div v-if="$slots.footer" class="border-t px-6 py-4">
+            <div
+                v-if="$slots.footer"
+                class="border-t px-6 py-4"
+            >
                 <slot name="footer" />
             </div>
         </SheetContent>

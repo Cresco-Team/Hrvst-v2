@@ -71,9 +71,7 @@ const qtyClass = computed(() =>
 </script>
 
 <template>
-    <Card
-        class="gap-0 overflow-hidden py-0 transition-all hover:-translate-y-0.5 hover:shadow-lg"
-    >
+    <Card class="gap-0 overflow-hidden py-0 transition-all hover:-translate-y-0.5 hover:shadow-lg">
         <AspectRatio
             :ratio="16 / 9"
             class="relative overflow-hidden bg-primary/10"
@@ -98,22 +96,32 @@ const qtyClass = computed(() =>
             </div>
 
             <!-- Actions dropdown — top right -->
-            <div v-if="hasActions" class="absolute top-2 right-2 z-10">
+            <div
+                v-if="hasActions"
+                class="absolute top-2 right-2 z-10"
+            >
                 <DropdownMenu>
                     <DropdownMenuTrigger as-child>
-                        <Button variant="outline" size="icon" class="size-7">
+                        <Button
+                            variant="outline"
+                            size="icon"
+                            class="size-7"
+                        >
                             <MoreVertical class="size-3.5" />
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                        <DropdownMenuItem v-if="canEdit" @click="emit('edit')">
+                        <DropdownMenuItem
+                            v-if="canEdit"
+                            @click="emit('edit')"
+                        >
                             <Pencil class="mr-2 size-4" />
                             Edit
                         </DropdownMenuItem>
                         <DropdownMenuSeparator
                             v-if="
                                 canEdit &&
-                                (canFulfill || canArchive || canDelete)
+                                    (canFulfill || canArchive || canDelete)
                             "
                         />
                         <DropdownMenuItem
@@ -131,9 +139,7 @@ const qtyClass = computed(() =>
                             <Archive class="mr-2 size-4" />
                             Archive
                         </DropdownMenuItem>
-                        <DropdownMenuSeparator
-                            v-if="canFulfill || canArchive"
-                        />
+                        <DropdownMenuSeparator v-if="canFulfill || canArchive"/>
                         <DropdownMenuItem
                             v-if="canDelete"
                             class="text-destructive"
@@ -147,9 +153,7 @@ const qtyClass = computed(() =>
             </div>
 
             <!-- Timestamp — bottom right -->
-            <div
-                class="absolute right-0 bottom-0 z-10 rounded-tl-lg bg-black/60 px-3 py-1 text-xs font-medium text-white backdrop-blur-sm"
-            >
+            <div class="absolute right-0 bottom-0 z-10 rounded-tl-lg bg-black/60 px-3 py-1 text-xs font-medium text-white backdrop-blur-sm">
                 <TooltipProvider :delay-duration="200">
                     <Tooltip>
                         <TooltipTrigger as-child>

@@ -17,6 +17,7 @@ import {
 import { resetPin } from '@/actions/App/Http/Controllers/Admin/UserController'
 import ConfirmationDialog from '@/components/dialogs/ConfirmationDialog.vue'
 import DetailSheet from '@/components/dialogs/DetailSheet.vue'
+import EmptyState from '@/components/EmptyState.vue'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -41,7 +42,6 @@ import { Separator } from '@/components/ui/separator'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useInitials } from '@/composables/useInitials'
 import type { DealerResource, FlashMessage } from '@/types'
-import EmptyState from '@/components/EmptyState.vue'
 
 const props = defineProps<{
     open: boolean
@@ -93,7 +93,10 @@ const handleDelete = () => {
         @update:open="!$event && $emit('close')"
     >
         <!-- Loading Skeleton -->
-        <div v-if="loading" class="space-y-6">
+        <div
+            v-if="loading"
+            class="space-y-6"
+        >
             <div class="flex items-start gap-4">
                 <Skeleton class="size-16 shrink-0 rounded-lg" />
                 <div class="flex-1 space-y-2">
@@ -111,7 +114,10 @@ const handleDelete = () => {
         </div>
 
         <!-- Dealer Details -->
-        <div v-else-if="dealer" class="space-y-6">
+        <div
+            v-else-if="dealer"
+            class="space-y-6"
+        >
             <Item variant="outline">
                 <ItemMedia>
                     <Avatar class="size-16">
@@ -120,9 +126,7 @@ const handleDelete = () => {
                             :src="dealer.user.avatar_url"
                             :alt="dealer.user.name"
                         />
-                        <AvatarFallback
-                            class="bg-primary/10 text-lg font-semibold text-primary"
-                        >
+                        <AvatarFallback class="bg-primary/10 text-lg font-semibold text-primary">
                             {{ getInitials(dealer.user?.name) }}
                         </AvatarFallback>
                     </Avatar>
@@ -172,7 +176,10 @@ const handleDelete = () => {
                 </div>
 
                 <ItemGroup v-if="dealer.demands?.length">
-                    <template v-for="(item, index) in dealer.demands" :key="item.id">
+                    <template
+                        v-for="(item, index) in dealer.demands"
+                        :key="item.id"
+                    >
                         <ItemSeparator v-if="index !== dealer.demands!.length - 1" />
                         <Item size="sm">
                             <ItemMedia variant="image">
@@ -210,7 +217,10 @@ const handleDelete = () => {
             <template v-if="loading">
                 <Skeleton />
             </template>
-            <div v-else-if="dealer" class="flex justify-end gap-3">
+            <div
+                v-else-if="dealer"
+                class="flex justify-end gap-3"
+            >
                 <Button
                     variant="outline"
                     size="sm"
@@ -227,8 +237,14 @@ const handleDelete = () => {
                     :disabled="resetPinForm.processing"
                     @click="handleResetPin"
                 >
-                    <Spinner v-if="resetPinForm.processing" class="size-3.5" />
-                    <KeyRound v-else class="size-4" />
+                    <Spinner
+                        v-if="resetPinForm.processing"
+                        class="size-3.5"
+                    />
+                    <KeyRound
+                        v-else
+                        class="size-4"
+                    />
                     Reset PIN
                 </Button>
 
@@ -238,8 +254,14 @@ const handleDelete = () => {
                     :disabled="deleteForm.processing"
                     @click="isDeleteDialogOpen = true"
                 >
-                    <Spinner v-if="deleteForm.processing" class="size-3.5" />
-                    <Trash v-else class="size-4" />
+                    <Spinner
+                        v-if="deleteForm.processing"
+                        class="size-3.5"
+                    />
+                    <Trash
+                        v-else
+                        class="size-4"
+                    />
                     Delete
                 </Button>
             </div>
@@ -250,8 +272,8 @@ const handleDelete = () => {
         v-model:open="isDeleteDialogOpen"
         title="Delete Dealer"
         :description="`Are you sure you want to delete ${dealer?.user?.name}?`"
-        @action="handleDelete"
         variant="destructive"
+        @action="handleDelete"
     />
 
     <!-- PIN reveal after reset -->
@@ -277,15 +299,16 @@ const handleDelete = () => {
                 <p class="font-mono text-5xl sm:text-6xl font-bold tracking-[0.5em]">
                     {{ revealedPin }}
                 </p>
-                <p
-                    class="max-w-[220px] text-center text-xs text-muted-foreground"
-                >
+                <p class="max-w-[220px] text-center text-xs text-muted-foreground">
                     The dealer will be asked to set a new PIN on their next
                     login.
                 </p>
             </div>
 
-            <Button class="w-full" @click="pinModalOpen = false">Done</Button>
+            <Button
+                class="w-full"
+                @click="pinModalOpen = false"
+            >Done</Button>
         </DialogContent>
     </Dialog>
 </template>

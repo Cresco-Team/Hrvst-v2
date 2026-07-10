@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Deferred, Head, router } from '@inertiajs/vue3'
+import { Plus } from '@lucide/vue'
 import { computed, ref } from 'vue'
 import ConfirmationDialog from '@/components/dialogs/ConfirmationDialog.vue'
 import VegetableForm from '@/components/features/admin/forms/VegetableForm.vue'
@@ -11,7 +12,6 @@ import AppLayout from '@/layouts/AppLayout.vue'
 import admin, { dashboard } from '@/routes/admin'
 import { destroy as destroyVeg, index } from '@/routes/admin/vegetables'
 import type { AdminVegetablesProps, BreadcrumbItem, VegetableAdminData } from '@/types'
-import { Plus } from '@lucide/vue'
 
 const props = defineProps<AdminVegetablesProps>()
 
@@ -99,7 +99,11 @@ function handleSearch(query: string): void {
                         <Skeleton class="h-9 w-72" />
                         <div class="rounded-lg border">
                             <div class="space-y-2 p-4">
-                                <Skeleton v-for="i in 6" :key="i" class="h-11 w-full" />
+                                <Skeleton
+                                    v-for="i in 6"
+                                    :key="i"
+                                    class="h-11 w-full"
+                                />
                             </div>
                         </div>
                     </div>

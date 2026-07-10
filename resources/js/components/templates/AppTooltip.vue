@@ -24,7 +24,10 @@ withDefaults(defineProps < Props > (), {
                 <slot />
             </TooltipTrigger>
 
-            <TooltipContent :side="side" :align="align">
+            <TooltipContent
+                :side="side"
+                :align="align"
+            >
                 <slot :name="content">
                     <p class="text-sm">{{ content }}</p>
                 </slot>

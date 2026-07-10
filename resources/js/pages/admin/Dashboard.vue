@@ -59,12 +59,19 @@ function formatChange(change?: number): string {
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex flex-col gap-6 p-4 lg:p-6">
-            <Heading title="Dashboard" description="Overview of the platform" />
+            <Heading
+                title="Dashboard"
+                description="Overview of the platform"
+            />
 
             <Deferred data="kpis">
                 <template #fallback>
                     <div class="grid gap-4 md:grid-cols-3">
-                        <Skeleton v-for="i in 3" :key="i" class="h-33" />
+                        <Skeleton
+                            v-for="i in 3"
+                            :key="i"
+                            class="h-33"
+                        />
                     </div>
                     <div class="grid gap-4 md:grid-cols-10">
                         <Skeleton
@@ -72,15 +79,9 @@ function formatChange(change?: number): string {
                             :key="i"
                             class="col-span-5 h-21 lg:col-span-2"
                         />
-                        <Skeleton
-                            class="col-span-10 h-21 md:col-span-3 lg:col-span-2"
-                        />
-                        <Skeleton
-                            class="col-span-5 h-21 md:col-span-4 lg:col-span-2"
-                        />
-                        <Skeleton
-                            class="col-span-5 h-21 md:col-span-3 lg:col-span-2"
-                        />
+                        <Skeleton class="col-span-10 h-21 md:col-span-3 lg:col-span-2"/>
+                        <Skeleton class="col-span-5 h-21 md:col-span-4 lg:col-span-2"/>
+                        <Skeleton class="col-span-5 h-21 md:col-span-3 lg:col-span-2"/>
                     </div>
                 </template>
 
@@ -89,7 +90,7 @@ function formatChange(change?: number): string {
                         title="Total Varieties"
                         subtext="recorded"
                         :value="kpis?.vegetables.total_vegetables.value"
-                        cardClass="bg-linear-to-br from-orange-500/10 via-amber-500/10 to-yellow-500/30"
+                        card-class="bg-linear-to-br from-orange-500/10 via-amber-500/10 to-yellow-500/30"
                     />
 
                     <LargeCard
@@ -100,10 +101,10 @@ function formatChange(change?: number): string {
                             formatChange(kpis?.farmers.total_farmers.change)
                         "
                         :badge="getTrendIcon(kpis?.farmers.total_farmers.trend)"
-                        :trendColor="
+                        :trend-color="
                             getTrendColor(kpis?.farmers.total_farmers.trend)
                         "
-                        cardClass="bg-linear-to-br from-lime-500/10 via-emerald-500/10 to-cyan-500/30"
+                        card-class="bg-linear-to-br from-lime-500/10 via-emerald-500/10 to-cyan-500/30"
                     />
 
                     <LargeCard
@@ -114,10 +115,10 @@ function formatChange(change?: number): string {
                             formatChange(kpis?.dealers.total_dealers.change)
                         "
                         :badge="getTrendIcon(kpis?.dealers.total_dealers.trend)"
-                        :trendColor="
+                        :trend-color="
                             getTrendColor(kpis?.dealers.total_dealers.trend)
                         "
-                        cardClass="bg-linear-to-br from-indigo-500/10 via-fuchsia-500/10 to-rose-500/30"
+                        card-class="bg-linear-to-br from-indigo-500/10 via-fuchsia-500/10 to-rose-500/30"
                     />
                 </div>
 
@@ -145,24 +146,24 @@ function formatChange(change?: number): string {
                         title="Vegetables"
                         description="Manage market"
                         :icon="Tractor"
-                        colorClasses="from-green-500/10 to-emerald-500/10"
-                        iconClasses="text-green-600 dark:text-green-500"
+                        color-classes="from-green-500/10 to-emerald-500/10"
+                        icon-classes="text-green-600 dark:text-green-500"
                     />
                     <QuickNavItem
                         :href="farmers.index()"
                         title="Farmers"
                         description="View all farmers"
                         :icon="Tractor"
-                        colorClasses="from-amber-500/10 to-yellow-500/10"
-                        iconClasses="text-yellow-600 dark:text-yellow-500"
+                        color-classes="from-amber-500/10 to-yellow-500/10"
+                        icon-classes="text-yellow-600 dark:text-yellow-500"
                     />
                     <QuickNavItem
                         :href="dealers.index()"
                         title="Dealers"
                         description="Track Activity"
                         :icon="Package"
-                        colorClasses="from-sky-500/10 to-blue-500/10"
-                        iconClasses="text-blue-600 dark:text-blue-500"
+                        color-classes="from-sky-500/10 to-blue-500/10"
+                        icon-classes="text-blue-600 dark:text-blue-500"
                     />
                 </CardContent>
             </Card>

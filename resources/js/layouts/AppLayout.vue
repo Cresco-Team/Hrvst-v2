@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { watch } from 'vue'
 import { toast } from 'vue-sonner'
-import { Toaster } from '@/components/ui/sonner'
 import OnboardingGuide from '@/components/OnboardingGuide.vue'
+import { Toaster } from '@/components/ui/sonner'
 import { useFlash } from '@/composables/useFlash'
 import AppLayout from '@/layouts/app/AppHeaderLayout.vue'
 import type { BreadcrumbItem } from '@/types'
@@ -33,9 +33,12 @@ watch(
 </script>
 
 <template>
-  <AppLayout :breadcrumbs="breadcrumbs">
-    <slot />
-    <Toaster richColors position="top-right" />
-    <OnboardingGuide />
-  </AppLayout>
+    <AppLayout :breadcrumbs="breadcrumbs">
+        <slot />
+        <Toaster
+            rich-colors
+            position="top-right"
+        />
+        <OnboardingGuide />
+    </AppLayout>
 </template>

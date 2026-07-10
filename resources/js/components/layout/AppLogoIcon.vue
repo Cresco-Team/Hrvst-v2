@@ -14,7 +14,12 @@ defineProps<Props>()
 </script>
 
 <template>
-    <span :class="className" v-bind="$attrs" v-html="logoRaw" class="inline-block"></span>
+    <span
+        :class="className"
+        v-bind="$attrs"
+        class="inline-block"
+        v-html="logoRaw"
+    ></span>
 </template>
 
 <style scoped>

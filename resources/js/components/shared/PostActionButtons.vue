@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { router } from '@inertiajs/vue3'
+import { CircleCheck, CircleX } from '@lucide/vue'
 import { computed, ref } from 'vue'
 import ConfirmationDialog from '@/components/dialogs/ConfirmationDialog.vue'
 import { Button } from '@/components/ui/button'
@@ -9,7 +10,6 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from '@/components/ui/tooltip'
-import { CircleCheck, CircleX } from '@lucide/vue'
 
 const props = defineProps<{
     fulfillUrl: string

@@ -25,23 +25,39 @@ withDefaults(
 </script>
 
 <template>
-	<Card class="gap-0 py-4 overflow-hidden justify-center hover:shadow-md transition-all" :class="cardClass">
-		<CardContent class="px-4">
-			<CardDescription class="text-xs line-clamp-1">{{ title }}</CardDescription>
-		</CardContent>
-		<CardHeader class="px-6 flex items-end justify-between">
-			<CardTitle :class="valueClass" class="text-xl space-x-1">
-				<span class="font-mono">{{ value }}</span>
-				<span v-if="!subtextBelow" class="text-muted-foreground font-light text-xs truncate">
-					<slot name="subtext">{{ subtext }}</slot>
-				</span>
-			</CardTitle>
-			<component v-if="icon" :is="icon" :class="iconClass" />
-		</CardHeader>
-		<CardContent v-if="subtextBelow" class="px-6 pt-0">
-			<span class="text-muted-foreground font-light text-xs truncate">
-				<slot name="subtext">{{ subtext }}</slot>
-			</span>
-		</CardContent>
-	</Card>
+    <Card
+        class="gap-0 py-4 overflow-hidden justify-center hover:shadow-md transition-all"
+        :class="cardClass"
+    >
+        <CardContent class="px-4">
+            <CardDescription class="text-xs line-clamp-1">{{ title }}</CardDescription>
+        </CardContent>
+        <CardHeader class="px-6 flex items-end justify-between">
+            <CardTitle
+                :class="valueClass"
+                class="text-xl space-x-1"
+            >
+                <span class="font-mono">{{ value }}</span>
+                <span
+                    v-if="!subtextBelow"
+                    class="text-muted-foreground font-light text-xs truncate"
+                >
+                    <slot name="subtext">{{ subtext }}</slot>
+                </span>
+            </CardTitle>
+            <component
+                :is="icon"
+                v-if="icon"
+                :class="iconClass"
+            />
+        </CardHeader>
+        <CardContent
+            v-if="subtextBelow"
+            class="px-6 pt-0"
+        >
+            <span class="text-muted-foreground font-light text-xs truncate">
+                <slot name="subtext">{{ subtext }}</slot>
+            </span>
+        </CardContent>
+    </Card>
 </template>

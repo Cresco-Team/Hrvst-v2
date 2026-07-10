@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3'
 
-import { show } from '@/routes/vegetables'
-import { Item, ItemContent, ItemDescription, ItemMedia, ItemTitle } from '@/components/ui/item'
-import { VegetableResource } from '@/types';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ArrowRight, Vegan } from '@lucide/vue';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Item, ItemContent, ItemDescription, ItemMedia, ItemTitle } from '@/components/ui/item'
+import { show } from '@/routes/vegetables'
+import type { VegetableResource } from '@/types';
 
 
 interface Props {
@@ -16,7 +16,10 @@ defineProps<Props>()
 </script>
 
 <template>
-    <Link :href="show({ vegetable: vegetable.id }).url" class="group">
+    <Link
+        :href="show({ vegetable: vegetable.id }).url"
+        class="group"
+    >
         <Item
             variant="outline"
             class="transition-all hover:shadow-sm bg-primary/10 hover:bg-primary/5 hover:border-l-4 hover:border-l-primary"
@@ -42,14 +45,12 @@ defineProps<Props>()
                     <ItemDescription
                         v-if="vegetable.local_name"
                         class="text-xs"
-                        >
+                    >
                         {{ vegetable.local_name }}
                     </ItemDescription>
                 </div>
 
-                <ArrowRight
-                    class="mr-5 hidden size-4 text-muted-foreground transition-transform duration-300 group-hover:translate-x-3 group-hover:text-foreground sm:flex"
-                />
+                <ArrowRight class="mr-5 hidden size-4 text-muted-foreground transition-transform duration-300 group-hover:translate-x-3 group-hover:text-foreground sm:flex"/>
             </ItemContent>
         </Item>
     </Link>

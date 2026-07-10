@@ -44,10 +44,11 @@ onMounted(async () => {
             </CardDescription>
         </CardHeader>
         <CardContent>
-            <div
-                class="flex flex-col gap-3 select-none sm:flex-row sm:items-center sm:justify-between"
-            >
-                <Button @click="toggleRecoveryCodesVisibility" class="w-fit">
+            <div class="flex flex-col gap-3 select-none sm:flex-row sm:items-center sm:justify-between">
+                <Button
+                    class="w-fit"
+                    @click="toggleRecoveryCodesVisibility"
+                >
                     <component
                         :is="isRecoveryCodesVisible ? EyeOff : Eye"
                         class="size-4"
@@ -58,11 +59,11 @@ onMounted(async () => {
 
                 <Form
                     v-if="isRecoveryCodesVisible && recoveryCodesList.length"
+                    v-slot="{ processing }"
                     v-bind="regenerateRecoveryCodes.form()"
                     method="post"
                     :options="{ preserveScroll: true }"
                     @success="fetchRecoveryCodes"
-                    #default="{ processing }"
                 >
                     <Button
                         variant="secondary"
@@ -81,15 +82,24 @@ onMounted(async () => {
                         : 'h-0 opacity-0',
                 ]"
             >
-                <div v-if="errors?.length" class="mt-6">
+                <div
+                    v-if="errors?.length"
+                    class="mt-6"
+                >
                     <AlertError :errors="errors" />
                 </div>
-                <div v-else class="mt-3 space-y-3">
+                <div
+                    v-else
+                    class="mt-3 space-y-3"
+                >
                     <div
                         ref="recoveryCodeSectionRef"
                         class="grid gap-1 rounded-lg bg-muted p-4 font-mono text-sm"
                     >
-                        <div v-if="!recoveryCodesList.length" class="space-y-2">
+                        <div
+                            v-if="!recoveryCodesList.length"
+                            class="space-y-2"
+                        >
                             <div
                                 v-for="n in 8"
                                 :key="n"
@@ -97,8 +107,8 @@ onMounted(async () => {
                             ></div>
                         </div>
                         <div
-                            v-else
                             v-for="(code, index) in recoveryCodesList"
+                            v-else
                             :key="index"
                         >
                             {{ code }}

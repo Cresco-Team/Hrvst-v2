@@ -36,6 +36,7 @@ import {
 } from '@/components/ui/sheet'
 import { useCurrentUrl } from '@/composables/useCurrentUrl'
 import { getInitials } from '@/composables/useInitials'
+import { useOnboardingGuide } from '@/composables/useOnboardingGuide'
 import { dashboard } from '@/routes'
 import admin from '@/routes/admin'
 import dealer from '@/routes/dealer'
@@ -45,7 +46,6 @@ import { archived as farmerSuppliesArchived } from '@/routes/farmer/supplies'
 import vegetables from '@/routes/vegetables'
 import type { BreadcrumbItem, NavItem } from '@/types'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip'
-import { useOnboardingGuide } from '@/composables/useOnboardingGuide'
 
 type Props = {
     breadcrumbs?: BreadcrumbItem[]
@@ -154,11 +154,18 @@ const rightNavItems = computed<NavItem[]>(() => {
                 <div class="lg:hidden">
                     <Sheet v-model:open="mobileMenuOpen">
                         <SheetTrigger :as-child="true">
-                            <Button variant="ghost" size="icon" class="mr-2 h-9 w-9">
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                class="mr-2 h-9 w-9"
+                            >
                                 <Menu class="h-5 w-5" />
                             </Button>
                         </SheetTrigger>
-                        <SheetContent side="left" class="w-[300px] p-6">
+                        <SheetContent
+                            side="left"
+                            class="w-[300px] p-6"
+                        >
                             <SheetTitle class="sr-only">Navigation Menu</SheetTitle>
                             <SheetHeader class="flex justify-start text-left">
                                 <AppLogoIcon class="size-6 fill-current text-black dark:text-white" />
@@ -173,7 +180,11 @@ const rightNavItems = computed<NavItem[]>(() => {
                                         :class="whenCurrentUrl(item.href, activeItemStyles)"
                                         @click="mobileMenuOpen = false"
                                     >
-                                        <component v-if="item.icon" :is="item.icon" class="h-5 w-5" />
+                                        <component
+                                            :is="item.icon"
+                                            v-if="item.icon"
+                                            class="h-5 w-5"
+                                        />
                                         {{ item.title }}
                                     </Link>
 
@@ -192,16 +203,17 @@ const rightNavItems = computed<NavItem[]>(() => {
                     </Sheet>
                 </div>
 
-                <Link :href="dashboard()" class="flex items-center gap-x-2">
+                <Link
+                    :href="dashboard()"
+                    class="flex items-center gap-x-2"
+                >
                     <AppLogo />
                 </Link>
 
                 <!-- Desktop nav -->
                 <div class="hidden h-full lg:flex lg:flex-1">
                     <NavigationMenu class="ml-10 flex h-full items-stretch">
-                        <NavigationMenuList
-                            class="flex h-full items-stretch space-x-2"
-                        >
+                        <NavigationMenuList class="flex h-full items-stretch space-x-2">
                             <NavigationMenuItem
                                 v-for="(item, index) in mainNavItems"
                                 :key="index"
@@ -219,8 +231,8 @@ const rightNavItems = computed<NavItem[]>(() => {
                                     :href="item.href"
                                 >
                                     <component
-                                        v-if="item.icon"
                                         :is="item.icon"
+                                        v-if="item.icon"
                                         class="mr-2 h-4 w-4"
                                     />
                                     {{ item.title }}
@@ -237,7 +249,10 @@ const rightNavItems = computed<NavItem[]>(() => {
                 <div class="ml-auto flex items-center space-x-2">
                     <div class="relative flex items-center space-x-1">
                         <div class="hidden space-x-1 lg:flex">
-                            <TooltipProvider v-if="showOnboardingTrigger" :delay-duration="0">
+                            <TooltipProvider
+                                v-if="showOnboardingTrigger"
+                                :delay-duration="0"
+                            >
                                 <Tooltip>
                                     <TooltipTrigger as-child>
                                         <Button
@@ -299,23 +314,22 @@ const rightNavItems = computed<NavItem[]>(() => {
                                 size="icon"
                                 class="relative size-10 w-auto rounded-full p-1 focus-within:ring-2 focus-within:ring-primary"
                             >
-                                <Avatar
-                                    class="size-8 overflow-hidden rounded-full"
-                                >
+                                <Avatar class="size-8 overflow-hidden rounded-full">
                                     <AvatarImage
                                         v-if="auth.user.avatar"
                                         :src="auth.user.avatar"
                                         :alt="auth.user.name"
                                     />
-                                    <AvatarFallback
-                                        class="rounded-lg bg-neutral-200 font-semibold text-black dark:bg-neutral-700 dark:text-white"
-                                    >
+                                    <AvatarFallback class="rounded-lg bg-neutral-200 font-semibold text-black dark:bg-neutral-700 dark:text-white">
                                         {{ getInitials(auth.user?.name) }}
                                     </AvatarFallback>
                                 </Avatar>
                             </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" class="w-56">
+                        <DropdownMenuContent
+                            align="end"
+                            class="w-56"
+                        >
                             <UserMenuContent :user="auth.user" />
                         </DropdownMenuContent>
                     </DropdownMenu>
@@ -327,9 +341,7 @@ const rightNavItems = computed<NavItem[]>(() => {
             v-if="props.breadcrumbs.length > 1"
             class="flex w-full border-b border-sidebar-border/70"
         >
-            <div
-                class="mx-auto flex h-12 w-full items-center justify-start px-4 text-neutral-500 md:max-w-7xl"
-            >
+            <div class="mx-auto flex h-12 w-full items-center justify-start px-4 text-neutral-500 md:max-w-7xl">
                 <Breadcrumbs :breadcrumbs="breadcrumbs" />
             </div>
         </div>

@@ -107,10 +107,10 @@ function handleAvatarChange(event: Event): void {
                     />
 
                     <Form
+                        v-slot="{ errors, processing, recentlySuccessful }"
                         v-bind="ProfileController.update()"
                         class="space-y-4"
                         :options="{ preserveScroll: true }"
-                        v-slot="{ errors, processing, recentlySuccessful }"
                     >
                         <div class="grid gap-2">
                             <Label for="name">Name</Label>
@@ -162,7 +162,10 @@ function handleAvatarChange(event: Event): void {
                                 leave-active-class="transition ease-in-out"
                                 leave-to-class="opacity-0"
                             >
-                                <p v-show="recentlySuccessful" class="text-sm text-muted-foreground">
+                                <p
+                                    v-show="recentlySuccessful"
+                                    class="text-sm text-muted-foreground"
+                                >
                                     Saved.
                                 </p>
                             </Transition>

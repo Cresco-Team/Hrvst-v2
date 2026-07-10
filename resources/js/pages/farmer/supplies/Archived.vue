@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { type ColumnDef } from '@tanstack/vue-table'
 import { Deferred, Head, router } from '@inertiajs/vue3'
+import { type ColumnDef } from '@tanstack/vue-table'
 import { computed } from 'vue'
-import DataTable from '@/components/shared/tables/DataTable.vue'
 import Heading from '@/components/Heading.vue'
+import DataTable from '@/components/shared/tables/DataTable.vue'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import AppLayout from '@/layouts/AppLayout.vue'
@@ -126,14 +126,15 @@ const breadcrumbs: BreadcrumbItem[] = [
                             >
                                 <span class="font-medium">
                                     {{ item.display_name }}
-                                </span
-                                >
+                                </span>
                                 <span class="text-muted-foreground">
-                                    &mdash; {{ item.quantity_kg }} kg</span
-                                >
+                                    &mdash; {{ item.quantity_kg }} kg</span>
                             </p>
                         </div>
-                        <span v-else class="text-muted-foreground">&mdash;</span>
+                        <span
+                            v-else
+                            class="text-muted-foreground"
+                        >&mdash;</span>
                     </template>
 
                     <template #cell-time_slot="{ row }">

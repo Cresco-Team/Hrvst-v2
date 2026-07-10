@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { usePage } from '@inertiajs/vue3'
 import { ChevronsUpDown } from 'lucide-vue-next'
-import UserInfo from '@/components/UserInfo.vue'
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -14,6 +13,7 @@ import {
 	useSidebar,
 } from '@/components/ui/sidebar'
 import UserMenuContent from './UserMenuContent.vue'
+import UserInfo from '@/components/UserInfo.vue'
 
 const page = usePage()
 const user = page.props.auth.user
@@ -40,8 +40,8 @@ const { isMobile, state } = useSidebar()
                         isMobile
                             ? 'bottom'
                             : state === 'collapsed'
-                              ? 'left'
-                              : 'bottom'
+                                ? 'left'
+                                : 'bottom'
                     "
                     align="end"
                     :side-offset="4"

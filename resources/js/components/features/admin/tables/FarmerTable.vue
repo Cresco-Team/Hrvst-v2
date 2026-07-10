@@ -2,9 +2,9 @@
 import type { ColumnDef } from '@tanstack/vue-table'
 import { ClipboardList, Mail, MapPin, Package, Phone } from 'lucide-vue-next'
 import DataTable from '@/components/shared/tables/DataTable.vue'
+import AppTooltip from '@/components/templates/AppTooltip.vue'
 import { Button } from '@/components/ui/button'
 import type { FarmerResource, Paginated } from '@/types'
-import AppTooltip from '@/components/templates/AppTooltip.vue'
 
 defineProps<{
     farmers: Paginated<FarmerResource>
@@ -62,14 +62,15 @@ const columns: ColumnDef<FarmerResource>[] = [
             <div class="flex items-center gap-3">
                 <div class="flex flex-col gap-0.5">
                     <span class="font-medium">{{ row.user?.name }}</span>
-                    <div
-                        class="flex items-center gap-2 text-xs text-muted-foreground"
-                    >
+                    <div class="flex items-center gap-2 text-xs text-muted-foreground">
                         <div class="flex items-center gap-1">
                             <Phone class="size-3" />
                             {{ row.user?.phone_number }}
                         </div>
-                        <div v-if="row.user?.email" class="flex items-center gap-1">
+                        <div
+                            v-if="row.user?.email"
+                            class="flex items-center gap-1"
+                        >
                             <Mail class="size-3" />
                             {{ row.user.email }}
                         </div>

@@ -45,7 +45,10 @@ function submit() {
 </script>
 
 <template>
-    <Dialog :open="open" @update:open="emit('update:open', $event)">
+    <Dialog
+        :open="open"
+        @update:open="emit('update:open', $event)"
+    >
         <DialogContent class="sm:max-w-md">
             <DialogHeader>
                 <DialogTitle>Edit Item — {{ item?.name }}</DialogTitle>
@@ -54,9 +57,7 @@ function submit() {
             <div class="grid gap-4 py-2">
                 <div class="grid gap-1.5">
                     <Label>Item Name</Label>
-                    <div
-                        class="flex h-9 w-full items-center rounded-md border border-input bg-muted px-3 py-1 text-sm text-muted-foreground"
-                    >
+                    <div class="flex h-9 w-full items-center rounded-md border border-input bg-muted px-3 py-1 text-sm text-muted-foreground">
                         {{ item?.name }}
                     </div>
                 </div>
@@ -79,10 +80,14 @@ function submit() {
             </div>
 
             <DialogFooter>
-                <Button variant="outline" @click="emit('update:open', false)"
-                    >Cancel</Button
+                <Button
+                    variant="outline"
+                    @click="emit('update:open', false)"
+                >Cancel</Button>
+                <Button
+                    :disabled="form.processing"
+                    @click="submit"
                 >
-                <Button :disabled="form.processing" @click="submit">
                     {{ form.processing ? 'Saving…' : 'Save Changes' }}
                 </Button>
             </DialogFooter>

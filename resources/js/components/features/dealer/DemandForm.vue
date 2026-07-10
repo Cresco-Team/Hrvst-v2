@@ -1,24 +1,24 @@
 <script setup lang="ts">
 import { useForm } from '@inertiajs/vue3'
+import { CalendarDate, today, getLocalTimeZone, DateFormatter } from '@internationalized/date'
+import { ChevronsUpDown, Search } from '@lucide/vue'
 import { CalendarIcon, Plus, Trash2 } from 'lucide-vue-next'
 import { computed, watch } from 'vue'
-import { CalendarDate, today, getLocalTimeZone, DateFormatter } from '@internationalized/date'
 import { store, update } from '@/actions/App/Http/Controllers/Dealer/DemandController'
 import DialogForm from '@/components/dialogs/DialogForm.vue'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
+import { Combobox, ComboboxAnchor, ComboboxEmpty, ComboboxGroup, ComboboxInput, ComboboxItem, ComboboxItemIndicator, ComboboxList, ComboboxTrigger, ComboboxViewport } from '@/components/ui/combobox'
 import { Label } from '@/components/ui/label'
 import { NumberField, NumberFieldContent, NumberFieldDecrement, NumberFieldIncrement, NumberFieldInput } from '@/components/ui/number-field'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Select, SelectContent, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Table, TableBody, TableCell, TableEmpty, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Skeleton } from '@/components/ui/skeleton'
-import { useVegetableAvailability, netKgClassDealer, formatNetKgDealer } from '@/composables/useVegetableAvailability'
+import { Table, TableBody, TableCell, TableEmpty, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { toInputDate } from '@/composables/useDateFormat'
+import { useVegetableAvailability, netKgClassDealer, formatNetKgDealer } from '@/composables/useVegetableAvailability'
 import type { DealerDemandDataFixed, PostTimeSlot, VarietyOptionsByVegetable, VegetableOptionsByCategory } from '@/types'
-import { Combobox, ComboboxAnchor, ComboboxEmpty, ComboboxGroup, ComboboxInput, ComboboxItem, ComboboxItemIndicator, ComboboxList, ComboboxTrigger, ComboboxViewport } from '@/components/ui/combobox'
-import { ChevronsUpDown, Search } from '@lucide/vue'
 
 interface Props {
     open: boolean
@@ -155,9 +155,15 @@ watch(
         <div class="space-y-6">
             <div class="flex justify-between gap-4">
                 <div class="space-y-2">
-                    <Label for="scheduled_date" class="flex items-center gap-1.5">
+                    <Label
+                        for="scheduled_date"
+                        class="flex items-center gap-1.5"
+                    >
                         Transaction Day
-                        <Badge variant="destructive" class="text-xs font-normal">Required</Badge>
+                        <Badge
+                            variant="destructive"
+                            class="text-xs font-normal"
+                        >Required</Badge>
                     </Label>
                     <Popover v-slot="{ close }">
                         <PopoverTrigger as-child>
@@ -174,7 +180,10 @@ watch(
                                 {{ form.scheduled_date ? df.format(calendarDate!.toDate(getLocalTimeZone())) : 'Pick a date' }}
                             </Button>
                         </PopoverTrigger>
-                        <PopoverContent class="w-auto p-0" align="start">
+                        <PopoverContent
+                            class="w-auto p-0"
+                            align="start"
+                        >
                             <Calendar
                                 v-model="calendarDate"
                                 layout="month-only"
@@ -185,18 +194,30 @@ watch(
                             />
                         </PopoverContent>
                     </Popover>
-                    <p v-if="form.errors.scheduled_date" class="text-xs text-destructive">
+                    <p
+                        v-if="form.errors.scheduled_date"
+                        class="text-xs text-destructive"
+                    >
                         {{ form.errors.scheduled_date }}
                     </p>
                 </div>
 
                 <div class="space-y-2">
-                    <Label for="time_slot" class="flex items-center gap-1.5">
+                    <Label
+                        for="time_slot"
+                        class="flex items-center gap-1.5"
+                    >
                         Time Slot
-                        <Badge variant="destructive" class="text-xs font-normal">Required</Badge>
+                        <Badge
+                            variant="destructive"
+                            class="text-xs font-normal"
+                        >Required</Badge>
                     </Label>
                     <Select v-model="form.time_slot">
-                        <SelectTrigger id="time_slot" :class="{ 'border-destructive': form.errors.time_slot }">
+                        <SelectTrigger
+                            id="time_slot"
+                            :class="{ 'border-destructive': form.errors.time_slot }"
+                        >
                             <SelectValue placeholder="Select time..." />
                         </SelectTrigger>
                         <SelectContent>
@@ -205,7 +226,10 @@ watch(
                             <SelectItem value="evening">Evening (6 PM – 10 PM)</SelectItem>
                         </SelectContent>
                     </Select>
-                    <p v-if="form.errors.time_slot" class="text-xs text-destructive">
+                    <p
+                        v-if="form.errors.time_slot"
+                        class="text-xs text-destructive"
+                    >
                         {{ form.errors.time_slot }}
                     </p>
                 </div>
@@ -232,20 +256,29 @@ watch(
                 </TableHeader>
 
                 <TableBody>
-                    <TableEmpty v-if="form.items.length === 0" :colspan="3">
+                    <TableEmpty
+                        v-if="form.items.length === 0"
+                        :colspan="3"
+                    >
                         <span :class="form.errors.items ? `text-destructive` : ''">
                             No requests yet. Add at least one vegetable request.
                         </span>
                     </TableEmpty>
 
-                    <TableRow v-for="(item, index) in form.items" :key="item._key">
+                    <TableRow
+                        v-for="(item, index) in form.items"
+                        :key="item._key"
+                    >
                         <TableCell class="relative px-0 pb-6 align-top">
                             <Combobox
                                 :model-value="item.vegetable_id"
                                 :filter-function="varietyFilterFunction"
                                 @update:model-value="(value) => (item.vegetable_id = value == null ? '' : String(value))"
                             >
-                                <ComboboxAnchor as-child class="max-w-35 sm:max-w-full">
+                                <ComboboxAnchor
+                                    as-child
+                                    class="max-w-35 sm:max-w-full"
+                                >
                                     <ComboboxTrigger as-child>
                                         <Button
                                             type="button"
@@ -267,7 +300,10 @@ watch(
 
                                 <ComboboxList class="w-(--reka-combobox-anchor-width)">
                                     <div class="relative">
-                                        <ComboboxInput class="pl-9" placeholder="Search vegetable or variety..." />
+                                        <ComboboxInput
+                                            class="pl-9"
+                                            placeholder="Search vegetable or variety..."
+                                        />
                                         <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
                                             <Search class="size-4 text-muted-foreground" />
                                         </span>
@@ -281,7 +317,11 @@ watch(
                                             :key="categoryName"
                                             :heading="categoryName"
                                         >
-                                            <ComboboxItem v-for="v in varieties" :key="v.id" :value="String(v.id)">
+                                            <ComboboxItem
+                                                v-for="v in varieties"
+                                                :key="v.id"
+                                                :value="String(v.id)"
+                                            >
                                                 {{ v.name }}
                                                 <ComboboxItemIndicator>
                                                     <Check class="size-4" />
@@ -292,8 +332,14 @@ watch(
                                 </ComboboxList>
                             </Combobox>
 
-                            <div v-if="item.vegetable_id && form.scheduled_date" class="absolute bottom-1 text-xs">
-                                <Skeleton v-if="getState(item.vegetable_id).status === 'loading'" class="h-3.5 w-20 rounded" />
+                            <div
+                                v-if="item.vegetable_id && form.scheduled_date"
+                                class="absolute bottom-1 text-xs"
+                            >
+                                <Skeleton
+                                    v-if="getState(item.vegetable_id).status === 'loading'"
+                                    class="h-3.5 w-20 rounded"
+                                />
                                 <template v-else-if="getData(item.vegetable_id)">
                                     <span
                                         :class="netKgClassDealer(getData(item.vegetable_id)!.net_kg)" 
@@ -304,7 +350,10 @@ watch(
                                 </template>
                             </div>
 
-                            <p v-if="form.errors[`items.${index}.vegetable_id`]" class="absolute bottom-1 text-xs text-destructive">
+                            <p
+                                v-if="form.errors[`items.${index}.vegetable_id`]"
+                                class="absolute bottom-1 text-xs text-destructive"
+                            >
                                 {{ form.errors[`items.${index}.vegetable_id`] }}
                             </p>
                         </TableCell>
@@ -323,13 +372,22 @@ watch(
                                     <NumberFieldIncrement />
                                 </NumberFieldContent>
                             </NumberField>
-                            <p v-if="form.errors[`items.${index}.quantity_kg`]" class="absolute text-xs text-destructive">
+                            <p
+                                v-if="form.errors[`items.${index}.quantity_kg`]"
+                                class="absolute text-xs text-destructive"
+                            >
                                 {{ form.errors[`items.${index}.quantity_kg`] }}
                             </p>
                         </TableCell>
 
                         <TableCell class="text-end align-top">
-                            <Button type="button" variant="ghost" size="icon" class="size-9 text-muted-foreground hover:text-destructive" @click="removeItem(index)">
+                            <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                class="size-9 text-muted-foreground hover:text-destructive"
+                                @click="removeItem(index)"
+                            >
                                 <Trash2 class="size-4" />
                             </Button>
                         </TableCell>

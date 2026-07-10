@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { Separator } from '@/components/ui/separator'
+import type { LucideIcon} from '@lucide/vue';
+import { CircleQuestionMark, Moon, Sunrise, Sunset } from '@lucide/vue'
 import DetailSheet from '@/components/dialogs/DetailSheet.vue'
+import { Separator } from '@/components/ui/separator'
 import type { CalendarTimeSlot, VegetableDaySchedule } from '@/types'
-import { CircleQuestionMark, LucideIcon, Moon, Sunrise, Sunset } from '@lucide/vue'
 
 interface Props {
     open: boolean
@@ -49,12 +50,21 @@ function formatNetBadge(net: number): string {
         :title="dateLabel"
         @update:open="emit('update:open', $event)"
     >
-        <div v-if="schedule" class="flex flex-col gap-6">
-            <template v-for="slot in TIME_SLOTS" :key="slot.key">
+        <div
+            v-if="schedule"
+            class="flex flex-col gap-6"
+        >
+            <template
+                v-for="slot in TIME_SLOTS"
+                :key="slot.key"
+            >
                 <div v-if="schedule[slot.key]">
                     <!-- Slot header -->
                     <div class="mb-3 flex items-center gap-2">
-                        <component :is="slot.icon" class="size-5" />
+                        <component
+                            :is="slot.icon"
+                            class="size-5"
+                        />
                         <span class="text-sm font-semibold">{{ slot.label }}</span>
                     </div>
 
@@ -87,8 +97,8 @@ function formatNetBadge(net: number): string {
                                     schedule[slot.key]!.net_kg > 0
                                         ? 'bg-destructive/20 text-destructive dark:bg-destructive/40'
                                         : schedule[slot.key]!.net_kg < 0
-                                          ? 'bg-orange-100 text-orange-700'
-                                          : 'bg-muted text-muted-foreground'
+                                            ? 'bg-orange-100 text-orange-700'
+                                            : 'bg-muted text-muted-foreground'
                                 "
                             >
                                 {{ formatNetBadge(schedule[slot.key]!.net_kg) }}
@@ -99,7 +109,10 @@ function formatNetBadge(net: number): string {
             </template>
         </div>
 
-        <p v-else class="text-sm text-muted-foreground">
+        <p
+            v-else
+            class="text-sm text-muted-foreground"
+        >
             No schedule data for this day.
         </p>
     </DetailSheet>

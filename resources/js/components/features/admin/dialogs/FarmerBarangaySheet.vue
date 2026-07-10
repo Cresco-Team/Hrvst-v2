@@ -48,9 +48,7 @@ function totalSupplies(farmers: FarmerMarker[]): number {
             >
                 <ItemMedia>
                     <Avatar>
-                        <AvatarFallback
-                            class="bg-primary/10 text-sm font-semibold text-primary"
-                        >
+                        <AvatarFallback class="bg-primary/10 text-sm font-semibold text-primary">
                             {{ getInitials(farmer.farmer_name) }}
                         </AvatarFallback>
                     </Avatar>
@@ -65,7 +63,10 @@ function totalSupplies(farmers: FarmerMarker[]): number {
                         <span class="flex items-center gap-1">
                             ·
                             <Sprout class="size-3 shrink-0" />
-                            <Badge variant="secondary" class="h-4 px-1 text-xs">
+                            <Badge
+                                variant="secondary"
+                                class="h-4 px-1 text-xs"
+                            >
                                 {{ farmer.ongoing_supplies_count }}
                             </Badge>
                         </span>

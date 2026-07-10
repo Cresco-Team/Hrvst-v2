@@ -2,10 +2,10 @@
 import { Head, Link } from '@inertiajs/vue3'
 import { ArrowRight, Vegan } from 'lucide-vue-next'
 import Heading from '@/components/Heading.vue'
+import { Item, ItemContent, ItemMedia, ItemTitle } from '@/components/ui/item'
 import AppLayout from '@/layouts/AppLayout.vue'
 import admin from '@/routes/admin'
 import type { AdminCategoriesProps, BreadcrumbItem } from '@/types'
-import { Item, ItemContent, ItemMedia, ItemTitle } from '@/components/ui/item'
 
 defineProps<AdminCategoriesProps>()
 
@@ -44,15 +44,11 @@ const breadcrumbs: BreadcrumbItem[] = [
                             <Vegan />
                         </ItemMedia>
 
-                        <ItemContent
-                            class="flex-row items-center justify-between"
-                        >
+                        <ItemContent class="flex-row items-center justify-between">
                             <ItemTitle class="text-xs sm:text-sm">{{
                                 category.name
                             }}</ItemTitle>
-                            <ArrowRight
-                                class="mr-5 hidden size-4 text-muted-foreground transition-transform duration-300 group-hover:translate-x-3 group-hover:text-foreground sm:flex"
-                            />
+                            <ArrowRight class="mr-5 hidden size-4 text-muted-foreground transition-transform duration-300 group-hover:translate-x-3 group-hover:text-foreground sm:flex"/>
                         </ItemContent>
                     </Item>
                 </Link>

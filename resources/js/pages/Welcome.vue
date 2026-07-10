@@ -14,9 +14,8 @@ import {
 } from 'lucide-vue-next'
 import { ref } from 'vue'
 import AppLogoIcon from '@/components/layout/AppLogoIcon.vue'
-import { dashboard, login, logout } from '@/routes'
-import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import {
     Dialog,
     DialogContent,
@@ -25,6 +24,7 @@ import {
     DialogTitle,
 } from '@/components/ui/dialog'
 import { usePwaInstall } from '@/composables/usePwaInstall'
+import { dashboard, login, logout } from '@/routes'
 
 const page = usePage()
 
@@ -129,11 +129,12 @@ const steps = [
 </script>
 
 <template>
-    <div
-        class="min-h-screen antialiased"
-    >
+    <div class="min-h-screen antialiased">
         <Head title="Hrvst — Agricultural Marketplace">
-            <link rel="preconnect" href="https://fonts.bunny.net" />
+            <link
+                rel="preconnect"
+                href="https://fonts.bunny.net"
+            />
             <link
                 href="https://fonts.bunny.net/css?family=aleo:400,600,700,900&display=swap"
                 rel="stylesheet"
@@ -141,13 +142,12 @@ const steps = [
         </Head>
 
         <!-- ═══════════════════════════════════════ NAV ═══ -->
-        <nav
-            class="fixed top-0 z-50 w-full border-b border-border bg-background/75 backdrop-blur-md"
-        >
-            <div
-                class="mx-auto flex h-16 max-w-7xl items-center justify-between px-6"
-            >
-                <Link href="/" class="flex items-center gap-2.5 select-none">
+        <nav class="fixed top-0 z-50 w-full border-b border-border bg-background/75 backdrop-blur-md">
+            <div class="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
+                <Link
+                    href="/"
+                    class="flex items-center gap-2.5 select-none"
+                >
                     <AppLogoIcon class="size-8 fill-current"/>
                     <span class="text-lg font-semibold tracking-tight">Hrvst</span>
                 </Link>
@@ -166,13 +166,15 @@ const steps = [
 
                     <template v-if="page.props.auth.user">
                         <Link :href="logout()">
-                            <Button variant="ghost" size="sm" class="font-bold">
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                class="font-bold"
+                            >
                                 Log out
                             </Button>
                         </Link>
-                        <Link
-                            :href="dashboard()"
-                        >
+                        <Link :href="dashboard()">
                             <Button class="font-semibold">Dashboard</Button>
                         </Link>
                     </template>
@@ -190,7 +192,10 @@ const steps = [
         <!-- ═══════════════════════════════════════ HERO ═══ -->
         <section class="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6 pt-20 text-center">
             <div class="relative max-w-5xl">
-                <Badge variant="outline" class="border-primary bg-primary/10 text-primary text-xs px-4 py-1.5 font-bold tracking-widest my-4">
+                <Badge
+                    variant="outline"
+                    class="border-primary bg-primary/10 text-primary text-xs px-4 py-1.5 font-bold tracking-widest my-4"
+                >
                     <Sprout class="size-3.5 shrink-0" />
                     TRADING POST · TEAM CRESCO
                 </Badge>
@@ -208,11 +213,12 @@ const steps = [
                     by team Cresco.
                 </p>
 
-                <div
-                    class="hero-cta flex flex-wrap items-center justify-center gap-4"
-                >
+                <div class="hero-cta flex flex-wrap items-center justify-center gap-4">
                     <template v-if="page.props.auth.user">
-                        <Link :href="dashboard()" class="group transition-all duration-300">
+                        <Link
+                            :href="dashboard()"
+                            class="group transition-all duration-300"
+                        >
                             <Button class="font-semibold">
                                 Go to Dashboard
                                 <ArrowRight class="size-4 transition-transform group-hover:translate-x-1" />
@@ -220,7 +226,10 @@ const steps = [
                         </Link>
                     </template>
                     <template v-else>
-                        <Link :href="login()" class="group">
+                        <Link
+                            :href="login()"
+                            class="group"
+                        >
                             <Button class="font-semibold px-3">
                                 Sign In
                                 <ArrowRight class="size-4 transition-transform group-hover:translate-x-1" />
@@ -229,9 +238,7 @@ const steps = [
                     </template>
                 </div>
 
-                <p
-                    class="hero-hint mt-6 text-xs text-muted-foreground"
-                >
+                <p class="hero-hint mt-6 text-xs text-muted-foreground">
                     We shape the transparency · You decide for the best.
                 </p>
             </div>
@@ -285,9 +292,7 @@ const steps = [
                                 For Farmers
                             </div>
 
-                            <h3
-                                class="mb-4 text-xl leading-snug font-black lg:text-3xl"
-                            >
+                            <h3 class="mb-4 text-xl leading-snug font-black lg:text-3xl">
                                 Grow what's in-demand,<br />not what's oversupplied.
                             </h3>
 
@@ -412,9 +417,7 @@ const steps = [
                                 For Trading Post Admin
                             </div>
 
-                            <h3
-                                class="mb-4 text-xl leading-snug font-black lg:text-3xl"
-                            >
+                            <h3 class="mb-4 text-xl leading-snug font-black lg:text-3xl">
                                 View Supply and Demand,<br /> Forecast Market Gluts.
                             </h3>
 
@@ -445,7 +448,10 @@ const steps = [
         </section>
 
         <!-- ═══════════════════════════════════════ HOW IT WORKS ═══ -->
-        <section class="px-6 py-24" style="background: var(--background)">
+        <section
+            class="px-6 py-24"
+            style="background: var(--background)"
+        >
             <div class="mx-auto max-w-3xl">
                 <div class="mb-16 text-center">
                     <p
@@ -484,9 +490,7 @@ const steps = [
                         class="flex gap-8 lg:gap-12"
                         :class="index < steps.length - 1 ? 'pb-12' : ''"
                     >
-                        <div
-                            class="relative flex shrink-0 flex-col items-center"
-                        >
+                        <div class="relative flex shrink-0 flex-col items-center">
                             <div
                                 class="flex size-12 items-center justify-center rounded-full text-xs font-bold tracking-wider shadow-md"
                                 style="
@@ -531,8 +535,7 @@ const steps = [
                     <span
                         class="text-sm font-semibold opacity-50"
                         style="color: var(--muted-foreground)"
-                        >Hrvst</span
-                    >
+                    >Hrvst</span>
                 </div>
                 <p
                     class="text-xs opacity-50"

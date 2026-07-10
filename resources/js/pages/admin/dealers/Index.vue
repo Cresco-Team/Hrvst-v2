@@ -10,17 +10,17 @@ import {
 } from 'lucide-vue-next'
 import { ref } from 'vue'
 import { toast } from 'vue-sonner'
+import { details as dealerDetails } from '@/actions/App/Http/Controllers/Admin/DealerController'
 import DealerDetailSidebar from '@/components/features/admin/dialogs/DealerDetailSidebar.vue'
 import DealerTable from '@/components/features/admin/tables/DealerTable.vue'
 import Heading from '@/components/Heading.vue'
+import SmallCard from '@/components/shared/cards/SmallCard.vue'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import AppLayout from '@/layouts/AppLayout.vue'
 import admin from '@/routes/admin'
 import users from '@/routes/admin/users'
 import type { AdminDealersProps, BreadcrumbItem, DealerResource } from '@/types'
-import { details as dealerDetails } from '@/actions/App/Http/Controllers/Admin/DealerController'
-import SmallCard from '@/components/shared/cards/SmallCard.vue'
 
 const props = defineProps<AdminDealersProps>()
 
@@ -95,7 +95,10 @@ function handleSearch(query: string) {
                     description="Manage approved dealers and their activity metrics"
                 />
 
-                <Button as-child variant="outline">
+                <Button
+                    as-child
+                    variant="outline"
+                >
                     <Link :href="users.dealers.create()">
                         <UserRoundPlus :size="20" />
                         Register Dealer
@@ -106,10 +109,12 @@ function handleSearch(query: string) {
             <!-- Summary Cards -->
             <Deferred data="summary">
                 <template #fallback>
-                    <div
-                        class="grid gap-4 md:grid-cols-2 lg:grid-cols-4 lg:gap-2"
-                    >
-                        <Skeleton v-for="i in 4" :key="i" class="h-20" />
+                    <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4 lg:gap-2">
+                        <Skeleton
+                            v-for="i in 4"
+                            :key="i"
+                            class="h-20"
+                        />
                     </div>
                 </template>
 
