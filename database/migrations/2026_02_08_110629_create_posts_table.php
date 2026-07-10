@@ -20,6 +20,7 @@ return new class extends Migration
             $table->softDeletes();
             $table->timestamps();
 
+            $table->index(['user_id', 'type']);
             $table->index(
                 ['type', 'created_at'],
                 'idx_posts_type_created'

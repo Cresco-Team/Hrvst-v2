@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('dealer_profiles', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('user_id')->unique()->constrained()->cascadeOnDelete();
 
             $table->timestamps();
         });

@@ -15,6 +15,7 @@ return new class extends Migration
             $table->string('name');
 
             $table->index(['name']);
+            $table->index('municipality_id');
         });
     }
 
