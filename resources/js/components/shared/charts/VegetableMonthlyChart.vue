@@ -79,7 +79,6 @@ const confidenceTooltip: Record<string, string> = {
                 title="No completed activity record"
                 :icon="AlertCircle"
             />
-            <div
 
             <div
                 v-if="chartData && !hasForecast() && (monthsOfHistory ?? 0) < MIN_MONTHS_FOR_FORECAST"
