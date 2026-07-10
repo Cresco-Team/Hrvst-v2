@@ -18,7 +18,6 @@ return new class extends Migration
 
             $table->timestamps();
 
-            $table->index(['category_id', 'vegetable_name']);
             $table->unique(['category_id', 'vegetable_name', 'variety_name']);
         });
     }

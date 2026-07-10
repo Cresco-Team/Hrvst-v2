@@ -16,6 +16,7 @@ return new class extends Migration
             $table->decimal('quantity_kg', 8, 2);
             $table->enum('status', ['ongoing', 'expired', 'fulfilled'])->default('ongoing');
 
+            $table->index('post_id');
             $table->index(['vegetable_id', 'status'], 'idx_post_items_vegetable_status');
 
             $table->softDeletes();

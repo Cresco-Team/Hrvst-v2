@@ -18,6 +18,7 @@ return new class extends Migration
             $table->double('latitude');
             $table->double('longitude');
 
+            $table->index('municipality_id');
             $table->timestamps();
         });
     }
