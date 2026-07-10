@@ -152,8 +152,10 @@ watch(
         @submit="handleSubmit"
     >
         <div class="space-y-6">
-            <div class="flex justify-between gap-4">
-                <div class="space-y-2">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+                <!-- Scheduled Date -->
+                <div class="col-span-1 space-y-2">
                     <Label for="scheduled_date" class="flex items-center gap-1.5">
                         Delivery Day
                         <Badge variant="destructive" class="text-xs font-normal">Required</Badge>
@@ -164,7 +166,7 @@ watch(
                                 id="scheduled_date"
                                 variant="outline"
                                 :class="[
-                                    'w-full justify-start text-left font-normal',
+                                    'justify-start text-left font-normal',
                                     !form.scheduled_date && 'text-muted-foreground',
                                     form.errors.scheduled_date && 'border-destructive text-destructive',
                                 ]"
@@ -189,7 +191,8 @@ watch(
                     </p>
                 </div>
 
-                <div class="space-y-2">
+                <!-- Time Slot -->
+                <div class="col-span-1 space-y-2">
                     <Label for="time_slot" class="flex items-center gap-1.5">
                         Time Slot
                         <Badge variant="destructive" class="text-xs font-normal">Required</Badge>
@@ -216,7 +219,14 @@ watch(
                         <TableHead>Vegetable Supplies <span class="text-destructive">*</span></TableHead>
                         <TableHead class="text-center">Kilogram <span class="text-destructive">*</span></TableHead>
                         <TableHead class="text-end">
-                            <Button type="button" variant="outline" size="sm" class="h-7 gap-1.5 text-xs" @click="addItem">
+                            <Button
+                                type="button"
+                                variant="outline"
+                                size="icon-sm"
+                                class="h-7 gap-1.5 text-xs"
+                                aria-label="Add supply row"
+                                @click="addItem"
+                            >
                                 <Plus class="size-3" />
                             </Button>
                         </TableHead>
@@ -225,26 +235,26 @@ watch(
 
                 <TableBody>
                     <TableEmpty v-if="form.items.length === 0" :colspan="3">
-                        <span :class="form.errors.items ? `text-destructive` : ''">
+                        <span :class="form.errors.items ? 'text-destructive' : ''">
                             No supplies yet. Add at least one supply.
                         </span>
                     </TableEmpty>
 
                     <TableRow v-for="(item, index) in form.items" :key="item._key">
-                        <TableCell class="relative pb-6">
+                        <TableCell class="relative px-0 pb-6 align-top">
                             <Combobox
                                 :model-value="item.vegetable_id"
                                 :filter-function="varietyFilterFunction"
                                 @update:model-value="(value) => (item.vegetable_id = value == null ? '' : String(value))"
                             >
-                                <ComboboxAnchor as-child class="w-full">
+                                <ComboboxAnchor as-child class="max-w-35 sm:max-w-full">
                                     <ComboboxTrigger as-child>
                                         <Button
                                             type="button"
                                             variant="outline"
                                             role="combobox"
                                             :class="[
-                                                'w-full justify-between font-normal',
+                                                'justify-between font-normal',
                                                 !item.vegetable_id && 'text-muted-foreground',
                                                 form.errors[`items.${index}.vegetable_id`] && 'border-destructive text-destructive',
                                             ]"
@@ -252,7 +262,7 @@ watch(
                                             <span class="truncate">
                                                 {{ varietyLabelById.get(item.vegetable_id) ?? 'Select supply...' }}
                                             </span>
-                                            <ChevronsUpDown class="ml-2 size-4 shrink-0 opacity-50" />
+                                            <ChevronsUpDown class="ml-2 size-4 shrink-0 text-muted-foreground" />
                                         </Button>
                                     </ComboboxTrigger>
                                 </ComboboxAnchor>
@@ -273,11 +283,7 @@ watch(
                                             :key="categoryName"
                                             :heading="categoryName"
                                         >
-                                            <ComboboxItem
-                                                v-for="v in varieties"
-                                                :key="v.id"
-                                                :value="String(v.id)"
-                                            >
+                                            <ComboboxItem v-for="v in varieties" :key="v.id" :value="String(v.id)">
                                                 {{ v.name }}
                                                 <ComboboxItemIndicator>
                                                     <Check class="size-4" />
@@ -291,7 +297,10 @@ watch(
                             <div v-if="item.vegetable_id && form.scheduled_date" class="absolute bottom-1 text-xs">
                                 <Skeleton v-if="getState(item.vegetable_id).status === 'loading'" class="h-3.5 w-20 rounded" />
                                 <template v-else-if="getData(item.vegetable_id)">
-                                    <span :class="netKgClassFarmer(getData(item.vegetable_id)!.net_kg)" class="text-xs font-medium tabular-nums">
+                                    <span
+                                        :class="netKgClassFarmer(getData(item.vegetable_id)!.net_kg)"
+                                        class="text-xs font-medium tabular-nums"
+                                    >
                                         {{ formatNetKgFarmer(getData(item.vegetable_id)!.net_kg) }}
                                     </span>
                                 </template>
@@ -302,27 +311,34 @@ watch(
                             </p>
                         </TableCell>
 
-                        <TableCell class="relative max-w-30 space-y-1 pb-5">
+                        <TableCell class="relative px-0 pb-5 align-top">
                             <NumberField
                                 v-model="item.quantity_kg"
-                                :min="0.00"
+                                :min="0"
                                 :max="99999.99"
                                 :step="0.1"
                                 :format-options="{ style: 'unit', unit: 'kilogram', unitDisplay: 'short', minimumFractionDigits: 0, maximumFractionDigits: 1 }"
                             >
-                                <NumberFieldContent>
+                                <NumberFieldContent class="min-w-30 sm:max-w-fit">
                                     <NumberFieldDecrement />
                                     <NumberFieldInput :class="{ 'border-destructive': form.errors[`items.${index}.quantity_kg`] }" />
                                     <NumberFieldIncrement />
                                 </NumberFieldContent>
                             </NumberField>
-                            <p v-if="form.errors[`items.${index}.quantity_kg`]" class="absolute text-xs text-destructive">
+                            <p v-if="form.errors[`items.${index}.quantity_kg`]" class="absolute bottom-1 text-xs text-destructive">
                                 {{ form.errors[`items.${index}.quantity_kg`] }}
                             </p>
                         </TableCell>
 
-                        <TableCell class="text-end">
-                            <Button type="button" variant="ghost" size="icon" class="size-9 text-muted-foreground hover:text-destructive" @click="removeItem(index)">
+                        <TableCell class="text-end align-top">
+                            <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                class="size-9 text-muted-foreground hover:text-destructive"
+                                :aria-label="`Remove supply row ${index + 1}`"
+                                @click="removeItem(index)"
+                            >
                                 <Trash2 class="size-4" />
                             </Button>
                         </TableCell>
