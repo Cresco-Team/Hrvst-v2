@@ -1,6 +1,6 @@
 <script setup lang="ts" generic="TData extends object">
-import { computed, watch } from 'vue'
 import type { InertiaForm } from '@inertiajs/vue3'
+import { computed, watch } from 'vue'
 import { Button } from '@/components/ui/button'
 import { Spinner } from '@/components/ui/spinner'
 import { useResponsiveDialog } from '@/composables/useResponsiveDialog'
@@ -62,33 +62,71 @@ const maxWidthClass = computed(() => {
 </script>
 
 <template>
-	<component :is="Modal.Root" v-model:open="isOpen">
-		<component :is="Modal.Content" class="flex max-h-[85vh] flex-col gap-0 p-0" :class="maxWidthClass">
-			<component :is="Modal.Header" class="space-y-2 border-b px-6 py-4" :class="{ 'text-left': isDesktop }">
-				<component :is="Modal.Title" class="flex items-center gap-2">
-					<slot name="icon" />
-					{{ title }}
-				</component>
-				<component :is="Modal.Description" v-if="description || $slots.description">
-					<slot name="description">{{ description }}</slot>
-				</component>
-			</component>
+    <component
+        :is="Modal.Root"
+        v-model:open="isOpen"
+    >
+        <component
+            :is="Modal.Content"
+            class="flex max-h-[85vh] flex-col gap-0 p-0"
+            :class="maxWidthClass"
+        >
+            <component
+                :is="Modal.Header"
+                class="space-y-2 border-b px-6 py-4"
+                :class="{ 'text-left': isDesktop }"
+            >
+                <component
+                    :is="Modal.Title"
+                    class="flex items-center gap-2"
+                >
+                    <slot name="icon" />
+                    {{ title }}
+                </component>
+                <component
+                    :is="Modal.Description"
+                    v-if="description || $slots.description"
+                >
+                    <slot name="description">{{ description }}</slot>
+                </component>
+            </component>
 
-			<div class="flex-1 overflow-y-auto px-6 py-4">
-				<slot :errors="form.errors" :processing="form.processing" />
-			</div>
+            <div class="flex-1 overflow-y-auto px-6 py-4">
+                <slot
+                    :errors="form.errors"
+                    :processing="form.processing"
+                />
+            </div>
 
-			<component :is="Modal.Footer" v-if="showFooter" class="border-t px-6 py-4" :class="{ 'pt-2': !isDesktop }">
-				<div class="flex w-full gap-2 sm:justify-end">
-					<slot name="footer-actions" :form="form">
-						<Button variant="outline" :disabled="form.processing" @click="handleClose">{{ cancelLabel }}</Button>
-						<Button :disabled="form.processing" @click="handleSubmit">
-							<Spinner v-if="form.processing" class="mr-2 size-4" />
-							{{ submitLabel }}
-						</Button>
-					</slot>
-				</div>
-			</component>
-		</component>
-	</component>
+            <component
+                :is="Modal.Footer"
+                v-if="showFooter"
+                class="border-t px-6 py-4"
+                :class="{ 'pt-2': !isDesktop }"
+            >
+                <div class="flex w-full gap-2 sm:justify-end">
+                    <slot
+                        name="footer-actions"
+                        :form="form"
+                    >
+                        <Button
+                            variant="outline"
+                            :disabled="form.processing"
+                            @click="handleClose"
+                        >{{ cancelLabel }}</Button>
+                        <Button
+                            :disabled="form.processing"
+                            @click="handleSubmit"
+                        >
+                            <Spinner
+                                v-if="form.processing"
+                                class="mr-2 size-4"
+                            />
+                            {{ submitLabel }}
+                        </Button>
+                    </slot>
+                </div>
+            </component>
+        </component>
+    </component>
 </template>

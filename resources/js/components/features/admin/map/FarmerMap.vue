@@ -220,7 +220,10 @@ onUnmounted(() => {
 </script>
 
 <template>
-    <div ref="mapContainer" class="h-full w-full overflow-hidden rounded-lg" />
+    <div
+        ref="mapContainer"
+        class="h-full w-full overflow-hidden rounded-lg"
+    />
 </template>
 
 <style scoped>

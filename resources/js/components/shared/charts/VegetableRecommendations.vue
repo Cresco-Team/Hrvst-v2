@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
 import { ChevronDown, ChevronUp, Info, OctagonX, TriangleAlert } from 'lucide-vue-next'
+import { computed, ref } from 'vue'
 import { Button } from '@/components/ui/button'
 import type { RecommendationSeverity, VarietyRecommendation } from '@/types/resources/product'
 
@@ -54,44 +54,47 @@ function severityConfig(severity: RecommendationSeverity): SeverityConfig {
 </script>
 
 <template>
-  <div class="flex flex-col gap-2">
-
-    <div class="flex items-center justify-between">
-      <h2 class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-        Recommendations
-      </h2>
-      <span class="text-xs text-muted-foreground">
-        {{ recommendations.length }} signal{{ recommendations.length !== 1 ? 's' : '' }}
-      </span>
-    </div>
-
     <div class="flex flex-col gap-2">
-      <div
-        v-for="rec in visible"
-        :key="rec.type"
-        :class="['flex items-start gap-3 rounded-lg border p-3 transition-all', severityConfig(rec.severity).containerClass]"
-      >
-        <component
-          :is="severityConfig(rec.severity).icon"
-          :class="['size-4 mt-0.5 shrink-0', severityConfig(rec.severity).iconClass]"
-        />
-        <div class="min-w-0">
-          <p class="text-sm font-semibold leading-snug">{{ rec.title }}</p>
-          <p class="text-xs text-muted-foreground mt-0.5 leading-relaxed">{{ rec.body }}</p>
+
+        <div class="flex items-center justify-between">
+            <h2 class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                Recommendations
+            </h2>
+            <span class="text-xs text-muted-foreground">
+                {{ recommendations.length }} signal{{ recommendations.length !== 1 ? 's' : '' }}
+            </span>
         </div>
-      </div>
+
+        <div class="flex flex-col gap-2">
+            <div
+                v-for="rec in visible"
+                :key="rec.type"
+                :class="['flex items-start gap-3 rounded-lg border p-3 transition-all', severityConfig(rec.severity).containerClass]"
+            >
+                <component
+                    :is="severityConfig(rec.severity).icon"
+                    :class="['size-4 mt-0.5 shrink-0', severityConfig(rec.severity).iconClass]"
+                />
+                <div class="min-w-0">
+                    <p class="text-sm font-semibold leading-snug">{{ rec.title }}</p>
+                    <p class="text-xs text-muted-foreground mt-0.5 leading-relaxed">{{ rec.body }}</p>
+                </div>
+            </div>
+        </div>
+
+        <Button
+            v-if="hasMore"
+            variant="ghost"
+            size="sm"
+            class="w-fit gap-1.5 text-xs text-muted-foreground px-2"
+            @click="expanded = !expanded"
+        >
+            <component
+                :is="expanded ? ChevronUp : ChevronDown"
+                class="size-3.5"
+            />
+            {{ expanded ? 'Show less' : `Show ${hiddenCount} more` }}
+        </Button>
+
     </div>
-
-    <Button
-      v-if="hasMore"
-      variant="ghost"
-      size="sm"
-      class="w-fit gap-1.5 text-xs text-muted-foreground px-2"
-      @click="expanded = !expanded"
-    >
-      <component :is="expanded ? ChevronUp : ChevronDown" class="size-3.5" />
-      {{ expanded ? 'Show less' : `Show ${hiddenCount} more` }}
-    </Button>
-
-  </div>
 </template>

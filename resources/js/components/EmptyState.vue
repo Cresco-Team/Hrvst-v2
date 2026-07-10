@@ -27,8 +27,14 @@ withDefaults(defineProps<Props>(), {
 <template>
     <Empty class="border border-dashed">
         <EmptyHeader>
-            <EmptyMedia variant="icon" class="bg-primary/10">
-                <component :is="icon" :class="iconClass" />
+            <EmptyMedia
+                variant="icon"
+                class="bg-primary/10"
+            >
+                <component
+                    :is="icon"
+                    :class="iconClass"
+                />
             </EmptyMedia>
             <EmptyTitle>{{ title }}</EmptyTitle>
             <EmptyDescription v-if="description">

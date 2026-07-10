@@ -23,9 +23,18 @@ const props = withDefaults(
 
 <template>
     <Link :href="href">
-        <Item variant="outline" :class="['bg-linear-to-br hover:shadow-md transition-all', colorClasses]">
-            <ItemMedia variant="icon" class="bg-background/80 p-2 backdrop-blur-sm">
-                <component :is="icon" :class="iconClasses" />
+        <Item
+            variant="outline"
+            :class="['bg-linear-to-br hover:shadow-md transition-all', colorClasses]"
+        >
+            <ItemMedia
+                variant="icon"
+                class="bg-background/80 p-2 backdrop-blur-sm"
+            >
+                <component
+                    :is="icon"
+                    :class="iconClasses"
+                />
             </ItemMedia>
             <ItemContent>
                 <ItemTitle>{{ title }}</ItemTitle>

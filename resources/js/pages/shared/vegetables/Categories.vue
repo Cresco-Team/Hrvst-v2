@@ -49,15 +49,11 @@ const breadcrumbs: BreadcrumbItem[] = [
                             <Vegan />
                         </ItemMedia>
 
-                        <ItemContent
-                            class="flex-row items-center justify-between overflow-hidden"
-                        >
+                        <ItemContent class="flex-row items-center justify-between overflow-hidden">
                             <ItemTitle class="text-xs sm:text-sm">{{
                                 category.name
                             }}</ItemTitle>
-                            <ArrowRight
-                                class="mr-5 hidden size-4 text-muted-foreground transition-transform duration-300 group-hover:translate-x-3 group-hover:text-foreground sm:flex"
-                            />
+                            <ArrowRight class="mr-5 hidden size-4 text-muted-foreground transition-transform duration-300 group-hover:translate-x-3 group-hover:text-foreground sm:flex"/>
                         </ItemContent>
                     </Item>
                 </Link>

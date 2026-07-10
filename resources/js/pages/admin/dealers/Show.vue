@@ -107,7 +107,10 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => [
                     </div>
                 </template>
 
-                <div v-if="dealer" class="grid grid-cols-12 gap-5">
+                <div
+                    v-if="dealer"
+                    class="grid grid-cols-12 gap-5"
+                >
                     <!-- Sidebar -->
                     <div class="col-span-12 lg:col-span-3">
                         <Card class="space-y-5 p-5">
@@ -118,28 +121,19 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => [
                                         :src="dealer.user.avatar_url"
                                         :alt="dealer.user.name"
                                     />
-                                    <AvatarFallback
-                                        class="bg-primary/10 text-base font-semibold text-primary"
-                                    >
+                                    <AvatarFallback class="bg-primary/10 text-base font-semibold text-primary">
                                         {{ getInitials(dealer.user?.name) }}
                                     </AvatarFallback>
                                 </Avatar>
                                 <div>
-                                    <p
-                                        class="text-sm leading-snug font-semibold"
-                                    >
+                                    <p class="text-sm leading-snug font-semibold">
                                         {{ dealer.user?.name }}
                                     </p>
                                 </div>
                             </div>
-                            <div
-                                class="space-y-2.5 text-sm text-muted-foreground"
-                            >
+                            <div class="space-y-2.5 text-sm text-muted-foreground">
                                 <div class="flex items-center gap-2">
-                                    <Mail class="size-4 shrink-0" /><span
-                                        class="truncate"
-                                        >{{ dealer.user?.email }}</span
-                                    >
+                                    <Mail class="size-4 shrink-0" /><span class="truncate">{{ dealer.user?.email }}</span>
                                 </div>
                                 <div class="flex items-center gap-2">
                                     <Phone class="size-4 shrink-0" /><span>{{
@@ -147,12 +141,8 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => [
                                     }}</span>
                                 </div>
                                 <div class="flex items-center gap-2">
-                                    <CalendarDays
-                                        class="size-4 shrink-0"
-                                    /><span
-                                        >Joined
-                                        {{ dealer.joined_at_human }}</span
-                                    >
+                                    <CalendarDays class="size-4 shrink-0"/><span>Joined
+                                        {{ dealer.joined_at_human }}</span>
                                 </div>
                             </div>
                         </Card>
@@ -192,10 +182,9 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => [
                                             <Badge
                                                 variant="secondary"
                                                 class="ml-1 px-1.5 py-0 text-xs"
-                                                >{{
-                                                    ongoingItems.length
-                                                }}</Badge
-                                            >
+                                            >{{
+                                                ongoingItems.length
+                                            }}</Badge>
                                         </TabsTrigger>
                                         <TabsTrigger
                                             value="expired"
@@ -205,25 +194,21 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => [
                                             <Badge
                                                 variant="secondary"
                                                 class="ml-1 px-1.5 py-0 text-xs"
-                                                >{{
-                                                    archivedItems.length
-                                                }}</Badge
-                                            >
+                                            >{{
+                                                archivedItems.length
+                                            }}</Badge>
                                         </TabsTrigger>
                                         <TabsTrigger
                                             value="fulfilled"
                                             class="gap-1.5"
                                         >
-                                            <PackageCheck
-                                                class="size-4"
-                                            />Fulfilled
+                                            <PackageCheck class="size-4"/>Fulfilled
                                             <Badge
                                                 variant="secondary"
                                                 class="ml-1 px-1.5 py-0 text-xs"
-                                                >{{
-                                                    fulfilledItems.length
-                                                }}</Badge
-                                            >
+                                            >{{
+                                                fulfilledItems.length
+                                            }}</Badge>
                                         </TabsTrigger>
                                     </TabsList>
 

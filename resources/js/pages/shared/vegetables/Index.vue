@@ -4,12 +4,20 @@ import { Search } from 'lucide-vue-next'
 import { computed, ref } from 'vue'
 import EmptyState from '@/components/EmptyState.vue'
 import Heading from '@/components/Heading.vue'
+import VegetableItem from '@/components/shared/cards/VegetableItem.vue'
 import { Button } from '@/components/ui/button'
 import {
     InputGroup,
     InputGroupAddon,
     InputGroupInput,
 } from '@/components/ui/input-group'
+import {
+    Item,
+    ItemContent,
+    ItemDescription,
+    ItemMedia,
+    ItemTitle,
+} from '@/components/ui/item'
 import { Skeleton } from '@/components/ui/skeleton'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { useCapitalize } from '@/lib/utils'
@@ -18,14 +26,6 @@ import { index, show } from '@/routes/vegetables'
 import type { BreadcrumbItem, SharedCategoryProps } from '@/types'
 import type { Paginated } from '@/types/index'
 import type { VegetableResource } from '@/types/resources/product'
-import {
-    Item,
-    ItemContent,
-    ItemDescription,
-    ItemMedia,
-    ItemTitle,
-} from '@/components/ui/item'
-import VegetableItem from '@/components/shared/cards/VegetableItem.vue'
 
 interface VegetablesFilters {
     search: string | null
@@ -124,7 +124,11 @@ function handlePageChange(page: number) {
             <Deferred data="vegetables">
                 <template #fallback>
                     <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                        <Skeleton v-for="i in 8" :key="i" class="aspect-3/4 rounded-xl" />
+                        <Skeleton
+                            v-for="i in 8"
+                            :key="i"
+                            class="aspect-3/4 rounded-xl"
+                        />
                     </div>
                 </template>
 
@@ -134,7 +138,10 @@ function handlePageChange(page: number) {
                     description="Try adjusting your search or category filter."
                 />
 
-                <div v-else class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                <div
+                    v-else
+                    class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+                >
                     <VegetableItem
                         v-for="vegetable in vegetables.data"
                         :key="vegetable.id"

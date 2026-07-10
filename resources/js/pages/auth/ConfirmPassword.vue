@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ref } from 'vue'
 import { Form, Head } from '@inertiajs/vue3'
+import { ref } from 'vue'
 import InputError from '@/components/InputError.vue'
 import { Button } from '@/components/ui/button'
 import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp'
@@ -19,14 +19,18 @@ const pin = ref('')
         <Head title="Confirm PIN" />
 
         <Form
+            v-slot="{ errors, processing }"
             action="/user/confirm-password"
             method="post"
             reset-on-error
-            @error="pin = ''"
-            v-slot="{ errors, processing }"
             class="flex flex-col gap-6"
+            @error="pin = ''"
         >
-            <input type="hidden" name="password" :value="pin" />
+            <input
+                type="hidden"
+                name="password"
+                :value="pin"
+            />
 
             <div class="grid gap-2">
                 <Label for="pin">PIN</Label>
@@ -39,7 +43,11 @@ const pin = ref('')
                         autofocus
                     >
                         <InputOTPGroup>
-                            <InputOTPSlot v-for="index in 6" :key="index" :index="index - 1" />
+                            <InputOTPSlot
+                                v-for="index in 6"
+                                :key="index"
+                                :index="index - 1"
+                            />
                         </InputOTPGroup>
                     </InputOTP>
                 </div>

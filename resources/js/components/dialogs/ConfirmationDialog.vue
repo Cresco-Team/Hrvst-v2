@@ -38,24 +38,24 @@ const handleAction = () => {
 </script>
 
 <template>
-	<AlertDialog v-model:open="open">
-		<AlertDialogContent>
-			<AlertDialogHeader>
-				<AlertDialogTitle>{{ title }}</AlertDialogTitle>
-				<AlertDialogDescription>{{ description }}</AlertDialogDescription>
-			</AlertDialogHeader>
+    <AlertDialog v-model:open="open">
+        <AlertDialogContent>
+            <AlertDialogHeader>
+                <AlertDialogTitle>{{ title }}</AlertDialogTitle>
+                <AlertDialogDescription>{{ description }}</AlertDialogDescription>
+            </AlertDialogHeader>
 
-			<AlertDialogFooter>
-				<AlertDialogCancel :disabled="processing">Cancel</AlertDialogCancel>
-				<Button
-					:variant="props.variant"
-					:disabled="props.processing"
-					@click="handleAction"
-				>
-					<span v-if="processing">Processing…</span>
-					<span v-else>{{ actionName }}</span>
-				</Button>
-			</AlertDialogFooter>
-		</AlertDialogContent>
-	</AlertDialog>
+            <AlertDialogFooter>
+                <AlertDialogCancel :disabled="processing">Cancel</AlertDialogCancel>
+                <Button
+                    :variant="props.variant"
+                    :disabled="props.processing"
+                    @click="handleAction"
+                >
+                    <span v-if="processing">Processing…</span>
+                    <span v-else>{{ actionName }}</span>
+                </Button>
+            </AlertDialogFooter>
+        </AlertDialogContent>
+    </AlertDialog>
 </template>

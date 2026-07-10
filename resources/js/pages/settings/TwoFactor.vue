@@ -74,14 +74,15 @@ onUnmounted(() => {
                         </Button>
                         <Form
                             v-else
+                            v-slot="{ processing }"
                             v-bind="enable.form()"
                             @success="showSetupModal = true"
-                            #default="{ processing }"
                         >
-                            <Button type="submit" :disabled="processing">
-                                <ShieldCheck />Enable 2FA</Button
-                            ></Form
-                        >
+                            <Button
+                                type="submit"
+                                :disabled="processing"
+                            >
+                                <ShieldCheck />Enable 2FA</Button></Form>
                     </div>
                 </div>
 
@@ -101,7 +102,10 @@ onUnmounted(() => {
                     <TwoFactorRecoveryCodes />
 
                     <div class="relative inline">
-                        <Form v-bind="disable.form()" #default="{ processing }">
+                        <Form
+                            v-slot="{ processing }"
+                            v-bind="disable.form()"
+                        >
                             <Button
                                 variant="destructive"
                                 type="submit"
@@ -115,9 +119,9 @@ onUnmounted(() => {
                 </div>
 
                 <TwoFactorSetupModal
-                    v-model:isOpen="showSetupModal"
-                    :requiresConfirmation="requiresConfirmation"
-                    :twoFactorEnabled="twoFactorEnabled"
+                    v-model:is-open="showSetupModal"
+                    :requires-confirmation="requiresConfirmation"
+                    :two-factor-enabled="twoFactorEnabled"
                 />
             </div>
         </SettingsLayout>

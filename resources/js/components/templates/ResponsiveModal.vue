@@ -36,24 +36,47 @@ const Modal = computed(() => ({
 </script>
 
 <template>
-    <component :is="Modal.Root" v-model:open="isOpen">
-        <component :is="Modal.Trigger" v-if="$slots.trigger" as-child>
+    <component
+        :is="Modal.Root"
+        v-model:open="isOpen"
+    >
+        <component
+            :is="Modal.Trigger"
+            v-if="$slots.trigger"
+            as-child
+        >
             <slot name="trigger" />
         </component>
 
-        <component :is="Modal.Content" class="sm:max-w-[425px]">
-            <component :is="Modal.Header" class="text-left">
-                <component :is="Modal.Title" v-if="title || $slots.title">
+        <component
+            :is="Modal.Content"
+            class="sm:max-w-[425px]"
+        >
+            <component
+                :is="Modal.Header"
+                class="text-left"
+            >
+                <component
+                    :is="Modal.Title"
+                    v-if="title || $slots.title"
+                >
                     <slot name="title">{{ title }}</slot>
                 </component>
-                <component :is="Modal.Description" v-if="description || $slots.description">
+                <component
+                    :is="Modal.Description"
+                    v-if="description || $slots.description"
+                >
                     <slot name="description">{{ description }}</slot>
                 </component>
             </component>
 
             <slot />
 
-            <component :is="Modal.Footer" v-if="$slots.footer" class="pt-2">
+            <component
+                :is="Modal.Footer"
+                v-if="$slots.footer"
+                class="pt-2"
+            >
                 <slot name="footer" />
             </component>
         </component>

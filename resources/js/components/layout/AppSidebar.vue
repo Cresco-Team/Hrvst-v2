@@ -3,7 +3,6 @@ import { Link } from '@inertiajs/vue3'
 import { BookOpen, Folder, LayoutGrid } from 'lucide-vue-next'
 import NavFooter from '@/components/layout/NavFooter.vue'
 import NavMain from '@/components/layout/NavMain.vue'
-import NavUser from '@/components/NavUser.vue'
 import {
 	Sidebar,
 	SidebarContent,
@@ -16,6 +15,7 @@ import {
 import { dashboard } from '@/routes'
 import type { NavItem } from '@/types'
 import AppLogo from './AppLogo.vue'
+import NavUser from '@/components/NavUser.vue'
 
 const mainNavItems: NavItem[] = [
 	{
@@ -40,27 +40,33 @@ const footerNavItems: NavItem[] = [
 </script>
 
 <template>
-	<Sidebar collapsible="icon" variant="inset">
-		<SidebarHeader>
-			<SidebarMenu>
-				<SidebarMenuItem>
-					<SidebarMenuButton size="lg" as-child>
-						<Link :href="dashboard()">
-							<AppLogo />
-						</Link>
-					</SidebarMenuButton>
-				</SidebarMenuItem>
-			</SidebarMenu>
-		</SidebarHeader>
+    <Sidebar
+        collapsible="icon"
+        variant="inset"
+    >
+        <SidebarHeader>
+            <SidebarMenu>
+                <SidebarMenuItem>
+                    <SidebarMenuButton
+                        size="lg"
+                        as-child
+                    >
+                        <Link :href="dashboard()">
+                            <AppLogo />
+                        </Link>
+                    </SidebarMenuButton>
+                </SidebarMenuItem>
+            </SidebarMenu>
+        </SidebarHeader>
 
-		<SidebarContent>
-			<NavMain :items="mainNavItems" />
-		</SidebarContent>
+        <SidebarContent>
+            <NavMain :items="mainNavItems" />
+        </SidebarContent>
 
-		<SidebarFooter>
-			<NavFooter :items="footerNavItems" />
-			<NavUser />
-		</SidebarFooter>
-	</Sidebar>
-	<slot />
+        <SidebarFooter>
+            <NavFooter :items="footerNavItems" />
+            <NavUser />
+        </SidebarFooter>
+    </Sidebar>
+    <slot />
 </template>

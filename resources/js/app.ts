@@ -1,5 +1,6 @@
 import { createInertiaApp } from '@inertiajs/vue3'
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers'
+import { useRegisterSW } from 'virtual:pwa-register/vue'
 import type { DefineComponent } from 'vue'
 import { createApp, h } from 'vue'
 import '../css/app.css'
@@ -8,7 +9,6 @@ import 'leaflet/dist/leaflet.css'
 import 'leaflet.markercluster/dist/MarkerCluster.css'
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css'
 import 'vue-sonner/style.css'
-import { useRegisterSW } from 'virtual:pwa-register/vue'
 
 const appName = import.meta.env.VITE_APP_NAME || 'Hrvst'
 

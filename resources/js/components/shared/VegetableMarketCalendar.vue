@@ -5,7 +5,6 @@ import { ChevronLeft, ChevronRight } from 'lucide-vue-next'
 import { CalendarRoot } from 'reka-ui'
 import { computed } from 'vue'
 import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
 import {
 	CalendarCell,
 	CalendarCellTrigger,
@@ -15,6 +14,7 @@ import {
 	CalendarGridRow,
 	CalendarHeadCell,
 } from '@/components/ui/calendar'
+import { Card } from '@/components/ui/card'
 import {
 	BALANCE_DOT_CLASS,
 	useCalendarBalance,
@@ -144,79 +144,106 @@ function handleDayClick(date: CalendarDate): void {
 </script>
 
 <template>
-	<div class="grid grid-cols-1 gap-4 lg:grid-cols-[220px_1fr]">
-		<!-- Sidebar -->
-		<div class="flex flex-col gap-4">
-			<div class="flex flex-col gap-0.5">
-				<h2 class="font-semibold">Market Calendar</h2>
-				<p class="hidden text-sm text-muted-foreground sm:inline-block">
-					All scheduled supply and demand.
-				</p>
-			</div>
+    <div class="grid grid-cols-1 gap-4 lg:grid-cols-[220px_1fr]">
+        <!-- Sidebar -->
+        <div class="flex flex-col gap-4">
+            <div class="flex flex-col gap-0.5">
+                <h2 class="font-semibold">Market Calendar</h2>
+                <p class="hidden text-sm text-muted-foreground sm:inline-block">
+                    All scheduled supply and demand.
+                </p>
+            </div>
 
-			<div class="flex items-center justify-center gap-2">
-				<Button variant="outline" size="icon" aria-label="Previous month" @click="navigateMonth(-1)">
-					<ChevronLeft class="size-4" />
-				</Button>
-				<span class="min-w-[5rem] text-center text-sm font-semibold tabular-nums">
-					{{ monthLabel }}
-				</span>
-				<Button variant="outline" size="icon" aria-label="Next month" @click="navigateMonth(1)">
-					<ChevronRight class="size-4" />
-				</Button>
-			</div>
+            <div class="flex items-center justify-center gap-2">
+                <Button
+                    variant="outline"
+                    size="icon"
+                    aria-label="Previous month"
+                    @click="navigateMonth(-1)"
+                >
+                    <ChevronLeft class="size-4" />
+                </Button>
+                <span class="min-w-[5rem] text-center text-sm font-semibold tabular-nums">
+                    {{ monthLabel }}
+                </span>
+                <Button
+                    variant="outline"
+                    size="icon"
+                    aria-label="Next month"
+                    @click="navigateMonth(1)"
+                >
+                    <ChevronRight class="size-4" />
+                </Button>
+            </div>
 
-			<div class="flex justify-center gap-3 text-xs text-muted-foreground sm:flex-col">
-				<div v-for="item in legend" :key="item.label" class="flex items-center gap-0.5">
-					<span class="h-2 w-2 rounded-full" :class="BALANCE_DOT_CLASS[item.color]" />
-					{{ item.label }}
-				</div>
-			</div>
-		</div>
+            <div class="flex justify-center gap-3 text-xs text-muted-foreground sm:flex-col">
+                <div
+                    v-for="item in legend"
+                    :key="item.label"
+                    class="flex items-center gap-0.5"
+                >
+                    <span
+                        class="h-2 w-2 rounded-full"
+                        :class="BALANCE_DOT_CLASS[item.color]"
+                    />
+                    {{ item.label }}
+                </div>
+            </div>
+        </div>
 
-		<!-- Calendar grid -->
-		<Card class="rounded-none border-0 px-4 shadow-none sm:rounded sm:border sm:shadow">
-			<CalendarRoot
-				v-slot="{ weekDays, grid }"
-				v-model:placeholder="placeholder"
-				fixed-weeks
-				:week-starts-on="0"
-				class="w-full"
-			>
-				<CalendarGrid v-for="month in grid" :key="month.value.toString()" class="w-full">
-					<CalendarGridHead>
-						<CalendarGridRow>
-							<CalendarHeadCell v-for="day in weekDays" :key="day">
-								{{ day }}
-							</CalendarHeadCell>
-						</CalendarGridRow>
-					</CalendarGridHead>
+        <!-- Calendar grid -->
+        <Card class="rounded-none border-0 px-4 shadow-none sm:rounded sm:border sm:shadow">
+            <CalendarRoot
+                v-slot="{ weekDays, grid }"
+                v-model:placeholder="placeholder"
+                fixed-weeks
+                :week-starts-on="0"
+                class="w-full"
+            >
+                <CalendarGrid
+                    v-for="month in grid"
+                    :key="month.value.toString()"
+                    class="w-full"
+                >
+                    <CalendarGridHead>
+                        <CalendarGridRow>
+                            <CalendarHeadCell
+                                v-for="day in weekDays"
+                                :key="day"
+                            >
+                                {{ day }}
+                            </CalendarHeadCell>
+                        </CalendarGridRow>
+                    </CalendarGridHead>
 
-					<CalendarGridBody>
-						<CalendarGridRow v-for="(weekDates, i) in month.rows" :key="`week-${i}`">
-							<CalendarCell
-								v-for="weekDate in weekDates"
-								:key="weekDate.toString()"
-								:date="weekDate"
-								class="relative h-16 p-0"
-							>
-								<CalendarCellTrigger
-									:day="weekDate"
-									:month="month.value"
-									class="flex h-full w-full flex-col items-center justify-center gap-1 rounded-md border border-border/40 bg-muted/20 text-xs font-semibold transition-colors hover:bg-muted/50 data-[outside-view]:opacity-30"
-									@click="handleDayClick(weekDate)"
-								/>
-								<span
-									v-if="hasData(weekDate)"
-									class="pointer-events-none absolute bottom-1.5 left-1/2 size-2.5 -translate-x-1/2 rounded-full"
-									:class="dotClassFor(weekDate)"
-									:title="dotTitleFor(weekDate)"
-								/>
-							</CalendarCell>
-						</CalendarGridRow>
-					</CalendarGridBody>
-				</CalendarGrid>
-			</CalendarRoot>
-		</Card>
-	</div>
+                    <CalendarGridBody>
+                        <CalendarGridRow
+                            v-for="(weekDates, i) in month.rows"
+                            :key="`week-${i}`"
+                        >
+                            <CalendarCell
+                                v-for="weekDate in weekDates"
+                                :key="weekDate.toString()"
+                                :date="weekDate"
+                                class="relative h-16 p-0"
+                            >
+                                <CalendarCellTrigger
+                                    :day="weekDate"
+                                    :month="month.value"
+                                    class="flex h-full w-full flex-col items-center justify-center gap-1 rounded-md border border-border/40 bg-muted/20 text-xs font-semibold transition-colors hover:bg-muted/50 data-[outside-view]:opacity-30"
+                                    @click="handleDayClick(weekDate)"
+                                />
+                                <span
+                                    v-if="hasData(weekDate)"
+                                    class="pointer-events-none absolute bottom-1.5 left-1/2 size-2.5 -translate-x-1/2 rounded-full"
+                                    :class="dotClassFor(weekDate)"
+                                    :title="dotTitleFor(weekDate)"
+                                />
+                            </CalendarCell>
+                        </CalendarGridRow>
+                    </CalendarGridBody>
+                </CalendarGrid>
+            </CalendarRoot>
+        </Card>
+    </div>
 </template>

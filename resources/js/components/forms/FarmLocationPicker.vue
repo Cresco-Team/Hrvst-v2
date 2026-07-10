@@ -108,23 +108,35 @@ onUnmounted(() => {
 </script>
 
 <template>
-	<div class="grid gap-2">
-		<!--
+    <div class="grid gap-2">
+        <!--
             isolation: isolate creates a new stacking context, trapping
             Leaflet's hardcoded z-indices inside this container so they
             don't bleed into the rest of the page layout.
         -->
-		<div style="isolation: isolate;">
-			<div id="farm-location-map" class="h-64 w-full rounded-md border"
-				:class="{ 'border-destructive': latError || lngError }" />
-		</div>
-		<p class="text-xs text-muted-foreground">
-			Click on the map to pin your farm's location. Drag the marker to adjust.
-		</p>
-		<InputError v-if="latError" :message="latError" />
-		<InputError v-if="lngError" :message="lngError" />
-		<p v-if="modelValue.lat !== null && modelValue.lng !== null" class="text-xs text-muted-foreground">
-			Pinned at: {{ modelValue.lat.toFixed(6) }}, {{ modelValue.lng.toFixed(6) }}
-		</p>
-	</div>
+        <div style="isolation: isolate;">
+            <div
+                id="farm-location-map"
+                class="h-64 w-full rounded-md border"
+                :class="{ 'border-destructive': latError || lngError }"
+            />
+        </div>
+        <p class="text-xs text-muted-foreground">
+            Click on the map to pin your farm's location. Drag the marker to adjust.
+        </p>
+        <InputError
+            v-if="latError"
+            :message="latError"
+        />
+        <InputError
+            v-if="lngError"
+            :message="lngError"
+        />
+        <p
+            v-if="modelValue.lat !== null && modelValue.lng !== null"
+            class="text-xs text-muted-foreground"
+        >
+            Pinned at: {{ modelValue.lat.toFixed(6) }}, {{ modelValue.lng.toFixed(6) }}
+        </p>
+    </div>
 </template>

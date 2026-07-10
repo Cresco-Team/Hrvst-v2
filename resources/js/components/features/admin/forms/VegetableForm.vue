@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import { useForm } from '@inertiajs/vue3'
+import { Vegan } from '@lucide/vue'
 import { Leaf } from 'lucide-vue-next'
 import { watch } from 'vue'
-import { store, update } from '@/routes/admin/vegetables'
 import DialogForm from '@/components/dialogs/DialogForm.vue'
+import ImageUpload from '@/components/forms/ImageUpload.vue'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import ImageUpload from '@/components/forms/ImageUpload.vue'
+import { store, update } from '@/routes/admin/vegetables'
 import type { VegetableAdminData } from '@/types/resources/product'
-import { Vegan } from '@lucide/vue'
 
 const props = defineProps<{
     open: boolean
@@ -81,7 +81,10 @@ function handleSubmit(): void {
                 <div class="flex flex-col gap-2">
                     <Label for="veg-name">
                         Vegetable Name
-                        <Badge variant="destructive" class="text-xs font-normal">Required</Badge>
+                        <Badge
+                            variant="destructive"
+                            class="text-xs font-normal"
+                        >Required</Badge>
                     </Label>
                     <Input
                         id="veg-name"
@@ -89,7 +92,10 @@ function handleSubmit(): void {
                         :class="{ 'border-destructive': form.errors.vegetable_name }"
                         placeholder="..."
                     />
-                    <p v-if="form.errors.vegetable_name" class="text-xs text-destructive">
+                    <p
+                        v-if="form.errors.vegetable_name"
+                        class="text-xs text-destructive"
+                    >
                         {{ form.errors.vegetable_name }}
                     </p>
                 </div>
@@ -97,7 +103,10 @@ function handleSubmit(): void {
                 <div class="flex flex-col gap-2">
                     <Label for="veg-variety">
                         Variety Name
-                        <Badge variant="outline" class="text-xs font-normal">Optional</Badge>
+                        <Badge
+                            variant="outline"
+                            class="text-xs font-normal"
+                        >Optional</Badge>
                     </Label>
                     <Input
                         id="veg-variety"
@@ -105,7 +114,10 @@ function handleSubmit(): void {
                         :class="{ 'border-destructive': form.errors.variety_name }"
                         placeholder="..."
                     />
-                    <p v-if="form.errors.variety_name" class="text-xs text-destructive">
+                    <p
+                        v-if="form.errors.variety_name"
+                        class="text-xs text-destructive"
+                    >
                         {{ form.errors.variety_name }}
                     </p>
                 </div>
@@ -113,7 +125,10 @@ function handleSubmit(): void {
                 <div class="flex flex-col gap-2">
                     <Label for="veg-local">
                         Local Name
-                        <Badge variant="outline" class="text-xs font-normal">Optional</Badge>
+                        <Badge
+                            variant="outline"
+                            class="text-xs font-normal"
+                        >Optional</Badge>
                     </Label>
                     <Input 
                         id="veg-local" 

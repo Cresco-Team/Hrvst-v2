@@ -8,6 +8,7 @@ import {
     TriangleAlert,
 } from 'lucide-vue-next'
 import { fulfill, expire } from '@/actions/App/Http/Controllers/Dealer/PostItemController'
+import PostActionButtons from '@/components/shared/PostActionButtons.vue'
 import { Avatar, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -21,7 +22,6 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Item, ItemActions, ItemContent, ItemDescription, ItemMedia, ItemTitle } from '@/components/ui/item'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import PostActionButtons from '@/components/shared/PostActionButtons.vue'
 import type { DealerDemandDataFixed } from '@/types'
 
 const props = defineProps<{ demand: DealerDemandDataFixed }>()
@@ -40,8 +40,14 @@ const emit = defineEmits<{
             demand.needs_action ? 'bg-destructive/5 hover:border-l-4 hover:border-l-destructive' : 'bg-primary/10 hover:border-l-4 hover:border-l-primary',
         ]"
     >
-        <ItemMedia variant="icon" :class="demand.needs_action ? 'bg-destructive/10' : 'bg-primary/10'">
-            <TriangleAlert v-if="demand.needs_action" class="text-destructive" />
+        <ItemMedia
+            variant="icon"
+            :class="demand.needs_action ? 'bg-destructive/10' : 'bg-primary/10'"
+        >
+            <TriangleAlert
+                v-if="demand.needs_action"
+                class="text-destructive"
+            />
             <CalendarClock v-else />
         </ItemMedia>
 
@@ -49,7 +55,10 @@ const emit = defineEmits<{
             <ItemTitle class="flex flex-wrap items-center gap-1.5">
                 {{ demand.scheduled_date }}
                 <Badge variant="outline">{{ demand.time_slot }}</Badge>
-                <Badge v-if="demand.needs_action" variant="destructive">Action needed</Badge>
+                <Badge
+                    v-if="demand.needs_action"
+                    variant="destructive"
+                >Action needed</Badge>
             </ItemTitle>
             <ItemDescription v-if="demand.post_items?.length">
                 {{ demand.post_items.length }} {{ demand.post_items.length === 1 ? 'variety' : 'varieties' }}
@@ -59,11 +68,17 @@ const emit = defineEmits<{
         <ItemActions class="flex items-center gap-1">
             <Popover>
                 <PopoverTrigger as-child>
-                    <Button variant="ghost" size="icon-sm">
+                    <Button
+                        variant="ghost"
+                        size="icon-sm"
+                    >
                         <ChevronDown class="size-4" />
                     </Button>
                 </PopoverTrigger>
-                <PopoverContent align="end" class="w-80 p-0">
+                <PopoverContent
+                    align="end"
+                    class="w-80 p-0"
+                >
                     <div class="divide-y">
                         <div
                             v-for="item in demand.post_items"
@@ -71,7 +86,10 @@ const emit = defineEmits<{
                             class="flex items-center gap-3 p-3"
                         >
                             <Avatar class="size-9 shrink-0 rounded-md">
-                                <AvatarImage :src="item.vegetable_image_url!" :alt="item.display_name!" />
+                                <AvatarImage
+                                    :src="item.vegetable_image_url!"
+                                    :alt="item.display_name!"
+                                />
                             </Avatar>
 
                             <div class="min-w-0 flex-1">
@@ -86,7 +104,11 @@ const emit = defineEmits<{
                                 :label="item.display_name!"
                                 :only="['needsAction']"
                             />
-                            <Badge v-else-if="demand.needs_action" variant="secondary" class="shrink-0 capitalize">
+                            <Badge
+                                v-else-if="demand.needs_action"
+                                variant="secondary"
+                                class="shrink-0 capitalize"
+                            >
                                 {{ item.status }}
                             </Badge>
                         </div>
@@ -96,7 +118,10 @@ const emit = defineEmits<{
 
             <DropdownMenu>
                 <DropdownMenuTrigger as-child>
-                    <Button variant="ghost" size="icon-sm">
+                    <Button
+                        variant="ghost"
+                        size="icon-sm"
+                    >
                         <MoreVertical class="size-4" />
                     </Button>
                 </DropdownMenuTrigger>
@@ -107,7 +132,10 @@ const emit = defineEmits<{
                             <SquarePen />
                             Edit Request
                         </DropdownMenuItem>
-                        <DropdownMenuItem class="text-destructive focus:text-destructive" @click="emit('delete', demand)">
+                        <DropdownMenuItem
+                            class="text-destructive focus:text-destructive"
+                            @click="emit('delete', demand)"
+                        >
                             <Trash />
                             Delete Request
                         </DropdownMenuItem>
