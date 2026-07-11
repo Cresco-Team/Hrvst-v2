@@ -16,11 +16,9 @@ import type { KpiStat, MapConfig, Paginated } from '../shared'
 export interface AdminDashboardKPIs {
     farmers: {
         total_farmers: KpiStat
-        total_supplies: KpiStat
     }
     dealers: {
         total_dealers: KpiStat
-        total_demands: KpiStat
     }
     vegetables: {
         total_vegetables: KpiStat

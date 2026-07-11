@@ -37,11 +37,6 @@ class DashboardService
                 'change' => self::calculatePercentageChange($previousTotal, $current['total_farmers']),
                 'trend' => self::getTrend($previousTotal, $current['total_farmers']),
             ],
-            'total_supplies' => [
-                'value' => $current['total_supplies'],
-                'change' => self::calculatePercentageChange($previousSupplies, $current['total_supplies']),
-                'trend' => self::getTrend($previousSupplies, $current['total_supplies']),
-            ],
         ];
     }
 
@@ -57,11 +52,6 @@ class DashboardService
                 'value' => $current['total_dealers'],
                 'change' => self::calculatePercentageChange($previousTotal, $current['total_dealers']),
                 'trend' => self::getTrend($previousTotal, $current['total_dealers']),
-            ],
-            'total_demands' => [
-                'value' => $current['total_demands'],
-                'change' => self::calculatePercentageChange($previousDemands, $current['total_demands']),
-                'trend' => self::getTrend($previousDemands, $current['total_demands']),
             ],
         ];
     }
