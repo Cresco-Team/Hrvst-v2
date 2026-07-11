@@ -4,11 +4,16 @@ namespace App\Services\Admin;
 
 use App\Models\Marketplace\Post;
 use App\Models\Profiles\FarmerProfile;
+use App\Services\Shared\PostItemInsightsService;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 
 class FarmerService
 {
+    public function __construct(
+        private readonly PostItemInsightsService $insights,
+    ) {}
+
     public function summary(): array
     {
         return [
@@ -63,15 +68,18 @@ class FarmerService
 
     public function show(FarmerProfile $farmer): FarmerProfile
     {
-        return $farmer->load([
+        $farmer->load([
             'user.media',
             'media',
             'province',
             'municipality',
             'barangay',
             'posts' => fn ($q) => $q->supply(),
-            'supplyItems' => fn ($q) => $q
-                ->with(['vegetable.category', 'post']),
+            'supplyItems' => fn ($q) => $q->with(['vegetable.category', 'post']),
         ]);
+
+        $farmer->insights = $this->insights->compute($farmer->user_id, PostType::Supply);
+
+        return $farmer;
     }
 }
