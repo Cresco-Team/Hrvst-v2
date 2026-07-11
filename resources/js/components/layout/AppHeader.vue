@@ -286,14 +286,14 @@ const rightNavItems = computed<NavItem[]>(() => {
                                 content="How it works"
                             >
                                 <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        class="group h-9 w-9 cursor-pointer"
-                                        @click="openOnboarding"
-                                    >
-                                        <span class="sr-only">How it works</span>
-                                        <CircleHelp class="size-5 opacity-80 group-hover:opacity-100" />
-                                    </Button>
+                                    variant="ghost"
+                                    size="icon"
+                                    class="group h-9 w-9 cursor-pointer"
+                                    @click="openOnboarding"
+                                >
+                                    <span class="sr-only">How it works</span>
+                                    <CircleHelp class="size-5 opacity-80 group-hover:opacity-100" />
+                                </Button>
                             </AppTooltip>
                             <template
                                 v-for="item in rightNavItems"

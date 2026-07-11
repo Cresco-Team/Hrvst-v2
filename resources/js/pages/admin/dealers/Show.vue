@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Deferred, Head } from '@inertiajs/vue3'
+import { ChevronDown } from '@lucide/vue'
 import {
     Archive,
     CalendarDays,
@@ -11,9 +12,12 @@ import {
 import { computed } from 'vue'
 import Heading from '@/components/Heading.vue'
 import SmallCard from '@/components/shared/cards/SmallCard.vue'
+import UserVolumeChart from '@/components/shared/charts/UserVolumeChart.vue'
+import WasteRankingCard from '@/components/shared/charts/WasteRankingCard.vue'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import {
     Item,
     ItemActions,
@@ -32,10 +36,6 @@ import type {
     BreadcrumbItem,
     DealerResource,
 } from '@/types'
-import WasteRankingCard from '@/components/shared/charts/WasteRankingCard.vue'
-import UserVolumeChart from '@/components/shared/charts/UserVolumeChart.vue'
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
-import { ChevronDown } from '@lucide/vue'
 
 const props = defineProps<{
     dealer?: DealerResource
@@ -165,9 +165,19 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => [
                                     : '—'"
                                 subtext="fulfilled vs expired"
                             />
-                            <SmallCard title="Posts / Month" :value="dealer.insights.posts_per_month" />
-                            <SmallCard title="Last Active" :value="dealer.insights.last_active_human ?? '—'" />
-                            <SmallCard title="Total Quantity" :value="totalQuantity.toLocaleString()" subtext="kg" />
+                            <SmallCard
+                                title="Posts / Month"
+                                :value="dealer.insights.posts_per_month"
+                            />
+                            <SmallCard
+                                title="Last Active"
+                                :value="dealer.insights.last_active_human ?? '—'"
+                            />
+                            <SmallCard
+                                title="Total Quantity"
+                                :value="totalQuantity.toLocaleString()"
+                                subtext="kg"
+                            />
                         </div>
 
                         <div

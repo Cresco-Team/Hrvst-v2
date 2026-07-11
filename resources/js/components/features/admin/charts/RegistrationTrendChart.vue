@@ -18,10 +18,19 @@ const { chartData, chartOptions } = useRegistrationTrendChart(() => props.trends
             <CardTitle>Registrations — Last 12 Months</CardTitle>
         </CardHeader>
         <CardContent class="px-0 sm:px-6">
-            <div v-if="chartData" class="relative h-64 w-full sm:h-72">
-                <Line :data="chartData" :options="chartOptions" />
+            <div
+                v-if="chartData"
+                class="relative h-64 w-full sm:h-72"
+            >
+                <Line
+                    :data="chartData"
+                    :options="chartOptions"
+                />
             </div>
-            <EmptyState v-else title="No registrations recorded yet" />
+            <EmptyState
+                v-else
+                title="No registrations recorded yet"
+            />
         </CardContent>
     </Card>
 </template>

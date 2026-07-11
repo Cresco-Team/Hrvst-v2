@@ -7,8 +7,8 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import type { VegetableStabilityData, VegetableWasteData } from '@/types/resources/product'
 import { show } from '@/routes/admin/vegetables'
+import type { VegetableStabilityData, VegetableWasteData } from '@/types/resources/product'
 
 type RankedItem = VegetableWasteData | VegetableStabilityData
 

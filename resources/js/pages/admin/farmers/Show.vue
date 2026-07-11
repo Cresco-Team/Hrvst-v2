@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Deferred, Head } from '@inertiajs/vue3'
+import { ChevronDown } from '@lucide/vue'
 import {
     Archive,
     CalendarDays,
@@ -13,9 +14,12 @@ import { computed } from 'vue'
 import Heading from '@/components/Heading.vue'
 import LeafletMap from '@/components/LeafletMap.vue'
 import SmallCard from '@/components/shared/cards/SmallCard.vue'
+import UserVolumeChart from '@/components/shared/charts/UserVolumeChart.vue'
+import WasteRankingCard from '@/components/shared/charts/WasteRankingCard.vue'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import {
     Item,
     ItemActions,
@@ -31,10 +35,6 @@ import { getInitials } from '@/composables/useInitials'
 import AppLayout from '@/layouts/AppLayout.vue'
 import admin from '@/routes/admin'
 import type { BreadcrumbItem, FarmerResource } from '@/types'
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
-import { ChevronDown } from '@lucide/vue'
-import WasteRankingCard from '@/components/shared/charts/WasteRankingCard.vue'
-import UserVolumeChart from '@/components/shared/charts/UserVolumeChart.vue'
 
 const props = defineProps<{
     farmer?: FarmerResource

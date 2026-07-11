@@ -5,13 +5,13 @@ import {
     TrendingDown,
     TrendingUp,
 } from 'lucide-vue-next'
+import RegistrationTrendChart from '@/components/features/admin/charts/RegistrationTrendChart.vue'
 import Heading from '@/components/Heading.vue'
 import LargeCard from '@/components/shared/cards/LargeCard.vue'
 import { Skeleton } from '@/components/ui/skeleton'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { dashboard } from '@/routes/admin'
 import type { AdminDashboardKPIs, BreadcrumbItem, KpiStat, RegistrationTrendPoint } from '@/types'
-import RegistrationTrendChart from '@/components/features/admin/charts/RegistrationTrendChart.vue'
 
 defineProps<{
     kpis?: AdminDashboardKPIs
