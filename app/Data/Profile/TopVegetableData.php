@@ -13,6 +13,6 @@ class TopVegetableData extends Data
         public string $display_name,
         public string $image_url,
         public int $post_count,
-        public float $total_kg,
+        public float $value_kg,
     ) {}
 }

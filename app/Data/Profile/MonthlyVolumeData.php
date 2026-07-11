@@ -11,6 +11,6 @@ class MonthlyVolumeData extends Data
     public function __construct(
         public string $month,
         public string $label,
-        public float $total_kg,
+        public float $value_kg,
     ) {}
 }
