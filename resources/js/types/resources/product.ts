@@ -120,3 +120,14 @@ export interface ForecastPoint {
     demand_fulfilled_kg: number
     demand_expired_kg: number
 }
+
+// --------------
+
+export interface MonthlyVolumeData {
+    month: string
+    label: string
+    value_kg: number
+}
+
+export type UserInsights = App.Data.Profile.UserInsightsData
+export type TopVegetableData = App.Data.Profile.TopVegetableData
