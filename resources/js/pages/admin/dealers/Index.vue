@@ -132,13 +132,13 @@ function handleSearch(query: string) {
                         :icon="UserPlus"
                     />
                     <SmallCard
-                        title="Total Requests"
+                        title="Total Demands"
                         :value="summary.total_demands"
-                        subtext="all scheduled requests"
+                        subtext="all scheduled demands"
                         :icon="Package"
                     />
                     <SmallCard
-                        title="New Requests"
+                        title="New Demands"
                         :value="summary.new_demands_this_month"
                         subtext="scheduled this month"
                         :icon="PackagePlus"
