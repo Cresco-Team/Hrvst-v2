@@ -7,8 +7,8 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { show } from '@/routes/vegetables'
 import type { VegetableStabilityData, VegetableWasteData } from '@/types/resources/product'
+import { show } from '@/routes/admin/vegetables'
 
 type RankedItem = VegetableWasteData | VegetableStabilityData
 
@@ -33,7 +33,7 @@ const hasMore = computed(
     () => !!props.initialVisible && (props.items?.length ?? 0) > props.initialVisible,
 )
 const hiddenCount = computed(() => (props.items?.length ?? 0) - (props.initialVisible ?? 0))
-const maxKg = computed(() => Math.max(...(props.items ?? []).map((i) => i.wasted_kg), 1))
+const maxKg = computed(() => Math.max(...(props.items ?? []).map((i) => i.value_kg), 1))
 
 function barPct(kg: number): string {
     return `${Math.round((kg / maxKg.value) * 100)}%`
@@ -73,11 +73,11 @@ function maturityTooltip(item: RankedItem): string | undefined {
                 <ol class="flex flex-col gap-1">
                     <li
                         v-for="(item, index) in visible"
-                        :key="item.id"
+                        :key="item.vegetable_id"
                         class="group"
                     >
                         <Link
-                            :href="show(item.id).url"
+                            :href="show(item.vegetable_id).url"
                             class="group -mx-2 flex items-center gap-3 rounded-lg px-2 py-1.5 transition-colors hover:bg-muted"
                         >
                             <span class="flex size-6 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-bold text-muted-foreground group-hover:bg-primary duration-200">
@@ -109,13 +109,13 @@ function maturityTooltip(item: RankedItem): string | undefined {
                                 <div class="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-muted">
                                     <div
                                         class="h-full rounded-full bg-primary/70"
-                                        :style="{ width: barPct(item.wasted_kg) }"
+                                        :style="{ width: barPct(item.value_kg) }"
                                     />
                                 </div>
                             </div>
 
                             <span class="shrink-0 text-xs font-semibold tabular-nums text-muted-foreground">
-                                {{ item.wasted_kg.toLocaleString() }} {{ unitLabel ?? 'kg' }}
+                                {{ item.value_kg.toLocaleString() }} {{ unitLabel ?? 'kg' }}
                             </span>
 
                             <ArrowRight class="hidden size-4 shrink-0 text-muted-foreground transition-transform duration-300 group-hover:translate-x-1 group-hover:text-foreground sm:block" />
