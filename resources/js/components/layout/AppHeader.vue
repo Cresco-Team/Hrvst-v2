@@ -45,7 +45,7 @@ import farmer from '@/routes/farmer'
 import { archived as farmerSuppliesArchived } from '@/routes/farmer/supplies'
 import vegetables from '@/routes/vegetables'
 import type { BreadcrumbItem, NavItem } from '@/types'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip'
+import AppTooltip from '../templates/AppTooltip.vue'
 
 type Props = {
     breadcrumbs?: BreadcrumbItem[]
@@ -249,60 +249,45 @@ const rightNavItems = computed<NavItem[]>(() => {
                 <div class="ml-auto flex items-center space-x-2">
                     <div class="relative flex items-center space-x-1">
                         <div class="hidden space-x-1 lg:flex">
-                            <TooltipProvider
-                                v-if="showOnboardingTrigger"
-                                :delay-duration="0"
+                            <AppTooltip 
+                                v-if="showOnboardingTrigger" 
+                                content="How it works"
                             >
-                                <Tooltip>
-                                    <TooltipTrigger as-child>
-                                        <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            class="group h-9 w-9 cursor-pointer"
-                                            @click="openOnboarding"
-                                        >
-                                            <span class="sr-only">How it works</span>
-                                            <CircleHelp class="size-5 opacity-80 group-hover:opacity-100" />
-                                        </Button>
-                                    </TooltipTrigger>
-                                    <TooltipContent>
-                                        <p>How it works</p>
-                                    </TooltipContent>
-                                </Tooltip>
-                            </TooltipProvider>
-
+                                <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        class="group h-9 w-9 cursor-pointer"
+                                        @click="openOnboarding"
+                                    >
+                                        <span class="sr-only">How it works</span>
+                                        <CircleHelp class="size-5 opacity-80 group-hover:opacity-100" />
+                                    </Button>
+                            </AppTooltip>
                             <template
                                 v-for="item in rightNavItems"
                                 :key="item.title"
                             >
-                                <TooltipProvider :delay-duration="0">
-                                    <Tooltip>
-                                        <TooltipTrigger>
-                                            <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                as-child
-                                                class="group h-9 w-9 cursor-pointer"
-                                            >
-                                                <Link
-                                                    :href="item.href"
-                                                    rel="noopener noreferrer"
-                                                >
-                                                    <span class="sr-only">{{
-                                                        item.title
-                                                    }}</span>
-                                                    <component
-                                                        :is="item.icon"
-                                                        class="size-5 opacity-80 group-hover:opacity-100"
-                                                    />
-                                                </Link>
-                                            </Button>
-                                        </TooltipTrigger>
-                                        <TooltipContent>
-                                            <p>{{ item.title }}</p>
-                                        </TooltipContent>
-                                    </Tooltip>
-                                </TooltipProvider>
+                                <AppTooltip :content="item.title">
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        as-child
+                                        class="group h-9 w-9 cursor-pointer"
+                                    >
+                                        <Link
+                                            :href="item.href"
+                                            rel="noopener noreferrer"
+                                        >
+                                            <span class="sr-only">{{
+                                                item.title
+                                            }}</span>
+                                            <component
+                                                :is="item.icon"
+                                                class="size-5 opacity-80 group-hover:opacity-100"
+                                            />
+                                        </Link>
+                                    </Button>
+                                </AppTooltip>
                             </template>
                         </div>
                     </div>

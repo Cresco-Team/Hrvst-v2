@@ -4,12 +4,7 @@ import { CircleCheck, CircleX } from '@lucide/vue'
 import { computed, ref } from 'vue'
 import ConfirmationDialog from '@/components/dialogs/ConfirmationDialog.vue'
 import { Button } from '@/components/ui/button'
-import {
-    Tooltip,
-    TooltipContent,
-    TooltipProvider,
-    TooltipTrigger,
-} from '@/components/ui/tooltip'
+import AppTooltip from '../templates/AppTooltip.vue'
 
 const props = defineProps<{
     fulfillUrl: string
@@ -58,37 +53,27 @@ function submit(): void {
 
 <template>
     <div class="flex items-center gap-1">
-        <TooltipProvider :delay-duration="200">
-            <Tooltip>
-                <TooltipTrigger as-child>
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        class="text-primary hover:text-primary/80"
-                        @click="pendingAction = 'fulfill'"
-                    >
-                        <CircleCheck class="size-6" />
-                    </Button>
-                </TooltipTrigger>
-                <TooltipContent><p class="text-xs">Mark fulfilled</p></TooltipContent>
-            </Tooltip>
-        </TooltipProvider>
+        <AppTooltip content="Mark fulfilled">
+            <Button
+                variant="ghost"
+                size="icon"
+                class="text-primary hover:text-primary/80"
+                @click="pendingAction = 'fulfill'"
+            >
+                <CircleCheck class="size-6" />
+            </Button>
+        </AppTooltip>
 
-        <TooltipProvider :delay-duration="200">
-            <Tooltip>
-                <TooltipTrigger as-child>
-                    <Button
-                        variant="ghost"
-                        size="icon-sm"
-                        class="text-destructive hover:text-destructive/80"
-                        @click="pendingAction = 'expire'"
-                    >
-                        <CircleX class="size-6" />
-                    </Button>
-                </TooltipTrigger>
-                <TooltipContent><p class="text-xs">Mark expired</p></TooltipContent>
-            </Tooltip>
-        </TooltipProvider>
+        <AppTooltip content="Mark expired">
+            <Button
+                variant="ghost"
+                size="icon-sm"
+                class="text-destructive hover:text-destructive/80"
+                @click="pendingAction = 'expire'"
+            >
+                <CircleX class="size-6" />
+            </Button>
+        </AppTooltip>
     </div>
 
     <ConfirmationDialog
