@@ -12,6 +12,6 @@ class VegetableWasteData extends Data
         public int $id,
         public string $display_name,
         public string $image_url,
-        public float $wasted_kg,
+        public float $value_kg,
     ) {}
 }
