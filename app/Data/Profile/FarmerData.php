@@ -31,6 +31,7 @@ class FarmerData extends Data
         public array|Lazy $supplies,
         /** @var PostItemData[]|Lazy */
         public array_diff_key|Lazy $supply_items,
+        public UserInsightsData|Optional $insights,
     ) {}
 
     public static function fromModel(FarmerProfile $farmer): self
@@ -58,6 +59,9 @@ class FarmerData extends Data
             supply_items: Lazy::whenLoaded('supplyItems', $farmer, fn () => PostItemData::collect(
                 $farmer->supplyItems
             )),
+            insights: isset($farmer->insights)
+                ? $farmer->insights
+                : Optional::create(),
         );
     }
 }

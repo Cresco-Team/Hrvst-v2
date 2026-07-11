@@ -4,14 +4,9 @@ import { Bar } from 'vue-chartjs'
 import EmptyState from '@/components/EmptyState.vue'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import {
-    Tooltip,
-    TooltipContent,
-    TooltipProvider,
-    TooltipTrigger,
-} from '@/components/ui/tooltip'
 import { useMonthlyVolumeChart } from '@/composables/useMonthlyVolumeChart'
 import type { ForecastPoint, MonthlyActivity } from '@/types/resources/product'
+import AppTooltip from '@/components/templates/AppTooltip.vue'
 
 const props = defineProps<{
     monthlyActivity: MonthlyActivity[]
@@ -49,27 +44,18 @@ const confidenceTooltip: Record<string, string> = {
                 {{ hasForecast() ? ' 6-Month Forecast' : 'Market Volume' }}
             </CardTitle>
 
-            <TooltipProvider
+            <AppTooltip
                 v-if="hasForecast() && forecastConfidence"
-                :delay-duration="200"
+                :content="confidenceTooltip[forecastConfidence]"
             >
-                <Tooltip>
-                    <TooltipTrigger as-child>
-                        <Badge
-                            variant="outline"
-                            class="cursor-help gap-1 text-xs font-normal"
-                        >
-                            <Info class="size-3" />
-                            {{ confidenceLabel[forecastConfidence] ?? 'Forecast' }}
-                        </Badge>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                        <p class="max-w-[220px] text-xs">
-                            {{ confidenceTooltip[forecastConfidence] }}
-                        </p>
-                    </TooltipContent>
-                </Tooltip>
-            </TooltipProvider>
+                <Badge
+                    variant="outline"
+                    class="cursor-help gap-1 text-xs font-normal"
+                >
+                    <Info class="size-3" />
+                    {{ confidenceLabel[forecastConfidence] ?? 'Forecast' }}
+                </Badge>
+            </AppTooltip>
         </CardHeader>
         <CardContent class="px-0 sm:px-6">
             <div

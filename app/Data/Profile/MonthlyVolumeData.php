@@ -1,17 +1,16 @@
 <?php
 
-namespace App\Data\Vegetable;
+namespace App\Data\Profile;
 
 use Spatie\LaravelData\Data;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
 #[TypeScript]
-class VegetableWasteData extends Data
+class MonthlyVolumeData extends Data
 {
     public function __construct(
-        public int $id,
-        public string $display_name,
-        public string $image_url,
+        public string $month,
+        public string $label,
         public float $value_kg,
     ) {}
 }

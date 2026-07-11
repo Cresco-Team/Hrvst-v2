@@ -229,7 +229,7 @@ class VegetableWasteAnalyticsService
                 'id' => $v->id,
                 'display_name' => $v->display_name,
                 'image_url' => $v->image_url,
-                'wasted_kg' => round($stats[$v->id]['mean'], 2),
+                'value_kg' => round($stats[$v->id]['mean'], 2),
                 'confidence' => $this->confidenceFor($stats[$v->id]['months']),
                 'months_observed' => $stats[$v->id]['months'],
             ])
@@ -275,7 +275,7 @@ class VegetableWasteAnalyticsService
                 'id' => $v->id,
                 'display_name' => $v->display_name,
                 'image_url' => $v->image_url,
-                'wasted_kg' => round($wastedKgByVegetableId[$v->id], 2),
+                'value_kg' => round($wastedKgByVegetableId[$v->id], 2),
             ])
             ->values()
             ->toArray();

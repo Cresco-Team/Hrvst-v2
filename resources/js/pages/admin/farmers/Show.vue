@@ -31,6 +31,10 @@ import { getInitials } from '@/composables/useInitials'
 import AppLayout from '@/layouts/AppLayout.vue'
 import admin from '@/routes/admin'
 import type { BreadcrumbItem, FarmerResource } from '@/types'
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
+import { ChevronDown } from '@lucide/vue'
+import WasteRankingCard from '@/components/shared/charts/WasteRankingCard.vue'
+import UserVolumeChart from '@/components/shared/charts/UserVolumeChart.vue'
 
 const props = defineProps<{
     farmer?: FarmerResource
@@ -173,116 +177,151 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => [
                         </Card>
 
                         <!-- Stats -->
-                        <div class="hidden gap-3 sm:grid sm:grid-cols-3">
+                        <div
+                            v-if="farmer?.insights"
+                            class="grid grid-cols-2 gap-3 sm:grid-cols-4"
+                        >
                             <SmallCard
-                                title="Total vegetable supplies"
-                                :value="totalItems.toLocaleString()"
+                                title="Fulfillment Rate"
+                                :value="farmer.insights.fulfillment_rate !== null
+                                    ? `${Math.round(farmer.insights.fulfillment_rate * 100)}%`
+                                    : '—'"
+                                subtext="fulfilled vs expired"
+                            />
+                            <SmallCard
+                                title="Posts / Month"
+                                :value="farmer.insights.posts_per_month"
+                            />
+                            <SmallCard
+                                title="Last Active"
+                                :value="farmer.insights.last_active_human ?? '—'"
                             />
                             <SmallCard
                                 title="Total Quantity"
                                 :value="totalQuantity.toLocaleString()"
                                 subtext="kg"
                             />
-                            <SmallCard
-                                title="Ongoing Items"
-                                :value="ongoingItems.length.toLocaleString()"
+                        </div>
+
+                        <div
+                            v-if="farmer?.insights"
+                            class="grid grid-cols-1 gap-4 lg:grid-cols-2"
+                        >
+                            <WasteRankingCard
+                                title="Most Supplied Varieties"
+                                description="By total kilograms supplied"
+                                :items="farmer.insights.top_varieties"
+                                :initial-visible="5"
+                                unit-label="kg supplied"
+                                guide-question="What does this farmer grow most?"
+                            />
+                            <UserVolumeChart
+                                title="6-Month Supply Volume"
+                                :monthly-volume="farmer.insights.monthly_volume"
                             />
                         </div>
 
-                        <!-- Supply Items (PostItem-level tabs) -->
-                        <Card>
-                            <CardContent class="pt-4">
-                                <Tabs default-value="ongoing">
-                                    <TabsList class="mb-4">
-                                        <TabsTrigger
-                                            value="ongoing"
-                                            class="gap-1.5"
-                                        >
-                                            <Package class="size-4" />Ongoing
-                                            <Badge
-                                                variant="secondary"
-                                                class="ml-1 px-1.5 py-0 text-xs"
-                                            >{{
-                                                ongoingItems.length
-                                            }}</Badge>
-                                        </TabsTrigger>
-                                        <TabsTrigger
-                                            value="expired"
-                                            class="gap-1.5"
-                                        >
-                                            <Archive class="size-4" />Expired
-                                            <Badge
-                                                variant="secondary"
-                                                class="ml-1 px-1.5 py-0 text-xs"
-                                            >{{
-                                                archivedItems.length
-                                            }}</Badge>
-                                        </TabsTrigger>
-                                        <TabsTrigger
-                                            value="fulfilled"
-                                            class="gap-1.5"
-                                        >
-                                            <PackageCheck class="size-4"/>Fulfilled
-                                            <Badge
-                                                variant="secondary"
-                                                class="ml-1 px-1.5 py-0 text-xs"
-                                            >{{
-                                                fulfilledItems.length
-                                            }}</Badge>
-                                        </TabsTrigger>
-                                    </TabsList>
-
-                                    <template
-                                        v-for="(items, tab) in {
-                                            ongoing: ongoingItems,
-                                            expired: archivedItems,
-                                            fulfilled: fulfilledItems,
-                                        }"
-                                        :key="tab"
-                                    >
-                                        <TabsContent :value="tab">
-                                            <div
-                                                v-if="items.length === 0"
-                                                class="flex h-24 items-center justify-center text-sm text-muted-foreground"
-                                            >
-                                                No {{ tab }} items
-                                            </div>
-                                            <ItemGroup
-                                                v-else
-                                                class="grid grid-cols-1 gap-3 sm:grid-cols-2"
-                                            >
-                                                <Item
-                                                    v-for="item in items"
-                                                    :key="item.id"
-                                                    variant="outline"
+                        <Collapsible :default-open="false">
+                            <CollapsibleTrigger class="flex w-full items-center justify-between rounded-lg border bg-muted/20 px-4 py-2.5 text-sm font-medium hover:bg-muted/40">
+                                Full Post History
+                                <ChevronDown class="size-4 text-muted-foreground transition-transform duration-200 data-[state=open]:rotate-180" />
+                            </CollapsibleTrigger>
+                            <CollapsibleContent class="pt-4">
+                                <Card>
+                                    <CardContent class="pt-4">
+                                        <Tabs default-value="ongoing">
+                                            <TabsList class="mb-4">
+                                                <TabsTrigger
+                                                    value="ongoing"
+                                                    class="gap-1.5"
                                                 >
-                                                    <ItemMedia variant="image">
-                                                        <img
-                                                            :src="item.image_url"
-                                                            :alt="item.display_name"
-                                                        />
-                                                    </ItemMedia>
-                                                    <ItemContent class="min-w-0">
-                                                        <ItemTitle class="line-clamp-1 text-sm">
-                                                            {{ item.display_name }}
-                                                        </ItemTitle>
-                                                        <ItemDescription class="mt-0.5 flex items-center gap-1.5">
-                                                            <span class="text-sm font-medium text-foreground">
-                                                                {{ item.scheduled_date }}
-                                                            </span>
-                                                        </ItemDescription>
-                                                    </ItemContent>
+                                                    <Package class="size-4" />Ongoing
+                                                    <Badge
+                                                        variant="secondary"
+                                                        class="ml-1 px-1.5 py-0 text-xs"
+                                                    >{{
+                                                        ongoingItems.length
+                                                    }}</Badge>
+                                                </TabsTrigger>
+                                                <TabsTrigger
+                                                    value="expired"
+                                                    class="gap-1.5"
+                                                >
+                                                    <Archive class="size-4" />Expired
+                                                    <Badge
+                                                        variant="secondary"
+                                                        class="ml-1 px-1.5 py-0 text-xs"
+                                                    >{{
+                                                        archivedItems.length
+                                                    }}</Badge>
+                                                </TabsTrigger>
+                                                <TabsTrigger
+                                                    value="fulfilled"
+                                                    class="gap-1.5"
+                                                >
+                                                    <PackageCheck class="size-4"/>Fulfilled
+                                                    <Badge
+                                                        variant="secondary"
+                                                        class="ml-1 px-1.5 py-0 text-xs"
+                                                    >{{
+                                                        fulfilledItems.length
+                                                    }}</Badge>
+                                                </TabsTrigger>
+                                            </TabsList>
 
-                                                    <ItemActions>
-                                                        <span class="font-mono">{{ item.quantity_kg.toLocaleString() }} </span>kg
-                                                    </ItemActions>
-                                                </Item>
-                                            </ItemGroup>
-                                        </TabsContent>
-                                    </template>
-                                </Tabs>
-                            </CardContent>
-                        </Card>
+                                            <template
+                                                v-for="(items, tab) in {
+                                                    ongoing: ongoingItems,
+                                                    expired: archivedItems,
+                                                    fulfilled: fulfilledItems,
+                                                }"
+                                                :key="tab"
+                                            >
+                                                <TabsContent :value="tab">
+                                                    <div
+                                                        v-if="items.length === 0"
+                                                        class="flex h-24 items-center justify-center text-sm text-muted-foreground"
+                                                    >
+                                                        No {{ tab }} items
+                                                    </div>
+                                                    <ItemGroup
+                                                        v-else
+                                                        class="grid grid-cols-1 gap-3 sm:grid-cols-2"
+                                                    >
+                                                        <Item
+                                                            v-for="item in items"
+                                                            :key="item.id"
+                                                            variant="outline"
+                                                        >
+                                                            <ItemMedia variant="image">
+                                                                <img
+                                                                    :src="item.image_url"
+                                                                    :alt="item.display_name"
+                                                                />
+                                                            </ItemMedia>
+                                                            <ItemContent class="min-w-0">
+                                                                <ItemTitle class="line-clamp-1 text-sm">
+                                                                    {{ item.display_name }}
+                                                                </ItemTitle>
+                                                                <ItemDescription class="mt-0.5 flex items-center gap-1.5">
+                                                                    <span class="text-sm font-medium text-foreground">
+                                                                        {{ item.scheduled_date }}
+                                                                    </span>
+                                                                </ItemDescription>
+                                                            </ItemContent>
+
+                                                            <ItemActions>
+                                                                <span class="font-mono">{{ item.quantity_kg.toLocaleString() }} </span>kg
+                                                            </ItemActions>
+                                                        </Item>
+                                                    </ItemGroup>
+                                                </TabsContent>
+                                            </template>
+                                        </Tabs>
+                                    </CardContent>
+                                </Card>
+                            </CollapsibleContent>
+                        </Collapsible>
                     </div>
                 </div>
             </Deferred>

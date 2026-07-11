@@ -2,13 +2,19 @@
 
 namespace App\Services\Admin;
 
+use App\Enums\PostType;
 use App\Models\Marketplace\Post;
 use App\Models\Profiles\DealerProfile;
+use App\Services\Shared\PostItemInsightsService;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 
 class DealerService
 {
+    public function __construct(
+        private readonly PostItemInsightsService $insights,
+    ) {}
+
     public function summary(): array
     {
         return [
@@ -54,10 +60,14 @@ class DealerService
 
     public function show(DealerProfile $dealer): DealerProfile
     {
-        return $dealer->load([
+        $dealer->load([
             'user.media',
             'demandItems' => fn ($q) => $q
                 ->with(['vegetable.category']),
         ]);
+
+        $dealer->insights = $this->insights->compute($dealer->user_id, PostType::Demand);
+
+        return $dealer;
     }
 }

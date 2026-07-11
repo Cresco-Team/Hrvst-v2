@@ -26,6 +26,7 @@ class DealerData extends Data
         public array|Lazy $demands,
         /** @var PostItemData[]|Lazy */
         public array_diff_key|Lazy $demand_items,
+        public UserInsightsData|Optional $insights,
     ) {}
 
     public static function fromModel(DealerProfile $dealer): self
@@ -44,6 +45,9 @@ class DealerData extends Data
             demand_items: Lazy::whenLoaded('demandItems', $dealer, fn () => PostItemData::collect(
                 $dealer->demandItems
             )),
+            insights: isset($dealer->insights)
+                ? $dealer->insights
+                : Optional::create(),
         );
     }
 }
