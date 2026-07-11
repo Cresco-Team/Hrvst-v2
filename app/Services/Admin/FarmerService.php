@@ -2,6 +2,7 @@
 
 namespace App\Services\Admin;
 
+use App\Enums\PostType;
 use App\Models\Marketplace\Post;
 use App\Models\Profiles\FarmerProfile;
 use App\Services\Shared\PostItemInsightsService;
