@@ -59,7 +59,7 @@ class FarmerData extends Data
             supply_items: Lazy::whenLoaded('supplyItems', $farmer, fn () => PostItemData::collect(
                 $farmer->supplyItems
             )),
-            insights: property_exists($farmer, 'insights') && $farmer->insights !== null
+            insights: isset($farmer->insights)
                 ? $farmer->insights
                 : Optional::create(),
         );

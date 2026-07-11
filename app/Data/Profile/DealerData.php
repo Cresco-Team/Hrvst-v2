@@ -45,7 +45,7 @@ class DealerData extends Data
             demand_items: Lazy::whenLoaded('demandItems', $dealer, fn () => PostItemData::collect(
                 $dealer->demandItems
             )),
-            insights: property_exists($dealer, 'insights') && $dealer->insights !== null
+            insights: isset($dealer->insights)
                 ? $dealer->insights
                 : Optional::create(),
         );
