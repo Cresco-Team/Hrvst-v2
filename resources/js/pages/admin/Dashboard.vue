@@ -2,32 +2,20 @@
 import { Deferred, Head } from '@inertiajs/vue3'
 import {
     Minus,
-    Package,
-    Tractor,
     TrendingDown,
     TrendingUp,
 } from 'lucide-vue-next'
+import RegistrationTrendChart from '@/components/features/admin/charts/RegistrationTrendChart.vue'
 import Heading from '@/components/Heading.vue'
-import QuickNavItem from '@/components/QuickNavItem.vue'
 import LargeCard from '@/components/shared/cards/LargeCard.vue'
-import SmallCard from '@/components/shared/cards/SmallCard.vue'
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-} from '@/components/ui/card'
-import { Separator } from '@/components/ui/separator'
 import { Skeleton } from '@/components/ui/skeleton'
 import AppLayout from '@/layouts/AppLayout.vue'
-import admin, { dashboard } from '@/routes/admin'
-import dealers from '@/routes/admin/dealers'
-import farmers from '@/routes/admin/farmers'
-import type { AdminDashboardKPIs, BreadcrumbItem, KpiStat } from '@/types'
+import { dashboard } from '@/routes/admin'
+import type { AdminDashboardKPIs, BreadcrumbItem, KpiStat, RegistrationTrendPoint } from '@/types'
 
 defineProps<{
     kpis?: AdminDashboardKPIs
+    registrationTrends?: RegistrationTrendPoint[]
 }>()
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -121,52 +109,15 @@ function formatChange(change?: number): string {
                         card-class="bg-linear-to-br from-indigo-500/10 via-fuchsia-500/10 to-rose-500/30"
                     />
                 </div>
-
-                <div class="sm:px-20 md:px-50 lg:px-90 grid grid-cols-2 gap-6">
-                    <SmallCard
-                        title="Total Farmer Supplies"
-                        :value="kpis?.farmers.total_supplies.value.toLocaleString()"
-                    />
-                    <SmallCard
-                        title="Total Dealer Requests"
-                        :value="kpis?.dealers.total_demands.value.toLocaleString()"
-                    />
-                </div>
             </Deferred>
 
-            <Card>
-                <CardHeader>
-                    <CardTitle>Quick Actions</CardTitle>
-                    <CardDescription>Navigate to key sections</CardDescription>
-                </CardHeader>
-                <Separator />
-                <CardContent class="grid gap-4 md:grid-cols-3">
-                    <QuickNavItem
-                        :href="admin.categories.index()"
-                        title="Vegetables"
-                        description="Manage market"
-                        :icon="Tractor"
-                        color-classes="from-green-500/10 to-emerald-500/10"
-                        icon-classes="text-green-600 dark:text-green-500"
-                    />
-                    <QuickNavItem
-                        :href="farmers.index()"
-                        title="Farmers"
-                        description="View all farmers"
-                        :icon="Tractor"
-                        color-classes="from-amber-500/10 to-yellow-500/10"
-                        icon-classes="text-yellow-600 dark:text-yellow-500"
-                    />
-                    <QuickNavItem
-                        :href="dealers.index()"
-                        title="Dealers"
-                        description="Track Activity"
-                        :icon="Package"
-                        color-classes="from-sky-500/10 to-blue-500/10"
-                        icon-classes="text-blue-600 dark:text-blue-500"
-                    />
-                </CardContent>
-            </Card>
+            <Deferred data="registrationTrends">
+                <template #fallback>
+                    <Skeleton class="h-72 w-full rounded-xl" />
+                </template>
+
+                <RegistrationTrendChart :trends="registrationTrends ?? []" />
+            </Deferred>
         </div>
     </AppLayout>
 </template>

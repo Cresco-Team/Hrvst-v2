@@ -131,7 +131,7 @@ function handleSearchInput() {
         </div>
 
         <!-- table -->
-        <div class="rounded-lg border">
+        <div class="rounded border overflow-hidden">
             <table class="w-full text-sm">
                 <thead class="bg-muted">
                     <tr>

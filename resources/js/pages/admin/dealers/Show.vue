@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Deferred, Head } from '@inertiajs/vue3'
+import { ChevronDown, History } from '@lucide/vue'
 import {
     Archive,
     CalendarDays,
@@ -9,17 +10,20 @@ import {
     Phone,
 } from 'lucide-vue-next'
 import { computed } from 'vue'
-import Heading from '@/components/Heading.vue'
 import SmallCard from '@/components/shared/cards/SmallCard.vue'
+import UserVolumeChart from '@/components/shared/charts/UserVolumeChart.vue'
+import WasteRankingCard from '@/components/shared/charts/WasteRankingCard.vue'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import {
     Item,
     ItemActions,
     ItemContent,
     ItemDescription,
     ItemGroup,
+    ItemHeader,
     ItemMedia,
     ItemTitle,
 } from '@/components/ui/item'
@@ -32,10 +36,6 @@ import type {
     BreadcrumbItem,
     DealerResource,
 } from '@/types'
-import WasteRankingCard from '@/components/shared/charts/WasteRankingCard.vue'
-import UserVolumeChart from '@/components/shared/charts/UserVolumeChart.vue'
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
-import { ChevronDown } from '@lucide/vue'
 
 const props = defineProps<{
     dealer?: DealerResource
@@ -55,7 +55,6 @@ const fulfilledItems = computed<App.Data.PostItem.PostItemData[]>(
         [],
 )
 
-const totalItems = computed(() => props.dealer?.demand_items?.length ?? 0)
 const totalQuantity = computed(
     () =>
         props.dealer?.demand_items?.reduce(
@@ -83,10 +82,6 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => [
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex flex-col gap-6 p-4 lg:p-6">
-            <Heading
-                :title="dealer?.user?.name ?? 'Dealer'"
-                description="Dealer profile and demand history"
-            />
 
             <Deferred data="dealer">
                 <template #fallback>
@@ -113,47 +108,41 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => [
 
                 <div
                     v-if="dealer"
-                    class="grid grid-cols-12 gap-5"
+                    class="flex items-start gap-6"
                 >
                     <!-- Sidebar -->
-                    <div class="col-span-12 lg:col-span-3">
-                        <Card class="space-y-5 p-5">
-                            <div class="flex flex-col items-start gap-3">
-                                <Avatar class="size-16">
-                                    <AvatarImage
-                                        v-if="dealer.user?.avatar_url"
-                                        :src="dealer.user.avatar_url"
-                                        :alt="dealer.user.name"
-                                    />
-                                    <AvatarFallback class="bg-primary/10 text-base font-semibold text-primary">
-                                        {{ getInitials(dealer.user?.name) }}
-                                    </AvatarFallback>
-                                </Avatar>
-                                <div>
-                                    <p class="text-sm leading-snug font-semibold">
-                                        {{ dealer.user?.name }}
-                                    </p>
-                                </div>
-                            </div>
-                            <div class="space-y-2.5 text-sm text-muted-foreground">
-                                <div class="flex items-center gap-2">
-                                    <Mail class="size-4 shrink-0" /><span class="truncate">{{ dealer.user?.email }}</span>
-                                </div>
+                    <Item class="sticky top-6 w-56 shrink-0">
+                        <ItemHeader>
+                            <Avatar class="size-16">
+                                <AvatarImage
+                                    v-if="dealer.user?.avatar_url"
+                                    :src="dealer.user?.avatar_url"
+                                    :alt="dealer.user.name"
+                                />
+
+                                <AvatarFallback class="bg-primary/10 text0base font-semibold text-primary">
+                                    {{ getInitials(dealer.user?.name) }}
+                                </AvatarFallback>
+                            </Avatar>
+                        </ItemHeader>
+
+                        <ItemContent>
+                            <ItemTitle>{{ dealer.user?.name }}</ItemTitle>
+                            <ItemDescription>
                                 <div class="flex items-center gap-2">
                                     <Phone class="size-4 shrink-0" /><span>{{
                                         dealer.user?.phone_number
                                     }}</span>
                                 </div>
-                                <div class="flex items-center gap-2">
-                                    <CalendarDays class="size-4 shrink-0"/><span>Joined
-                                        {{ dealer.joined_at_human }}</span>
+                                <div v-if="dealer.user?.email" class="flex items-center gap-2">
+                                    <Mail class="size-4 shrink-0" /><span class="truncate">{{ dealer.user?.email }}</span>
                                 </div>
-                            </div>
-                        </Card>
-                    </div>
+                            </ItemDescription>
+                        </ItemContent>
+                    </Item>
 
                     <!-- Main -->
-                    <div class="col-span-12 space-y-4 lg:col-span-9">
+                    <div class="space-y-4 lg:col-span-9">
                         <div
                             v-if="dealer?.insights"
                             class="grid grid-cols-2 gap-3 sm:grid-cols-4"
@@ -163,11 +152,22 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => [
                                 :value="dealer.insights.fulfillment_rate !== null
                                     ? `${Math.round(dealer.insights.fulfillment_rate * 100)}%`
                                     : '—'"
-                                subtext="fulfilled vs expired"
+                                subtext="fulfilled schedules"
                             />
-                            <SmallCard title="Posts / Month" :value="dealer.insights.posts_per_month" />
-                            <SmallCard title="Last Active" :value="dealer.insights.last_active_human ?? '—'" />
-                            <SmallCard title="Total Quantity" :value="totalQuantity.toLocaleString()" subtext="kg" />
+                            <SmallCard
+                                title="Posts / Month"
+                                :value="dealer.insights.posts_per_month"
+                            />
+                            <SmallCard
+                                title="Last Active"
+                                :value="dealer.insights.last_active_human"
+                                value-class="text-md"
+                            />
+                            <SmallCard
+                                title="Total Quantity"
+                                :value="totalQuantity.toLocaleString()"
+                                subtext="kg"
+                            />
                         </div>
 
                         <div
@@ -175,11 +175,11 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => [
                             class="grid grid-cols-1 gap-4 lg:grid-cols-2"
                         >
                             <WasteRankingCard
-                                title="Most Requested Varieties"
-                                description="By total kilograms requested"
+                                title="Most Scheduled Vegetables"
+                                description="By total kilograms demanded"
                                 :items="dealer.insights.top_varieties"
                                 :initial-visible="5"
-                                unit-label="kg requested"
+                                unit-label="kg total"
                                 guide-question="What does this dealer buy most?"
                             />
                             <UserVolumeChart

@@ -25,13 +25,13 @@ createInertiaApp({
             .mount(el)
     },
     progress: {
-        color: '#4B5563',
+        color: '#51f0a8',
     },
 })
 
 useRegisterSW({
     onRegistered(r) {
-        r && setInterval(() => r.update(), 60 * 60 * 1000) // check every hour
+        r && setInterval(() => r.update(), 60 * 60 * 1000)
     },
 })
 

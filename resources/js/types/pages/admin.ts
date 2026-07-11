@@ -16,19 +16,25 @@ import type { KpiStat, MapConfig, Paginated } from '../shared'
 export interface AdminDashboardKPIs {
     farmers: {
         total_farmers: KpiStat
-        total_supplies: KpiStat
     }
     dealers: {
         total_dealers: KpiStat
-        total_demands: KpiStat
     }
     vegetables: {
         total_vegetables: KpiStat
     }
 }
 
+export interface RegistrationTrendPoint {
+    month: string
+    label: string
+    farmers: number
+    dealers: number
+}
+
 export interface AdminDashboardProps {
-    kpis: AdminDashboardKPIs // Inertia::defer
+    kpis: AdminDashboardKPIs
+    registrationTrends: RegistrationTrendPoint[]
 }
 
 // ─── admin/vegetables/Categories ─────────────────────────────────────────────
@@ -69,14 +75,14 @@ export interface AdminFarmersProps {
     view: 'list' | 'map'
     filters: AdminFarmersFilters
     mapConfig: MapConfig
-    farmers: Paginated<FarmerResource> | null // Inertia::defer — null in map view
-    summary: AdminFarmerSummary // Inertia::defer
+    farmers: Paginated<FarmerResource> | null
+    summary: AdminFarmerSummary
 }
 
 // ─── admin/farmers/Show ───────────────────────────────────────────────────────
 
 export interface AdminFarmerShowProps {
-    farmer: FarmerResource // Inertia::defer
+    farmer: FarmerResource
 }
 
 // ─── admin/dealers/Index ──────────────────────────────────────────────────────
@@ -86,13 +92,13 @@ export interface AdminDealersFilters {
 }
 
 export interface AdminDealersProps {
-    summary: AdminDealerSummary // Inertia::defer
-    dealers: Paginated<DealerResource> // Inertia::defer
+    summary: AdminDealerSummary
+    dealers: Paginated<DealerResource>
     filters: AdminDealersFilters
 }
 
 // ─── admin/dealers/Show ───────────────────────────────────────────────────────
 
 export interface AdminDealerShowProps {
-    dealer: DealerResource // Inertia::defer
+    dealer: DealerResource
 }

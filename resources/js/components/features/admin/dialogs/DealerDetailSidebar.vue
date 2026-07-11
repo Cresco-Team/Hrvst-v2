@@ -168,10 +168,10 @@ const handleDelete = () => {
             <div class="space-y-4">
                 <div class="space-y-1">
                     <h3 class="text-lg font-semibold tracking-tight">
-                        Today's Request
+                        Today's Demand
                     </h3>
                     <p class="text-sm text-muted-foreground">
-                        Expecting {{ dealer.demands?.length ?? 'no' }} request
+                        Expecting {{ dealer.demands?.length ?? 'no' }} demand
                     </p>
                 </div>
 
@@ -206,7 +206,7 @@ const handleDelete = () => {
 
                 <EmptyState
                     v-else
-                    title="No vegetable requested"
+                    title="No vegetable demand"
                     :icon="CalendarSync"
                     class="mx-5 h-30"
                 />

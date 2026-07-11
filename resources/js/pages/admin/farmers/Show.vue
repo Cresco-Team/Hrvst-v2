@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Deferred, Head } from '@inertiajs/vue3'
+import { ChevronDown } from '@lucide/vue'
 import {
     Archive,
     CalendarDays,
@@ -10,18 +11,21 @@ import {
     Phone,
 } from 'lucide-vue-next'
 import { computed } from 'vue'
-import Heading from '@/components/Heading.vue'
 import LeafletMap from '@/components/LeafletMap.vue'
 import SmallCard from '@/components/shared/cards/SmallCard.vue'
+import UserVolumeChart from '@/components/shared/charts/UserVolumeChart.vue'
+import WasteRankingCard from '@/components/shared/charts/WasteRankingCard.vue'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import {
     Item,
     ItemActions,
     ItemContent,
     ItemDescription,
     ItemGroup,
+    ItemHeader,
     ItemMedia,
     ItemTitle,
 } from '@/components/ui/item'
@@ -31,10 +35,6 @@ import { getInitials } from '@/composables/useInitials'
 import AppLayout from '@/layouts/AppLayout.vue'
 import admin from '@/routes/admin'
 import type { BreadcrumbItem, FarmerResource } from '@/types'
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
-import { ChevronDown } from '@lucide/vue'
-import WasteRankingCard from '@/components/shared/charts/WasteRankingCard.vue'
-import UserVolumeChart from '@/components/shared/charts/UserVolumeChart.vue'
 
 const props = defineProps<{
     farmer?: FarmerResource
@@ -53,7 +53,6 @@ const fulfilledItems = computed<App.Data.PostItem.PostItemData[]>(
         props.farmer?.supply_items?.filter((i) => i.status === 'fulfilled') ??
         [],
 )
-const totalItems = computed(() => props.farmer?.supply_items?.length ?? 0)
 const totalQuantity = computed(
     () =>
         props.farmer?.supply_items?.reduce(
@@ -81,10 +80,6 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => [
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex flex-col gap-6 p-4 lg:p-6">
-            <Heading
-                :title="farmer?.user?.name ?? 'Farmer'"
-                description="Farmer profile and supply history"
-            />
 
             <Deferred data="farmer">
                 <template #fallback>
@@ -112,50 +107,41 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => [
 
                 <div
                     v-if="farmer"
-                    class="grid grid-cols-12 gap-5"
+                    class="flex items-start gap-6"
                 >
                     <!-- Sidebar -->
-                    <div class="col-span-12 lg:col-span-3">
-                        <Card class="space-y-5 p-5">
-                            <div class="flex flex-col items-start gap-3">
-                                <Avatar class="size-16">
-                                    <AvatarImage
-                                        v-if="farmer.user?.avatar_url"
-                                        :src="farmer.user.avatar_url"
-                                        :alt="farmer.user.name"
-                                    />
-                                    <AvatarFallback class="bg-primary/10 text-base font-semibold text-primary">
-                                        {{ getInitials(farmer.user?.name) }}
-                                    </AvatarFallback>
-                                </Avatar>
-                                <div>
-                                    <p class="text-sm leading-snug font-semibold">
-                                        {{ farmer.user?.name }}
-                                    </p>
-                                    <p class="mt-0.5 text-xs text-muted-foreground">
-                                        {{ farmer.full_address }}
-                                    </p>
-                                </div>
-                            </div>
-                            <div class="space-y-2.5 text-sm text-muted-foreground">
-                                <div class="flex items-center gap-2">
-                                    <Mail class="size-4 shrink-0" /><span class="truncate">{{ farmer.user?.email }}</span>
-                                </div>
+                    <Item class="sticky top-6 w-56 shrink-0">
+                        <ItemHeader>
+                            <Avatar class="size-16">
+                                <AvatarImage
+                                    v-if="farmer.user?.avatar_url"
+                                    :src="farmer.user?.avatar_url"
+                                    :alt="farmer.user.name"
+                                />
+
+                                <AvatarFallback class="bg-primary/10 text0base font-semibold text-primary">
+                                    {{ getInitials(farmer.user?.name) }}
+                                </AvatarFallback>
+                            </Avatar>
+                        </ItemHeader>
+
+                        <ItemContent>
+                            <ItemTitle>{{ farmer.user?.name }}</ItemTitle>
+                            <ItemDescription>
                                 <div class="flex items-center gap-2">
                                     <Phone class="size-4 shrink-0" /><span>{{
                                         farmer.user?.phone_number
                                     }}</span>
                                 </div>
-                                <div class="flex items-center gap-2">
-                                    <CalendarDays class="size-4 shrink-0"/><span>Joined:
-                                        {{ farmer.joined_at }}</span>
+                                <div v-if="farmer.user?.email" class="flex items-center gap-2">
+                                    <Mail class="size-4 shrink-0" /><span class="truncate">{{ farmer.user?.email }}</span>
                                 </div>
-                            </div>
-                        </Card>
-                    </div>
+                            </ItemDescription>
+                        </ItemContent>
+                    </Item>
 
                     <!-- Main -->
-                    <div class="col-span-12 space-y-4 lg:col-span-9">
+                    <div class="space-y-4 lg:col-span-9">
                         <!-- Map -->
                         <Card class="gap-0 overflow-hidden py-0">
                             <CardContent class="flex items-center gap-2 border-b px-4 py-3">
@@ -186,7 +172,7 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => [
                                 :value="farmer.insights.fulfillment_rate !== null
                                     ? `${Math.round(farmer.insights.fulfillment_rate * 100)}%`
                                     : '—'"
-                                subtext="fulfilled vs expired"
+                                subtext="fulfilled supplies"
                             />
                             <SmallCard
                                 title="Posts / Month"
@@ -194,7 +180,8 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => [
                             />
                             <SmallCard
                                 title="Last Active"
-                                :value="farmer.insights.last_active_human ?? '—'"
+                                :value="farmer.insights.last_active_human"
+                                value-class="text-md"
                             />
                             <SmallCard
                                 title="Total Quantity"

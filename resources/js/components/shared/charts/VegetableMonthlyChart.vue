@@ -2,11 +2,11 @@
 import { AlertCircle, Info } from 'lucide-vue-next'
 import { Bar } from 'vue-chartjs'
 import EmptyState from '@/components/EmptyState.vue'
+import AppTooltip from '@/components/templates/AppTooltip.vue'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useMonthlyVolumeChart } from '@/composables/useMonthlyVolumeChart'
 import type { ForecastPoint, MonthlyActivity } from '@/types/resources/product'
-import AppTooltip from '@/components/templates/AppTooltip.vue'
 
 const props = defineProps<{
     monthlyActivity: MonthlyActivity[]
