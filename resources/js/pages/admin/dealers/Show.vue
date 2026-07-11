@@ -10,7 +10,6 @@ import {
     Phone,
 } from 'lucide-vue-next'
 import { computed } from 'vue'
-import Heading from '@/components/Heading.vue'
 import SmallCard from '@/components/shared/cards/SmallCard.vue'
 import UserVolumeChart from '@/components/shared/charts/UserVolumeChart.vue'
 import WasteRankingCard from '@/components/shared/charts/WasteRankingCard.vue'
@@ -55,7 +54,6 @@ const fulfilledItems = computed<App.Data.PostItem.PostItemData[]>(
         [],
 )
 
-const totalItems = computed(() => props.dealer?.demand_items?.length ?? 0)
 const totalQuantity = computed(
     () =>
         props.dealer?.demand_items?.reduce(
@@ -83,10 +81,6 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => [
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex flex-col gap-6 p-4 lg:p-6">
-            <Heading
-                :title="dealer?.user?.name ?? 'Dealer'"
-                description="Dealer profile and demand history"
-            />
 
             <Deferred data="dealer">
                 <template #fallback>
@@ -163,7 +157,7 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => [
                                 :value="dealer.insights.fulfillment_rate !== null
                                     ? `${Math.round(dealer.insights.fulfillment_rate * 100)}%`
                                     : '—'"
-                                subtext="fulfilled vs expired"
+                                subtext="fulfilled schedules"
                             />
                             <SmallCard
                                 title="Posts / Month"
@@ -171,7 +165,8 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => [
                             />
                             <SmallCard
                                 title="Last Active"
-                                :value="dealer.insights.last_active_human ?? '—'"
+                                :value="dealer.insights.last_active_human"
+                                value-class="text-md"
                             />
                             <SmallCard
                                 title="Total Quantity"
@@ -185,11 +180,11 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => [
                             class="grid grid-cols-1 gap-4 lg:grid-cols-2"
                         >
                             <WasteRankingCard
-                                title="Most Requested Varieties"
-                                description="By total kilograms requested"
+                                title="Most Scheduled Vegetables"
+                                description="By total kilograms demanded"
                                 :items="dealer.insights.top_varieties"
                                 :initial-visible="5"
-                                unit-label="kg requested"
+                                unit-label="kg total"
                                 guide-question="What does this dealer buy most?"
                             />
                             <UserVolumeChart

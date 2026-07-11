@@ -11,7 +11,6 @@ import {
     Phone,
 } from 'lucide-vue-next'
 import { computed } from 'vue'
-import Heading from '@/components/Heading.vue'
 import LeafletMap from '@/components/LeafletMap.vue'
 import SmallCard from '@/components/shared/cards/SmallCard.vue'
 import UserVolumeChart from '@/components/shared/charts/UserVolumeChart.vue'
@@ -53,7 +52,6 @@ const fulfilledItems = computed<App.Data.PostItem.PostItemData[]>(
         props.farmer?.supply_items?.filter((i) => i.status === 'fulfilled') ??
         [],
 )
-const totalItems = computed(() => props.farmer?.supply_items?.length ?? 0)
 const totalQuantity = computed(
     () =>
         props.farmer?.supply_items?.reduce(
@@ -81,10 +79,6 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => [
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex flex-col gap-6 p-4 lg:p-6">
-            <Heading
-                :title="farmer?.user?.name ?? 'Farmer'"
-                description="Farmer profile and supply history"
-            />
 
             <Deferred data="farmer">
                 <template #fallback>
@@ -186,7 +180,7 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => [
                                 :value="farmer.insights.fulfillment_rate !== null
                                     ? `${Math.round(farmer.insights.fulfillment_rate * 100)}%`
                                     : '—'"
-                                subtext="fulfilled vs expired"
+                                subtext="fulfilled supplies"
                             />
                             <SmallCard
                                 title="Posts / Month"
@@ -194,7 +188,8 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => [
                             />
                             <SmallCard
                                 title="Last Active"
-                                :value="farmer.insights.last_active_human ?? '—'"
+                                :value="farmer.insights.last_active_human"
+                                value-class="text-md"
                             />
                             <SmallCard
                                 title="Total Quantity"
