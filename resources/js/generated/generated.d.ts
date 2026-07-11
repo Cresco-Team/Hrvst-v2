@@ -147,14 +147,14 @@ insights: App.Data.Profile.UserInsightsData | undefined,
 export type MonthlyVolumeData = {
 month: string,
 label: string,
-total_kg: number,
+value_kg: number,
 };
 export type TopVegetableData = {
 vegetable_id: number,
 display_name: string,
 image_url: string,
 post_count: number,
-total_kg: number,
+value_kg: number,
 };
 export type UserData = {
 id: number,
@@ -229,7 +229,7 @@ export type VegetableStabilityData = {
 id: number,
 display_name: string,
 image_url: string,
-wasted_kg: number,
+value_kg: number,
 confidence: string,
 months_observed: number,
 };
@@ -237,7 +237,7 @@ export type VegetableWasteData = {
 id: number,
 display_name: string,
 image_url: string,
-wasted_kg: number,
+value_kg: number,
 };
 }
 }
