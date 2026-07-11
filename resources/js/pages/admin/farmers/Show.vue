@@ -25,6 +25,7 @@ import {
     ItemContent,
     ItemDescription,
     ItemGroup,
+    ItemHeader,
     ItemMedia,
     ItemTitle,
 } from '@/components/ui/item'
@@ -106,50 +107,41 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => [
 
                 <div
                     v-if="farmer"
-                    class="grid grid-cols-12 gap-5"
+                    class="flex items-start gap-6"
                 >
                     <!-- Sidebar -->
-                    <div class="col-span-12 lg:col-span-3">
-                        <Card class="space-y-5 p-5">
-                            <div class="flex flex-col items-start gap-3">
-                                <Avatar class="size-16">
-                                    <AvatarImage
-                                        v-if="farmer.user?.avatar_url"
-                                        :src="farmer.user.avatar_url"
-                                        :alt="farmer.user.name"
-                                    />
-                                    <AvatarFallback class="bg-primary/10 text-base font-semibold text-primary">
-                                        {{ getInitials(farmer.user?.name) }}
-                                    </AvatarFallback>
-                                </Avatar>
-                                <div>
-                                    <p class="text-sm leading-snug font-semibold">
-                                        {{ farmer.user?.name }}
-                                    </p>
-                                    <p class="mt-0.5 text-xs text-muted-foreground">
-                                        {{ farmer.full_address }}
-                                    </p>
-                                </div>
-                            </div>
-                            <div class="space-y-2.5 text-sm text-muted-foreground">
-                                <div class="flex items-center gap-2">
-                                    <Mail class="size-4 shrink-0" /><span class="truncate">{{ farmer.user?.email }}</span>
-                                </div>
+                    <Item class="sticky top-6 w-56 shrink-0">
+                        <ItemHeader>
+                            <Avatar class="size-16">
+                                <AvatarImage
+                                    v-if="farmer.user?.avatar_url"
+                                    :src="farmer.user?.avatar_url"
+                                    :alt="farmer.user.name"
+                                />
+
+                                <AvatarFallback class="bg-primary/10 text0base font-semibold text-primary">
+                                    {{ getInitials(farmer.user?.name) }}
+                                </AvatarFallback>
+                            </Avatar>
+                        </ItemHeader>
+
+                        <ItemContent>
+                            <ItemTitle>{{ farmer.user?.name }}</ItemTitle>
+                            <ItemDescription>
                                 <div class="flex items-center gap-2">
                                     <Phone class="size-4 shrink-0" /><span>{{
                                         farmer.user?.phone_number
                                     }}</span>
                                 </div>
-                                <div class="flex items-center gap-2">
-                                    <CalendarDays class="size-4 shrink-0"/><span>Joined:
-                                        {{ farmer.joined_at }}</span>
+                                <div v-if="farmer.user?.email" class="flex items-center gap-2">
+                                    <Mail class="size-4 shrink-0" /><span class="truncate">{{ farmer.user?.email }}</span>
                                 </div>
-                            </div>
-                        </Card>
-                    </div>
+                            </ItemDescription>
+                        </ItemContent>
+                    </Item>
 
                     <!-- Main -->
-                    <div class="col-span-12 space-y-4 lg:col-span-9">
+                    <div class="space-y-4 lg:col-span-9">
                         <!-- Map -->
                         <Card class="gap-0 overflow-hidden py-0">
                             <CardContent class="flex items-center gap-2 border-b px-4 py-3">

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Deferred, Head } from '@inertiajs/vue3'
-import { ChevronDown } from '@lucide/vue'
+import { ChevronDown, History } from '@lucide/vue'
 import {
     Archive,
     CalendarDays,
@@ -23,6 +23,7 @@ import {
     ItemContent,
     ItemDescription,
     ItemGroup,
+    ItemHeader,
     ItemMedia,
     ItemTitle,
 } from '@/components/ui/item'
@@ -107,47 +108,41 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => [
 
                 <div
                     v-if="dealer"
-                    class="grid grid-cols-12 gap-5"
+                    class="flex items-start gap-6"
                 >
                     <!-- Sidebar -->
-                    <div class="col-span-12 lg:col-span-3">
-                        <Card class="space-y-5 p-5">
-                            <div class="flex flex-col items-start gap-3">
-                                <Avatar class="size-16">
-                                    <AvatarImage
-                                        v-if="dealer.user?.avatar_url"
-                                        :src="dealer.user.avatar_url"
-                                        :alt="dealer.user.name"
-                                    />
-                                    <AvatarFallback class="bg-primary/10 text-base font-semibold text-primary">
-                                        {{ getInitials(dealer.user?.name) }}
-                                    </AvatarFallback>
-                                </Avatar>
-                                <div>
-                                    <p class="text-sm leading-snug font-semibold">
-                                        {{ dealer.user?.name }}
-                                    </p>
-                                </div>
-                            </div>
-                            <div class="space-y-2.5 text-sm text-muted-foreground">
-                                <div class="flex items-center gap-2">
-                                    <Mail class="size-4 shrink-0" /><span class="truncate">{{ dealer.user?.email }}</span>
-                                </div>
+                    <Item class="sticky top-6 w-56 shrink-0">
+                        <ItemHeader>
+                            <Avatar class="size-16">
+                                <AvatarImage
+                                    v-if="dealer.user?.avatar_url"
+                                    :src="dealer.user?.avatar_url"
+                                    :alt="dealer.user.name"
+                                />
+
+                                <AvatarFallback class="bg-primary/10 text0base font-semibold text-primary">
+                                    {{ getInitials(dealer.user?.name) }}
+                                </AvatarFallback>
+                            </Avatar>
+                        </ItemHeader>
+
+                        <ItemContent>
+                            <ItemTitle>{{ dealer.user?.name }}</ItemTitle>
+                            <ItemDescription>
                                 <div class="flex items-center gap-2">
                                     <Phone class="size-4 shrink-0" /><span>{{
                                         dealer.user?.phone_number
                                     }}</span>
                                 </div>
-                                <div class="flex items-center gap-2">
-                                    <CalendarDays class="size-4 shrink-0"/><span>Joined
-                                        {{ dealer.joined_at_human }}</span>
+                                <div v-if="dealer.user?.email" class="flex items-center gap-2">
+                                    <Mail class="size-4 shrink-0" /><span class="truncate">{{ dealer.user?.email }}</span>
                                 </div>
-                            </div>
-                        </Card>
-                    </div>
+                            </ItemDescription>
+                        </ItemContent>
+                    </Item>
 
                     <!-- Main -->
-                    <div class="col-span-12 space-y-4 lg:col-span-9">
+                    <div class="space-y-4 lg:col-span-9">
                         <div
                             v-if="dealer?.insights"
                             class="grid grid-cols-2 gap-3 sm:grid-cols-4"
