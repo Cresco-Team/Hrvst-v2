@@ -120,9 +120,9 @@ class PostItemInsightsService
                 display_name: $vegetable?->display_name ?? 'Unknown',
                 image_url: $vegetable?->getFirstMediaUrl('vegetable_image') ?? '',
                 post_count: (int) $row->post_count,
-                total_kg: round((float) $row->total_kg, 2),
+                value_kg: round((float) $row->total_kg, 2),
             );
-        })->values()->toArray();
+        })->values()->all();
     }
 
     /**
@@ -155,7 +155,7 @@ class PostItemInsightsService
             $result[] = new MonthlyVolumeData(
                 month: $key,
                 label: $date->format('M Y'),
-                total_kg: round((float) ($row->total_kg ?? 0), 2),
+                value_kg: round((float) ($row->total_kg ?? 0), 2),
             );
         }
 
