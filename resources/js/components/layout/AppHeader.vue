@@ -37,18 +37,21 @@ import {
 import { useCurrentUrl } from '@/composables/useCurrentUrl'
 import { getInitials } from '@/composables/useInitials'
 import { useOnboardingGuide } from '@/composables/useOnboardingGuide'
-import { dashboard } from '@/routes'
+import { categories, dashboard } from '@/routes'
 import admin from '@/routes/admin'
 import dealer from '@/routes/dealer'
 import { archived as dealerDemandsArchived } from '@/routes/dealer/demands'
 import farmer from '@/routes/farmer'
 import { archived as farmerSuppliesArchived } from '@/routes/farmer/supplies'
-import vegetables from '@/routes/vegetables'
 import type { BreadcrumbItem, NavItem } from '@/types'
 import AppTooltip from '../templates/AppTooltip.vue'
 
 type Props = {
     breadcrumbs?: BreadcrumbItem[]
+}
+
+interface AppNavItem extends NavItem {
+    activeComponentMatch?: string
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -57,7 +60,7 @@ const props = withDefaults(defineProps<Props>(), {
 
 const page = usePage()
 const auth = computed(() => page.props.auth)
-const { isCurrentUrl, whenCurrentUrl } = useCurrentUrl()
+const { isCurrentUrl } = useCurrentUrl()
 const mobileMenuOpen = ref(false)
 const { open: openOnboarding } = useOnboardingGuide()
 
@@ -73,10 +76,25 @@ function openOnboardingFromMobile(): void {
 }
 
 const activeItemStyles =
-    'text-neutral-900 dark:bg-neutral-800 dark:text-neutral-100'
+    'text-foreground'
 
-const mainNavItems = computed<NavItem[]>(() => {
-    const items: NavItem[] = []
+function isNavItemActive(item: AppNavItem): boolean {
+    if (
+        item.activeComponentMatch &&
+        (page.component as string).includes(item.activeComponentMatch)
+    ) {
+        return true
+    }
+
+    return isCurrentUrl(item.href)
+}
+
+function navItemClass(item: AppNavItem): string {
+    return isNavItemActive(item) ? activeItemStyles : ''
+}
+
+const mainNavItems = computed<AppNavItem[]>(() => {
+    const items: AppNavItem[] = []
 
     if (page.props.auth.user.roles.includes('admin')) {
         items.push(
@@ -84,19 +102,31 @@ const mainNavItems = computed<NavItem[]>(() => {
                 title: 'Vegetables',
                 href: admin.categories.index(),
                 icon: Package,
+                activeComponentMatch: '/vegetables/',
             },
-            { title: 'Farmers', href: admin.farmers.index(), icon: Vegan },
+            { 
+                title: 'Farmers', 
+                href: admin.farmers.index(),
+                icon: Vegan, 
+                activeComponentMatch: 'admin/farmers/'
+            },
             {
                 title: 'Dealers',
                 href: admin.dealers.index(),
                 icon: ShoppingBag,
+                activeComponentMatch: 'admin/dealers/'
             },
         )
     }
 
     if (page.props.auth.user.roles.includes('dealer')) {
         items.push(
-            { title: 'Vegetables', href: vegetables.index(), icon: Vegan },
+            {
+                title: 'Vegetables',
+                href: categories(),
+                icon: Vegan,
+                activeComponentMatch: '/vegetables/',
+            },
             {
                 title: 'My Schedules',
                 href: dealer.demands.index(),
@@ -107,7 +137,12 @@ const mainNavItems = computed<NavItem[]>(() => {
 
     if (page.props.auth.user.roles.includes('farmer')) {
         items.push(
-            { title: 'Vegetables', href: vegetables.index(), icon: Vegan },
+            {
+                title: 'Vegetables',
+                href: categories(),
+                icon: Vegan,
+                activeComponentMatch: '/vegetables/',
+            },
             {
                 title: 'My Schedules',
                 href: farmer.supplies.index(),
@@ -177,7 +212,7 @@ const rightNavItems = computed<NavItem[]>(() => {
                                         :key="item.title"
                                         :href="item.href"
                                         class="flex items-center gap-x-3 rounded-lg px-3 py-2 text-sm font-medium hover:bg-accent"
-                                        :class="whenCurrentUrl(item.href, activeItemStyles)"
+                                        :class="navItemClass(item)"
                                         @click="mobileMenuOpen = false"
                                     >
                                         <component
@@ -222,10 +257,7 @@ const rightNavItems = computed<NavItem[]>(() => {
                                 <Link
                                     :class="[
                                         navigationMenuTriggerStyle(),
-                                        whenCurrentUrl(
-                                            item.href,
-                                            activeItemStyles,
-                                        ),
+                                        navItemClass(item),
                                         'h-9 cursor-pointer px-3',
                                     ]"
                                     :href="item.href"
@@ -238,8 +270,8 @@ const rightNavItems = computed<NavItem[]>(() => {
                                     {{ item.title }}
                                 </Link>
                                 <div
-                                    v-if="isCurrentUrl(item.href)"
-                                    class="absolute bottom-0 left-0 h-0.5 w-full translate-y-px bg-black dark:bg-white"
+                                    v-if="isNavItemActive(item)"
+                                    class="absolute bottom-0 left-0 h-0.5 w-full translate-y-px bg-primary"
                                 />
                             </NavigationMenuItem>
                         </NavigationMenuList>
