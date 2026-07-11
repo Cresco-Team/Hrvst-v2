@@ -24,10 +24,12 @@ import AppLayout from '@/layouts/AppLayout.vue'
 import admin, { dashboard } from '@/routes/admin'
 import dealers from '@/routes/admin/dealers'
 import farmers from '@/routes/admin/farmers'
-import type { AdminDashboardKPIs, BreadcrumbItem, KpiStat } from '@/types'
+import type { AdminDashboardKPIs, BreadcrumbItem, KpiStat, RegistrationTrendPoint } from '@/types'
+import RegistrationTrendChart from '@/components/features/admin/charts/RegistrationTrendChart.vue'
 
 defineProps<{
     kpis?: AdminDashboardKPIs
+    registrationTrends?: RegistrationTrendPoint[]
 }>()
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -132,6 +134,14 @@ function formatChange(change?: number): string {
                         :value="kpis?.dealers.total_demands.value.toLocaleString()"
                     />
                 </div>
+            </Deferred>
+
+            <Deferred data="registrationTrends">
+                <template #fallback>
+                    <Skeleton class="h-72 w-full rounded-xl" />
+                </template>
+
+                <RegistrationTrendChart :trends="registrationTrends ?? []" />
             </Deferred>
 
             <Card>
