@@ -109,10 +109,10 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => [
 
                 <div
                     v-if="dealer"
-                    class="flex items-start gap-6"
+                    class="grid grid-cols-12 gap-5"
                 >
                     <!-- Sidebar -->
-                    <Item class="sticky top-6 w-56 shrink-0">
+                    <Item class="sticky top-6 col-span-12 lg:col-span-3">
                         <ItemHeader>
                             <Avatar class="size-16">
                                 <AvatarImage
@@ -143,7 +143,7 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => [
                     </Item>
 
                     <!-- Main -->
-                    <div class="space-y-4 lg:col-span-9">
+                    <div class="col-span-12 space-y-4 lg:col-span-9">
                         <div
                             v-if="dealer?.insights"
                             class="grid grid-cols-2 gap-3 sm:grid-cols-4"
