@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Link } from '@inertiajs/vue3'
+import { Link, usePage } from '@inertiajs/vue3'
 import { ArrowRight, ChevronDown, ChevronUp, Vegan } from 'lucide-vue-next'
 import { computed, ref } from 'vue'
 import AppTooltip from '@/components/templates/AppTooltip.vue'
@@ -7,7 +7,8 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { show } from '@/routes/admin/vegetables'
+import { show as adminShow } from '@/routes/admin/vegetables'
+import { show as sharedShow } from '@/routes/vegetables'
 import type { VegetableStabilityData, VegetableWasteData } from '@/types/resources/product'
 
 type RankedItem = VegetableWasteData | VegetableStabilityData
@@ -20,6 +21,11 @@ const props = defineProps<{
     initialVisible?: number
     guideQuestion: string
 }>()
+
+const isAdmin = computed(() => usePage().props.auth.user.roles.includes('admin'))
+function showRoute(id: number) {
+    return isAdmin.value ? adminShow({ vegetable: id }) : sharedShow({ vegetable: id })
+}
 
 const expanded = ref(false)
 
@@ -73,11 +79,11 @@ function maturityTooltip(item: RankedItem): string | undefined {
                 <ol class="flex flex-col gap-1">
                     <li
                         v-for="(item, index) in visible"
-                        :key="item.vegetable_id"
+                        :key="item.id"
                         class="group"
                     >
                         <Link
-                            :href="show(item.vegetable_id).url"
+                            :href="showRoute(item.id).url"
                             class="group -mx-2 flex items-center gap-3 rounded-lg px-2 py-1.5 transition-colors hover:bg-muted"
                         >
                             <span class="flex size-6 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-bold text-muted-foreground group-hover:bg-primary duration-200">

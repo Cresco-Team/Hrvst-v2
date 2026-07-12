@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Data\Profile\FarmerData;
+use App\Enums\Billing\SubscriptionFeature;
 use App\Http\Controllers\Controller;
+use App\Models\Billing\Subscription;
 use App\Models\Profiles\FarmerProfile;
 use App\Services\Admin\FarmerMapService;
 use App\Services\Admin\FarmerService;
@@ -80,13 +82,15 @@ class FarmerController extends Controller
         return response()->json(FarmerData::from($this->farmerService->details($farmer)));
     }
 
-    public function show(FarmerProfile $farmer): Response
+    public function show(Request $request, FarmerProfile $farmer): Response
     {
         Gate::authorize('view', $farmer);
 
+        $hasAnalyticsAccess = Subscription::hasAccess($request->user(), SubscriptionFeature::AdminAnalytics);
+
         return Inertia::render('admin/farmers/Show', [
             'farmer' => Inertia::defer(
-                fn () => FarmerData::from($this->farmerService->show($farmer))
+                fn () => FarmerData::from($this->farmerService->show($farmer, $hasAnalyticsAccess))
             ),
         ]);
     }

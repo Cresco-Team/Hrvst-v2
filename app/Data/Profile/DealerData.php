@@ -27,6 +27,7 @@ class DealerData extends Data
         /** @var PostItemData[]|Lazy */
         public array_diff_key|Lazy $demand_items,
         public UserInsightsData|Optional $insights,
+        public bool $analytics_locked = false,
     ) {}
 
     public static function fromModel(DealerProfile $dealer): self
@@ -48,6 +49,7 @@ class DealerData extends Data
             insights: isset($dealer->insights)
                 ? $dealer->insights
                 : Optional::create(),
+                analytics_locked: $farmer->analytics_locked ?? false,
         );
     }
 }

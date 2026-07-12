@@ -18,6 +18,8 @@ import type { Paginated } from '../shared'
 export interface DealerDashboardProps {
     topWastedSupply?: VegetableWasteData[]
     mostStableWastedSupply?: VegetableStabilityData[]
+    analyticsLocked: boolean
+    upgradeFeatureLabel: string
 }
 
 // ─── dealer/demands/Index ─────────────────────────────────────────────────────

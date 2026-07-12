@@ -18,6 +18,8 @@ import type { Paginated } from '../shared'
 export interface FarmerDashboardProps {
     topWastedDemand?: VegetableWasteData[]
     mostStableWastedDemand?: VegetableStabilityData[]
+    analyticsLocked: boolean
+    upgradeFeatureLabel: string
 }
 
 // ─── farmer/supplies/Index ────────────────────────────────────────────────────

@@ -6,6 +6,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import AppLayout from '@/layouts/AppLayout.vue'
 import dealer from '@/routes/dealer'
 import type { BreadcrumbItem, DealerDashboardProps } from '@/types'
+import AnalyticsUpsellCard from '@/components/shared/charts/AnalyticsUpsellCard.vue'
 
 defineProps<DealerDashboardProps>()
 
@@ -25,7 +26,9 @@ const breadcrumbs: BreadcrumbItem[] = [
                 description="Market signals to guide your sourcing."
             />
 
-            <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
+            <AnalyticsUpsellCard v-if="analyticsLocked" :feature-label="upgradeFeatureLabel" />
+
+            <div v-else class="grid grid-cols-1 gap-4 lg:grid-cols-2">
                 <Deferred data="topWastedSupply">
                     <template #fallback>
                         <Skeleton class="h-56 w-full rounded-xl" />
@@ -37,6 +40,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                         :items="topWastedSupply"
                         :initial-visible="3"
                         unit-label="kg wasted"
+                        guide-question="What's the most supplies vegetables?"
                     />
                 </Deferred>
 
@@ -48,6 +52,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                         :items="mostStableWastedSupply"
                         :initial-visible="3"
                         unit-label="kg/mo avg"
+                        guide-question="What's the most supplies all year round?"
                     />
                 </Deferred>
             </div>

@@ -1,7 +1,7 @@
-<!-- resources/js/pages/farmer/Dashboard.vue -->
 <script setup lang="ts">
 import { Deferred, Head } from '@inertiajs/vue3'
 import Heading from '@/components/Heading.vue'
+import AnalyticsUpsellCard from '@/components/shared/charts/AnalyticsUpsellCard.vue'
 import WasteRankingCard from '@/components/shared/charts/WasteRankingCard.vue'
 import { Skeleton } from '@/components/ui/skeleton'
 import AppLayout from '@/layouts/AppLayout.vue'
@@ -18,20 +18,16 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 <template>
     <Head title="Dashboard" />
-
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex flex-col gap-6 p-4 lg:p-6">
-            <Heading
-                title="Dashboard"
-                description="Market signals to guide what you plant next."
-            />
+            <Heading title="Dashboard" description="Market signals to guide what you plant next." />
 
-            <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
+            <AnalyticsUpsellCard v-if="analyticsLocked" :feature-label="upgradeFeatureLabel" />
+
+            <div v-if="!analyticsLocked" class="grid grid-cols-1 gap-4 lg:grid-cols-2">
                 <Deferred data="topWastedDemand">
                     <template #fallback>
-                        <Skeleton class="h-56 w-full rounded-xl" />
-                    </template>
-
+                        <Skeleton class="h-56 w-full rounded-xl" /></template>
                     <WasteRankingCard
                         title="Top Supply Shortages (Best to Sell)"
                         description="Predicted shortages over the next 4 months, based on 5-year historical trends."

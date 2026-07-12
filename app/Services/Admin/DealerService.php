@@ -58,7 +58,7 @@ class DealerService
         ]);
     }
 
-    public function show(DealerProfile $dealer): DealerProfile
+    public function show(DealerProfile $dealer, bool $hasAnalyticsAccess): DealerProfile
     {
         $dealer->load([
             'user.media',
@@ -67,6 +67,8 @@ class DealerService
         ]);
 
         $dealer->insights = $this->insights->compute($dealer->user_id, PostType::Demand);
+
+        $dealer->analytics_locked = ! $hasAnalyticsAccess;
 
         return $dealer;
     }
