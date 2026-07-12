@@ -1,18 +1,14 @@
 <script setup lang="ts">
 import { Deferred, Head } from '@inertiajs/vue3'
-import { ChevronDown, History } from '@lucide/vue'
+import { ChevronDown } from '@lucide/vue'
 import {
     Archive,
-    CalendarDays,
     Mail,
     Package,
     PackageCheck,
     Phone,
 } from 'lucide-vue-next'
 import { computed } from 'vue'
-import SmallCard from '@/components/shared/cards/SmallCard.vue'
-import UserVolumeChart from '@/components/shared/charts/UserVolumeChart.vue'
-import WasteRankingCard from '@/components/shared/charts/WasteRankingCard.vue'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
@@ -36,7 +32,7 @@ import type {
     BreadcrumbItem,
     DealerResource,
 } from '@/types'
-import AnalyticsUpsellCard from '@/components/shared/charts/AnalyticsUpsellCard.vue'
+import UserTeaser from '@/components/features/admin/charts/UserTeaser.vue'
 
 const props = defineProps<{
     dealer?: DealerResource
@@ -144,55 +140,18 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => [
 
                     <!-- Main -->
                     <div class="col-span-12 space-y-4 lg:col-span-9">
-                        <div
-                            v-if="dealer?.insights"
-                            class="grid grid-cols-2 gap-3 sm:grid-cols-4"
-                        >
-                            <SmallCard
-                                title="Fulfillment Rate"
-                                :value="dealer.insights.fulfillment_rate !== null
-                                    ? `${Math.round(dealer.insights.fulfillment_rate * 100)}%`
-                                    : '—'"
-                                subtext="fulfilled schedules"
-                            />
-                            <SmallCard
-                                title="Posts / Month"
-                                :value="dealer.insights.posts_per_month"
-                            />
-                            <SmallCard
-                                title="Last Active"
-                                :value="dealer.insights.last_active_human"
-                                value-class="text-md"
-                            />
-                            <SmallCard
-                                title="Total Quantity"
-                                :value="totalQuantity.toLocaleString()"
-                                subtext="kg"
-                            />
-                        </div>
-
-                        <template v-if="dealer?.analytics_locked">
-                            <AnalyticsUpsellCard feature-label="Platform Analytics License" />
-                        </template>
-                        <template v-else-if="dealer?.insights">
-                            <div
-                                v-if="dealer?.insights"
-                                class="grid grid-cols-1 gap-4 lg:grid-cols-2"
-                            >
-                                <WasteRankingCard
-                                    title="Most Supplied Varieties"
-                                    description="By total kilograms supplied"
-                                    :items="dealer.insights.top_varieties"
-                                    :initial-visible="5"
-                                    unit-label="kg supplied"
-                                    guide-question="What does this dealer grow most?"
-                                />
-                                <UserVolumeChart
-                                    title="6-Month Supply Volume"
-                                    :monthly-volume="dealer.insights.monthly_volume"
-                                />
-                            </div>
-                        </template>
+                        <UserTeaser
+                            v-if="dealer.insights"
+                            :insights="dealer.insights"
+                            :locked="dealer.analytics_locked"
+                            :total-quantity="totalQuantity"
+                            feature-label="Platform Analytics License"
+                            waste-title="Most Ordered Varieties"
+                            waste-description="By total kilograms requested"
+                            waste-unit-label="kg requested"
+                            waste-guide-question="What does this dealer order most?"
+                            volume-title="6-Month Demand Volume"
+                        />
 
                         <Collapsible :default-open="false">
                             <CollapsibleTrigger class="flex w-full items-center justify-between rounded-lg border bg-muted/20 px-4 py-2.5 text-sm font-medium hover:bg-muted/40">
