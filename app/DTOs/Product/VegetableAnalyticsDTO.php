@@ -15,7 +15,7 @@ class VegetableAnalyticsDTO
         public ?float $demand_fulfillment_rate,
         public ?float $supply_volume_mom_pct,
         public ?float $demand_volume_mom_pct,
-        /** @var VarietyRecommendationDTO[] */
+        /** @var VegetableRecommendationDTO[] */
         public array $recommendations,
     ) {}
 
@@ -29,7 +29,7 @@ class VegetableAnalyticsDTO
             'supply_volume_mom_pct' => $this->supply_volume_mom_pct,
             'demand_volume_mom_pct' => $this->demand_volume_mom_pct,
             'recommendations' => array_map(
-                fn (VarietyRecommendationDTO $r) => [
+                fn (VegetableRecommendationDTO $r) => [
                     'severity' => $r->severity->value,
                     'type' => $r->type,
                     'title' => $r->title,
