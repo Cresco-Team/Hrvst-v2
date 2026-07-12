@@ -161,7 +161,7 @@ label: string,
 value_kg: number,
 };
 export type TopVegetableData = {
-vegetable_id: number,
+id: number,
 display_name: string,
 image_url: string,
 post_count: number,
