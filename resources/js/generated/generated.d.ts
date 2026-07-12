@@ -1,19 +1,28 @@
 declare namespace App {
 namespace DTOs {
 namespace Product {
-export type VarietyAnalyticsDTO = {
+export type VegetableAnalyticsDTO = {
 supply_demand_ratio: number,
 imbalance_band: App.Enums.Analytics.ImbalanceBand,
 supply_fulfillment_rate: number | null,
 demand_fulfillment_rate: number | null,
 supply_volume_mom_pct: number | null,
 demand_volume_mom_pct: number | null,
-recommendations: App.DTOs.Product.VarietyRecommendationDTO[],
-months_of_history: number,
-forecast_confidence: string,
-forecast: object[],
+recommendations: App.DTOs.Product.VegetableRecommendationDTO[],
 };
-export type VarietyRecommendationDTO = {
+export type VegetableForecastDTO = {
+readonly months_of_history: number,
+readonly forecast_confidence: string,
+readonly forecast: {
+month: string,
+label: string,
+supply_fulfilled_kg: number,
+supply_expired_kg: number,
+demand_fulfilled_kg: number,
+demand_expired_kg: number,
+}[],
+};
+export type VegetableRecommendationDTO = {
 readonly severity: App.Enums.Analytics.RecommendationSeverity,
 readonly type: string,
 readonly title: string,
@@ -218,8 +227,10 @@ supply_municipalities: Array<any>,
 monthly_activity: Array<any>,
 vegetable_calendar: Array<any>,
 analytics: Array<any> | null,
-analytics_locked: boolean,
+forecast: Array<any> | null,
+forecast_locked: boolean,
 upgrade_feature: string | null,
+upgrade_feature_label: string | null,
 };
 export type VegetableLightData = {
 id: number,
