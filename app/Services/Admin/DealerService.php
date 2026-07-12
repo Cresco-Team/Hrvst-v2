@@ -66,9 +66,11 @@ class DealerService
                 ->with(['vegetable.category']),
         ]);
 
-        $dealer->insights = $this->insights->compute($dealer->user_id, PostType::Demand);
+        if ($hasAnalyticsAccess) {
+            $dealer->insights = $this->insights->compute($dealer->user_id, PostType::Supply);
+        }
 
-        $dealer->analytics_locked = ! $hasAnalyticsAccess;
+        $dealer->insights = $this->insights->compute($dealer->user_id, PostType::Demand);
 
         return $dealer;
     }
