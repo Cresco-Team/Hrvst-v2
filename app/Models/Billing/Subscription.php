@@ -46,6 +46,12 @@ class Subscription extends Model
         return $query->where('user_id', $user->id)->where('feature', $feature);
     }
 
+    public function isActive(): bool
+    {
+        return $this->status !== SubscriptionStatus::Expired
+            && $this->ends_at?->isFuture();
+    }
+
     public static function currentFor(User $user, SubscriptionFeature $feature): ?self
     {
         return static::query()->for($user, $feature)->latest('created_at')->first();
