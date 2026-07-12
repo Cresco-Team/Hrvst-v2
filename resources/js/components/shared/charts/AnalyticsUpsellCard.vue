@@ -5,9 +5,18 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { show as billingShow } from '@/routes/billing'
 
-defineProps<{
-    featureLabel?: string
-}>()
+withDefaults(
+    defineProps<{
+        featureLabel?: string
+        title?: string
+        description?: string
+    }>(),
+    {
+        title: 'Full analytics locked',
+        description:
+            'Subscribe to see 5-year trends and seasonal forecasts for this vegetable.',
+    },
+)
 </script>
 
 <template>
@@ -17,16 +26,12 @@ defineProps<{
                 <Lock class="size-5" />
             </div>
             <div class="space-y-1">
-                <p class="text-sm font-semibold">Full analytics locked</p>
+                <p class="text-sm font-semibold">{{ title }}</p>
                 <p class="max-w-xs text-xs text-muted-foreground">
-                    Subscribe to see 5-year trends, seasonal forecasts, and market recommendations for this vegetable.
+                    {{ description }}
                 </p>
             </div>
-            <Button
-                as-child
-                size="sm"
-                class="mt-1 gap-1.5"
-            >
+            <Button as-child size="sm" class="mt-1 gap-1.5">
                 <Link :href="billingShow().url">
                     <Sparkles class="size-3.5" />
                     {{ featureLabel ?? 'Subscribe' }}
