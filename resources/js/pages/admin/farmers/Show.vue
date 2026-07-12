@@ -3,7 +3,6 @@ import { Deferred, Head } from '@inertiajs/vue3'
 import { ChevronDown } from '@lucide/vue'
 import {
     Archive,
-    CalendarDays,
     Mail,
     MapPin,
     Package,
@@ -12,9 +11,6 @@ import {
 } from 'lucide-vue-next'
 import { computed } from 'vue'
 import LeafletMap from '@/components/LeafletMap.vue'
-import SmallCard from '@/components/shared/cards/SmallCard.vue'
-import UserVolumeChart from '@/components/shared/charts/UserVolumeChart.vue'
-import WasteRankingCard from '@/components/shared/charts/WasteRankingCard.vue'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
@@ -35,7 +31,7 @@ import { getInitials } from '@/composables/useInitials'
 import AppLayout from '@/layouts/AppLayout.vue'
 import admin from '@/routes/admin'
 import type { BreadcrumbItem, FarmerResource } from '@/types'
-import AnalyticsUpsellCard from '@/components/shared/charts/AnalyticsUpsellCard.vue'
+import UserTeaser from '@/components/features/admin/charts/UserTeaser.vue'
 
 const props = defineProps<{
     farmer?: FarmerResource
@@ -163,56 +159,18 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => [
                             />
                         </Card>
 
-                        <!-- Stats -->
-                        <div
-                            v-if="farmer?.insights"
-                            class="grid grid-cols-2 gap-3 sm:grid-cols-4"
-                        >
-                            <SmallCard
-                                title="Fulfillment Rate"
-                                :value="farmer.insights.fulfillment_rate !== null
-                                    ? `${Math.round(farmer.insights.fulfillment_rate * 100)}%`
-                                    : '—'"
-                                subtext="fulfilled supplies"
-                            />
-                            <SmallCard
-                                title="Posts / Month"
-                                :value="farmer.insights.posts_per_month"
-                            />
-                            <SmallCard
-                                title="Last Active"
-                                :value="farmer.insights.last_active_human"
-                                value-class="text-md"
-                            />
-                            <SmallCard
-                                title="Total Quantity"
-                                :value="totalQuantity.toLocaleString()"
-                                subtext="kg"
-                            />
-                        </div>
-
-                        <template v-if="farmer?.analytics_locked">
-                            <AnalyticsUpsellCard feature-label="Platform Analytics License" />
-                        </template>
-                        <template v-else-if="farmer?.insights">
-                            <div
-                                v-if="farmer?.insights"
-                                class="grid grid-cols-1 gap-4 lg:grid-cols-2"
-                            >
-                                <WasteRankingCard
-                                    title="Most Supplied Varieties"
-                                    description="By total kilograms supplied"
-                                    :items="farmer.insights.top_varieties"
-                                    :initial-visible="5"
-                                    unit-label="kg supplied"
-                                    guide-question="What does this farmer grow most?"
-                                />
-                                <UserVolumeChart
-                                    title="6-Month Supply Volume"
-                                    :monthly-volume="farmer.insights.monthly_volume"
-                                />
-                            </div>
-                        </template>
+                        <UserTeaser
+                            v-if="farmer.insights"
+                            :insights="farmer.insights"
+                            :locked="farmer.analytics_locked"
+                            :total-quantity="totalQuantity"
+                            feature-label="Platform Analytics License"
+                            waste-title="Most Supplied Varieties"
+                            waste-description="By total kilograms supplied"
+                            waste-unit-label="kg supplied"
+                            waste-guide-question="What does this farmer grow most?"
+                            volume-title="6-Month Supply Volume"
+                        />
 
                         <Collapsible :default-open="false">
                             <CollapsibleTrigger class="flex w-full items-center justify-between rounded-lg border bg-muted/20 px-4 py-2.5 text-sm font-medium hover:bg-muted/40">
