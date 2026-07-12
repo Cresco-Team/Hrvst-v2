@@ -37,20 +37,20 @@ trait RendersVegetableShow
             default => throw new \RuntimeException('User has no recognized role for variety viewer context.'),
         };
 
-        $hasAnalyticsAccess = $gateFeature === null || Subscription::hasAccess($user, $gateFeature);
+        $hasForecastAccess = $gateFeature === null || Subscription::hasAccess($user, $gateFeature);
 
         return Inertia::render('shared/vegetables/Show', [
-            'vegetable' => Inertia::defer(function () use ($vegetableDetailService, $vegetable, $year, $month, $role, $hasAnalyticsAccess, $gateFeature) {
+            'vegetable' => Inertia::defer(function () use ($vegetableDetailService, $vegetable, $year, $month, $role, $hasForecastAccess, $gateFeature) {
                 $detail = $vegetableDetailService->show($vegetable, $year, $month, $role);
-
-                if (! $hasAnalyticsAccess) {
-                    $detail->analytics = null;
-                    $detail->monthly_activity = array_slice($detail->monthly_activity, -3);
+        
+                if (! $hasForecastAccess) {
+                    $detail->forecast = null;
                 }
-
-                $detail->analytics_locked = ! $hasAnalyticsAccess;
+        
+                $detail->forecast_locked = ! $hasForecastAccess;
                 $detail->upgrade_feature = $gateFeature?->value;
-
+                $detail->upgrade_feature_label = $gateFeature?->label();
+        
                 return VegetableDetailData::fromModel($detail);
             }),
             'calendarFilters' => ['year' => $year, 'month' => $month],
