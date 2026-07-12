@@ -15,11 +15,11 @@ import { categories, dashboard } from '@/routes'
 import adminRoutes, { dashboard as adminDashboard } from '@/routes/admin'
 import vegetables from '@/routes/vegetables'
 import type { BreadcrumbItem, VegetableCalendarFilters, VegetableDaySchedule } from '@/types'
-import type { VegetableResource } from '@/types/resources/product'
+import type { VegetableDetailData } from '@/types/resources/product'
 import AnalyticsUpsellCard from '@/components/shared/charts/AnalyticsUpsellCard.vue'
 
 interface Props {
-    vegetable?: VegetableResource
+    vegetable?: VegetableDetailData
     calendarFilters: VegetableCalendarFilters
     meta: {
         vegetableId: number
@@ -134,14 +134,38 @@ function handleDaySelect(dateStr: string): void {
                 <template v-if="vegetable?.analytics_locked">
                     <AnalyticsUpsellCard />
                 </template>
-                <template v-else>
+                <template v-else-if="vegetable">
                     <VegetableAnalyticsSummary
                         v-if="vegetable?.analytics"
                         :analytics="vegetable?.analytics"
                     />
 
+                    <!-- ── Recommendations ────────────────────────────────────────────── -->
                     <VegetableRecommendations
-                        v-if="vegetable?.analytics?.recommendations.length"
+                        v-if="vegetable.analytics?.recommendations.length"
+                        :recommendations="vegetable.analytics.recommendations"
+                    />
+
+                    <Separator class="inline-block sm:hidden" />
+
+                    <!-- ── Charts ─────────────────────────────────────────────────────── -->
+                    <VegetableMonthlyChart
+                        v-if="vegetable.monthly_activity?.length"
+                        :monthly-activity="vegetable.monthly_activity"
+                        :forecast="vegetable.analytics?.forecast"
+                        :months-of-history="vegetable.analytics?.forecast"
+                        :forecast-confidence="vegetable.analytics?.forecast_confidence"
+                    />
+
+                    <Separator class="inline-block sm:hidden" />
+
+                    <!-- ── Market Calendar ─────────────────────────────────────────────── -->
+                    <VegetableMarketCalendar
+                        v-if="vegetable.vegetable_calendar"
+                        :calendar="vegetable.vegetable_calendar"
+                        :calendar-filters="calendarFilters"
+                        :vegetable-id="meta.vegetableId"
+                        @day-select="handleDaySelect"
                         :recommendations="vegetable?.analytics.recommendations"
                     />
                 </template>

@@ -70,8 +70,6 @@ class DealerService
             $dealer->insights = $this->insights->compute($dealer->user_id, PostType::Demand);
         }
 
-        $dealer->analytics_locked = ! $hasAnalyticsAccess;
-
         return $dealer;
     }
 }
