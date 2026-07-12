@@ -61,22 +61,8 @@ export interface MonthlyActivity {
     demand_fulfilled_kg: number
 }
 
-export interface VegetableResource {
-    id: number
-    vegetable_name: string
-    variety_name: string | null
-    local_name: string | null
-    display_name: string
-    image_url: string
-    category: VegetableCategory | null
-
-    supply_count?: number
-    demand_count?: number
-    supply_municipalities?: SupplyMunicipality[]
-    monthly_activity?: MonthlyActivity[]
-    vegetable_calendar?: Record<string, VegetableDaySchedule>
-    analytics?: VarietyAnalytics | null
-}
+export type VegetableDetailData = App.Data.Vegetable.VegetableDetailData
+export type VegetableSharedData = App.Data.Vegetable.VegetableSharedData
 
 export type VegetableAdminData = App.Data.Vegetable.VegetableAdminData
 
