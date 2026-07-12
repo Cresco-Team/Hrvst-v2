@@ -22,6 +22,8 @@ class VegetableDetailData extends Data
         public array $monthly_activity,
         public array $vegetable_calendar,
         public ?array $analytics,
+        public bool $analytics_locked,
+        public ?string $upgrade_feature,
     ) {}
 
     public static function fromModel(Vegetable $vegetable): self
@@ -41,6 +43,8 @@ class VegetableDetailData extends Data
             monthly_activity: $vegetable->monthly_activity,
             vegetable_calendar: $vegetable->vegetable_calendar,
             analytics: $vegetable->analytics?->toArray(),
+            analytics_locked: $vegetable->analytics_locked ?? false,
+            upgrade_feature: $vegetable->upgrade_feature ?? null,
         );
     }
 }

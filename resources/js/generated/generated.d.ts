@@ -22,6 +22,15 @@ readonly body: string,
 }
 }
 namespace Data {
+namespace Billing {
+export type CurrentSubscriptionData = {
+plan: string | null,
+status: string | null,
+is_active: boolean,
+ends_at: string | null,
+ends_at_human: string | null,
+};
+}
 namespace Category {
 export type CategoryData = {
 id: number,
@@ -207,6 +216,8 @@ supply_municipalities: Array<any>,
 monthly_activity: Array<any>,
 vegetable_calendar: Array<any>,
 analytics: Array<any> | null,
+analytics_locked: boolean,
+upgrade_feature: string | null,
 };
 export type VegetableLightData = {
 id: number,
@@ -249,6 +260,11 @@ namespace Analytics {
 export type ImbalanceBand = 'oversupply' | 'balanced' | 'undersupply';
 export type RecommendationSeverity = 'critical' | 'warning' | 'info';
 export type VegetableViewerRole = 'admin' | 'farmer' | 'dealer';
+}
+namespace Billing {
+export type SubscriptionFeature = 'admin_analytics' | 'farmer_forecasts' | 'dealer_market_intel';
+export type SubscriptionPlan = 'monthly' | 'quarterly' | 'annual';
+export type SubscriptionStatus = 'active' | 'cancelled' | 'expired';
 }
 }
 }

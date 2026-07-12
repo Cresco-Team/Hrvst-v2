@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\EnsurePinChanged;
+use App\Http\Middleware\EnsureSubscriptionActive;
 use App\Http\Middleware\EnsureUserIsAdmin;
 use App\Http\Middleware\EnsureUserIsDealer;
 use App\Http\Middleware\EnsureUserIsFarmer;
@@ -32,6 +33,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'admin' => EnsureUserIsAdmin::class,
             'farmer' => EnsureUserIsFarmer::class,
             'dealer' => EnsureUserIsDealer::class,
+            'subscribed' => EnsureSubscriptionActive::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
