@@ -9,9 +9,9 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { show as adminShow } from '@/routes/admin/vegetables'
 import { show as sharedShow } from '@/routes/vegetables'
-import type { VegetableStabilityData, VegetableWasteData } from '@/types/resources/product'
+import type { TopVegetableData, VegetableStabilityData, VegetableWasteData } from '@/types/resources/product'
 
-type RankedItem = VegetableWasteData | VegetableStabilityData
+type RankedItem = VegetableWasteData | VegetableStabilityData | TopVegetableData
 
 const props = defineProps<{
     title: string
