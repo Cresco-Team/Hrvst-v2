@@ -32,6 +32,7 @@ class FarmerData extends Data
         /** @var PostItemData[]|Lazy */
         public array_diff_key|Lazy $supply_items,
         public UserInsightsData|Optional $insights,
+        public bool $analytics_locked = false,
     ) {}
 
     public static function fromModel(FarmerProfile $farmer): self
@@ -62,6 +63,7 @@ class FarmerData extends Data
             insights: isset($farmer->insights)
                 ? $farmer->insights
                 : Optional::create(),
+            analytics_locked: $farmer->analytics_locked ?? false,
         );
     }
 }
