@@ -116,7 +116,7 @@ class PostItemInsightsService
             $vegetable = $vegetables->get($row->vegetable_id);
 
             return new TopVegetableData(
-                vegetable_id: (int) $row->vegetable_id,
+                id: (int) $row->vegetable_id,
                 display_name: $vegetable?->display_name ?? 'Unknown',
                 image_url: $vegetable?->getFirstMediaUrl('vegetable_image') ?? '',
                 post_count: (int) $row->post_count,

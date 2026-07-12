@@ -9,7 +9,7 @@ use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 class TopVegetableData extends Data
 {
     public function __construct(
-        public int $vegetable_id,
+        public int $id,
         public string $display_name,
         public string $image_url,
         public int $post_count,
