@@ -36,6 +36,7 @@ import type {
     BreadcrumbItem,
     DealerResource,
 } from '@/types'
+import AnalyticsUpsellCard from '@/components/shared/charts/AnalyticsUpsellCard.vue'
 
 const props = defineProps<{
     dealer?: DealerResource
@@ -170,23 +171,28 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => [
                             />
                         </div>
 
-                        <div
-                            v-if="dealer?.insights"
-                            class="grid grid-cols-1 gap-4 lg:grid-cols-2"
-                        >
-                            <WasteRankingCard
-                                title="Most Scheduled Vegetables"
-                                description="By total kilograms demanded"
-                                :items="dealer.insights.top_varieties"
-                                :initial-visible="5"
-                                unit-label="kg total"
-                                guide-question="What does this dealer buy most?"
-                            />
-                            <UserVolumeChart
-                                title="6-Month Demand Volume"
-                                :monthly-volume="dealer.insights.monthly_volume"
-                            />
-                        </div>
+                        <template v-if="dealer?.analytics_locked">
+                            <AnalyticsUpsellCard feature-label="Platform Analytics License" />
+                        </template>
+                        <template v-else-if="dealer?.insights">
+                            <div
+                                v-if="dealer?.insights"
+                                class="grid grid-cols-1 gap-4 lg:grid-cols-2"
+                            >
+                                <WasteRankingCard
+                                    title="Most Supplied Varieties"
+                                    description="By total kilograms supplied"
+                                    :items="dealer.insights.top_varieties"
+                                    :initial-visible="5"
+                                    unit-label="kg supplied"
+                                    guide-question="What does this dealer grow most?"
+                                />
+                                <UserVolumeChart
+                                    title="6-Month Supply Volume"
+                                    :monthly-volume="dealer.insights.monthly_volume"
+                                />
+                            </div>
+                        </template>
 
                         <Collapsible :default-open="false">
                             <CollapsibleTrigger class="flex w-full items-center justify-between rounded-lg border bg-muted/20 px-4 py-2.5 text-sm font-medium hover:bg-muted/40">
