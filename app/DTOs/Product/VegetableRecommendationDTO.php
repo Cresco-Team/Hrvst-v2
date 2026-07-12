@@ -6,7 +6,7 @@ use App\Enums\Analytics\RecommendationSeverity;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
 #[TypeScript]
-readonly class VarietyRecommendationDTO
+readonly class VegetableRecommendationDTO
 {
     public function __construct(
         public RecommendationSeverity $severity,
