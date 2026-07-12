@@ -69,6 +69,7 @@ class FarmerService
 
     public function show(FarmerProfile $farmer, bool $hasAnalyticsAccess): FarmerProfile
     {
+        
         $farmer->load([
             'user.media',
             'media',

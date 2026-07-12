@@ -48,7 +48,9 @@ class DealerController extends Controller
         $hasAnalyticsAccess = Subscription::hasAccess($request->user(), SubscriptionFeature::AdminAnalytics);
 
         return Inertia::render('admin/dealers/Show', [
-            'dealer' => Inertia::defer(fn () => DealerData::from($this->dealerService->show($dealer, $hasAnalyticsAccess))),
+            'dealer' => Inertia::defer(
+                fn () => DealerData::from($this->dealerService->show($dealer, $hasAnalyticsAccess))
+            ),
         ]);
     }
 
