@@ -1,6 +1,7 @@
 <?php
 
 use App\Console\Commands\ExpirePostItemsCommand;
+use App\Console\Commands\ExpireSubscriptionsCommand;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
@@ -10,3 +11,4 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 Schedule::command(ExpirePostItemsCommand::class)->daily()->onOneServer();
+Schedule::command(ExpireSubscriptionsCommand::class)->daily()->onOneServer();
