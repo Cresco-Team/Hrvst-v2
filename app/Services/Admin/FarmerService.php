@@ -69,7 +69,7 @@ class FarmerService
 
     public function show(FarmerProfile $farmer, bool $hasAnalyticsAccess): FarmerProfile
     {
-        
+
         $farmer->load([
             'user.media',
             'media',
@@ -80,9 +80,7 @@ class FarmerService
             'supplyItems' => fn ($q) => $q->with(['vegetable.category', 'post']),
         ]);
 
-        if ($hasAnalyticsAccess) {
-            $farmer->insights = $this->insights->compute($farmer->user_id, PostType::Supply);
-        }
+        $farmer->insights = $this->insights->compute($farmer->user_id, PostType::Supply);
 
         $farmer->analytics_locked = ! $hasAnalyticsAccess;
 
