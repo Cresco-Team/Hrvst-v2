@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Contracts\Billing\PaymentGateway;
 use App\Models\Marketplace\Post;
 use App\Models\Marketplace\PostItem;
 use App\Models\Product\Vegetable;
@@ -30,7 +31,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->bind(PaymentGateway::class, function () {
+            return match (config('services.billing.driver', 'mock')) {
+                default => new \App\Services\Billing\MockPaymentGateway(),
+            };
+        });
     }
 
     public function boot(): void
