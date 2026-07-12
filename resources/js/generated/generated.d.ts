@@ -137,6 +137,7 @@ ongoing_demands_count: undefined | number,
 demands: App.Data.PostItem.PostItemLightData[] | undefined,
 demand_items: App.Data.PostItem.PostItemData[] | undefined,
 insights: App.Data.Profile.UserInsightsData | undefined,
+analytics_locked: boolean,
 };
 export type FarmerData = {
 id: number,
@@ -152,6 +153,7 @@ ongoing_supplies_count: undefined | number,
 supplies: undefined | Array<any>,
 supply_items: App.Data.PostItem.PostItemData[] | undefined,
 insights: App.Data.Profile.UserInsightsData | undefined,
+analytics_locked: boolean,
 };
 export type MonthlyVolumeData = {
 month: string,
