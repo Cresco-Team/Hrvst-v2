@@ -75,7 +75,7 @@ function formatChange(change?: number): string {
 
                 <div class="grid gap-4 md:grid-cols-3">
                     <LargeCard
-                        title="Total Varieties"
+                        title="Total Vegetables"
                         subtext="recorded"
                         :value="kpis?.vegetables.total_vegetables.value"
                         card-class="bg-linear-to-br from-orange-500/10 via-amber-500/10 to-yellow-500/30"
