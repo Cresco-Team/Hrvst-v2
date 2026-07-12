@@ -116,11 +116,7 @@ function handleDaySelect(dateStr: string): void {
                     <div class="flex flex-col gap-6">
                         <Skeleton class="h-8 w-64" />
                         <div class="grid grid-cols-2 gap-4 sm:grid-cols-4">
-                            <Skeleton
-                                v-for="i in 4"
-                                :key="i"
-                                class="h-24 rounded-xl"
-                            />
+                            <Skeleton v-for="i in 4" :key="i" class="h-24 rounded-xl" />
                         </div>
                         <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
                             <Skeleton class="h-72 rounded-xl" />
@@ -130,45 +126,40 @@ function handleDaySelect(dateStr: string): void {
                     </div>
                 </template>
 
-                <!-- ── Analytics Summary ───────────────────────────────────────────── -->
-                <template v-if="vegetable?.analytics_locked">
-                    <AnalyticsUpsellCard />
-                </template>
-                <template v-else-if="vegetable">
-                    <VegetableAnalyticsSummary
-                        v-if="vegetable?.analytics"
-                        :analytics="vegetable?.analytics"
-                    />
+                <!-- Analytics summary + recommendations: free, always visible -->
+                <VegetableAnalyticsSummary
+                    v-if="vegetable?.analytics"
+                    :analytics="vegetable.analytics"
+                />
 
-                    <!-- ── Recommendations ────────────────────────────────────────────── -->
-                    <VegetableRecommendations
-                        v-if="vegetable.analytics?.recommendations.length"
-                        :recommendations="vegetable.analytics.recommendations"
-                    />
+                <VegetableRecommendations
+                    v-if="vegetable?.analytics?.recommendations.length"
+                    :recommendations="vegetable.analytics.recommendations"
+                />
 
-                    <Separator class="inline-block sm:hidden" />
+                <!-- Market calendar: free, always visible -->
+                <VegetableMarketCalendar
+                    v-if="vegetable"
+                    :calendar="vegetable.vegetable_calendar"
+                    :calendar-filters="calendarFilters"
+                    :vegetable-id="meta.vegetableId"
+                    @day-select="handleDaySelect"
+                />
 
-                    <!-- ── Charts ─────────────────────────────────────────────────────── -->
-                    <VegetableMonthlyChart
-                        v-if="vegetable.monthly_activity?.length"
-                        :monthly-activity="vegetable.monthly_activity"
-                        :forecast="vegetable.analytics?.forecast"
-                        :months-of-history="vegetable.analytics?.forecast"
-                        :forecast-confidence="vegetable.analytics?.forecast_confidence"
-                    />
-
-                    <Separator class="inline-block sm:hidden" />
-
-                    <!-- ── Market Calendar ─────────────────────────────────────────────── -->
-                    <VegetableMarketCalendar
-                        v-if="vegetable.vegetable_calendar"
-                        :calendar="vegetable.vegetable_calendar"
-                        :calendar-filters="calendarFilters"
-                        :vegetable-id="meta.vegetableId"
-                        @day-select="handleDaySelect"
-                        :recommendations="vegetable?.analytics.recommendations"
-                    />
-                </template>
+                <!-- Forecast: subscription-gated, teaser when locked -->
+                <VegetableMonthlyChart
+                    v-if="vegetable?.forecast"
+                    :monthly-activity="vegetable.monthly_activity ?? []"
+                    :forecast="vegetable.forecast.forecast"
+                    :months-of-history="vegetable.forecast.months_of_history"
+                    :forecast-confidence="vegetable.forecast.forecast_confidence"
+                />
+                <AnalyticsUpsellCard
+                    v-else-if="vegetable?.forecast_locked"
+                    title="6-Month Forecast Locked"
+                    description="Subscribe to unlock seasonal demand and supply forecasting for this vegetable, based on 5 years of market history."
+                    :feature-label="vegetable.upgrade_feature_label ?? 'Subscribe'"
+                />
             </Deferred>
         </div>
     </AppLayout>

@@ -2,14 +2,15 @@
 
 namespace App\Services\Product;
 
-use App\DTOs\Product\VarietyAnalyticsDTO;
-use App\DTOs\Product\VarietyRecommendationDTO;
+use App\DTOs\Product\VegetableAnalyticsDTO;
+use App\DTOs\Product\VegetableForecastDTO;
+use App\DTOs\Product\VegetableRecommendationDTO;
 use App\Enums\Analytics\ImbalanceBand;
 use App\Enums\Analytics\RecommendationSeverity;
 use App\Enums\Analytics\VegetableViewerRole;
 use Illuminate\Support\Collection;
 
-class VarietyAnalyticsService
+class VegetableAnalyticsService
 {
     private const float OVERSUPPLY_THRESHOLD = 0.20;
 
@@ -39,16 +40,16 @@ class VarietyAnalyticsService
         array $monthlyActivity,
         VegetableViewerRole $role,
         array $extendedHistory = [],
-    ): VarietyAnalyticsDTO {
+    ): array {
         $completeMonths = array_slice($monthlyActivity, -4, 3);
-
+    
         $ratio = $this->computeImbalanceRatio($completeMonths);
         $band = $this->classifyBand($ratio);
         $supplyFulfillment = $this->computeFulfillmentRate($completeMonths, 'supply');
         $demandFulfillment = $this->computeFulfillmentRate($completeMonths, 'demand');
-
+    
         [$supplyMomPct, $demandMomPct] = $this->computeVolumeMonthOverMonth($monthlyActivity);
-
+    
         $recommendations = $this->buildRecommendations(
             band: $band,
             supplyFulfillment: $supplyFulfillment,
@@ -56,23 +57,27 @@ class VarietyAnalyticsService
             supplyMomPct: $supplyMomPct,
             role: $role,
         );
-
+    
         $forecastSource = $extendedHistory ?: $monthlyActivity;
         $monthsObserved = $this->countRealMonths($forecastSource);
         $forecast = $this->computeForecast($forecastSource);
-
-        return new VarietyAnalyticsDTO(
-            supply_demand_ratio: $ratio,
-            imbalance_band: $band,
-            supply_fulfillment_rate: $supplyFulfillment,
-            demand_fulfillment_rate: $demandFulfillment,
-            supply_volume_mom_pct: $supplyMomPct,
-            demand_volume_mom_pct: $demandMomPct,
-            recommendations: $recommendations,
-            months_of_history: $monthsObserved,
-            forecast_confidence: $this->forecastConfidence($monthsObserved),
-            forecast: $forecast,
-        );
+    
+        return [
+            'analytics' => new VegetableAnalyticsDTO(
+                supply_demand_ratio: $ratio,
+                imbalance_band: $band,
+                supply_fulfillment_rate: $supplyFulfillment,
+                demand_fulfillment_rate: $demandFulfillment,
+                supply_volume_mom_pct: $supplyMomPct,
+                demand_volume_mom_pct: $demandMomPct,
+                recommendations: $recommendations,
+            ),
+            'forecast' => new VegetableForecastDTO(
+                months_of_history: $monthsObserved,
+                forecast_confidence: $this->forecastConfidence($monthsObserved),
+                forecast: $forecast,
+            ),
+        ];
     }
 
     private function countRealMonths(array $history): int
@@ -321,7 +326,7 @@ class VarietyAnalyticsService
         return [$supplyMom, $demandMom];
     }
 
-    /** @return VarietyRecommendationDTO[] */
+    /** @return VegetableRecommendationDTO[] */
     private function buildRecommendations(
         ImbalanceBand $band,
         ?float $supplyFulfillment,
@@ -338,7 +343,7 @@ class VarietyAnalyticsService
                 VegetableViewerRole::Dealer => 'There is surplus supply for this variety right now — a good time to increase your order to help absorb it before it expires.',
             };
 
-            $recs[] = new VarietyRecommendationDTO(
+            $recs[] = new VegetableRecommendationDTO(
                 severity: RecommendationSeverity::Warning,
                 type: 'oversupply_opportunity',
                 title: 'Unmatched Farmer Supply',
@@ -354,7 +359,7 @@ class VarietyAnalyticsService
                 VegetableViewerRole::Dealer => 'Supply is currently scarce for this variety. Expect longer wait times, or consider adjusting your requested quantity.',
             };
 
-            $recs[] = new VarietyRecommendationDTO(
+            $recs[] = new VegetableRecommendationDTO(
                 severity: RecommendationSeverity::Warning,
                 type: 'supply_opportunity',
                 title: 'Unfulfilled Dealer Demand',
@@ -372,7 +377,7 @@ class VarietyAnalyticsService
         ) {
             $expiredPct = (int) round((1 - $supplyFulfillment) * 100);
 
-            $recs[] = new VarietyRecommendationDTO(
+            $recs[] = new VegetableRecommendationDTO(
                 severity: RecommendationSeverity::Warning,
                 type: 'high_supply_expiry_rate',
                 title: 'High Supply Expiry Rate',
@@ -390,7 +395,7 @@ class VarietyAnalyticsService
         ) {
             $expiredPct = (int) round((1 - $demandFulfillment) * 100);
 
-            $recs[] = new VarietyRecommendationDTO(
+            $recs[] = new VegetableRecommendationDTO(
                 severity: RecommendationSeverity::Warning,
                 type: 'high_demand_expiry_rate',
                 title: 'Low Demand Fulfillment',
@@ -413,7 +418,7 @@ class VarietyAnalyticsService
         if ($supplyMomPct !== null && $supplyMomPct < self::SUPPLY_DECLINE_THRESHOLD) {
             $dropPct = (int) round(abs($supplyMomPct));
 
-            $recs[] = new VarietyRecommendationDTO(
+            $recs[] = new VegetableRecommendationDTO(
                 severity: RecommendationSeverity::Info,
                 type: 'declining_supply_volume',
                 title: 'Supply Volume Declining',
@@ -424,7 +429,7 @@ class VarietyAnalyticsService
 
         usort(
             $recs,
-            fn (VarietyRecommendationDTO $a, VarietyRecommendationDTO $b) => $this->severityOrder($a->severity) <=> $this->severityOrder($b->severity),
+            fn (VegetableRecommendationDTO $a, VegetableRecommendationDTO $b) => $this->severityOrder($a->severity) <=> $this->severityOrder($b->severity),
         );
 
         return $recs;

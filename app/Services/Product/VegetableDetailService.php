@@ -13,7 +13,7 @@ class VegetableDetailService
     public function __construct(
         private VegetableActivityService $activityService,
         private VegetableCalendarService $calendarService,
-        private VarietyAnalyticsService $analyticsService,
+        private VegetableAnalyticsService $analyticsService,
     ) {}
 
     public function summary(): array
@@ -44,7 +44,9 @@ class VegetableDetailService
 
         $vegetable->monthly_activity = $monthlyActivity;
         $vegetable->vegetable_calendar = $this->calendarService->buildForMonth($vegetable->id, $year, $month);
-        $vegetable->analytics = $this->analyticsService->compute($monthlyActivity, $role, $extendedHistory);
+
+        ['analytics' => $vegetable->analytics, 'forecast' => $vegetable->forecast] =
+            $this->analyticsService->compute($monthlyActivity, $role, $extendedHistory);
 
         return $vegetable;
     }
