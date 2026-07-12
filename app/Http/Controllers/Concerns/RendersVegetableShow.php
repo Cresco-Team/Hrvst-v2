@@ -31,7 +31,7 @@ trait RendersVegetableShow
         $user = $request->user();
 
         [$role, $gateFeature] = match (true) {
-            $user->hasRole('admin') => [VegetableViewerRole::Admin, null], // admin sees analytics free, they pay for the dashboard instead
+            $user->hasRole('admin') => [VegetableViewerRole::Admin, SubscriptionFeature::AdminAnalytics],
             $user->hasRole('farmer') => [VegetableViewerRole::Farmer, SubscriptionFeature::FarmerForecasts],
             $user->hasRole('dealer') => [VegetableViewerRole::Dealer, SubscriptionFeature::DealerMarketIntel],
             default => throw new \RuntimeException('User has no recognized role for variety viewer context.'),
