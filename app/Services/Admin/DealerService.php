@@ -67,10 +67,8 @@ class DealerService
         ]);
 
         if ($hasAnalyticsAccess) {
-            $dealer->insights = $this->insights->compute($dealer->user_id, PostType::Supply);
+            $dealer->insights = $this->insights->compute($dealer->user_id, PostType::Demand);
         }
-
-        $dealer->insights = $this->insights->compute($dealer->user_id, PostType::Demand);
 
         return $dealer;
     }

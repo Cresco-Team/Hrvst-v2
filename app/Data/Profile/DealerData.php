@@ -49,7 +49,7 @@ class DealerData extends Data
             insights: isset($dealer->insights)
                 ? $dealer->insights
                 : Optional::create(),
-                analytics_locked: $farmer->analytics_locked ?? false,
+                analytics_locked: $dealer->analytics_locked ?? false,
         );
     }
 }
