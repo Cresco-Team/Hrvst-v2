@@ -107,7 +107,7 @@ function triggerFileInput() {
     <div class="flex flex-col gap-2">
         <Label class="flex items-center gap-1.5">
             <ImageIcon class="size-3.5" />
-            Variety Image
+            Vegetable Image
             <Badge
                 v-if="required"
                 variant="destructive"
