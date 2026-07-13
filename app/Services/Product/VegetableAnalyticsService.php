@@ -42,14 +42,14 @@ class VegetableAnalyticsService
         array $extendedHistory = [],
     ): array {
         $completeMonths = array_slice($monthlyActivity, -4, 3);
-    
+
         $ratio = $this->computeImbalanceRatio($completeMonths);
         $band = $this->classifyBand($ratio);
         $supplyFulfillment = $this->computeFulfillmentRate($completeMonths, 'supply');
         $demandFulfillment = $this->computeFulfillmentRate($completeMonths, 'demand');
-    
+
         [$supplyMomPct, $demandMomPct] = $this->computeVolumeMonthOverMonth($monthlyActivity);
-    
+
         $recommendations = $this->buildRecommendations(
             band: $band,
             supplyFulfillment: $supplyFulfillment,
@@ -57,11 +57,11 @@ class VegetableAnalyticsService
             supplyMomPct: $supplyMomPct,
             role: $role,
         );
-    
+
         $forecastSource = $extendedHistory ?: $monthlyActivity;
         $monthsObserved = $this->countRealMonths($forecastSource);
         $forecast = $this->computeForecast($forecastSource);
-    
+
         return [
             'analytics' => new VegetableAnalyticsDTO(
                 supply_demand_ratio: $ratio,

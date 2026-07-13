@@ -16,9 +16,9 @@ class EnsureSubscriptionActive
 
         if (! Subscription::hasAccess($request->user(), $feature)) {
             return redirect()->route('billing.show')->with('flash', [
-                    'type' => 'warning',
-                    'message' => 'This feature requires an active subscription.',
-                ]);
+                'type' => 'warning',
+                'message' => 'This feature requires an active subscription.',
+            ]);
         }
 
         return $next($request);

@@ -9,6 +9,7 @@ use Illuminate\Console\Command;
 class ExpireSubscriptionsCommand extends Command
 {
     protected $signature = 'subscriptions:expire';
+
     protected $description = 'Flip subscriptions past their end date to expired.';
 
     public function handle(): int
