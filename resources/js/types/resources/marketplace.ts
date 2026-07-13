@@ -27,6 +27,22 @@ export type DealerDemandDataFixed = Omit<
     post_items: App.Data.PostItem.PostItemLightData[]
 }
 
+export type FarmerExpiringSupplyFixed = Omit<
+    App.Data.Farmer.FarmerExpiringSupplyData,
+    'image_url' | 'items'
+> & {
+    image_url: string
+    items: App.Data.PostItem.PostItemLightData[]
+}
+
+export type DealerExpiringDemandFixed = Omit<
+    App.Data.Dealer.DealerExpiringDemandData,
+    'image_url' | 'items'
+> & {
+    image_url: string
+    items: App.Data.PostItem.PostItemLightData[]
+}
+
 // ─── DealerPostItemResource ───────────────────────────────────────────────────
 
 export type DealerPostItemResource = App.Data.PostItem.PostItemData
