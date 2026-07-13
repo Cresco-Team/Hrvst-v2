@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { router, usePage } from '@inertiajs/vue3'
-import { CalendarDate, DateValue } from '@internationalized/date'
+import { CalendarDate, DateValue, toCalendarDate } from '@internationalized/date'
 import { ChevronLeft, ChevronRight } from 'lucide-vue-next'
 import { CalendarRoot } from 'reka-ui'
 import { computed } from 'vue'
@@ -113,26 +113,24 @@ const { balanceFor, legend } = useCalendarBalance(dailyTotals, viewerRole)
 
 // ─── Cell helpers ─────────────────────────────────────────────────────────────
 
-function toDateStr(date: CalendarDate): string {
-	// CalendarDate has no timezone ambiguity to worry about — it's already
-	// calendar-day granular, unlike JS Date.
-	return date.toString() // 'YYYY-MM-DD', ISO — matches your `calendar` prop keys
+function toDateStr(date: DateValue): string {
+	return toCalendarDate(date).toString()
 }
 
-function hasData(date: CalendarDate): boolean {
+function hasData(date: DateValue): boolean {
 	return !!dailyTotals.value[toDateStr(date)]
 }
 
-function dotClassFor(date: CalendarDate): string {
+function dotClassFor(date: DateValue): string {
 	const balance = balanceFor(toDateStr(date))
 	return balance ? BALANCE_DOT_CLASS[balance.color] : ''
 }
 
-function dotTitleFor(date: CalendarDate): string {
+function dotTitleFor(date: DateValue): string {
 	return balanceFor(toDateStr(date))?.label ?? ''
 }
 
-function handleDayClick(date: CalendarDate): void {
+function handleDayClick(date: DateValue): void {
 	const dateStr = toDateStr(date)
 	if (!props.calendar?.[dateStr]) return
 	emit('day-select', dateStr)
