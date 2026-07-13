@@ -197,7 +197,7 @@ function submit() {
                             <Select
                                 :model-value="String(form.municipality_id)"
                                 required
-                                @update:model-value="onMunicipalityChange"
+                                @update:model-value="(v) => onMunicipalityChange(String(v ?? ''))"
                             >
                                 <SelectTrigger
                                     id="municipality_id"
@@ -228,7 +228,7 @@ function submit() {
                                 :model-value="String(form.barangay_id)"
                                 :disabled="!form.municipality_id || loadingBarangays"
                                 required
-                                @update:model-value="v => (form.barangay_id = v)"
+                                @update:model-value="(v) => (form.barangay_id = String(v ?? ''))"
                             >
                                 <SelectTrigger
                                     id="barangay_id"

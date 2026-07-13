@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { Deferred, router } from '@inertiajs/vue3'
 import { CalendarClock, CheckCircle2, ChevronDown, ChevronRight } from '@lucide/vue';
-import { expireItem, fulfillItem } from '@/actions/App/Http/Controllers/Farmer/DashboardController';
 import PostActionButtons from '@/components/shared/PostActionButtons.vue';
 import { Avatar, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
@@ -15,6 +14,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { daysOverdue, isDueToday, urgencyClass, urgencyLabel } from '@/composables/usePostItemUrgency';
 import farmer from '@/routes/farmer';
 import type { DealerExpiringDemandFixed } from '@/types';
+import { expire, fulfill } from '@/actions/App/Http/Controllers/Dealer/PostItemController';
 
 defineProps<{
     expiringDemands: DealerExpiringDemandFixed[]
@@ -123,8 +123,8 @@ defineProps<{
 
                                     <ItemActions>
                                         <PostActionButtons
-                                            :fulfill-url="fulfillItem(item.id).url"
-                                            :expire-url="expireItem(item.id).url"
+                                            :fulfill-url="fulfill(item.id).url"
+                                            :expire-url="expire(item.id).url"
                                             :label="item.display_name!"
                                             :only="['expiringDemands']"
                                         />
