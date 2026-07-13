@@ -91,7 +91,9 @@ const selectedDateLabel = computed(() => {
 })
 
 function handleDaySelect(dateStr: string): void {
-    const schedule = props.vegetable?.vegetable_calendar?.[dateStr]
+    const schedule = props.vegetable?.vegetable_calendar?.[dateStr] as
+        | VegetableDaySchedule
+        | undefined
     if (!schedule) return
 
     selectedDateStr.value = dateStr
