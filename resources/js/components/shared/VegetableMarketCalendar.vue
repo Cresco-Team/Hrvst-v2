@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { router, usePage } from '@inertiajs/vue3'
-import { CalendarDate } from '@internationalized/date'
+import { CalendarDate, DateValue } from '@internationalized/date'
 import { ChevronLeft, ChevronRight } from 'lucide-vue-next'
 import { CalendarRoot } from 'reka-ui'
 import { computed } from 'vue'
@@ -51,13 +51,9 @@ function showRoute(): { url: string } {
 const calendarYear = computed(() => props.calendarFilters.year)
 const calendarMonth = computed(() => props.calendarFilters.month)
 
-// reka-ui needs a DateValue to know which month to render. This is NOT
-// user-draggable state — CalendarRoot has no Next/Prev slot in this template,
-// so the only thing that ever changes it is calendarFilters changing via a
-// fresh Inertia response. The setter is a deliberate no-op.
-const placeholder = computed({
-	get: () => new CalendarDate(calendarYear.value, calendarMonth.value, 1),
-	set: () => {},
+const placeholder = computed<DateValue>({
+    get: () => new CalendarDate(calendarYear.value, calendarMonth.value, 1),
+    set: (_value: DateValue) => {},
 })
 
 const monthLabel = computed(() =>
