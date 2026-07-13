@@ -51,14 +51,14 @@ function submit() {
     >
         <DialogContent class="sm:max-w-md">
             <DialogHeader>
-                <DialogTitle>Edit Item — {{ item?.name }}</DialogTitle>
+                <DialogTitle>Edit Item — {{ item?.display_name }}</DialogTitle>
             </DialogHeader>
 
             <div class="grid gap-4 py-2">
                 <div class="grid gap-1.5">
                     <Label>Item Name</Label>
                     <div class="flex h-9 w-full items-center rounded-md border border-input bg-muted px-3 py-1 text-sm text-muted-foreground">
-                        {{ item?.name }}
+                        {{ item?.display_name }}
                     </div>
                 </div>
 
