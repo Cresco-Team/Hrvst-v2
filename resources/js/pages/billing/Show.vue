@@ -106,13 +106,19 @@ function handleCancel(): void {
                         :disabled="cancelForm.processing"
                         @click="handleCancel"
                     >
-                        <Spinner v-if="cancelForm.processing" class="size-3.5" />
+                        <Spinner
+                            v-if="cancelForm.processing"
+                            class="size-3.5"
+                        />
                         Cancel
                     </Button>
                 </CardContent>
             </Card>
 
-            <Card v-else class="border-dashed">
+            <Card
+                v-else
+                class="border-dashed"
+            >
                 <CardContent class="flex items-center gap-3 pt-6 text-sm text-muted-foreground">
                     <Sparkles class="size-4 shrink-0" />
                     No active subscription. Choose a plan below to unlock {{ featureLabel.toLowerCase() }}.

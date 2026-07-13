@@ -16,6 +16,7 @@ use App\Policies\Marketplace\PostPolicy;
 use App\Policies\Profiles\DealerPolicy;
 use App\Policies\Profiles\FarmerPolicy;
 use App\Policies\VegetablePolicy;
+use App\Services\Billing\MockPaymentGateway;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Date;
@@ -33,7 +34,7 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->app->bind(PaymentGateway::class, function () {
             return match (config('services.billing.driver', 'mock')) {
-                default => new \App\Services\Billing\MockPaymentGateway(),
+                default => new MockPaymentGateway,
             };
         });
     }

@@ -7,12 +7,13 @@ type Props = {
 	lng: number
 	zoom?: number
 	markers?: MapMarker[]
-	class?: string
+	class?: string | null
 }
 
 const props = withDefaults(defineProps<Props>(), {
 	zoom: 14,
 	markers: () => [],
+	class: null,
 })
 
 const { container, init, destroy } = useLeafletMap({ zoom: props.zoom })

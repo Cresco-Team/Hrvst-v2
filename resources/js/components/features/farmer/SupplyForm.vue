@@ -22,11 +22,17 @@ import type { FarmerSupplyDataFixed, PostTimeSlot, VarietyOptionsByVegetable, Ve
 interface Props {
     open: boolean
     supply?: FarmerSupplyDataFixed | null
-    vegetableOptions?: VegetableOptionsByCategory
-    varietyOptions?: VarietyOptionsByVegetable
+    vegetableOptions?: VegetableOptionsByCategory | null
+    varietyOptions?: VarietyOptionsByVegetable | null
 }
 
-const props = withDefaults(defineProps<Props>(), { supply: null })
+const props = withDefaults(
+    defineProps<Props>(), { 
+        supply: null, 
+        vegetableOptions: null,
+        varietyOptions: null,
+    }
+)
 const emit = defineEmits<{ 'update:open': [value: boolean] }>()
 
 const isEditMode = computed(() => !!props.supply)

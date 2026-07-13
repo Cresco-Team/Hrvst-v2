@@ -26,7 +26,7 @@ class DashboardController extends Controller
                 ? Inertia::defer(fn () => $registrationTrendService->monthly())
                 : null,
             'analyticsLocked' => ! $hasAnalyticsAccess,
-            'upgradeFeatureLabel' => SubscriptionFeature::AdminAnalytics->label()
+            'upgradeFeatureLabel' => SubscriptionFeature::AdminAnalytics->label(),
 
         ]);
     }

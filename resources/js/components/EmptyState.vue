@@ -13,14 +13,17 @@ import {
 
 type Props = {
 	title: string
-	description?: string
+	description?: string | null
 	icon?: Component
-	button?: string
-    iconClass?: string
+	button?: string | null
+    iconClass?: string | null
 }
 
 withDefaults(defineProps<Props>(), {
 	icon: Search,
+    description: null,
+    button: null,
+    iconClass: null,
 })
 </script>
 

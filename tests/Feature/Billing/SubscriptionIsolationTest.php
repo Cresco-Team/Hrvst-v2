@@ -38,8 +38,12 @@ it('unsubscribed farmer sees truncated activity and locked analytics, not a 403'
         ->assertOk();
 });
 
-it('admin without a subscription is redirected away from the dashboard', function () {
+it('admin without a subscription sees a locked dashboard, not a redirect', function () {
     actingAs(createAdminUser())
         ->get(route('admin.dashboard'))
-        ->assertRedirect(route('billing.show'));
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->component('admin/Dashboard')
+            ->where('analyticsLocked', true)
+        );
 });
