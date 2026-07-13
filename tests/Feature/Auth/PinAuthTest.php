@@ -194,15 +194,15 @@ describe('change PIN', function () {
 
         actingAs($user)
             ->post(route('change-pin.update'), [
-                'pin' => '5678',
-                'pin_confirmation' => '5678',
+                'pin' => '123456',
+                'pin_confirmation' => '123456',
             ])
             ->assertRedirect();
 
         $user->refresh();
 
         expect($user->must_change_pin)->toBeFalse()
-            ->and(Hash::check('5678', $user->password))->toBeTrue();
+            ->and(Hash::check('123456', $user->password))->toBeTrue();
     });
 
     it('rejects a PIN shorter than 4 digits', function () {
@@ -222,7 +222,7 @@ describe('change PIN', function () {
         actingAs(makeFarmer(['must_change_pin' => true]))
             ->post(route('change-pin.update'), [
                 'pin' => '1234',
-                'pin_confirmation' => '5678',
+                'pin_confirmation' => '123456',
             ])
             ->assertSessionHasErrors('pin');
     });
@@ -284,7 +284,7 @@ describe('admin create farmer', function () {
             ->and($user->farmerProfile->barangay_id)->toBe($barangay->id);
     });
 
-    it('returns a 4-digit plain PIN in flash after farmer creation', function () {
+    it('returns a 6-digit plain PIN in flash after farmer creation', function () {
         $barangay = makeAddress();
 
         actingAs(makeAdmin())
@@ -299,7 +299,7 @@ describe('admin create farmer', function () {
 
         expect(session('flash.pin'))
             ->toBeString()
-            ->toMatch('/^\d{4}$/');
+            ->toMatch('/^\d{6}$/');
     });
 
     it('rejects duplicate phone number', function () {
@@ -416,7 +416,7 @@ describe('admin create dealer', function () {
 describe('admin reset PIN', function () {
     it('resets a user PIN and sets must_change_pin to true', function () {
         $farmer = makeFarmer(['must_change_pin' => false]);
-        $farmer->update(['password' => '5678']);
+        $farmer->update(['password' => '123456']);
         $oldHash = $farmer->fresh()->password;
 
         actingAs(makeAdmin())
@@ -430,13 +430,13 @@ describe('admin reset PIN', function () {
             ->and($farmer->password)->not->toBe($oldHash);
     });
 
-    it('returns a 4-digit plain PIN in flash after reset', function () {
+    it('returns a 6-digit plain PIN in flash after reset', function () {
         actingAs(makeAdmin())
             ->post(route('admin.users.reset-pin', makeFarmer()));
 
         expect(session('flash.pin'))
             ->toBeString()
-            ->toMatch('/^\d{4}$/');
+            ->toMatch('/^\d{6}$/');
     });
 
     it('the new plain PIN authenticates the user after reset', function () {
