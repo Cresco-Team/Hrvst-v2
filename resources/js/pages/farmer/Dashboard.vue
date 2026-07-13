@@ -20,11 +20,20 @@ const breadcrumbs: BreadcrumbItem[] = [
     <Head title="Dashboard" />
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex flex-col gap-6 p-4 lg:p-6">
-            <Heading title="Dashboard" description="Market signals to guide what you plant next." />
+            <Heading
+                title="Dashboard"
+                description="Market signals to guide what you plant next."
+            />
 
-            <AnalyticsUpsellCard v-if="analyticsLocked" :feature-label="upgradeFeatureLabel" />
+            <AnalyticsUpsellCard
+                v-if="analyticsLocked"
+                :feature-label="upgradeFeatureLabel"
+            />
 
-            <div v-if="!analyticsLocked" class="grid grid-cols-1 gap-4 lg:grid-cols-2">
+            <div
+                v-if="!analyticsLocked"
+                class="grid grid-cols-1 gap-4 lg:grid-cols-2"
+            >
                 <Deferred data="topWastedDemand">
                     <template #fallback>
                         <Skeleton class="h-56 w-full rounded-xl" /></template>

@@ -2,9 +2,9 @@
 import { Deferred, Head } from '@inertiajs/vue3'
 import { Minus, TrendingDown, TrendingUp } from 'lucide-vue-next'
 import RegistrationTrendChart from '@/components/features/admin/charts/RegistrationTrendChart.vue'
-import AnalyticsUpsellCard from '@/components/shared/charts/AnalyticsUpsellCard.vue'
 import Heading from '@/components/Heading.vue'
 import LargeCard from '@/components/shared/cards/LargeCard.vue'
+import AnalyticsUpsellCard from '@/components/shared/charts/AnalyticsUpsellCard.vue'
 import { Skeleton } from '@/components/ui/skeleton'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { dashboard } from '@/routes/admin'
@@ -44,12 +44,19 @@ function formatChange(change?: number): string {
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex flex-col gap-6 p-4 lg:p-6">
-            <Heading title="Dashboard" description="Overview of the platform" />
+            <Heading
+                title="Dashboard"
+                description="Overview of the platform"
+            />
 
             <Deferred data="kpis">
                 <template #fallback>
                     <div class="grid gap-4 md:grid-cols-3">
-                        <Skeleton v-for="i in 3" :key="i" class="h-33" />
+                        <Skeleton
+                            v-for="i in 3"
+                            :key="i"
+                            class="h-33"
+                        />
                     </div>
                 </template>
 
@@ -81,8 +88,14 @@ function formatChange(change?: number): string {
                 </div>
             </Deferred>
 
-            <AnalyticsUpsellCard v-if="analyticsLocked" :feature-label="upgradeFeatureLabel" />
-            <Deferred v-else data="registrationTrends">
+            <AnalyticsUpsellCard
+                v-if="analyticsLocked"
+                :feature-label="upgradeFeatureLabel"
+            />
+            <Deferred
+                v-else
+                data="registrationTrends"
+            >
                 <template #fallback>
                     <Skeleton class="h-72 w-full rounded-xl" />
                 </template>

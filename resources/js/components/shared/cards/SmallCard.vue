@@ -4,17 +4,19 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 
 withDefaults(
 	defineProps<{
-		title?: string
+		title?: string | null
 		value?: number | string | null
-		valueClass?: string
+		valueClass?: string | null
 		subtext?: string | null
 		icon?: Component
-		iconClass?: string  // controls both size and color — don't hardcode size-4 in template
+		iconClass?: string
 		cardClass?: string | null
-		subtextBelow?: boolean  // when true, subtext renders as its own line beneath the value
+		subtextBelow?: boolean
 	}>(),
 	{
+        title: null,
 		value: 0,
+        valueClass: null,
 		subtext: null,
 		icon: undefined,
 		iconClass: 'size-6',  // sensible default; callers override with e.g. 'size-4 text-green-500'

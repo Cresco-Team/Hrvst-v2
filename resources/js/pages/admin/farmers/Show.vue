@@ -10,6 +10,7 @@ import {
     Phone,
 } from 'lucide-vue-next'
 import { computed } from 'vue'
+import UserTeaser from '@/components/features/admin/charts/UserTeaser.vue'
 import LeafletMap from '@/components/LeafletMap.vue'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
@@ -31,7 +32,6 @@ import { getInitials } from '@/composables/useInitials'
 import AppLayout from '@/layouts/AppLayout.vue'
 import admin from '@/routes/admin'
 import type { BreadcrumbItem, FarmerResource } from '@/types'
-import UserTeaser from '@/components/features/admin/charts/UserTeaser.vue'
 
 const props = defineProps<{
     farmer?: FarmerResource
@@ -130,7 +130,10 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => [
                                         farmer.user?.phone_number
                                     }}</span>
                                 </div>
-                                <div v-if="farmer.user?.email" class="flex items-center gap-2">
+                                <div
+                                    v-if="farmer.user?.email"
+                                    class="flex items-center gap-2"
+                                >
                                     <Mail class="size-4 shrink-0" /><span class="truncate">{{ farmer.user?.email }}</span>
                                 </div>
                             </ItemDescription>

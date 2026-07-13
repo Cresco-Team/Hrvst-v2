@@ -7,11 +7,12 @@ import { show as billingShow } from '@/routes/billing'
 
 withDefaults(
     defineProps<{
-        featureLabel?: string
+        featureLabel?: string | null
         title?: string
         description?: string
     }>(),
     {
+        featureLabel: null,
         title: 'Full analytics locked',
         description:
             'Subscribe to see 5-year trends and seasonal forecasts for this vegetable.',
@@ -31,7 +32,11 @@ withDefaults(
                     {{ description }}
                 </p>
             </div>
-            <Button as-child size="sm" class="mt-1 gap-1.5">
+            <Button
+                as-child
+                size="sm"
+                class="mt-1 gap-1.5"
+            >
                 <Link :href="billingShow().url">
                     <Sparkles class="size-3.5" />
                     {{ featureLabel ?? 'Subscribe' }}

@@ -9,6 +9,7 @@ import {
     Phone,
 } from 'lucide-vue-next'
 import { computed } from 'vue'
+import UserTeaser from '@/components/features/admin/charts/UserTeaser.vue'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
@@ -32,7 +33,6 @@ import type {
     BreadcrumbItem,
     DealerResource,
 } from '@/types'
-import UserTeaser from '@/components/features/admin/charts/UserTeaser.vue'
 
 const props = defineProps<{
     dealer?: DealerResource
@@ -131,7 +131,10 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => [
                                         dealer.user?.phone_number
                                     }}</span>
                                 </div>
-                                <div v-if="dealer.user?.email" class="flex items-center gap-2">
+                                <div
+                                    v-if="dealer.user?.email"
+                                    class="flex items-center gap-2"
+                                >
                                     <Mail class="size-4 shrink-0" /><span class="truncate">{{ dealer.user?.email }}</span>
                                 </div>
                             </ItemDescription>

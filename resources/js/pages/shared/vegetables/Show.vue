@@ -2,12 +2,12 @@
 import { Deferred, Head, usePage } from '@inertiajs/vue3'
 import { computed, ref } from 'vue'
 import Heading from '@/components/Heading.vue'
+import AnalyticsUpsellCard from '@/components/shared/charts/AnalyticsUpsellCard.vue'
 import VegetableAnalyticsSummary from '@/components/shared/charts/VegetableAnalyticsSummary.vue'
 import VegetableMonthlyChart from '@/components/shared/charts/VegetableMonthlyChart.vue'
 import VegetableRecommendations from '@/components/shared/charts/VegetableRecommendations.vue'
 import VegetableDayDetailSheet from '@/components/shared/VegetableDayDetailSheet.vue'
 import VegetableMarketCalendar from '@/components/shared/VegetableMarketCalendar.vue'
-import { Separator } from '@/components/ui/separator'
 import { Skeleton } from '@/components/ui/skeleton'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { useCapitalize } from '@/lib/utils'
@@ -16,7 +16,6 @@ import adminRoutes, { dashboard as adminDashboard } from '@/routes/admin'
 import vegetables from '@/routes/vegetables'
 import type { BreadcrumbItem, VegetableCalendarFilters, VegetableDaySchedule } from '@/types'
 import type { VegetableDetailData } from '@/types/resources/product'
-import AnalyticsUpsellCard from '@/components/shared/charts/AnalyticsUpsellCard.vue'
 
 interface Props {
     vegetable?: VegetableDetailData
@@ -116,7 +115,11 @@ function handleDaySelect(dateStr: string): void {
                     <div class="flex flex-col gap-6">
                         <Skeleton class="h-8 w-64" />
                         <div class="grid grid-cols-2 gap-4 sm:grid-cols-4">
-                            <Skeleton v-for="i in 4" :key="i" class="h-24 rounded-xl" />
+                            <Skeleton
+                                v-for="i in 4"
+                                :key="i"
+                                class="h-24 rounded-xl"
+                            />
                         </div>
                         <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
                             <Skeleton class="h-72 rounded-xl" />

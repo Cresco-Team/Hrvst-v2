@@ -8,7 +8,7 @@ import { useResponsiveDialog } from '@/composables/useResponsiveDialog'
 interface Props {
 	open: boolean
 	title: string
-	description?: string
+	description?: string | null
 	form: InertiaForm<TData>
 	submitLabel?: string
 	cancelLabel?: string
@@ -18,6 +18,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
+    description: null,
 	submitLabel: 'Submit',
 	cancelLabel: 'Cancel',
 	maxWidth: 'lg',

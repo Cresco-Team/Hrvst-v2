@@ -10,10 +10,10 @@ const props = withDefaults(
     defineProps<{
         open: boolean
         title: string
-        description?: string
+        description?: string | null
         side?: 'right' | 'left' | 'top' | 'bottom'
     }>(),
-    { side: 'right' },
+    { side: 'right', description: null },
 )
 
 defineEmits<{

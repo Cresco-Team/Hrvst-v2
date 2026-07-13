@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { Deferred, Head } from '@inertiajs/vue3'
 import Heading from '@/components/Heading.vue'
+import AnalyticsUpsellCard from '@/components/shared/charts/AnalyticsUpsellCard.vue'
 import WasteRankingCard from '@/components/shared/charts/WasteRankingCard.vue'
 import { Skeleton } from '@/components/ui/skeleton'
 import AppLayout from '@/layouts/AppLayout.vue'
 import dealer from '@/routes/dealer'
 import type { BreadcrumbItem, DealerDashboardProps } from '@/types'
-import AnalyticsUpsellCard from '@/components/shared/charts/AnalyticsUpsellCard.vue'
 
 defineProps<DealerDashboardProps>()
 
@@ -26,9 +26,15 @@ const breadcrumbs: BreadcrumbItem[] = [
                 description="Market signals to guide your sourcing."
             />
 
-            <AnalyticsUpsellCard v-if="analyticsLocked" :feature-label="upgradeFeatureLabel" />
+            <AnalyticsUpsellCard
+                v-if="analyticsLocked"
+                :feature-label="upgradeFeatureLabel"
+            />
 
-            <div v-else class="grid grid-cols-1 gap-4 lg:grid-cols-2">
+            <div
+                v-else
+                class="grid grid-cols-1 gap-4 lg:grid-cols-2"
+            >
                 <Deferred data="topWastedSupply">
                     <template #fallback>
                         <Skeleton class="h-56 w-full rounded-xl" />

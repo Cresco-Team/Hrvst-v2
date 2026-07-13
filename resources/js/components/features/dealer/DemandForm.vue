@@ -23,11 +23,17 @@ import type { DealerDemandDataFixed, PostTimeSlot, VarietyOptionsByVegetable, Ve
 interface Props {
     open: boolean
     demand?: DealerDemandDataFixed | null
-    vegetableOptions?: VegetableOptionsByCategory
-    varietyOptions?: VarietyOptionsByVegetable
+    vegetableOptions?: VegetableOptionsByCategory | null
+    varietyOptions?: VarietyOptionsByVegetable | null
 }
 
-const props = withDefaults(defineProps<Props>(), { demand: null })
+const props = withDefaults(
+    defineProps<Props>(), {
+         demand: null,
+         vegetableOptions: null,
+         varietyOptions: null,
+    }
+)
 const emit = defineEmits<{ 'update:open': [value: boolean] }>()
 
 const isEditMode = computed(() => !!props.demand)
