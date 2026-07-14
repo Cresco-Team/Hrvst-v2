@@ -46,18 +46,18 @@ const FARMER_STEPS: OnboardingStep[] = [
 const DEALER_STEPS: OnboardingStep[] = [
 	{
 		icon: ShoppingBag,
-		title: 'Post a Request',
+		title: 'Schedule a Demand',
 		body: 'Tell farmers what vegetables you need, how much, and your preferred pickup day and time.',
 	},
 	{
 		icon: CalendarClock,
-		title: 'Wait for a Match',
-		body: 'Farmers browsing requests can see your posting. You don\'t need to do anything until your scheduled date.',
+		title: 'Wait for Pick-up Day',
+		body: 'Farmers can see your schedule. You don\'t need to do anything until your scheduled date.',
 	},
 	{
 		icon: PackageCheck,
 		title: 'Mark it Fulfilled',
-		body: 'Once you\'ve picked up from a farmer, mark the item as fulfilled from your dashboard.',
+		body: 'Once you\'ve picked up from a farmer, mark the item as fulfilled from your demands.',
 	},
 ]
 
