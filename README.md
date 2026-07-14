@@ -38,13 +38,12 @@ Hrvst aims to transform the Trading Post from a chaotic marketplace into a **Jus
 
 ![Static Badge](https://img.shields.io/badge/Laravel-%23F54927?style=for-the-badge&logo=laravel&logoColor=%23F54927&label=PHP&labelColor=black)
 ![Static Badge](https://img.shields.io/badge/Vue-%2323CC78?style=for-the-badge&logo=vuedotjs&logoColor=%2323CC78&label=TS&labelColor=black)
-![Static Badge](https://img.shields.io/badge/SQLite-%2325A2DB?style=for-the-badge&logo=sqlite&logoColor=%2325A2DB&label=SQL&labelColor=black)
+![Static Badge](https://img.shields.io/badge/PostgreSQL-%234169E1?style=for-the-badge&logo=postgresql&logoColor=%234169E1&label=SQL&labelColor=black)
 ![Static Badge](https://img.shields.io/badge/Inertia-%237B29D6?style=for-the-badge&logo=inertia&logoColor=%237B29D6&label=JS&labelColor=black)
 ![Static Badge](https://img.shields.io/badge/Leaflet-%235ED12C?style=for-the-badge&logo=leaflet&logoColor=%235ED12C&label=JS&labelColor=black)
 ![Static Badge](https://img.shields.io/badge/ShadCN-%23D4D4D4?style=for-the-badge&logo=shadcnui&logoColor=%23D4D4D4&label=UI&labelColor=black)
 ![Static Badge](https://img.shields.io/badge/Tanstack-%2355E02F?style=for-the-badge&logo=tanstack&logoColor=%2355E02F&label=JS&labelColor=black)
 ![Static Badge](https://img.shields.io/badge/Chart-%23FF5E88?style=for-the-badge&logo=chartdotjs&logoColor=%23FF5E88&label=JS&labelColor=black)
-![Static Badge](https://img.shields.io/badge/Postman-%23FF8145?style=for-the-badge&logo=postman&logoColor=%23FF8145&labelColor=black)
 ![Static Badge](https://img.shields.io/badge/Claude-%23FF8952?style=for-the-badge&logo=claude&logoColor=%23FF8952&label=AI&labelColor=black)
 ![Static Badge](https://img.shields.io/badge/Gemini-%238652FF?style=for-the-badge&logo=googlegemini&logoColor=%238652FF&label=AI&labelColor=black)
 

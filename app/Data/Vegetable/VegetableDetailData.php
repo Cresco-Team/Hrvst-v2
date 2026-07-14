@@ -5,6 +5,7 @@ namespace App\Data\Vegetable;
 use App\Models\Product\Vegetable;
 use Spatie\LaravelData\Data;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
+use Spatie\TypeScriptTransformer\Attributes\TypeScriptType;
 
 #[TypeScript]
 class VegetableDetailData extends Data
@@ -20,9 +21,16 @@ class VegetableDetailData extends Data
         public int $demand_count,
         public array $supply_municipalities,
         public array $monthly_activity,
+
+        #[TypeScriptType('Record<string, unknown>')]
         public array $vegetable_calendar,
+
+        #[TypeScriptType('App.DTOs.Product.VegetableAnalyticsDTO | null')]
         public ?array $analytics,
+
+        #[TypeScriptType('App.DTOs.Product.VegetableForecastDTO | null')]
         public ?array $forecast,
+
         public bool $forecast_locked,
         public ?string $upgrade_feature,
         public ?string $upgrade_feature_label,
