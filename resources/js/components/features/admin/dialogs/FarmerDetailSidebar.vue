@@ -203,7 +203,7 @@ function handleDelete() {
 
                 <EmptyState
                     v-else
-                    title="No vegetable requested"
+                    title="No vegetable scheduled"
                     :icon="CalendarSync"
                     class="mx-5 h-30"
                 />

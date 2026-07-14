@@ -69,7 +69,7 @@ function handlePageChange(page: number) {
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Dealer', href: dealer.dashboard().url },
-    { title: 'Requests', href: dealer.demands.index().url },
+    { title: 'Demands', href: dealer.demands.index().url },
 ]
 </script>
 
@@ -80,8 +80,8 @@ const breadcrumbs: BreadcrumbItem[] = [
         <div class="flex h-full flex-col gap-6 p-4 lg:p-6">
             <div class="flex items-end justify-between">
                 <Heading
-                    title="My Requests"
-                    description="Schedule vegetable request."
+                    title="My Demands"
+                    description="Schedule vegetable demand."
                 />
                 <Button
                     class="gap-2"
@@ -135,8 +135,8 @@ const breadcrumbs: BreadcrumbItem[] = [
 
                 <EmptyState
                     v-if="demands?.data.length === 0"
-                    title="No Ongoing Requests"
-                    description="Schedule a new request to get started."
+                    title="No Ongoing Demands"
+                    description="Schedule a new demand to get started."
                     :icon="ShoppingBag"
                 />
 
@@ -194,8 +194,8 @@ const breadcrumbs: BreadcrumbItem[] = [
 
     <ConfirmationDialog
         v-model:open="deleteDialogOpen"
-        title="Delete Request"
-        :description="`Permanently delete this request for ${demandToDelete?.scheduled_date}?`"
+        title="Delete Schedule"
+        :description="`Permanently delete this demand for ${demandToDelete?.scheduled_date}?`"
         :processing="deleteForm.processing"
         variant="destructive"
         @action="handleDelete"

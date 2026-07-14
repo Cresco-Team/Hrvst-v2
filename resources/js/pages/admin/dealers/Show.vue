@@ -150,15 +150,15 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => [
                             :total-quantity="totalQuantity"
                             feature-label="Platform Analytics License"
                             waste-title="Most Ordered Varieties"
-                            waste-description="By total kilograms requested"
-                            waste-unit-label="kg requested"
+                            waste-description="By total kilograms demands"
+                            waste-unit-label="kg of demands"
                             waste-guide-question="What does this dealer order most?"
                             volume-title="6-Month Demand Volume"
                         />
 
                         <Collapsible :default-open="false">
                             <CollapsibleTrigger class="flex w-full items-center justify-between rounded-lg border bg-muted/20 px-4 py-2.5 text-sm font-medium hover:bg-muted/40">
-                                Full Request History
+                                Full Demand History
                                 <ChevronDown class="size-4 text-muted-foreground transition-transform duration-200 data-[state=open]:rotate-180" />
                             </CollapsibleTrigger>
                             <CollapsibleContent class="pt-4">
