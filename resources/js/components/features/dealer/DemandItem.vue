@@ -130,14 +130,14 @@ const emit = defineEmits<{
                     <DropdownMenuGroup>
                         <DropdownMenuItem @click="emit('edit', demand)">
                             <SquarePen />
-                            Edit Request
+                            Edit Schedule
                         </DropdownMenuItem>
                         <DropdownMenuItem
                             class="text-destructive focus:text-destructive"
                             @click="emit('delete', demand)"
                         >
                             <Trash />
-                            Delete Request
+                            Delete Schedule
                         </DropdownMenuItem>
                     </DropdownMenuGroup>
                 </DropdownMenuContent>

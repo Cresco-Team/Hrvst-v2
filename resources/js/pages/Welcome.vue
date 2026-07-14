@@ -71,8 +71,8 @@ const dealerBenefits = [
     },
     {
         icon: BarChart3,
-        title: 'Post Your Demand',
-        desc: 'Publish buy requests so the right farmers come to you.',
+        title: 'Schedule Your Demand',
+        desc: 'Schedule a demand so the right farmers come to you.',
     },
     {
         icon: MapPin,

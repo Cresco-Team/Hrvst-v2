@@ -66,19 +66,19 @@ function handlePageChange(page: number) {
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Dealer', href: dealer.dashboard().url },
-    { title: 'Requests', href: index().url },
+    { title: 'Demands', href: index().url },
     { title: 'Archived', href: archived().url },
 ]
 </script>
 
 <template>
-    <Head title="Archived Requests" />
+    <Head title="Archived Demands" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex h-full flex-col gap-6 p-4 lg:p-6">
             <Heading
-                title="Archived Requests"
-                description="Expired and fulfilled request schedules."
+                title="Archived Demands"
+                description="Expired and fulfilled demand schedules."
             />
 
             <!-- ── Status tabs ────────────────────────────────────────── -->
@@ -110,8 +110,8 @@ const breadcrumbs: BreadcrumbItem[] = [
                     :data="demands"
                     :columns="columns"
                     :enable-search="false"
-                    entity-name="requests"
-                    empty-message="No archived requests found."
+                    entity-name="demands"
+                    empty-message="No archived demands found."
                     @page-change="handlePageChange"
                 >
                     <template #cell-items="{ row }">

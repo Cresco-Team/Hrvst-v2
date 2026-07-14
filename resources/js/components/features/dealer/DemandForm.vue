@@ -152,7 +152,7 @@ watch(
 <template>
     <DialogForm
         :open="open"
-        :title="isEditMode ? `Edit ${demand?.scheduled_date} Schedule` : 'New Request Schedule'"
+        :title="isEditMode ? `Edit ${demand?.scheduled_date} Schedule` : 'New Demand Schedule'"
         :form="form"
         :submit-label="isEditMode ? 'Save Changes' : 'Create Schedule'"
         @update:open="emit('update:open', $event)"
@@ -252,7 +252,7 @@ watch(
                                 variant="outline" 
                                 size="icon-sm" 
                                 class="h-7 gap-1.5 text-xs" 
-                                aria-label="Add request row"
+                                aria-label="Add demand row"
                                 @click="addItem"
                             >
                                 <Plus class="size-3" />
@@ -267,7 +267,7 @@ watch(
                         :colspan="3"
                     >
                         <span :class="form.errors.items ? `text-destructive` : ''">
-                            No requests yet. Add at least one vegetable request.
+                            No demand yet. Add at least one vegetable demand.
                         </span>
                     </TableEmpty>
 
