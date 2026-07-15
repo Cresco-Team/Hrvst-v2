@@ -19,6 +19,8 @@ export interface CalendarScheduleItem {
     variety_name: string
     quantity_kg: number
     status: string
+    poster_name: string
+    poster_phone: string
 }
 
 export interface CalendarSlotData {
