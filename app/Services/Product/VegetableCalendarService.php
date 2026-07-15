@@ -43,6 +43,7 @@ class VegetableCalendarService
         return PostItem::query()
             ->join('posts', 'posts.id', '=', 'post_items.post_id')
             ->join('vegetables', 'vegetables.id', '=', 'post_items.vegetable_id')
+            ->join('users', 'users.id', '=', 'posts.user_id')
             ->select([
                 'post_items.id',
                 'post_items.post_id',
@@ -54,6 +55,8 @@ class VegetableCalendarService
             ->selectRaw("COALESCE(posts.time_slot, 'unscheduled') as slot")
             ->selectRaw('DATE(posts.scheduled_date) as date')
             ->selectRaw('vegetables.variety_name as variety_name')
+            ->selectRaw('users.name as poster_name')
+            ->selectRaw('users.phone_number as poster_phone')
             ->where('post_items.vegetable_id', $vegetableId)
             ->whereBetween('posts.scheduled_date', [$start, $end])
             ->whereNull('posts.deleted_at')
@@ -85,13 +88,15 @@ class VegetableCalendarService
             if (! isset($schedule[$date][$slot])) {
                 continue;
             }
-
+        
             $schedule[$date][$slot]['items'][] = [
                 'post_id' => $item->post_id,
                 'type' => $item->type,
                 'variety_name' => $item->variety_name,
                 'quantity_kg' => (float) $item->quantity_kg,
                 'status' => $item->status?->value ?? $item->status,
+                'poster_name' => $item->poster_name,
+                'poster_phone' => $item->poster_phone,
             ];
         }
 
