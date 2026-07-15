@@ -13,15 +13,7 @@ export type CalendarTimeSlot =
     | 'evening'
     | 'unscheduled'
 
-export interface CalendarScheduleItem {
-    post_id: number
-    type: 'supply' | 'demand'
-    variety_name: string
-    quantity_kg: number
-    status: string
-    poster_name: string
-    poster_phone: string
-}
+export type CalendarScheduleItem = App.Data.Vegetable.VegetableCalendarItemData
 
 export interface CalendarSlotData {
     supply_kg: number

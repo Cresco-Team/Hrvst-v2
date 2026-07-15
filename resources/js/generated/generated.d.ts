@@ -205,6 +205,15 @@ category: App.Data.Category.CategoryData | undefined,
 supply_count: undefined | number,
 demand_count: undefined | number,
 };
+export type VegetableCalendarItemData = {
+post_id: number,
+type: App.Enums.PostType,
+variety_name: string | null,
+quantity_kg: number,
+status: App.Enums.PostItemStatus,
+poster_name: string,
+poster_phone: string,
+};
 export type VegetableData = {
 id: number,
 vegetable_name: string,
