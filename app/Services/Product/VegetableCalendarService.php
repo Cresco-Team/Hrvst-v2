@@ -26,15 +26,19 @@ class VegetableCalendarService
         return PostItem::query()
             ->join('posts', 'posts.id', '=', 'post_items.post_id')
             ->selectRaw('DATE(posts.scheduled_date) as date')
-            ->selectRaw("COALESCE(posts.time_slot, 'unscheduled') as slot")
+            ->selectRaw("COALESCE(posts.time_slot) as slot")
             ->selectRaw('posts.type')
             ->selectRaw('SUM(post_items.quantity_kg) as total_kg')
             ->selectRaw('COUNT(DISTINCT posts.id) as posts_count')
             ->where('post_items.vegetable_id', $vegetableId)
             ->whereBetween('posts.scheduled_date', [$start, $end])
             ->whereNull('posts.deleted_at')
-            ->whereIn('post_items.status', [PostItemStatus::Ongoing->value, PostItemStatus::Fulfilled->value])
-            ->groupByRaw("DATE(posts.scheduled_date), COALESCE(posts.time_slot, 'unscheduled'), posts.type")
+            ->whereIn('post_items.status', [
+                PostItemStatus::Ongoing->value,
+                PostItemStatus::Fulfilled->value,
+                PostItemStatus::Expired->value,
+            ])
+            ->groupByRaw("DATE(posts.scheduled_date), COALESCE(posts.time_slot), posts.type")
             ->orderByRaw('date, slot, posts.type')
             ->get();
     }
@@ -53,7 +57,7 @@ class VegetableCalendarService
                 'post_items.status',
                 'posts.type',
             ])
-            ->selectRaw("COALESCE(posts.time_slot, 'unscheduled') as slot")
+            ->selectRaw("COALESCE(posts.time_slot) as slot")
             ->selectRaw('DATE(posts.scheduled_date) as date')
             ->selectRaw('vegetables.variety_name as variety_name')
             ->selectRaw('users.name as poster_name')
@@ -61,7 +65,11 @@ class VegetableCalendarService
             ->where('post_items.vegetable_id', $vegetableId)
             ->whereBetween('posts.scheduled_date', [$start, $end])
             ->whereNull('posts.deleted_at')
-            ->whereIn('post_items.status', [PostItemStatus::Ongoing->value, PostItemStatus::Fulfilled->value])
+            ->whereIn('post_items.status', [
+                PostItemStatus::Ongoing->value,
+                PostItemStatus::Fulfilled->value,
+                PostItemStatus::Expired->value,
+            ])
             ->orderByRaw('date, slot, posts.type')
             ->get();
     }
@@ -89,7 +97,7 @@ class VegetableCalendarService
             if (! isset($schedule[$date][$slot])) {
                 continue;
             }
-        
+
             $schedule[$date][$slot]['items'][] = VegetableCalendarItemData::fromQueryRow($item);
         }
 
