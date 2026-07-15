@@ -1,46 +1,76 @@
 <script setup lang="ts">
-import type { LucideIcon} from '@lucide/vue';
-import { CircleQuestionMark, Moon, Sunrise, Sunset } from '@lucide/vue'
+import { computed } from 'vue'
+import { CalendarClock, ChevronDown, Package, Phone, ShoppingBag, User } from 'lucide-vue-next'
 import DetailSheet from '@/components/dialogs/DetailSheet.vue'
-import { Separator } from '@/components/ui/separator'
+import EmptyState from '@/components/EmptyState.vue'
+import { Badge } from '@/components/ui/badge'
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import type { CalendarTimeSlot, VegetableDaySchedule } from '@/types'
 
-interface Props {
+const props = defineProps<{
     open: boolean
     dateLabel: string
     schedule: VegetableDaySchedule | null
-}
-
-defineProps<Props>()
-
-const emit = defineEmits<{
-    'update:open': [value: boolean]
 }>()
 
-const TIME_SLOTS: Array<{
-    key: CalendarTimeSlot
-    label: string
-    icon: LucideIcon
-}> = [
-    { key: 'morning', label: 'Morning (6 AM – 12 PM)', icon: Sunrise },
-    { key: 'afternoon', label: 'Afternoon (12 PM – 6 PM)', icon: Sunset },
-    { key: 'evening', label: 'Evening (6 PM – 10 PM)', icon: Moon },
-    { key: 'unscheduled', label: 'No time slot', icon: CircleQuestionMark },
-]
+defineEmits<{ 'update:open': [value: boolean] }>()
 
-function formatKg(kg: number): string {
-    return `${kg.toLocaleString('en-PH', { minimumFractionDigits: 0, maximumFractionDigits: 2 })} kg`
+const SLOT_LABELS: Record<CalendarTimeSlot, string> = {
+    morning: 'Morning',
+    afternoon: 'Afternoon',
+    evening: 'Evening',
+    unscheduled: 'Unscheduled',
 }
 
-function formatNetBadge(net: number): string {
-    const abs = Math.abs(net)
-    const formatted = abs.toLocaleString('en-PH', {
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 2,
-    })
-    if (net > 0) return `+${formatted} kg surplus`
-    if (net < 0) return `${formatted} kg unmet`
-    return 'Balanced'
+const SLOT_ORDER: CalendarTimeSlot[] = ['morning', 'afternoon', 'evening', 'unscheduled']
+
+const orderedSlots = computed(() =>
+    SLOT_ORDER.filter((slot) => props.schedule?.[slot]),
+)
+
+interface PosterGroup {
+    post_id: number
+    poster_name: string
+    poster_phone: string
+    total_kg: number
+    status: string
+}
+
+function groupByPoster(slot: CalendarTimeSlot, type: 'supply' | 'demand'): PosterGroup[] {
+    const items = props.schedule?.[slot]?.items ?? []
+    const groups = new Map<number, PosterGroup>()
+
+    for (const item of items) {
+        if (item.type !== type) continue
+
+        const existing = groups.get(item.post_id)
+        if (existing) {
+            existing.total_kg += item.quantity_kg
+            continue
+        }
+
+        groups.set(item.post_id, {
+            post_id: item.post_id,
+            poster_name: item.poster_name,
+            poster_phone: item.poster_phone,
+            total_kg: item.quantity_kg,
+            status: item.status,
+        })
+    }
+
+    return Array.from(groups.values()).sort((a, b) => b.total_kg - a.total_kg)
+}
+
+function statusVariant(status: string): 'default' | 'secondary' | 'destructive' {
+    if (status === 'fulfilled') return 'default'
+    if (status === 'expired') return 'destructive'
+    return 'secondary'
+}
+
+function netClass(netKg: number): string {
+    if (netKg > 0) return 'text-primary'
+    if (netKg < 0) return 'text-destructive'
+    return 'text-muted-foreground'
 }
 </script>
 
@@ -48,72 +78,125 @@ function formatNetBadge(net: number): string {
     <DetailSheet
         :open="open"
         :title="dateLabel"
-        @update:open="emit('update:open', $event)"
+        @update:open="$emit('update:open', $event)"
     >
+        <EmptyState
+            v-if="!orderedSlots.length"
+            title="No activity on this day"
+        />
+
         <div
-            v-if="schedule"
+            v-else
             class="flex flex-col gap-6"
         >
-            <template
-                v-for="slot in TIME_SLOTS"
-                :key="slot.key"
+            <div
+                v-for="slot in orderedSlots"
+                :key="slot"
+                class="flex flex-col gap-3"
             >
-                <div v-if="schedule[slot.key]">
-                    <!-- Slot header -->
-                    <div class="mb-3 flex items-center gap-2">
-                        <component
-                            :is="slot.icon"
-                            class="size-5"
-                        />
-                        <span class="text-sm font-semibold">{{ slot.label }}</span>
-                    </div>
-
-                    <!-- Supply / Demand / Net summary -->
-                    <div class="mb-4 flex flex-col gap-1.5 rounded-lg border bg-muted/20 p-3 pl-4 text-xs">
-                        <div class="flex items-center justify-between">
-                            <span class="flex items-center gap-1.5 text-muted-foreground">
-                                <span class="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                                Supply
-                            </span>
-                            <span class="font-semibold text-emerald-600 tabular-nums dark:text-emerald-400">
-                                {{ formatKg(schedule[slot.key]!.supply_kg) }}
-                            </span>
-                        </div>
-                        <div class="flex items-center justify-between">
-                            <span class="flex items-center gap-1.5 text-muted-foreground">
-                                <span class="h-1.5 w-1.5 rounded-full bg-amber-500" />
-                                Demand
-                            </span>
-                            <span class="font-semibold text-amber-600 tabular-nums dark:text-amber-400">
-                                {{ formatKg(schedule[slot.key]!.demand_kg) }}
-                            </span>
-                        </div>
-                        <Separator class="my-0.5" />
-                        <div class="flex items-center justify-between">
-                            <span class="font-medium">Net</span>
-                            <span
-                                class="rounded-full px-2 py-0.5 text-[10px] font-bold tabular-nums"
-                                :class="
-                                    schedule[slot.key]!.net_kg > 0
-                                        ? 'bg-destructive/20 text-destructive dark:bg-destructive/40'
-                                        : schedule[slot.key]!.net_kg < 0
-                                            ? 'bg-orange-100 text-orange-700'
-                                            : 'bg-muted text-muted-foreground'
-                                "
-                            >
-                                {{ formatNetBadge(schedule[slot.key]!.net_kg) }}
-                            </span>
-                        </div>
-                    </div>
+                <div class="flex items-center justify-between">
+                    <h3 class="flex items-center gap-1.5 text-sm font-semibold">
+                        <CalendarClock class="size-4 text-muted-foreground" />
+                        {{ SLOT_LABELS[slot] }}
+                    </h3>
+                    <span
+                        class="text-xs font-semibold tabular-nums"
+                        :class="netClass(schedule?.[slot]?.net_kg ?? 0)"
+                    >
+                        Net {{ (schedule?.[slot]?.net_kg ?? 0).toLocaleString() }} kg
+                    </span>
                 </div>
-            </template>
-        </div>
 
-        <p
-            v-else
-            class="text-sm text-muted-foreground"
-        >
-            No schedule data for this day.
-        </p>
+                <!-- Farmers (supply) -->
+                <div class="flex flex-col gap-1.5">
+                    <p class="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
+                        <Package class="size-3.5" />
+                        Farmers Supplying ({{ groupByPoster(slot, 'supply').length }})
+                    </p>
+
+                    <p
+                        v-if="!groupByPoster(slot, 'supply').length"
+                        class="pl-5 text-xs text-muted-foreground"
+                    >
+                        No supply posted
+                    </p>
+
+                    <Collapsible
+                        v-for="group in groupByPoster(slot, 'supply')"
+                        :key="`supply-${group.post_id}`"
+                        class="rounded border"
+                    >
+                        <CollapsibleTrigger class="group/trigger flex w-full items-center justify-between gap-3 bg-primary/5 p-2.5 text-left transition-colors hover:bg-primary/10">
+                            <div class="flex min-w-0 items-center gap-2">
+                                <User class="size-3.5 shrink-0 text-primary" />
+                                <span class="truncate text-sm font-medium">{{ group.poster_name }}</span>
+                            </div>
+                            <div class="flex shrink-0 items-center gap-2">
+                                <span class="text-xs font-semibold tabular-nums">{{ group.total_kg.toLocaleString() }} kg</span>
+                                <ChevronDown class="size-3.5 text-muted-foreground transition-transform duration-200 group-data-[state=open]/trigger:rotate-180" />
+                            </div>
+                        </CollapsibleTrigger>
+
+                        <CollapsibleContent class="flex items-center justify-between border-t bg-muted/20 p-2.5 text-xs">
+                            <div class="flex items-center gap-1.5 text-muted-foreground">
+                                <Phone class="size-3" />
+                                {{ group.poster_phone }}
+                            </div>
+                            <Badge
+                                :variant="statusVariant(group.status)"
+                                class="px-1.5 py-0 text-[10px] capitalize"
+                            >
+                                {{ group.status }}
+                            </Badge>
+                        </CollapsibleContent>
+                    </Collapsible>
+                </div>
+
+                <!-- Dealers (demand) -->
+                <div class="flex flex-col gap-1.5">
+                    <p class="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
+                        <ShoppingBag class="size-3.5" />
+                        Dealers Requesting ({{ groupByPoster(slot, 'demand').length }})
+                    </p>
+
+                    <p
+                        v-if="!groupByPoster(slot, 'demand').length"
+                        class="pl-5 text-xs text-muted-foreground"
+                    >
+                        No demand posted
+                    </p>
+
+                    <Collapsible
+                        v-for="group in groupByPoster(slot, 'demand')"
+                        :key="`demand-${group.post_id}`"
+                        class="rounded border"
+                    >
+                        <CollapsibleTrigger class="group/trigger flex w-full items-center justify-between gap-3 bg-orange-500/5 p-2.5 text-left transition-colors hover:bg-orange-500/10">
+                            <div class="flex min-w-0 items-center gap-2">
+                                <User class="size-3.5 shrink-0 text-orange-600" />
+                                <span class="truncate text-sm font-medium">{{ group.poster_name }}</span>
+                            </div>
+                            <div class="flex shrink-0 items-center gap-2">
+                                <span class="text-xs font-semibold tabular-nums">{{ group.total_kg.toLocaleString() }} kg</span>
+                                <ChevronDown class="size-3.5 text-muted-foreground transition-transform duration-200 group-data-[state=open]/trigger:rotate-180" />
+                            </div>
+                        </CollapsibleTrigger>
+
+                        <CollapsibleContent class="flex items-center justify-between border-t bg-muted/20 p-2.5 text-xs">
+                            <div class="flex items-center gap-1.5 text-muted-foreground">
+                                <Phone class="size-3" />
+                                {{ group.poster_phone }}
+                            </div>
+                            <Badge
+                                :variant="statusVariant(group.status)"
+                                class="px-1.5 py-0 text-[10px] capitalize"
+                            >
+                                {{ group.status }}
+                            </Badge>
+                        </CollapsibleContent>
+                    </Collapsible>
+                </div>
+            </div>
+        </div>
     </DetailSheet>
 </template>
