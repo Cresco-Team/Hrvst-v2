@@ -61,7 +61,7 @@ const emit = defineEmits<{
                 >Action needed</Badge>
             </ItemTitle>
             <ItemDescription v-if="supply.post_items?.length">
-                {{ supply.post_items.length }} {{ supply.post_items.length === 1 ? 'variety' : 'varieties' }}
+                {{ supply.post_items.length }} {{ supply.post_items.length === 1 ? 'supply' : 'supplies' }}
             </ItemDescription>
         </ItemContent>
 
