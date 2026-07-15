@@ -11,15 +11,8 @@ export type CalendarTimeSlot =
     | 'morning'
     | 'afternoon'
     | 'evening'
-    | 'unscheduled'
 
-export interface CalendarScheduleItem {
-    post_id: number
-    type: 'supply' | 'demand'
-    variety_name: string
-    quantity_kg: number
-    status: string
-}
+export type CalendarScheduleItem = App.Data.Vegetable.VegetableCalendarItemData
 
 export interface CalendarSlotData {
     supply_kg: number
@@ -30,9 +23,8 @@ export interface CalendarSlotData {
     items: CalendarScheduleItem[]
 }
 
-export type VegetableDaySchedule = Partial<
-    Record<CalendarTimeSlot, CalendarSlotData>
->
+export type VegetableDaySchedule = Partial<Record<CalendarTimeSlot, CalendarSlotData>>
+
 
 export interface VegetableCalendarFilters {
     year: number
