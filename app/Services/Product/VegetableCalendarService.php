@@ -2,6 +2,7 @@
 
 namespace App\Services\Product;
 
+use App\Data\Vegetable\VegetableCalendarItemData;
 use App\Enums\PostItemStatus;
 use App\Models\Marketplace\PostItem;
 use Carbon\Carbon;
@@ -89,15 +90,7 @@ class VegetableCalendarService
                 continue;
             }
         
-            $schedule[$date][$slot]['items'][] = [
-                'post_id' => $item->post_id,
-                'type' => $item->type,
-                'variety_name' => $item->variety_name,
-                'quantity_kg' => (float) $item->quantity_kg,
-                'status' => $item->status?->value ?? $item->status,
-                'poster_name' => $item->poster_name,
-                'poster_phone' => $item->poster_phone,
-            ];
+            $schedule[$date][$slot]['items'][] = VegetableCalendarItemData::fromQueryRow($item);
         }
 
         return $schedule;
