@@ -18,6 +18,7 @@ import type { Paginated } from '../shared'
 export interface FarmerDashboardProps {
     topWastedDemand?: VegetableWasteData[]
     mostStableWastedDemand?: VegetableStabilityData[]
+    topOversupplied?: VegetableWasteData[]
     analyticsLocked: boolean
     upgradeFeatureLabel: string
 }
