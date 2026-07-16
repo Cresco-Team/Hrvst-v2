@@ -4,8 +4,12 @@ import {
     CategoryScale,
     Chart as ChartJS,
     type ChartOptions,
+    Filler,
     Legend,
     LinearScale,
+    LineController,
+    LineElement,
+    PointElement,
     Title,
     Tooltip,
 } from 'chart.js'
@@ -15,12 +19,18 @@ import type { ForecastPoint, MonthlyActivity } from '@/types/resources/product'
 ChartJS.register(
     BarController,
     BarElement,
+    LineController,
+    LineElement,
+    PointElement,
+    Filler,
     CategoryScale,
     LinearScale,
     Title,
     Tooltip,
     Legend,
 )
+
+export type VolumeChartType = 'bar' | 'line'
 
 type MetricKey =
     | 'supply_fulfilled_kg'
@@ -91,10 +101,12 @@ function formatKgAxis(value: number): string {
 export function useMonthlyVolumeChart(
     activity: MaybeRefOrGetter<MonthlyActivity[] | null | undefined>,
     forecast?: MaybeRefOrGetter<ForecastPoint[] | null | undefined>,
+    chartType: MaybeRefOrGetter<VolumeChartType> = 'bar',
 ) {
     const chartData = computed(() => {
         const allMonths = toValue(activity)
         const fc = forecast ? (toValue(forecast) ?? []) : []
+        const type = toValue(chartType)
 
         if (!allMonths?.length) return null
 
@@ -106,18 +118,38 @@ export function useMonthlyVolumeChart(
             ...fc.map((m) => m.label),
         ]
 
+        const isForecastIndex = (dataIndex: number) => dataIndex >= histLen
+
         const datasets = SERIES.map((series) => {
             const historicalValues = historical.map(
                 (m) => (m as any)[series.key] as number,
             )
             const forecastValues = fc.map((m) => m[series.key])
+            const data = [...historicalValues, ...forecastValues]
 
-            const isForecastIndex = (dataIndex: number) => dataIndex >= histLen
+            if (type === 'line') {
+                return {
+                    type: 'line' as const,
+                    label: series.label,
+                    data,
+                    borderColor: (ctx: any) =>
+                        `rgba(${series.rgb}, ${isForecastIndex(ctx.dataIndex ?? 0) ? 0.5 : 1})`,
+                    backgroundColor: `rgba(${series.rgb}, 0.08)`,
+                    pointBackgroundColor: `rgb(${series.rgb})`,
+                    pointRadius: (ctx: any) =>
+                        isForecastIndex(ctx.dataIndex ?? 0) ? 2 : 3,
+                    borderWidth: 2,
+                    borderDash: (ctx: any) =>
+                        isForecastIndex(ctx.dataIndex ?? 0) ? [4, 3] : [],
+                    tension: 0.3,
+                    fill: false,
+                }
+            }
 
             return {
                 type: 'bar' as const,
                 label: series.label,
-                data: [...historicalValues, ...forecastValues],
+                data,
                 backgroundColor: (ctx: any) =>
                     `rgba(${series.rgb}, ${isForecastIndex(ctx.dataIndex) ? series.forecastAlpha : series.historicalAlpha})`,
                 borderColor: (ctx: any) =>
@@ -167,51 +199,56 @@ export function useMonthlyVolumeChart(
         },
     }
 
-    const chartOptions: ChartOptions<'bar'> = {
-        responsive: true,
-        maintainAspectRatio: false,
-        interaction: { mode: 'index', intersect: false },
-        plugins: {
-            legend: {
-                position: 'bottom',
-                labels: {
-                    boxWidth: 8,
-                    boxHeight: 8,
-                    padding: 8,
-                    font: { size: 10 },
+    const chartOptions = computed<ChartOptions<any>>(() => {
+        const type = toValue(chartType)
+        const stacked = type === 'bar'
+
+        return {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { mode: 'index', intersect: false },
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        boxWidth: 8,
+                        boxHeight: 8,
+                        padding: 8,
+                        font: { size: 10 },
+                    },
                 },
-            },
-            tooltip: {
-                callbacks: {
-                    label: (ctx) => {
-                        const raw = ctx.raw as number | null
-                        if (raw === null || raw === undefined) return ''
-                        return ` ${ctx.dataset.label}: ${raw.toLocaleString('en-PH', { minimumFractionDigits: 0, maximumFractionDigits: 2 })} kg`
+                tooltip: {
+                    callbacks: {
+                        label: (ctx) => {
+                            const raw = ctx.raw as number | null
+                            if (raw === null || raw === undefined) return ''
+                            return ` ${ctx.dataset.label}: ${raw.toLocaleString('en-PH', { minimumFractionDigits: 0, maximumFractionDigits: 2 })} kg`
+                        },
                     },
                 },
             },
-        },
-        scales: {
-            x: {
-                stacked: true,
-                grid: { display: false },
-                ticks: {
-                    font: { size: 11 },
-                    maxRotation: 45,
-                    maxTicksLimit: 12,
+            scales: {
+                x: {
+                    stacked,
+                    grid: { display: false },
+                    ticks: {
+                        font: { size: 11 },
+                        maxRotation: 45,
+                        maxTicksLimit: 12,
+                    },
+                },
+                y: {
+                    stacked,
+                    beginAtZero: true,
+                    grid: { color: 'rgba(0,0,0,0.05)' },
+                    ticks: {
+                        font: { size: 11 },
+                        callback: (value: number) => formatKgAxis(Number(value)),
+                    },
                 },
             },
-            y: {
-                stacked: true,
-                beginAtZero: true,
-                grid: { color: 'rgba(0,0,0,0.05)' },
-                ticks: {
-                    font: { size: 11 },
-                    callback: (value) => formatKgAxis(Number(value)),
-                },
-            },
-        },
-    }
+        }
+    })
 
     return { chartData, chartOptions, forecastDividerPlugin }
 }
