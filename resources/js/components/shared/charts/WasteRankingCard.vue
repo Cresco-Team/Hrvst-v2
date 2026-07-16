@@ -1,3 +1,4 @@
+
 <script setup lang="ts">
 import { Link, usePage } from '@inertiajs/vue3'
 import { ArrowRight, ChevronDown, ChevronUp, Vegan } from 'lucide-vue-next'
@@ -20,6 +21,7 @@ const props = defineProps<{
     unitLabel?: string
     initialVisible?: number
     guideQuestion: string
+    variant?: 'default' | 'destructive'
 }>()
 
 const isAdmin = computed(() => usePage().props.auth.user.roles.includes('admin'))
@@ -57,6 +59,13 @@ function maturityTooltip(item: RankedItem): string | undefined {
         ? `Based on ${item.months_observed} month${item.months_observed === 1 ? '' : 's'} of data`
         : undefined
 }
+
+const barFillClass = computed(() =>
+    props.variant === 'destructive' ? 'bg-destructive/70' : 'bg-primary/70',
+)
+const badgeHoverClass = computed(() =>
+    props.variant === 'destructive' ? 'group-hover:bg-destructive' : 'group-hover:bg-primary',
+)
 </script>
 
 <template>
@@ -86,9 +95,12 @@ function maturityTooltip(item: RankedItem): string | undefined {
                             :href="showRoute(item.id).url"
                             class="group -mx-2 flex items-center gap-3 rounded-lg px-2 py-1.5 transition-colors hover:bg-muted"
                         >
-                            <span class="flex size-6 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-bold text-muted-foreground group-hover:bg-primary duration-200">
-                                {{ index + 1 }}
-                            </span>
+                        <span
+                            class="flex size-6 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-bold text-muted-foreground duration-200"
+                            :class="badgeHoverClass"
+                        >
+                            {{ index + 1 }}
+                        </span>
 
                             <Avatar class="size-8 shrink-0 rounded-md">
                                 <AvatarImage
@@ -114,7 +126,8 @@ function maturityTooltip(item: RankedItem): string | undefined {
                                 </div>
                                 <div class="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-muted">
                                     <div
-                                        class="h-full rounded-full bg-primary/70"
+                                        class="h-full rounded-full"
+                                        :class="barFillClass"
                                         :style="{ width: barPct(item.value_kg) }"
                                     />
                                 </div>

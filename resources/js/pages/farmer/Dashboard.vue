@@ -69,6 +69,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                         :initial-visible="3"
                         unit-label="kg surplus"
                         guide-question="What should I avoid planting right now?"
+                        variant="destructive"
                     />
                 </Deferred>
             </div>
