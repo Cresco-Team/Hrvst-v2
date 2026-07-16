@@ -97,20 +97,23 @@ class VegetableMonthlyStatsSeeder extends Seeder
     }
 
     private function postSeasonalCrash(int $monthsAgo): array
-    {
-        $cycle = $monthsAgo % 12;
+{
+    $cycle = $monthsAgo % 12;
 
-        $supplyBase = match (true) {
-            $cycle >= 5 && $cycle <= 7 => 9_000,
-            $monthsAgo === 2 => 3_500,
-            $monthsAgo === 1 => 525,
-            default => 1_200,
-        };
-
-        $demandBase = ($cycle >= 5 && $cycle <= 7) ? 7_000 : 900;
-
-        return $this->split($supplyBase, 0.28, $demandBase, 0.25);
+    if ($cycle >= 5 && $cycle <= 7) {
+        return $this->split(9_000, 0.08, 7_000, 0.06);
     }
+
+    if ($monthsAgo === 2) {
+        return $this->split(3_500, 0.55, 900, 0.10);
+    }
+
+    if ($monthsAgo === 1) {
+        return $this->split(525, 0.60, 900, 0.10);
+    }
+
+    return $this->split(1_200, 0.10, 900, 0.35);
+}
 
     private function split(
         float $supplyBase,
