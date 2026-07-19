@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Actions\Vegetable\ExportVegetableActivityAction;
+use App\Enums\Billing\SubscriptionFeature;
 use App\Models\Billing\Subscription;
 use App\Models\Product\Vegetable;
 use Illuminate\Http\Request;
