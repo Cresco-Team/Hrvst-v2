@@ -20,6 +20,7 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
         Route::get('/dealers/create', [UserController::class, 'createDealerForm'])->name('dealers.create');
         Route::post('/dealers', [UserController::class, 'storeDealer'])->name('dealers.store');
 
+        Route::patch('/{user}/phone', [UserController::class, 'updatePhone'])->name('update-phone');
         Route::post('/{user}/reset-pin', [UserController::class, 'resetPin'])->name('reset-pin');
     });
 
