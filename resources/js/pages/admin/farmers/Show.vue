@@ -7,7 +7,6 @@ import {
     MapPin,
     Package,
     PackageCheck,
-    Phone,
 } from 'lucide-vue-next'
 import { computed } from 'vue'
 import UserTeaser from '@/components/features/admin/charts/UserTeaser.vue'
@@ -33,6 +32,7 @@ import AppLayout from '@/layouts/AppLayout.vue'
 import admin from '@/routes/admin'
 import type { BreadcrumbItem, FarmerResource } from '@/types'
 import EditPhoneDialog from '@/components/features/admin/dialogs/EditPhoneDialog.vue'
+import PhoneNumberField from '@/components/features/admin/PhoneNumberField.vue'
 
 const props = defineProps<{
     farmer?: FarmerResource
@@ -126,22 +126,18 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => [
                         <ItemContent>
                             <ItemTitle>{{ farmer.user?.name }}</ItemTitle>
                             <ItemDescription>
-                                <div class="flex items-center gap-2">
-                                    <Phone class="size-4 shrink-0" />
-                                    <span>{{ farmer.user?.phone_number }}</span>
-                                    <EditPhoneDialog
-                                        v-if="farmer.user"
-                                        :user-id="farmer.user.id"
-                                        :current-phone="farmer.user.phone_number"
-                                    />
-                                </div>
-                                <div
-                                    v-if="farmer.user?.email"
-                                    class="flex items-center gap-2"
-                                >
-                                    <Mail class="size-4 shrink-0" /><span class="truncate">{{ farmer.user?.email }}</span>
-                                </div>
-                            </ItemDescription>
+                            <PhoneNumberField
+                                v-if="farmer.user"
+                                :user-id="farmer.user.id"
+                                :phone-number="farmer.user.phone_number"
+                            />
+                            <div
+                                v-if="farmer.user?.email"
+                                class="flex items-center gap-2"
+                            >
+                                <Mail class="size-4 shrink-0" /><span class="truncate">{{ farmer.user?.email }}</span>
+                            </div>
+                        </ItemDescription>
                         </ItemContent>
                     </Item>
 

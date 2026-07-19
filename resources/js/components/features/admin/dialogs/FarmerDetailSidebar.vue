@@ -42,6 +42,7 @@ import { Separator } from '@/components/ui/separator'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useInitials } from '@/composables/useInitials'
 import type { FarmerResource, FlashMessage } from '@/types'
+import PhoneNumberField from '../PhoneNumberField.vue'
 
 const props = defineProps<{
     open: boolean
@@ -149,15 +150,12 @@ function handleDelete() {
                         {{ farmer.user?.email }}
                     </p>
                 </div>
-                <div class="flex justify-between text-sm">
-                    <div class="flex items-center gap-1.5">
-                        <Phone class="size-3.5 text-primary" />
-                        <span>Phone Number</span>
-                    </div>
-                    <p class="text-muted-foreground">
-                        {{ farmer.user?.phone_number }}
-                    </p>
-                </div>
+                <PhoneNumberField
+                    v-if="farmer.user"
+                    variant="row"
+                    :user-id="farmer.user.id"
+                    :phone-number="farmer.user.phone_number"
+                />
             </div>
 
             <Separator />
