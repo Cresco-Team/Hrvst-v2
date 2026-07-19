@@ -6,7 +6,6 @@ import {
     Info,
     KeyRound,
     Mail,
-    Phone,
     Trash,
 } from 'lucide-vue-next'
 import { ref, watch } from 'vue'
