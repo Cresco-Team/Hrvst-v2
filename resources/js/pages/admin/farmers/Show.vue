@@ -32,6 +32,7 @@ import { getInitials } from '@/composables/useInitials'
 import AppLayout from '@/layouts/AppLayout.vue'
 import admin from '@/routes/admin'
 import type { BreadcrumbItem, FarmerResource } from '@/types'
+import EditPhoneDialog from '@/components/features/admin/dialogs/EditPhoneDialog.vue'
 
 const props = defineProps<{
     farmer?: FarmerResource
@@ -126,9 +127,13 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => [
                             <ItemTitle>{{ farmer.user?.name }}</ItemTitle>
                             <ItemDescription>
                                 <div class="flex items-center gap-2">
-                                    <Phone class="size-4 shrink-0" /><span>{{
-                                        farmer.user?.phone_number
-                                    }}</span>
+                                    <Phone class="size-4 shrink-0" />
+                                    <span>{{ farmer.user?.phone_number }}</span>
+                                    <EditPhoneDialog
+                                        v-if="farmer.user"
+                                        :user-id="farmer.user.id"
+                                        :current-phone="farmer.user.phone_number"
+                                    />
                                 </div>
                                 <div
                                     v-if="farmer.user?.email"

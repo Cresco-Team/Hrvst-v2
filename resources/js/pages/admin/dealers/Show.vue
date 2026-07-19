@@ -33,6 +33,7 @@ import type {
     BreadcrumbItem,
     DealerResource,
 } from '@/types'
+import EditPhoneDialog from '@/components/features/admin/dialogs/EditPhoneDialog.vue'
 
 const props = defineProps<{
     dealer?: DealerResource
@@ -127,9 +128,13 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => [
                             <ItemTitle>{{ dealer.user?.name }}</ItemTitle>
                             <ItemDescription>
                                 <div class="flex items-center gap-2">
-                                    <Phone class="size-4 shrink-0" /><span>{{
-                                        dealer.user?.phone_number
-                                    }}</span>
+                                    <Phone class="size-4 shrink-0" />
+                                    <span>{{ dealer.user?.phone_number }}</span>
+                                    <EditPhoneDialog
+                                        v-if="dealer.user"
+                                        :user-id="dealer.user.id"
+                                        :current-phone="dealer.user.phone_number"
+                                    />
                                 </div>
                                 <div
                                     v-if="dealer.user?.email"
