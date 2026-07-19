@@ -2,8 +2,8 @@
 import L from 'leaflet'
 import { onMounted, onUnmounted, ref, watch } from 'vue'
 import 'leaflet/dist/leaflet.css'
-import type { FarmerMarker } from '@/types/resources/marketplace'
 import { useMapResizeSync } from '@/composables/useMapResizeSync'
+import type { FarmerMarker } from '@/types/resources/marketplace'
 
 interface MapCenter {
     lat: number
@@ -186,34 +186,6 @@ function refresh(): void {
 
 watch(() => props.markers, refresh, { deep: true })
 
-onMounted(() => {
-    if (!mapContainer.value) return
-
-    map = L.map(mapContainer.value).setView(
-        [props.center.lat, props.center.lng],
-        props.zoom,
-    )
-
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors',
-        maxZoom: 19,
-    }).addTo(map)
-
-    map.on('zoomend', refresh)
-    map.on('moveend', () => {
-        if (!map) return
-        const b = map.getBounds()
-        emit('bounds-change', {
-            north: b.getNorth(),
-            south: b.getSouth(),
-            east: b.getEast(),
-            west: b.getWest(),
-        })
-    })
-
-    refresh()
-})
-
 useMapResizeSync(mapContainer, () => map)
 
 onMounted(() => {
@@ -251,6 +223,11 @@ onMounted(() => {
     })
 
     refresh()
+})
+
+onUnmounted(() => {
+    map?.remove()
+    map = null
 })
 </script>
 
