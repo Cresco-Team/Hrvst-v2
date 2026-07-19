@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Deferred, Head, usePage } from '@inertiajs/vue3'
+import { Deferred, Head, Link, usePage } from '@inertiajs/vue3'
 import { computed, ref } from 'vue'
 import Heading from '@/components/Heading.vue'
 import AnalyticsUpsellCard from '@/components/shared/charts/AnalyticsUpsellCard.vue'
@@ -18,6 +18,9 @@ import type { BreadcrumbItem, VegetableCalendarFilters, VegetableDaySchedule } f
 import type { VegetableDetailData } from '@/types/resources/product'
 import { download } from '@/actions/App/Http/Controllers/VegetableExportController'
 import { Button } from '@/components/ui/button'
+import { Download, Lock } from '@lucide/vue'
+import { show as billingShow } from '@/routes/billing'
+import AppTooltip from '@/components/templates/AppTooltip.vue'
 
 interface Props {
     vegetable?: VegetableDetailData
@@ -109,18 +112,10 @@ function handleDaySelect(dateStr: string): void {
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex flex-col gap-6 p-4 lg:p-6">
-            <div class="flex items-end justify-between">
-                <Heading
-                    :title="meta.vegetableLabel"
-                    :description="meta.categoryName"
-                />
-                <Button as-child variant="outline" size="sm">
-                <a :href="download(meta.vegetableId).url">
-                    <Download class="size-4" />
-                    Export CSV
-                </a>
-            </Button>
-            </div>
+            <Heading
+                :title="meta.vegetableLabel"
+                :description="meta.categoryName"
+            />
 
             <Deferred data="vegetable">
                 <template #fallback>
@@ -146,6 +141,25 @@ function handleDaySelect(dateStr: string): void {
                     v-if="vegetable?.analytics"
                     :analytics="vegetable.analytics"
                 />
+
+                <AppTooltip
+                    v-if="vegetable?.forecast_locked"
+                    content="Subscribe to export vegetable activity as CSV"
+                >
+                    <Button as-child variant="outline" size="sm" class="w-fit gap-1.5">
+                        <Link :href="billingShow().url">
+                            <Lock class="size-3.5" />
+                            Export CSV
+                        </Link>
+                    </Button>
+                </AppTooltip>
+
+                <Button v-else-if="vegetable" as-child variant="outline" size="sm" class="w-fit gap-1.5">
+                    <a :href="download(meta.vegetableId).url">
+                        <Download class="size-4" />
+                        Export CSV
+                    </a>
+                </Button>
 
                 <VegetableRecommendations
                     v-if="vegetable?.analytics?.recommendations.length"
