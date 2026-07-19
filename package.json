@@ -8,8 +8,7 @@
 		"dev": "vite",
 		"format": "prettier --write resources/",
 		"format:check": "prettier --check resources/",
-		"lint": "eslint . --fix",
-		"lint-format": "biome check --write"
+		"lint": "eslint . --fix"
 	},
 	"devDependencies": {
 		"@eslint/js": "^9.39.4",
