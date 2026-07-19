@@ -1,6 +1,7 @@
 import type { Map as LeafletMap, Marker } from 'leaflet'
 import * as L from 'leaflet'
 import { onBeforeUnmount, ref } from 'vue'
+import { useMapResizeSync } from '@/composables/useMapResizeSync'
 
 export interface MapMarker {
     lat: number
@@ -10,11 +11,6 @@ export interface MapMarker {
 
 export interface UseLeafletMapOptions {
     zoom?: number
-    /**
-     * When true (default), a pin is placed at the center coordinate if no
-     * markers are passed to init(). Set to false for maps that manage their
-     * own marker layers (e.g. cluster groups).
-     */
     placeFallbackMarker?: boolean
 }
 
@@ -26,11 +22,7 @@ export function useLeafletMap(options: UseLeafletMapOptions = {}) {
     let map: LeafletMap | null = null
     let markers: Marker[] = []
 
-    async function init(
-        lat: number,
-        lng: number,
-        mapMarkers: MapMarker[] = [],
-    ) {
+    async function init(lat: number, lng: number, mapMarkers: MapMarker[] = []) {
         const L = (await import('leaflet')).default
         await import('leaflet/dist/leaflet.css')
 
@@ -40,23 +32,16 @@ export function useLeafletMap(options: UseLeafletMapOptions = {}) {
 
         destroy()
 
-        map = L.map(container.value, { zoomControl: true }).setView(
-            [lat, lng],
-            zoom,
-        )
+        map = L.map(container.value, { zoomControl: true }).setView([lat, lng], zoom)
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution:
-                '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
             maxZoom: 19,
         }).addTo(map)
 
-        const targets =
-            mapMarkers.length > 0
-                ? mapMarkers
-                : placeFallbackMarker
-                  ? [{ lat, lng }]
-                  : []
+        const targets = mapMarkers.length > 0
+            ? mapMarkers
+            : placeFallbackMarker ? [{ lat, lng }] : []
 
         for (const m of targets) {
             const marker = L.marker([m.lat, m.lng])
@@ -81,26 +66,18 @@ export function useLeafletMap(options: UseLeafletMapOptions = {}) {
         return map
     }
 
+    useMapResizeSync(container, getMap)
+
     onBeforeUnmount(destroy)
 
     return { container, init, destroy, invalidateSize, getMap }
 }
 
-// Vite breaks Leaflet's default marker asset resolution — this is required
 function fixMarkerIcons(leaflet: typeof L) {
-    delete (L.Icon.Default.prototype as unknown as Record<string, unknown>)
-        ._getIconUrl
-
+    delete (L.Icon.Default.prototype as unknown as Record<string, unknown>)._getIconUrl
     leaflet.Icon.Default.mergeOptions({
-        iconUrl: new URL('leaflet/dist/images/marker-icon.png', import.meta.url)
-            .href,
-        iconRetinaUrl: new URL(
-            'leaflet/dist/images/marker-icon-2x.png',
-            import.meta.url,
-        ).href,
-        shadowUrl: new URL(
-            'leaflet/dist/images/marker-shadow.png',
-            import.meta.url,
-        ).href,
+        iconUrl: new URL('leaflet/dist/images/marker-icon.png', import.meta.url).href,
+        iconRetinaUrl: new URL('leaflet/dist/images/marker-icon-2x.png', import.meta.url).href,
+        shadowUrl: new URL('leaflet/dist/images/marker-shadow.png', import.meta.url).href,
     })
 }
