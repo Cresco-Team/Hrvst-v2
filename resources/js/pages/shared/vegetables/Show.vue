@@ -16,6 +16,8 @@ import adminRoutes, { dashboard as adminDashboard } from '@/routes/admin'
 import vegetables from '@/routes/vegetables'
 import type { BreadcrumbItem, VegetableCalendarFilters, VegetableDaySchedule } from '@/types'
 import type { VegetableDetailData } from '@/types/resources/product'
+import { download } from '@/actions/App/Http/Controllers/VegetableExportController'
+import { Button } from '@/components/ui/button'
 
 interface Props {
     vegetable?: VegetableDetailData
@@ -107,10 +109,18 @@ function handleDaySelect(dateStr: string): void {
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex flex-col gap-6 p-4 lg:p-6">
-            <Heading
-                :title="meta.vegetableLabel"
-                :description="meta.categoryName"
-            />
+            <div class="flex items-end justify-between">
+                <Heading
+                    :title="meta.vegetableLabel"
+                    :description="meta.categoryName"
+                />
+                <Button as-child variant="outline" size="sm">
+                <a :href="download(meta.vegetableId).url">
+                    <Download class="size-4" />
+                    Export CSV
+                </a>
+            </Button>
+            </div>
 
             <Deferred data="vegetable">
                 <template #fallback>
