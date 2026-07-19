@@ -232,7 +232,10 @@ onUnmounted(() => {
 </script>
 
 <template>
-    <div style="isolation: isolate;" class="h-full w-full">
+    <div
+        style="isolation: isolate;"
+        class="h-full w-full"
+    >
         <div
             ref="mapContainer"
             class="h-full w-full overflow-hidden rounded-lg"

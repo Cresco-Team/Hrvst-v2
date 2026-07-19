@@ -1,5 +1,5 @@
-import { onBeforeUnmount, type Ref, watch } from 'vue'
 import type { Map as LeafletMap } from 'leaflet'
+import { onBeforeUnmount, type Ref, watch } from 'vue'
 
 export function useMapResizeSync(
     container: Ref<HTMLElement | null>,

@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { Deferred, Head, Link, usePage } from '@inertiajs/vue3'
+import { Download, Lock } from '@lucide/vue'
 import { computed, ref } from 'vue'
+import { download } from '@/actions/App/Http/Controllers/VegetableExportController'
 import Heading from '@/components/Heading.vue'
 import AnalyticsUpsellCard from '@/components/shared/charts/AnalyticsUpsellCard.vue'
 import VegetableAnalyticsSummary from '@/components/shared/charts/VegetableAnalyticsSummary.vue'
@@ -8,19 +10,17 @@ import VegetableMonthlyChart from '@/components/shared/charts/VegetableMonthlyCh
 import VegetableRecommendations from '@/components/shared/charts/VegetableRecommendations.vue'
 import VegetableDayDetailSheet from '@/components/shared/VegetableDayDetailSheet.vue'
 import VegetableMarketCalendar from '@/components/shared/VegetableMarketCalendar.vue'
+import AppTooltip from '@/components/templates/AppTooltip.vue'
+import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { useCapitalize } from '@/lib/utils'
 import { categories, dashboard } from '@/routes'
 import adminRoutes, { dashboard as adminDashboard } from '@/routes/admin'
+import { show as billingShow } from '@/routes/billing'
 import vegetables from '@/routes/vegetables'
 import type { BreadcrumbItem, VegetableCalendarFilters, VegetableDaySchedule } from '@/types'
 import type { VegetableDetailDataFixed } from '@/types/resources/product'
-import { download } from '@/actions/App/Http/Controllers/VegetableExportController'
-import { Button } from '@/components/ui/button'
-import { Download, Lock } from '@lucide/vue'
-import { show as billingShow } from '@/routes/billing'
-import AppTooltip from '@/components/templates/AppTooltip.vue'
 
 interface Props {
     vegetable?: VegetableDetailDataFixed
@@ -146,7 +146,12 @@ function handleDaySelect(dateStr: string): void {
                     v-if="vegetable?.forecast_locked"
                     content="Subscribe to export vegetable activity as CSV"
                 >
-                    <Button as-child variant="outline" size="sm" class="w-fit gap-1.5">
+                    <Button
+                        as-child
+                        variant="outline"
+                        size="sm"
+                        class="w-fit gap-1.5"
+                    >
                         <Link :href="billingShow().url">
                             <Lock class="size-3.5" />
                             Export CSV
@@ -154,7 +159,13 @@ function handleDaySelect(dateStr: string): void {
                     </Button>
                 </AppTooltip>
 
-                <Button v-else-if="vegetable" as-child variant="outline" size="sm" class="w-fit gap-1.5">
+                <Button
+                    v-else-if="vegetable"
+                    as-child
+                    variant="outline"
+                    size="sm"
+                    class="w-fit gap-1.5"
+                >
                     <a :href="download(meta.vegetableId).url">
                         <Download class="size-4" />
                         Export CSV

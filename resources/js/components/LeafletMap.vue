@@ -41,8 +41,14 @@ defineExpose({ destroy })
 
 <template>
     <div style="isolation: isolate;">
-        <div class="h-48 w-full overflow-hidden" :class="props.class">
-            <div ref="container" class="h-full w-full" />
+        <div
+            class="h-48 w-full overflow-hidden"
+            :class="props.class"
+        >
+            <div
+                ref="container"
+                class="h-full w-full"
+            />
         </div>
     </div>
 </template>

@@ -85,7 +85,10 @@ function submit(): void {
                     :disabled="form.processing"
                     @click="submit"
                 >
-                    <Spinner v-if="form.processing" class="size-3.5" />
+                    <Spinner
+                        v-if="form.processing"
+                        class="size-3.5"
+                    />
                     Update
                 </Button>
             </DialogFooter>

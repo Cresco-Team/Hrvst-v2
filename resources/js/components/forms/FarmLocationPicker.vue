@@ -134,8 +134,14 @@ onUnmounted(() => {
         <p class="text-xs text-muted-foreground">
             Click on the map to pin your farm's location. Drag the marker to adjust.
         </p>
-        <InputError v-if="latError" :message="latError" />
-        <InputError v-if="lngError" :message="lngError" />
+        <InputError
+            v-if="latError"
+            :message="latError"
+        />
+        <InputError
+            v-if="lngError"
+            :message="lngError"
+        />
         <p
             v-if="modelValue.lat !== null && modelValue.lng !== null"
             class="text-xs text-muted-foreground"

@@ -95,12 +95,12 @@ const badgeHoverClass = computed(() =>
                             :href="showRoute(item.id).url"
                             class="group -mx-2 flex items-center gap-3 rounded-lg px-2 py-1.5 transition-colors hover:bg-muted"
                         >
-                        <span
-                            class="flex size-6 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-bold text-muted-foreground duration-200"
-                            :class="badgeHoverClass"
-                        >
-                            {{ index + 1 }}
-                        </span>
+                            <span
+                                class="flex size-6 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-bold text-muted-foreground duration-200"
+                                :class="badgeHoverClass"
+                            >
+                                {{ index + 1 }}
+                            </span>
 
                             <Avatar class="size-8 shrink-0 rounded-md">
                                 <AvatarImage

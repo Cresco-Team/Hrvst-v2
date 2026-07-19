@@ -23,7 +23,10 @@ withDefaults(
         </div>
         <div class="flex items-center gap-1">
             <p class="text-muted-foreground">{{ phoneNumber }}</p>
-            <EditPhoneDialog :user-id="userId" :current-phone="phoneNumber" />
+            <EditPhoneDialog
+                :user-id="userId"
+                :current-phone="phoneNumber"
+            />
         </div>
     </div>
 
@@ -33,6 +36,9 @@ withDefaults(
     >
         <Phone class="size-4 shrink-0" />
         <span>{{ phoneNumber }}</span>
-        <EditPhoneDialog :user-id="userId" :current-phone="phoneNumber" />
+        <EditPhoneDialog
+            :user-id="userId"
+            :current-phone="phoneNumber"
+        />
     </div>
 </template>
