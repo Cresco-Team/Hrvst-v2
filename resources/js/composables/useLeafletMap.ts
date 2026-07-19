@@ -25,24 +25,27 @@ export function useLeafletMap(options: UseLeafletMapOptions = {}) {
     async function init(lat: number, lng: number, mapMarkers: MapMarker[] = []) {
         const L = (await import('leaflet')).default
         await import('leaflet/dist/leaflet.css')
-
+    
         fixMarkerIcons(L)
-
+    
         if (!container.value) return
-
+    
         destroy()
-
+        if ((container.value as HTMLElement & { _leaflet_id?: number })._leaflet_id) {
+            delete (container.value as HTMLElement & { _leaflet_id?: number })._leaflet_id
+        }
+    
         map = L.map(container.value, { zoomControl: true }).setView([lat, lng], zoom)
-
+    
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
             maxZoom: 19,
         }).addTo(map)
-
+    
         const targets = mapMarkers.length > 0
             ? mapMarkers
             : placeFallbackMarker ? [{ lat, lng }] : []
-
+    
         for (const m of targets) {
             const marker = L.marker([m.lat, m.lng])
             if (m.popup) marker.bindPopup(m.popup)
