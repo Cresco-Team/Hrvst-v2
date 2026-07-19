@@ -58,10 +58,7 @@ function submit(): void {
 
         <DialogContent class="sm:max-w-sm">
             <DialogHeader>
-                <DialogTitle>Update Phone Number</DialogTitle>
-                <DialogDescription>
-                    This is the number this account logs in with — the user will need it on their next login.
-                </DialogDescription>
+                <DialogTitle>Edit Phone Number</DialogTitle>
             </DialogHeader>
 
             <div class="grid gap-2">
@@ -89,7 +86,7 @@ function submit(): void {
                     @click="submit"
                 >
                     <Spinner v-if="form.processing" class="size-3.5" />
-                    Save
+                    Update
                 </Button>
             </DialogFooter>
         </DialogContent>
