@@ -40,8 +40,10 @@ defineExpose({ destroy })
 </script>
 
 <template>
-    <div
-        ref="container"
-        :class="['h-48 w-full overflow-hidden', props.class]"
-    />
+    <div style="isolation: isolate;">
+        <div
+            ref="container"
+            :class="['h-48 w-full overflow-hidden', props.class]"
+        />
+    </div>
 </template>
