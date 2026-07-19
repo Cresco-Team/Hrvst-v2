@@ -53,7 +53,15 @@ export interface MonthlyActivity {
     demand_fulfilled_kg: number
 }
 
-export type VegetableDetailData = App.Data.Vegetable.VegetableDetailData
+export type VegetableDetailDataFixed = Omit<
+    App.Data.Vegetable.VegetableDetailData,
+    'analytics' | 'forecast' | 'vegetable_calendar'
+> & {
+    analytics: VarietyAnalytics | null
+    forecast: App.DTOs.Product.VegetableForecastDTO | null
+    vegetable_calendar: Record<string, VegetableDaySchedule>
+}
+
 export type VegetableSharedData = App.Data.Vegetable.VegetableSharedData
 
 export type VegetableAdminData = App.Data.Vegetable.VegetableAdminData

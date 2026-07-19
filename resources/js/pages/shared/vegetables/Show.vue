@@ -15,7 +15,7 @@ import { categories, dashboard } from '@/routes'
 import adminRoutes, { dashboard as adminDashboard } from '@/routes/admin'
 import vegetables from '@/routes/vegetables'
 import type { BreadcrumbItem, VegetableCalendarFilters, VegetableDaySchedule } from '@/types'
-import type { VegetableDetailData } from '@/types/resources/product'
+import type { VegetableDetailDataFixed } from '@/types/resources/product'
 import { download } from '@/actions/App/Http/Controllers/VegetableExportController'
 import { Button } from '@/components/ui/button'
 import { Download, Lock } from '@lucide/vue'
@@ -23,7 +23,7 @@ import { show as billingShow } from '@/routes/billing'
 import AppTooltip from '@/components/templates/AppTooltip.vue'
 
 interface Props {
-    vegetable?: VegetableDetailData
+    vegetable?: VegetableDetailDataFixed
     calendarFilters: VegetableCalendarFilters
     meta: {
         vegetableId: number
