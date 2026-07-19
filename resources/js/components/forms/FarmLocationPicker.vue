@@ -122,10 +122,14 @@ onUnmounted(() => {
     <div class="grid gap-2">
         <div style="isolation: isolate;">
             <div
-                ref="mapContainer"
-                class="h-64 w-full rounded-md border"
+                class="h-64 w-full overflow-hidden rounded-md border transition-colors"
                 :class="{ 'border-destructive': latError || lngError }"
-            />
+            >
+                <div
+                    ref="mapContainer"
+                    class="h-full w-full"
+                />
+            </div>
         </div>
         <p class="text-xs text-muted-foreground">
             Click on the map to pin your farm's location. Drag the marker to adjust.
