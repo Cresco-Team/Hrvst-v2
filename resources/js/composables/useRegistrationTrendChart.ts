@@ -61,7 +61,12 @@ export function useRegistrationTrendChart(
         plugins: {
             legend: {
                 position: 'bottom',
-                labels: { boxWidth: 8, boxHeight: 8, padding: 8, font: { size: 10 } },
+                labels: {
+                    boxWidth: 8,
+                    boxHeight: 8,
+                    padding: 8,
+                    font: { size: 10 },
+                },
             },
             tooltip: {
                 callbacks: {
@@ -70,7 +75,10 @@ export function useRegistrationTrendChart(
             },
         },
         scales: {
-            x: { grid: { display: false }, ticks: { font: { size: 11 }, maxRotation: 45 } },
+            x: {
+                grid: { display: false },
+                ticks: { font: { size: 11 }, maxRotation: 45 },
+            },
             y: {
                 beginAtZero: true,
                 grid: { color: 'rgba(0,0,0,0.05)' },

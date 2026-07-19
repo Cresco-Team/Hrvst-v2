@@ -48,7 +48,8 @@ export function useSingleSeriesVolumeChart(
             legend: { display: false },
             tooltip: {
                 callbacks: {
-                    label: (ctx) => ` ${(ctx.raw as number).toLocaleString('en-PH')} kg`,
+                    label: (ctx) =>
+                        ` ${(ctx.raw as number).toLocaleString('en-PH')} kg`,
                 },
             },
         },

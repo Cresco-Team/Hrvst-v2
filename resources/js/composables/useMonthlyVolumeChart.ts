@@ -243,7 +243,8 @@ export function useMonthlyVolumeChart(
                     grid: { color: 'rgba(0,0,0,0.05)' },
                     ticks: {
                         font: { size: 11 },
-                        callback: (value: number) => formatKgAxis(Number(value)),
+                        callback: (value: number) =>
+                            formatKgAxis(Number(value)),
                     },
                 },
             },
