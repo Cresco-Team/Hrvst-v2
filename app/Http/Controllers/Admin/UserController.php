@@ -78,7 +78,7 @@ class UserController extends Controller
     public function updatePhone(UpdateUserPhoneRequest $request, User $user, UpdateUserPhoneAction $action): RedirectResponse
     {
         $action->handle($user, $request->validated('phone_number'));
-    
+
         return back()->with('flash', [
             'type' => 'success',
             'message' => 'Phone number updated.',

@@ -30,12 +30,12 @@ enum SubscriptionFeature: string
     }
 
     public static function forUser(User $user): ?self
-{
-    return match (true) {
-        $user->hasRole('admin') => self::AdminAnalytics,
-        $user->hasRole('farmer') => self::FarmerForecasts,
-        $user->hasRole('dealer') => self::DealerMarketIntel,
-        default => null,
-    };
-}
+    {
+        return match (true) {
+            $user->hasRole('admin') => self::AdminAnalytics,
+            $user->hasRole('farmer') => self::FarmerForecasts,
+            $user->hasRole('dealer') => self::DealerMarketIntel,
+            default => null,
+        };
+    }
 }

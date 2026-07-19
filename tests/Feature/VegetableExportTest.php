@@ -6,6 +6,7 @@ use App\Enums\Billing\SubscriptionStatus;
 use App\Models\Billing\Subscription;
 use App\Models\Product\Category;
 use App\Models\Product\Vegetable;
+use App\Models\User;
 
 use function Pest\Laravel\actingAs;
 
@@ -17,7 +18,7 @@ beforeEach(function () {
     ]);
 });
 
-function subscribeFarmer(\App\Models\User $farmer): void
+function subscribeFarmer(User $farmer): void
 {
     Subscription::create([
         'user_id' => $farmer->id,

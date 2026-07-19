@@ -2,6 +2,7 @@
 
 namespace App\Services\Product;
 
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class VegetableActivityService
@@ -37,7 +38,7 @@ class VegetableActivityService
             ->where('period_date', '>=', $start)
             ->select(['period_date', 'supply_fulfilled_kg', 'supply_expired_kg', 'demand_fulfilled_kg', 'demand_expired_kg'])
             ->get()
-            ->groupBy(fn ($row) => \Illuminate\Support\Carbon::parse($row->period_date)->format('Y-m'))
+            ->groupBy(fn ($row) => Carbon::parse($row->period_date)->format('Y-m'))
             ->map(fn ($group) => (object) [
                 'supply_fulfilled_kg' => $group->sum('supply_fulfilled_kg'),
                 'supply_expired_kg' => $group->sum('supply_expired_kg'),

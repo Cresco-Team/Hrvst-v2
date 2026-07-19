@@ -8,8 +8,8 @@ use App\Enums\PostType;
 use App\Models\Marketplace\Post;
 use App\Models\Marketplace\PostItem;
 use App\Models\Product\Vegetable;
-use App\Models\Profiles\FarmerProfile;
 use App\Models\Profiles\DealerProfile;
+use App\Models\Profiles\FarmerProfile;
 use Illuminate\Database\Seeder;
 
 class DefenseDemoSeeder extends Seeder
