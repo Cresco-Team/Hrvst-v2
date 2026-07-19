@@ -219,6 +219,15 @@ useMapResizeSync(mapContainer, () => map)
 onMounted(() => {
     if (!mapContainer.value) return
 
+    if (map) {
+        map.remove()
+        map = null
+    }
+    const el = mapContainer.value as HTMLElement & { _leaflet_id?: number }
+    if (el._leaflet_id) {
+        delete el._leaflet_id
+    }
+
     map = L.map(mapContainer.value).setView(
         [props.center.lat, props.center.lng],
         props.zoom,
