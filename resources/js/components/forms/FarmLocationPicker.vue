@@ -48,6 +48,15 @@ const DEFAULT_ZOOM = 13
 function initMap(): void {
 	if (!mapContainer.value) return
 
+	if (map) {
+		map.remove()
+		map = null
+	}
+	const el = mapContainer.value as HTMLElement & { _leaflet_id?: number }
+	if (el._leaflet_id) {
+		delete el._leaflet_id
+	}
+
 	const center = props.municipalityCoords
 		? ([props.municipalityCoords.lat, props.municipalityCoords.lng] as L.LatLngExpression)
 		: DEFAULT_CENTER
