@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
-
-// Fix Leaflet's broken default icon paths under Vite
 import markerIconUrl from 'leaflet/dist/images/marker-icon.png'
 import markerShadowUrl from 'leaflet/dist/images/marker-shadow.png'
-import { onMounted, onUnmounted, watch } from 'vue'
+import { onMounted, onUnmounted, ref, watch } from 'vue'
 import InputError from '@/components/InputError.vue'
+import { useMapResizeSync } from '@/composables/useMapResizeSync'
 
 L.Marker.prototype.options.icon = L.icon({
 	iconUrl: markerIconUrl,
@@ -38,21 +37,22 @@ const emit = defineEmits<{
 	'update:modelValue': [value: Coordinates]
 }>()
 
+const mapContainer = ref<HTMLDivElement | null>(null)
+
 let map: L.Map | null = null
 let marker: L.Marker | null = null
 
-const DEFAULT_CENTER: L.LatLngExpression = [16.4023, 120.596] // Benguet fallback
+const DEFAULT_CENTER: L.LatLngExpression = [16.4023, 120.596]
 const DEFAULT_ZOOM = 13
 
 function initMap(): void {
-	const el = document.getElementById('farm-location-map')
-	if (!el) return
+	if (!mapContainer.value) return
 
 	const center = props.municipalityCoords
 		? ([props.municipalityCoords.lat, props.municipalityCoords.lng] as L.LatLngExpression)
 		: DEFAULT_CENTER
 
-	map = L.map(el, { zoomControl: true }).setView(center, DEFAULT_ZOOM)
+	map = L.map(mapContainer.value, { zoomControl: true }).setView(center, DEFAULT_ZOOM)
 
 	L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 		attribution: '© OpenStreetMap contributors',
@@ -97,6 +97,8 @@ watch(
 	},
 )
 
+useMapResizeSync(mapContainer, () => map)
+
 onMounted(() => {
 	initMap()
 })
@@ -109,14 +111,9 @@ onUnmounted(() => {
 
 <template>
     <div class="grid gap-2">
-        <!--
-            isolation: isolate creates a new stacking context, trapping
-            Leaflet's hardcoded z-indices inside this container so they
-            don't bleed into the rest of the page layout.
-        -->
         <div style="isolation: isolate;">
             <div
-                id="farm-location-map"
+                ref="mapContainer"
                 class="h-64 w-full rounded-md border"
                 :class="{ 'border-destructive': latError || lngError }"
             />
@@ -124,14 +121,8 @@ onUnmounted(() => {
         <p class="text-xs text-muted-foreground">
             Click on the map to pin your farm's location. Drag the marker to adjust.
         </p>
-        <InputError
-            v-if="latError"
-            :message="latError"
-        />
-        <InputError
-            v-if="lngError"
-            :message="lngError"
-        />
+        <InputError v-if="latError" :message="latError" />
+        <InputError v-if="lngError" :message="lngError" />
         <p
             v-if="modelValue.lat !== null && modelValue.lng !== null"
             class="text-xs text-muted-foreground"
