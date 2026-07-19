@@ -220,18 +220,10 @@ onUnmounted(() => {
 </script>
 
 <template>
-    <div
-        ref="mapContainer"
-        class="h-full w-full overflow-hidden rounded-lg"
-    />
+    <div style="isolation: isolate;" class="h-full w-full">
+        <div
+            ref="mapContainer"
+            class="h-full w-full overflow-hidden rounded-lg"
+        />
+    </div>
 </template>
-
-<style scoped>
-:deep(.leaflet-pane) {
-    z-index: 1 !important;
-}
-:deep(.leaflet-top),
-:deep(.leaflet-bottom) {
-    z-index: 2 !important;
-}
-</style>
