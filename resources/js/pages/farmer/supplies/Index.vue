@@ -16,7 +16,6 @@ import type {
     BreadcrumbItem,
     FarmerSuppliesProps,
     FarmerSupplyDataFixed,
-    VarietyOptionsByVegetable,
 } from '@/types'
 
 defineProps<FarmerSuppliesProps>()

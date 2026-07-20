@@ -16,7 +16,6 @@ import type {
     BreadcrumbItem,
     DealerDemandsProps,
     DealerDemandDataFixed,
-    VarietyOptionsByVegetable,
 } from '@/types'
 
 defineProps<DealerDemandsProps>()
@@ -186,7 +185,7 @@ const breadcrumbs: BreadcrumbItem[] = [
     <DemandForm
         :open="demandFormOpen"
         :demand="activeDemand"
-        :variety-options="varietyOptions as VarietyOptionsByVegetable"
+        :variety-options="varietyOptions"
         @update:open="demandFormOpen = $event"
     />
 
