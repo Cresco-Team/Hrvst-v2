@@ -8,8 +8,8 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Spinner } from '@/components/ui/spinner'
 import AppLayout from '@/layouts/AppLayout.vue'
-import { cancel, subscribe } from '@/routes/billing'
 import type { BreadcrumbItem } from '@/types'
+import { cancel, subscribe } from '@/routes/billing'
 
 interface PlanOption {
     value: 'monthly' | 'quarterly' | 'annual'
