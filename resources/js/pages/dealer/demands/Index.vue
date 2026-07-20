@@ -186,9 +186,7 @@ const breadcrumbs: BreadcrumbItem[] = [
     <DemandForm
         :open="demandFormOpen"
         :demand="activeDemand"
-        :variety-options="
-            varietyOptions as VarietyOptionsByVegetable | undefined
-        "
+        :variety-options="varietyOptions as VarietyOptionsByVegetable"
         @update:open="demandFormOpen = $event"
     />
 
