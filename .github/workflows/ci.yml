@@ -82,7 +82,7 @@ jobs:
   test:
     name: Tests (Pest)
     runs-on: ubuntu-latest
-    needs: lint-php
+    needs: [lint-php, build]
     services:
       postgres:
         image: postgres:16
@@ -120,6 +120,12 @@ jobs:
           coverage: none
 
       - uses: ramsey/composer-install@v3
+
+      - name: Download built assets
+        uses: actions/download-artifact@v4
+        with:
+          name: build-output
+          path: public/build
 
       # MediaLibrary's registerMediaConversions() runs jpegoptim/pngquant/optipng
       # synchronously (nonQueued()) on every fake-uploaded image in VegetableTest.
