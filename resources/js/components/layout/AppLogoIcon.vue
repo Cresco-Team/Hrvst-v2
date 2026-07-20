@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { HTMLAttributes } from 'vue'
-import logoRaw from '@/../images/app-logo.svg?raw' // Adjust path as needed
+import logoRaw from '@/../images/app-logo.svg?raw'
 
 defineOptions({
     inheritAttrs: false,
@@ -23,7 +23,6 @@ defineProps<Props>()
 </template>
 
 <style scoped>
-/* This ensures the injected SVG inherits dimensions and colors */
 :deep(svg) {
     width: 100%;
     height: 100%;
