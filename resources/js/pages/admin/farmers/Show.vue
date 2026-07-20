@@ -10,7 +10,6 @@ import {
 } from 'lucide-vue-next'
 import { computed } from 'vue'
 import UserTeaser from '@/components/features/admin/charts/UserTeaser.vue'
-import EditPhoneDialog from '@/components/features/admin/dialogs/EditPhoneDialog.vue'
 import PhoneNumberField from '@/components/features/admin/PhoneNumberField.vue'
 import LeafletMap from '@/components/LeafletMap.vue'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
