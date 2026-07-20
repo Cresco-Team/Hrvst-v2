@@ -2,7 +2,6 @@
 import { Deferred, Head, Link, usePage } from '@inertiajs/vue3'
 import { Download, Lock } from '@lucide/vue'
 import { computed, ref } from 'vue'
-import { download } from '@/actions/App/Http/Controllers/VegetableExportController'
 import Heading from '@/components/Heading.vue'
 import AnalyticsUpsellCard from '@/components/shared/charts/AnalyticsUpsellCard.vue'
 import VegetableAnalyticsSummary from '@/components/shared/charts/VegetableAnalyticsSummary.vue'
@@ -17,10 +16,11 @@ import AppLayout from '@/layouts/AppLayout.vue'
 import { useCapitalize } from '@/lib/utils'
 import { categories, dashboard } from '@/routes'
 import adminRoutes, { dashboard as adminDashboard } from '@/routes/admin'
-import { show as billingShow } from '@/routes/billing'
 import vegetables from '@/routes/vegetables'
 import type { BreadcrumbItem, VegetableCalendarFilters, VegetableDaySchedule } from '@/types'
 import type { VegetableDetailDataFixed } from '@/types/resources/product'
+import { download } from '@/actions/App/Http/Controllers/VegetableExportController'
+import { show as billingShow } from '@/routes/billing'
 
 interface Props {
     vegetable?: VegetableDetailDataFixed
