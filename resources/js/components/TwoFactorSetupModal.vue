@@ -31,7 +31,7 @@ const props = defineProps<Props>()
 const isOpen = defineModel<boolean>('isOpen')
 
 const { copy, copied } = useClipboard()
-const { qrCodeSvg, manualSetupKey, clearSetupData, fetchSetupData, errors } = useTwoFactorAuth()
+const { qrCodeSvg, manualSetupKey, clearSetupData, fetchSetupData, errors: setupErrors } = useTwoFactorAuth()
 
 const showVerificationStep = ref(false)
 const code = ref<string>('')
@@ -138,8 +138,8 @@ watch(
             <div class="relative flex w-auto flex-col items-center justify-center space-y-5">
                 <template v-if="!showVerificationStep">
                     <AlertError
-                        v-if="errors?.length"
-                        :errors="errors"
+                        v-if="setupErrors?.length"
+                        :errors="setupErrors"
                     />
                     <template v-else>
                         <div class="relative mx-auto flex max-w-md items-center overflow-hidden">
