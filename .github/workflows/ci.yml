@@ -17,7 +17,7 @@ env:
   # Static, non-secret key — CI never touches a real environment, so a fixed
   # key is fine and keeps every job deterministic instead of generating a
   # fresh one per job and hoping nothing depends on key stability.
-  APP_KEY: base64:CIkeyCIkeyCIkeyCIkeyCIkeyCIkeyCIk=
+  APP_KEY: base64:Hi/orxuM2PbDuCBogg3OuS95rl6vPvA/ay+5eUVBAew=
 
 jobs:
   # ──────────────────────────────────────────────────────────────────────────
