@@ -19,6 +19,7 @@ import {
 } from '@/components/ui/select'
 import { Spinner } from '@/components/ui/spinner'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
+import { store } from '@/routes/register'
 
 interface Municipality {
     id: number
@@ -85,8 +86,6 @@ async function onMunicipalityChange(value: string) {
 function selectRole(role: Role): void {
     if (form.role === role) return
     form.role = role
-    // Address fields are meaningless for a dealer — drop them rather than
-    // silently submit stale farmer data if someone switches roles mid-form.
     form.municipality_id = ''
     form.barangay_id = ''
     form.latitude = null
@@ -97,7 +96,7 @@ function selectRole(role: Role): void {
 // ─── Submit ───────────────────────────────────────────────────────────────────
 
 function submit(): void {
-    form.post('/register', {
+    form.post(store().url, {
         onSuccess: () => {
             form.reset()
             barangays.value = []

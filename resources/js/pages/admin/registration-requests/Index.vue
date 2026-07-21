@@ -37,6 +37,7 @@ import { useInitials } from '@/composables/useInitials'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { dashboard } from '@/routes/admin'
 import type { BreadcrumbItem } from '@/types'
+import { approve, reject } from '@/actions/App/Http/Controllers/Admin/RegistrationRequestController'
 
 interface RegistrationRequestResource {
     id: number
@@ -79,7 +80,7 @@ const approvingId = ref<number | null>(null)
 
 function handleApprove(request: RegistrationRequestResource): void {
     approvingId.value = request.id
-    approveForm.post(`/admin/registration-requests/${request.id}/approve`, {
+    approveForm.post(approve(request.id).url, {
         preserveScroll: true,
         onFinish: () => (approvingId.value = null),
     })
@@ -101,7 +102,7 @@ function openReject(request: RegistrationRequestResource): void {
 function handleReject(): void {
     if (!requestToReject.value) return
 
-    rejectForm.post(`/admin/registration-requests/${requestToReject.value.id}/reject`, {
+    rejectForm.post(reject(requestToReject.value.id).url, {
         preserveScroll: true,
         onSuccess: () => {
             rejectDialogOpen.value = false
