@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DealerController;
 use App\Http\Controllers\Admin\FarmerController;
+use App\Http\Controllers\Admin\RegistrationRequestController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\Vegetable\VegetableController;
 use Illuminate\Support\Facades\Route;
@@ -22,6 +23,12 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
 
         Route::patch('/{user}/phone', [UserController::class, 'updatePhone'])->name('update-phone');
         Route::post('/{user}/reset-pin', [UserController::class, 'resetPin'])->name('reset-pin');
+    });
+
+    Route::prefix('registration-requests')->name('registration-requests.')->group(function () {
+        Route::get('/', [RegistrationRequestController::class, 'index'])->name('index');
+        Route::post('/{registrationRequest}/approve', [RegistrationRequestController::class, 'approve'])->name('approve');
+        Route::post('/{registrationRequest}/reject', [RegistrationRequestController::class, 'reject'])->name('reject');
     });
 
     /* ---------- vegetables ---------- */
