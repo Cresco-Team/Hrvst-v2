@@ -26,6 +26,7 @@ import {
 import { usePwaInstall } from '@/composables/usePwaInstall'
 import { dashboard, login, logout } from '@/routes'
 import FlashToaster from '@/components/FlashToaster.vue'
+import register from '@/routes/register'
 
 const page = usePage()
 
@@ -182,8 +183,14 @@ const steps = [
                     </template>
                     <template v-else>
                         <Link :href="login()">
-                            <Button class="font-semibold">
+                            <Button class="font-semibold" variant="ghost">
                                 Sign In
+                            </Button>
+                        </Link>
+
+                        <Link :href="register.create()">
+                            <Button class="font-semibold">
+                                Register
                             </Button>
                         </Link>
                     </template>
@@ -228,12 +235,20 @@ const steps = [
                         </Link>
                     </template>
                     <template v-else>
-                        <Link
-                            :href="login()"
-                            class="group"
+                        <Button
+                            v-if="canInstall"
+                            variant="outline"
+                            size="sm"
+                            class="gap-2 font-semibold"
+                            @click="handleInstallClick"
                         >
+                            <Download class="size-4" />
+                            Install App
+                        </Button>
+
+                        <Link :href="register.create()">
                             <Button class="font-semibold px-3">
-                                Sign In
+                                Register
                                 <ArrowRight class="size-4 transition-transform group-hover:translate-x-1" />
                             </Button>
                         </Link>
