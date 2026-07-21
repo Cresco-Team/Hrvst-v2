@@ -74,7 +74,7 @@ class AddressSeeder extends Seeder
         foreach ($municipalities as $municipality) {
             Municipality::firstOrCreate(
                 ['name' => $municipality['name']],
-                array_merge($municipality, ['province_id' => $province])
+                array_merge($municipality, ['province_id' => $province->id])
             );
         }
 
