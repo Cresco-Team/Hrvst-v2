@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 #[Fillable([
     'name', 'phone_number', 'email', 'role', 'pin',
     'municipality_id', 'barangay_id', 'latitude', 'longitude',
-    'status', 'reviewed_by', 'reviewed_at',
+    'status', 'reviewed_by', 'reviewed_at', 'rejection_reason',
 ])]
 class RegistrationRequest extends Model
 {
