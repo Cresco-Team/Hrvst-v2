@@ -23,7 +23,7 @@ class RegistrationRequestController extends Controller
     {
         $action->handle($request->validated());
 
-        return redirect()->route('register.create')->with('flash', [
+        return redirect()->route('home')->with('flash', [
             'type' => 'success',
             'message' => 'Request submitted. An admin will review it and contact you once approved.',
         ]);
