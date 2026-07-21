@@ -25,6 +25,7 @@ import {
 } from '@/components/ui/dialog'
 import { usePwaInstall } from '@/composables/usePwaInstall'
 import { dashboard, login, logout } from '@/routes'
+import FlashToaster from '@/components/FlashToaster.vue'
 
 const page = usePage()
 
@@ -129,6 +130,7 @@ const steps = [
 </script>
 
 <template>
+    <FlashToaster />
     <div class="min-h-screen antialiased">
         <Head title="Hrvst — Agricultural Marketplace">
             <link
