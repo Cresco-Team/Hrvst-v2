@@ -21,7 +21,7 @@ class RegistrationRequestController extends Controller
         ]);
     }
 
-    public function store(StoreRegistrationRequestRequest $request, CreateRegistrationRequestAction $action, ApproveRegistrationRequestAction $approveRequest,): RedirectResponse
+    public function store(StoreRegistrationRequestRequest $request, CreateRegistrationRequestAction $action, ApproveRegistrationRequestAction $approveRequest): RedirectResponse
     {
         $registrationRequest = $action->handle($request->validated());
 
