@@ -10,6 +10,7 @@ import {
     LineController,
     LineElement,
     PointElement,
+    ScriptableContext,
     Title,
     Tooltip,
 } from 'chart.js'
@@ -132,14 +133,14 @@ export function useMonthlyVolumeChart(
                     type: 'line' as const,
                     label: series.label,
                     data,
-                    borderColor: (ctx: any) =>
+                    borderColor: (ctx: ScriptableContext<'bar'>) =>
                         `rgba(${series.rgb}, ${isForecastIndex(ctx.dataIndex ?? 0) ? 0.5 : 1})`,
                     backgroundColor: `rgba(${series.rgb}, 0.08)`,
                     pointBackgroundColor: `rgb(${series.rgb})`,
-                    pointRadius: (ctx: any) =>
+                    pointRadius: (ctx: ScriptableContext<'bar'>) =>
                         isForecastIndex(ctx.dataIndex ?? 0) ? 2 : 3,
                     borderWidth: 2,
-                    borderDash: (ctx: any) =>
+                    borderDash: (ctx: ScriptableContext<'bar'>) =>
                         isForecastIndex(ctx.dataIndex ?? 0) ? [4, 3] : [],
                     tension: 0.3,
                     fill: false,
@@ -150,12 +151,12 @@ export function useMonthlyVolumeChart(
                 type: 'bar' as const,
                 label: series.label,
                 data,
-                backgroundColor: (ctx: any) =>
+                backgroundColor: (ctx: ScriptableContext<'bar'>) =>
                     `rgba(${series.rgb}, ${isForecastIndex(ctx.dataIndex) ? series.forecastAlpha : series.historicalAlpha})`,
-                borderColor: (ctx: any) =>
+                borderColor: (ctx: ScriptableContext<'bar'>) =>
                     `rgba(${series.rgb}, ${isForecastIndex(ctx.dataIndex) ? 0.7 : 1})`,
                 borderWidth: 1,
-                borderDash: (ctx: any) =>
+                borderDash: (ctx: ScriptableContext<'bar'>) =>
                     isForecastIndex(ctx.dataIndex) ? [4, 3] : [],
                 borderRadius: series.radius,
                 stack: series.stack,
@@ -219,7 +220,7 @@ export function useMonthlyVolumeChart(
                 },
                 tooltip: {
                     callbacks: {
-                        label: (ctx) => {
+                        label: (ctx: ScriptableContext<'bar'>) => {
                             const raw = ctx.raw as number | null
                             if (raw === null || raw === undefined) return ''
                             return ` ${ctx.dataset.label}: ${raw.toLocaleString('en-PH', { minimumFractionDigits: 0, maximumFractionDigits: 2 })} kg`
