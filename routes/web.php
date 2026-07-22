@@ -3,6 +3,7 @@
 use App\Http\Controllers\AddressController;
 use App\Http\Controllers\ChangePinController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\RegistrationRequestController;
 use App\Http\Controllers\VegetableExportController;
@@ -32,6 +33,9 @@ Route::middleware(['auth'])->group(function () {
 Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('dashboard', DashboardController::class)->name('dashboard');
+
+    Route::get('notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::post('notifications/{id}/read', [NotificationController::class, 'markRead'])->name('notifications.read');
 });
 
 /* ---------- Vegetable CSV Download ---------- */
