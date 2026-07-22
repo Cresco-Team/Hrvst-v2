@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Head, Link, usePage } from '@inertiajs/vue3'
 import { ArrowRight, BarChart3, Download, MapPin, Package, ShieldCheck, Share, Sprout, Store, TrendingUp } from 'lucide-vue-next'
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import FlashToaster from '@/components/FlashToaster.vue'
 import AppLogoIcon from '@/components/layout/AppLogoIcon.vue'
 import { Badge } from '@/components/ui/badge'
@@ -10,8 +10,21 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { usePwaInstall } from '@/composables/usePwaInstall'
 import { dashboard, login, logout } from '@/routes'
 import register from '@/routes/register'
+import { FlashMessage } from '@/types'
+import { Clock } from '@lucide/vue'
 
 const page = usePage()
+const pendingDialogOpen = ref(false)
+
+watch(
+    () => page.props.flash as FlashMessage | null,
+    (flash) => {
+        if (flash?.type === 'success') {
+            pendingDialogOpen.value = true
+        }
+    },
+    { immediate: true },
+)
 
 const { canInstall, isIos, install } = usePwaInstall()
 const iosInstructionsOpen = ref(false)
@@ -565,6 +578,24 @@ const steps = [
             </DialogContent>
         </Dialog>
     </div>
+
+    <Dialog v-model:open="pendingDialogOpen">
+        <DialogContent class="sm:max-w-md" @pointer-down-outside.prevent>
+            <DialogHeader class="items-center text-center">
+                <div class="mx-auto mb-2 flex size-12 items-center justify-center rounded-full bg-primary/10 text-primary">
+                    <Clock class="size-6" />
+                </div>
+                <DialogTitle>Request Submitted</DialogTitle>
+                <DialogDescription class="text-center">
+                    Every account is manually verified by an admin before it's activated —
+                    that's what keeps this platform free of fake accounts. This usually
+                    takes about a day. We'll reach out once you're approved and give you
+                    your login PIN then.
+                </DialogDescription>
+            </DialogHeader>
+            <Button class="w-full" @click="pendingDialogOpen = false">Got it</Button>
+        </DialogContent>
+    </Dialog>
 </template>
 
 <style scoped>
