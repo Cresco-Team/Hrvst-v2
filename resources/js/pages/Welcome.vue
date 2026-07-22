@@ -1,31 +1,14 @@
 <script setup lang="ts">
 import { Head, Link, usePage } from '@inertiajs/vue3'
-import {
-    ArrowRight,
-    BarChart3,
-    Download,
-    MapPin,
-    Package,
-    ShieldCheck,
-    Share,
-    Sprout,
-    Store,
-    TrendingUp,
-} from 'lucide-vue-next'
+import { ArrowRight, BarChart3, Download, MapPin, Package, ShieldCheck, Share, Sprout, Store, TrendingUp } from 'lucide-vue-next'
 import { ref } from 'vue'
+import FlashToaster from '@/components/FlashToaster.vue'
 import AppLogoIcon from '@/components/layout/AppLogoIcon.vue'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogHeader,
-    DialogTitle,
-} from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { usePwaInstall } from '@/composables/usePwaInstall'
 import { dashboard, login, logout } from '@/routes'
-import FlashToaster from '@/components/FlashToaster.vue'
 import register from '@/routes/register'
 
 const page = usePage()
@@ -183,7 +166,10 @@ const steps = [
                     </template>
                     <template v-else>
                         <Link :href="login()">
-                            <Button class="font-semibold" variant="ghost">
+                            <Button
+                                class="font-semibold"
+                                variant="ghost"
+                            >
                                 Sign In
                             </Button>
                         </Link>

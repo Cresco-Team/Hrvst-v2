@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import { Head, Link, useForm } from '@inertiajs/vue3'
-import { CircleCheck, Sprout, ShoppingBag } from 'lucide-vue-next'
+import { Sprout, ShoppingBag } from 'lucide-vue-next'
 import { computed, ref } from 'vue'
-import AppLogo from '@/components/layout/AppLogo.vue'
 import FarmLocationPicker from '@/components/forms/FarmLocationPicker.vue'
 import InputError from '@/components/InputError.vue'
+import AppLogo from '@/components/layout/AppLogo.vue'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp'
 import { Input } from '@/components/ui/input'
+import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp'
 import { Label } from '@/components/ui/label'
 import {
     Select,

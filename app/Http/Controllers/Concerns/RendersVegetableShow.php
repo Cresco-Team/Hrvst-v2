@@ -60,6 +60,9 @@ trait RendersVegetableShow
                 'categoryName' => $vegetable->category->name,
                 'categorySlug' => $vegetable->category->slug,
             ],
+            // Farmer/dealer only (see VegetableWatchPolicy::create) — an admin
+            // viewing this page simply never has a row here, which is correct.
+            'isWatching' => $user->watches()->where('vegetable_id', $vegetable->id)->exists(),
         ]);
     }
 }

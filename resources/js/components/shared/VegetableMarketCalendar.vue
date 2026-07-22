@@ -21,9 +21,9 @@ import {
 	useCalendarBalance,
 	type CalendarViewerRole,
 } from '@/composables/useCalendarBalance'
+import type { CalendarSlotData, VegetableCalendarFilters, VegetableDaySchedule } from '@/types'
 import adminRoutes from '@/routes/admin'
 import vegetables from '@/routes/vegetables'
-import type { CalendarSlotData, VegetableCalendarFilters, VegetableDaySchedule } from '@/types'
 
 interface Props {
 	calendar?: Record<string, VegetableDaySchedule>

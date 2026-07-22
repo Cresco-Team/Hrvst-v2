@@ -10,13 +10,13 @@ import Heading from '@/components/Heading.vue'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import AppLayout from '@/layouts/AppLayout.vue'
-import farmer from '@/routes/farmer'
-import { destroy, index } from '@/routes/farmer/supplies'
 import type {
     BreadcrumbItem,
     FarmerSuppliesProps,
     FarmerSupplyDataFixed,
 } from '@/types'
+import farmer from '@/routes/farmer'
+import { destroy, index } from '@/routes/farmer/supplies'
 
 defineProps<FarmerSuppliesProps>()
 

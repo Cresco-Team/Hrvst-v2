@@ -5,8 +5,8 @@ import AnalyticsUpsellCard from '@/components/shared/charts/AnalyticsUpsellCard.
 import WasteRankingCard from '@/components/shared/charts/WasteRankingCard.vue'
 import { Skeleton } from '@/components/ui/skeleton'
 import AppLayout from '@/layouts/AppLayout.vue'
-import farmer from '@/routes/farmer'
 import type { BreadcrumbItem, FarmerDashboardProps } from '@/types'
+import farmer from '@/routes/farmer'
 
 defineProps<FarmerDashboardProps>()
 

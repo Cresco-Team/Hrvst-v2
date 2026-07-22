@@ -1,5 +1,6 @@
 <?php
 
+use App\Console\Commands\EvaluateVegetableWatchesCommand;
 use App\Console\Commands\ExpirePostItemsCommand;
 use App\Console\Commands\ExpireSubscriptionsCommand;
 use Illuminate\Foundation\Inspiring;
@@ -12,3 +13,5 @@ Artisan::command('inspire', function () {
 
 Schedule::command(ExpirePostItemsCommand::class)->daily()->onOneServer();
 Schedule::command(ExpireSubscriptionsCommand::class)->daily()->onOneServer();
+
+Schedule::command(EvaluateVegetableWatchesCommand::class)->weekly()->onOneServer();

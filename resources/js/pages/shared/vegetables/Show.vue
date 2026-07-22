@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { Deferred, Head, Link, usePage } from '@inertiajs/vue3'
-import { Download, Lock } from '@lucide/vue'
+import { Deferred, Head, Link, useForm, usePage } from '@inertiajs/vue3'
+import { Bell, BellOff, Download, Lock } from '@lucide/vue'
 import { computed, ref } from 'vue'
-import { download } from '@/actions/App/Http/Controllers/VegetableExportController'
 import Heading from '@/components/Heading.vue'
 import AnalyticsUpsellCard from '@/components/shared/charts/AnalyticsUpsellCard.vue'
 import VegetableAnalyticsSummary from '@/components/shared/charts/VegetableAnalyticsSummary.vue'
@@ -15,12 +14,13 @@ import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { useCapitalize } from '@/lib/utils'
+import type { BreadcrumbItem, VegetableCalendarFilters, VegetableDaySchedule } from '@/types'
+import type { VegetableDetailDataFixed } from '@/types/resources/product'
+import { download } from '@/actions/App/Http/Controllers/VegetableExportController'
 import { categories, dashboard } from '@/routes'
 import adminRoutes, { dashboard as adminDashboard } from '@/routes/admin'
 import { show as billingShow } from '@/routes/billing'
-import vegetables from '@/routes/vegetables'
-import type { BreadcrumbItem, VegetableCalendarFilters, VegetableDaySchedule } from '@/types'
-import type { VegetableDetailDataFixed } from '@/types/resources/product'
+import vegetables, { watch as watchRoute, unwatch as unwatchRoute } from '@/routes/vegetables'
 
 interface Props {
     vegetable?: VegetableDetailDataFixed
@@ -31,6 +31,7 @@ interface Props {
         categoryName: string
         categorySlug: string
     }
+    isWatching: boolean
 }
 
 const props = defineProps<Props>()
@@ -75,6 +76,21 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => {
         },
     ]
 })
+
+// ─── Watch toggle ─────────────────────────────────────────────────────────────
+// Free for every farmer/dealer — no subscription gate here (see
+// VegetableWatchController::store). The gate lives on the *alert detail*
+// (NotificationController::index), not on the ability to watch.
+
+const watchForm = useForm({})
+
+function toggleWatch(): void {
+    if (props.isWatching) {
+        watchForm.delete(unwatchRoute(props.meta.vegetableId).url, { preserveScroll: true })
+    } else {
+        watchForm.post(watchRoute(props.meta.vegetableId).url, { preserveScroll: true })
+    }
+}
 
 // ─── Day detail sheet ─────────────────────────────────────────────────────────
 
@@ -142,35 +158,55 @@ function handleDaySelect(dateStr: string): void {
                     :analytics="vegetable.analytics"
                 />
 
-                <AppTooltip
-                    v-if="vegetable?.forecast_locked"
-                    content="Subscribe to export vegetable activity as CSV"
-                >
+                <div class="flex flex-wrap gap-2">
+                    <AppTooltip
+                        v-if="vegetable?.forecast_locked"
+                        content="Subscribe to export vegetable activity as CSV"
+                    >
+                        <Button
+                            as-child
+                            variant="outline"
+                            size="sm"
+                            class="w-fit gap-1.5"
+                        >
+                            <Link :href="billingShow().url">
+                                <Lock class="size-3.5" />
+                                Export CSV
+                            </Link>
+                        </Button>
+                    </AppTooltip>
+
                     <Button
+                        v-else-if="vegetable"
                         as-child
                         variant="outline"
                         size="sm"
                         class="w-fit gap-1.5"
                     >
-                        <Link :href="billingShow().url">
-                            <Lock class="size-3.5" />
+                        <a :href="download(meta.vegetableId).url">
+                            <Download class="size-4" />
                             Export CSV
-                        </Link>
+                        </a>
                     </Button>
-                </AppTooltip>
 
-                <Button
-                    v-else-if="vegetable"
-                    as-child
-                    variant="outline"
-                    size="sm"
-                    class="w-fit gap-1.5"
-                >
-                    <a :href="download(meta.vegetableId).url">
-                        <Download class="size-4" />
-                        Export CSV
-                    </a>
-                </Button>
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        class="w-fit gap-1.5"
+                        :disabled="watchForm.processing"
+                        @click="toggleWatch"
+                    >
+                        <BellOff
+                            v-if="isWatching"
+                            class="size-4"
+                        />
+                        <Bell
+                            v-else
+                            class="size-4"
+                        />
+                        {{ isWatching ? 'Stop Watching' : 'Watch this Vegetable' }}
+                    </Button>
+                </div>
 
                 <VegetableRecommendations
                     v-if="vegetable?.analytics?.recommendations.length"
