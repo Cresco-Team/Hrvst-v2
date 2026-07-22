@@ -190,6 +190,7 @@ function handleDaySelect(dateStr: string): void {
                     </Button>
 
                     <Button
+                        v-if="!isAdmin"
                         variant="outline"
                         size="sm"
                         class="w-fit gap-1.5"
