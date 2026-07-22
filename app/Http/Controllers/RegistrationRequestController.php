@@ -25,7 +25,7 @@ class RegistrationRequestController extends Controller
 
         return redirect()->route('home')->with('flash', [
             'type' => 'success',
-            'message' => 'Request submitted. An admin will review it and contact you once approved.',
+            'message' => 'Request submitted.',
         ]);
     }
 }
