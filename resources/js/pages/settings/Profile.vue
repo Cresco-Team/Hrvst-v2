@@ -2,7 +2,6 @@
 import { Form, Head, useForm, usePage } from '@inertiajs/vue3'
 import { Camera, Phone } from 'lucide-vue-next'
 import { ref } from 'vue'
-import ProfileController from '@/actions/App/Http/Controllers/Settings/ProfileController'
 import DeleteUser from '@/components/DeleteUser.vue'
 import Heading from '@/components/Heading.vue'
 import InputError from '@/components/InputError.vue'
@@ -14,8 +13,9 @@ import { Separator } from '@/components/ui/separator'
 import { getInitials } from '@/composables/useInitials'
 import AppLayout from '@/layouts/AppLayout.vue'
 import SettingsLayout from '@/layouts/settings/Layout.vue'
-import { edit } from '@/routes/profile'
 import type { BreadcrumbItem } from '@/types'
+import { edit } from '@/routes/profile'
+import ProfileController from '@/actions/App/Http/Controllers/Settings/ProfileController'
 
 const breadcrumbItems: BreadcrumbItem[] = [{ title: 'Profile settings', href: edit().url }]
 

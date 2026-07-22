@@ -46,9 +46,9 @@ import dealer from '@/routes/dealer'
 import { archived as dealerDemandsArchived } from '@/routes/dealer/demands'
 import farmer from '@/routes/farmer'
 import { archived as farmerSuppliesArchived } from '@/routes/farmer/supplies'
-import { index as watchesIndex } from '@/routes/watches'
 import type { BreadcrumbItem, NavItem } from '@/types'
 import AppTooltip from '../templates/AppTooltip.vue'
+import { index as watchesIndex } from '@/routes/watches'
 
 type Props = {
     breadcrumbs?: BreadcrumbItem[]

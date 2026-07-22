@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3'
-import axios from 'axios'
 import { Bell, Lock } from '@lucide/vue'
+import axios from 'axios'
 import { onMounted, onUnmounted, ref } from 'vue'
 import AppTooltip from '@/components/templates/AppTooltip.vue'
 import { Badge } from '@/components/ui/badge'

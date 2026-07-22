@@ -2,7 +2,6 @@
 import { Deferred, Head, Link, useForm, usePage } from '@inertiajs/vue3'
 import { Bell, BellOff, Download, Lock } from '@lucide/vue'
 import { computed, ref } from 'vue'
-import { download } from '@/actions/App/Http/Controllers/VegetableExportController'
 import Heading from '@/components/Heading.vue'
 import AnalyticsUpsellCard from '@/components/shared/charts/AnalyticsUpsellCard.vue'
 import VegetableAnalyticsSummary from '@/components/shared/charts/VegetableAnalyticsSummary.vue'
@@ -15,12 +14,13 @@ import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { useCapitalize } from '@/lib/utils'
-import { categories, dashboard } from '@/routes'
-import adminRoutes, { dashboard as adminDashboard } from '@/routes/admin'
-import { show as billingShow } from '@/routes/billing'
 import vegetables, { watch as watchRoute, unwatch as unwatchRoute } from '@/routes/vegetables'
 import type { BreadcrumbItem, VegetableCalendarFilters, VegetableDaySchedule } from '@/types'
 import type { VegetableDetailDataFixed } from '@/types/resources/product'
+import { show as billingShow } from '@/routes/billing'
+import adminRoutes, { dashboard as adminDashboard } from '@/routes/admin'
+import { categories, dashboard } from '@/routes'
+import { download } from '@/actions/App/Http/Controllers/VegetableExportController'
 
 interface Props {
     vegetable?: VegetableDetailDataFixed
@@ -196,8 +196,14 @@ function handleDaySelect(dateStr: string): void {
                         :disabled="watchForm.processing"
                         @click="toggleWatch"
                     >
-                        <BellOff v-if="isWatching" class="size-4" />
-                        <Bell v-else class="size-4" />
+                        <BellOff
+                            v-if="isWatching"
+                            class="size-4"
+                        />
+                        <Bell
+                            v-else
+                            class="size-4"
+                        />
                         {{ isWatching ? 'Stop Watching' : 'Watch this Vegetable' }}
                     </Button>
                 </div>

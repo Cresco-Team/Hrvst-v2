@@ -6,8 +6,8 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp'
 import AuthLayout from '@/layouts/AuthLayout.vue'
-import { store } from '@/routes/two-factor/login'
 import type { TwoFactorConfigContent } from '@/types'
+import { store } from '@/routes/two-factor/login'
 
 const authConfigContent = computed<TwoFactorConfigContent>(() => {
 	if (showRecoveryInput.value) {

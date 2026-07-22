@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Deferred, Head, router, useForm } from '@inertiajs/vue3'
+import { Deferred, Head, useForm } from '@inertiajs/vue3'
 import {
     CircleCheck,
     Mail,
@@ -10,6 +10,7 @@ import {
     UserCheck,
 } from 'lucide-vue-next'
 import { ref } from 'vue'
+import { approve, reject } from '@/actions/App/Http/Controllers/Admin/RegistrationRequestController'
 import EmptyState from '@/components/EmptyState.vue'
 import Heading from '@/components/Heading.vue'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
@@ -35,9 +36,8 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
 import { useInitials } from '@/composables/useInitials'
 import AppLayout from '@/layouts/AppLayout.vue'
-import { dashboard } from '@/routes/admin'
 import type { BreadcrumbItem } from '@/types'
-import { approve, reject } from '@/actions/App/Http/Controllers/Admin/RegistrationRequestController'
+import { dashboard } from '@/routes/admin'
 
 interface RegistrationRequestResource {
     id: number

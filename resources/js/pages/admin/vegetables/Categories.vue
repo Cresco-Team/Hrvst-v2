@@ -4,8 +4,8 @@ import { ArrowRight, Vegan } from 'lucide-vue-next'
 import Heading from '@/components/Heading.vue'
 import { Item, ItemContent, ItemMedia, ItemTitle } from '@/components/ui/item'
 import AppLayout from '@/layouts/AppLayout.vue'
-import admin from '@/routes/admin'
 import type { AdminCategoriesProps, BreadcrumbItem } from '@/types'
+import admin from '@/routes/admin'
 
 defineProps<AdminCategoriesProps>()
 

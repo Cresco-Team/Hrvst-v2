@@ -9,9 +9,9 @@ import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { useCapitalize } from '@/lib/utils'
+import type { BreadcrumbItem } from '@/types'
 import { dashboard } from '@/routes'
 import { show, unwatch } from '@/routes/vegetables'
-import type { BreadcrumbItem } from '@/types'
 
 interface WatchRow {
     id: number
