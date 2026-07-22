@@ -9,9 +9,9 @@ import Heading from '@/components/Heading.vue'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import AppLayout from '@/layouts/AppLayout.vue'
-import type { AdminVegetablesProps, BreadcrumbItem, VegetableAdminData } from '@/types'
 import admin, { dashboard } from '@/routes/admin'
 import { destroy as destroyVeg, index } from '@/routes/admin/vegetables'
+import type { AdminVegetablesProps, BreadcrumbItem, VegetableAdminData } from '@/types'
 
 const props = defineProps<AdminVegetablesProps>()
 

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Head, Link, usePage } from '@inertiajs/vue3'
+import { Clock } from '@lucide/vue'
 import { ArrowRight, BarChart3, Download, MapPin, Package, ShieldCheck, Share, Sprout, Store, TrendingUp } from 'lucide-vue-next'
 import { ref, watch } from 'vue'
 import FlashToaster from '@/components/FlashToaster.vue'
@@ -10,8 +11,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { usePwaInstall } from '@/composables/usePwaInstall'
 import { dashboard, login, logout } from '@/routes'
 import register from '@/routes/register'
-import { FlashMessage } from '@/types'
-import { Clock } from '@lucide/vue'
+import type { FlashMessage } from '@/types'
 
 const page = usePage()
 const pendingDialogOpen = ref(false)
@@ -580,7 +580,10 @@ const steps = [
     </div>
 
     <Dialog v-model:open="pendingDialogOpen">
-        <DialogContent class="sm:max-w-md" @pointer-down-outside.prevent>
+        <DialogContent
+            class="sm:max-w-md"
+            @pointer-down-outside.prevent
+        >
             <DialogHeader class="items-center text-center">
                 <div class="mx-auto mb-2 flex size-12 items-center justify-center rounded-full bg-primary/10 text-primary">
                     <Clock class="size-6" />
@@ -593,7 +596,10 @@ const steps = [
                     your login PIN then.
                 </DialogDescription>
             </DialogHeader>
-            <Button class="w-full" @click="pendingDialogOpen = false">Got it</Button>
+            <Button
+                class="w-full"
+                @click="pendingDialogOpen = false"
+            >Got it</Button>
         </DialogContent>
     </Dialog>
 </template>

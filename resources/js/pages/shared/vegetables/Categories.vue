@@ -5,9 +5,9 @@ import Heading from '@/components/Heading.vue'
 import { Item, ItemContent, ItemMedia, ItemTitle } from '@/components/ui/item'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { useCapitalize } from '@/lib/utils'
-import type { BreadcrumbItem, SharedCategoriesProps } from '@/types'
 import { dashboard } from '@/routes'
 import vegetables from '@/routes/vegetables'
+import type { BreadcrumbItem, SharedCategoriesProps } from '@/types'
 
 defineProps<SharedCategoriesProps>()
 

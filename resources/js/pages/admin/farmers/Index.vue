@@ -10,6 +10,10 @@ import {
 import axios from 'axios'
 import { computed, ref, watch } from 'vue'
 import { toast } from 'vue-sonner'
+import {
+    details as farmerDetails,
+    markers as farmerMarkers,
+} from '@/actions/App/Http/Controllers/Admin/FarmerController'
 import EmptyState from '@/components/EmptyState.vue'
 import FarmerBarangaySheet from '@/components/features/admin/dialogs/FarmerBarangaySheet.vue'
 import FarmerDetailSidebar from '@/components/features/admin/dialogs/FarmerDetailSidebar.vue'
@@ -22,19 +26,15 @@ import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import AppLayout from '@/layouts/AppLayout.vue'
+import admin from '@/routes/admin'
+import { index } from '@/routes/admin/farmers'
+import users from '@/routes/admin/users'
 import type {
     AdminFarmersProps,
     BreadcrumbItem,
     FarmerMarker,
     FarmerResource,
 } from '@/types'
-import {
-    details as farmerDetails,
-    markers as farmerMarkers,
-} from '@/actions/App/Http/Controllers/Admin/FarmerController'
-import admin from '@/routes/admin'
-import { index } from '@/routes/admin/farmers'
-import users from '@/routes/admin/users'
 
 const props = defineProps<AdminFarmersProps>()
 

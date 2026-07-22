@@ -30,8 +30,8 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { getInitials } from '@/composables/useInitials'
 import AppLayout from '@/layouts/AppLayout.vue'
-import type { BreadcrumbItem, FarmerResource } from '@/types'
 import admin from '@/routes/admin'
+import type { BreadcrumbItem, FarmerResource } from '@/types'
 
 const props = defineProps<{
     farmer?: FarmerResource

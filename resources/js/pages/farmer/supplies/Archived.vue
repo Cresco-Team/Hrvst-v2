@@ -7,9 +7,9 @@ import DataTable from '@/components/shared/tables/DataTable.vue'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import AppLayout from '@/layouts/AppLayout.vue'
-import type { BreadcrumbItem, FarmerSupplyDataFixed, Paginated } from '@/types'
 import farmer from '@/routes/farmer'
 import { archived, index } from '@/routes/farmer/supplies'
+import type { BreadcrumbItem, FarmerSupplyDataFixed, Paginated } from '@/types'
 
 interface Props {
     filters: { status: string }

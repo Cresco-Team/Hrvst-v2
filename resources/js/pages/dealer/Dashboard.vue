@@ -5,8 +5,8 @@ import AnalyticsUpsellCard from '@/components/shared/charts/AnalyticsUpsellCard.
 import WasteRankingCard from '@/components/shared/charts/WasteRankingCard.vue'
 import { Skeleton } from '@/components/ui/skeleton'
 import AppLayout from '@/layouts/AppLayout.vue'
-import type { BreadcrumbItem, DealerDashboardProps } from '@/types'
 import dealer from '@/routes/dealer'
+import type { BreadcrumbItem, DealerDashboardProps } from '@/types'
 
 defineProps<DealerDashboardProps>()
 

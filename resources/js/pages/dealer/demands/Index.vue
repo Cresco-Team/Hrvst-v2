@@ -10,13 +10,13 @@ import Heading from '@/components/Heading.vue'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import AppLayout from '@/layouts/AppLayout.vue'
+import dealer from '@/routes/dealer'
+import { destroy, index } from '@/routes/dealer/demands'
 import type {
     BreadcrumbItem,
     DealerDemandsProps,
     DealerDemandDataFixed,
 } from '@/types'
-import dealer from '@/routes/dealer'
-import { destroy, index } from '@/routes/dealer/demands'
 
 defineProps<DealerDemandsProps>()
 
