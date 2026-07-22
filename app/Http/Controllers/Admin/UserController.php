@@ -5,9 +5,11 @@ namespace App\Http\Controllers\Admin;
 use App\Actions\Admin\CreateDealerAction;
 use App\Actions\Admin\CreateFarmerAction;
 use App\Actions\Admin\ResetUserPinAction;
+use App\Actions\Admin\UpdateUserPhoneAction;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\CreateDealerRequest;
 use App\Http\Requests\Admin\CreateFarmerRequest;
+use App\Http\Requests\Admin\UpdateUserPhoneRequest;
 use App\Models\Address\Municipality;
 use App\Models\Profiles\DealerProfile;
 use App\Models\Profiles\FarmerProfile;
@@ -71,6 +73,16 @@ class UserController extends Controller
                 'message' => 'Dealer created successfully.',
                 'pin' => $pin,
             ]);
+    }
+
+    public function updatePhone(UpdateUserPhoneRequest $request, User $user, UpdateUserPhoneAction $action): RedirectResponse
+    {
+        $action->handle($user, $request->validated('phone_number'));
+
+        return back()->with('flash', [
+            'type' => 'success',
+            'message' => 'Phone number updated.',
+        ]);
     }
 
     public function resetPin(User $user, ResetUserPinAction $resetPin): RedirectResponse

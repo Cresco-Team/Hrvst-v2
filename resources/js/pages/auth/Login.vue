@@ -97,6 +97,16 @@ const pin = ref('')
                     <Spinner v-if="processing" />
                     Sign in
                 </Button>
+
+                <p class="text-center text-sm text-muted-foreground">
+                    Don't have an account?
+                    <a
+                        href="/register"
+                        class="font-medium text-foreground underline decoration-neutral-300 underline-offset-4 hover:decoration-current"
+                    >
+                        Request one
+                    </a>
+                </p>
             </div>
         </Form>
     </AuthBase>

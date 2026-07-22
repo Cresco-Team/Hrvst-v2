@@ -10,11 +10,6 @@ export interface MapMarker {
 
 export interface UseLeafletMapOptions {
     zoom?: number
-    /**
-     * When true (default), a pin is placed at the center coordinate if no
-     * markers are passed to init(). Set to false for maps that manage their
-     * own marker layers (e.g. cluster groups).
-     */
     placeFallbackMarker?: boolean
 }
 
@@ -86,7 +81,6 @@ export function useLeafletMap(options: UseLeafletMapOptions = {}) {
     return { container, init, destroy, invalidateSize, getMap }
 }
 
-// Vite breaks Leaflet's default marker asset resolution — this is required
 function fixMarkerIcons(leaflet: typeof L) {
     delete (L.Icon.Default.prototype as unknown as Record<string, unknown>)
         ._getIconUrl

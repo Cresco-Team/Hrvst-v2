@@ -31,7 +31,7 @@ const props = defineProps<Props>()
 const isOpen = defineModel<boolean>('isOpen')
 
 const { copy, copied } = useClipboard()
-const { qrCodeSvg, manualSetupKey, clearSetupData, fetchSetupData, errors } = useTwoFactorAuth()
+const { qrCodeSvg, manualSetupKey, clearSetupData, fetchSetupData, errors: setupErrors } = useTwoFactorAuth()
 
 const showVerificationStep = ref(false)
 const code = ref<string>('')
@@ -138,8 +138,8 @@ watch(
             <div class="relative flex w-auto flex-col items-center justify-center space-y-5">
                 <template v-if="!showVerificationStep">
                     <AlertError
-                        v-if="errors?.length"
-                        :errors="errors"
+                        v-if="setupErrors?.length"
+                        :errors="setupErrors"
                     />
                     <template v-else>
                         <div class="relative mx-auto flex max-w-md items-center overflow-hidden">
@@ -154,6 +154,11 @@ watch(
                                     v-else
                                     class="relative z-10 overflow-hidden border p-5"
                                 >
+                                    <!-- qrCodeSvg comes from our own authenticated Fortify QR-code
+                                         endpoint and is generated server-side from the user's TOTP
+                                         secret — it is not reflected request input, so v-html is
+                                         safe here. -->
+                                    <!-- eslint-disable vue/no-v-html -->
                                     <div
                                         class="flex aspect-square size-full items-center justify-center"
                                         :style="{
@@ -164,6 +169,7 @@ watch(
                                         }"
                                         v-html="qrCodeSvg"
                                     />
+                                    <!-- eslint-enable vue/no-v-html -->
                                 </div>
                             </div>
                         </div>

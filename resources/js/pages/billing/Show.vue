@@ -158,7 +158,10 @@ function handleCancel(): void {
                         :disabled="cancelForm.processing"
                         @click="handleCancel"
                     >
-                        <Spinner v-if="cancelForm.processing" class="size-3.5" />
+                        <Spinner
+                            v-if="cancelForm.processing"
+                            class="size-3.5"
+                        />
                         Cancel
                     </Button>
                 </CardContent>

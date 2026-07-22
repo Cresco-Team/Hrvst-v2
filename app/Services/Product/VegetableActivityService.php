@@ -2,6 +2,7 @@
 
 namespace App\Services\Product;
 
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class VegetableActivityService
@@ -35,16 +36,15 @@ class VegetableActivityService
         $rows = DB::table('vegetable_monthly_stats')
             ->where('vegetable_id', $vegetableId)
             ->where('period_date', '>=', $start)
-            ->select([
-                DB::raw("TO_CHAR(period_date, 'YYYY-MM') as period"),
-                DB::raw('SUM(supply_fulfilled_kg) as supply_fulfilled_kg'),
-                DB::raw('SUM(supply_expired_kg)   as supply_expired_kg'),
-                DB::raw('SUM(demand_fulfilled_kg) as demand_fulfilled_kg'),
-                DB::raw('SUM(demand_expired_kg)   as demand_expired_kg'),
-            ])
-            ->groupBy(DB::raw("TO_CHAR(period_date, 'YYYY-MM')"))
+            ->select(['period_date', 'supply_fulfilled_kg', 'supply_expired_kg', 'demand_fulfilled_kg', 'demand_expired_kg'])
             ->get()
-            ->keyBy('period');
+            ->groupBy(fn ($row) => Carbon::parse($row->period_date)->format('Y-m'))
+            ->map(fn ($group) => (object) [
+                'supply_fulfilled_kg' => $group->sum('supply_fulfilled_kg'),
+                'supply_expired_kg' => $group->sum('supply_expired_kg'),
+                'demand_fulfilled_kg' => $group->sum('demand_fulfilled_kg'),
+                'demand_expired_kg' => $group->sum('demand_expired_kg'),
+            ]);
 
         $result = [];
 

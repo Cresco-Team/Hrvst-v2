@@ -16,7 +16,6 @@ import type {
     BreadcrumbItem,
     FarmerSuppliesProps,
     FarmerSupplyDataFixed,
-    VarietyOptionsByVegetable,
 } from '@/types'
 
 defineProps<FarmerSuppliesProps>()
@@ -186,9 +185,7 @@ const breadcrumbs: BreadcrumbItem[] = [
     <SupplyForm
         :open="supplyFormOpen"
         :supply="activeSupply"
-        :variety-options="
-            varietyOptions as VarietyOptionsByVegetable | undefined
-        "
+        :variety-options="varietyOptions"
         @update:open="supplyFormOpen = $event"
     />
 

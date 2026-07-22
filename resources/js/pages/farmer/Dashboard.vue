@@ -58,6 +58,20 @@ const breadcrumbs: BreadcrumbItem[] = [
                         guide-question="What's a safe bet all year round?"
                     />
                 </Deferred>
+
+                <Deferred data="topOversupplied">
+                    <template #fallback>
+                        <Skeleton class="h-56 w-full rounded-xl" /></template>
+                    <WasteRankingCard
+                        title="Top Oversupplied Vegetables (Avoid Planting)"
+                        description="Predicted surplus over the next 4 months — supply likely to outpace dealer demand."
+                        :items="topOversupplied"
+                        :initial-visible="3"
+                        unit-label="kg surplus"
+                        guide-question="What should I avoid planting right now?"
+                        variant="destructive"
+                    />
+                </Deferred>
             </div>
         </div>
     </AppLayout>

@@ -36,7 +36,6 @@ class CreateFarmerRequest extends FormRequest
         return [
             'phone_number.regex' => 'Phone number must be a valid PH mobile number (e.g. 09171234567).',
             'phone_number.unique' => 'This phone number is already registered.',
-            '',
         ];
     }
 }

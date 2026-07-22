@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import { AlertCircle, Info } from 'lucide-vue-next'
-import { Bar } from 'vue-chartjs'
+import { AlertCircle, ChartColumn, ChartLine, Info } from 'lucide-vue-next'
+import { ref } from 'vue'
+import { Bar, Line } from 'vue-chartjs'
 import EmptyState from '@/components/EmptyState.vue'
 import AppTooltip from '@/components/templates/AppTooltip.vue'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { useMonthlyVolumeChart } from '@/composables/useMonthlyVolumeChart'
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
+import { useMonthlyVolumeChart, type VolumeChartType } from '@/composables/useMonthlyVolumeChart'
 import type { ForecastPoint, MonthlyActivity } from '@/types/resources/product'
 
 const props = defineProps<{
@@ -15,9 +17,12 @@ const props = defineProps<{
     forecastConfidence?: string
 }>()
 
+const chartType = ref<VolumeChartType>('bar')
+
 const { chartData, chartOptions, forecastDividerPlugin } = useMonthlyVolumeChart(
     () => props.monthlyActivity,
     () => props.forecast,
+    () => chartType.value,
 )
 
 const MIN_MONTHS_FOR_FORECAST = 12
@@ -44,31 +49,55 @@ const confidenceTooltip: Record<string, string> = {
                 {{ hasForecast() ? ' 6-Month Forecast' : 'Market Volume' }}
             </CardTitle>
 
-            <AppTooltip
-                v-if="hasForecast() && forecastConfidence"
-                :content="confidenceTooltip[forecastConfidence]"
-            >
-                <Badge
-                    variant="outline"
-                    class="cursor-help gap-1 text-xs font-normal"
+            <div class="flex items-center gap-2">
+                <AppTooltip
+                    v-if="hasForecast() && forecastConfidence"
+                    :content="confidenceTooltip[forecastConfidence]"
                 >
-                    <Info class="size-3" />
-                    {{ confidenceLabel[forecastConfidence] ?? 'Forecast' }}
-                </Badge>
-            </AppTooltip>
+                    <Badge
+                        variant="outline"
+                        class="cursor-help gap-1 text-xs font-normal"
+                    >
+                        <Info class="size-3" />
+                        {{ confidenceLabel[forecastConfidence] ?? 'Forecast' }}
+                    </Badge>
+                </AppTooltip>
+
+                <ToggleGroup
+                    v-if="chartData"
+                    v-model="chartType"
+                    type="single"
+                    variant="outline"
+                    size="sm"
+                >
+                    <ToggleGroupItem
+                        value="bar"
+                        aria-label="Bar chart"
+                    >
+                        <ChartColumn class="size-3.5" />
+                    </ToggleGroupItem>
+                    <ToggleGroupItem
+                        value="line"
+                        aria-label="Line chart"
+                    >
+                        <ChartLine class="size-3.5" />
+                    </ToggleGroupItem>
+                </ToggleGroup>
+            </div>
         </CardHeader>
         <CardContent class="px-0 sm:px-6">
             <div
                 v-if="chartData"
                 class="relative h-48 w-full sm:h-64"
             >
-                <Bar
+                <component
+                    :is="chartType === 'line' ? Line : Bar"
                     :data="chartData"
                     :options="chartOptions"
                     :plugins="[forecastDividerPlugin]"
                 />
             </div>
-            
+
             <EmptyState
                 v-else
                 title="No completed activity record"

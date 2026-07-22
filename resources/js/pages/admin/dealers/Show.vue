@@ -6,10 +6,10 @@ import {
     Mail,
     Package,
     PackageCheck,
-    Phone,
 } from 'lucide-vue-next'
 import { computed } from 'vue'
 import UserTeaser from '@/components/features/admin/charts/UserTeaser.vue'
+import PhoneNumberField from '@/components/features/admin/PhoneNumberField.vue'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
@@ -126,11 +126,11 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => [
                         <ItemContent>
                             <ItemTitle>{{ dealer.user?.name }}</ItemTitle>
                             <ItemDescription>
-                                <div class="flex items-center gap-2">
-                                    <Phone class="size-4 shrink-0" /><span>{{
-                                        dealer.user?.phone_number
-                                    }}</span>
-                                </div>
+                                <PhoneNumberField
+                                    v-if="dealer.user"
+                                    :user-id="dealer.user.id"
+                                    :phone-number="dealer.user.phone_number"
+                                />
                                 <div
                                     v-if="dealer.user?.email"
                                     class="flex items-center gap-2"

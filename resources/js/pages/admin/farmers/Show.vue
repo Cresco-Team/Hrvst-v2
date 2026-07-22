@@ -7,10 +7,10 @@ import {
     MapPin,
     Package,
     PackageCheck,
-    Phone,
 } from 'lucide-vue-next'
 import { computed } from 'vue'
 import UserTeaser from '@/components/features/admin/charts/UserTeaser.vue'
+import PhoneNumberField from '@/components/features/admin/PhoneNumberField.vue'
 import LeafletMap from '@/components/LeafletMap.vue'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
@@ -125,11 +125,11 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => [
                         <ItemContent>
                             <ItemTitle>{{ farmer.user?.name }}</ItemTitle>
                             <ItemDescription>
-                                <div class="flex items-center gap-2">
-                                    <Phone class="size-4 shrink-0" /><span>{{
-                                        farmer.user?.phone_number
-                                    }}</span>
-                                </div>
+                                <PhoneNumberField
+                                    v-if="farmer.user"
+                                    :user-id="farmer.user.id"
+                                    :phone-number="farmer.user.phone_number"
+                                />
                                 <div
                                     v-if="farmer.user?.email"
                                     class="flex items-center gap-2"

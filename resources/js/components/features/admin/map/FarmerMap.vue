@@ -2,6 +2,7 @@
 import L from 'leaflet'
 import { onMounted, onUnmounted, ref, watch } from 'vue'
 import 'leaflet/dist/leaflet.css'
+import { useMapResizeSync } from '@/composables/useMapResizeSync'
 import type { FarmerMarker } from '@/types/resources/marketplace'
 
 interface MapCenter {
@@ -185,8 +186,19 @@ function refresh(): void {
 
 watch(() => props.markers, refresh, { deep: true })
 
+useMapResizeSync(mapContainer, () => map)
+
 onMounted(() => {
     if (!mapContainer.value) return
+
+    if (map) {
+        map.remove()
+        map = null
+    }
+    const el = mapContainer.value as HTMLElement & { _leaflet_id?: number }
+    if (el._leaflet_id) {
+        delete el._leaflet_id
+    }
 
     map = L.map(mapContainer.value).setView(
         [props.center.lat, props.center.lng],
@@ -221,17 +233,12 @@ onUnmounted(() => {
 
 <template>
     <div
-        ref="mapContainer"
-        class="h-full w-full overflow-hidden rounded-lg"
-    />
+        style="isolation: isolate;"
+        class="h-full w-full"
+    >
+        <div
+            ref="mapContainer"
+            class="h-full w-full overflow-hidden rounded-lg"
+        />
+    </div>
 </template>
-
-<style scoped>
-:deep(.leaflet-pane) {
-    z-index: 1 !important;
-}
-:deep(.leaflet-top),
-:deep(.leaflet-bottom) {
-    z-index: 2 !important;
-}
-</style>

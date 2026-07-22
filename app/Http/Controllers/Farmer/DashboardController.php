@@ -29,6 +29,9 @@ class DashboardController extends Controller
             'mostStableWastedDemand' => $hasAccess
                 ? Inertia::defer(fn () => VegetableStabilityData::collect($this->wasteAnalytics->mostStableWastedDemand()))
                 : null,
+            'topOversupplied' => $hasAccess
+                ? Inertia::defer(fn () => VegetableWasteData::collect($this->wasteAnalytics->topWastedSupply()))
+                : null,
             'analyticsLocked' => ! $hasAccess,
             'upgradeFeatureLabel' => SubscriptionFeature::FarmerForecasts->label(),
         ]);

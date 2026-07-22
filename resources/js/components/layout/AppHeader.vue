@@ -8,6 +8,7 @@ import {
     ShoppingBag,
     Vegan,
     CircleHelp,
+    UserCheck,
 } from '@lucide/vue'
 import { computed, ref } from 'vue'
 import AppLogo from '@/components/layout/AppLogo.vue'
@@ -173,6 +174,16 @@ const rightNavItems = computed<NavItem[]>(() => {
                 title: 'Archives',
                 href: farmerSuppliesArchived(),
                 icon: Archive,
+            }
+        )
+    }
+
+    if (page.props.auth.user.roles.includes('admin')) {
+        items.push(
+            {
+                title: 'Sign-up Requests',
+                href: admin.registrationRequests.index(),
+                icon: UserCheck,
             }
         )
     }

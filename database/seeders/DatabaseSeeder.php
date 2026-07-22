@@ -31,6 +31,7 @@ class DatabaseSeeder extends Seeder
                 PostSeeder::class,
                 PlatformActivitySeeder::class,
                 VegetableMonthlyStatsSeeder::class,
+                DefenseDemoSeeder::class,
             ]);
         }
 

@@ -2,6 +2,8 @@
 
 namespace App\Enums\Billing;
 
+use App\Models\User;
+
 enum SubscriptionFeature: string
 {
     case AdminAnalytics = 'admin_analytics';       // LTVTP institutional license
@@ -24,6 +26,16 @@ enum SubscriptionFeature: string
             self::AdminAnalytics => 'admin',
             self::FarmerForecasts => 'farmer',
             self::DealerMarketIntel => 'dealer',
+        };
+    }
+
+    public static function forUser(User $user): ?self
+    {
+        return match (true) {
+            $user->hasRole('admin') => self::AdminAnalytics,
+            $user->hasRole('farmer') => self::FarmerForecasts,
+            $user->hasRole('dealer') => self::DealerMarketIntel,
+            default => null,
         };
     }
 }

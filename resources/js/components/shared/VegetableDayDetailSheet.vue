@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { CalendarClock, ChevronDown, Package, ShoppingBag } from 'lucide-vue-next'
 import DetailSheet from '@/components/dialogs/DetailSheet.vue'
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import PosterRow from '@/components/shared/PosterRow.vue'
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import type { CalendarScheduleItem, CalendarTimeSlot, VegetableDaySchedule } from '@/types'
 
 const props = defineProps<{

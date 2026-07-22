@@ -7,10 +7,7 @@ export type VarietyAnalytics = App.DTOs.Product.VegetableAnalyticsDTO
 
 // ─── Market calendar — mirrors VegetableCalendarService::mergeIntoSchedule() ──
 
-export type CalendarTimeSlot =
-    | 'morning'
-    | 'afternoon'
-    | 'evening'
+export type CalendarTimeSlot = 'morning' | 'afternoon' | 'evening'
 
 export type CalendarScheduleItem = App.Data.Vegetable.VegetableCalendarItemData
 
@@ -23,8 +20,9 @@ export interface CalendarSlotData {
     items: CalendarScheduleItem[]
 }
 
-export type VegetableDaySchedule = Partial<Record<CalendarTimeSlot, CalendarSlotData>>
-
+export type VegetableDaySchedule = Partial<
+    Record<CalendarTimeSlot, CalendarSlotData>
+>
 
 export interface VegetableCalendarFilters {
     year: number
@@ -53,7 +51,15 @@ export interface MonthlyActivity {
     demand_fulfilled_kg: number
 }
 
-export type VegetableDetailData = App.Data.Vegetable.VegetableDetailData
+export type VegetableDetailDataFixed = Omit<
+    App.Data.Vegetable.VegetableDetailData,
+    'analytics' | 'forecast' | 'vegetable_calendar'
+> & {
+    analytics: VarietyAnalytics | null
+    forecast: App.DTOs.Product.VegetableForecastDTO | null
+    vegetable_calendar: Record<string, VegetableDaySchedule>
+}
+
 export type VegetableSharedData = App.Data.Vegetable.VegetableSharedData
 
 export type VegetableAdminData = App.Data.Vegetable.VegetableAdminData

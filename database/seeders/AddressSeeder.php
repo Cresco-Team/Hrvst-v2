@@ -69,10 +69,12 @@ class AddressSeeder extends Seeder
             ],
         ];
 
+        $province = Province::firstOrCreate(['name' => 'Benguet']);
+
         foreach ($municipalities as $municipality) {
             Municipality::firstOrCreate(
                 ['name' => $municipality['name']],
-                array_merge($municipality, ['province_id' => 1])
+                array_merge($municipality, ['province_id' => $province->id])
             );
         }
 
