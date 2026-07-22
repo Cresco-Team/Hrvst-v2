@@ -124,4 +124,6 @@ return [
     ],
 
     'admin_password' => env('ADMIN_PASSWORD', '000000'),
+
+    'auto_approve_registrations' => (bool) env('AUTO_APPROVE_REGISTRATIONS', false),
 ];
