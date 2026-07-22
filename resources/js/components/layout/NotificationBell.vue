@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { show as billingShow } from '@/routes/billing'
+import notifications from '@/routes/notifications'
 
 interface NotificationItem {
     id: string
@@ -30,7 +31,7 @@ const POLL_INTERVAL_MS = 60_000
 let pollHandle: ReturnType<typeof setInterval> | null = null
 
 async function load(): Promise<void> {
-    const { data } = await axios.get('/notifications')
+    const { data } = await axios.get(notifications.index().url)
     items.value = data.notifications
     unreadCount.value = data.unread_count
 }
@@ -54,8 +55,8 @@ onUnmounted(() => {
 
 <template>
     <Popover>
-        <PopoverTrigger as-child>
-            <AppTooltip content="Alerts">
+        <AppTooltip content="Alerts">
+            <PopoverTrigger as-child>
                 <Button
                     variant="ghost"
                     size="icon"
@@ -71,8 +72,8 @@ onUnmounted(() => {
                         {{ unreadCount > 9 ? '9+' : unreadCount }}
                     </Badge>
                 </Button>
-            </AppTooltip>
-        </PopoverTrigger>
+            </PopoverTrigger>
+        </AppTooltip>
 
         <PopoverContent
             align="end"
