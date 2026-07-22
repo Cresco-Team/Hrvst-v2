@@ -2,6 +2,7 @@
 import { Link, usePage } from '@inertiajs/vue3'
 import {
     Archive,
+    Bell,
     Menu,
     Package,
     PackageSearch,
@@ -14,6 +15,7 @@ import { computed, ref } from 'vue'
 import AppLogo from '@/components/layout/AppLogo.vue'
 import AppLogoIcon from '@/components/layout/AppLogoIcon.vue'
 import Breadcrumbs from '@/components/layout/Breadcrumbs.vue'
+import NotificationBell from '@/components/layout/NotificationBell.vue'
 import UserMenuContent from '@/components/layout/UserMenuContent.vue'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
@@ -44,6 +46,7 @@ import dealer from '@/routes/dealer'
 import { archived as dealerDemandsArchived } from '@/routes/dealer/demands'
 import farmer from '@/routes/farmer'
 import { archived as farmerSuppliesArchived } from '@/routes/farmer/supplies'
+import { index as watchesIndex } from '@/routes/watches'
 import type { BreadcrumbItem, NavItem } from '@/types'
 import AppTooltip from '../templates/AppTooltip.vue'
 
@@ -70,6 +73,8 @@ const showOnboardingTrigger = computed(
         page.props.auth.user.roles.includes('farmer') ||
         page.props.auth.user.roles.includes('dealer'),
 )
+
+const showWatchAlerts = showOnboardingTrigger
 
 function openOnboardingFromMobile(): void {
     mobileMenuOpen.value = false
@@ -188,6 +193,19 @@ const rightNavItems = computed<NavItem[]>(() => {
         )
     }
 
+    if (
+        page.props.auth.user.roles.includes('farmer') ||
+        page.props.auth.user.roles.includes('dealer')
+    ) {
+        items.push(
+            {
+                title: 'My Watches',
+                href: watchesIndex(),
+                icon: Bell,
+            }
+        )
+    }
+
     return items
 })
 </script>
@@ -220,6 +238,27 @@ const rightNavItems = computed<NavItem[]>(() => {
                                 <nav class="-mx-3 space-y-1">
                                     <Link
                                         v-for="item in mainNavItems"
+                                        :key="item.title"
+                                        :href="item.href"
+                                        class="flex items-center gap-x-3 rounded-lg px-3 py-2 text-sm font-medium hover:bg-accent"
+                                        :class="navItemClass(item)"
+                                        @click="mobileMenuOpen = false"
+                                    >
+                                        <component
+                                            :is="item.icon"
+                                            v-if="item.icon"
+                                            class="h-5 w-5"
+                                        />
+                                        {{ item.title }}
+                                    </Link>
+
+                                    <div
+                                        v-if="rightNavItems.length"
+                                        class="my-2 border-t border-sidebar-border/70"
+                                    />
+
+                                    <Link
+                                        v-for="item in rightNavItems"
                                         :key="item.title"
                                         :href="item.href"
                                         class="flex items-center gap-x-3 rounded-lg px-3 py-2 text-sm font-medium hover:bg-accent"
@@ -290,6 +329,8 @@ const rightNavItems = computed<NavItem[]>(() => {
                 </div>
 
                 <div class="ml-auto flex items-center space-x-2">
+                    <NotificationBell v-if="showWatchAlerts" />
+
                     <div class="relative flex items-center space-x-1">
                         <div class="hidden space-x-1 lg:flex">
                             <AppTooltip 
