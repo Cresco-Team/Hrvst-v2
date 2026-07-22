@@ -14,7 +14,7 @@ return new class extends Migration
 
             $table->enum('type', ['supply', 'demand']);
 
-            $table->date('scheduled_date')->nullable();
+            $table->date('scheduled_date');
             $table->enum('time_slot', ['morning', 'afternoon', 'evening'])->default('morning')->nullable();
 
             $table->softDeletes();
