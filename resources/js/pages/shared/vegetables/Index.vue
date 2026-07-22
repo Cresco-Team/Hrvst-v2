@@ -17,8 +17,8 @@ import { useCapitalize } from '@/lib/utils'
 import type { BreadcrumbItem, SharedCategoryProps } from '@/types'
 import type { Paginated } from '@/types/index'
 import type { VegetableSharedData } from '@/types/resources/product'
-import { index } from '@/routes/vegetables'
 import { categories, dashboard } from '@/routes'
+import { index } from '@/routes/vegetables'
 
 interface VegetablesFilters {
     search: string | null

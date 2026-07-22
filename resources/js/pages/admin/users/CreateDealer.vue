@@ -17,8 +17,8 @@ import { Label } from '@/components/ui/label'
 import { Spinner } from '@/components/ui/spinner'
 import AppLayout from '@/layouts/AppLayout.vue'
 import type { BreadcrumbItem, FlashMessage } from '@/types'
-import admin from '@/routes/admin'
 import { storeDealer } from '@/actions/App/Http/Controllers/Admin/UserController'
+import admin from '@/routes/admin'
 
 const breadcrumbs: BreadcrumbItem[] = [
   { title: 'Admin', href: admin.dashboard().url },

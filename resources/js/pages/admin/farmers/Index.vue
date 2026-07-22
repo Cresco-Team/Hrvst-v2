@@ -28,13 +28,13 @@ import type {
     FarmerMarker,
     FarmerResource,
 } from '@/types'
-import admin from '@/routes/admin'
-import { index } from '@/routes/admin/farmers'
-import users from '@/routes/admin/users'
 import {
     details as farmerDetails,
     markers as farmerMarkers,
 } from '@/actions/App/Http/Controllers/Admin/FarmerController'
+import admin from '@/routes/admin'
+import { index } from '@/routes/admin/farmers'
+import users from '@/routes/admin/users'
 
 const props = defineProps<AdminFarmersProps>()
 

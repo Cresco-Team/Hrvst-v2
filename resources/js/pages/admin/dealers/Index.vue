@@ -18,9 +18,9 @@ import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import AppLayout from '@/layouts/AppLayout.vue'
 import type { AdminDealersProps, BreadcrumbItem, DealerResource } from '@/types'
-import users from '@/routes/admin/users'
-import admin from '@/routes/admin'
 import { details as dealerDetails } from '@/actions/App/Http/Controllers/Admin/DealerController'
+import admin from '@/routes/admin'
+import users from '@/routes/admin/users'
 
 const props = defineProps<AdminDealersProps>()
 

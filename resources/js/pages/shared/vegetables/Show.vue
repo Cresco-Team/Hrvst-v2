@@ -14,13 +14,13 @@ import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { useCapitalize } from '@/lib/utils'
-import vegetables, { watch as watchRoute, unwatch as unwatchRoute } from '@/routes/vegetables'
 import type { BreadcrumbItem, VegetableCalendarFilters, VegetableDaySchedule } from '@/types'
 import type { VegetableDetailDataFixed } from '@/types/resources/product'
+import { download } from '@/actions/App/Http/Controllers/VegetableExportController'
+import vegetables, { watch as watchRoute, unwatch as unwatchRoute } from '@/routes/vegetables'
 import { show as billingShow } from '@/routes/billing'
 import adminRoutes, { dashboard as adminDashboard } from '@/routes/admin'
 import { categories, dashboard } from '@/routes'
-import { download } from '@/actions/App/Http/Controllers/VegetableExportController'
 
 interface Props {
     vegetable?: VegetableDetailDataFixed

@@ -14,8 +14,8 @@ import { getInitials } from '@/composables/useInitials'
 import AppLayout from '@/layouts/AppLayout.vue'
 import SettingsLayout from '@/layouts/settings/Layout.vue'
 import type { BreadcrumbItem } from '@/types'
-import { edit } from '@/routes/profile'
 import ProfileController from '@/actions/App/Http/Controllers/Settings/ProfileController'
+import { edit } from '@/routes/profile'
 
 const breadcrumbItems: BreadcrumbItem[] = [{ title: 'Profile settings', href: edit().url }]
 

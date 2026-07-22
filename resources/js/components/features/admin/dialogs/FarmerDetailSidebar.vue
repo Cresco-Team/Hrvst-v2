@@ -9,11 +9,6 @@ import {
     Trash,
 } from 'lucide-vue-next'
 import { ref, watch } from 'vue'
-import {
-    destroy,
-    show,
-} from '@/actions/App/Http/Controllers/Admin/FarmerController'
-import { resetPin } from '@/actions/App/Http/Controllers/Admin/UserController'
 import ConfirmationDialog from '@/components/dialogs/ConfirmationDialog.vue'
 import DetailSheet from '@/components/dialogs/DetailSheet.vue'
 import EmptyState from '@/components/EmptyState.vue'
@@ -42,6 +37,11 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { useInitials } from '@/composables/useInitials'
 import type { FarmerResource, FlashMessage } from '@/types'
 import PhoneNumberField from '../PhoneNumberField.vue'
+import {
+    destroy,
+    show,
+} from '@/actions/App/Http/Controllers/Admin/FarmerController'
+import { resetPin } from '@/actions/App/Http/Controllers/Admin/UserController'
 
 const props = defineProps<{
     open: boolean

@@ -5,8 +5,8 @@ import UserInfo from '@/components/layout/UserInfo.vue'
 import {
     DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu'
-import { logout } from '@/routes'
 import type { User } from '@/types'
+import { logout } from '@/routes'
 import { edit } from '@/routes/profile'
 
 type Props = {

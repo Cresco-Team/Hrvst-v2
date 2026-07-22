@@ -7,8 +7,8 @@ import ImageUpload from '@/components/forms/ImageUpload.vue'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { store, update } from '@/routes/admin/vegetables'
 import type { VegetableAdminData } from '@/types/resources/product'
+import { store, update } from '@/routes/admin/vegetables'
 
 const props = defineProps<{
     open: boolean

@@ -26,8 +26,8 @@ import {
 import { Spinner } from '@/components/ui/spinner'
 import AppLayout from '@/layouts/AppLayout.vue'
 import type { BreadcrumbItem, FlashMessage } from '@/types'
-import admin from '@/routes/admin'
 import { storeFarmer } from '@/actions/App/Http/Controllers/Admin/UserController'
+import admin from '@/routes/admin'
 
 interface Municipality {
   id: number

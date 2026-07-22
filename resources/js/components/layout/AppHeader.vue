@@ -40,14 +40,14 @@ import {
 import { useCurrentUrl } from '@/composables/useCurrentUrl'
 import { getInitials } from '@/composables/useInitials'
 import { useOnboardingGuide } from '@/composables/useOnboardingGuide'
+import type { BreadcrumbItem, NavItem } from '@/types'
+import AppTooltip from '../templates/AppTooltip.vue'
 import { categories, dashboard } from '@/routes'
 import admin from '@/routes/admin'
 import dealer from '@/routes/dealer'
 import { archived as dealerDemandsArchived } from '@/routes/dealer/demands'
 import farmer from '@/routes/farmer'
 import { archived as farmerSuppliesArchived } from '@/routes/farmer/supplies'
-import type { BreadcrumbItem, NavItem } from '@/types'
-import AppTooltip from '../templates/AppTooltip.vue'
 import { index as watchesIndex } from '@/routes/watches'
 
 type Props = {

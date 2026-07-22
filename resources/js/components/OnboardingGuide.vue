@@ -8,7 +8,6 @@ import {
 	Sprout,
 } from 'lucide-vue-next'
 import { computed, onMounted, ref, type Component } from 'vue'
-import { complete } from '@/actions/App/Http/Controllers/OnboardingController'
 import { Button } from '@/components/ui/button'
 import {
 	Dialog,
@@ -18,6 +17,7 @@ import {
 	DialogTitle,
 } from '@/components/ui/dialog'
 import { useOnboardingGuide } from '@/composables/useOnboardingGuide'
+import { complete } from '@/actions/App/Http/Controllers/OnboardingController'
 
 interface OnboardingStep {
 	icon: Component
