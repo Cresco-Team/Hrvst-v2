@@ -32,6 +32,17 @@ class VegetableAnalyticsService
 
     private const int CONFIDENCE_STRONG_MONTHS = 60;
 
+    /**
+     * Schmitt-trigger margin for the watch-alert outlook classification.
+     * Without this, a ratio oscillating around the 0.20 threshold (e.g.
+     * 0.19 <-> 0.21 week to week) would flip Balanced <-> Oversupply on
+     * every evaluation run even though nothing real changed. Applied only
+     * relative to the *previous* band, so a genuinely new signal (Balanced
+     * crossing into Oversupply for the first time) still fires immediately —
+     * only an already-alerted band is sticky.
+     */
+    private const float HYSTERESIS_MARGIN = 0.05;
+
     public function __construct(
         private PlatformActivityService $platformActivity,
     ) {}
@@ -58,9 +69,7 @@ class VegetableAnalyticsService
             role: $role,
         );
 
-        $forecastSource = $extendedHistory ?: $monthlyActivity;
-        $monthsObserved = $this->countRealMonths($forecastSource);
-        $forecast = $this->computeForecast($forecastSource);
+        $forecastDto = $this->computeForecastOnly($monthlyActivity, $extendedHistory);
 
         return [
             'analytics' => new VegetableAnalyticsDTO(
@@ -72,12 +81,101 @@ class VegetableAnalyticsService
                 demand_volume_mom_pct: $demandMomPct,
                 recommendations: $recommendations,
             ),
-            'forecast' => new VegetableForecastDTO(
-                months_of_history: $monthsObserved,
-                forecast_confidence: $this->forecastConfidence($monthsObserved),
-                forecast: $forecast,
-            ),
+            'forecast' => $forecastDto,
         ];
+    }
+
+    /**
+     * Forecast + confidence only, no recommendations. Use this anywhere you
+     * need role-neutral forecast numbers (batch jobs, watch evaluation).
+     * Passing a throwaway VegetableViewerRole into compute() just to reach
+     * this data is a smell: it silently builds and discards a
+     * recommendations array that the role parameter exists to vary.
+     */
+    public function computeForecastOnly(array $monthlyActivity, array $extendedHistory = []): VegetableForecastDTO
+    {
+        $forecastSource = $extendedHistory ?: $monthlyActivity;
+        $monthsObserved = $this->countRealMonths($forecastSource);
+        $forecast = $this->computeForecast($forecastSource);
+
+        return new VegetableForecastDTO(
+            months_of_history: $monthsObserved,
+            forecast_confidence: $this->forecastConfidence($monthsObserved),
+            forecast: $forecast,
+        );
+    }
+
+    /**
+     * Watch-alert outlook: classifies the *near-term forecast* (not the
+     * trailing-3-month historical band used elsewhere) and, when it signals
+     * an imbalance, reports how many months out it starts and how long the
+     * run of matching months lasts — giving "in the next 2 months, lasting
+     * about 3 months" instead of a vague "sometime soon."
+     *
+     * @param  array<int, array{supply_fulfilled_kg: float, supply_expired_kg: float, demand_fulfilled_kg: float, demand_expired_kg: float}>  $forecast
+     * @return array{band: ImbalanceBand, starts_in_months?: int, duration_months?: int, label?: string}|null
+     *         null means: do not alert (forecast confidence too low to trust).
+     */
+    public function forecastOutlook(array $forecast, string $forecastConfidence, ?ImbalanceBand $previousBand): ?array
+    {
+        if ($forecastConfidence === 'insufficient' || empty($forecast)) {
+            return null;
+        }
+
+        $ratios = array_map(fn (array $month) => $this->monthRatio($month), $forecast);
+
+        $band = $this->classifyWithHysteresis($ratios[0], $previousBand);
+
+        if ($band === ImbalanceBand::Balanced) {
+            return ['band' => $band];
+        }
+
+        $startsInMonths = 1;
+        $durationMonths = 0;
+
+        foreach ($ratios as $ratio) {
+            if ($this->classifyWithHysteresis($ratio, $band) !== $band) {
+                break;
+            }
+            $durationMonths++;
+        }
+
+        return [
+            'band' => $band,
+            'starts_in_months' => $startsInMonths,
+            'duration_months' => $durationMonths,
+            'label' => $this->outlookLabel($band, $startsInMonths, $durationMonths),
+        ];
+    }
+
+    private function monthRatio(array $month): float
+    {
+        $supply = $month['supply_fulfilled_kg'] + $month['supply_expired_kg'];
+        $demand = $month['demand_fulfilled_kg'] + $month['demand_expired_kg'];
+
+        return ($supply - $demand) / max($demand, 1.0);
+    }
+
+    private function classifyWithHysteresis(float $ratio, ?ImbalanceBand $previous): ImbalanceBand
+    {
+        $upper = self::OVERSUPPLY_THRESHOLD + ($previous === ImbalanceBand::Oversupply ? -self::HYSTERESIS_MARGIN : self::HYSTERESIS_MARGIN);
+        $lower = self::UNDERSUPPLY_THRESHOLD + ($previous === ImbalanceBand::Undersupply ? self::HYSTERESIS_MARGIN : -self::HYSTERESIS_MARGIN);
+
+        return match (true) {
+            $ratio > $upper => ImbalanceBand::Oversupply,
+            $ratio < $lower => ImbalanceBand::Undersupply,
+            default => ImbalanceBand::Balanced,
+        };
+    }
+
+    private function outlookLabel(ImbalanceBand $band, int $startsIn, int $duration): string
+    {
+        $when = $startsIn === 1 ? 'next month' : "in the next {$startsIn} months";
+        $span = $duration > 1 ? " for about {$duration} months" : '';
+
+        return $band === ImbalanceBand::Oversupply
+            ? "Expected to be oversupplied {$when}{$span}."
+            : "Expected shortage {$when}{$span}.";
     }
 
     private function countRealMonths(array $history): int
