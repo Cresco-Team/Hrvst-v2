@@ -114,7 +114,7 @@ class VegetableAnalyticsService
      *
      * @param  array<int, array{supply_fulfilled_kg: float, supply_expired_kg: float, demand_fulfilled_kg: float, demand_expired_kg: float}>  $forecast
      * @return array{band: ImbalanceBand, starts_in_months?: int, duration_months?: int, label?: string}|null
-     *         null means: do not alert (forecast confidence too low to trust).
+     *                                                                                                        null means: do not alert (forecast confidence too low to trust).
      */
     public function forecastOutlook(array $forecast, string $forecastConfidence, ?ImbalanceBand $previousBand): ?array
     {

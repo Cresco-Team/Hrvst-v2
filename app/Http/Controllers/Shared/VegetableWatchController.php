@@ -34,7 +34,7 @@ class VegetableWatchController extends Controller
             ),
         ]);
     }
-    
+
     public function store(Request $request, Vegetable $vegetable): RedirectResponse
     {
         Gate::authorize('create', VegetableWatch::class);
