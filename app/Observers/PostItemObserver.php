@@ -18,7 +18,7 @@ class PostItemObserver
         $postItem->loadMissing('post');
 
         $vegetableId = $postItem->vegetable_id;
-        $periodDate = $postItem->post->created_at->startOfMonth()->toDateString();
+        $periodDate = ($postItem->post->scheduled_date ?? $postItem->post->created_at)->startOfMonth()->toDateString();
 
         $newColumn = $this->resolveColumn($postItem->post->type, $postItem->status);
 
@@ -64,7 +64,7 @@ class PostItemObserver
 
         $qty = (float) $postItem->quantity_kg;
         $vegetableId = $postItem->vegetable_id;
-        $periodDate = $postItem->post->created_at->startOfMonth()->toDateString();
+        $periodDate = ($postItem->post->scheduled_date ?? $postItem->post->created_at)->startOfMonth()->toDateString();
 
         DB::table('vegetable_monthly_stats')
             ->where('vegetable_id', $vegetableId)
