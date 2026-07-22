@@ -21,7 +21,15 @@ class RegistrationRequestController extends Controller
 
     public function store(StoreRegistrationRequestRequest $request, CreateRegistrationRequestAction $action): RedirectResponse
     {
-        $action->handle($request->validated());
+        // TEMPORARY — testing bypass. See AUTO_APPROVE_REGISTRATIONS in .env.
+        // Remove this branch (and the flag) before relying on real admin review.
+        if (config('app.auto_approve_registrations')) {
+            $user = $approveRequest->handle($registrationRequest, reviewer: null);
+
+            Auth::login($user);
+
+            return redirect()->route('dashboard');
+        }
 
         return redirect()->route('home')->with('flash', [
             'type' => 'success',

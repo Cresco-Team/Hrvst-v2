@@ -1,7 +1,5 @@
 <?php
 
-// app/Actions/RegistrationRequest/ApproveRegistrationRequestAction.php
-
 namespace App\Actions\RegistrationRequest;
 
 use App\Enums\RegistrationRequestStatus;
@@ -15,7 +13,7 @@ use Illuminate\Support\Facades\DB;
 
 final class ApproveRegistrationRequestAction
 {
-    public function handle(RegistrationRequest $registrationRequest, User $reviewer): User
+    public function handle(RegistrationRequest $registrationRequest, ?User $reviewer): User
     {
         abort_if(
             $registrationRequest->status !== RegistrationRequestStatus::Pending,
@@ -52,7 +50,7 @@ final class ApproveRegistrationRequestAction
 
             $registrationRequest->update([
                 'status' => RegistrationRequestStatus::Approved,
-                'reviewed_by' => $reviewer->id,
+                'reviewed_by' => $reviewer?->id,
                 'reviewed_at' => now(),
             ]);
 
