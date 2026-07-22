@@ -9,6 +9,7 @@ use App\Models\Product\Vegetable;
 use App\Models\Profiles\DealerProfile;
 use App\Models\Profiles\FarmerProfile;
 use App\Models\User;
+use App\Models\VegetableWatch;
 use App\Observers\PostItemObserver;
 use App\Observers\VegetableObserver;
 use App\Policies\Marketplace\PostItemPolicy;
@@ -16,6 +17,7 @@ use App\Policies\Marketplace\PostPolicy;
 use App\Policies\Profiles\DealerPolicy;
 use App\Policies\Profiles\FarmerPolicy;
 use App\Policies\VegetablePolicy;
+use App\Policies\VegetableWatchPolicy;
 use App\Services\Billing\MockPaymentGateway;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Model;
@@ -27,9 +29,6 @@ use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
-    /**
-     * Register any application services.
-     */
     public function register(): void
     {
         $this->app->bind(PaymentGateway::class, function () {
@@ -52,6 +51,7 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(Vegetable::class, VegetablePolicy::class);
         Gate::policy(Post::class, PostPolicy::class);
         Gate::policy(PostItem::class, PostItemPolicy::class);
+        Gate::policy(VegetableWatch::class, VegetableWatchPolicy::class);
 
         Gate::define('not-admin', function (User $user) {
             return $user->hasRole('admin') === false;
