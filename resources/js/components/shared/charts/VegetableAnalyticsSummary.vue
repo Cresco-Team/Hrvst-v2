@@ -1,36 +1,43 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import SmallCard from '@/components/shared/cards/SmallCard.vue'
+import AppTooltip from '@/components/templates/AppTooltip.vue'
 import type { VarietyAnalytics } from '@/types/resources/product'
 
 const props = defineProps<{
     analytics: VarietyAnalytics
 }>()
 
-// ── Expected market balance (forward-looking, replaces the old
-// historical-only band so the current month is never silently omitted) ──────
-
 const bandConfig = computed(() => {
     switch (props.analytics.expected_balance.band) {
         case 'oversupply':
-            return {
-                label: 'Oversupply',
-                valueClass: 'text-red-600 dark:text-red-400',
-            }
+            return { label: 'Oversupply', valueClass: 'text-red-600 dark:text-red-400' }
         case 'undersupply':
-            return {
-                label: 'Undersupply',
-                valueClass: 'text-amber-600 dark:text-amber-400',
-            }
+            return { label: 'Undersupply', valueClass: 'text-amber-600 dark:text-amber-400' }
         default:
-            return {
-                label: 'Balanced',
-                valueClass: 'text-green-600 dark:text-green-400',
-            }
+            return { label: 'Balanced', valueClass: 'text-green-600 dark:text-green-400' }
     }
 })
 
-// ── Fulfillment rates ─────────────────────────────────────────────────────────
+// Raw numbers behind the pre-baked `explanation` sentence, shown on hover.
+// Falls back to `explanation` itself when there's no computation (e.g.
+// "Not enough data yet" — nothing to break down).
+const expectedBalanceTooltip = computed(() => {
+    const c = props.analytics.expected_balance.computation
+    if (!c) return props.analytics.expected_balance.explanation
+
+    const supply = c.supply_kg.toLocaleString()
+    const demand = c.demand_kg.toLocaleString()
+
+    if (c.diff_pct === null) {
+        return `From ${c.source_label}: ${supply} kg supply vs ${demand} kg demand (demand was zero, no % comparison).`
+    }
+
+    const direction = c.diff_pct > 0 ? 'higher' : c.diff_pct < 0 ? 'lower' : 'equal to'
+    const magnitude = Math.abs(c.diff_pct)
+
+    return `From ${c.source_label}: supply (${supply} kg) is ${magnitude}% ${direction} than demand (${demand} kg).`
+})
 
 function fulfillmentConfig(rate: number | null) {
     if (rate === null) return { valueClass: 'text-muted-foreground' }
@@ -43,25 +50,23 @@ function formatRate(rate: number | null): string {
     return rate !== null ? `${Math.round(rate * 100)}%` : '—'
 }
 
-const supplyConfig = computed(() =>
-    fulfillmentConfig(props.analytics.supply_fulfillment_rate),
-)
-const demandConfig = computed(() =>
-    fulfillmentConfig(props.analytics.demand_fulfillment_rate),
-)
+const supplyConfig = computed(() => fulfillmentConfig(props.analytics.supply_fulfillment_rate))
+const demandConfig = computed(() => fulfillmentConfig(props.analytics.demand_fulfillment_rate))
 </script>
 
 <template>
     <div class="grid grid-cols-2 gap-3 sm:grid-cols-3">
         <!-- Expected Market Balance -->
-        <SmallCard
-            title="Expected Market Balance"
-            :value="bandConfig.label"
-            :value-class="bandConfig.valueClass"
-            :subtext="analytics.expected_balance.explanation"
-            subtext-below
-            class="col-span-2 sm:col-span-1"
-        />
+        <AppTooltip :content="expectedBalanceTooltip">
+            <SmallCard
+                title="Expected Market Balance"
+                :value="bandConfig.label"
+                :value-class="bandConfig.valueClass"
+                :subtext="analytics.expected_balance.explanation"
+                subtext-below
+                class="col-span-2 cursor-help sm:col-span-1"
+            />
+        </AppTooltip>
 
         <!-- Supply Fulfillment -->
         <SmallCard
