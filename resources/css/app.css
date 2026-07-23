@@ -217,4 +217,8 @@
         @apply bg-background text-foreground;
         letter-spacing: var(--tracking-normal);
     }
+    input::placeholder,
+    textarea::placeholder {
+        opacity: 0.4;
+    }
 }
