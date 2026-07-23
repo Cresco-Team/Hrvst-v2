@@ -1,3 +1,5 @@
+import type {
+    ScriptableContext} from 'chart.js';
 import {
     BarController,
     BarElement,
@@ -10,7 +12,6 @@ import {
     LineController,
     LineElement,
     PointElement,
-    ScriptableContext,
     Title,
     Tooltip,
 } from 'chart.js'
