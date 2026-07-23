@@ -17,6 +17,14 @@ class VegetableAnalyticsDTO
         public ?float $demand_volume_mom_pct,
         /** @var VegetableRecommendationDTO[] */
         public array $recommendations,
+        /**
+         * Forward-looking replacement for the Market Balance card. Estimated
+         * from the same calendar month last year, falling back to the
+         * trailing 3-month average when no same-month-last-year data exists.
+         *
+         * @var array{band: string, explanation: string}
+         */
+        public array $expected_balance = ['band' => 'balanced', 'explanation' => ''],
     ) {}
 
     public function toArray(): array
@@ -37,6 +45,7 @@ class VegetableAnalyticsDTO
                 ],
                 $this->recommendations,
             ),
+            'expected_balance' => $this->expected_balance,
         ];
     }
 }

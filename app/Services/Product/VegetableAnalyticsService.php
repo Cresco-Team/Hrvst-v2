@@ -8,6 +8,7 @@ use App\DTOs\Product\VegetableRecommendationDTO;
 use App\Enums\Analytics\ImbalanceBand;
 use App\Enums\Analytics\RecommendationSeverity;
 use App\Enums\Analytics\VegetableViewerRole;
+use Carbon\Carbon;
 use Illuminate\Support\Collection;
 
 class VegetableAnalyticsService
@@ -31,6 +32,9 @@ class VegetableAnalyticsService
     private const int CONFIDENCE_ESTABLISHED_MONTHS = 36;
 
     private const int CONFIDENCE_STRONG_MONTHS = 60;
+
+    /** Trailing window used when same-month-last-year data doesn't exist. */
+    private const int EXPECTED_BALANCE_TRAILING_WINDOW = 3;
 
     /**
      * Schmitt-trigger margin for the watch-alert outlook classification.
@@ -80,6 +84,7 @@ class VegetableAnalyticsService
                 supply_volume_mom_pct: $supplyMomPct,
                 demand_volume_mom_pct: $demandMomPct,
                 recommendations: $recommendations,
+                expected_balance: $this->computeExpectedBalance($extendedHistory ?: $monthlyActivity),
             ),
             'forecast' => $forecastDto,
         ];
@@ -103,6 +108,69 @@ class VegetableAnalyticsService
             forecast_confidence: $this->forecastConfidence($monthsObserved),
             forecast: $forecast,
         );
+    }
+
+    /**
+     * Replaces the old "last 3 complete months, current month invisible"
+     * Market Balance card with a forward estimate for the current month:
+     *
+     * 1. Same calendar month last year, if it has real recorded data.
+     * 2. Otherwise, the trailing 3 complete months' average.
+     * 3. If neither exists, report Balanced with an explanation that says so
+     *    — never fabricate a band from nothing.
+     *
+     * @return array{band: string, explanation: string}
+     */
+    private function computeExpectedBalance(array $extendedHistory): array
+    {
+        if (empty($extendedHistory)) {
+            return ['band' => ImbalanceBand::Balanced->value, 'explanation' => 'Not enough data yet.'];
+        }
+
+        $now = now()->startOfMonth();
+        $currentMonthKey = $now->format('Y-m');
+        $lastYearKey = $now->copy()->subYear()->format('Y-m');
+        $lastYearRow = collect($extendedHistory)->firstWhere('month', $lastYearKey);
+
+        if ($lastYearRow && ($lastYearRow['has_data'] ?? true)) {
+            $supplyKg = $lastYearRow['supply_fulfilled_kg'] + $lastYearRow['supply_expired_kg'];
+            $demandKg = $lastYearRow['demand_fulfilled_kg'] + $lastYearRow['demand_expired_kg'];
+
+            return [
+                'band' => $this->classifyBalance($supplyKg, $demandKg)->value,
+                'explanation' => 'Estimated from '.Carbon::createFromFormat('Y-m', $lastYearKey)->format('M Y').', the same month last year.',
+            ];
+        }
+
+        $trailing = collect($extendedHistory)
+            ->filter(fn ($row) => $row['month'] !== $currentMonthKey && ($row['has_data'] ?? true))
+            ->sortByDesc('month')
+            ->take(self::EXPECTED_BALANCE_TRAILING_WINDOW)
+            ->sortBy('month')
+            ->values();
+
+        if ($trailing->isEmpty()) {
+            return ['band' => ImbalanceBand::Balanced->value, 'explanation' => 'Not enough data yet.'];
+        }
+
+        $avgSupply = $trailing->avg(fn ($r) => $r['supply_fulfilled_kg'] + $r['supply_expired_kg']);
+        $avgDemand = $trailing->avg(fn ($r) => $r['demand_fulfilled_kg'] + $r['demand_expired_kg']);
+
+        $monthLabels = $trailing->pluck('month')
+            ->map(fn ($m) => Carbon::createFromFormat('Y-m', $m)->format('M Y'))
+            ->implode(', ');
+
+        return [
+            'band' => $this->classifyBalance($avgSupply, $avgDemand)->value,
+            'explanation' => "No data for this month last year — estimated from the average of {$monthLabels}.",
+        ];
+    }
+
+    private function classifyBalance(float $supplyKg, float $demandKg): ImbalanceBand
+    {
+        $ratio = round(($supplyKg - $demandKg) / max($demandKg, 1.0), 4);
+
+        return $this->classifyBand($ratio);
     }
 
     /**
@@ -220,8 +288,6 @@ class VegetableAnalyticsService
 
         $activeCounts = $this->platformActivity->monthlyActiveCounts();
 
-        // ── Seasonal baseline, converted to per-capita so headcount growth
-        // between years doesn't inflate later years' weighting. ──────────────
         $byCalendarMonth = [];
 
         foreach ($realHistory as $row) {
@@ -239,9 +305,6 @@ class VegetableAnalyticsService
             ];
         }
 
-        // ── Trend, computed on per-capita sums — this is the actual fix.
-        // A vegetable's genuine demand trend is isolated from "we signed up
-        // 400 more farmers this quarter." ────────────────────────────────────
         $supplyMonthlyGrowth = 1.0;
         $demandMonthlyGrowth = 1.0;
 
@@ -265,11 +328,6 @@ class VegetableAnalyticsService
             $demandMonthlyGrowth = $demandTrend ** (1 / 6);
         }
 
-        // ── Snapshot of CURRENT active counts — used to convert the forecasted
-        // per-capita figures back into absolute kg. We deliberately do NOT
-        // compound future headcount growth here: for a 6-month horizon,
-        // assuming activity stays near its current level is a far safer bet
-        // than extrapolating whatever growth rate happened historically. ─────
         $latestMonth = end($realHistory)['month'] ?? null;
         [$currentFarmers, $currentDealers] = $latestMonth
             ? $this->activeCountsFor($latestMonth, $activeCounts)
@@ -449,7 +507,6 @@ class VegetableAnalyticsService
             );
         }
 
-        // ── Undersupply: actionable by everyone, but the action differs per role ──
         if ($band === ImbalanceBand::Undersupply) {
             $body = match ($role) {
                 VegetableViewerRole::Admin => 'Dealer demand is outpacing available supply. Consider prompting more farmers to post.',
@@ -465,7 +522,6 @@ class VegetableAnalyticsService
             );
         }
 
-        // ── Supply expiry: only Farmer and Admin can act on it. A dealer cannot
         if (
             $supplyFulfillment !== null
             && $supplyFulfillment < self::LOW_FULFILLMENT_THRESHOLD
@@ -482,8 +538,6 @@ class VegetableAnalyticsService
             );
         }
 
-        // ── Demand expiry: only Dealer and Admin can act on it. A farmer has no
-        // lever over dealer demand posting — this is the mirror of the block above. ──
         if (
             $demandFulfillment !== null
             && $demandFulfillment < self::LOW_FULFILLMENT_THRESHOLD
@@ -500,8 +554,6 @@ class VegetableAnalyticsService
             );
         }
 
-        // ── Declining supply volume: deliberately shown to ALL roles, unlike the
-        // two blocks above. This is not an oversight — it's a different kind of recommendation
         if ($supplyMomPct !== null && $supplyMomPct < self::SUPPLY_DECLINE_THRESHOLD) {
             $dropPct = (int) round(abs($supplyMomPct));
 

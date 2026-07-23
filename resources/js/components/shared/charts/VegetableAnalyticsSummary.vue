@@ -7,10 +7,11 @@ const props = defineProps<{
     analytics: VarietyAnalytics
 }>()
 
-// ── Market balance ────────────────────────────────────────────────────────────
+// ── Expected market balance (forward-looking, replaces the old
+// historical-only band so the current month is never silently omitted) ──────
 
 const bandConfig = computed(() => {
-    switch (props.analytics.imbalance_band) {
+    switch (props.analytics.expected_balance.band) {
         case 'oversupply':
             return {
                 label: 'Oversupply',
@@ -27,14 +28,6 @@ const bandConfig = computed(() => {
                 valueClass: 'text-green-600 dark:text-green-400',
             }
     }
-})
-
-const ratioLabel = computed(() => {
-    const r = props.analytics.supply_demand_ratio
-    const pct = Math.round(Math.abs(r) * 100)
-    if (r > 0) return `+${pct}% excess supply`
-    if (r < 0) return `${pct}% excess demand`
-    return 'supply meets demand'
 })
 
 // ── Fulfillment rates ─────────────────────────────────────────────────────────
@@ -60,12 +53,12 @@ const demandConfig = computed(() =>
 
 <template>
     <div class="grid grid-cols-2 gap-3 sm:grid-cols-3">
-        <!-- Market Balance -->
+        <!-- Expected Market Balance -->
         <SmallCard
-            title="Market Balance"
+            title="Expected Market Balance"
             :value="bandConfig.label"
             :value-class="bandConfig.valueClass"
-            :subtext="ratioLabel"
+            :subtext="analytics.expected_balance.explanation"
             subtext-below
             class="col-span-2 sm:col-span-1"
         />
