@@ -124,7 +124,7 @@ class VegetableAnalyticsService
     private function computeExpectedBalance(array $extendedHistory): array
     {
         if (empty($extendedHistory)) {
-            return ['band' => ImbalanceBand::Balanced->value, 'explanation' => 'Not enough data yet.'];
+            return $this->balanceResult(ImbalanceBand::Balanced, 'Not enough data yet.');
         }
 
         $now = now()->startOfMonth();
@@ -135,11 +135,15 @@ class VegetableAnalyticsService
         if ($lastYearRow && ($lastYearRow['has_data'] ?? true)) {
             $supplyKg = $lastYearRow['supply_fulfilled_kg'] + $lastYearRow['supply_expired_kg'];
             $demandKg = $lastYearRow['demand_fulfilled_kg'] + $lastYearRow['demand_expired_kg'];
+            $sourceLabel = Carbon::createFromFormat('Y-m', $lastYearKey)->format('M Y');
 
-            return [
-                'band' => $this->classifyBalance($supplyKg, $demandKg)->value,
-                'explanation' => 'Estimated from '.Carbon::createFromFormat('Y-m', $lastYearKey)->format('M Y').', the same month last year.',
-            ];
+            return $this->balanceResult(
+                $this->classifyBalance($supplyKg, $demandKg),
+                "Estimated from {$sourceLabel}, the same month last year.",
+                $supplyKg,
+                $demandKg,
+                $sourceLabel,
+            );
         }
 
         $trailing = collect($extendedHistory)
@@ -150,7 +154,7 @@ class VegetableAnalyticsService
             ->values();
 
         if ($trailing->isEmpty()) {
-            return ['band' => ImbalanceBand::Balanced->value, 'explanation' => 'Not enough data yet.'];
+            return $this->balanceResult(ImbalanceBand::Balanced, 'Not enough data yet.');
         }
 
         $avgSupply = $trailing->avg(fn ($r) => $r['supply_fulfilled_kg'] + $r['supply_expired_kg']);
@@ -160,9 +164,44 @@ class VegetableAnalyticsService
             ->map(fn ($m) => Carbon::createFromFormat('Y-m', $m)->format('M Y'))
             ->implode(', ');
 
+        return $this->balanceResult(
+            $this->classifyBalance($avgSupply, $avgDemand),
+            "No data for this month last year — estimated from the average of {$monthLabels}.",
+            $avgSupply,
+            $avgDemand,
+            $monthLabels,
+        );
+    }
+
+    /**
+     * Single source of truth for the expected_balance array shape. Both the
+     * "same month last year" and "trailing average" branches call this instead
+     * of hand-rolling their own array literal — keeps the contract in sync and
+     * gives the frontend raw supply/demand numbers to render on hover, instead
+     * of just a pre-baked sentence.
+     *
+     * @return array{band: string, explanation: string, computation: array{source_label: string, supply_kg: float, demand_kg: float, diff_pct: ?float}|null}
+     */
+    private function balanceResult(
+        ImbalanceBand $band,
+        string $explanation,
+        ?float $supplyKg = null,
+        ?float $demandKg = null,
+        ?string $sourceLabel = null,
+    ): array {
         return [
-            'band' => $this->classifyBalance($avgSupply, $avgDemand)->value,
-            'explanation' => "No data for this month last year — estimated from the average of {$monthLabels}.",
+            'band' => $band->value,
+            'explanation' => $explanation,
+            'computation' => $supplyKg !== null && $demandKg !== null
+                ? [
+                    'source_label' => $sourceLabel,
+                    'supply_kg' => round($supplyKg, 2),
+                    'demand_kg' => round($demandKg, 2),
+                    'diff_pct' => $demandKg > 0.0
+                        ? round((($supplyKg - $demandKg) / $demandKg) * 100, 1)
+                        : null,
+                ]
+                : null,
         ];
     }
 
