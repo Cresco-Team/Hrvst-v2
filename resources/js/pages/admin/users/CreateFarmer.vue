@@ -2,6 +2,7 @@
 import { Head, usePage } from '@inertiajs/vue3'
 import { useForm } from '@inertiajs/vue3'
 import { computed, ref, watch } from 'vue'
+import { storeFarmer } from '@/actions/App/Http/Controllers/Admin/UserController'
 import FarmLocationPicker from '@/components/forms/FarmLocationPicker.vue'
 import Heading from '@/components/Heading.vue'
 import InputError from '@/components/InputError.vue'
@@ -25,9 +26,8 @@ import {
 } from '@/components/ui/select'
 import { Spinner } from '@/components/ui/spinner'
 import AppLayout from '@/layouts/AppLayout.vue'
-import type { BreadcrumbItem, FlashMessage } from '@/types'
-import { storeFarmer } from '@/actions/App/Http/Controllers/Admin/UserController'
 import admin from '@/routes/admin'
+import type { BreadcrumbItem, FlashMessage } from '@/types'
 
 interface Municipality {
   id: number

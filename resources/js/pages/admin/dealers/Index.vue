@@ -10,6 +10,7 @@ import {
 } from 'lucide-vue-next'
 import { ref } from 'vue'
 import { toast } from 'vue-sonner'
+import { details as dealerDetails } from '@/actions/App/Http/Controllers/Admin/DealerController'
 import DealerDetailSidebar from '@/components/features/admin/dialogs/DealerDetailSidebar.vue'
 import DealerTable from '@/components/features/admin/tables/DealerTable.vue'
 import Heading from '@/components/Heading.vue'
@@ -17,10 +18,9 @@ import SmallCard from '@/components/shared/cards/SmallCard.vue'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import AppLayout from '@/layouts/AppLayout.vue'
-import type { AdminDealersProps, BreadcrumbItem, DealerResource } from '@/types'
-import { details as dealerDetails } from '@/actions/App/Http/Controllers/Admin/DealerController'
 import admin from '@/routes/admin'
 import users from '@/routes/admin/users'
+import type { AdminDealersProps, BreadcrumbItem, DealerResource } from '@/types'
 
 const props = defineProps<AdminDealersProps>()
 

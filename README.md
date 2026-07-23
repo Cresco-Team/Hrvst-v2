@@ -1,14 +1,14 @@
-# The Digital Agricultural Exchange
+# Coordination and Forecast System
 
-### Solving Market Blindness at the La Trinidad Vegetable Trading Post
+### Solving Wasted Vegetable Supplies Caused by Market Blindness in partnership with La Trinidad Vegetable Trading Post
 
 ---
 
-## 🚩 Problem: The Crisis of Market Blindness
+## 🚩 Problem: Post-Harvest Waste
 
-Currently, the La Trinidad Vegetable Trading Post operates on Information Asymmetry. Farmers and dealers operate in "blind" silos, leading to two critical systemic failures.
+Currently, the La Trinidad Vegetable Trading Post operates on Information Asymmetry. Farmers and dealers operate in "blind" silos, leading to Wasted Vegetable Supplies and Unmet Market Demands.
 
-1. **The Oversupply Cycle:** Farmers often harvest based on current high prices without knowing ow many other farmers are doing the same. This leads to "glut" days where supply far outstripe demand, forcing farmers to sell at a loss or waste their crops.
+1. **The Oversupply Cycle:** Farmers often harvest based on current high prices without knowing how many other farmers are doing the same. This leads to "glut" days where supply far outstripe demand, forcing farmers to sell at a loss or waste their crops.
 2. **Under-Demand & Scarcity:** Dealers may arrive at the trading post only to find a shortage of the specific crops they need because there was no way to communicate their demand to the farming community in advance.
 3. **Logistical Chaos:** Without a coordinated schedule, the trading post experience unpredictable "peak" hours that strain resources and cause unneccessary delays for all stakeholders.
 
@@ -36,16 +36,27 @@ Hrvst aims to transform the Trading Post from a chaotic marketplace into a **Jus
 
 ### 🛠️ Tech Stack
 
-![Static Badge](https://img.shields.io/badge/Laravel-%23F54927?style=for-the-badge&logo=laravel&logoColor=%23F54927&label=PHP&labelColor=black)
-![Static Badge](https://img.shields.io/badge/Vue-%2323CC78?style=for-the-badge&logo=vuedotjs&logoColor=%2323CC78&label=TS&labelColor=black)
-![Static Badge](https://img.shields.io/badge/PostgreSQL-%234169E1?style=for-the-badge&logo=postgresql&logoColor=%234169E1&label=SQL&labelColor=black)
-![Static Badge](https://img.shields.io/badge/Inertia-%237B29D6?style=for-the-badge&logo=inertia&logoColor=%237B29D6&label=JS&labelColor=black)
-![Static Badge](https://img.shields.io/badge/Leaflet-%235ED12C?style=for-the-badge&logo=leaflet&logoColor=%235ED12C&label=JS&labelColor=black)
-![Static Badge](https://img.shields.io/badge/ShadCN-%23D4D4D4?style=for-the-badge&logo=shadcnui&logoColor=%23D4D4D4&label=UI&labelColor=black)
-![Static Badge](https://img.shields.io/badge/Tanstack-%2355E02F?style=for-the-badge&logo=tanstack&logoColor=%2355E02F&label=JS&labelColor=black)
-![Static Badge](https://img.shields.io/badge/Chart-%23FF5E88?style=for-the-badge&logo=chartdotjs&logoColor=%23FF5E88&label=JS&labelColor=black)
-![Static Badge](https://img.shields.io/badge/Claude-%23FF8952?style=for-the-badge&logo=claude&logoColor=%23FF8952&label=AI&labelColor=black)
-![Static Badge](https://img.shields.io/badge/Gemini-%238652FF?style=for-the-badge&logo=googlegemini&logoColor=%238652FF&label=AI&labelColor=black)
+![Static Badge](https://img.shields.io/badge/Laravel-black?style=for-the-badge&logo=laravel&link=https%3A%2F%2Flaravel.com%2Fdocs%2F13.x)
+![Static Badge](https://img.shields.io/badge/Vue-black?style=for-the-badge&logo=vuedotjs&link=https%3A%2F%2Fvuejs.org%2Fguide%2Fintroduction.html)
+![Static Badge](https://img.shields.io/badge/Supabase-black?style=for-the-badge&logo=supabase&link=https%3A%2F%2Fsupabase.com%2Fdocs)
+![Static Badge](https://img.shields.io/badge/Inertia-black?style=for-the-badge&logo=inertia&link=https%3A%2F%2Finertiajs.com%2F)
+
+![Static Badge](https://img.shields.io/badge/Fortify-black?style=flat-square&logo=laravel)
+![Static Badge](https://img.shields.io/badge/Nightwatch-black?style=flat-square&logo=laravel)
+![Static Badge](https://img.shields.io/badge/Spatie-black?style=flat-square&logo=laravel)
+![Static Badge](https://img.shields.io/badge/Boost-black?style=flat-square&logo=laravel)
+![Static Badge](https://img.shields.io/badge/Pint-black?style=flat-square&logo=laravel)
+![Static Badge](https://img.shields.io/badge/Pest-black?style=flat-square&logo=laravel)
+
+![Static Badge](https://img.shields.io/badge/TypeScript-black?style=flat-square&logo=typescript)
+![Static Badge](https://img.shields.io/badge/Tailwind-black?style=flat-square&logo=tailwindcss)
+![Static Badge](https://img.shields.io/badge/Shadcn%20UI-black?style=flat-square&logo=shadcnui)
+![Static Badge](https://img.shields.io/badge/Leaflet-black?style=flat-square&logo=leaflet&logoColor=%23199900)
+![Static Badge](https://img.shields.io/badge/TanStack-black?style=flat-square&logo=tanstack)
+![Static Badge](https://img.shields.io/badge/Chart.js-black?style=flat-square&logo=chartdotjs)
+![Static Badge](https://img.shields.io/badge/Prettier-black?style=flat-square&logo=prettier)
+![Static Badge](https://img.shields.io/badge/ESLint-black?style=flat-square&logo=eslint&logoColor=%234B32C3)
+![Static Badge](https://img.shields.io/badge/Wayfinder-black?style=flat-square&logo=laravel)
 
 ---
 
@@ -55,8 +66,42 @@ Hrvst aims to transform the Trading Post from a chaotic marketplace into a **Jus
 2.  **Install Dependencies:** `composer install` then `npm install`
 3.  **Environment Setup:** `cp .env.example mv .env` then `php artisan key:generate`
 4.  **Database & Storage:** `php artisan migrate --seed` then `php storage:link`
-5.  **Run Development Server:** `php artisan serve` (or `composer run dev` for Herd)
+5.  **Run Development Server:** `php artisan serve`
     - Terminal 2: `npm run dev`
+
+### Run these checklist commands before PR
+
+1. Install Dependencies:
+    - `composer install --no-interaction --prefer-dist`
+    - Stop active servers then run `npm ci`
+2. PHP Lint
+    - `vendor/bin/pint --test`
+    - If it fails, run `vendor/bin/pint`
+3. PHP Dependency Audit
+    - `composer audit` hecks installed packages against known security advisories
+4. TS Lint
+    - `npx eslint .`
+    - If it fails, run `npx eslint . --fix`
+5. TS Formatting
+    - `npm run format:check`
+    - If it fails, run `npm run format`
+6. TS Type Check
+    - `npx vue-tsc --noEmit`
+    - Type errors require manual correction
+7. Tests
+    - `vendor/bin/pest --compact`
+8. Wayfinder Routes
+    - Run `php artisan wayfinder:generate --no-interaction` if you touched routes/controllers
+
+#### One-Line Version
+
+- `composer install && npm ci \
+&& vendor/bin/pint --test \
+&& composer audit \
+&& npx eslint . \
+&& npm run format:check \
+&& npx vue-tsc --noEmit \
+&& vendor/bin/pest --compact`
 
 ---
 

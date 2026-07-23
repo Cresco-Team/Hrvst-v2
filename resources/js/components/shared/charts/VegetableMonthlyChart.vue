@@ -90,12 +90,8 @@ const confidenceTooltip: Record<string, string> = {
                 v-if="chartData"
                 class="relative h-48 w-full sm:h-64"
             >
-                <component
-                    :is="chartType === 'line' ? Line : Bar"
-                    :data="chartData"
-                    :options="chartOptions"
-                    :plugins="[forecastDividerPlugin]"
-                />
+                <Bar v-if="chartType === 'bar' && chartData" :data="chartData" :options="chartOptions" :plugins="[forecastDividerPlugin]" />
+                <Line v-else-if="chartData" :data="chartData" :options="chartOptions" :plugins="[forecastDividerPlugin]" />
             </div>
 
             <EmptyState

@@ -14,11 +14,11 @@ import {
 import { Skeleton } from '@/components/ui/skeleton'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { useCapitalize } from '@/lib/utils'
+import { categories, dashboard } from '@/routes'
+import { index } from '@/routes/vegetables'
 import type { BreadcrumbItem, SharedCategoryProps } from '@/types'
 import type { Paginated } from '@/types/index'
 import type { VegetableSharedData } from '@/types/resources/product'
-import { categories, dashboard } from '@/routes'
-import { index } from '@/routes/vegetables'
 
 interface VegetablesFilters {
     search: string | null

@@ -28,11 +28,11 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { getInitials } from '@/composables/useInitials'
 import AppLayout from '@/layouts/AppLayout.vue'
+import admin from '@/routes/admin'
 import type {
     BreadcrumbItem,
     DealerResource,
 } from '@/types'
-import admin from '@/routes/admin'
 
 const props = defineProps<{
     dealer?: DealerResource

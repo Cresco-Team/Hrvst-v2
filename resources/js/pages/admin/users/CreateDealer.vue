@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Head, useForm, usePage } from '@inertiajs/vue3'
 import { ref, watch } from 'vue'
+import { storeDealer } from '@/actions/App/Http/Controllers/Admin/UserController'
 import Heading from '@/components/Heading.vue'
 import InputError from '@/components/InputError.vue'
 import { Badge } from '@/components/ui/badge'
@@ -16,9 +17,8 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Spinner } from '@/components/ui/spinner'
 import AppLayout from '@/layouts/AppLayout.vue'
-import type { BreadcrumbItem, FlashMessage } from '@/types'
-import { storeDealer } from '@/actions/App/Http/Controllers/Admin/UserController'
 import admin from '@/routes/admin'
+import type { BreadcrumbItem, FlashMessage } from '@/types'
 
 const breadcrumbs: BreadcrumbItem[] = [
   { title: 'Admin', href: admin.dashboard().url },

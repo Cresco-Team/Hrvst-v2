@@ -7,8 +7,8 @@ import LargeCard from '@/components/shared/cards/LargeCard.vue'
 import AnalyticsUpsellCard from '@/components/shared/charts/AnalyticsUpsellCard.vue'
 import { Skeleton } from '@/components/ui/skeleton'
 import AppLayout from '@/layouts/AppLayout.vue'
-import type { AdminDashboardKPIs, BreadcrumbItem, KpiStat, RegistrationTrendPoint } from '@/types'
 import { dashboard } from '@/routes/admin'
+import type { AdminDashboardKPIs, BreadcrumbItem, KpiStat, RegistrationTrendPoint } from '@/types'
 
 defineProps<{
     kpis?: AdminDashboardKPIs
