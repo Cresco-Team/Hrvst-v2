@@ -1,5 +1,4 @@
-import type {
-    ScriptableContext} from 'chart.js';
+import type { ScriptableContext } from 'chart.js'
 import {
     BarController,
     BarElement,
