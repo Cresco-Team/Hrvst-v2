@@ -24,7 +24,11 @@ class VegetableAnalyticsDTO
          *
          * @var array{band: string, explanation: string}
          */
-        public array $expected_balance = ['band' => 'balanced', 'explanation' => ''],
+        public array $expected_balance = [
+            'band' => 'balanced',
+            'explanation' => '',
+            'computation' => null,
+        ],
     ) {}
 
     public function toArray(): array
