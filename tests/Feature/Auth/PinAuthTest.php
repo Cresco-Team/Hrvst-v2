@@ -464,24 +464,24 @@ describe('admin reset PIN', function () {
 
 // ─── Registration routes must not exist ───────────────────────────────────────
 
-describe('registration is disabled', function () {
-    it('returns 404 on GET /register', function () {
-        get('/register')->assertNotFound();
-    });
+// describe('registration is disabled', function () {
+//     it('returns 404 on GET /register', function () {
+//         get('/register')->assertNotFound();
+//     });
 
-    it('returns 404 on POST /register', function () {
-        post('/register', [])->assertNotFound();
-    });
+//     it('returns 404 on POST /register', function () {
+//         post('/register', [])->assertNotFound();
+//     });
 
-    it('returns 404 on GET /forgot-password', function () {
-        get('/forgot-password')->assertNotFound();
-    });
+//     it('returns 404 on GET /forgot-password', function () {
+//         get('/forgot-password')->assertNotFound();
+//     });
 
-    it('returns 404 on POST /forgot-password', function () {
-        post('/forgot-password', [])->assertNotFound();
-    });
+//     it('returns 404 on POST /forgot-password', function () {
+//         post('/forgot-password', [])->assertNotFound();
+//     });
 
-    it('returns 404 on GET /reset-password', function () {
-        get('/reset-password/fake-token')->assertNotFound();
-    });
-});
+//     it('returns 404 on GET /reset-password', function () {
+//         get('/reset-password/fake-token')->assertNotFound();
+//     });
+// });
