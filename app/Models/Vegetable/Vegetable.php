@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models\Product;
+namespace App\Models\Vegetable;
 
 use App\Models\Marketplace\PostItem;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
