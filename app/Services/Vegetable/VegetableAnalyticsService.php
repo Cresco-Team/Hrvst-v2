@@ -2,9 +2,9 @@
 
 namespace App\Services\Vegetable;
 
-use App\DTOs\Product\VegetableAnalyticsDTO;
-use App\DTOs\Product\VegetableForecastDTO;
-use App\DTOs\Product\VegetableRecommendationDTO;
+use App\DTOs\Vegetable\VegetableAnalyticsDTO;
+use App\DTOs\Vegetable\VegetableForecastDTO;
+use App\DTOs\Vegetable\VegetableRecommendationDTO;
 use App\Enums\Analytics\ImbalanceBand;
 use App\Enums\Analytics\RecommendationSeverity;
 use App\Enums\Analytics\VegetableViewerRole;

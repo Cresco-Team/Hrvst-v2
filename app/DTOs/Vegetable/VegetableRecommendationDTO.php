@@ -1,6 +1,6 @@
 <?php
 
-namespace App\DTOs\Product;
+namespace App\DTOs\Vegetable;
 
 use App\Enums\Analytics\RecommendationSeverity;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
