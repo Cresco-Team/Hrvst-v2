@@ -2,7 +2,8 @@
 
 export type ImbalanceBand = App.Enums.Analytics.ImbalanceBand
 export type RecommendationSeverity = App.Enums.Analytics.RecommendationSeverity
-export type VarietyRecommendation = App.DTOs.Vegetable.VegetableRecommendationDTO
+export type VarietyRecommendation =
+    App.DTOs.Vegetable.VegetableRecommendationDTO
 export type VarietyAnalytics = App.DTOs.Vegetable.VegetableAnalyticsDTO
 
 // ─── Market calendar — mirrors VegetableCalendarService::mergeIntoSchedule() ──

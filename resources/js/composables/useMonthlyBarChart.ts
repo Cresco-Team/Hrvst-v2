@@ -14,9 +14,21 @@ import {
 } from 'chart.js'
 import { computed, type MaybeRefOrGetter, toValue } from 'vue'
 import type { ForecastPoint, MonthlyActivity } from '@/types/resources/product'
-import { createForecastDividerPlugin, formatKgAxis, MONTHLY_VOLUME_SERIES } from './chartSeries'
+import {
+    createForecastDividerPlugin,
+    formatKgAxis,
+    MONTHLY_VOLUME_SERIES,
+} from './chartSeries'
 
-ChartJS.register(BarController, BarElement, CategoryScale, LinearScale, Title, Tooltip, Legend)
+ChartJS.register(
+    BarController,
+    BarElement,
+    CategoryScale,
+    LinearScale,
+    Title,
+    Tooltip,
+    Legend,
+)
 
 export function useMonthlyBarChart(
     activity: MaybeRefOrGetter<MonthlyActivity[] | null | undefined>,
@@ -29,11 +41,16 @@ export function useMonthlyBarChart(
 
         const historical = allMonths.slice(-6)
         const histLen = historical.length
-        const allLabels = [...historical.map((m) => m.label), ...fc.map((m) => m.label)]
+        const allLabels = [
+            ...historical.map((m) => m.label),
+            ...fc.map((m) => m.label),
+        ]
         const isForecastIndex = (dataIndex: number) => dataIndex >= histLen
 
         const datasets = MONTHLY_VOLUME_SERIES.map((series) => {
-            const historicalValues = historical.map((m) => (m as unknown as Record<string, number>)[series.key])
+            const historicalValues = historical.map(
+                (m) => (m as unknown as Record<string, number>)[series.key],
+            )
             const forecastValues = fc.map((m) => m[series.key])
             const data = [...historicalValues, ...forecastValues]
 
@@ -45,7 +62,8 @@ export function useMonthlyBarChart(
                 borderColor: (ctx: ScriptableContext<'bar'>) =>
                     `rgba(${series.rgb}, ${isForecastIndex(ctx.dataIndex) ? 0.7 : 1})`,
                 borderWidth: 1,
-                borderDash: (ctx: ScriptableContext<'bar'>) => (isForecastIndex(ctx.dataIndex) ? [4, 3] : []),
+                borderDash: (ctx: ScriptableContext<'bar'>) =>
+                    isForecastIndex(ctx.dataIndex) ? [4, 3] : [],
                 borderRadius: series.radius,
                 stack: series.stack,
             }
@@ -54,7 +72,10 @@ export function useMonthlyBarChart(
         return { labels: allLabels, datasets }
     })
 
-    const forecastDividerPlugin = createForecastDividerPlugin(activity, forecast)
+    const forecastDividerPlugin = createForecastDividerPlugin(
+        activity,
+        forecast,
+    )
 
     const chartOptions: ChartOptions<'bar'> = {
         responsive: true,
@@ -63,7 +84,12 @@ export function useMonthlyBarChart(
         plugins: {
             legend: {
                 position: 'bottom',
-                labels: { boxWidth: 8, boxHeight: 8, padding: 8, font: { size: 10 } },
+                labels: {
+                    boxWidth: 8,
+                    boxHeight: 8,
+                    padding: 8,
+                    font: { size: 10 },
+                },
             },
             tooltip: {
                 callbacks: {
@@ -79,13 +105,20 @@ export function useMonthlyBarChart(
             x: {
                 stacked: true,
                 grid: { display: false },
-                ticks: { font: { size: 11 }, maxRotation: 45, maxTicksLimit: 12 },
+                ticks: {
+                    font: { size: 11 },
+                    maxRotation: 45,
+                    maxTicksLimit: 12,
+                },
             },
             y: {
                 stacked: true,
                 beginAtZero: true,
                 grid: { color: 'rgba(0,0,0,0.05)' },
-                ticks: { font: { size: 11 }, callback: (value) => formatKgAxis(Number(value)) },
+                ticks: {
+                    font: { size: 11 },
+                    callback: (value) => formatKgAxis(Number(value)),
+                },
             },
         },
     }

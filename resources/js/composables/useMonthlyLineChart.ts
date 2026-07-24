@@ -16,9 +16,23 @@ import {
 } from 'chart.js'
 import { computed, type MaybeRefOrGetter, toValue } from 'vue'
 import type { ForecastPoint, MonthlyActivity } from '@/types/resources/product'
-import { createForecastDividerPlugin, formatKgAxis, MONTHLY_VOLUME_SERIES } from './chartSeries'
+import {
+    createForecastDividerPlugin,
+    formatKgAxis,
+    MONTHLY_VOLUME_SERIES,
+} from './chartSeries'
 
-ChartJS.register(LineController, LineElement, PointElement, Filler, CategoryScale, LinearScale, Title, Tooltip, Legend)
+ChartJS.register(
+    LineController,
+    LineElement,
+    PointElement,
+    Filler,
+    CategoryScale,
+    LinearScale,
+    Title,
+    Tooltip,
+    Legend,
+)
 
 export function useMonthlyLineChart(
     activity: MaybeRefOrGetter<MonthlyActivity[] | null | undefined>,
@@ -31,11 +45,16 @@ export function useMonthlyLineChart(
 
         const historical = allMonths.slice(-6)
         const histLen = historical.length
-        const allLabels = [...historical.map((m) => m.label), ...fc.map((m) => m.label)]
+        const allLabels = [
+            ...historical.map((m) => m.label),
+            ...fc.map((m) => m.label),
+        ]
         const isForecastIndex = (dataIndex: number) => dataIndex >= histLen
 
         const datasets = MONTHLY_VOLUME_SERIES.map((series) => {
-            const historicalValues = historical.map((m) => (m as unknown as Record<string, number>)[series.key])
+            const historicalValues = historical.map(
+                (m) => (m as unknown as Record<string, number>)[series.key],
+            )
             const forecastValues = fc.map((m) => m[series.key])
             const data = [...historicalValues, ...forecastValues]
 
@@ -46,9 +65,11 @@ export function useMonthlyLineChart(
                     `rgba(${series.rgb}, ${isForecastIndex(ctx.dataIndex ?? 0) ? 0.5 : 1})`,
                 backgroundColor: `rgba(${series.rgb}, 0.08)`,
                 pointBackgroundColor: `rgb(${series.rgb})`,
-                pointRadius: (ctx: ScriptableContext<'line'>) => (isForecastIndex(ctx.dataIndex ?? 0) ? 2 : 3),
+                pointRadius: (ctx: ScriptableContext<'line'>) =>
+                    isForecastIndex(ctx.dataIndex ?? 0) ? 2 : 3,
                 borderWidth: 2,
-                borderDash: (ctx: ScriptableContext<'line'>) => (isForecastIndex(ctx.dataIndex ?? 0) ? [4, 3] : []),
+                borderDash: (ctx: ScriptableContext<'line'>) =>
+                    isForecastIndex(ctx.dataIndex ?? 0) ? [4, 3] : [],
                 tension: 0.3,
                 fill: false,
             }
@@ -57,7 +78,10 @@ export function useMonthlyLineChart(
         return { labels: allLabels, datasets }
     })
 
-    const forecastDividerPlugin = createForecastDividerPlugin(activity, forecast)
+    const forecastDividerPlugin = createForecastDividerPlugin(
+        activity,
+        forecast,
+    )
 
     const chartOptions: ChartOptions<'line'> = {
         responsive: true,
@@ -66,7 +90,12 @@ export function useMonthlyLineChart(
         plugins: {
             legend: {
                 position: 'bottom',
-                labels: { boxWidth: 8, boxHeight: 8, padding: 8, font: { size: 10 } },
+                labels: {
+                    boxWidth: 8,
+                    boxHeight: 8,
+                    padding: 8,
+                    font: { size: 10 },
+                },
             },
             tooltip: {
                 callbacks: {
@@ -81,12 +110,19 @@ export function useMonthlyLineChart(
         scales: {
             x: {
                 grid: { display: false },
-                ticks: { font: { size: 11 }, maxRotation: 45, maxTicksLimit: 12 },
+                ticks: {
+                    font: { size: 11 },
+                    maxRotation: 45,
+                    maxTicksLimit: 12,
+                },
             },
             y: {
                 beginAtZero: true,
                 grid: { color: 'rgba(0,0,0,0.05)' },
-                ticks: { font: { size: 11 }, callback: (value) => formatKgAxis(Number(value)) },
+                ticks: {
+                    font: { size: 11 },
+                    callback: (value) => formatKgAxis(Number(value)),
+                },
             },
         },
     }
