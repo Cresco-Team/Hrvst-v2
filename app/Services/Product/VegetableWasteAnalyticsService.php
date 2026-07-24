@@ -43,7 +43,7 @@ class VegetableWasteAnalyticsService
 
     // ── Seasonal forecast ─────────────────────────────────────────────────────
 
-    /** Forecasted unmet dealer demand — signals farmers to supply more of this variety soon. */
+    /** Forecasted unmet dealer demand — signals farmers to supply more of this vegetable soon. */
     public function topWastedDemand(int $limit = self::FORECAST_LIMIT): array
     {
         return $this->forecastByColumn('demand_expired_kg', $limit);

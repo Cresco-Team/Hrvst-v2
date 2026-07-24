@@ -42,7 +42,7 @@ class StoreVegetableRequest extends FormRequest
             'category_id.required' => 'The category field is required.',
             'category_id.exists' => 'The selected category does not exist.',
             'vegetable_name.required' => 'The vegetable name field is required.',
-            'vegetable_name.unique' => 'This vegetable/variety combination already exists in the selected category.',
+            'vegetable_name.unique' => 'This vegetable combination already exists in the selected category.',
             'image.image' => 'The file must be an image.',
             'image.mimes' => 'Image must be JPEG, PNG, or WebP format.',
             'image.max' => 'Image size cannot exceed 5MB.',

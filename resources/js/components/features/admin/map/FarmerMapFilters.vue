@@ -116,21 +116,21 @@ const clearFilters = () => {
             </Select>
         </div>
 
-        <!-- Variety Filter -->
+        <!-- Vegetable Filter -->
         <div class="flex flex-col gap-1.5">
             <label class="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
                 <Sprout class="size-3.5" />
-                Planting/Variety
+                Vegetable
             </label>
             <Select 
                 :model-value="selectedVariety || 'all'" 
                 @update:model-value="handleVarietyChange"
             >
                 <SelectTrigger size="sm">
-                    <SelectValue placeholder="All varieties" />
+                    <SelectValue placeholder="All vegetables" />
                 </SelectTrigger>
                 <SelectContent>
-                    <SelectItem value="all">All varieties</SelectItem>
+                    <SelectItem value="all">All vegetables</SelectItem>
                     <SelectGroup 
                         v-for="(varieties, category) in plantings" 
                         :key="category"

@@ -85,7 +85,7 @@ function handleSearch(query: string): void {
                     title="Vegetables"
                     :description="category
                         ? `Vegetables and varieties for ${category.name}`
-                        : 'Manage all vegetable and variety entries.'"
+                        : 'Manage all vegetable entries.'"
                 />
                 <Button @click="openCreate">
                     <Plus />

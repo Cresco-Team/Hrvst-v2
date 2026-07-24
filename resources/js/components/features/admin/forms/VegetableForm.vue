@@ -89,7 +89,7 @@ function handleSubmit(): void {
                         id="veg-name"
                         v-model="form.vegetable_name"
                         :class="{ 'border-destructive': form.errors.vegetable_name }"
-                        placeholder="..."
+                        placeholder="Enter vegetable name here..."
                     />
                     <p
                         v-if="form.errors.vegetable_name"

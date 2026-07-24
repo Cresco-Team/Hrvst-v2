@@ -34,7 +34,7 @@ trait RendersVegetableShow
             $user->hasRole('admin') => [VegetableViewerRole::Admin, SubscriptionFeature::AdminAnalytics],
             $user->hasRole('farmer') => [VegetableViewerRole::Farmer, SubscriptionFeature::FarmerForecasts],
             $user->hasRole('dealer') => [VegetableViewerRole::Dealer, SubscriptionFeature::DealerMarketIntel],
-            default => throw new \RuntimeException('User has no recognized role for variety viewer context.'),
+            default => throw new \RuntimeException('User has no recognized role for vegetable viewer context.'),
         };
 
         $hasForecastAccess = $gateFeature === null || Subscription::hasAccess($user, $gateFeature);

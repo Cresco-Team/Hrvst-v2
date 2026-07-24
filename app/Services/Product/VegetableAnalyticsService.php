@@ -533,9 +533,9 @@ class VegetableAnalyticsService
 
         if ($band === ImbalanceBand::Oversupply) {
             $body = match ($role) {
-                VegetableViewerRole::Admin => 'Supply is currently exceeding dealer demand. Consider highlighting this variety to dealers or slowing farmer intake.',
-                VegetableViewerRole::Farmer => 'This variety is currently oversupplied. Consider delaying your next harvest posting or choosing an under-demanded slot.',
-                VegetableViewerRole::Dealer => 'There is surplus supply for this variety right now — a good time to increase your order to help absorb it before it expires.',
+                VegetableViewerRole::Admin => 'Supply is currently exceeding dealer demand. Consider highlighting this vegetable to dealers or slowing farmer intake.',
+                VegetableViewerRole::Farmer => 'This vegetable is currently oversupplied. Consider delaying your next harvest posting or choosing an under-demanded slot.',
+                VegetableViewerRole::Dealer => 'There is surplus supply for this vegetable right now — a good time to increase your order to help absorb it before it expires.',
             };
 
             $recs[] = new VegetableRecommendationDTO(
@@ -549,8 +549,8 @@ class VegetableAnalyticsService
         if ($band === ImbalanceBand::Undersupply) {
             $body = match ($role) {
                 VegetableViewerRole::Admin => 'Dealer demand is outpacing available supply. Consider prompting more farmers to post.',
-                VegetableViewerRole::Farmer => 'Buyers are actively looking for this variety. Good time to schedule your available harvest.',
-                VegetableViewerRole::Dealer => 'Supply is currently scarce for this variety. Expect longer wait times, or consider adjusting your demanded quantity.',
+                VegetableViewerRole::Farmer => 'Buyers are actively looking for this vegetable. Good time to schedule your available harvest.',
+                VegetableViewerRole::Dealer => 'Supply is currently scarce for this vegetable. Expect longer wait times, or consider adjusting your demanded quantity.',
             };
 
             $recs[] = new VegetableRecommendationDTO(
