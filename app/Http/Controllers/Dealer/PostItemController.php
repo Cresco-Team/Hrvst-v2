@@ -35,17 +35,4 @@ class PostItemController extends Controller
         return back(fallback: route('dealer.demands.index'))
             ->with('flash', ['type' => 'success', 'message' => 'Item marked as expired.']);
     }
-
-    public function destroy(PostItem $postItem): RedirectResponse
-    {
-        $postItem->load('post');
-        Gate::authorize('delete', $postItem);
-
-        abort_if($postItem->post->type !== PostType::Demand, 403);
-
-        $postItem->delete();
-
-        return back(fallback: route('dealer.demands.index'))
-            ->with('flash', ['type' => 'success', 'message' => 'Item deleted.']);
-    }
 }

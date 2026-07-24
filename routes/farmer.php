@@ -19,7 +19,6 @@ Route::middleware(['auth', 'verified', 'farmer'])->prefix('farmer')->name('farme
         Route::prefix('items')->name('items.')->group(function () {
             Route::post('/{postItem}/fulfill', [PostItemController::class, 'fulfill'])->name('fulfill');
             Route::post('/{postItem}/expire', [PostItemController::class, 'expire'])->name('expire');
-            Route::delete('/{postItem}', [PostItemController::class, 'destroy'])->name('destroy');
         });
     });
 });
