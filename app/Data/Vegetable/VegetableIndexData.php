@@ -2,7 +2,6 @@
 
 namespace App\Data\Vegetable;
 
-use App\Data\Category\CategoryData;
 use App\Data\Concerns\ResolvesCounts;
 use App\Models\Vegetable\Vegetable;
 use Spatie\LaravelData\Data;

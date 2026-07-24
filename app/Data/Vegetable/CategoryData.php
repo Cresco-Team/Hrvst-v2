@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Data\Category;
+namespace App\Data\Vegetable;
 
 use App\Models\Vegetable\Category;
 use Spatie\LaravelData\Data;
