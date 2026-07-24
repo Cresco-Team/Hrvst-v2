@@ -20,6 +20,7 @@ import {
 import { Spinner } from '@/components/ui/spinner'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { store } from '@/routes/register'
+import FileUpload from '@/components/forms/FileUpload.vue'
 
 interface Municipality {
     id: number
@@ -365,20 +366,14 @@ function submit(): void {
                             </div>
                         </div>
 
-                        <div class="grid gap-2">
-                            <Label for="supporting_document">
-                                Supporting Document
-                                <Badge variant="outline" class="text-xs font-normal">Optional</Badge>
-                            </Label>
-                            <p class="text-xs text-muted-foreground">Business permit or lot title. JPEG, PNG, WebP, or PDF, up to 5MB.</p>
-                            <Input
-                                id="supporting_document"
-                                type="file"
-                                accept="image/jpeg,image/png,image/webp,application/pdf"
-                                @change="(e: Event) => { form.supporting_document = (e.target as HTMLInputElement).files?.[0] ?? null }"
-                            />
-                            <InputError :message="form.errors.supporting_document" />
-                        </div>
+                        <FileUpload
+                            v-model="form.supporting_document"
+                            :error="form.errors.supporting_document"
+                            label="Supporting Document"
+                            accept="image/jpeg,image/png,image/webp,application/pdf"
+                            :max-size-mb="5"
+                            help-text="Business permit or lot title — JPEG, PNG, WebP, or PDF, up to 5MB"
+                        />
                     </div>
 
                     <!-- PIN -->
