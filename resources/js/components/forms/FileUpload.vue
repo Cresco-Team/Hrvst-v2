@@ -184,8 +184,18 @@ function triggerFileInput() {
                 class="h-48 w-full object-cover"
             />
             <div class="absolute inset-0 flex items-center justify-center gap-2 bg-black/50 opacity-0 transition-opacity hover:opacity-100">
-                <Button type="button" variant="secondary" size="sm" @click="triggerFileInput">Change</Button>
-                <Button type="button" variant="destructive" size="sm" @click="clearFile">
+                <Button
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    @click="triggerFileInput"
+                >Change</Button>
+                <Button
+                    type="button"
+                    variant="destructive"
+                    size="sm"
+                    @click="clearFile"
+                >
                     <X class="mr-1.5 size-4" />Remove
                 </Button>
             </div>
@@ -208,8 +218,18 @@ function triggerFileInput() {
                 <span class="truncate text-sm font-medium">{{ selectedFileName }}</span>
             </div>
             <div class="flex shrink-0 gap-2">
-                <Button type="button" variant="outline" size="sm" @click="triggerFileInput">Change</Button>
-                <Button type="button" variant="destructive" size="sm" @click="clearFile">
+                <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    @click="triggerFileInput"
+                >Change</Button>
+                <Button
+                    type="button"
+                    variant="destructive"
+                    size="sm"
+                    @click="clearFile"
+                >
                     <X class="size-4" />
                 </Button>
             </div>
@@ -223,10 +243,16 @@ function triggerFileInput() {
         </div>
 
         <!-- Error Message -->
-        <p v-if="error || clientError" class="text-xs text-destructive">
+        <p
+            v-if="error || clientError"
+            class="text-xs text-destructive"
+        >
             {{ error || clientError }}
         </p>
-        <p v-else class="text-xs text-muted-foreground">
+        <p
+            v-else
+            class="text-xs text-muted-foreground"
+        >
             Accepted: {{ humanAccept() }}
         </p>
     </div>

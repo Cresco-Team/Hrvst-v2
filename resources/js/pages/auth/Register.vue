@@ -3,6 +3,7 @@ import { Head, Link, useForm } from '@inertiajs/vue3'
 import { Sprout, ShoppingBag } from 'lucide-vue-next'
 import { computed, ref } from 'vue'
 import FarmLocationPicker from '@/components/forms/FarmLocationPicker.vue'
+import FileUpload from '@/components/forms/FileUpload.vue'
 import InputError from '@/components/InputError.vue'
 import AppLogo from '@/components/layout/AppLogo.vue'
 import { Badge } from '@/components/ui/badge'
@@ -20,7 +21,6 @@ import {
 import { Spinner } from '@/components/ui/spinner'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { store } from '@/routes/register'
-import FileUpload from '@/components/forms/FileUpload.vue'
 
 interface Municipality {
     id: number
@@ -329,7 +329,10 @@ function submit(): void {
 
                     <div class="space-y-4 rounded-lg border p-4">
                         <div class="space-y-1">
-                            <p class="text-sm font-medium">Valid ID <Badge variant="outline" class="text-xs font-normal">Optional</Badge></p>
+                            <p class="text-sm font-medium">Valid ID <Badge
+                                variant="outline"
+                                class="text-xs font-normal"
+                            >Optional</Badge></p>
                             <p class="text-xs text-muted-foreground">
                                 Speeds up admin review, but isn't required to submit a request.
                             </p>

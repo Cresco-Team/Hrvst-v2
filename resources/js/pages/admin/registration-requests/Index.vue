@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Deferred, Head, useForm } from '@inertiajs/vue3'
+import { FileText, IdCard } from '@lucide/vue'
 import {
     CircleCheck,
     Mail,
@@ -38,7 +39,6 @@ import { useInitials } from '@/composables/useInitials'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { dashboard } from '@/routes/admin'
 import type { BreadcrumbItem } from '@/types'
-import { FileText, IdCard } from '@lucide/vue'
 
 interface RegistrationRequestResource {
     id: number
@@ -205,7 +205,10 @@ function handleReject(): void {
                                     <template v-if="request.id_type">
                                         {{ request.id_type_label }} · {{ request.id_number }}
                                     </template>
-                                    <span v-else class="text-muted-foreground/60">No ID provided</span>
+                                    <span
+                                        v-else
+                                        class="text-muted-foreground/60"
+                                    >No ID provided</span>
                                 </span>
 
                                 <a
@@ -219,7 +222,10 @@ function handleReject(): void {
                                     <FileText class="size-3" />
                                     View Document
                                 </a>
-                                <span v-else class="flex items-center gap-1 text-muted-foreground/60">
+                                <span
+                                    v-else
+                                    class="flex items-center gap-1 text-muted-foreground/60"
+                                >
                                     <FileText class="size-3" />
                                     No document
                                 </span>
