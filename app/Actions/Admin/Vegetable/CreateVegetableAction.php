@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Actions\Product;
+namespace App\Actions\Admin\Vegetable;
 
 use App\Models\Vegetable\Vegetable;
 use Illuminate\Http\UploadedFile;

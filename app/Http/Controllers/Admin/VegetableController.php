@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Actions\Product\CreateVegetableAction;
-use App\Actions\Product\UpdateVegetableAction;
+use App\Actions\Admin\Vegetable\CreateVegetableAction;
+use App\Actions\Admin\Vegetable\UpdateVegetableAction;
 use App\Data\Vegetable\VegetableIndexData;
 use App\Http\Controllers\Concerns\RendersVegetableShow;
 use App\Http\Controllers\Controller;
