@@ -2,7 +2,7 @@
 
 namespace Database\Factories\Product;
 
-use App\Models\Product\Category;
+use App\Models\Vegetable\Category;
 use App\Models\Vegetable\Vegetable;
 use Illuminate\Database\Eloquent\Factories\Factory;
 

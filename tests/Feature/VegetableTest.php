@@ -1,6 +1,6 @@
 <?php
 
-use App\Models\Product\Category;
+use App\Models\Vegetable\Category;
 use App\Models\Vegetable\Vegetable;
 use App\Models\Profiles\Role;
 use App\Models\User;

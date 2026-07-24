@@ -2,7 +2,7 @@
 
 namespace App\Data\Category;
 
-use App\Models\Product\Category;
+use App\Models\Vegetable\Category;
 use Spatie\LaravelData\Data;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 

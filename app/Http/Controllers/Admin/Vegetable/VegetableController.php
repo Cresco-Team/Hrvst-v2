@@ -9,7 +9,7 @@ use App\Http\Controllers\Concerns\RendersVegetableShow;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Vegetable\StoreVegetableRequest;
 use App\Http\Requests\Vegetable\UpdateVegetableRequest;
-use App\Models\Product\Category;
+use App\Models\Vegetable\Category;
 use App\Models\Vegetable\Vegetable;
 use App\Services\Product\VegetableDetailService;
 use App\Services\Product\VegetableService;

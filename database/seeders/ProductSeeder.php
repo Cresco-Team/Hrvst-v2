@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\Product\Category;
+use App\Models\Vegetable\Category;
 use App\Models\Vegetable\Vegetable;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
