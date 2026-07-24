@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Actions\RegistrationRequest\ApproveRegistrationRequestAction;
 use App\Actions\RegistrationRequest\RejectRegistrationRequestAction;
+use App\Data\RegistrationRequest\RegistrationRequestData;
 use App\Enums\RegistrationRequestStatus;
 use App\Http\Controllers\Controller;
 use App\Models\RegistrationRequest;
@@ -17,12 +18,13 @@ class RegistrationRequestController extends Controller
     public function index(): Response
     {
         return Inertia::render('admin/registration-requests/Index', [
-            'requests' => Inertia::defer(fn () => RegistrationRequest::query()
-                ->where('status', RegistrationRequestStatus::Pending)
-                ->with(['municipality', 'barangay'])
-                ->latest()
-                ->get()
-            ),
+            'requests' => Inertia::defer(fn () => RegistrationRequestData::collect(
+                RegistrationRequest::query()
+                    ->where('status', RegistrationRequestStatus::Pending)
+                    ->with(['municipality', 'barangay', 'media'])
+                    ->latest()
+                    ->get()
+            )),
         ]);
     }
 
