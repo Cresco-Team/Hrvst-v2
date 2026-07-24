@@ -3,7 +3,7 @@
 namespace App\Services\Admin;
 
 use App\Models\Address\Municipality;
-use App\Models\Product\Vegetable;
+use App\Models\Vegetable\Vegetable;
 use App\Models\Profiles\FarmerProfile;
 use Illuminate\Database\Eloquent\Builder;
 

@@ -8,7 +8,7 @@ use App\Data\Profile\UserInsightsData;
 use App\Enums\PostType;
 use App\Models\Marketplace\Post;
 use App\Models\Marketplace\PostItem;
-use App\Models\Product\Vegetable;
+use App\Models\Vegetable\Vegetable;
 use Carbon\Carbon;
 
 class PostItemInsightsService

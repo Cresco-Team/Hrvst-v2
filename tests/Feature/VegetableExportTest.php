@@ -5,7 +5,7 @@ use App\Enums\Billing\SubscriptionPlan;
 use App\Enums\Billing\SubscriptionStatus;
 use App\Models\Billing\Subscription;
 use App\Models\Product\Category;
-use App\Models\Product\Vegetable;
+use App\Models\Vegetable\Vegetable;
 use App\Models\User;
 
 use function Pest\Laravel\actingAs;

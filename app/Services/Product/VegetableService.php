@@ -2,7 +2,7 @@
 
 namespace App\Services\Product;
 
-use App\Models\Product\Vegetable;
+use App\Models\Vegetable\Vegetable;
 use Illuminate\Database\Eloquent\Builder;
 
 class VegetableService

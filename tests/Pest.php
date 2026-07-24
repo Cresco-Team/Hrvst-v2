@@ -9,7 +9,7 @@ use App\Models\Address\Province;
 use App\Models\Marketplace\Post;
 use App\Models\Marketplace\PostItem;
 use App\Models\Product\Category;
-use App\Models\Product\Vegetable;
+use App\Models\Vegetable\Vegetable;
 use App\Models\Profiles\DealerProfile;
 use App\Models\Profiles\FarmerProfile;
 use App\Models\Profiles\Role;

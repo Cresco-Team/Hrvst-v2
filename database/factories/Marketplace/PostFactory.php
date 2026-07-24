@@ -4,7 +4,7 @@ namespace Database\Factories\Marketplace;
 
 use App\Enums\PostType;
 use App\Models\Marketplace\Post;
-use App\Models\Product\Vegetable;
+use App\Models\Vegetable\Vegetable;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 

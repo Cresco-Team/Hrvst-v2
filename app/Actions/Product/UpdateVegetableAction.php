@@ -2,7 +2,7 @@
 
 namespace App\Actions\Product;
 
-use App\Models\Product\Vegetable;
+use App\Models\Vegetable\Vegetable;
 use Illuminate\Http\UploadedFile;
 
 class UpdateVegetableAction

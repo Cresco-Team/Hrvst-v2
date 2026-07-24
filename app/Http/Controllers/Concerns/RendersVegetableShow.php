@@ -6,7 +6,7 @@ use App\Data\Vegetable\VegetableDetailData;
 use App\Enums\Analytics\VegetableViewerRole;
 use App\Enums\Billing\SubscriptionFeature;
 use App\Models\Billing\Subscription;
-use App\Models\Product\Vegetable;
+use App\Models\Vegetable\Vegetable;
 use App\Services\Product\VegetableDetailService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;

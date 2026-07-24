@@ -5,7 +5,7 @@ namespace App\Services\Product;
 use App\Enums\Analytics\VegetableViewerRole;
 use App\Enums\PostItemStatus;
 use App\Enums\PostType;
-use App\Models\Product\Vegetable;
+use App\Models\Vegetable\Vegetable;
 use Illuminate\Support\Facades\DB;
 
 class VegetableDetailService

@@ -4,7 +4,7 @@ namespace App\Data\Vegetable;
 
 use App\Data\Category\CategoryData;
 use App\Data\Concerns\ResolvesCounts;
-use App\Models\Product\Vegetable;
+use App\Models\Vegetable\Vegetable;
 use Spatie\LaravelData\Data;
 use Spatie\LaravelData\Lazy;
 use Spatie\LaravelData\Optional;

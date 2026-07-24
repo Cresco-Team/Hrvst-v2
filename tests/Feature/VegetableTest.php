@@ -1,7 +1,7 @@
 <?php
 
 use App\Models\Product\Category;
-use App\Models\Product\Vegetable;
+use App\Models\Vegetable\Vegetable;
 use App\Models\Profiles\Role;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;

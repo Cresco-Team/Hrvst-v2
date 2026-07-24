@@ -2,7 +2,7 @@
 
 namespace App\Data\Vegetable;
 
-use App\Models\Product\Vegetable;
+use App\Models\Vegetable\Vegetable;
 use Spatie\LaravelData\Data;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 use Spatie\TypeScriptTransformer\Attributes\TypeScriptType;

@@ -2,7 +2,7 @@
 
 namespace App\Services\Product;
 
-use App\Models\Product\Vegetable;
+use App\Models\Vegetable\Vegetable;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;

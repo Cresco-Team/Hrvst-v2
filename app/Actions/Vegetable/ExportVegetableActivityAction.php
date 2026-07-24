@@ -2,7 +2,7 @@
 
 namespace App\Actions\Vegetable;
 
-use App\Models\Product\Vegetable;
+use App\Models\Vegetable\Vegetable;
 use App\Services\Product\VegetableActivityService;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\StreamedResponse;

@@ -3,7 +3,7 @@
 namespace App\Models\Marketplace;
 
 use App\Enums\PostItemStatus;
-use App\Models\Product\Vegetable;
+use App\Models\Vegetable\Vegetable;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;

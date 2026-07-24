@@ -3,7 +3,7 @@
 namespace App\Observers;
 
 use App\Enums\PostType;
-use App\Models\Product\Vegetable;
+use App\Models\Vegetable\Vegetable;
 use Illuminate\Support\Facades\Cache;
 
 class VegetableObserver

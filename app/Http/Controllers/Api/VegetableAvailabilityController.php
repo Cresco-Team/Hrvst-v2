@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Product\Vegetable;
+use App\Models\Vegetable\Vegetable;
 use App\Services\Product\VegetableAvailabilityService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;

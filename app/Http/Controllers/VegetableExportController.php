@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Actions\Vegetable\ExportVegetableActivityAction;
 use App\Enums\Billing\SubscriptionFeature;
 use App\Models\Billing\Subscription;
-use App\Models\Product\Vegetable;
+use App\Models\Vegetable\Vegetable;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 

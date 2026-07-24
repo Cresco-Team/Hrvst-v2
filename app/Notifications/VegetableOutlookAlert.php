@@ -3,7 +3,7 @@
 namespace App\Notifications;
 
 use App\Enums\Analytics\ImbalanceBand;
-use App\Models\Product\Vegetable;
+use App\Models\Vegetable\Vegetable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 

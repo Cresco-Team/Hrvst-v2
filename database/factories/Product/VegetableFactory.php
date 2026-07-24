@@ -3,7 +3,7 @@
 namespace Database\Factories\Product;
 
 use App\Models\Product\Category;
-use App\Models\Product\Vegetable;
+use App\Models\Vegetable\Vegetable;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class VegetableFactory extends Factory

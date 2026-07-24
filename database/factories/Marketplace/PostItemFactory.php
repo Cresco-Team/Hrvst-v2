@@ -5,7 +5,7 @@ namespace Database\Factories\Marketplace;
 use App\Enums\PostItemStatus;
 use App\Models\Marketplace\Post;
 use App\Models\Marketplace\PostItem;
-use App\Models\Product\Vegetable;
+use App\Models\Vegetable\Vegetable;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class PostItemFactory extends Factory
