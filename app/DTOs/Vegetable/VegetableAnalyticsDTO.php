@@ -17,12 +17,7 @@ class VegetableAnalyticsDTO
         public ?float $demand_volume_mom_pct,
         /** @var VegetableRecommendationDTO[] */
         public array $recommendations,
-        /** @var array{band: string, explanation: string} */
-        public array $expected_balance = [
-            'band' => 'balanced',
-            'explanation' => '',
-            'computation' => null,
-        ],
+        public ExpectedBalanceDTO $expected_balance,
     ) {}
 
     public function toArray(): array
@@ -43,7 +38,7 @@ class VegetableAnalyticsDTO
                 ],
                 $this->recommendations,
             ),
-            'expected_balance' => $this->expected_balance,
+            'expected_balance' => $this->expected_balance->toArray(),
         ];
     }
 }
