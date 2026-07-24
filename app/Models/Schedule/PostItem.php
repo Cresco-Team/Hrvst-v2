@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models\Marketplace;
+namespace App\Models\Schedule;
 
 use App\Enums\PostItemStatus;
 use App\Models\Vegetable\Vegetable;
