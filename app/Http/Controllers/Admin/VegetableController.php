@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Admin\Vegetable;
+namespace App\Http\Controllers\Admin;
 
 use App\Actions\Product\CreateVegetableAction;
 use App\Actions\Product\UpdateVegetableAction;
