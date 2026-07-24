@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Actions\Supply;
+namespace App\Actions\Farmer;
 
 use App\Models\Schedule\Post;
 use Illuminate\Support\Arr;

@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\Farmer\Schedule;
 
+use App\Actions\Farmer\UpdateSupplyAction;
 use App\Actions\Post\CreatePostAction;
 use App\Actions\Post\DeletePostAction;
-use App\Actions\Supply\UpdateSupplyAction;
 use App\Data\Post\FarmerSupplyData;
 use App\Enums\PostItemStatus;
 use App\Enums\PostType;
