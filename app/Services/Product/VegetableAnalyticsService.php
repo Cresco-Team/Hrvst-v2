@@ -139,7 +139,7 @@ class VegetableAnalyticsService
 
             return $this->balanceResult(
                 $this->classifyBalance($supplyKg, $demandKg),
-                "Estimated from {$sourceLabel}, the same month last year.",
+                "Estimated from {$sourceLabel} last year.",
                 $supplyKg,
                 $demandKg,
                 $sourceLabel,
@@ -166,7 +166,7 @@ class VegetableAnalyticsService
 
         return $this->balanceResult(
             $this->classifyBalance($avgSupply, $avgDemand),
-            "No data for this month last year — estimated from the average of {$monthLabels}.",
+            "Estimated from the average of {$monthLabels}.",
             $avgSupply,
             $avgDemand,
             $monthLabels,
