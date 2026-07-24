@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Actions\RegistrationRequest\ApproveRegistrationRequestAction;
+use App\Actions\Admin\User\ApproveRegistrationRequestAction;
 use App\Actions\RegistrationRequest\CreateRegistrationRequestAction;
 use App\Http\Requests\StoreRegistrationRequestRequest;
 use App\Models\Address\Municipality;

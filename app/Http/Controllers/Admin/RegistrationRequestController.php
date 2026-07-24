@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Actions\RegistrationRequest\ApproveRegistrationRequestAction;
-use App\Actions\RegistrationRequest\RejectRegistrationRequestAction;
+use App\Actions\Admin\User\ApproveRegistrationRequestAction;
+use App\Actions\Admin\User\RejectRegistrationRequestAction;
 use App\Data\RegistrationRequest\RegistrationRequestData;
 use App\Enums\RegistrationRequestStatus;
 use App\Http\Controllers\Controller;
