@@ -2,6 +2,7 @@
 
 namespace App\Actions\Admin;
 
+use App\Concerns\GeneratesPin;
 use App\Models\Address\Municipality;
 use App\Models\Profiles\FarmerProfile;
 use App\Models\Profiles\Role;
@@ -10,10 +11,9 @@ use Illuminate\Support\Facades\DB;
 
 final class CreateFarmerAction
 {
+    use GeneratesPin;
+
     /**
-     * Create a farmer user and return the plaintext temporary PIN.
-     * The PIN is only returned once — the admin must relay it to the user in person.
-     *
      * @return array{user: User, plain_pin: string}
      */
     public function handle(array $validated): array
@@ -47,10 +47,5 @@ final class CreateFarmerAction
         });
 
         return ['user' => $user, 'plain_pin' => $plainPin];
-    }
-
-    private function generatePin(): string
-    {
-        return str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
     }
 }

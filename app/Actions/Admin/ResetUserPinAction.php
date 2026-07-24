@@ -2,17 +2,20 @@
 
 namespace App\Actions\Admin;
 
+use App\Concerns\GeneratesPin;
 use App\Models\User;
 
 final class ResetUserPinAction
 {
+    use GeneratesPin;
+
     /**
      * Reset a user's PIN and flag them to change it on next login.
      * Returns the plaintext PIN — admin relays this to the user in person.
      */
     public function handle(User $user): string
     {
-        $plainPin = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+        $plainPin = $this->generatePin();
 
         $user->update([
             'password' => $plainPin,

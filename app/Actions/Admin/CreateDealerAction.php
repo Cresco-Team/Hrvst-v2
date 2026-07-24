@@ -2,6 +2,7 @@
 
 namespace App\Actions\Admin;
 
+use App\Concerns\GeneratesPin;
 use App\Models\Profiles\DealerProfile;
 use App\Models\Profiles\Role;
 use App\Models\User;
@@ -9,6 +10,8 @@ use Illuminate\Support\Facades\DB;
 
 final class CreateDealerAction
 {
+    use GeneratesPin;
+
     /**
      * @return array{user: User, plain_pin: string}
      */
@@ -34,10 +37,5 @@ final class CreateDealerAction
         });
 
         return ['user' => $user, 'plain_pin' => $plainPin];
-    }
-
-    private function generatePin(): string
-    {
-        return str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
     }
 }
