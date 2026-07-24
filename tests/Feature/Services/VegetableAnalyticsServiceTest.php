@@ -105,8 +105,8 @@ it('gives each role role-specific undersupply copy, not a shared generic sentenc
         ->body;
 
     expect($bodyFor($admin))->toContain('Consider prompting more farmers to post')
-        ->and($bodyFor($farmer))->toContain('post your available harvest')
-        ->and($bodyFor($dealer))->toContain('adjusting your requested quantity');
+        ->and($bodyFor($farmer))->toContain('schedule your available harvest')
+        ->and($bodyFor($dealer))->toContain('adjusting your demanded quantity');
 
     expect($bodyFor($admin))->not->toBe($bodyFor($farmer))
         ->and($bodyFor($farmer))->not->toBe($bodyFor($dealer));
