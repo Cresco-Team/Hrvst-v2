@@ -2,37 +2,21 @@
 
 namespace App\Http\Controllers\Farmer;
 
-use App\Actions\PostItem\ExpirePostItemAction;
-use App\Actions\PostItem\FulfillPostItemAction;
 use App\Enums\PostType;
+use App\Http\Controllers\Concerns\HandlesPostItemLifecycle;
 use App\Http\Controllers\Controller;
-use App\Models\Marketplace\PostItem;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Gate;
 
 class PostItemController extends Controller
 {
-    public function fulfill(PostItem $postItem, FulfillPostItemAction $action): RedirectResponse
+    use HandlesPostItemLifecycle;
+
+    protected function postType(): PostType
     {
-        $postItem->load('post');
-        Gate::authorize('fulfill', $postItem);
-        abort_if($postItem->post->type !== PostType::Supply, 403);
-
-        $action->handle($postItem);
-
-        return back(fallback: route('farmer.supplies.index'))
-            ->with('flash', ['type' => 'success', 'message' => 'Item marked as fulfilled.']);
+        return PostType::Supply;
     }
 
-    public function expire(PostItem $postItem, ExpirePostItemAction $action): RedirectResponse
+    protected function indexRouteName(): string
     {
-        $postItem->load('post');
-        Gate::authorize('expire', $postItem);
-        abort_if($postItem->post->type !== PostType::Supply, 403);
-
-        $action->handle($postItem);
-
-        return back(fallback: route('farmer.supplies.index'))
-            ->with('flash', ['type' => 'success', 'message' => 'Item marked as expired.']);
+        return 'farmer.supplies.index';
     }
 }
