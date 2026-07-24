@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Dealer;
+namespace App\Http\Controllers\Dealer\Schedule;
 
 use App\Enums\PostType;
 use App\Http\Controllers\Concerns\HandlesPostItemLifecycle;
