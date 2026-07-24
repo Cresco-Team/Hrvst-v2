@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\Dealer;
 
-use App\Actions\Demand\CreateDemandAction;
-use App\Actions\Demand\DeleteDemandAction;
 use App\Actions\Demand\UpdateDemandAction;
+use App\Actions\Post\CreatePostAction;
+use App\Actions\Post\DeletePostAction;
 use App\Data\Post\DealerDemandData;
 use App\Enums\PostItemStatus;
 use App\Enums\PostType;
@@ -61,12 +61,13 @@ class DemandController extends Controller
         ]);
     }
 
-    public function store(StoreDemandRequest $request, CreateDemandAction $action): RedirectResponse
+    public function store(StoreDemandRequest $request, CreatePostAction $action): RedirectResponse
     {
         Gate::authorize('create', [Post::class, PostType::Demand]);
 
         $action->handle(
-            dealer: $request->user()->dealerProfile,
+            userId: $request->user()->id,
+            type: PostType::Demand,
             validated: $request->validated(),
         );
 
@@ -84,7 +85,7 @@ class DemandController extends Controller
             ->with('flash', ['type' => 'success', 'message' => 'Demand updated successfully!']);
     }
 
-    public function destroy(Post $demand, DeleteDemandAction $action): RedirectResponse
+    public function destroy(Post $demand, DeletePostAction $action): RedirectResponse
     {
         Gate::authorize('delete', $demand);
         $action->handle($demand);

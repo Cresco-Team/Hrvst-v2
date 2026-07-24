@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\Farmer;
 
-use App\Actions\Supply\CreateSupplyAction;
-use App\Actions\Supply\DeleteSupplyAction;
+use App\Actions\Post\CreatePostAction;
+use App\Actions\Post\DeletePostAction;
 use App\Actions\Supply\UpdateSupplyAction;
 use App\Data\Post\FarmerSupplyData;
 use App\Enums\PostItemStatus;
@@ -47,7 +47,6 @@ class SupplyController extends Controller
         $userId = $request->user()->id;
         $status = PostItemStatus::tryFrom($request->query('status', PostItemStatus::Expired->value));
 
-        // Guard: only Expired and Fulfilled belong here; reject Ongoing
         if (! $status || $status === PostItemStatus::Ongoing) {
             $status = PostItemStatus::Expired;
         }
@@ -60,11 +59,15 @@ class SupplyController extends Controller
         ]);
     }
 
-    public function store(StoreSupplyRequest $request, CreateSupplyAction $action): RedirectResponse
+    public function store(StoreSupplyRequest $request, CreatePostAction $action): RedirectResponse
     {
         Gate::authorize('create', [Post::class, PostType::Supply]);
 
-        $action->handle(farmer: $request->user()->farmerProfile, validated: $request->validated());
+        $action->handle(
+            userId: $request->user()->id,
+            type: PostType::Supply,
+            validated: $request->validated()
+        );
 
         return back(fallback: route('farmer.supplies.index'))
             ->with('flash', ['type' => 'success', 'message' => 'Supply posted successfully!']);
@@ -80,7 +83,7 @@ class SupplyController extends Controller
             ->with('flash', ['type' => 'success', 'message' => 'Supply updated successfully!']);
     }
 
-    public function destroy(Post $supply, DeleteSupplyAction $action): RedirectResponse
+    public function destroy(Post $supply, DeletePostAction $action): RedirectResponse
     {
         Gate::authorize('delete', $supply);
         $action->handle($supply);
