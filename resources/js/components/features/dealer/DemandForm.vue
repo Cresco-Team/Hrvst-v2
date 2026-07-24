@@ -4,7 +4,7 @@ import { CalendarDate, today, getLocalTimeZone, DateFormatter } from '@internati
 import { ChevronsUpDown, Search } from '@lucide/vue'
 import { CalendarIcon, Plus, Trash2 } from 'lucide-vue-next'
 import { computed, watch } from 'vue'
-import { store, update } from '@/actions/App/Http/Controllers/Dealer/DemandController'
+import { store, update } from '@/actions/App/Http/Controllers/Dealer/Schedule/DemandController'
 import DialogForm from '@/components/dialogs/DialogForm.vue'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'

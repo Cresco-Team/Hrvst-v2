@@ -7,7 +7,7 @@ import {
     Trash,
     TriangleAlert,
 } from 'lucide-vue-next'
-import { fulfill, expire } from '@/actions/App/Http/Controllers/Dealer/PostItemController'
+import { fulfill, expire } from '@/actions/App/Http/Controllers/Dealer/Schedule/PostItemController'
 import PostActionButtons from '@/components/shared/PostActionButtons.vue'
 import { Avatar, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
