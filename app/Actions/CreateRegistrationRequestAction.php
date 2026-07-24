@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Actions\RegistrationRequest;
+namespace App\Actions;
 
 use App\Enums\RegistrationRequestStatus;
 use App\Models\RegistrationRequest;
