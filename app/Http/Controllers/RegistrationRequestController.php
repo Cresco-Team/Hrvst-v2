@@ -23,7 +23,10 @@ class RegistrationRequestController extends Controller
 
     public function store(StoreRegistrationRequestRequest $request, CreateRegistrationRequestAction $action, ApproveRegistrationRequestAction $approveRequest): RedirectResponse
     {
-        $registrationRequest = $action->handle($request->validated());
+        $registrationRequest = $action->handle(
+            $request->validated(),
+            $request->file('supporting_document'),
+        );
 
         // TEMPORARY — testing bypass. See AUTO_APPROVE_REGISTRATIONS in .env.
         // Remove this branch (and the flag) before relying on real admin review.
