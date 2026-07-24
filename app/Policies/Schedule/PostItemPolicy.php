@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Policies\Marketplace;
+namespace App\Policies\Schedule;
 
 use App\Enums\PostItemStatus;
 use App\Models\Schedule\PostItem;
