@@ -53,6 +53,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          extensions: mbstring, pdo_sqlite, gd, zip, bcmath, intl, exif, curl, dom, fileinfo
+          coverage: none
+
+      - uses: ramsey/composer-install@v3
+
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
@@ -63,13 +71,20 @@ jobs:
       - name: Prettier (check only)
         run: npm run format:check
 
-      # NOT `npm run lint` — that script runs `eslint . --fix` and mutates
-      # files, which means a CI run can never actually fail on lint errors.
       - name: ESLint (check only)
         run: npx eslint .
 
-      # vue-tsc is a devDependency with no script wired up. Invoking it
-      # directly here until a `typecheck` script exists in package.json.
+      # Generates resources/js/actions/**, resources/js/routes/** — required
+      # by every page/component import. Not committed, so CI must build them
+      # itself instead of relying on a developer's stale local copy.
+      - name: Generate Wayfinder routes/actions
+        run: php artisan wayfinder:generate --with-form --no-interaction
+
+      # Generates resources/js/generated/generated.d.ts — App.Data.*/App.Enums.*
+      # types that dozens of components import directly.
+      - name: Generate TypeScript transformer types
+        run: php artisan typescript:transform
+
       - name: vue-tsc (type check)
         run: npx vue-tsc --noEmit
 
