@@ -5,15 +5,11 @@ namespace App\Services\Admin;
 use App\Enums\PostType;
 use App\Models\Marketplace\Post;
 use App\Models\Profiles\DealerProfile;
-use App\Services\Shared\PostItemInsightsService;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Database\Eloquent\Builder;
+use App\Services\Admin\Concerns\ManagesProfileDirectory;
 
 class DealerService
 {
-    public function __construct(
-        private readonly PostItemInsightsService $insights,
-    ) {}
+    use ManagesProfileDirectory;
 
     public function summary(): array
     {
@@ -27,49 +23,23 @@ class DealerService
         ];
     }
 
-    public function paginated(int $perPage = 20, ?string $search = null): LengthAwarePaginator
+    protected function profileModelClass(): string
     {
-        $query = DealerProfile::with(['user.media'])
-            ->withCount([
-                'demandItems as ongoing_demands_count' => fn (Builder $q) => $q
-                    ->ongoing(),
-            ]);
-
-        if ($search) {
-            $query->whereHas('user', function (Builder $q) use ($search) {
-                $q->where('name', 'ilike', "%{$search}%")
-                    ->orWhere('email', 'ilike', "%{$search}%")
-                    ->orWhere('phone_number', 'ilike', "%{$search}%");
-            });
-        }
-
-        return $query->orderBy('created_at', 'desc')->paginate($perPage);
+        return DealerProfile::class;
     }
 
-    public function details(DealerProfile $dealer): DealerProfile
+    protected function itemsRelation(): string
     {
-        return $dealer->load([
-            'user.media',
-            'posts' => fn ($q) => $q
-                ->demand()
-                ->whereDate('scheduled_date', today())
-                ->with(['postItems' => fn ($q) => $q->ongoing()])
-                ->with(['postItems.vegetable']),
-        ]);
+        return 'demandItems';
     }
 
-    public function show(DealerProfile $dealer, bool $hasAnalyticsAccess): DealerProfile
+    protected function ongoingCountAlias(): string
     {
-        $dealer->load([
-            'user.media',
-            'demandItems' => fn ($q) => $q
-                ->with(['vegetable.category']),
-        ]);
+        return 'ongoing_demands_count';
+    }
 
-        $dealer->insights = $this->insights->compute($dealer->user_id, PostType::Demand);
-
-        $dealer->analytics_locked = ! $hasAnalyticsAccess;
-
-        return $dealer;
+    protected function postType(): PostType
+    {
+        return PostType::Demand;
     }
 }
