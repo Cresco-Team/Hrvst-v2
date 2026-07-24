@@ -60,7 +60,7 @@ export interface AdminVegetablesProps {
     category: { id: number; name: string; slug: string }
     summary: VegetableSummary
     filters: AdminVegetablesFilters
-    vegetables: Paginated<App.Data.Vegetable.VegetableAdminData>
+    vegetables: Paginated<App.Data.Vegetable.VegetableIndexData>
 }
 
 // ─── admin/farmers/Index ──────────────────────────────────────────────────────

@@ -60,9 +60,7 @@ export type VegetableDetailDataFixed = Omit<
     vegetable_calendar: Record<string, VegetableDaySchedule>
 }
 
-export type VegetableSharedData = App.Data.Vegetable.VegetableSharedData
-
-export type VegetableAdminData = App.Data.Vegetable.VegetableAdminData
+export type VegetableIndexData = App.Data.Vegetable.VegetableIndexData
 
 export type VegetableWasteData = App.Data.Vegetable.VegetableWasteData
 export type VegetableStabilityData = App.Data.Vegetable.VegetableStabilityData
