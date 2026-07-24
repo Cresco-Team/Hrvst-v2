@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Farmer;
+namespace App\Http\Controllers\Farmer\Schedule;
 
 use App\Actions\Post\CreatePostAction;
 use App\Actions\Post\DeletePostAction;

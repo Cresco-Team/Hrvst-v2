@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Farmer;
+namespace App\Http\Controllers\Farmer\Schedule;
 
 use App\Enums\PostType;
 use App\Http\Controllers\Concerns\HandlesPostItemLifecycle;
