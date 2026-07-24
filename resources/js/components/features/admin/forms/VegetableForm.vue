@@ -8,11 +8,11 @@ import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { store, update } from '@/routes/admin/vegetables'
-import type { VegetableAdminData } from '@/types/resources/product'
+import type { VegetableIndexData } from '@/types/resources/product'
 
 const props = defineProps<{
     open: boolean
-    vegetable: VegetableAdminData | null
+    vegetable: VegetableIndexData | null
     categoryId: number
     categoryName: string
 }>()
