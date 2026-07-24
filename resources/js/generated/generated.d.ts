@@ -1,6 +1,6 @@
 declare namespace App {
 namespace DTOs {
-namespace Product {
+namespace Vegetable {
 export type VegetableAnalyticsDTO = {
 supply_demand_ratio: number,
 imbalance_band: App.Enums.Analytics.ImbalanceBand,
@@ -8,7 +8,7 @@ supply_fulfillment_rate: number | null,
 demand_fulfillment_rate: number | null,
 supply_volume_mom_pct: number | null,
 demand_volume_mom_pct: number | null,
-recommendations: App.DTOs.Product.VegetableRecommendationDTO[],
+recommendations: App.DTOs.Vegetable.VegetableRecommendationDTO[],
 expected_balance: {
 band: string,
 explanation: string,
@@ -42,13 +42,6 @@ status: string | null,
 is_active: boolean,
 ends_at: string | null,
 ends_at_human: string | null,
-};
-}
-namespace Category {
-export type CategoryData = {
-id: number,
-name: string,
-slug: string,
 };
 }
 namespace Dealer {
@@ -214,6 +207,11 @@ document_url: string | null,
 };
 }
 namespace Vegetable {
+export type CategoryData = {
+id: number,
+name: string,
+slug: string,
+};
 export type VegetableCalendarItemData = {
 post_id: number,
 type: App.Enums.PostType,
@@ -248,7 +246,7 @@ variety_name: string | null,
 local_name: string | null,
 display_name: string,
 image_url: string,
-category: App.Data.Category.CategoryData | undefined,
+category: App.Data.Vegetable.CategoryData | undefined,
 supply_count: undefined | number,
 demand_count: undefined | number,
 };
