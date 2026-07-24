@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\Product;
+namespace App\Services\Vegetable;
 
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;

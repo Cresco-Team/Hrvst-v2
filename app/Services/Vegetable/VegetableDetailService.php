@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\Product;
+namespace App\Services\Vegetable;
 
 use App\Enums\Analytics\VegetableViewerRole;
 use App\Enums\PostItemStatus;

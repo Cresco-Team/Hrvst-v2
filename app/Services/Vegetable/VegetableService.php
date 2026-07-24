@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\Product;
+namespace App\Services\Vegetable;
 
 use App\Models\Vegetable\Vegetable;
 use Illuminate\Database\Eloquent\Builder;

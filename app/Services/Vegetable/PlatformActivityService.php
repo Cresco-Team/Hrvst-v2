@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\Product;
+namespace App\Services\Vegetable;
 
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
