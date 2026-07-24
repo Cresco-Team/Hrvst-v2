@@ -2,9 +2,11 @@
 
 namespace App\Services\Vegetable;
 
-use App\DTOs\Vegetable\VegetableAnalyticsDTO;
-use App\DTOs\Vegetable\VegetableForecastDTO;
-use App\DTOs\Vegetable\VegetableRecommendationDTO;
+use App\DTOs\Product\VegetableAnalyticsDTO;
+use App\DTOs\Product\VegetableForecastDTO;
+use App\DTOs\Product\VegetableRecommendationDTO;
+use App\DTOs\Vegetable\ExpectedBalanceComputation;
+use App\DTOs\Vegetable\ExpectedBalanceDTO;
 use App\Enums\Analytics\ImbalanceBand;
 use App\Enums\Analytics\RecommendationSeverity;
 use App\Enums\Analytics\VegetableViewerRole;
@@ -118,10 +120,8 @@ class VegetableAnalyticsService
      * 2. Otherwise, the trailing 3 complete months' average.
      * 3. If neither exists, report Balanced with an explanation that says so
      *    — never fabricate a band from nothing.
-     *
-     * @return array{band: string, explanation: string}
      */
-    private function computeExpectedBalance(array $extendedHistory): array
+    private function computeExpectedBalance(array $extendedHistory): ExpectedBalanceDTO
     {
         if (empty($extendedHistory)) {
             return $this->balanceResult(ImbalanceBand::Balanced, 'Not enough data yet.');
@@ -179,8 +179,6 @@ class VegetableAnalyticsService
      * of hand-rolling their own array literal — keeps the contract in sync and
      * gives the frontend raw supply/demand numbers to render on hover, instead
      * of just a pre-baked sentence.
-     *
-     * @return array{band: string, explanation: string, computation: array{source_label: string, supply_kg: float, demand_kg: float, diff_pct: ?float}|null}
      */
     private function balanceResult(
         ImbalanceBand $band,
@@ -188,21 +186,21 @@ class VegetableAnalyticsService
         ?float $supplyKg = null,
         ?float $demandKg = null,
         ?string $sourceLabel = null,
-    ): array {
-        return [
-            'band' => $band->value,
-            'explanation' => $explanation,
-            'computation' => $supplyKg !== null && $demandKg !== null
-                ? [
-                    'source_label' => $sourceLabel,
-                    'supply_kg' => round($supplyKg, 2),
-                    'demand_kg' => round($demandKg, 2),
-                    'diff_pct' => $demandKg > 0.0
+    ): ExpectedBalanceDTO {
+        return new ExpectedBalanceDTO(
+            band: $band->value,
+            explanation: $explanation,
+            computation: $supplyKg !== null && $demandKg !== null
+                ? new ExpectedBalanceComputation(
+                    source_label: $sourceLabel ?? '',
+                    supply_kg: round($supplyKg, 2),
+                    demand_kg: round($demandKg, 2),
+                    diff_pct: $demandKg > 0.0
                         ? round((($supplyKg - $demandKg) / $demandKg) * 100, 1)
                         : null,
-                ]
+                )
                 : null,
-        ];
+        );
     }
 
     private function classifyBalance(float $supplyKg, float $demandKg): ImbalanceBand

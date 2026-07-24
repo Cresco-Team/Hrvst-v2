@@ -1,6 +1,6 @@
 <?php
 
-namespace App\DTOs\Vegetable;
+namespace App\DTOs\Product;
 
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
