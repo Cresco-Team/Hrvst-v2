@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Actions\Demand;
+namespace App\Actions\Dealer;
 
 use App\Enums\PostItemStatus;
 use App\Models\Schedule\Post;

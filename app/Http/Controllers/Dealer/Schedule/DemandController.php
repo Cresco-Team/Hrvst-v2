@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Dealer\Schedule;
 
-use App\Actions\Demand\UpdateDemandAction;
+use App\Actions\Dealer\UpdateDemandAction;
 use App\Actions\Post\CreatePostAction;
 use App\Actions\Post\DeletePostAction;
 use App\Data\Post\DealerDemandData;
