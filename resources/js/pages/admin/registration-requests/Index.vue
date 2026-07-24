@@ -38,6 +38,7 @@ import { useInitials } from '@/composables/useInitials'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { dashboard } from '@/routes/admin'
 import type { BreadcrumbItem } from '@/types'
+import { FileText, IdCard } from '@lucide/vue'
 
 interface RegistrationRequestResource {
     id: number
@@ -46,8 +47,12 @@ interface RegistrationRequestResource {
     email: string | null
     role: 'farmer' | 'dealer'
     created_at: string
-    municipality: { name: string } | null
-    barangay: { name: string } | null
+    municipality: string | null
+    barangay: string | null
+    id_type: string | null
+    id_type_label: string | null
+    id_number: string | null
+    document_url: string | null
 }
 
 defineProps<{
@@ -193,7 +198,30 @@ function handleReject(): void {
                                     class="flex items-center gap-1"
                                 >
                                     <MapPin class="size-3" />
-                                    {{ request.barangay?.name }}, {{ request.municipality?.name }}
+                                    {{ request.barangay }}, {{ request.municipality }}
+                                </span>
+                                <span class="flex items-center gap-1">
+                                    <IdCard class="size-3" />
+                                    <template v-if="request.id_type">
+                                        {{ request.id_type_label }} · {{ request.id_number }}
+                                    </template>
+                                    <span v-else class="text-muted-foreground/60">No ID provided</span>
+                                </span>
+
+                                <a
+                                    v-if="request.document_url"
+                                    :href="request.document_url"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    class="flex items-center gap-1 text-primary hover:underline"
+                                    @click.stop
+                                >
+                                    <FileText class="size-3" />
+                                    View Document
+                                </a>
+                                <span v-else class="flex items-center gap-1 text-muted-foreground/60">
+                                    <FileText class="size-3" />
+                                    No document
                                 </span>
                                 <span class="text-muted-foreground/70">
                                     Submitted {{ submittedAt(request.created_at) }}
