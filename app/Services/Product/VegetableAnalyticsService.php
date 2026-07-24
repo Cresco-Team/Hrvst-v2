@@ -265,8 +265,8 @@ class VegetableAnalyticsService
 
     private function classifyWithHysteresis(float $ratio, ?ImbalanceBand $previous): ImbalanceBand
     {
-        $upper = self::OVERSUPPLY_THRESHOLD + ($previous === ImbalanceBand::Oversupply ? -self::HYSTERESIS_MARGIN : self::HYSTERESIS_MARGIN);
-        $lower = self::UNDERSUPPLY_THRESHOLD + ($previous === ImbalanceBand::Undersupply ? self::HYSTERESIS_MARGIN : -self::HYSTERESIS_MARGIN);
+        $upper = self::OVERSUPPLY_THRESHOLD - ($previous === ImbalanceBand::Oversupply ? self::HYSTERESIS_MARGIN : 0.0);
+        $lower = self::UNDERSUPPLY_THRESHOLD + ($previous === ImbalanceBand::Undersupply ? self::HYSTERESIS_MARGIN : 0.0);
 
         return match (true) {
             $ratio > $upper => ImbalanceBand::Oversupply,
