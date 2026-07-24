@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Actions\Admin\CreateDealerAction;
-use App\Actions\Admin\CreateFarmerAction;
-use App\Actions\Admin\ResetUserPinAction;
-use App\Actions\Admin\UpdateUserPhoneAction;
+use App\Actions\Admin\User\CreateDealerAction;
+use App\Actions\Admin\User\CreateFarmerAction;
+use App\Actions\Admin\User\ResetUserPinAction;
+use App\Actions\Admin\User\UpdateUserPhoneAction;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\CreateDealerRequest;
 use App\Http\Requests\Admin\CreateFarmerRequest;

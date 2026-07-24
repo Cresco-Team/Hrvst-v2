@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Actions\Admin;
+namespace App\Actions\Admin\User;
 
 use App\Concerns\GeneratesPin;
 use App\Models\Address\Municipality;
