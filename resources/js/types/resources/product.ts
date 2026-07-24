@@ -2,8 +2,8 @@
 
 export type ImbalanceBand = App.Enums.Analytics.ImbalanceBand
 export type RecommendationSeverity = App.Enums.Analytics.RecommendationSeverity
-export type VarietyRecommendation = App.DTOs.Product.VegetableRecommendationDTO
-export type VarietyAnalytics = App.DTOs.Product.VegetableAnalyticsDTO
+export type VarietyRecommendation = App.DTOs.Vegetable.VegetableRecommendationDTO
+export type VarietyAnalytics = App.DTOs.Vegetable.VegetableAnalyticsDTO
 
 // ─── Market calendar — mirrors VegetableCalendarService::mergeIntoSchedule() ──
 
@@ -56,7 +56,7 @@ export type VegetableDetailDataFixed = Omit<
     'analytics' | 'forecast' | 'vegetable_calendar'
 > & {
     analytics: VarietyAnalytics | null
-    forecast: App.DTOs.Product.VegetableForecastDTO | null
+    forecast: App.DTOs.Vegetable.VegetableForecastDTO | null
     vegetable_calendar: Record<string, VegetableDaySchedule>
 }
 

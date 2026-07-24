@@ -14,7 +14,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { daysOverdue, isDueToday, urgencyClass, urgencyLabel } from '@/composables/usePostItemUrgency';
 import farmer from '@/routes/farmer';
 import type { DealerExpiringDemandFixed } from '@/types';
-import { expire, fulfill } from '@/actions/App/Http/Controllers/Dealer/PostItemController';
+import { expire, fulfill } from '@/actions/App/Http/Controllers/Dealer/Schedule/PostItemController';
 
 defineProps<{
     expiringDemands: DealerExpiringDemandFixed[]
