@@ -97,7 +97,10 @@ it('accepts a correctly formatted id_number for each id type', function (ValidId
 it('stores an uploaded supporting document against the registration request', function () {
     Storage::fake(config('media-library.disk_name', 'public'));
 
-    $file = UploadedFile::fake()->create('permit.pdf', 500, 'application/pdf');
+    $file = UploadedFile::fake()->createWithContent(
+        'permit.pdf',
+        "%PDF-1.4\n%\xC3\xA2\xC3\xA3\xC3\x8F\xC3\x93\n1 0 obj<<>>endobj\ntrailer<<>>\n%%EOF"
+    );
 
     $this->post('/register', validRegistrationPayload([
         'supporting_document' => $file,
