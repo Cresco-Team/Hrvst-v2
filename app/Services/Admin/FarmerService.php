@@ -77,7 +77,7 @@ class FarmerService
             'municipality',
             'barangay',
             'posts' => fn ($q) => $q->supply(),
-            'supplyItems' => fn ($q) => $q->with(['vegetable.category', 'post']),
+            'supplyItems' => fn ($q) => $q->with(['vegetable.category']),
         ]);
 
         $farmer->insights = $this->insights->compute($farmer->user_id, PostType::Supply);
