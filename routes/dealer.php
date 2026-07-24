@@ -1,8 +1,8 @@
 <?php
 
 use App\Http\Controllers\Dealer\DashboardController;
-use App\Http\Controllers\Dealer\PostItemController;
 use App\Http\Controllers\Dealer\Schedule\DemandController;
+use App\Http\Controllers\Dealer\Schedule\PostItemController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'verified', 'dealer'])->prefix('dealer')->name('dealer.')->group(function () {

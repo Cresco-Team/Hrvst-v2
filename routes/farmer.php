@@ -1,8 +1,8 @@
 <?php
 
 use App\Http\Controllers\Farmer\DashboardController;
-use App\Http\Controllers\Farmer\PostItemController;
-use app\Http\Controllers\Farmer\Schedule\SupplyController;
+use app\Http\Controllers\Farmer\Schedule\PostItemController;
+use App\Http\Controllers\Farmer\Schedule\SupplyController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'verified', 'farmer'])->prefix('farmer')->name('farmer.')->group(function () {
