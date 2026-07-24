@@ -4,7 +4,7 @@ namespace App\Services\Post;
 
 use App\Enums\PostItemStatus;
 use App\Enums\PostType;
-use App\Models\Marketplace\Post;
+use App\Models\Schedule\Post;
 use App\Models\Vegetable\Vegetable;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;

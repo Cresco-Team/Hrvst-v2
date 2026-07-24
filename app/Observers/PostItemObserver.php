@@ -4,7 +4,7 @@ namespace App\Observers;
 
 use App\Enums\PostItemStatus;
 use App\Enums\PostType;
-use App\Models\Marketplace\PostItem;
+use App\Models\Schedule\PostItem;
 use Illuminate\Support\Facades\DB;
 
 class PostItemObserver

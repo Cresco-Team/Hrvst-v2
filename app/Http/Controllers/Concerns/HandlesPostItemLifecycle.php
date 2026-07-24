@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Concerns;
 use App\Actions\PostItem\ExpirePostItemAction;
 use App\Actions\PostItem\FulfillPostItemAction;
 use App\Enums\PostType;
-use App\Models\Marketplace\PostItem;
+use App\Models\Schedule\PostItem;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;

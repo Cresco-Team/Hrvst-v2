@@ -2,7 +2,7 @@
 
 namespace App\Actions\Post;
 
-use App\Models\Marketplace\Post;
+use App\Models\Schedule\Post;
 
 final class DeletePostAction
 {

@@ -11,7 +11,7 @@ use App\Enums\PostType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Farmer\StoreSupplyRequest;
 use App\Http\Requests\Farmer\UpdateSupplyRequest;
-use App\Models\Marketplace\Post;
+use App\Models\Schedule\Post;
 use App\Services\Post\PostService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;

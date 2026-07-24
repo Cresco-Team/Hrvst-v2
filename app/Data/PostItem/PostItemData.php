@@ -3,7 +3,7 @@
 namespace App\Data\PostItem;
 
 use App\Enums\PostItemStatus;
-use App\Models\Marketplace\PostItem;
+use App\Models\Schedule\PostItem;
 use Spatie\LaravelData\Data;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 

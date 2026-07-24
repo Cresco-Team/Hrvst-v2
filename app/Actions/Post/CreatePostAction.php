@@ -4,7 +4,7 @@ namespace App\Actions\Post;
 
 use App\Enums\PostItemStatus;
 use App\Enums\PostType;
-use App\Models\Marketplace\Post;
+use App\Models\Schedule\Post;
 use Illuminate\Support\Facades\DB;
 
 final class CreatePostAction

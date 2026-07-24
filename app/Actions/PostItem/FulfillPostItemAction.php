@@ -2,7 +2,7 @@
 
 namespace App\Actions\PostItem;
 
-use App\Models\Marketplace\PostItem;
+use App\Models\Schedule\PostItem;
 
 final class FulfillPostItemAction
 {

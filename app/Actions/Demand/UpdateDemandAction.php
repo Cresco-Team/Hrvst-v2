@@ -3,8 +3,8 @@
 namespace App\Actions\Demand;
 
 use App\Enums\PostItemStatus;
-use App\Models\Marketplace\Post;
-use App\Models\Marketplace\PostItem;
+use App\Models\Schedule\Post;
+use App\Models\Schedule\PostItem;
 use Illuminate\Support\Facades\DB;
 
 final class UpdateDemandAction

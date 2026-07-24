@@ -4,7 +4,7 @@ namespace App\Data\Post;
 
 use App\Data\PostItem\PostItemData;
 use App\Enums\PostType;
-use App\Models\Marketplace\Post;
+use App\Models\Schedule\Post;
 use Spatie\LaravelData\Data;
 use Spatie\LaravelData\Lazy;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;

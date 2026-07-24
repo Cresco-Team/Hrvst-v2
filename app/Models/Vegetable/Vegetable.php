@@ -2,7 +2,7 @@
 
 namespace App\Models\Vegetable;
 
-use App\Models\Marketplace\PostItem;
+use App\Models\Schedule\PostItem;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;

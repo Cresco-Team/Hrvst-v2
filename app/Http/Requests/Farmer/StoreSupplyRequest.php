@@ -4,7 +4,7 @@ namespace App\Http\Requests\Farmer;
 
 use App\Enums\PostTimeSlot;
 use App\Enums\PostType;
-use App\Models\Marketplace\Post;
+use App\Models\Schedule\Post;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 

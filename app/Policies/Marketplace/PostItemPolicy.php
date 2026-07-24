@@ -3,7 +3,7 @@
 namespace App\Policies\Marketplace;
 
 use App\Enums\PostItemStatus;
-use App\Models\Marketplace\PostItem;
+use App\Models\Schedule\PostItem;
 use App\Models\User;
 
 class PostItemPolicy

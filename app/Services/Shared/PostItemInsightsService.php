@@ -6,8 +6,8 @@ use App\Data\Profile\MonthlyVolumeData;
 use App\Data\Profile\TopVegetableData;
 use App\Data\Profile\UserInsightsData;
 use App\Enums\PostType;
-use App\Models\Marketplace\Post;
-use App\Models\Marketplace\PostItem;
+use App\Models\Schedule\Post;
+use App\Models\Schedule\PostItem;
 use App\Models\Vegetable\Vegetable;
 use Carbon\Carbon;
 

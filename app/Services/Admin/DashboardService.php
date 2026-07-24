@@ -2,7 +2,7 @@
 
 namespace App\Services\Admin;
 
-use App\Models\Marketplace\Post;
+use App\Models\Schedule\Post;
 use App\Models\Profiles\DealerProfile;
 use App\Models\Profiles\FarmerProfile;
 use App\Services\Product\VegetableDetailService;

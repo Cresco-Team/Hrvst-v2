@@ -3,8 +3,8 @@
 namespace App\Models\Profiles;
 
 use App\Enums\PostType;
-use App\Models\Marketplace\Post;
-use App\Models\Marketplace\PostItem;
+use App\Models\Schedule\Post;
+use App\Models\Schedule\PostItem;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;

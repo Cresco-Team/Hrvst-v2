@@ -4,7 +4,7 @@ namespace App\Data\Dealer;
 
 use App\Data\PostItem\PostItemLightData;
 use App\Enums\PostTimeSlot;
-use App\Models\Marketplace\Post;
+use App\Models\Schedule\Post;
 use Spatie\LaravelData\Data;
 use Spatie\LaravelData\Lazy;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;

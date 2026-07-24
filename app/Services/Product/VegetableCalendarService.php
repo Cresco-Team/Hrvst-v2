@@ -4,7 +4,7 @@ namespace App\Services\Product;
 
 use App\Data\Vegetable\VegetableCalendarItemData;
 use App\Enums\PostItemStatus;
-use App\Models\Marketplace\PostItem;
+use App\Models\Schedule\PostItem;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 

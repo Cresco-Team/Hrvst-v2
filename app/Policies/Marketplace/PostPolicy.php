@@ -3,7 +3,7 @@
 namespace App\Policies\Marketplace;
 
 use App\Enums\PostType;
-use App\Models\Marketplace\Post;
+use App\Models\Schedule\Post;
 use App\Models\User;
 
 class PostPolicy

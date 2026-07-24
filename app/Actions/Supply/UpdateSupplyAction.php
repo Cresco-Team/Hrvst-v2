@@ -2,7 +2,7 @@
 
 namespace App\Actions\Supply;
 
-use App\Models\Marketplace\Post;
+use App\Models\Schedule\Post;
 use Illuminate\Support\Arr;
 
 final class UpdateSupplyAction
