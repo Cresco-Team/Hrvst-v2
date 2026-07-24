@@ -7,7 +7,7 @@ use App\Data\Vegetable\VegetableWasteData;
 use App\Enums\Billing\SubscriptionFeature;
 use App\Http\Controllers\Controller;
 use App\Models\Billing\Subscription;
-use App\Services\Product\VegetableWasteAnalyticsService;
+use App\Services\Vegetable\VegetableWasteAnalyticsService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;

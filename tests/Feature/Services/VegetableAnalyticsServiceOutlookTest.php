@@ -1,8 +1,8 @@
 <?php
 
 use App\Enums\Analytics\ImbalanceBand;
-use App\Services\Product\PlatformActivityService;
-use App\Services\Product\VegetableAnalyticsService;
+use App\Services\Vegetable\PlatformActivityService;
+use App\Services\Vegetable\VegetableAnalyticsService;
 
 beforeEach(function () {
     $this->instance(

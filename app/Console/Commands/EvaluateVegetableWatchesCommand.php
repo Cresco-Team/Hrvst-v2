@@ -5,8 +5,8 @@ namespace App\Console\Commands;
 use App\Enums\Analytics\ImbalanceBand;
 use App\Models\VegetableWatch;
 use App\Notifications\VegetableOutlookAlert;
-use App\Services\Product\VegetableActivityService;
-use App\Services\Product\VegetableAnalyticsService;
+use App\Services\Vegetable\VegetableActivityService;
+use App\Services\Vegetable\VegetableAnalyticsService;
 use Illuminate\Console\Command;
 
 class EvaluateVegetableWatchesCommand extends Command

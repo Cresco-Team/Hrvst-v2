@@ -5,7 +5,7 @@ namespace App\Services\Admin;
 use App\Models\Profiles\DealerProfile;
 use App\Models\Profiles\FarmerProfile;
 use App\Models\Schedule\Post;
-use App\Services\Product\VegetableDetailService;
+use App\Services\Vegetable\VegetableDetailService;
 
 class DashboardService
 {
