@@ -2,6 +2,7 @@
 
 namespace App\Observers;
 
+use App\Enums\PostType;
 use App\Models\Product\Vegetable;
 use Illuminate\Support\Facades\Cache;
 
@@ -21,7 +22,7 @@ class VegetableObserver
     {
         Cache::forget('vegetable_options');
         Cache::forget('category_options');
-        Cache::forget('dealer_demand_variety_options');
-        Cache::forget('farmer_supply_variety_options');
+        Cache::forget('post_variety_options:'.PostType::Supply->value);
+        Cache::forget('post_variety_options:'.PostType::Demand->value);
     }
 }
