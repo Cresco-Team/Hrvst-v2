@@ -3,8 +3,8 @@
 namespace App\Services\Admin;
 
 use App\Enums\PostType;
-use App\Models\Schedule\Post;
 use App\Models\Profiles\DealerProfile;
+use App\Models\Schedule\Post;
 use App\Services\Admin\Concerns\ManagesProfileDirectory;
 
 class DealerService

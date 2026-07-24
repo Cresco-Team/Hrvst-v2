@@ -3,8 +3,8 @@
 namespace App\Services\Admin;
 
 use App\Models\Address\Municipality;
-use App\Models\Vegetable\Vegetable;
 use App\Models\Profiles\FarmerProfile;
+use App\Models\Vegetable\Vegetable;
 use Illuminate\Database\Eloquent\Builder;
 
 class FarmerMapService

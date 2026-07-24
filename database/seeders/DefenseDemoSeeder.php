@@ -5,11 +5,11 @@ namespace Database\Seeders;
 use App\Enums\PostItemStatus;
 use App\Enums\PostTimeSlot;
 use App\Enums\PostType;
+use App\Models\Profiles\DealerProfile;
+use App\Models\Profiles\FarmerProfile;
 use App\Models\Schedule\Post;
 use App\Models\Schedule\PostItem;
 use App\Models\Vegetable\Vegetable;
-use App\Models\Profiles\DealerProfile;
-use App\Models\Profiles\FarmerProfile;
 use Illuminate\Database\Seeder;
 
 class DefenseDemoSeeder extends Seeder

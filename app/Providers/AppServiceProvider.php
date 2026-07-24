@@ -3,12 +3,12 @@
 namespace App\Providers;
 
 use App\Contracts\Billing\PaymentGateway;
-use App\Models\Schedule\Post;
-use App\Models\Schedule\PostItem;
-use App\Models\Vegetable\Vegetable;
 use App\Models\Profiles\DealerProfile;
 use App\Models\Profiles\FarmerProfile;
+use App\Models\Schedule\Post;
+use App\Models\Schedule\PostItem;
 use App\Models\User;
+use App\Models\Vegetable\Vegetable;
 use App\Models\VegetableWatch;
 use App\Observers\PostItemObserver;
 use App\Observers\VegetableObserver;
