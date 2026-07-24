@@ -18,7 +18,7 @@ import { categories, dashboard } from '@/routes'
 import { index } from '@/routes/vegetables'
 import type { BreadcrumbItem, SharedCategoryProps } from '@/types'
 import type { Paginated } from '@/types/index'
-import type { VegetableSharedData } from '@/types/resources/product'
+import type { VegetableIndexData } from '@/types/resources/product'
 
 interface VegetablesFilters {
     search: string | null
@@ -27,7 +27,7 @@ interface VegetablesFilters {
 interface Props {
     category: SharedCategoryProps
     filters: VegetablesFilters
-    vegetables?: Paginated<VegetableSharedData>
+    vegetables?: Paginated<VegetableIndexData>
 }
 
 const props = defineProps<Props>()

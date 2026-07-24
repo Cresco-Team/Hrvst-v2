@@ -11,7 +11,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import AppLayout from '@/layouts/AppLayout.vue'
 import admin, { dashboard } from '@/routes/admin'
 import { destroy as destroyVeg, index } from '@/routes/admin/vegetables'
-import type { AdminVegetablesProps, BreadcrumbItem, VegetableAdminData } from '@/types'
+import type { AdminVegetablesProps, BreadcrumbItem, VegetableIndexData } from '@/types'
 
 const props = defineProps<AdminVegetablesProps>()
 
@@ -26,21 +26,21 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => [
 const searchQuery = ref(props.filters?.search ?? '')
 
 const formOpen = ref(false)
-const editTarget = ref<VegetableAdminData | null>(null)
+const editTarget = ref<VegetableIndexData | null>(null)
 const deleteOpen = ref(false)
-const deleteTarget = ref<VegetableAdminData | null>(null)
+const deleteTarget = ref<VegetableIndexData | null>(null)
 
 function openCreate(): void {
     editTarget.value = null
     formOpen.value = true
 }
 
-function openEdit(row: VegetableAdminData): void {
+function openEdit(row: VegetableIndexData): void {
     editTarget.value = row
     formOpen.value = true
 }
 
-function openDelete(row: VegetableAdminData): void {
+function openDelete(row: VegetableIndexData): void {
     deleteTarget.value = row
     deleteOpen.value = true
 }
