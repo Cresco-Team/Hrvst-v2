@@ -7,7 +7,8 @@ import AppTooltip from '@/components/templates/AppTooltip.vue'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
-import { useMonthlyVolumeChart, type VolumeChartType } from '@/composables/useMonthlyVolumeChart'
+import { useMonthlyBarChart } from '@/composables/useMonthlyBarChart'
+import { useMonthlyLineChart } from '@/composables/useMonthlyLineChart'
 import type { ForecastPoint, MonthlyActivity } from '@/types/resources/product'
 
 const props = defineProps<{
@@ -17,13 +18,19 @@ const props = defineProps<{
     forecastConfidence?: string
 }>()
 
-const chartType = ref<VolumeChartType>('bar')
+const chartType = ref<'bar' | 'line'>('bar')
 
-const { chartData, chartOptions, forecastDividerPlugin } = useMonthlyVolumeChart(
-    () => props.monthlyActivity,
-    () => props.forecast,
-    () => chartType.value,
-)
+const {
+    chartData: barChartData,
+    chartOptions: barChartOptions,
+    forecastDividerPlugin: barForecastDividerPlugin,
+} = useMonthlyBarChart(() => props.monthlyActivity, () => props.forecast)
+
+const {
+    chartData: lineChartData,
+    chartOptions: lineChartOptions,
+    forecastDividerPlugin: lineForecastDividerPlugin,
+} = useMonthlyLineChart(() => props.monthlyActivity, () => props.forecast)
 
 const MIN_MONTHS_FOR_FORECAST = 12
 
@@ -64,7 +71,7 @@ const confidenceTooltip: Record<string, string> = {
                 </AppTooltip>
 
                 <ToggleGroup
-                    v-if="chartData"
+                    v-if="barChartData || lineChartData"
                     v-model="chartType"
                     type="single"
                     variant="outline"
@@ -87,20 +94,20 @@ const confidenceTooltip: Record<string, string> = {
         </CardHeader>
         <CardContent class="px-0 sm:px-6">
             <div
-                v-if="chartData"
+                v-if="barChartData || lineChartData"
                 class="relative h-48 w-full sm:h-64"
             >
                 <Bar
-                    v-if="chartType === 'bar' && chartData"
-                    :data="chartData"
-                    :options="chartOptions"
-                    :plugins="[forecastDividerPlugin]"
+                    v-if="chartType === 'bar' && barChartData"
+                    :data="barChartData"
+                    :options="barChartOptions"
+                    :plugins="[barForecastDividerPlugin]"
                 />
                 <Line
-                    v-else-if="chartData"
-                    :data="chartData"
-                    :options="chartOptions"
-                    :plugins="[forecastDividerPlugin]"
+                    v-else-if="lineChartData"
+                    :data="lineChartData"
+                    :options="lineChartOptions"
+                    :plugins="[lineForecastDividerPlugin]"
                 />
             </div>
 
@@ -111,7 +118,7 @@ const confidenceTooltip: Record<string, string> = {
             />
 
             <div
-                v-if="chartData && !hasForecast() && (monthsOfHistory ?? 0) < MIN_MONTHS_FOR_FORECAST"
+                v-if="(barChartData || lineChartData) && !hasForecast() && (monthsOfHistory ?? 0) < MIN_MONTHS_FOR_FORECAST"
                 class="mt-3 flex items-center gap-2 rounded-lg border border-dashed bg-muted/30 p-3 text-xs text-muted-foreground"
             >
                 <Info class="size-3.5 shrink-0" />
