@@ -13,8 +13,8 @@ import {
     type TooltipItem,
 } from 'chart.js'
 import { computed, type MaybeRefOrGetter, toValue } from 'vue'
-import { createForecastDividerPlugin, formatKgAxis, MONTHLY_VOLUME_SERIES } from './chartSeries'
 import type { ForecastPoint, MonthlyActivity } from '@/types/resources/product'
+import { createForecastDividerPlugin, formatKgAxis, MONTHLY_VOLUME_SERIES } from './chartSeries'
 
 ChartJS.register(BarController, BarElement, CategoryScale, LinearScale, Title, Tooltip, Legend)
 

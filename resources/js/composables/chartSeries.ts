@@ -1,4 +1,4 @@
-import { Chart as ChartJS } from 'chart.js'
+import type { Chart as ChartJS } from 'chart.js'
 import { type MaybeRefOrGetter, toValue } from 'vue'
 import type { ForecastPoint, MonthlyActivity } from '@/types/resources/product'
 
