@@ -19,8 +19,26 @@ supply_fulfillment_rate: number | null,
 demand_fulfillment_rate: number | null,
 supply_volume_mom_pct: number | null,
 demand_volume_mom_pct: number | null,
-recommendations: unknown[],
+recommendations: App.DTOs.Vegetable.VegetableRecommendationDTO[],
 expected_balance: App.DTOs.Vegetable.ExpectedBalanceDTO,
+};
+export type VegetableForecastDTO = {
+readonly months_of_history: number,
+readonly forecast_confidence: string,
+readonly forecast: {
+month: string,
+label: string,
+supply_fulfilled_kg: number,
+supply_expired_kg: number,
+demand_fulfilled_kg: number,
+demand_expired_kg: number,
+}[],
+};
+export type VegetableRecommendationDTO = {
+readonly severity: App.Enums.Analytics.RecommendationSeverity,
+readonly type: string,
+readonly title: string,
+readonly body: string,
 };
 }
 }
