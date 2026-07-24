@@ -12,11 +12,11 @@ class PostItemController extends Controller
 
     protected function postType(): PostType
     {
-        return PostType::Supply;
+        return PostType::Demand;
     }
 
     protected function indexRouteName(): string
     {
-        return 'farmer.supplies.index';
+        return 'dealer.demands.index';
     }
 }
