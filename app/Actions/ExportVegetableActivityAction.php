@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Actions\Vegetable;
+namespace App\Actions;
 
 use App\Models\Vegetable\Vegetable;
 use App\Services\Product\VegetableActivityService;
