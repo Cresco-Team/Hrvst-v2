@@ -49,6 +49,9 @@ const form = useForm({
     barangay_id: '' as string | number,
     latitude: null as number | null,
     longitude: null as number | null,
+    id_type: '' as '' | 'drivers_license' | 'philippine_national_id' | 'philippine_passport' | 'voters_id',
+    id_number: '',
+    supporting_document: null as File | null,
     pin: '',
     pin_confirmation: '',
 })
@@ -96,12 +99,13 @@ function selectRole(role: Role): void {
 // ─── Submit ───────────────────────────────────────────────────────────────────
 
 function submit(): void {
-    form.post(store().url, {
-        onSuccess: () => {
-            form.reset()
-            barangays.value = []
-        },
-    })
+  form.post(store().url, {
+    forceFormData: true,
+    onSuccess: () => {
+      form.reset()
+      barangays.value = []
+    },
+  })
 }
 </script>
 
@@ -319,6 +323,61 @@ function submit(): void {
                                 :lng-error="form.errors.longitude"
                                 @update:model-value="({ lat, lng }) => { form.latitude = lat; form.longitude = lng }"
                             />
+                        </div>
+                    </div>
+
+                    <div class="space-y-4 rounded-lg border p-4">
+                        <div class="space-y-1">
+                            <p class="text-sm font-medium">Valid ID <Badge variant="outline" class="text-xs font-normal">Optional</Badge></p>
+                            <p class="text-xs text-muted-foreground">
+                                Speeds up admin review, but isn't required to submit a request.
+                            </p>
+                        </div>
+
+                        <div class="grid gap-4 sm:grid-cols-2">
+                            <div class="grid gap-2">
+                                <Label for="id_type">ID Type</Label>
+                                <Select
+                                    :model-value="form.id_type"
+                                    @update:model-value="(v) => { form.id_type = (v as typeof form.id_type) ?? ''; form.id_number = '' }"
+                                >
+                                    <SelectTrigger id="id_type"><SelectValue placeholder="Select ID type (optional)" /></SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="drivers_license">Driver's License</SelectItem>
+                                        <SelectItem value="philippine_national_id">Philippine National ID (PhilSys)</SelectItem>
+                                        <SelectItem value="philippine_passport">Philippine Passport</SelectItem>
+                                        <SelectItem value="voters_id">Voter's ID</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                <InputError :message="form.errors.id_type" />
+                            </div>
+
+                            <div class="grid gap-2">
+                                <Label for="id_number">ID Number</Label>
+                                <Input
+                                    id="id_number"
+                                    v-model="form.id_number"
+                                    type="text"
+                                    :disabled="!form.id_type"
+                                    placeholder="Select an ID type first"
+                                />
+                                <InputError :message="form.errors.id_number" />
+                            </div>
+                        </div>
+
+                        <div class="grid gap-2">
+                            <Label for="supporting_document">
+                                Supporting Document
+                                <Badge variant="outline" class="text-xs font-normal">Optional</Badge>
+                            </Label>
+                            <p class="text-xs text-muted-foreground">Business permit or lot title. JPEG, PNG, WebP, or PDF, up to 5MB.</p>
+                            <Input
+                                id="supporting_document"
+                                type="file"
+                                accept="image/jpeg,image/png,image/webp,application/pdf"
+                                @change="(e: Event) => { form.supporting_document = (e.target as HTMLInputElement).files?.[0] ?? null }"
+                            />
+                            <InputError :message="form.errors.supporting_document" />
                         </div>
                     </div>
 
