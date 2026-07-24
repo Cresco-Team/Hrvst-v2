@@ -1,6 +1,6 @@
 <?php
 
-namespace Database\Factories\Product;
+namespace Database\Factories\Vegetable;
 
 use App\Models\Vegetable\Category;
 use App\Models\Vegetable\Vegetable;
