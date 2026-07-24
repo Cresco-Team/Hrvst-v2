@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Shared;
 
-use App\Data\Vegetable\VegetableSharedData;
+use App\Data\Vegetable\VegetableIndexData;
 use App\Http\Controllers\Concerns\RendersVegetableShow;
 use App\Http\Controllers\Controller;
 use App\Models\Product\Category;
@@ -45,7 +45,7 @@ class VegetableController extends Controller
 
         return Inertia::render('shared/vegetables/Index', [
             'vegetables' => Inertia::defer(function () use ($request, $category) {
-                return VegetableSharedData::collect(
+                return VegetableIndexData::collect(
                     $this->vegetableService->paginated(
                         search: $request->query('search', null),
                         categoryId: $category->id,

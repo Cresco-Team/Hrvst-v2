@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Admin\Vegetable;
 
 use App\Actions\Product\CreateVegetableAction;
 use App\Actions\Product\UpdateVegetableAction;
-use App\Data\Vegetable\VegetableAdminData;
+use App\Data\Vegetable\VegetableIndexData;
 use App\Http\Controllers\Concerns\RendersVegetableShow;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Vegetable\StoreVegetableRequest;
@@ -45,7 +45,7 @@ class VegetableController extends Controller
         $category = Category::where('slug', $slug)->firstOrFail();
 
         return Inertia::render('admin/vegetables/Index', [
-            'vegetables' => Inertia::defer(fn () => VegetableAdminData::collect(
+            'vegetables' => Inertia::defer(fn () => VegetableIndexData::collect(
                 $this->vegetableService->paginated(
                     search: $request->query('search'),
                     categoryId: $category->id,
