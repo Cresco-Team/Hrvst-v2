@@ -12,7 +12,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Farmer\StoreSupplyRequest;
 use App\Http\Requests\Farmer\UpdateSupplyRequest;
 use App\Models\Marketplace\Post;
-use App\Services\Farmer\SupplyService;
+use App\Services\Post\PostService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -21,7 +21,7 @@ use Inertia\Response;
 
 class SupplyController extends Controller
 {
-    public function __construct(private SupplyService $supplyService) {}
+    public function __construct(private PostService $postService) {}
 
     public function index(Request $request): Response
     {
@@ -30,12 +30,21 @@ class SupplyController extends Controller
         $userId = $request->user()->id;
 
         return Inertia::render('farmer/supplies/Index', [
-            'varietyOptions' => Inertia::defer(fn () => $this->supplyService->varietyOptions()),
+            'varietyOptions' => Inertia::defer(fn () => $this->postService->varietyOptions(
+                type: PostType::Supply
+            )),
             'needsAction' => Inertia::defer(fn () => FarmerSupplyData::collect(
-                $this->supplyService->needsAction($userId)
+                $this->postService->needsAction(
+                    type: PostType::Supply,
+                    userId: $userId,
+                )
             )),
             'supplies' => Inertia::defer(fn () => FarmerSupplyData::collect(
-                $this->supplyService->paginatedSupply(userId: $userId, status: PostItemStatus::Ongoing)
+                $this->postService->paginated(
+                    type: PostType::Supply,
+                    userId: $userId,
+                    status: PostItemStatus::Ongoing,
+                )
             )),
         ]);
     }
@@ -43,10 +52,8 @@ class SupplyController extends Controller
     public function archived(Request $request): Response
     {
         Gate::authorize('viewAny', Post::class);
-
         $userId = $request->user()->id;
         $status = PostItemStatus::tryFrom($request->query('status', PostItemStatus::Expired->value));
-
         if (! $status || $status === PostItemStatus::Ongoing) {
             $status = PostItemStatus::Expired;
         }
@@ -54,7 +61,11 @@ class SupplyController extends Controller
         return Inertia::render('farmer/supplies/Archived', [
             'filters' => ['status' => $status->value],
             'supplies' => Inertia::defer(fn () => FarmerSupplyData::collect(
-                $this->supplyService->paginatedSupply(userId: $userId, status: $status)
+                $this->postService->paginated(
+                    type: PostType::Supply,
+                    userId: $userId,
+                    status: $status
+                )
             )),
         ]);
     }

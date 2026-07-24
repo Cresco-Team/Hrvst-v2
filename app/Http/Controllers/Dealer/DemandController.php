@@ -12,7 +12,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Dealer\StoreDemandRequest;
 use App\Http\Requests\Dealer\UpdateDemandRequest;
 use App\Models\Marketplace\Post;
-use App\Services\Dealer\DemandService;
+use App\Services\Post\PostService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -22,7 +22,7 @@ use Inertia\Response;
 class DemandController extends Controller
 {
     public function __construct(
-        private DemandService $demandService
+        private PostService $postService
     ) {}
 
     public function index(Request $request): Response
@@ -32,12 +32,20 @@ class DemandController extends Controller
         $userId = $request->user()->id;
 
         return Inertia::render('dealer/demands/Index', [
-            'varietyOptions' => Inertia::defer(fn () => $this->demandService->varietyOptions()),
+            'varietyOptions' => Inertia::defer(fn () => $this->postService->varietyOptions(
+                type: PostType::Demand
+            )),
             'needsAction' => Inertia::defer(fn () => DealerDemandData::collect(
-                $this->demandService->needsAction($userId)
+                $this->postService->needsAction(
+                    type: PostType::Demand,
+                    userId: $userId,
+                )
             )),
             'demands' => Inertia::defer(fn () => DealerDemandData::collect(
-                $this->demandService->paginatedDemand(userId: $userId, status: PostItemStatus::Ongoing)
+                $this->postService->paginated(
+                    PostType::Demand,
+                    userId: $userId,
+                    status: PostItemStatus::Ongoing)
             )),
         ]);
     }
@@ -56,7 +64,11 @@ class DemandController extends Controller
         return Inertia::render('dealer/demands/Archived', [
             'filters' => ['status' => $status->value],
             'demands' => Inertia::defer(fn () => DealerDemandData::collect(
-                $this->demandService->paginated(userId: $userId, status: $status)
+                $this->postService->paginated(
+                    type: PostType::Demand,
+                    userId: $userId,
+                    status: $status
+                )
             )),
         ]);
     }
