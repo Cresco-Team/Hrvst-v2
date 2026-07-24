@@ -8,22 +8,22 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import type { Paginated } from '@/types'
-import type { VegetableAdminData } from '@/types/resources/product'
+import type { VegetableIndexData } from '@/types/resources/product'
 
 const props = defineProps<{
-    vegetables: Paginated<VegetableAdminData>
+    vegetables: Paginated<VegetableIndexData>
     searchQuery?: string
 }>()
 
 const emit = defineEmits<{
-    'open-edit-vegetable': [row: VegetableAdminData]
-    'open-delete-vegetable': [row: VegetableAdminData]
-    'open-vegetable-details': [row: VegetableAdminData]
+    'open-edit-vegetable': [row: VegetableIndexData]
+    'open-delete-vegetable': [row: VegetableIndexData]
+    'open-vegetable-details': [row: VegetableIndexData]
     'page-change': [page: number]
     search: [query: string]
 }>()
 
-const columns: ColumnDef<VegetableAdminData>[] = [
+const columns: ColumnDef<VegetableIndexData>[] = [
     { 
         id: 'vegetable', 
         header: 'Vegetables', 
