@@ -22,8 +22,8 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Item, ItemActions, ItemContent, ItemDescription, ItemGroup, ItemMedia, ItemSeparator, ItemTitle } from '@/components/ui/item'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import type { DealerDemandDataFixed } from '@/types'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import type { DealerDemandDataFixed } from '@/types'
 
 defineProps<{ demand: DealerDemandDataFixed }>()
 
@@ -90,7 +90,8 @@ const emit = defineEmits<{
                                     <ItemMedia variant="image">
                                         <img 
                                             :src="item.vegetable_image_url!" 
-                                            :alt="item.display_name!">
+                                            :alt="item.display_name!"
+                                        >
                                     </ItemMedia>
 
                                     <ItemContent>

@@ -9,8 +9,8 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { show as billingShow } from '@/routes/billing'
 import notifications from '@/routes/notifications'
-import { Item, ItemContent, ItemDescription, ItemGroup, ItemMedia, ItemSeparator, ItemTitle } from '../ui/item'
 import watches from '@/routes/watches'
+import { Item, ItemContent, ItemDescription, ItemGroup, ItemMedia, ItemSeparator, ItemTitle } from '../ui/item'
 
 interface NotificationItem {
     id: string
@@ -58,23 +58,23 @@ onUnmounted(() => {
 <template>
     <Popover>
         <PopoverTrigger as-child>
-        <Button
-            variant="ghost"
-            size="icon"
-            class="group relative h-9 w-9 cursor-pointer"
-            title="Alerts"
-        >
-            <span class="sr-only">Alerts</span>
-            <Bell class="size-5 opacity-80 group-hover:opacity-100" />
-            <Badge
-                v-if="unreadCount"
-                variant="destructive"
-                class="absolute -top-1 -right-1 size-4 justify-center rounded-full p-0 text-[10px] leading-none"
+            <Button
+                variant="ghost"
+                size="icon"
+                class="group relative h-9 w-9 cursor-pointer"
+                title="Alerts"
             >
-                {{ unreadCount > 9 ? '9+' : unreadCount }}
-            </Badge>
-        </Button>
-    </PopoverTrigger>
+                <span class="sr-only">Alerts</span>
+                <Bell class="size-5 opacity-80 group-hover:opacity-100" />
+                <Badge
+                    v-if="unreadCount"
+                    variant="destructive"
+                    class="absolute -top-1 -right-1 size-4 justify-center rounded-full p-0 text-[10px] leading-none"
+                >
+                    {{ unreadCount > 9 ? '9+' : unreadCount }}
+                </Badge>
+            </Button>
+        </PopoverTrigger>
 
         <PopoverContent
             align="end"
@@ -87,7 +87,10 @@ onUnmounted(() => {
                 <ItemContent>No Alerts Yet.</ItemContent>
             </Item>
 
-            <ScrollArea v-else class="h-80 overflow-hidden rounded-t-md">
+            <ScrollArea
+                v-else
+                class="h-80 overflow-hidden rounded-t-md"
+            >
                 <ItemGroup>
                     <template
                         v-for="(item, index) in items"
@@ -101,7 +104,10 @@ onUnmounted(() => {
                             <ItemContent>
                                 <ItemTitle>
                                     {{ item.vegetable_name }}
-                                    <div v-if="!item.read_at" class="bg-destructive size-2 rounded-full" />
+                                    <div
+                                        v-if="!item.read_at"
+                                        class="bg-destructive size-2 rounded-full"
+                                    />
                                 </ItemTitle>
                                 <ItemDescription class="text-muted-foreground/60">
                                     {{ item.message }}

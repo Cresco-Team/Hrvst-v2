@@ -2,7 +2,6 @@
 import { Link, usePage } from '@inertiajs/vue3'
 import {
     Archive,
-    Bell,
     Menu,
     Package,
     PackageSearch,
@@ -46,7 +45,6 @@ import dealer from '@/routes/dealer'
 import { archived as dealerDemandsArchived } from '@/routes/dealer/demands'
 import farmer from '@/routes/farmer'
 import { archived as farmerSuppliesArchived } from '@/routes/farmer/supplies'
-import { index as watchesIndex } from '@/routes/watches'
 import type { BreadcrumbItem, NavItem } from '@/types'
 import AppTooltip from '../templates/AppTooltip.vue'
 
