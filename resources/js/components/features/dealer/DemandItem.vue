@@ -37,7 +37,7 @@ const emit = defineEmits<{
     <Item
         variant="outline"
         :class="[
-            'group transition-all hover:shadow-sm',
+            'group transition-all hover:bg-background hover:shadow-sm',
             demand.needs_action ? 'bg-destructive/5 hover:border-l-4 hover:border-l-destructive' : 'bg-primary/10 hover:border-l-4 hover:border-l-primary',
         ]"
     >
