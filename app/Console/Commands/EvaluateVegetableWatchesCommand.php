@@ -34,7 +34,7 @@ class EvaluateVegetableWatchesCommand extends Command
                             }
                         });
                 }
-            });
+            }, 'vegetable_id', 'vegetable_id');
 
         $this->info("Sent {$notified} outlook alert(s).");
 
