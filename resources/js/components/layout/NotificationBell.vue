@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3'
-import { Bell, Lock } from '@lucide/vue'
+import { Bell, Lock, ThumbsUp } from '@lucide/vue'
 import axios from 'axios'
 import { onMounted, onUnmounted, ref } from 'vue'
-import AppTooltip from '@/components/templates/AppTooltip.vue'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { show as billingShow } from '@/routes/billing'
 import notifications from '@/routes/notifications'
+import { Item, ItemContent, ItemDescription, ItemGroup, ItemMedia, ItemSeparator, ItemTitle } from '../ui/item'
 
 interface NotificationItem {
     id: string
@@ -55,62 +55,71 @@ onUnmounted(() => {
 
 <template>
     <Popover>
-        <AppTooltip content="Alerts">
-            <PopoverTrigger as-child>
-                <Button
-                    variant="ghost"
-                    size="icon"
-                    class="group relative h-9 w-9 cursor-pointer"
-                >
-                    <span class="sr-only">Alerts</span>
-                    <Bell class="size-5 opacity-80 group-hover:opacity-100" />
-                    <Badge
-                        v-if="unreadCount"
-                        variant="destructive"
-                        class="absolute -top-1 -right-1 size-4 justify-center rounded-full p-0 text-[10px] leading-none"
-                    >
-                        {{ unreadCount > 9 ? '9+' : unreadCount }}
-                    </Badge>
-                </Button>
-            </PopoverTrigger>
-        </AppTooltip>
+        <PopoverTrigger as-child>
+        <Button
+            variant="ghost"
+            size="icon"
+            class="group relative h-9 w-9 cursor-pointer"
+            title="Alerts"
+        >
+            <span class="sr-only">Alerts</span>
+            <Bell class="size-5 opacity-80 group-hover:opacity-100" />
+            <Badge
+                v-if="unreadCount"
+                variant="destructive"
+                class="absolute -top-1 -right-1 size-4 justify-center rounded-full p-0 text-[10px] leading-none"
+            >
+                {{ unreadCount > 9 ? '9+' : unreadCount }}
+            </Badge>
+        </Button>
+    </PopoverTrigger>
 
         <PopoverContent
             align="end"
             class="w-80 p-0"
         >
-            <div
-                v-if="!items.length"
-                class="p-4 text-sm text-muted-foreground"
-            >
-                No alerts yet.
-            </div>
+            <Item v-if="!items.length" >
+                <ItemMedia>
+                    <ThumbsUp class="size-5 text-primary" />
+                </ItemMedia>
+                <ItemContent>No Alerts Yet.</ItemContent>
+            </Item>
 
-            <div
-                v-else
-                class="max-h-96 divide-y overflow-y-auto"
-            >
-                <div
-                    v-for="item in items"
+            <ItemGroup v-else>
+                <template
+                    v-for="(item, index) in items"
                     :key="item.id"
-                    class="flex cursor-pointer flex-col gap-1 p-3 text-sm hover:bg-accent"
-                    :class="!item.read_at && 'bg-muted/40'"
-                    @click="markRead(item)"
                 >
-                    <p class="font-medium">{{ item.vegetable_name }}</p>
-                    <p class="text-muted-foreground">{{ item.message }}</p>
-                    <Link
-                        v-if="item.detail_locked"
-                        :href="billingShow().url"
-                        class="flex items-center gap-1 text-xs text-primary"
-                        @click.stop
+                    <Item
+                        :variant="item.read_at ? 'default' : 'muted' "
+                        class="cursor-pointer hover:bg-accent rounded-none first:rounded-t-md"
+                        @click="markRead(item)"
                     >
-                        <Lock class="size-3" />
-                        See exact timing
-                    </Link>
-                    <span class="text-xs text-muted-foreground/70">{{ item.created_at }}</span>
-                </div>
-            </div>
+                        <ItemContent>
+                            <ItemTitle>
+                                {{ item.vegetable_name }}
+                                <div v-if="!item.read_at" class="bg-destructive size-2 rounded-full" />
+                            </ItemTitle>
+                            <ItemDescription class="text-muted-foreground/60">
+                                {{ item.message }}
+                            </ItemDescription>
+                            
+                             <Link
+                                v-if="item.detail_locked"
+                                :href="billingShow().url"
+                                class="flex items-center gap-1 text-xs text-primary"
+                                @click.stop
+                            >
+                                <Lock class="size-3" />
+                                See exact timing
+                            </Link>
+                            <span class="text-xs text-muted-foreground/70 text-right">{{ item.created_at }}</span>
+                        </ItemContent>
+                       
+                    </Item>
+                    <ItemSeparator v-if="index !== items.length - 1" />
+                </template>
+            </ItemGroup>
         </PopoverContent>
     </Popover>
 </template>
