@@ -9,7 +9,6 @@ import {
 } from 'lucide-vue-next'
 import { fulfill, expire } from '@/actions/App/Http/Controllers/Farmer/Schedule/PostItemController'
 import PostActionButtons from '@/components/shared/PostActionButtons.vue'
-import { Avatar, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
@@ -20,9 +19,10 @@ import {
     DropdownMenuLabel,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { Item, ItemActions, ItemContent, ItemDescription, ItemMedia, ItemTitle } from '@/components/ui/item'
+import { Item, ItemActions, ItemContent, ItemDescription, ItemGroup, ItemMedia, ItemSeparator, ItemTitle } from '@/components/ui/item'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import type { FarmerSupplyDataFixed } from '@/types'
+import { ScrollArea } from '@/components/ui/scroll-area'
 
 defineProps<{ supply: FarmerSupplyDataFixed }>()
 
@@ -36,7 +36,7 @@ const emit = defineEmits<{
     <Item
         variant="outline"
         :class="[
-            'group transition-all hover:shadow-sm',
+            'group transition-all hover:bg-background hover:shadow-sm',
             supply.needs_action ? 'bg-destructive/5 hover:border-l-4 hover:border-l-destructive' : 'bg-primary/10 hover:border-l-4 hover:border-l-primary',
         ]"
     >
@@ -79,40 +79,45 @@ const emit = defineEmits<{
                     align="end"
                     class="w-80 p-0"
                 >
-                    <div class="divide-y">
-                        <div
-                            v-for="item in supply.post_items"
-                            :key="item.id"
-                            class="flex items-center gap-3 p-3"
-                        >
-                            <Avatar class="size-9 shrink-0 rounded-md">
-                                <AvatarImage
-                                    :src="item.vegetable_image_url!"
-                                    :alt="item.display_name!"
-                                />
-                            </Avatar>
-
-                            <div class="min-w-0 flex-1">
-                                <p class="truncate text-sm font-medium">{{ item.display_name }}</p>
-                                <p class="text-xs text-muted-foreground">{{ item.quantity_kg }} kg</p>
-                            </div>
-
-                            <PostActionButtons
-                                v-if="supply.needs_action && item.status === 'ongoing'"
-                                :fulfill-url="fulfill(item.id).url"
-                                :expire-url="expire(item.id).url"
-                                :label="item.display_name!"
-                                :only="['needsAction']"
-                            />
-                            <Badge
-                                v-else-if="supply.needs_action"
-                                variant="secondary"
-                                class="shrink-0 capitalize"
+                    <ScrollArea class="max-h-80 overflow-hidden rounded-t-md">
+                        <ItemGroup>
+                            <template
+                                v-for="(item, index) in supply.post_items"
+                                :key="item.id"
                             >
-                                {{ item.status }}
-                            </Badge>
-                        </div>
-                    </div>
+                                <Item size="sm">
+                                    <ItemMedia variant="image">
+                                        <img 
+                                            :src="item.vegetable_image_url!" 
+                                            :alt="item.display_name!">
+                                    </ItemMedia>
+
+                                    <ItemContent>
+                                        <ItemTitle>{{ item.display_name }}</ItemTitle>
+                                        <ItemDescription>{{ item.quantity_kg.toLocaleString() }} kg</ItemDescription>
+                                    </ItemContent>
+
+                                    <ItemActions>
+                                        <PostActionButtons
+                                            v-if="supply.needs_action && item.status === 'ongoing'"
+                                            :fulfill-url="fulfill(item.id).url"
+                                            :expire-url="expire(item.id).url"
+                                            :label="item.display_name!"
+                                            :only="['needsAction']"
+                                        />
+                                        <Badge
+                                            v-else-if="supply.needs_action"
+                                            variant="secondary"
+                                            class="shrink-0 capitalize"
+                                        >
+                                            {{ item.status }}
+                                        </Badge>
+                                    </ItemActions>
+                                </Item>
+                                <ItemSeparator v-if="index !== supply.post_items.length - 1" />
+                            </template>
+                        </ItemGroup>
+                    </ScrollArea>
                 </PopoverContent>
             </Popover>
 

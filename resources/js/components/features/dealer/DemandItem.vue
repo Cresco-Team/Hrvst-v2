@@ -20,9 +20,10 @@ import {
     DropdownMenuLabel,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { Item, ItemActions, ItemContent, ItemDescription, ItemMedia, ItemTitle } from '@/components/ui/item'
+import { Item, ItemActions, ItemContent, ItemDescription, ItemGroup, ItemMedia, ItemSeparator, ItemTitle } from '@/components/ui/item'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import type { DealerDemandDataFixed } from '@/types'
+import { ScrollArea } from '@/components/ui/scroll-area'
 
 defineProps<{ demand: DealerDemandDataFixed }>()
 
@@ -79,6 +80,45 @@ const emit = defineEmits<{
                     align="end"
                     class="w-80 p-0"
                 >
+                    <ScrollArea class="max-h-80 overflow-hidden rounded-t-md">
+                        <ItemGroup>
+                            <template
+                                v-for="(item, index) in demand.post_items"
+                                :key="item.id"
+                            >
+                                <Item size="sm">
+                                    <ItemMedia variant="image">
+                                        <img 
+                                            :src="item.vegetable_image_url!" 
+                                            :alt="item.display_name!">
+                                    </ItemMedia>
+
+                                    <ItemContent>
+                                        <ItemTitle>{{ item.display_name }}</ItemTitle>
+                                        <ItemDescription>{{ item.quantity_kg.toLocaleString() }} kg</ItemDescription>
+                                    </ItemContent>
+
+                                    <ItemActions>
+                                        <PostActionButtons
+                                            v-if="demand.needs_action && item.status === 'ongoing'"
+                                            :fulfill-url="fulfill(item.id).url"
+                                            :expire-url="expire(item.id).url"
+                                            :label="item.display_name!"
+                                            :only="['needsAction']"
+                                        />
+                                        <Badge
+                                            v-else-if="demand.needs_action"
+                                            variant="secondary"
+                                            class="shrink-0 capitalize"
+                                        >
+                                            {{ item.status }}
+                                        </Badge>
+                                    </ItemActions>
+                                </Item>
+                                <ItemSeparator v-if="index !== demand.post_items.length - 1" />
+                            </template>
+                        </ItemGroup>
+                    </ScrollArea>
                     <div class="divide-y">
                         <div
                             v-for="item in demand.post_items"
