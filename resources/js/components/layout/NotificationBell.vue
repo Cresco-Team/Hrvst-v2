@@ -6,9 +6,11 @@ import { onMounted, onUnmounted, ref } from 'vue'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { ScrollArea } from '@/components/ui/scroll-area'
 import { show as billingShow } from '@/routes/billing'
 import notifications from '@/routes/notifications'
 import { Item, ItemContent, ItemDescription, ItemGroup, ItemMedia, ItemSeparator, ItemTitle } from '../ui/item'
+import watches from '@/routes/watches'
 
 interface NotificationItem {
     id: string
@@ -85,41 +87,52 @@ onUnmounted(() => {
                 <ItemContent>No Alerts Yet.</ItemContent>
             </Item>
 
-            <ItemGroup v-else>
-                <template
-                    v-for="(item, index) in items"
-                    :key="item.id"
-                >
-                    <Item
-                        :variant="item.read_at ? 'default' : 'muted' "
-                        class="cursor-pointer hover:bg-accent rounded-none first:rounded-t-md"
-                        @click="markRead(item)"
+            <ScrollArea v-else class="h-80 overflow-hidden rounded-t-md">
+                <ItemGroup>
+                    <template
+                        v-for="(item, index) in items"
+                        :key="item.id"
                     >
-                        <ItemContent>
-                            <ItemTitle>
-                                {{ item.vegetable_name }}
-                                <div v-if="!item.read_at" class="bg-destructive size-2 rounded-full" />
-                            </ItemTitle>
-                            <ItemDescription class="text-muted-foreground/60">
-                                {{ item.message }}
-                            </ItemDescription>
-                            
-                             <Link
-                                v-if="item.detail_locked"
-                                :href="billingShow().url"
-                                class="flex items-center gap-1 text-xs text-primary"
-                                @click.stop
-                            >
-                                <Lock class="size-3" />
-                                See exact timing
-                            </Link>
-                            <span class="text-xs text-muted-foreground/70 text-right">{{ item.created_at }}</span>
-                        </ItemContent>
-                       
-                    </Item>
-                    <ItemSeparator v-if="index !== items.length - 1" />
-                </template>
-            </ItemGroup>
+                        <Item
+                            :variant="item.read_at ? 'default' : 'muted' "
+                            class="cursor-pointer hover:bg-accent rounded-none"
+                            @click="markRead(item)"
+                        >
+                            <ItemContent>
+                                <ItemTitle>
+                                    {{ item.vegetable_name }}
+                                    <div v-if="!item.read_at" class="bg-destructive size-2 rounded-full" />
+                                </ItemTitle>
+                                <ItemDescription class="text-muted-foreground/60">
+                                    {{ item.message }}
+                                </ItemDescription>
+
+                                <Link
+                                    v-if="item.detail_locked"
+                                    :href="billingShow().url"
+                                    class="flex items-center gap-1 text-xs text-primary"
+                                    @click.stop
+                                >
+                                    <Lock class="size-3" />
+                                    See exact timing
+                                </Link>
+                                <span class="text-xs text-muted-foreground/70 text-right">{{ item.created_at }}</span>
+                            </ItemContent>
+
+                        </Item>
+                        <ItemSeparator v-if="index !== items.length - 1" />
+                    </template>
+                </ItemGroup>
+            </ScrollArea>
+
+            <ItemSeparator />
+
+            <Link
+                :href="watches.index().url"
+                class="flex items-center justify-center rounded-b-md py-2.5 text-sm font-medium text-primary hover:bg-accent"
+            >
+                Check vegetables watches
+            </Link>
         </PopoverContent>
     </Popover>
 </template>
