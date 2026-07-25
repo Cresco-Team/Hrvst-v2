@@ -6,6 +6,7 @@ use App\Data\PostItem\PostItemLightData;
 use App\Enums\PostTimeSlot;
 use App\Enums\PostType;
 use Carbon\Carbon;
+use Spatie\LaravelData\Attributes\DataCollectionOf;
 use Spatie\LaravelData\Attributes\WithCast;
 use Spatie\LaravelData\Attributes\WithTransformer;
 use Spatie\LaravelData\Casts\DateTimeInterfaceCast;
@@ -22,7 +23,7 @@ class DealerDemandData extends Data
         public int $user_id,
         public PostType $type,
         #[WithCast(DateTimeInterfaceCast::class, format: 'F j, Y')]
-        #[WithTransformer(DateTimeInterfaceTransformer::class, format: 'F j, Y')]
+        #[WithTransformer(DateTimeInterfaceTransformer::class, format: 'F j')]
         #[TypeScriptType('string')]
         public Carbon $scheduled_date,
         public PostTimeSlot $time_slot,
