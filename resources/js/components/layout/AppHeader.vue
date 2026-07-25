@@ -193,19 +193,6 @@ const rightNavItems = computed<NavItem[]>(() => {
         )
     }
 
-    if (
-        page.props.auth.user.roles.includes('farmer') ||
-        page.props.auth.user.roles.includes('dealer')
-    ) {
-        items.push(
-            {
-                title: 'My Watches',
-                href: watchesIndex(),
-                icon: Bell,
-            }
-        )
-    }
-
     return items
 })
 </script>
