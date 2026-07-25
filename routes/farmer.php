@@ -1,7 +1,7 @@
 <?php
 
 use App\Http\Controllers\Farmer\DashboardController;
-use app\Http\Controllers\Farmer\Schedule\PostItemController;
+use App\Http\Controllers\Farmer\Schedule\PostItemController;
 use App\Http\Controllers\Farmer\Schedule\SupplyController;
 use Illuminate\Support\Facades\Route;
 
