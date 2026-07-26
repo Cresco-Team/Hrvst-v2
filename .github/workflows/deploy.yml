@@ -1,45 +1,45 @@
-name: Deploy
+# name: Deploy
 
-# Only fires after CI has actually gone green on main. Deploying off a raw
-# `push` trigger means a broken build ships the moment two workflows race —
-# `workflow_run` forces the ordering.
-on:
-  workflow_run:
-    workflows: [CI]
-    branches: [main]
-    types: [completed]
+# # Only fires after CI has actually gone green on main. Deploying off a raw
+# # `push` trigger means a broken build ships the moment two workflows race —
+# # `workflow_run` forces the ordering.
+# on:
+#   workflow_run:
+#     workflows: [CI]
+#     branches: [main]
+#     types: [completed]
 
-concurrency:
-  group: deploy-production
-  cancel-in-progress: false # never cancel a deploy mid-flight
+# concurrency:
+#   group: deploy-production
+#   cancel-in-progress: false # never cancel a deploy mid-flight
 
-jobs:
-  deploy:
-    name: Deploy to Laravel Cloud
-    runs-on: ubuntu-latest
-    # Only proceed if the CI run that triggered this actually succeeded.
-    if: github.event.workflow_run.conclusion == 'success'
-    environment: production # requires manual approval if you configure protection rules on this environment
-    steps:
-      - uses: actions/checkout@v4
+# jobs:
+#   deploy:
+#     name: Deploy to Laravel Cloud
+#     runs-on: ubuntu-latest
+#     # Only proceed if the CI run that triggered this actually succeeded.
+#     if: github.event.workflow_run.conclusion == 'success'
+#     environment: production # requires manual approval if you configure protection rules on this environment
+#     steps:
+#       - uses: actions/checkout@v4
 
-      - uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.5'
-          coverage: none
+#       - uses: shivammathur/setup-php@v2
+#         with:
+#           php-version: '8.5'
+#           coverage: none
 
-      - name: Install Laravel Cloud CLI
-        run: composer global require laravel/cloud-cli
+#       - name: Install Laravel Cloud CLI
+#         run: composer global require laravel/cloud-cli
 
-      - name: Authenticate
-        env:
-          CLOUD_TOKEN: ${{ secrets.LARAVEL_CLOUD_TOKEN }}
-        run: cloud auth -n --token="$CLOUD_TOKEN"
+#       - name: Authenticate
+#         env:
+#           CLOUD_TOKEN: ${{ secrets.LARAVEL_CLOUD_TOKEN }}
+#         run: cloud auth -n --token="$CLOUD_TOKEN"
 
-      # Uses whatever app/environment is configured in .cloud/config.json —
-      # commit that via `cloud repo:config` locally first, it is not generated here.
-      - name: Deploy
-        run: cloud deploy -n
+#       # Uses whatever app/environment is configured in .cloud/config.json —
+#       # commit that via `cloud repo:config` locally first, it is not generated here.
+#       - name: Deploy
+#         run: cloud deploy -n
 
-      - name: Monitor deployment
-        run: cloud deploy:monitor -n
+#       - name: Monitor deployment
+#         run: cloud deploy:monitor -n
