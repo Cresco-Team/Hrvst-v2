@@ -7,6 +7,7 @@ use App\Enums\Analytics\VegetableViewerRole;
 use App\Enums\Billing\SubscriptionFeature;
 use App\Models\Billing\Subscription;
 use App\Models\Vegetable\Vegetable;
+use App\Services\Vegetable\VegetableActivityService;
 use App\Services\Vegetable\VegetableDetailService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -26,7 +27,7 @@ trait RendersVegetableShow
             'month' => ['sometimes', 'integer', 'min:1', 'max:12'],
             'activity_offset' => [
                 'sometimes', 'integer', 'min:0',
-                'max:'.\App\Services\Vegetable\VegetableActivityService::MAX_OFFSET_MONTHS,
+                'max:'.VegetableActivityService::MAX_OFFSET_MONTHS,
             ],
         ]);
 
