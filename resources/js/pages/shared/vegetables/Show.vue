@@ -1,10 +1,9 @@
 <script setup lang="ts">
-import { Deferred, Head, Link, useForm, usePage } from '@inertiajs/vue3'
+import { Deferred, Head, Link, router, useForm, usePage } from '@inertiajs/vue3'
 import { Bell, BellOff, Download, Lock } from '@lucide/vue'
 import { computed, ref } from 'vue'
 import { download } from '@/actions/App/Http/Controllers/VegetableExportController'
 import Heading from '@/components/Heading.vue'
-import AnalyticsUpsellCard from '@/components/shared/charts/AnalyticsUpsellCard.vue'
 import VegetableAnalyticsSummary from '@/components/shared/charts/VegetableAnalyticsSummary.vue'
 import VegetableMonthlyChart from '@/components/shared/charts/VegetableMonthlyChart.vue'
 import VegetableRecommendations from '@/components/shared/charts/VegetableRecommendations.vue'
@@ -121,6 +120,25 @@ function handleDaySelect(dateStr: string): void {
     selectedSchedule.value = schedule
     sheetOpen.value = true
 }
+
+function showRoute(): { url: string } {
+    return isAdmin.value
+        ? adminRoutes.vegetables.show(props.meta.vegetableId)
+        : vegetables.show(props.meta.vegetableId)
+}
+
+function handleActivityNavigate(offset: number): void {
+    router.visit(showRoute().url, {
+        data: {
+            year: props.calendarFilters.year,
+            month: props.calendarFilters.month,
+            activity_offset: offset,
+        },
+        preserveState: true,
+        preserveScroll: true,
+        only: ['vegetable'],
+    })
+}
 </script>
 
 <template>
@@ -223,19 +241,18 @@ function handleDaySelect(dateStr: string): void {
                     @day-select="handleDaySelect"
                 />
 
-                <!-- Forecast: subscription-gated, teaser when locked -->
+                <!-- Market volume: always visible; forecast + history paging is subscription-gated -->
                 <VegetableMonthlyChart
-                    v-if="vegetable?.forecast"
+                    v-if="vegetable"
                     :monthly-activity="vegetable.monthly_activity ?? []"
-                    :forecast="vegetable.forecast.forecast"
-                    :months-of-history="vegetable.forecast.months_of_history"
-                    :forecast-confidence="vegetable.forecast.forecast_confidence"
-                />
-                <AnalyticsUpsellCard
-                    v-else-if="vegetable?.forecast_locked"
-                    title="6-Month Forecast Locked"
-                    description="Subscribe to unlock seasonal demand and supply forecasting for this vegetable, based on 5 years of market history."
-                    :feature-label="vegetable.upgrade_feature_label ?? 'Subscribe'"
+                    :forecast="vegetable.forecast?.forecast"
+                    :months-of-history="vegetable.forecast?.months_of_history"
+                    :forecast-confidence="vegetable.forecast?.forecast_confidence"
+                    :activity-offset="vegetable.activity_offset ?? 0"
+                    :max-activity-offset="vegetable.activity_max_offset ?? 0"
+                    :forecast-locked="vegetable.forecast_locked"
+                    :upgrade-feature-label="vegetable.upgrade_feature_label"
+                    @navigate="handleActivityNavigate"
                 />
             </Deferred>
         </div>

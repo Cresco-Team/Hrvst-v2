@@ -1,14 +1,17 @@
 <script setup lang="ts">
-import { AlertCircle, ChartColumn, ChartLine, Info } from 'lucide-vue-next'
-import { ref } from 'vue'
+import { Link } from '@inertiajs/vue3'
+import { AlertCircle, ChartColumn, ChartLine, ChevronLeft, ChevronRight, Info, Lock, Sparkles } from 'lucide-vue-next'
+import { computed, ref } from 'vue'
 import { Bar, Line } from 'vue-chartjs'
 import EmptyState from '@/components/EmptyState.vue'
 import AppTooltip from '@/components/templates/AppTooltip.vue'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { useMonthlyBarChart } from '@/composables/useMonthlyBarChart'
 import { useMonthlyLineChart } from '@/composables/useMonthlyLineChart'
+import { show as billingShow } from '@/routes/billing'
 import type { ForecastPoint, MonthlyActivity } from '@/types/resources/product'
 
 const props = defineProps<{
@@ -16,7 +19,18 @@ const props = defineProps<{
     forecast?: ForecastPoint[]
     monthsOfHistory?: number
     forecastConfidence?: string
+    activityOffset?: number
+    maxActivityOffset?: number
+    forecastLocked?: boolean
+    upgradeFeatureLabel?: string | null
 }>()
+
+const emit = defineEmits<{
+    navigate: [offset: number]
+}>()
+
+const WINDOW_MONTHS = 6
+const MIN_MONTHS_FOR_FORECAST = 12
 
 const chartType = ref<'bar' | 'line'>('bar')
 
@@ -32,8 +46,6 @@ const {
     forecastDividerPlugin: lineForecastDividerPlugin,
 } = useMonthlyLineChart(() => props.monthlyActivity, () => props.forecast)
 
-const MIN_MONTHS_FOR_FORECAST = 12
-
 const hasForecast = () => (props.forecast?.length ?? 0) > 0
 
 const confidenceLabel: Record<string, string> = {
@@ -47,16 +59,41 @@ const confidenceTooltip: Record<string, string> = {
     established: 'Based on 36–59 months of history — seasonal pattern is well supported.',
     strong: 'Based on 60+ months of history — high-confidence seasonal projection.',
 }
+
+// ─── Pagination ───────────────────────────────────────────────────────────────
+
+const offset = computed(() => props.activityOffset ?? 0)
+const maxOffset = computed(() => props.maxActivityOffset ?? 0)
+
+const canGoNext = computed(() => offset.value > 0)
+const canGoPrevious = computed(() => !props.forecastLocked && offset.value < maxOffset.value)
+
+const rangeLabel = computed(() => {
+    if (!props.monthlyActivity.length) return ''
+    const first = props.monthlyActivity[0]?.label
+    const last = props.monthlyActivity[props.monthlyActivity.length - 1]?.label
+    return first === last ? first : `${first} – ${last}`
+})
+
+function goPrevious(): void {
+    if (!canGoPrevious.value) return
+    emit('navigate', Math.min(offset.value + WINDOW_MONTHS, maxOffset.value))
+}
+
+function goNext(): void {
+    if (!canGoNext.value) return
+    emit('navigate', Math.max(offset.value - WINDOW_MONTHS, 0))
+}
 </script>
 
 <template>
     <Card class="rounded-none border-0 shadow-none sm:rounded sm:border sm:shadow-sm">
-        <CardHeader class="flex flex-row items-center justify-between gap-2 space-y-0 px-3 py-3 sm:px-6 sm:py-6">
-            <CardTitle>
-                {{ hasForecast() ? ' 6-Month Forecast' : 'Market Volume' }}
-            </CardTitle>
-
+        <CardHeader class="flex flex-row flex-wrap items-center justify-between gap-2 space-y-0 px-3 py-3 sm:px-6 sm:py-6">
             <div class="flex items-center gap-2">
+                <CardTitle>
+                    {{ hasForecast() ? '6-Month Forecast' : 'Market Volume' }}
+                </CardTitle>
+
                 <AppTooltip
                     v-if="hasForecast() && forecastConfidence"
                     :content="confidenceTooltip[forecastConfidence]"
@@ -69,6 +106,52 @@ const confidenceTooltip: Record<string, string> = {
                         {{ confidenceLabel[forecastConfidence] ?? 'Forecast' }}
                     </Badge>
                 </AppTooltip>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <!-- Range navigation -->
+                <div class="flex items-center gap-1">
+                    <AppTooltip
+                        :content="forecastLocked
+                            ? 'Subscribe to browse older market history'
+                            : (canGoPrevious ? 'Previous 6 months' : 'No earlier history available')"
+                    >
+                        <Button
+                            v-if="forecastLocked"
+                            as-child
+                            variant="outline"
+                            size="icon-sm"
+                        >
+                            <Link :href="billingShow().url">
+                                <Lock class="size-3.5" />
+                            </Link>
+                        </Button>
+                        <Button
+                            v-else
+                            variant="outline"
+                            size="icon-sm"
+                            :disabled="!canGoPrevious"
+                            @click="goPrevious"
+                        >
+                            <ChevronLeft class="size-3.5" />
+                        </Button>
+                    </AppTooltip>
+
+                    <span class="min-w-28 text-center text-xs font-medium text-muted-foreground">
+                        {{ rangeLabel }}
+                    </span>
+
+                    <AppTooltip content="Back to current">
+                        <Button
+                            variant="outline"
+                            size="icon-sm"
+                            :disabled="!canGoNext"
+                            @click="goNext"
+                        >
+                            <ChevronRight class="size-3.5" />
+                        </Button>
+                    </AppTooltip>
+                </div>
 
                 <ToggleGroup
                     v-if="barChartData || lineChartData"
@@ -118,7 +201,28 @@ const confidenceTooltip: Record<string, string> = {
             />
 
             <div
-                v-if="(barChartData || lineChartData) && !hasForecast() && (monthsOfHistory ?? 0) < MIN_MONTHS_FOR_FORECAST"
+                v-if="forecastLocked"
+                class="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-lg border border-dashed bg-muted/30 p-3 text-xs text-muted-foreground"
+            >
+                <span class="flex items-center gap-2">
+                    <Lock class="size-3.5 shrink-0" />
+                    Subscribe to unlock the 6-month forecast and up to 5 years of market history.
+                </span>
+                <Button
+                    as-child
+                    size="sm"
+                    variant="outline"
+                    class="shrink-0 gap-1.5"
+                >
+                    <Link :href="billingShow().url">
+                        <Sparkles class="size-3.5" />
+                        {{ upgradeFeatureLabel ?? 'Subscribe' }}
+                    </Link>
+                </Button>
+            </div>
+
+            <div
+                v-else-if="(barChartData || lineChartData) && !hasForecast() && offset === 0 && (monthsOfHistory ?? 0) < MIN_MONTHS_FOR_FORECAST"
                 class="mt-3 flex items-center gap-2 rounded-lg border border-dashed bg-muted/30 p-3 text-xs text-muted-foreground"
             >
                 <Info class="size-3.5 shrink-0" />
