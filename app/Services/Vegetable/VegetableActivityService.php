@@ -8,34 +8,28 @@ use Illuminate\Support\Facades\DB;
 class VegetableActivityService
 {
     /**
-     * Build monthly activity data for a given number of past months.
-     *
-     * Pass months: 36 from VarietyService to get 3-year history in a single
-     * query for forecasting; the chart uses array_slice(-12) of that result.
-     *
-     * `has_data` flags months that have an actual DB row vs zero-padded gaps.
-     * The chart renders both identically (zero bars for gaps), but
-     * computeForecast() must skip padded months to avoid phantom-zero dilution
-     * of seasonal baselines and trend ratios — the root cause of the
-     * demand > supply inversion seen in the forecast.
-     *
-     * @return array<int, array{
-     *     month: string,
-     *     label: string,
-     *     has_data: bool,
-     *     supply_fulfilled_kg: float,
-     *     supply_expired_kg: float,
-     *     demand_fulfilled_kg: float,
-     *     demand_expired_kg: float,
-     * }>
+     * Widest a display window is allowed to page back — 5 years of monthly
+     * history minus the 6-month window itself. Both the controller
+     * (validation) and the frontend (disabling "previous") key off this.
      */
-    public function buildMonthlyActivity(int $vegetableId, int $months = 12): array
+    public const int MAX_OFFSET_MONTHS = 54;
+
+    /**
+     * $endOffsetMonths shifts the *entire* window back in time without
+     * changing its size — index 0 becomes "$endOffsetMonths months ago"
+     * instead of "now". This exists solely for the paginated market volume
+     * display. Forecast/analytics callers must always leave this at 0 so
+     * the seasonal trend math stays anchored to the present, regardless of
+     * what window the user is browsing on screen.
+     */
+    public function buildMonthlyActivity(int $vegetableId, int $months = 12, int $endOffsetMonths = 0): array
     {
-        $start = now()->startOfMonth()->subMonths($months - 1)->toDateString();
+        $start = now()->startOfMonth()->subMonths($months - 1 + $endOffsetMonths)->toDateString();
+        $end = now()->startOfMonth()->subMonths($endOffsetMonths)->endOfMonth()->toDateString();
 
         $rows = DB::table('vegetable_monthly_stats')
             ->where('vegetable_id', $vegetableId)
-            ->where('period_date', '>=', $start)
+            ->whereBetween('period_date', [$start, $end])
             ->select(['period_date', 'supply_fulfilled_kg', 'supply_expired_kg', 'demand_fulfilled_kg', 'demand_expired_kg'])
             ->get()
             ->groupBy(fn ($row) => Carbon::parse($row->period_date)->format('Y-m'))
@@ -49,7 +43,7 @@ class VegetableActivityService
         $result = [];
 
         for ($i = $months - 1; $i >= 0; $i--) {
-            $date = now()->startOfMonth()->subMonths($i);
+            $date = now()->startOfMonth()->subMonths($i + $endOffsetMonths);
             $key = $date->format('Y-m');
             $row = $rows->get($key);
 
