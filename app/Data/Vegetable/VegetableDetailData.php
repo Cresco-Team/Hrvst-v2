@@ -21,6 +21,8 @@ class VegetableDetailData extends Data
         public int $demand_count,
         public array $supply_municipalities,
         public array $monthly_activity,
+        public int $activity_offset,
+        public int $activity_max_offset,
 
         #[TypeScriptType('Record<string, unknown>')]
         public array $vegetable_calendar,
@@ -51,6 +53,8 @@ class VegetableDetailData extends Data
             demand_count: $vegetable->demand_count,
             supply_municipalities: $vegetable->supply_municipalities,
             monthly_activity: $vegetable->monthly_activity,
+            activity_offset: $vegetable->activity_offset ?? 0,
+            activity_max_offset: $vegetable->activity_max_offset ?? 0,
             vegetable_calendar: $vegetable->vegetable_calendar,
             analytics: $vegetable->analytics?->toArray(),
             forecast: $vegetable->forecast?->toArray(),
