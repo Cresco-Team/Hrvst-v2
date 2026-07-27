@@ -23,8 +23,13 @@ class VegetableDetailService
         ];
     }
 
-    public function show(Vegetable $vegetable, int $year, int $month, VegetableViewerRole $role): Vegetable
-    {
+    public function show(
+        Vegetable $vegetable,
+        int $year,
+        int $month,
+        VegetableViewerRole $role,
+        int $activityOffset = 0,
+    ): Vegetable {
         $counts = $vegetable->postItems()
             ->ongoing()
             ->join('posts', 'posts.id', '=', 'post_items.post_id')
@@ -39,14 +44,23 @@ class VegetableDetailService
         $vegetable->demand_count = (int) ($counts->demand_count ?? 0);
         $vegetable->supply_municipalities = $this->resolveSupplyMunicipalities($vegetable->id);
 
+        // Anchored to now — never offset. This is what analytics/forecast run on.
         $extendedHistory = $this->activityService->buildMonthlyActivity($vegetable->id, months: 60);
-        $monthlyActivity = array_slice($extendedHistory, -12);
+        $recentMonthlyActivity = array_slice($extendedHistory, -12);
 
-        $vegetable->monthly_activity = $monthlyActivity;
+        // Independently offsettable — this is what the chart actually renders.
+        $vegetable->monthly_activity = $this->activityService->buildMonthlyActivity(
+            $vegetable->id,
+            months: 6,
+            endOffsetMonths: $activityOffset,
+        );
+        $vegetable->activity_offset = $activityOffset;
+        $vegetable->activity_max_offset = VegetableActivityService::MAX_OFFSET_MONTHS;
+
         $vegetable->vegetable_calendar = $this->calendarService->buildForMonth($vegetable->id, $year, $month);
 
         ['analytics' => $vegetable->analytics, 'forecast' => $vegetable->forecast] =
-            $this->analyticsService->compute($monthlyActivity, $role, $extendedHistory);
+            $this->analyticsService->compute($recentMonthlyActivity, $role, $extendedHistory);
 
         return $vegetable;
     }
