@@ -42,7 +42,10 @@ class AppServiceProvider extends ServiceProvider
     {
         Model::preventSilentlyDiscardingAttributes(! app()->isProduction());
 
-        URL::forceScheme('https');
+        if (app()->isProduction()) {
+            URL::forceScheme('https');
+        }
+        
         $this->configureDefaults();
         Model::automaticallyEagerLoadRelationships();
 
