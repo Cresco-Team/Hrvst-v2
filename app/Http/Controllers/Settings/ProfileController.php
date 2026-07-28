@@ -8,6 +8,7 @@ use App\Http\Requests\Settings\ProfileDeleteRequest;
 use App\Http\Requests\Settings\ProfileUpdateRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -21,7 +22,14 @@ class ProfileController extends Controller
 
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
-        $request->user()->fill($request->validated());
+        // current_password is a verification field, not a User column — it
+        // is intentionally absent from User's #[Fillable(...)] list. Strip
+        // it explicitly rather than relying on fill() to drop it silently:
+        // Model::preventSilentlyDiscardingAttributes() is enabled outside
+        // production and will throw a MassAssignmentException otherwise.
+        $request->user()->fill(
+            Arr::except($request->validated(), ['current_password'])
+        );
 
         if ($request->user()->isDirty('email')) {
             $request->user()->email_verified_at = null;
