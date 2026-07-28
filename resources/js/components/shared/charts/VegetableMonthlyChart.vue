@@ -29,7 +29,18 @@ const emit = defineEmits<{
     navigate: [offset: number]
 }>()
 
-const WINDOW_MONTHS = 6
+// The default window is 6 months (offset 0). Every historical page after
+// that is 12 months. So the first "previous" click only steps the offset by
+// 6 (landing on month-back index 6, immediately after the default window's
+// last month) — every click after that steps by a full 12, since the
+// window is already 12 months wide and contiguous with the last one. Going
+// "next" mirrors this: stepping back below the first paged offset always
+// lands exactly on 0, never a negative offset.
+//
+// This must match VegetableDetailService::resolveActivityWindowMonths() —
+// the backend derives window size from offset using the same 6/12 split.
+const INITIAL_WINDOW_MONTHS = 6
+const PAGED_STEP_MONTHS = 12
 const MIN_MONTHS_FOR_FORECAST = 12
 
 const chartType = ref<'bar' | 'line'>('bar')
@@ -61,6 +72,10 @@ const confidenceTooltip: Record<string, string> = {
 }
 
 // ─── Pagination ───────────────────────────────────────────────────────────────
+// Window size is always 6 months (server-controlled). Only the step between
+// windows is 12 months. Forecast + history paging are both subscription-gated
+// — see forecastLocked below, which the parent derives from the same
+// Subscription::hasAccess() check that gates the forecast itself.
 
 const offset = computed(() => props.activityOffset ?? 0)
 const maxOffset = computed(() => props.maxActivityOffset ?? 0)
@@ -77,12 +92,19 @@ const rangeLabel = computed(() => {
 
 function goPrevious(): void {
     if (!canGoPrevious.value) return
-    emit('navigate', Math.min(offset.value + WINDOW_MONTHS, maxOffset.value))
+
+    const next = offset.value === 0
+        ? INITIAL_WINDOW_MONTHS
+        : Math.min(offset.value + PAGED_STEP_MONTHS, maxOffset.value)
+
+    emit('navigate', next)
 }
 
 function goNext(): void {
     if (!canGoNext.value) return
-    emit('navigate', Math.max(offset.value - WINDOW_MONTHS, 0))
+
+    const next = offset.value - PAGED_STEP_MONTHS
+    emit('navigate', next > 0 ? next : 0)
 }
 </script>
 
@@ -114,7 +136,7 @@ function goNext(): void {
                     <AppTooltip
                         :content="forecastLocked
                             ? 'Subscribe to browse older market history'
-                            : (canGoPrevious ? 'Previous 6 months' : 'No earlier history available')"
+                            : (canGoPrevious ? 'View earlier history' : 'No earlier history available')"
                     >
                         <Button
                             v-if="forecastLocked"
