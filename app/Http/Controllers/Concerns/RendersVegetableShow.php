@@ -26,8 +26,7 @@ trait RendersVegetableShow
             'year' => ['sometimes', 'integer', 'min:2020', 'max:2035'],
             'month' => ['sometimes', 'integer', 'min:1', 'max:12'],
             'activity_offset' => [
-                'sometimes', 'integer', 'min:0',
-                'max:'.VegetableActivityService::MAX_OFFSET_MONTHS,
+                'sometimes', 'integer', 'min:0', 'max:'.VegetableActivityService::MAX_OFFSET_MONTHS,
             ],
         ]);
 
@@ -73,6 +72,8 @@ trait RendersVegetableShow
                 'categoryName' => $vegetable->category->name,
                 'categorySlug' => $vegetable->category->slug,
             ],
+            // Farmer/dealer only (see VegetableWatchPolicy::create) — an admin
+            // viewing this page simply never has a row here, which is correct.
             'isWatching' => $user->watches()->where('vegetable_id', $vegetable->id)->exists(),
         ]);
     }
