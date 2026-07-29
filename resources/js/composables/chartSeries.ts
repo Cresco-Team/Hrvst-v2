@@ -79,7 +79,16 @@ export function createForecastDividerPlugin(
             if (!fc.length) return
 
             const months = toValue(activity)
-            const histLen = months?.slice(-6).length ?? 0
+            // The full historical window is on-screen now (see
+            // useMonthlyBarChart.ts / useMonthlyLineChart.ts — neither crops
+            // to the last 6 anymore), so the divider belongs right after the
+            // last historical month, wherever that actually is. Forecast is
+            // only ever non-empty when the activity window is the fixed
+            // 6-month default (see RendersVegetableShow — forecast is
+            // nulled whenever activity_offset !== 0), so this naturally
+            // lands at index 6 in practice, but it's derived from the real
+            // array length rather than assumed.
+            const histLen = months?.length ?? 0
             if (histLen <= 0) return
 
             const { ctx, chartArea, scales } = chart as unknown as {
