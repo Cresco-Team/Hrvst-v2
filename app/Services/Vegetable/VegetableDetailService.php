@@ -51,7 +51,7 @@ class VegetableDetailService
         // Independently offsettable — this is what the chart actually renders.
         $vegetable->monthly_activity = $this->activityService->buildMonthlyActivity(
             $vegetable->id,
-            months: 6,
+            months: $this->resolveActivityWindowMonths($activityOffset),
             endOffsetMonths: $activityOffset,
         );
         $vegetable->activity_offset = $activityOffset;
@@ -63,6 +63,26 @@ class VegetableDetailService
             $this->analyticsService->compute($recentMonthlyActivity, $role, $extendedHistory);
 
         return $vegetable;
+    }
+
+    /**
+     * Offset 0 is the fixed 6-month default window (free tier). Every
+     * historical page after that is 12 months, contiguous with whatever
+     * came before it — offset 6 covers months-back 6-17, offset 18 covers
+     * 18-29, and so on. The final page is clamped to whatever's left under
+     * VegetableActivityService::TOTAL_HISTORY_MONTHS so the 5-year cap lands
+     * exactly on a boundary instead of overshooting it.
+     *
+     * Coverage check (do this arithmetic yourself before changing any of
+     * these numbers): 6 + 12 + 12 + 12 + 12 + 6 = 60 — no gaps, no overlap.
+     */
+    private function resolveActivityWindowMonths(int $activityOffset): int
+    {
+        if ($activityOffset === 0) {
+            return 6;
+        }
+
+        return min(12, VegetableActivityService::TOTAL_HISTORY_MONTHS - $activityOffset);
     }
 
     private function resolveSupplyMunicipalities(int $vegetableId): array
