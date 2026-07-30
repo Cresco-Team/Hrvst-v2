@@ -39,6 +39,12 @@ const isAdmin = computed(() =>
     usePage().props.auth.user.roles.includes('admin'),
 )
 
+function showRoute(): { url: string } {
+    return isAdmin.value
+        ? adminRoutes.vegetables.show(props.meta.vegetableId)
+        : vegetables.show(props.meta.vegetableId)
+}
+
 const breadcrumbs = computed<BreadcrumbItem[]>(() => {
     if (isAdmin.value) {
         return [
@@ -91,6 +97,27 @@ function toggleWatch(): void {
     }
 }
 
+// ─── Market volume pagination ─────────────────────────────────────────────────
+// Mirrors VegetableMarketCalendar's navigateMonth() pattern: a partial
+// reload through the same show() route, only requesting the 'vegetable'
+// prop back. year/month are re-sent on every call so paging the volume
+// chart doesn't silently reset whichever calendar month the user has
+// scrolled to (RendersVegetableShow defaults year/month to "now" when
+// absent from the request).
+
+function handleActivityNavigate(offset: number): void {
+    router.visit(showRoute().url, {
+        data: {
+            year: props.calendarFilters.year,
+            month: props.calendarFilters.month,
+            activity_offset: offset,
+        },
+        preserveState: true,
+        preserveScroll: true,
+        only: ['vegetable'],
+    })
+}
+
 // ─── Day detail sheet ─────────────────────────────────────────────────────────
 
 const sheetOpen = ref(false)
@@ -119,25 +146,6 @@ function handleDaySelect(dateStr: string): void {
     selectedDateStr.value = dateStr
     selectedSchedule.value = schedule
     sheetOpen.value = true
-}
-
-function showRoute(): { url: string } {
-    return isAdmin.value
-        ? adminRoutes.vegetables.show(props.meta.vegetableId)
-        : vegetables.show(props.meta.vegetableId)
-}
-
-function handleActivityNavigate(offset: number): void {
-    router.visit(showRoute().url, {
-        data: {
-            year: props.calendarFilters.year,
-            month: props.calendarFilters.month,
-            activity_offset: offset,
-        },
-        preserveState: true,
-        preserveScroll: true,
-        only: ['vegetable'],
-    })
 }
 </script>
 
