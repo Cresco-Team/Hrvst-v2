@@ -1,13 +1,23 @@
 <script setup lang="ts">
 import { Form, Head, useForm, usePage } from '@inertiajs/vue3'
-import { Camera, Phone } from 'lucide-vue-next'
-import { ref } from 'vue'
+import { Camera } from 'lucide-vue-next'
+import { computed, ref, useTemplateRef } from 'vue'
 import ProfileController from '@/actions/App/Http/Controllers/Settings/ProfileController'
 import DeleteUser from '@/components/DeleteUser.vue'
 import Heading from '@/components/Heading.vue'
 import InputError from '@/components/InputError.vue'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
+import {
+	Dialog,
+	DialogClose,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+	DialogTrigger,
+} from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
@@ -44,6 +54,40 @@ function handleAvatarChange(event: Event): void {
 		},
 	})
 }
+
+// ── Profile info ──────────────────────────────────────────────────────────────
+// phone_number doubles as the login identifier (see ChangePinRequest.php /
+// FortifyServiceProvider) and this app has no password-reset fallback, so
+// changing it is gated behind a password confirmation — same presentation
+// as DeleteUser.vue's account-deletion confirmation: a DialogTrigger button
+// opening a Dialog whose DialogContent contains a fully self-contained
+// <Form>, with the same @error-focuses-password and Cancel-clears-errors
+// behavior.
+//
+// Two separate <Form> instances below, never both mounted at once — a
+// dialog's contents are teleported to <body>, so an input rendered inside
+// one is not a DOM descendant of an outer form and can't submit with it.
+// Splitting one <form> across that boundary silently drops fields; two
+// independent forms sidesteps the problem entirely.
+
+const name = ref(user.name)
+const email = ref(user.email ?? '')
+const phoneNumber = ref(user.phone_number ?? '')
+
+const phoneNumberChanged = computed(
+	() => phoneNumber.value !== (page.props.auth.user.phone_number ?? ''),
+)
+
+// Global error bag rather than either Form's own v-slot errors, so
+// validation messages display consistently regardless of which of the two
+// forms actually made the last request.
+const errors = computed(() => page.props.errors as Record<string, string>)
+
+function resetPhoneNumber(): void {
+	phoneNumber.value = page.props.auth.user.phone_number ?? ''
+}
+
+const passwordInput = useTemplateRef('passwordInput')
 </script>
 
 <template>
@@ -103,11 +147,16 @@ function handleAvatarChange(event: Event): void {
                     <Heading
                         variant="small"
                         title="Profile information"
-                        description="Update your name and email address"
+                        description="Update your name, email address, and phone number"
                     />
 
+                    <!-- Phone unchanged: direct submit, no password gate.
+                         This branch unmounts the instant phone_number goes
+                         dirty, so its Form is never a route to bypassing
+                         the dialog below. -->
                     <Form
-                        v-slot="{ errors, processing, recentlySuccessful }"
+                        v-if="!phoneNumberChanged"
+                        v-slot="{ processing, recentlySuccessful }"
                         v-bind="ProfileController.update()"
                         class="space-y-4"
                         :options="{ preserveScroll: true }"
@@ -118,7 +167,7 @@ function handleAvatarChange(event: Event): void {
                                 id="name"
                                 name="name"
                                 type="text"
-                                :default-value="user.name"
+                                v-model="name"
                                 autocomplete="name"
                                 placeholder="Your full name"
                                 required
@@ -135,7 +184,7 @@ function handleAvatarChange(event: Event): void {
                                 id="email"
                                 name="email"
                                 type="email"
-                                :default-value="user.email ?? ''"
+                                v-model="email"
                                 autocomplete="email"
                                 placeholder="your@email.com"
                             />
@@ -143,14 +192,16 @@ function handleAvatarChange(event: Event): void {
                         </div>
 
                         <div class="grid gap-2">
-                            <Label>Phone number</Label>
-                            <div class="flex h-9 items-center gap-2 rounded-md border bg-muted/40 px-3 text-sm text-muted-foreground">
-                                <Phone class="size-4 shrink-0" />
-                                {{ user.phone_number ?? '—' }}
-                            </div>
-                            <p class="text-xs text-muted-foreground">
-                                Contact your administrator to change your phone number.
-                            </p>
+                            <Label for="phone_number">Phone number</Label>
+                            <Input
+                                id="phone_number"
+                                name="phone_number"
+                                type="tel"
+                                v-model="phoneNumber"
+                                autocomplete="tel"
+                                placeholder="09171234567"
+                            />
+                            <InputError :message="errors.phone_number" />
                         </div>
 
                         <div class="flex items-center gap-4">
@@ -171,6 +222,132 @@ function handleAvatarChange(event: Event): void {
                             </Transition>
                         </div>
                     </Form>
+
+                    <!-- Phone changed: fields stay editable, but "Save"
+                         becomes a DialogTrigger — nothing submits until the
+                         password-confirmed Form inside the dialog fires. -->
+                    <div
+                        v-else
+                        class="space-y-4"
+                    >
+                        <div class="grid gap-2">
+                            <Label for="name">Name</Label>
+                            <Input
+                                id="name"
+                                type="text"
+                                v-model="name"
+                                autocomplete="name"
+                                placeholder="Your full name"
+                            />
+                            <InputError :message="errors.name" />
+                        </div>
+
+                        <div class="grid gap-2">
+                            <Label for="email">
+                                Email
+                                <span class="text-muted-foreground font-normal text-xs">(optional)</span>
+                            </Label>
+                            <Input
+                                id="email"
+                                type="email"
+                                v-model="email"
+                                autocomplete="email"
+                                placeholder="your@email.com"
+                            />
+                            <InputError :message="errors.email" />
+                        </div>
+
+                        <div class="grid gap-2">
+                            <Label for="phone_number">Phone number</Label>
+                            <Input
+                                id="phone_number"
+                                type="tel"
+                                v-model="phoneNumber"
+                                autocomplete="tel"
+                                placeholder="09171234567"
+                            />
+                            <InputError :message="errors.phone_number" />
+                        </div>
+
+                        <Dialog>
+                            <DialogTrigger as-child>
+                                <Button type="button">Save</Button>
+                            </DialogTrigger>
+
+                            <DialogContent>
+                                <Form
+                                    v-slot="{ errors: dialogErrors, processing, reset, clearErrors }"
+                                    v-bind="ProfileController.update()"
+                                    :options="{ preserveScroll: true }"
+                                    class="space-y-6"
+                                    @error="() => passwordInput?.$el?.focus()"
+                                >
+                                    <input
+                                        type="hidden"
+                                        name="name"
+                                        :value="name"
+                                    >
+                                    <input
+                                        type="hidden"
+                                        name="email"
+                                        :value="email"
+                                    >
+                                    <input
+                                        type="hidden"
+                                        name="phone_number"
+                                        :value="phoneNumber"
+                                    >
+
+                                    <DialogHeader class="space-y-3">
+                                        <DialogTitle>Confirm your password</DialogTitle>
+                                        <DialogDescription>
+                                            Your phone number is also your login ID. Please enter
+                                            your password to confirm this change.
+                                        </DialogDescription>
+                                    </DialogHeader>
+
+                                    <div class="grid gap-2">
+                                        <Label
+                                            for="current_password"
+                                            class="sr-only"
+                                        >Password</Label>
+                                        <Input
+                                            id="current_password"
+                                            ref="passwordInput"
+                                            type="password"
+                                            name="current_password"
+                                            placeholder="Password"
+                                        />
+                                        <InputError :message="dialogErrors.current_password" />
+                                    </div>
+
+                                    <DialogFooter class="gap-2">
+                                        <DialogClose as-child>
+                                            <Button
+                                                variant="secondary"
+                                                @click="
+                                                    () => {
+                                                        clearErrors();
+                                                        reset();
+                                                        resetPhoneNumber();
+                                                    }
+                                                "
+                                            >
+                                                Cancel
+                                            </Button>
+                                        </DialogClose>
+
+                                        <Button
+                                            type="submit"
+                                            :disabled="processing"
+                                        >
+                                            Confirm change
+                                        </Button>
+                                    </DialogFooter>
+                                </Form>
+                            </DialogContent>
+                        </Dialog>
+                    </div>
                 </div>
 
                 <Separator />
