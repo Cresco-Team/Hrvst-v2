@@ -14,8 +14,8 @@ class ChangePinRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'pin' => ['required', 'string', 'digits:11', 'confirmed'],
-            'pin_confirmation' => ['required', 'string', 'digits:11'],
+            'pin' => ['required', 'string', 'digits:6', 'confirmed'],
+            'pin_confirmation' => ['required', 'string', 'digits:6'],
         ];
     }
 
@@ -23,10 +23,10 @@ class ChangePinRequest extends FormRequest
     {
         return [
             'pin.required' => 'A new PIN is required.',
-            'pin.digits' => 'PIN must be exactly 11 digits.',
+            'pin.digits' => 'PIN must be exactly 6 digits.',
             'pin.confirmed' => 'PIN confirmation does not match.',
             'pin_confirmation.required' => 'Please confirm your new PIN.',
-            'pin_confirmation.digits' => 'PIN confirmation must be exactly 11 digits.',
+            'pin_confirmation.digits' => 'PIN confirmation must be exactly 6 digits.',
         ];
     }
 }
