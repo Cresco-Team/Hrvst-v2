@@ -104,7 +104,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                         <TriangleAlert class="size-4 text-destructive" />
                         <h2 class="text-sm font-semibold">Needs Action</h2>
                         <span class="text-xs text-muted-foreground">
-                            {{ needsAction.length }} deliver{{ needsAction.length === 1 ? 'y has' : 'ies have' }} arrived
+                            {{ needsAction.length }} schedule{{ needsAction.length === 1 ? '' : 's' }} completed
                         </span>
                     </div>
 
