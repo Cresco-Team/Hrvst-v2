@@ -95,7 +95,7 @@ function handlePageChange(page: number) {
         <div class="flex h-full flex-col gap-6 p-4 lg:p-6">
             <Heading
                 title="Vegetables"
-                description="Browse all available vegetables and varieties."
+                description="Browse all available vegetables."
             />
 
             <div class="flex flex-wrap gap-3">
@@ -105,7 +105,7 @@ function handlePageChange(page: number) {
                     </InputGroupAddon>
                     <InputGroupInput
                         v-model="searchQuery"
-                        placeholder="Search vegetables or varieties..."
+                        placeholder="Search vegetables..."
                         @input="handleSearch"
                     />
                     <InputGroupAddon align="inline-end">
