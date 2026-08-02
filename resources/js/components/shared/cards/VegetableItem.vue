@@ -22,7 +22,7 @@ defineProps<Props>()
     >
         <Item
             variant="outline"
-            class="transition-all hover:shadow-sm bg-primary/10 hover:bg-primary/5 hover:border-l-4 hover:border-l-primary"
+            class="transition-all hover:shadow-sm bg-primary/10 hover:bg-card hover:border-l-4 hover:border-l-primary"
         >
             <ItemMedia variant="image">
                 <Avatar>
