@@ -19,9 +19,6 @@ const bandConfig = computed(() => {
     }
 })
 
-// Raw numbers behind the pre-baked `explanation` sentence, shown on hover.
-// Falls back to `explanation` itself when there's no computation (e.g.
-// "Not enough data yet" — nothing to break down).
 const expectedBalanceTooltip = computed(() => {
     const c = props.analytics.expected_balance.computation
     if (!c) return props.analytics.expected_balance.explanation
