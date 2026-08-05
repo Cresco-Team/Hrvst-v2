@@ -3,6 +3,7 @@ import { ChevronDown, ChevronUp, Info, OctagonX, TriangleAlert } from 'lucide-vu
 import { computed, ref } from 'vue'
 import { Button } from '@/components/ui/button'
 import type { RecommendationSeverity, VarietyRecommendation } from '@/types/resources/product'
+import { Item, ItemContent, ItemDescription, ItemGroup, ItemMedia, ItemTitle } from '@/components/ui/item';
 
 const props = defineProps<{
   recommendations: VarietyRecommendation[]
@@ -65,22 +66,25 @@ function severityConfig(severity: RecommendationSeverity): SeverityConfig {
             </span>
         </div>
 
-        <div class="flex flex-col gap-2">
-            <div
+        <ItemGroup class="flex flex-col gap-2">
+            <Item
                 v-for="rec in visible"
                 :key="rec.type"
                 :class="['flex items-start gap-3 rounded-lg border p-3 transition-all', severityConfig(rec.severity).containerClass]"
             >
-                <component
-                    :is="severityConfig(rec.severity).icon"
-                    :class="['size-4 mt-0.5 shrink-0', severityConfig(rec.severity).iconClass]"
-                />
-                <div class="min-w-0">
-                    <p class="text-sm font-semibold leading-snug">{{ rec.title }}</p>
-                    <p class="text-xs text-muted-foreground mt-0.5 leading-relaxed">{{ rec.body }}</p>
-                </div>
-            </div>
-        </div>
+                <ItemMedia variant="icon">
+                    <component
+                        :is="severityConfig(rec.severity).icon"
+                        :class="['size-4 shrink-0', severityConfig(rec.severity).iconClass]"
+                    />
+                </ItemMedia>
+
+                <ItemContent>
+                    <ItemTitle>{{ rec.title }}</ItemTitle>
+                    <ItemDescription class="text-xs">{{ rec.body }}</ItemDescription>
+                </ItemContent>
+            </Item>
+        </ItemGroup>
 
         <Button
             v-if="hasMore"
