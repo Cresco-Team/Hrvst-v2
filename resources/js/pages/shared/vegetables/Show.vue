@@ -98,12 +98,6 @@ function toggleWatch(): void {
 }
 
 // ─── Market volume pagination ─────────────────────────────────────────────────
-// Mirrors VegetableMarketCalendar's navigateMonth() pattern: a partial
-// reload through the same show() route, only requesting the 'vegetable'
-// prop back. year/month are re-sent on every call so paging the volume
-// chart doesn't silently reset whichever calendar month the user has
-// scrolled to (RendersVegetableShow defaults year/month to "now" when
-// absent from the request).
 
 function handleActivityNavigate(offset: number): void {
     router.visit(showRoute().url, {
@@ -162,19 +156,30 @@ function handleDaySelect(dateStr: string): void {
             <Deferred data="vegetable">
                 <template #fallback>
                     <div class="flex flex-col gap-6">
-                        <Skeleton class="h-8 w-64" />
-                        <div class="grid grid-cols-2 gap-4 sm:grid-cols-4">
+
+                        <!-- Cards -->
+                        <div class="grid grid-cols-2 gap-3 sm:grid-cols-3">
                             <Skeleton
-                                v-for="i in 4"
+                                v-for="i in 3"
                                 :key="i"
-                                class="h-24 rounded-xl"
+                                class="h-26 rounded-xl"
                             />
                         </div>
-                        <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
-                            <Skeleton class="h-72 rounded-xl" />
-                            <Skeleton class="h-72 rounded-xl" />
+
+                        <!-- CSV Button -->
+                        <Skeleton class="h-8 w-30" />
+                        
+                        <!-- Recommendations -->
+                        <div class="flex flex-col gap-2">
+                            <Skeleton class="h-3 w-33" />
+                            <div class="flex flex-col gap-2">
+                                <Skeleton 
+                                    v-for="i in 2" 
+                                    :key="i"
+                                    class="h-17 rounded-xl" />
+                            </div>
                         </div>
-                        <Skeleton class="h-72 w-full rounded-xl" />
+                            <Skeleton class="h-72 w-full rounded-xl" />
                     </div>
                 </template>
 
