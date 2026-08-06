@@ -2,16 +2,14 @@
 
 namespace App\Http\Controllers\Shared;
 
-use App\Data\Vegetable\VegetableIndexData;
 use App\Http\Controllers\Concerns\RendersVegetableShow;
 use App\Http\Controllers\Controller;
-use App\Models\Vegetable\Category;
 use App\Models\Vegetable\Vegetable;
 use App\Services\Vegetable\VegetableDetailService;
 use App\Services\Vegetable\VegetableService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
 use Inertia\Response;
 
 class VegetableController extends Controller
@@ -23,40 +21,19 @@ class VegetableController extends Controller
         private VegetableDetailService $vegetableDetailService,
     ) {}
 
-    public function category(): Response
+    public function index(): RedirectResponse
     {
-        $categories = Category::query()
-            ->orderBy('name')
-            ->get(['id', 'name', 'slug']);
+        $vegetable = Vegetable::query()
+            ->orderByRaw('variety_name IS NULL, variety_name')
+            ->orderBy('vegetable_name')
+            ->firstOrFail();
 
-        return Inertia::render('shared/vegetables/Categories', [
-            'categories' => $categories,
-        ]);
+        return redirect()->route('vegetables.show', $vegetable);
     }
 
-    public function index(Request $request): Response|RedirectResponse
+    public function options(): JsonResponse
     {
-        if (! $request->filled('category')) {
-            return redirect()->route('categories');
-        }
-
-        $slug = $request->query('category');
-        $category = Category::where('slug', $slug)->first();
-
-        return Inertia::render('shared/vegetables/Index', [
-            'vegetables' => Inertia::defer(function () use ($request, $category) {
-                return VegetableIndexData::collect(
-                    $this->vegetableService->paginated(
-                        search: $request->query('search', null),
-                        categoryId: $category->id,
-                    )->paginate(12)->withQueryString(),
-                );
-            }),
-            'category' => $category,
-            'filters' => [
-                'search' => $request->query('search', null),
-            ],
-        ]);
+        return response()->json($this->vegetableService->options());
     }
 
     public function show(Request $request, Vegetable $vegetable): Response
