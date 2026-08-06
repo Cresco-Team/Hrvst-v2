@@ -12,7 +12,7 @@ import UserTeaser from '@/components/features/admin/charts/UserTeaser.vue'
 import PhoneNumberField from '@/components/features/admin/PhoneNumberField.vue'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
-import { Card, CardContent } from '@/components/ui/card'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import {
     Item,
@@ -20,7 +20,6 @@ import {
     ItemContent,
     ItemDescription,
     ItemGroup,
-    ItemHeader,
     ItemMedia,
     ItemTitle,
 } from '@/components/ui/item'
@@ -108,38 +107,43 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => [
                     class="grid grid-cols-12 gap-5"
                 >
                     <!-- Sidebar -->
-                    <Item class="sticky top-6 col-span-12 lg:col-span-3">
-                        <ItemHeader>
-                            <Avatar class="size-16">
+                    <div class="md:sticky h-fit top-6 col-span-12 lg:col-span-3">
+
+                        <Card class="h-fit pt-0 overflow-hidden">
+
+                            <!-- Image -->
+                            <div class="h-15 w-full bg-primary/10 mb-6" />
+                            <Avatar class="absolute top-5 right-5 size-20 border-4 border-background">
                                 <AvatarImage
                                     v-if="dealer.user?.avatar_url"
                                     :src="dealer.user?.avatar_url"
                                     :alt="dealer.user.name"
                                 />
 
-                                <AvatarFallback class="bg-primary/10 text0base font-semibold text-primary">
+                                <AvatarFallback class="bg-primary text-base font-semibold text-background">
                                     {{ getInitials(dealer.user?.name) }}
                                 </AvatarFallback>
                             </Avatar>
-                        </ItemHeader>
 
-                        <ItemContent>
-                            <ItemTitle>{{ dealer.user?.name }}</ItemTitle>
-                            <ItemDescription>
-                                <PhoneNumberField
-                                    v-if="dealer.user"
-                                    :user-id="dealer.user.id"
-                                    :phone-number="dealer.user.phone_number"
-                                />
-                                <div
-                                    v-if="dealer.user?.email"
-                                    class="flex items-center gap-2"
-                                >
-                                    <Mail class="size-4 shrink-0" /><span class="truncate">{{ dealer.user?.email }}</span>
-                                </div>
-                            </ItemDescription>
-                        </ItemContent>
-                    </Item>
+                            <!-- Personal Info -->
+                            <CardHeader>
+                                <CardTitle class="uppercase">{{ dealer.user?.name }}</CardTitle>
+                                <CardDescription>
+                                    <PhoneNumberField
+                                        v-if="dealer.user"
+                                        :user-id="dealer.user.id"
+                                        :phone-number="dealer.user.phone_number"
+                                    />
+                                    <div
+                                        v-if="dealer.user?.email"
+                                        class="flex items-center gap-2 text-xs"
+                                    >
+                                        <Mail class="size-4 shrink-0" /><span class="truncate">{{ dealer.user?.email }}</span>
+                                    </div>
+                                </CardDescription>
+                            </CardHeader>
+                        </Card>
+                    </div>
 
                     <!-- Main -->
                     <div class="col-span-12 space-y-4 lg:col-span-9">
