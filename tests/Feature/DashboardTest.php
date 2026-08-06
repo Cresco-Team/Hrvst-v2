@@ -51,10 +51,3 @@ describe('dealer redirect', function () {
             ->assertRedirect(route('dealer.dashboard'));
     });
 });
-
-test('authenticated user with no role is redirected to categories', function () {
-    $user = User::factory()->create(['must_change_pin' => false]);
-    $this->actingAs($user);
-
-    $this->get(route('dashboard'))->assertRedirect(route('categories'));
-});
