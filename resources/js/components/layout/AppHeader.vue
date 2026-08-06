@@ -39,12 +39,13 @@ import {
 import { useCurrentUrl } from '@/composables/useCurrentUrl'
 import { getInitials } from '@/composables/useInitials'
 import { useOnboardingGuide } from '@/composables/useOnboardingGuide'
-import { categories, dashboard } from '@/routes'
+import { dashboard } from '@/routes'
 import admin from '@/routes/admin'
 import dealer from '@/routes/dealer'
 import { archived as dealerDemandsArchived } from '@/routes/dealer/demands'
 import farmer from '@/routes/farmer'
 import { archived as farmerSuppliesArchived } from '@/routes/farmer/supplies'
+import vegetables from '@/routes/vegetables'
 import type { BreadcrumbItem, NavItem } from '@/types'
 import AppTooltip from '../templates/AppTooltip.vue'
 
@@ -127,7 +128,7 @@ const mainNavItems = computed<AppNavItem[]>(() => {
         items.push(
             {
                 title: 'Vegetables',
-                href: categories(),
+                href: vegetables.index(),
                 icon: Vegan,
                 activeComponentMatch: '/vegetables/',
             },
@@ -143,7 +144,7 @@ const mainNavItems = computed<AppNavItem[]>(() => {
         items.push(
             {
                 title: 'Vegetables',
-                href: categories(),
+                href: vegetables.index(),
                 icon: Vegan,
                 activeComponentMatch: '/vegetables/',
             },
