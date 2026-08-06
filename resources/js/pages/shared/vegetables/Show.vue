@@ -9,12 +9,13 @@ import VegetableMonthlyChart from '@/components/shared/charts/VegetableMonthlyCh
 import VegetableRecommendations from '@/components/shared/charts/VegetableRecommendations.vue'
 import VegetableDayDetailSheet from '@/components/shared/VegetableDayDetailSheet.vue'
 import VegetableMarketCalendar from '@/components/shared/VegetableMarketCalendar.vue'
+import VegetableSwitcher from '@/components/shared/VegetableSwitcher.vue'
 import AppTooltip from '@/components/templates/AppTooltip.vue'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { useCapitalize } from '@/lib/utils'
-import { categories, dashboard } from '@/routes'
+import { dashboard } from '@/routes'
 import adminRoutes, { dashboard as adminDashboard } from '@/routes/admin'
 import { show as billingShow } from '@/routes/billing'
 import vegetables, { watch as watchRoute, unwatch as unwatchRoute } from '@/routes/vegetables'
@@ -68,13 +69,6 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => {
             title: useCapitalize(usePage().props.auth.user.roles[0]),
             href: dashboard().url,
         },
-        { title: 'Vegetables', href: categories().url },
-        {
-            title: props.meta.categoryName,
-            href: vegetables.index({
-                query: { category: props.meta.categorySlug },
-            }).url,
-        },
         {
             title: props.meta.vegetableLabel,
             href: vegetables.show(props.meta.vegetableId).url,
@@ -83,9 +77,6 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => {
 })
 
 // ─── Watch toggle ─────────────────────────────────────────────────────────────
-// Free for every farmer/dealer — no subscription gate here (see
-// VegetableWatchController::store). The gate lives on the *alert detail*
-// (NotificationController::index), not on the ability to watch.
 
 const watchForm = useForm({})
 
@@ -148,38 +139,34 @@ function handleDaySelect(dateStr: string): void {
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex flex-col gap-6 p-4 lg:p-6">
-            <Heading
-                :title="meta.vegetableLabel"
-                :description="meta.categoryName"
-            />
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                <Heading
+                    :title="meta.vegetableLabel"
+                    :description="meta.categoryName"
+                />
+
+                <VegetableSwitcher
+                    :current-vegetable-id="meta.vegetableId"
+                    :current-label="meta.vegetableLabel"
+                />
+            </div>
 
             <Deferred data="vegetable">
                 <template #fallback>
                     <div class="flex flex-col gap-6">
-
-                        <!-- Cards -->
-                        <div class="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                        <Skeleton class="h-8 w-64" />
+                        <div class="grid grid-cols-2 gap-4 sm:grid-cols-4">
                             <Skeleton
-                                v-for="i in 3"
+                                v-for="i in 4"
                                 :key="i"
-                                class="h-26 rounded-xl"
+                                class="h-24 rounded-xl"
                             />
                         </div>
-
-                        <!-- CSV Button -->
-                        <Skeleton class="h-8 w-30" />
-                        
-                        <!-- Recommendations -->
-                        <div class="flex flex-col gap-2">
-                            <Skeleton class="h-3 w-33" />
-                            <div class="flex flex-col gap-2">
-                                <Skeleton 
-                                    v-for="i in 2" 
-                                    :key="i"
-                                    class="h-17 rounded-xl" />
-                            </div>
+                        <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
+                            <Skeleton class="h-72 rounded-xl" />
+                            <Skeleton class="h-72 rounded-xl" />
                         </div>
-                            <Skeleton class="h-72 w-full rounded-xl" />
+                        <Skeleton class="h-72 w-full rounded-xl" />
                     </div>
                 </template>
 
