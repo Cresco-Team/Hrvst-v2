@@ -5,7 +5,8 @@ use App\Http\Controllers\Shared\VegetableWatchController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['can:not-admin'])->group(function () {
-    Route::get('/categories', [VegetableController::class, 'category'])->name('categories');
+
+    Route::get('/vegetables-options', [VegetableController::class, 'options'])->name('vegetables.options');
 
     Route::prefix('vegetables')->name('vegetables.')->group(function () {
         Route::get('/', [VegetableController::class, 'index'])->name('index');
