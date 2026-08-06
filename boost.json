@@ -7,6 +7,7 @@
         "spatie/laravel-medialibrary"
     ],
     "skills": [
+        "infer-conventions",
         "ai-sdk-development",
         "fortify-development",
         "laravel-best-practices",
