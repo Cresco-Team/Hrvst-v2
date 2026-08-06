@@ -2,8 +2,8 @@
 import { ChevronDown, ChevronUp, Info, OctagonX, TriangleAlert } from 'lucide-vue-next'
 import { computed, ref } from 'vue'
 import { Button } from '@/components/ui/button'
-import type { RecommendationSeverity, VarietyRecommendation } from '@/types/resources/product'
 import { Item, ItemContent, ItemDescription, ItemGroup, ItemMedia, ItemTitle } from '@/components/ui/item';
+import type { RecommendationSeverity, VarietyRecommendation } from '@/types/resources/product'
 
 const props = defineProps<{
   recommendations: VarietyRecommendation[]

@@ -165,9 +165,9 @@ const passwordInput = useTemplateRef('passwordInput')
                             <Label for="name">Name</Label>
                             <Input
                                 id="name"
+                                v-model="name"
                                 name="name"
                                 type="text"
-                                v-model="name"
                                 autocomplete="name"
                                 placeholder="Your full name"
                                 required
@@ -182,9 +182,9 @@ const passwordInput = useTemplateRef('passwordInput')
                             </Label>
                             <Input
                                 id="email"
+                                v-model="email"
                                 name="email"
                                 type="email"
-                                v-model="email"
                                 autocomplete="email"
                                 placeholder="your@email.com"
                             />
@@ -195,9 +195,9 @@ const passwordInput = useTemplateRef('passwordInput')
                             <Label for="phone_number">Phone number</Label>
                             <Input
                                 id="phone_number"
+                                v-model="phoneNumber"
                                 name="phone_number"
                                 type="tel"
-                                v-model="phoneNumber"
                                 autocomplete="tel"
                                 placeholder="09171234567"
                             />
@@ -234,8 +234,8 @@ const passwordInput = useTemplateRef('passwordInput')
                             <Label for="name">Name</Label>
                             <Input
                                 id="name"
-                                type="text"
                                 v-model="name"
+                                type="text"
                                 autocomplete="name"
                                 placeholder="Your full name"
                             />
@@ -249,8 +249,8 @@ const passwordInput = useTemplateRef('passwordInput')
                             </Label>
                             <Input
                                 id="email"
-                                type="email"
                                 v-model="email"
+                                type="email"
                                 autocomplete="email"
                                 placeholder="your@email.com"
                             />
@@ -261,8 +261,8 @@ const passwordInput = useTemplateRef('passwordInput')
                             <Label for="phone_number">Phone number</Label>
                             <Input
                                 id="phone_number"
-                                type="tel"
                                 v-model="phoneNumber"
+                                type="tel"
                                 autocomplete="tel"
                                 placeholder="09171234567"
                             />

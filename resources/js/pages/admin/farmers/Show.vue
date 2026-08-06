@@ -115,7 +115,7 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => [
                                     v-if="farmer.user?.avatar_url"
                                     :src="farmer.user?.avatar_url"
                                     :alt="farmer.user.name"
-                                    />
+                                />
 
                                 <AvatarFallback class="bg-primary text-base font-semibold text-background">
                                     {{ getInitials(farmer.user?.name) }}

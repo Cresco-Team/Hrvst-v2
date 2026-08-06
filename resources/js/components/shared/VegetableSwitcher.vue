@@ -2,6 +2,7 @@
 import { router, usePage } from '@inertiajs/vue3'
 import { Check, ChevronsUpDown, Search } from 'lucide-vue-next'
 import { computed, ref } from 'vue'
+import { Button } from '@/components/ui/button'
 import {
     Combobox,
     ComboboxAnchor,
@@ -14,7 +15,6 @@ import {
     ComboboxTrigger,
     ComboboxViewport,
 } from '@/components/ui/combobox'
-import { Button } from '@/components/ui/button'
 import adminRoutes from '@/routes/admin'
 import vegetables, { options } from '@/routes/vegetables'
 
