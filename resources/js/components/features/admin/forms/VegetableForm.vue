@@ -7,14 +7,20 @@ import FileUpload from '@/components/forms/FileUpload.vue'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select'
 import { store, update } from '@/routes/admin/vegetables'
-import type { VegetableIndexData } from '@/types/resources/product'
+import type { CategoryOption, VegetableIndexData } from '@/types/resources/product'
 
 const props = defineProps<{
     open: boolean
     vegetable: VegetableIndexData | null
-    categoryId: number
-    categoryName: string
+    categories: CategoryOption[]
 }>()
 
 const emit = defineEmits<{
@@ -36,7 +42,9 @@ watch(
     () => props.open,
     (isOpen) => {
         if (!isOpen) return
-        form.category_id = String(props.categoryId)
+        form.category_id = props.vegetable?.category?.id
+            ? String(props.vegetable.category.id)
+            : ''
         form.vegetable_name = props.vegetable?.vegetable_name ?? ''
         form.variety_name = props.vegetable?.variety_name ?? ''
         form.local_name = props.vegetable?.local_name ?? ''
@@ -77,6 +85,43 @@ function handleSubmit(): void {
 
         <template #default>
             <div class="flex flex-col gap-4">
+                <div class="flex flex-col gap-2">
+                    <Label for="veg-category">
+                        Category
+                        <Badge
+                            variant="destructive"
+                            class="text-xs font-normal"
+                        >Required</Badge>
+                    </Label>
+                    <Select
+                        :model-value="form.category_id"
+                        @update:model-value="(v) => (form.category_id = v == null ? '' : String(v))"
+                    >
+                        <SelectTrigger
+                            id="veg-category"
+                            class="w-full"
+                            :class="{ 'border-destructive': form.errors.category_id }"
+                        >
+                            <SelectValue placeholder="Select category" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem
+                                v-for="c in categories"
+                                :key="c.id"
+                                :value="String(c.id)"
+                            >
+                                {{ c.name }}
+                            </SelectItem>
+                        </SelectContent>
+                    </Select>
+                    <p
+                        v-if="form.errors.category_id"
+                        class="text-xs text-destructive"
+                    >
+                        {{ form.errors.category_id }}
+                    </p>
+                </div>
+
                 <div class="flex flex-col gap-2">
                     <Label for="veg-name">
                         Vegetable Name
