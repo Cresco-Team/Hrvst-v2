@@ -76,15 +76,22 @@ const searchQuery = ref(props.filters?.search ?? '')
 function switchView(newView: 'list' | 'map') {
     if (newView === currentView.value) return
 
-    localStorage.setItem('farmers_view', newView)
-
     router.visit(admin.farmers.index().url, {
         data: { view: newView },
         preserveState: true,
         preserveScroll: true,
         only: newView === 'list' ? ['farmers', 'summary'] : [],
-        onSuccess: () => {
-            currentView.value = newView
+        onSuccess: (page) => {
+            const landedOnFarmersMap =
+                page.component === 'admin/farmers/Index' && page.props.view === newView
+
+            if (landedOnFarmersMap) {
+                currentView.value = newView
+                localStorage.setItem('farmers_view', newView)
+            } else {
+                currentView.value = 'list'
+                localStorage.setItem('farmers_view', 'list')
+            }
         },
     })
 }
@@ -202,7 +209,7 @@ watch(
 )
 
 const storedView = localStorage.getItem('farmers_view') as 'list' | 'map' | null
-if (storedView && storedView !== props.view) {
+if (storedView === 'map' && props.view !== 'map') {
     switchView(storedView)
 }
 </script>
