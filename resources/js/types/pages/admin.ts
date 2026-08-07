@@ -2,7 +2,7 @@
 // Each interface maps to the props object in Inertia::render('admin/...')
 
 import type { MunicipalityOption, SupplyOption } from '../resources/marketplace'
-import type { VegetableSummary } from '../resources/product'
+import type { CategoryOption, VegetableSummary } from '../resources/product'
 import type {
     AdminDealerSummary,
     AdminFarmerSummary,
@@ -37,18 +37,6 @@ export interface AdminDashboardProps {
     registrationTrends: RegistrationTrendPoint[]
 }
 
-// ─── admin/vegetables/Categories ─────────────────────────────────────────────
-
-export interface CategoryStat {
-    id: number
-    name: string
-    slug: string
-}
-
-export interface AdminCategoriesProps {
-    categories: CategoryStat[]
-}
-
 // ─── admin/vegetables/Index ───────────────────────────────────────────────────
 
 export interface AdminVegetablesFilters {
@@ -57,7 +45,7 @@ export interface AdminVegetablesFilters {
 }
 
 export interface AdminVegetablesProps {
-    category: { id: number; name: string; slug: string }
+    categories: CategoryOption[]
     summary: VegetableSummary
     filters: AdminVegetablesFilters
     vegetables: Paginated<App.Data.Vegetable.VegetableIndexData>
