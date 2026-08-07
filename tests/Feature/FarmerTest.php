@@ -78,12 +78,15 @@ describe('admin farmer index', function () {
     });
 
     it('switches to map view when query param is set', function () {
-        actingAs(createAdminUser())
+            $admin = createAdminUser();
+            subscribeAdminAnalytics($admin);
+
+        actingAs($admin)
             ->get(route('admin.farmers.index', ['view' => 'map']))
             ->assertOk()
             ->assertInertia(fn (Assert $page) => $page
                 ->where('view', 'map')
-                ->where('farmers', null) // deferred only for list view
+                ->where('farmers', null)
             );
     });
 
@@ -184,15 +187,20 @@ describe('admin farmer destroy', function () {
 describe('admin farmer markers api', function () {
     it('returns a json response with markers and total keys', function () {
         createFarmerUser();
+        $admin = createAdminUser();
+        subscribeAdminAnalytics($admin);
 
-        actingAs(createAdminUser())
+        actingAs($admin)
             ->getJson(route('admin.farmers.api.markers'))
             ->assertOk()
             ->assertJsonStructure(['markers', 'total']);
     });
 
     it('returns empty markers when no farmers exist', function () {
-        actingAs(createAdminUser())
+        $admin = createAdminUser();
+        subscribeAdminAnalytics($admin);
+
+        actingAs($admin)
             ->getJson(route('admin.farmers.api.markers'))
             ->assertOk()
             ->assertJsonPath('total', 0)
@@ -203,7 +211,10 @@ describe('admin farmer markers api', function () {
         createFarmerUser();
         createFarmerUser();
 
-        actingAs(createAdminUser())
+        $admin = createAdminUser();
+        subscribeAdminAnalytics($admin);
+
+        actingAs($admin)
             ->getJson(route('admin.farmers.api.markers'))
             ->assertOk()
             ->assertJsonPath('total', 2);
@@ -212,7 +223,10 @@ describe('admin farmer markers api', function () {
     it('each marker contains the required structure', function () {
         createFarmerUser();
 
-        actingAs(createAdminUser())
+        $admin = createAdminUser();
+        subscribeAdminAnalytics($admin);
+
+        actingAs($admin)
             ->getJson(route('admin.farmers.api.markers'))
             ->assertOk()
             ->assertJsonStructure([
@@ -235,7 +249,10 @@ describe('admin farmer markers api', function () {
         createFarmerUser($barangayA); // 2 in A
         createFarmerUser($barangayB); // 1 in B — should be excluded
 
-        actingAs(createAdminUser())
+        $admin = createAdminUser();
+        subscribeAdminAnalytics($admin);
+
+        actingAs($admin)
             ->getJson(route('admin.farmers.api.markers', [
                 'municipality_id' => $barangayA->municipality_id,
             ]))
@@ -255,20 +272,29 @@ describe('admin farmer markers api', function () {
 
         createFarmerUser();
 
-        actingAs(createAdminUser())
+        $admin = createAdminUser();
+        subscribeAdminAnalytics($admin);
+
+        actingAs($admin)
             ->getJson(route('admin.farmers.api.markers', ['vegetable_id' => $vegetable->id]))
             ->assertOk()
             ->assertJsonPath('total', 1);
     });
 
     it('rejects an invalid municipality_id with a validation error', function () {
-        actingAs(createAdminUser())
+        $admin = createAdminUser();
+        subscribeAdminAnalytics($admin);
+
+        actingAs($admin)
             ->getJson(route('admin.farmers.api.markers', ['municipality_id' => 999999]))
             ->assertUnprocessable();
     });
 
     it('rejects an invalid vegetable_id with a validation error', function () {
-        actingAs(createAdminUser())
+        $admin = createAdminUser();
+        subscribeAdminAnalytics($admin);
+
+        actingAs($admin)
             ->getJson(route('admin.farmers.api.markers', ['vegetable_id' => 999999]))
             ->assertUnprocessable();
     });
@@ -405,8 +431,7 @@ describe('admin farmer map subscription gating', function () {
     it('does not loop back to billing when an unsubscribed admin returns to the farmer list', function () {
         $admin = createAdminUser();
 
-        $page = visit('/admin/farmers')
-            ->actingAs($admin)
+        $page = $this->actingAs($admin)->visit('/admin/farmers')
             ->click('Map')
             ->assertUrlIs('/billing')
             ->assertNoJavaScriptErrors();
