@@ -1,7 +1,5 @@
 <?php
 
-use App\Models\User;
-
 use function Pest\Laravel\actingAs;
 
 test('guests are redirected to the login page', function () {
