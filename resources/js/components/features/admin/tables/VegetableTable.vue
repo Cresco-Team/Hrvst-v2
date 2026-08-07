@@ -5,6 +5,7 @@ import {
 } from '@tanstack/vue-table'
 import DataTable from '@/components/shared/tables/DataTable.vue'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import type { Paginated } from '@/types'
@@ -30,6 +31,12 @@ const columns: ColumnDef<VegetableIndexData>[] = [
         accessorFn: (row) => row.display_name ?? '',
         enableSorting: true 
     },
+    {
+        id: 'category',
+        header: 'Category',
+        accessorFn: (row) => row.category?.name ?? '',
+        enableSorting: true,
+    },
     { 
         id: 'volume', 
         header: 'Supply & Demand', 
@@ -54,6 +61,10 @@ const columns: ColumnDef<VegetableIndexData>[] = [
         @page-change="$emit('page-change', $event)"
         @search="$emit('search', $event)"
     >
+        <template #toolbar-actions>
+            <slot name="toolbar-actions" />
+        </template>
+
         <template #cell-vegetable="{ row }">
             <div class="flex items-center gap-2">
                 <Avatar class="size-8 shrink-0 rounded-md">
@@ -77,6 +88,19 @@ const columns: ColumnDef<VegetableIndexData>[] = [
                     </span>
                 </div>
             </div>
+        </template>
+
+        <template #cell-category="{ row }">
+            <Badge
+                v-if="row.category"
+                variant="outline"
+            >
+                {{ row.category.name }}
+            </Badge>
+            <span
+                v-else
+                class="text-xs text-muted-foreground"
+            >&mdash;</span>
         </template>
 
         <template #cell-volume="{ row }">
