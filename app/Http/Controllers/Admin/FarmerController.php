@@ -23,11 +23,18 @@ class FarmerController extends Controller
         private FarmerMapService $farmerMapService,
     ) {}
 
-    public function index(Request $request): Response
+    public function index(Request $request): Response|RedirectResponse
     {
         Gate::authorize('viewAny', FarmerProfile::class);
 
         $view = $request->query('view', 'list');
+
+        if ($view === 'map' && ! $this->hasMapAccess($request)) {
+            return redirect()->route('billing.show')->with('flash', [
+                'type' => 'warning',
+                'message' => 'The farmer map requires an active Platform Analytics License subscription.',
+            ]);
+        }
 
         return Inertia::render('admin/farmers/Index', [
             'view' => $view,
@@ -55,6 +62,8 @@ class FarmerController extends Controller
     public function markers(Request $request): JsonResponse
     {
         Gate::authorize('viewAny', FarmerProfile::class);
+
+        abort_unless($this->hasMapAccess($request), 403, 'The farmer map requires an active Platform Analytics License subscription.');
 
         $validated = $request->validate([
             'municipality_id' => 'nullable|exists:municipalities,id',
@@ -106,5 +115,10 @@ class FarmerController extends Controller
 
         return redirect()->route('admin.farmers.index')
             ->with('flash', ['type' => 'success', 'message' => 'Farmer deleted successfully.']);
+    }
+
+    private function hasMapAccess(Request $request): bool
+    {
+        return Subscription::hasAccess($request->user(), SubscriptionFeature::AdminAnalytics);
     }
 }
