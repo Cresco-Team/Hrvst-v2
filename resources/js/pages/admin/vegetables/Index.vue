@@ -7,6 +7,13 @@ import VegetableForm from '@/components/features/admin/forms/VegetableForm.vue'
 import VegetableTable from '@/components/features/admin/tables/VegetableTable.vue'
 import Heading from '@/components/Heading.vue'
 import { Button } from '@/components/ui/button'
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
 import AppLayout from '@/layouts/AppLayout.vue'
 import admin, { dashboard } from '@/routes/admin'
@@ -15,15 +22,13 @@ import type { AdminVegetablesProps, BreadcrumbItem, VegetableIndexData } from '@
 
 const props = defineProps<AdminVegetablesProps>()
 
-const breadcrumbs = computed<BreadcrumbItem[]>(() => [
+const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Admin', href: dashboard().url },
-    { title: 'Vegetables', href: admin.categories.index().url },
-    ...(props.category
-        ? [{ title: props.category.name, href: index({ query: { category: props.category.slug } }).url }]
-        : [{ title: 'All Varieties', href: index().url }]),
-])
+    { title: 'Vegetables', href: index().url },
+]
 
 const searchQuery = ref(props.filters?.search ?? '')
+const categoryFilter = ref(props.filters?.category_id ? String(props.filters.category_id) : 'all')
 
 const formOpen = ref(false)
 const editTarget = ref<VegetableIndexData | null>(null)
@@ -56,9 +61,28 @@ function handleDelete(): void {
     })
 }
 
+function visit(overrides: { search?: string; category_id?: string } = {}) {
+    const search = overrides.search ?? searchQuery.value
+    const categoryId = overrides.category_id ?? categoryFilter.value
+
+    router.visit(index().url, {
+        data: {
+            search: search || undefined,
+            category_id: categoryId !== 'all' ? categoryId : undefined,
+        },
+        preserveState: true,
+        preserveScroll: true,
+        only: ['vegetables', 'filters'],
+    })
+}
+
 function handlePageChange(page: number) {
-    router.visit(admin.vegetables.index().url, {
-        data: { page, search: searchQuery.value || undefined },
+    router.visit(index().url, {
+        data: {
+            page,
+            search: searchQuery.value || undefined,
+            category_id: categoryFilter.value !== 'all' ? categoryFilter.value : undefined,
+        },
         preserveState: true,
         preserveScroll: true,
     })
@@ -66,12 +90,13 @@ function handlePageChange(page: number) {
 
 function handleSearch(query: string): void {
     searchQuery.value = query
-    router.visit(index().url, {
-        data: { search: query || undefined, category: props.category?.slug ?? undefined },
-        preserveState: true,
-        preserveScroll: true,
-        only: ['vegetables', 'filters'],
-    })
+    visit({ search: query })
+}
+
+function handleCategoryFilterChange(value: unknown): void {
+    const next = value == null ? 'all' : String(value)
+    categoryFilter.value = next
+    visit({ category_id: next })
 }
 </script>
 
@@ -83,9 +108,7 @@ function handleSearch(query: string): void {
             <div class="flex items-end justify-between">
                 <Heading
                     title="Vegetables"
-                    :description="category
-                        ? `Vegetables and varieties for ${category.name}`
-                        : 'Manage all vegetable entries.'"
+                    description="Manage all vegetable entries across every category."
                 />
                 <Button @click="openCreate">
                     <Plus />
@@ -118,7 +141,28 @@ function handleSearch(query: string): void {
                     @open-vegetable-details="(row) => router.visit(admin.vegetables.show({ vegetable: row.id }).url)"
                     @page-change="handlePageChange"
                     @search="handleSearch"
-                />
+                >
+                    <template #toolbar-actions>
+                        <Select
+                            :model-value="categoryFilter"
+                            @update:model-value="handleCategoryFilterChange"
+                        >
+                            <SelectTrigger size="sm" class="w-44">
+                                <SelectValue placeholder="All categories" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">All categories</SelectItem>
+                                <SelectItem
+                                    v-for="c in categories"
+                                    :key="c.id"
+                                    :value="String(c.id)"
+                                >
+                                    {{ c.name }}
+                                </SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </template>
+                </VegetableTable>
             </Deferred>
         </div>
     </AppLayout>
@@ -126,8 +170,7 @@ function handleSearch(query: string): void {
     <VegetableForm
         :open="formOpen"
         :vegetable="editTarget"
-        :category-id="category.id"
-        :category-name="category.name"
+        :categories="categories"
         @update:open="formOpen = $event"
         @success="formOpen = false"
     />
