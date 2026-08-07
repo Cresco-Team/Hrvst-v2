@@ -33,10 +33,6 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
 
     /* ---------- vegetables ---------- */
 
-    Route::prefix('categories')->name('categories.')->group(function () {
-        Route::get('/', [VegetableController::class, 'category'])->name('index');
-    });
-
     Route::prefix('vegetables')->name('vegetables.')->group(function () {
         Route::get('/', [VegetableController::class, 'index'])->name('index');
         Route::get('/{vegetable}', [VegetableController::class, 'show'])->name('show');
