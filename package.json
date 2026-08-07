@@ -51,6 +51,7 @@
 		"leaflet": "^1.9.4",
 		"leaflet.markercluster": "^1.5.3",
 		"lucide-vue-next": "^0.468.0",
+		"playwright": "^1.62.1",
 		"reka-ui": "^2.10.1",
 		"tailwind-merge": "^3.6.0",
 		"tailwindcss": "^4.3.0",
