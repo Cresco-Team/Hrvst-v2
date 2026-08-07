@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Deferred, Head, router } from '@inertiajs/vue3'
 import { Plus } from '@lucide/vue'
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 import ConfirmationDialog from '@/components/dialogs/ConfirmationDialog.vue'
 import VegetableForm from '@/components/features/admin/forms/VegetableForm.vue'
 import VegetableTable from '@/components/features/admin/tables/VegetableTable.vue'
@@ -147,7 +147,10 @@ function handleCategoryFilterChange(value: unknown): void {
                             :model-value="categoryFilter"
                             @update:model-value="handleCategoryFilterChange"
                         >
-                            <SelectTrigger size="sm" class="w-44">
+                            <SelectTrigger
+                                size="sm"
+                                class="w-44"
+                            >
                                 <SelectValue placeholder="All categories" />
                             </SelectTrigger>
                             <SelectContent>
