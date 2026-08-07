@@ -43,18 +43,12 @@ trait RendersVegetableShow
 
         $hasForecastAccess = $gateFeature === null || Subscription::hasAccess($user, $gateFeature);
 
-        // Paging into history is a subscribed feature, same as the forecast
-        // itself. A free user forging the query param just gets silently
-        // clamped back to the present window server-side.
         $activityOffset = $hasForecastAccess ? (int) ($validated['activity_offset'] ?? 0) : 0;
 
         return Inertia::render('shared/vegetables/Show', [
             'vegetable' => Inertia::defer(function () use ($vegetableDetailService, $vegetable, $year, $month, $role, $hasForecastAccess, $gateFeature, $activityOffset) {
                 $detail = $vegetableDetailService->show($vegetable, $year, $month, $role, $activityOffset);
 
-                // Forecast only makes sense for the present window — never
-                // show it while the user is browsing a past window, even if
-                // they're subscribed.
                 if (! $hasForecastAccess || $activityOffset !== 0) {
                     $detail->forecast = null;
                 }
@@ -70,10 +64,7 @@ trait RendersVegetableShow
                 'vegetableId' => $vegetable->id,
                 'vegetableLabel' => $vegetable->display_name,
                 'categoryName' => $vegetable->category->name,
-                'categorySlug' => $vegetable->category->slug,
             ],
-            // Farmer/dealer only (see VegetableWatchPolicy::create) — an admin
-            // viewing this page simply never has a row here, which is correct.
             'isWatching' => $user->watches()->where('vegetable_id', $vegetable->id)->exists(),
         ]);
     }
