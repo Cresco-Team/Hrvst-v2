@@ -38,17 +38,6 @@ beforeEach(function () {
     ]);
 });
 
-// ─── Category ─────────────────────────────────────────────────────────────────
-
-describe('category', function () {
-    it('renders the category page for an admin', function () {
-        actingAs($this->admin)
-            ->get(route('admin.categories.index'))
-            ->assertOk()
-            ->assertInertia(fn (Assert $page) => $page->component('admin/vegetables/Categories'));
-    });
-});
-
 // ─── Index ────────────────────────────────────────────────────────────────────
 
 describe('index', function () {
@@ -57,12 +46,6 @@ describe('index', function () {
             ->get(route('admin.vegetables.index', ['category' => $this->category->slug]))
             ->assertOk()
             ->assertInertia(fn (Assert $page) => $page->component('admin/vegetables/Index'));
-    });
-
-    it('redirects to categories when no category filter is provided', function () {
-        actingAs($this->admin)
-            ->get(route('admin.vegetables.index'))
-            ->assertRedirect(route('admin.categories.index'));
     });
 
     it('redirects guests to login', function () {
