@@ -28,31 +28,22 @@ class VegetableController extends Controller
         private VegetableDetailService $vegetableDetailService,
     ) {}
 
-    public function category(): Response
+    public function index(Request $request): Response
     {
-        $categories = Category::query()->orderBy('name')->get(['id', 'name', 'slug']);
-
-        return Inertia::render('admin/vegetables/Categories', ['categories' => $categories]);
-    }
-
-    public function index(Request $request): Response|RedirectResponse
-    {
-        if (! $request->filled('category')) {
-            return redirect()->route('admin.categories.index');
-        }
-
-        $slug = $request->query('category');
-        $category = Category::where('slug', $slug)->firstOrFail();
+        $categoryId = $request->query('category_id');
 
         return Inertia::render('admin/vegetables/Index', [
             'vegetables' => Inertia::defer(fn () => VegetableIndexData::collect(
                 $this->vegetableService->paginated(
                     search: $request->query('search'),
-                    categoryId: $category->id,
+                    categoryId: $categoryId,
                 )->paginate(20)->withQueryString(),
             )),
-            'filters' => ['search' => $request->query('search', null)],
-            'category' => $category,
+            'categories' => Category::orderBy('name')->get(['id', 'name']),
+            'filters' => [
+                'search' => $request->query('search', null),
+                'category_id' => $categoryId ? (int) $categoryId : null,
+            ],
         ]);
     }
 
