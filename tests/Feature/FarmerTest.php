@@ -1,5 +1,9 @@
 <?php
 
+use App\Enums\Billing\SubscriptionFeature;
+use App\Enums\Billing\SubscriptionPlan;
+use App\Enums\Billing\SubscriptionStatus;
+use App\Models\Billing\Subscription;
 use App\Models\Profiles\FarmerProfile;
 use App\Models\Profiles\Role;
 use App\Models\User;
@@ -332,5 +336,83 @@ describe('admin farmer details api', function () {
         actingAs(createAdminUser())
             ->getJson(route('admin.farmers.api.details', 999999))
             ->assertNotFound();
+    });
+});
+
+function subscribeAdminAnalytics(User $admin): void
+{
+    Subscription::create([
+        'user_id' => $admin->id,
+        'feature' => SubscriptionFeature::AdminAnalytics,
+        'plan' => SubscriptionPlan::Monthly,
+        'status' => SubscriptionStatus::Active,
+        'amount_cents' => 250_000,
+        'currency' => 'PHP',
+        'payment_gateway' => 'mock',
+        'payment_reference' => 'mock_'.uniqid(),
+        'starts_at' => now(),
+        'ends_at' => now()->addMonth(),
+    ]);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// MAP VIEW SUBSCRIPTION GATING
+// ═══════════════════════════════════════════════════════════════════════════════
+
+describe('admin farmer map subscription gating', function () {
+    it('redirects an unsubscribed admin to billing when requesting the map view', function () {
+        actingAs(createAdminUser())
+            ->get(route('admin.farmers.index', ['view' => 'map']))
+            ->assertRedirect(route('billing.show'))
+            ->assertSessionHas('flash.type', 'warning');
+    });
+
+    it('lets a subscribed admin load the map view', function () {
+        $admin = createAdminUser();
+        subscribeAdminAnalytics($admin);
+
+        actingAs($admin)
+            ->get(route('admin.farmers.index', ['view' => 'map']))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('admin/farmers/Index')
+                ->where('view', 'map')
+            );
+    });
+
+    it('does not gate the list view for an unsubscribed admin', function () {
+        actingAs(createAdminUser())
+            ->get(route('admin.farmers.index'))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page->where('view', 'list'));
+    });
+
+    it('blocks the markers API for an unsubscribed admin', function () {
+        actingAs(createAdminUser())
+            ->getJson(route('admin.farmers.api.markers'))
+            ->assertForbidden();
+    });
+
+    it('allows the markers API for a subscribed admin', function () {
+        $admin = createAdminUser();
+        subscribeAdminAnalytics($admin);
+
+        actingAs($admin)
+            ->getJson(route('admin.farmers.api.markers'))
+            ->assertOk();
+    });
+
+    it('does not loop back to billing when an unsubscribed admin returns to the farmer list', function () {
+        $admin = createAdminUser();
+
+        $page = visit('/admin/farmers')
+            ->actingAs($admin)
+            ->click('Map')
+            ->assertUrlIs('/billing')
+            ->assertNoJavaScriptErrors();
+
+        $page->visit('/admin/farmers')
+            ->assertSee('Farmers')
+            ->assertUrlIs('/admin/farmers');
     });
 });
