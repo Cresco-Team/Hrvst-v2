@@ -29,7 +29,6 @@ interface Props {
         vegetableId: number
         vegetableLabel: string
         categoryName: string
-        categorySlug: string
     }
     isWatching: boolean
 }
@@ -63,6 +62,7 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => {
             title: useCapitalize(usePage().props.auth.user.roles[0]),
             href: dashboard().url,
         },
+        { title: 'Vegetables', href: vegetables.index().url },
         {
             title: props.meta.vegetableLabel,
             href: vegetables.show(props.meta.vegetableId).url,
