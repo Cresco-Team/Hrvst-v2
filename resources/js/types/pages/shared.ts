@@ -1,17 +1,13 @@
-// ─── /categories ──────────────────────────────────────────────────────────
+import type { CategoryOption } from '../resources/product'
+import type { Paginated } from '../shared'
 
-export interface SharedCategoriesProps {
-    categories: {
-        id: number
-        name: string
-        slug: string
-    }[]
+export interface SharedVegetablesFilters {
+    search: string | null
+    category_id: number | null
 }
 
-// ─── /categories/vegetables ─────────────────────────────────────────────────────────
-
-export interface SharedCategoryProps {
-    id: number
-    name: string
-    slug: string
+export interface SharedVegetablesProps {
+    categories: CategoryOption[]
+    filters: SharedVegetablesFilters
+    vegetables: Paginated<App.Data.Vegetable.VegetableIndexData>
 }
