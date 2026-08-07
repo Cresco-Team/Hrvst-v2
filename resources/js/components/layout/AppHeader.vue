@@ -105,7 +105,7 @@ const mainNavItems = computed<AppNavItem[]>(() => {
         items.push(
             {
                 title: 'Vegetables',
-                href: admin.categories.index(),
+                href: admin.vegetables.index(),
                 icon: Package,
                 activeComponentMatch: '/vegetables/',
             },
