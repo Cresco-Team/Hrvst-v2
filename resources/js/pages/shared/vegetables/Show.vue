@@ -50,13 +50,7 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => {
     if (isAdmin.value) {
         return [
             { title: 'Admin', href: adminDashboard().url },
-            { title: 'Vegetables', href: adminRoutes.categories.index().url },
-            {
-                title: props.meta.categoryName,
-                href: adminRoutes.vegetables.index({
-                    query: { category: props.meta.categorySlug },
-                }).url,
-            },
+            { title: 'Vegetables', href: adminRoutes.vegetables.index().url },
             {
                 title: props.meta.vegetableLabel,
                 href: adminRoutes.vegetables.show(props.meta.vegetableId).url,
