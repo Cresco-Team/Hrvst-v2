@@ -11,15 +11,25 @@ class PasswordUpdateRequest extends FormRequest
     use PasswordValidationRules;
 
     /**
-     * Get the validation rules that apply to the request.
-     *
      * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
         return [
             'current_password' => $this->currentPasswordRules(),
-            'password' => $this->passwordRules(),
+            'password' => ['required', 'string', 'digits:6', 'confirmed'],
+        ];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return [
+            'current_password.current_password' => 'Your current PIN is incorrect.',
+            'password.digits' => 'PIN must be exactly 6 digits.',
+            'password.confirmed' => 'PIN confirmation does not match.',
         ];
     }
 }
