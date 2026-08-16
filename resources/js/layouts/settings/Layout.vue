@@ -9,6 +9,7 @@ import { edit as editAppearance } from '@/routes/appearance'
 import { edit as editProfile } from '@/routes/profile'
 import { show } from '@/routes/two-factor'
 import type { NavItem } from '@/types'
+import password from '@/routes/password'
 
 const sidebarNavItems: NavItem[] = [
 	{
@@ -19,6 +20,10 @@ const sidebarNavItems: NavItem[] = [
 		title: 'Two-Factor Auth',
 		href: show(),
 	},
+    {
+        title: 'Password',
+        href: password.edit(),
+    },
 	{
 		title: 'Appearance',
 		href: editAppearance(),
