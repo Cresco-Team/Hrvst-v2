@@ -12,6 +12,28 @@ class AdminSeeder extends Seeder
     {
         $adminRole = Role::firstOrCreate(['name' => 'admin']);
 
+        $adminUsers = [
+            [
+                'phone_number' => '09746654779',
+                'name' => 'Trading Post',
+                'password' => '000000',
+            ], [
+                'phone_number' => '09640549891',
+                'name' => 'Trading Post',
+                'password' => '000000',
+            ]
+        ];
+
+        foreach($adminUsers as $admin) {
+            User::firstOrCreate([
+                'phone_number' => $admin['phone_number']
+            ], [
+                'name' => $admin['name'],
+                'password' => $admin['password']
+            ]);
+        }
+
+        /* Test Admin */
         $user = User::firstOrCreate(
             ['email' => 'admin@hrvst.com'],
             [
