@@ -2,6 +2,8 @@
 
 ### Solving Wasted Vegetable Supplies Caused by Market Blindness in partnership with La Trinidad Vegetable Trading Post
 
+<img src="public/images/readme/welcome.png" alt="App Preview" width="500" align="center">
+
 ---
 
 ## 🚩 Problem: Post-Harvest Waste
@@ -31,6 +33,20 @@ Hrvst aims to transform the Trading Post from a chaotic marketplace into a **Jus
 | **Demand-Driven Scheduling**        | Farmers and Dealers schedule arrivals.              | **Load Balancing:** Prevents "glut" days by spreading deliveries across whe week.                                     |
 | **Market Intelligence (Analytics)** | Supply and demand history visualization.            | **Strategic Planting:** Stops the cycle of surpluses by showing farmers what to plant before the market is saturated. |
 | **Transparent Marketplace**         | Mutual posting of available stock and dealer needs. | **Reduced Search Costs:** Connects farmers directly to the demand, ensuring a "guaranteed exit" for their crops.      |
+
+<table align="center">
+  <tr>
+    <td align="center" width="35%">
+      <img src="public/images/readme/img-1.png" alt="App Preview 1">
+    </td>
+    <td align="center" width="40%">
+      <img src="public/images/readme/img-2.png" alt="App Preview 2">
+    </td>
+    <td align="center" width="25%">
+      <img src="public/images/readme/img-3.png" alt="App Preview 3">
+    </td>
+  </tr>
+</table>
 
 ---
 
