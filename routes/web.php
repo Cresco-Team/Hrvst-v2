@@ -56,13 +56,13 @@ if (app()->environment('local', 'development')) {
         })->name('login.admin');
 
         Route::get('login/farmer', function () {
-            Auth::loginUsingId(2);
+            Auth::loginUsingId(4);
 
             return redirect()->route('dashboard');
         })->name('login.farmer');
 
         Route::get('login/dealer', function () {
-            Auth::loginUsingId(3);
+            Auth::loginUsingId(5);
 
             return redirect()->route('dashboard');
         })->name('login.dealer');
