@@ -17,20 +17,24 @@ class AdminSeeder extends Seeder
                 'phone_number' => '09746654779',
                 'name' => 'Trading Post',
                 'password' => '000000',
+                'must_change_pin' => true
             ], [
                 'phone_number' => '09640549891',
                 'name' => 'Trading Post',
                 'password' => '000000',
+                'must_change_pin' => true
             ]
         ];
 
         foreach($adminUsers as $admin) {
-            User::firstOrCreate([
+            $administrator = User::firstOrCreate([
                 'phone_number' => $admin['phone_number']
             ], [
                 'name' => $admin['name'],
                 'password' => $admin['password']
             ]);
+
+            $administrator->roles()->syncWithoutDetaching([$adminRole->id]);
         }
 
         /* Test Admin */
