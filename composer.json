@@ -13,6 +13,7 @@
         "fakerphp/faker": "^1.23",
         "inertiajs/inertia-laravel": "^2.0",
         "intervention/image": "^3.0",
+        "laravel-notification-channels/webpush": "12.1",
         "laravel/ai": "^0.4.5",
         "laravel/fortify": "^1.30",
         "laravel/framework": "^13.0",
