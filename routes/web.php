@@ -5,6 +5,7 @@ use App\Http\Controllers\ChangePinController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OnboardingController;
+use App\Http\Controllers\PushSubscriptionController;
 use App\Http\Controllers\RegistrationRequestController;
 use App\Http\Controllers\VegetableExportController;
 use Illuminate\Support\Facades\Route;
@@ -26,6 +27,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('change-pin', [ChangePinController::class, 'update'])->name('change-pin.update');
 
     Route::post('onboarding/complete', [OnboardingController::class, 'complete'])->name('onboarding.complete');
+    Route::post('push-subscription', [PushSubscriptionController::class, 'store'])->name('subscription.push');
 });
 
 /* ---------- authenticated & verified ---------- */
