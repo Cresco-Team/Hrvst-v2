@@ -79,11 +79,9 @@ Hrvst aims to transform the Trading Post from a chaotic marketplace into a **Jus
 ### 🚀 Getting Started
 
 1.  **Clone the Repo:** `git clone https://github.com/Cresco-Team/Hrvst-v2.git` then `cd Hrvst-v2`
-2.  **Install Dependencies:** `composer install` then `npm install`
-3.  **Environment Setup:** `cp .env.example mv .env` then `php artisan key:generate`
-4.  **Database & Storage:** `php artisan migrate --seed` then `php storage:link`
-5.  **Run Development Server:** `php artisan serve`
-    - Terminal 2: `npm run dev`
+2.  **Install Run Setup:** `composer setup`
+4.  **Database & Storage:** `php artisan db:seed` then `php storage:link`
+5.  **Run Development Server:** `php artisan dev`
 
 ### Run these checklist commands before PR
 
