@@ -7,6 +7,7 @@ import { useCurrentUrl } from '@/composables/useCurrentUrl'
 import { toUrl } from '@/lib/utils'
 import { edit as editAppearance } from '@/routes/appearance'
 import { edit as editProfile } from '@/routes/profile'
+import { edit as editPushNotifications } from '@/routes/push-notifications'
 import { show } from '@/routes/two-factor'
 import type { NavItem } from '@/types'
 import password from '@/routes/password'
@@ -24,6 +25,10 @@ const sidebarNavItems: NavItem[] = [
         title: 'Password',
         href: password.edit(),
     },
+	{
+		title: 'Push Notifications',
+		href: editPushNotifications(),
+	},
 	{
 		title: 'Appearance',
 		href: editAppearance(),
