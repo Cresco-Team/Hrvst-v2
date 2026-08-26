@@ -27,21 +27,31 @@ export default defineConfig({
         VitePWA({
             registerType: 'autoUpdate',
             injectRegister: null,
-            workbox: {
+
+            // CHANGED: generateSW → injectManifest. Required to hand-write the
+            // push/notificationclick listeners in sw.ts — generateSW gives no
+            // hook for custom event handlers. See sw.ts for the SW source.
+            strategies: 'injectManifest',
+            srcDir: 'resources/js',
+            filename: 'sw.ts',
+
+            // REPLACES the old top-level `workbox: { globPatterns, navigateFallback }`
+            // block — that key is silently ignored under injectManifest.
+            // `navigateFallback: null` is dropped entirely: injectManifest never
+            // auto-registers a NavigationRoute in the first place, so there was
+            // nothing to opt out of — the Inertia-safe behavior you had before
+            // is the default here, not something you have to ask for.
+            injectManifest: {
                 globPatterns: ['**/*.{js,css,html,ico,png,svg,webp,woff,woff2}'],
-                navigateFallback: null, // Inertia/SSR — never intercept nav
-                runtimeCaching: [
-                    {
-                        urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
-                        handler: 'CacheFirst',
-                        options: {
-                            cacheName: 'google-fonts-cache',
-                            expiration: { maxEntries: 10, maxAgeSeconds: 60 * 60 * 24 * 365 },
-                            cacheableResponse: { statuses: [0, 200] },
-                        },
-                    },
-                ],
             },
+
+            // REMOVED: the old `runtimeCaching` (Google Fonts CacheFirst rule)
+            // also lived under `workbox: {}`, which injectManifest ignores.
+            // It's been ported manually into sw.ts using workbox-routing +
+            // workbox-strategies — same cache name, same expiration, same
+            // behavior. Do not re-add a `workbox: {}` key here; it will be
+            // silently dropped.
+
             manifest: {
                 name: 'Hrvst',
                 short_name: 'Hrvst',
