@@ -27,7 +27,9 @@ Route::middleware(['auth'])->group(function () {
     Route::post('change-pin', [ChangePinController::class, 'update'])->name('change-pin.update');
 
     Route::post('onboarding/complete', [OnboardingController::class, 'complete'])->name('onboarding.complete');
-    Route::post('push-subscription', [PushSubscriptionController::class, 'store'])->name('subscription.push');
+    
+    Route::post('push-subscriptions', [PushSubscriptionController::class, 'store'])->name('push-subscriptions.store');
+Route::delete('push-subscriptions', [PushSubscriptionController::class, 'destroy'])->name('push-subscriptions.destroy');
 });
 
 /* ---------- authenticated & verified ---------- */
