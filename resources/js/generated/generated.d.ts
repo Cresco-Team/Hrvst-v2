@@ -287,9 +287,7 @@ declare namespace App {
         export type PostTimeSlot = 'morning' | 'afternoon' | 'evening'
         export type PostType = 'supply' | 'demand'
         export type RegistrationRequestStatus =
-            | 'pending'
-            | 'approved'
-            | 'rejected'
+            'pending' | 'approved' | 'rejected'
         export type ValidIdType =
             | 'drivers_license'
             | 'philippine_national_id'
@@ -297,17 +295,13 @@ declare namespace App {
             | 'voters_id'
         namespace Analytics {
             export type ImbalanceBand =
-                | 'oversupply'
-                | 'balanced'
-                | 'undersupply'
+                'oversupply' | 'balanced' | 'undersupply'
             export type RecommendationSeverity = 'critical' | 'warning' | 'info'
             export type VegetableViewerRole = 'admin' | 'farmer' | 'dealer'
         }
         namespace Billing {
             export type SubscriptionFeature =
-                | 'admin_analytics'
-                | 'farmer_forecasts'
-                | 'dealer_market_intel'
+                'admin_analytics' | 'farmer_forecasts' | 'dealer_market_intel'
             export type SubscriptionPlan = 'monthly' | 'quarterly' | 'annual'
             export type SubscriptionStatus = 'active' | 'cancelled' | 'expired'
         }

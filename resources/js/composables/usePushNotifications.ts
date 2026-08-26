@@ -34,7 +34,8 @@ export function usePushNotifications() {
 
         try {
             const registration = await navigator.serviceWorker.ready
-            const subscription = await registration.pushManager.getSubscription()
+            const subscription =
+                await registration.pushManager.getSubscription()
             isSubscribed.value = subscription !== null
         } finally {
             loading.value = false
@@ -72,7 +73,8 @@ export function usePushNotifications() {
         subscribing.value = true
         try {
             const registration = await navigator.serviceWorker.ready
-            const subscription = await registration.pushManager.getSubscription()
+            const subscription =
+                await registration.pushManager.getSubscription()
             if (!subscription) {
                 isSubscribed.value = false
                 return
@@ -90,5 +92,13 @@ export function usePushNotifications() {
 
     onMounted(refreshSubscriptionState)
 
-    return { state, permission, isSubscribed, loading, subscribing, subscribe, unsubscribe }
+    return {
+        state,
+        permission,
+        isSubscribed,
+        loading,
+        subscribing,
+        subscribe,
+        unsubscribe,
+    }
 }
