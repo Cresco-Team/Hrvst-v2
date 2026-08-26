@@ -18,6 +18,15 @@ export default defineConfigWithVueTs(
 		],
 	},
 	{
+		files: ['resources/js/sw.ts'],
+		languageOptions: {
+			parserOptions: {
+				project: './tsconfig.worker.json',
+				tsconfigRootDir: import.meta.dirname,
+			},
+		},
+	},
+	{
 		plugins: {
 			import: importPlugin,
 		},
