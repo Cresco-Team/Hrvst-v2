@@ -20,6 +20,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         return Inertia\Inertia::render('settings/Appearance');
     })->name('appearance.edit');
 
+    Route::get('settings/push-notifications', function () {
+        return Inertia\Inertia::render('settings/PushNotifications');
+    })->name('push-notifications.edit');
+
     Route::get('settings/two-factor', [TwoFactorAuthenticationController::class, 'show'])
         ->name('two-factor.show');
 
