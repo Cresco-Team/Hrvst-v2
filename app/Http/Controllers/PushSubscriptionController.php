@@ -17,9 +17,18 @@ class PushSubscriptionController extends Controller
 
         $request->user()->updatePushSubscription(
             endpoint: $validated['endpoint'],
-            key: $validated['keys']['p256dh'],
-            token: $validated['keys']['auth'],
+            publicKey: $validated['keys']['p256dh'],
+            authToken: $validated['keys']['auth'],
         );
+
+        return back();
+    }
+
+    public function destroy(Request $request): RedirectResponse
+    {
+        $endpoint = $request->validate(['endpoint' => ['required', 'string']])['endpoint'];
+
+        $request->user()->pushSubscriptions()->where('endpoint', $endpoint)->delete();
 
         return back();
     }
