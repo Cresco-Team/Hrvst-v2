@@ -80,7 +80,16 @@ const FEATURE_BULLETS: Record<string, string[]> = {
 
 const bullets = computed(() => FEATURE_BULLETS[props.feature] ?? [])
 
-const monthlyBaseline = computed(() => props.plans.find((p) => p.value === 'monthly'))
+// Onboarding phase: billing isn't wired up yet, so every plan is free.
+// Grep for FREE_ONBOARDING_PHASE when it's time to rip this out and switch
+// the template back to using `plans` (the prop) directly.
+const FREE_ONBOARDING_PHASE = true
+
+const displayPlans = computed<PlanOption[]>(() =>
+    FREE_ONBOARDING_PHASE ? props.plans.map((p) => ({ ...p, price_cents: 0 })) : props.plans,
+)
+
+const monthlyBaseline = computed(() => displayPlans.value.find((p) => p.value === 'monthly'))
 
 function perMonthCents(plan: PlanOption): number {
     return plan.price_cents / MONTHS_BY_PLAN[plan.value]
@@ -97,6 +106,8 @@ function savingsPct(plan: PlanOption): number | null {
 }
 
 function formatPrice(cents: number): string {
+    if (cents <= 0) return 'Free'
+
     return (cents / 100).toLocaleString('en-PH', {
         style: 'currency',
         currency: 'PHP',
@@ -216,7 +227,7 @@ function handleCancel(): void {
             <!-- Plans -->
             <div class="grid gap-4 sm:grid-cols-3">
                 <Card
-                    v-for="plan in plans"
+                    v-for="plan in displayPlans"
                     :key="plan.value"
                     :class="[
                         'relative flex flex-col transition-transform motion-reduce:transition-none',
@@ -243,7 +254,7 @@ function handleCancel(): void {
                         </CardDescription>
                         <div class="flex flex-wrap items-center gap-1.5 pt-1">
                             <span
-                                v-if="plan.value !== 'monthly'"
+                                v-if="plan.value !== 'monthly' && plan.price_cents > 0"
                                 class="text-xs text-muted-foreground"
                             >
                                 ≈ {{ formatPrice(perMonthCents(plan)) }} / month
@@ -283,7 +294,9 @@ function handleCancel(): void {
                             <template v-else>
                                 {{ hasActiveSubscription && subscription?.plan === plan.value && !isCancelled
                                     ? 'Current plan'
-                                    : `Subscribe — ${plan.label}` }}
+                                    : FREE_ONBOARDING_PHASE
+                                        ? `Get free access — ${plan.label}`
+                                        : `Subscribe — ${plan.label}` }}
                             </template>
                         </Button>
                     </CardContent>
