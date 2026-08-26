@@ -78,8 +78,8 @@ describe('admin farmer index', function () {
     });
 
     it('switches to map view when query param is set', function () {
-            $admin = createAdminUser();
-            subscribeAdminAnalytics($admin);
+        $admin = createAdminUser();
+        subscribeAdminAnalytics($admin);
 
         actingAs($admin)
             ->get(route('admin.farmers.index', ['view' => 'map']))

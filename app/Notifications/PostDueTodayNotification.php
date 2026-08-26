@@ -4,8 +4,6 @@ namespace App\Notifications;
 
 use App\Enums\PostType;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use NotificationChannels\WebPush\WebPushChannel;
 use NotificationChannels\WebPush\WebPushMessage;
@@ -29,7 +27,7 @@ class PostDueTodayNotification extends Notification
         $routeName = $this->post->type === PostType::Supply
             ? 'farmer.supplies.index'
             : 'dealer.demands.index';
- 
+
         return (new WebPushMessage)
             ->title('Schedule due today')
             ->icon('/icons/pwa-192x192.png')
