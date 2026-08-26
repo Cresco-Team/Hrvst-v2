@@ -1,0 +1,89 @@
+<?php
+
+use App\Enums\PostItemStatus;
+use App\Notifications\PostDueTodayNotification;
+use Illuminate\Support\Facades\Notification;
+
+it('notifies a farmer whose supply is due today', function () {
+    Notification::fake();
+
+    $farmer = createFarmerUser();
+    $vegetable = createVegetable();
+    createSupplyPost($farmer, $vegetable, [
+        'scheduled_date' => today()->toDateString(),
+    ]);
+
+    $this->artisan('posts:notify-due-today');
+
+    Notification::assertSentTo($farmer, PostDueTodayNotification::class);
+});
+
+it('does not notify a post already marked as notified today', function () {
+    Notification::fake();
+
+    $farmer = createFarmerUser();
+    $post = createSupplyPost($farmer, createVegetable(), [
+        'scheduled_date' => today()->toDateString(),
+    ]);
+    $post->update(['due_today_notified_at' => now()]);
+
+    $this->artisan('posts:notify-due-today');
+
+    Notification::assertNothingSent();
+});
+
+it('does not notify a post scheduled for a different day', function () {
+    Notification::fake();
+
+    $farmer = createFarmerUser();
+    createSupplyPost($farmer, createVegetable(), [
+        'scheduled_date' => today()->addDay()->toDateString(),
+    ]);
+
+    $this->artisan('posts:notify-due-today');
+
+    Notification::assertNothingSent();
+});
+
+it('does not notify a post whose only item is already fulfilled', function () {
+    Notification::fake();
+
+    $farmer = createFarmerUser();
+    $post = createSupplyPost($farmer, createVegetable(), [
+        'scheduled_date' => today()->toDateString(),
+    ]);
+    $post->postItems()->update(['status' => PostItemStatus::Fulfilled]);
+
+    $this->artisan('posts:notify-due-today');
+
+    Notification::assertNothingSent();
+});
+
+it('marks the post as notified after sending', function () {
+    Notification::fake();
+
+    $farmer = createFarmerUser();
+    $post = createSupplyPost($farmer, createVegetable(), [
+        'scheduled_date' => today()->toDateString(),
+    ]);
+
+    $this->artisan('posts:notify-due-today');
+
+    expect($post->fresh()->due_today_notified_at)->not->toBeNull();
+});
+
+it('notifies both a farmer supply and a dealer demand due the same day', function () {
+    Notification::fake();
+
+    $farmer = createFarmerUser();
+    $dealer = createDealerUser();
+    $vegetable = createVegetable();
+
+    createSupplyPost($farmer, $vegetable, ['scheduled_date' => today()->toDateString()]);
+    createDemandPost($dealer, $vegetable, ['scheduled_date' => today()->toDateString()]);
+
+    $this->artisan('posts:notify-due-today');
+
+    Notification::assertSentTo($farmer, PostDueTodayNotification::class);
+    Notification::assertSentTo($dealer, PostDueTodayNotification::class);
+});
