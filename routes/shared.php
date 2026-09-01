@@ -4,9 +4,9 @@ use App\Http\Controllers\Shared\VegetableController;
 use App\Http\Controllers\Shared\VegetableWatchController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(['can:not-admin'])->group(function () {
+Route::get('/vegetables-options', [VegetableController::class, 'options'])->name('vegetables.options');
 
-    Route::get('/vegetables-options', [VegetableController::class, 'options'])->name('vegetables.options');
+Route::middleware(['can:not-admin'])->group(function () {
 
     Route::prefix('vegetables')->name('vegetables.')->group(function () {
         Route::get('/', [VegetableController::class, 'index'])->name('index');
