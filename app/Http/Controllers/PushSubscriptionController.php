@@ -17,8 +17,8 @@ class PushSubscriptionController extends Controller
 
         $request->user()->updatePushSubscription(
             endpoint: $validated['endpoint'],
-            publicKey: $validated['keys']['p256dh'],
-            authToken: $validated['keys']['auth'],
+            key: $validated['keys']['p256dh'],
+            token: $validated['keys']['auth'],
         );
 
         return back();
