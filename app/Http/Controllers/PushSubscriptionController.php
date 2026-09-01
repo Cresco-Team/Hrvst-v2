@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class PushSubscriptionController extends Controller
 {
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request): Response
     {
         $validated = $request->validate([
             'endpoint' => ['required', 'string'],
@@ -21,15 +21,15 @@ class PushSubscriptionController extends Controller
             token: $validated['keys']['auth'],
         );
 
-        return back();
+        return response()->noContent();
     }
 
-    public function destroy(Request $request): RedirectResponse
+    public function destroy(Request $request): Response
     {
         $endpoint = $request->validate(['endpoint' => ['required', 'string']])['endpoint'];
 
         $request->user()->pushSubscriptions()->where('endpoint', $endpoint)->delete();
 
-        return back();
+        return response()->noContent();
     }
 }
