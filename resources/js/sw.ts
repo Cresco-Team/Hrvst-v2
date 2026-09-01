@@ -1,26 +1,28 @@
 import { CacheableResponsePlugin } from 'workbox-cacheable-response'
 import { clientsClaim } from 'workbox-core'
 import { ExpirationPlugin } from 'workbox-expiration'
-import { precacheAndRoute } from 'workbox-precaching'
 import { registerRoute } from 'workbox-routing'
 import { CacheFirst } from 'workbox-strategies'
 
 declare let self: ServiceWorkerGlobalScope
 
 // Activate this SW immediately on install/update instead of waiting for all
-// tabs to close — matches typical PWA update-eagerly behavior. Drop these
-// two lines if you're intentionally doing a "wait for reload" update flow.
+// tabs to close.
 self.skipWaiting()
 clientsClaim()
 
-// Required by injectManifest — vite-plugin-pwa replaces __WB_MANIFEST at
-// build time with the precache list it would have generated for you under
-// generateSW. Removing this line breaks offline/asset caching entirely.
-precacheAndRoute(self.__WB_MANIFEST)
+// NOTE: precacheAndRoute(self.__WB_MANIFEST) intentionally removed.
+// vite-plugin-pwa's injectManifest strategy has a long-standing, unresolved
+// bug generating precache URLs that don't respect Laravel's /build/ asset
+// base — see vite-pwa/vite-plugin-pwa issues #396, #713, #263. Chasing that
+// further isn't worth it: precaching only enables offline app-shell
+// loading, which this Inertia app was never relying on anyway
+// (navigateFallback was already null in the original config for exactly
+// that reason). Push notifications don't need this — the listeners below
+// are fully independent of precaching.
 
-// ─── Runtime caching (ported from the old vite.config.ts workbox.runtimeCaching
-// block — that key is silently ignored under injectManifest, so this has to
-// live here instead. Same cache name, same 1-year/10-entry expiration.) ──────
+// ─── Runtime caching (unaffected by the above — this is a live network
+// request rule, not manifest-based precaching) ──────────────────────────────
 
 registerRoute(
     ({ url }) => url.hostname === 'fonts.googleapis.com',
@@ -28,10 +30,7 @@ registerRoute(
         cacheName: 'google-fonts-cache',
         plugins: [
             new CacheableResponsePlugin({ statuses: [0, 200] }),
-            new ExpirationPlugin({
-                maxEntries: 10,
-                maxAgeSeconds: 60 * 60 * 24 * 365,
-            }),
+            new ExpirationPlugin({ maxEntries: 10, maxAgeSeconds: 60 * 60 * 24 * 365 }),
         ],
     }),
 )

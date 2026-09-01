@@ -3,21 +3,6 @@ import { computed, onMounted, ref } from 'vue'
 
 export type PushSupportState = 'unsupported' | 'default' | 'granted' | 'denied'
 
-const READY_TIMEOUT_MS = 5000
-
-function withTimeout<T>(
-    promise: Promise<T>,
-    ms: number,
-    message: string,
-): Promise<T> {
-    return Promise.race([
-        promise,
-        new Promise<T>((_, reject) =>
-            setTimeout(() => reject(new Error(message)), ms),
-        ),
-    ])
-}
-
 export function usePushNotifications() {
     const isSupported = 'serviceWorker' in navigator && 'PushManager' in window
     const permission = ref<NotificationPermission>(
@@ -33,27 +18,13 @@ export function usePushNotifications() {
         return permission.value as PushSupportState
     })
 
-    function urlBase64ToUint8Array(base64String: string): ArrayBuffer {
+    function urlBase64ToUint8Array(base64String: string): Uint8Array {
         const padding = '='.repeat((4 - (base64String.length % 4)) % 4)
         const base64 = (base64String + padding)
             .replace(/-/g, '+')
             .replace(/_/g, '/')
         const raw = window.atob(base64)
-
-        const bytes = new Uint8Array(raw.length)
-        for (let i = 0; i < raw.length; i++) {
-            bytes[i] = raw.charCodeAt(i)
-        }
-
-        return bytes.buffer
-    }
-
-    async function getReadyRegistration(): Promise<ServiceWorkerRegistration> {
-        return withTimeout(
-            navigator.serviceWorker.ready,
-            READY_TIMEOUT_MS,
-            'Service worker did not become ready in time',
-        )
+        return Uint8Array.from([...raw].map((c) => c.charCodeAt(0)))
     }
 
     async function refreshSubscriptionState(): Promise<void> {
@@ -63,16 +34,9 @@ export function usePushNotifications() {
         }
 
         try {
-            const registration = await getReadyRegistration()
-            const subscription =
-                await registration.pushManager.getSubscription()
+            const registration = await navigator.serviceWorker.ready
+            const subscription = await registration.pushManager.getSubscription()
             isSubscribed.value = subscription !== null
-        } catch (e) {
-            error.value =
-                e instanceof Error
-                    ? e.message
-                    : 'Failed to check subscription state'
-            isSubscribed.value = false
         } finally {
             loading.value = false
         }
@@ -83,27 +47,40 @@ export function usePushNotifications() {
 
         subscribing.value = true
         error.value = null
-
         try {
+            console.log('[push] step 1: requesting permission')
             const result = await Notification.requestPermission()
+            console.log('[push] step 2: permission result =', result)
             permission.value = result
-            if (result !== 'granted') return false
+            if (result !== 'granted') {
+                error.value = `Permission not granted (browser returned "${result}").`
+                return false
+            }
 
-            const registration = await getReadyRegistration()
+            console.log('[push] step 3: waiting for serviceWorker.ready')
+            const registration = await navigator.serviceWorker.ready
+            console.log('[push] step 4: SW ready, state =', registration.active?.state)
+
             const vapidKey = import.meta.env.VITE_VAPID_PUBLIC_KEY as string
+            if (!vapidKey) {
+                error.value = 'VITE_VAPID_PUBLIC_KEY is missing — check .env and restart `npm run dev`.'
+                return false
+            }
+            console.log('[push] step 5: calling pushManager.subscribe')
 
             const subscription = await registration.pushManager.subscribe({
                 userVisibleOnly: true,
                 applicationServerKey: urlBase64ToUint8Array(vapidKey),
             })
+            console.log('[push] step 6: subscribed, posting to server', subscription)
 
-            await axios.post('/push-subscriptions', subscription.toJSON(), {
-                timeout: 5000,
-            })
+            await axios.post('/push-subscriptions', subscription.toJSON())
+            console.log('[push] step 7: server accepted subscription')
             isSubscribed.value = true
             return true
         } catch (e) {
-            error.value = e instanceof Error ? e.message : 'Failed to subscribe'
+            error.value = e instanceof Error ? e.message : 'Unknown error while subscribing.'
+            console.error('[push] subscribe failed:', e)
             return false
         } finally {
             subscribing.value = false
@@ -111,15 +88,13 @@ export function usePushNotifications() {
     }
 
     async function unsubscribe(): Promise<void> {
+        console.log('[push] unsubscribe() called')
         if (!isSupported) return
 
         subscribing.value = true
-        error.value = null
-
         try {
-            const registration = await getReadyRegistration()
-            const subscription =
-                await registration.pushManager.getSubscription()
+            const registration = await navigator.serviceWorker.ready
+            const subscription = await registration.pushManager.getSubscription()
             if (!subscription) {
                 isSubscribed.value = false
                 return
@@ -127,13 +102,9 @@ export function usePushNotifications() {
 
             await axios.delete('/push-subscriptions', {
                 data: { endpoint: subscription.endpoint },
-                timeout: 5000,
             })
             await subscription.unsubscribe()
             isSubscribed.value = false
-        } catch (e) {
-            error.value =
-                e instanceof Error ? e.message : 'Failed to unsubscribe'
         } finally {
             subscribing.value = false
         }
@@ -141,14 +112,5 @@ export function usePushNotifications() {
 
     onMounted(refreshSubscriptionState)
 
-    return {
-        state,
-        permission,
-        isSubscribed,
-        loading,
-        subscribing,
-        error,
-        subscribe,
-        unsubscribe,
-    }
+    return { state, permission, isSubscribed, loading, subscribing, error, subscribe, unsubscribe }
 }
