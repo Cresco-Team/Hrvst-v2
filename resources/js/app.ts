@@ -45,9 +45,12 @@ console.log('[debug] import.meta.env.DEV =', import.meta.env.DEV)
 if ('serviceWorker' in navigator && !import.meta.env.DEV) {
     window.addEventListener('load', async () => {
         try {
-            const registration = await navigator.serviceWorker.register('/sw.js', {
-                scope: '/',
-            })
+            const registration = await navigator.serviceWorker.register(
+                '/sw.js',
+                {
+                    scope: '/',
+                },
+            )
             setInterval(() => registration.update(), 60 * 60 * 1000)
         } catch (error) {
             console.error('[SW] registration failed:', error)

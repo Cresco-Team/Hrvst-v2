@@ -35,7 +35,8 @@ export function usePushNotifications() {
 
         try {
             const registration = await navigator.serviceWorker.ready
-            const subscription = await registration.pushManager.getSubscription()
+            const subscription =
+                await registration.pushManager.getSubscription()
             isSubscribed.value = subscription !== null
         } finally {
             loading.value = false
@@ -59,11 +60,15 @@ export function usePushNotifications() {
 
             console.log('[push] step 3: waiting for serviceWorker.ready')
             const registration = await navigator.serviceWorker.ready
-            console.log('[push] step 4: SW ready, state =', registration.active?.state)
+            console.log(
+                '[push] step 4: SW ready, state =',
+                registration.active?.state,
+            )
 
             const vapidKey = import.meta.env.VITE_VAPID_PUBLIC_KEY as string
             if (!vapidKey) {
-                error.value = 'VITE_VAPID_PUBLIC_KEY is missing — check .env and restart `npm run dev`.'
+                error.value =
+                    'VITE_VAPID_PUBLIC_KEY is missing — check .env and restart `npm run dev`.'
                 return false
             }
             console.log('[push] step 5: calling pushManager.subscribe')
@@ -72,14 +77,20 @@ export function usePushNotifications() {
                 userVisibleOnly: true,
                 applicationServerKey: urlBase64ToUint8Array(vapidKey),
             })
-            console.log('[push] step 6: subscribed, posting to server', subscription)
+            console.log(
+                '[push] step 6: subscribed, posting to server',
+                subscription,
+            )
 
             await axios.post('/push-subscriptions', subscription.toJSON())
             console.log('[push] step 7: server accepted subscription')
             isSubscribed.value = true
             return true
         } catch (e) {
-            error.value = e instanceof Error ? e.message : 'Unknown error while subscribing.'
+            error.value =
+                e instanceof Error
+                    ? e.message
+                    : 'Unknown error while subscribing.'
             console.error('[push] subscribe failed:', e)
             return false
         } finally {
@@ -94,7 +105,8 @@ export function usePushNotifications() {
         subscribing.value = true
         try {
             const registration = await navigator.serviceWorker.ready
-            const subscription = await registration.pushManager.getSubscription()
+            const subscription =
+                await registration.pushManager.getSubscription()
             if (!subscription) {
                 isSubscribed.value = false
                 return
@@ -112,5 +124,14 @@ export function usePushNotifications() {
 
     onMounted(refreshSubscriptionState)
 
-    return { state, permission, isSubscribed, loading, subscribing, error, subscribe, unsubscribe }
+    return {
+        state,
+        permission,
+        isSubscribed,
+        loading,
+        subscribing,
+        error,
+        subscribe,
+        unsubscribe,
+    }
 }
