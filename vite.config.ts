@@ -41,8 +41,12 @@ export default defineConfig({
             // auto-registers a NavigationRoute in the first place, so there was
             // nothing to opt out of — the Inertia-safe behavior you had before
             // is the default here, not something you have to ask for.
+            // Precaching removed (see sw.ts for why). injectionPoint: undefined
+            // tells workbox-build not to require or inject a self.__WB_MANIFEST
+            // placeholder — without this, the build throws "Unable to find a
+            // place to inject the manifest" since sw.ts no longer references it.
             injectManifest: {
-                globPatterns: ['**/*.{js,css,html,ico,png,svg,webp,woff,woff2}'],
+                injectionPoint: undefined,
             },
 
             // REMOVED: the old `runtimeCaching` (Google Fonts CacheFirst rule)
