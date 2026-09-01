@@ -13,7 +13,7 @@ import type { BreadcrumbItem } from '@/types'
 
 const breadcrumbs: BreadcrumbItem[] = [{ title: 'Push Notifications' }]
 
-const { state, isSubscribed, loading, subscribing, subscribe, unsubscribe } =
+const { state, isSubscribed, loading, subscribing, error, subscribe, unsubscribe } =
     usePushNotifications()
 
 const statusLabel = computed(() => {
@@ -50,14 +50,8 @@ async function handleToggle(): Promise<void> {
                                 class="flex size-10 shrink-0 items-center justify-center rounded-full"
                                 :class="isSubscribed ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'"
                             >
-                                <BellRing
-                                    v-if="isSubscribed"
-                                    class="size-5"
-                                />
-                                <Bell
-                                    v-else
-                                    class="size-5"
-                                />
+                                <BellRing v-if="isSubscribed" class="size-5" />
+                                <Bell v-else class="size-5" />
                             </div>
                             <div>
                                 <CardTitle class="text-sm">{{ statusLabel }}</CardTitle>
@@ -76,9 +70,9 @@ async function handleToggle(): Promise<void> {
                         >
                             <TriangleAlert class="mt-0.5 size-4 shrink-0" />
                             <span>
-                                Your browser doesn't support push notifications, or this app
-                                hasn't been installed to your home screen yet. On iPhone, add
-                                Hrvst to your home screen first.
+                                Your browser doesn't support push notifications, or this site
+                                isn't served over HTTPS. On iPhone, add Hrvst to your home
+                                screen first.
                             </span>
                         </div>
 
@@ -110,22 +104,20 @@ async function handleToggle(): Promise<void> {
                                 :disabled="loading || subscribing"
                                 @click="handleToggle"
                             >
-                                <Spinner
-                                    v-if="loading || subscribing"
-                                    class="size-4"
-                                />
+                                <Spinner v-if="loading || subscribing" class="size-4" />
                                 <template v-else>
-                                    <BellOff
-                                        v-if="isSubscribed"
-                                        class="size-4"
-                                    />
-                                    <Bell
-                                        v-else
-                                        class="size-4"
-                                    />
+                                    <BellOff v-if="isSubscribed" class="size-4" />
+                                    <Bell v-else class="size-4" />
                                 </template>
                                 {{ isSubscribed ? 'Turn off notifications' : 'Enable notifications' }}
                             </Button>
+
+                            <p
+                                v-if="error"
+                                class="rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-xs text-destructive"
+                            >
+                                {{ error }}
+                            </p>
                         </template>
                     </CardContent>
                 </Card>
