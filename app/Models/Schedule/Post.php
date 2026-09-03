@@ -25,6 +25,8 @@ use Spatie\MediaLibrary\InteractsWithMedia;
     'scheduled_date',
     'time_slot',
     'due_today_notified_at',
+    'reminder_morning_notified_at',
+    'reminder_evening_notified_at'
 ])]
 class Post extends Model implements HasMedia
 {
