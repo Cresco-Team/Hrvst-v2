@@ -3,6 +3,7 @@
 namespace App\Notifications;
 
 use App\Enums\PostType;
+use App\Models\Schedule\Post;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 use NotificationChannels\WebPush\WebPushChannel;
@@ -12,7 +13,9 @@ class PostDueTodayNotification extends Notification
 {
     use Queueable;
 
-    public function __construct() {}
+    public function __construct(
+        private Post $post
+    ) {}
 
     /**
      * @return array<int, string>
