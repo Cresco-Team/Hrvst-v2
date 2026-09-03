@@ -19,12 +19,13 @@ export default defineConfigWithVueTs(
 	},
 	{
 		files: ['resources/js/sw.ts'],
-		languageOptions: {
-			parserOptions: {
-				project: './tsconfig.worker.json',
-				tsconfigRootDir: import.meta.dirname,
+			languageOptions: {
+				parserOptions: {
+					projectService: false,
+					project: './tsconfig.worker.json',
+					tsconfigRootDir: import.meta.dirname,
+				},
 			},
-		},
 	},
 	{
 		plugins: {
