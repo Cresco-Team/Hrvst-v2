@@ -41,13 +41,14 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Model::preventSilentlyDiscardingAttributes(! app()->isProduction());
+        Model::preventLazyLoading(! app()->isProduction());
+        Model::automaticallyEagerLoadRelationships();
 
         if (app()->isProduction()) {
             URL::forceScheme('https');
         }
 
         $this->configureDefaults();
-        Model::automaticallyEagerLoadRelationships();
 
         Gate::policy(FarmerProfile::class, FarmerPolicy::class);
         Gate::policy(DealerProfile::class, DealerPolicy::class);
