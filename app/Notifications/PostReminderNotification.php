@@ -5,8 +5,6 @@ namespace App\Notifications;
 use App\Enums\PostType;
 use App\Models\Schedule\Post;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use NotificationChannels\WebPush\WebPushChannel;
 use NotificationChannels\WebPush\WebPushMessage;
@@ -17,7 +15,7 @@ class PostReminderNotification extends Notification
 
     public function __construct(
         private Post $post
-    ){}
+    ) {}
 
     /**
      * @return array<int, string>
