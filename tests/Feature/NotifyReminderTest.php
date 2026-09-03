@@ -2,6 +2,7 @@
 
 use App\Enums\PostItemStatus;
 use App\Notifications\PostDueTodayNotification;
+use App\Notifications\PostReminderNotification;
 use Illuminate\Support\Facades\Notification;
 
 it('notifies a farmer whose supply is due today', function () {
@@ -34,15 +35,62 @@ it('does not notify a post already marked as notified today', function () {
 
 it('builds a valid webpush message with post data', function () {
     $farmer = createFarmerUser();
-    $post = createSupplyPost($farmer, createVegetable(), [
+    $vegetable = createVegetable();
+    $post = createSupplyPost($farmer, $vegetable, [
         'scheduled_date' => today()->toDateString(),
     ]);
 
     $notification = new PostDueTodayNotification($post);
-    $message = $notification->toWebPush($farmer, $notification);
+    $payload = $notification->toWebPush($farmer, $notification)->toArray();
 
-    expect($message->options['body'])->toContain('supply')
-        ->and($message->options['data']['url'])->toContain('farmer/supplies');
+    expect($payload['body'])->toContain('supply')
+        ->and($payload['data']['url'])->toContain('farmer/supplies');
+});
+
+it('sends morning and evening reminders independently without double-blocking', function () {
+    Notification::fake();
+
+    $farmer = createFarmerUser();
+    $post = createSupplyPost($farmer, createVegetable(), [
+        'scheduled_date' => today()->addDay()->toDateString(),
+    ]);
+
+    $this->artisan('posts:notify-reminder', ['slot' => 'morning']);
+    $this->artisan('posts:notify-reminder', ['slot' => 'evening']);
+
+    Notification::assertSentToTimes($farmer, PostReminderNotification::class, 2);
+
+    expect($post->fresh())
+        ->reminder_morning_notified_at->not->toBeNull()
+        ->reminder_evening_notified_at->not->toBeNull();
+});
+
+it('does not re-notify the same slot twice', function () {
+    Notification::fake();
+
+    $farmer = createFarmerUser();
+    createSupplyPost($farmer, createVegetable(), [
+        'scheduled_date' => today()->addDay()->toDateString(),
+    ]);
+
+    $this->artisan('posts:notify-reminder', ['slot' => 'morning']);
+    $this->artisan('posts:notify-reminder', ['slot' => 'morning']);
+
+    Notification::assertSentToTimes($farmer, PostReminderNotification::class, 1);
+});
+
+it('builds a valid webpush body for the reminder', function () {
+    $farmer = createFarmerUser();
+    $post = createSupplyPost($farmer, createVegetable(), [
+        'scheduled_date' => today()->addDay()->toDateString(),
+    ]);
+
+    $notification = new PostReminderNotification($post);
+    $payload = $notification->toWebPush($farmer, $notification)->toArray();
+
+    expect($payload['title'])->toBe('Schedule due tomorrow')
+        ->and($payload['body'])->toContain('tomorrow')
+        ->and($payload['data']['url'])->toContain('farmer/supplies');
 });
 
 it('does not notify a post scheduled for a different day', function () {
