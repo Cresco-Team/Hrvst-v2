@@ -32,6 +32,19 @@ it('does not notify a post already marked as notified today', function () {
     Notification::assertNothingSent();
 });
 
+it('builds a valid webpush message with post data', function () {
+    $farmer = createFarmerUser();
+    $post = createSupplyPost($farmer, createVegetable(), [
+        'scheduled_date' => today()->toDateString(),
+    ]);
+
+    $notification = new PostDueTodayNotification($post);
+    $message = $notification->toWebPush($farmer, $notification);
+
+    expect($message->options['body'])->toContain('supply')
+        ->and($message->options['data']['url'])->toContain('farmer/supplies');
+});
+
 it('does not notify a post scheduled for a different day', function () {
     Notification::fake();
 
