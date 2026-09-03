@@ -6,6 +6,7 @@ use App\Enums\Analytics\ImbalanceBand;
 use App\Models\Vegetable\Vegetable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
+use NotificationChannels\WebPush\WebPushChannel;
 
 class VegetableOutlookAlert extends Notification
 {
@@ -21,7 +22,7 @@ class VegetableOutlookAlert extends Notification
 
     public function via($notifiable): array
     {
-        return ['database'];
+        return ['database', WebPushChannel::class];
     }
 
     public function toArray($notifiable): array
