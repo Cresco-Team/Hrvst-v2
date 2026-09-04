@@ -34,9 +34,11 @@ class NotificationController extends Controller
                 'created_at' => $n->created_at->diffForHumans(),
             ]);
 
+        $unreadAlertCount = $user->where('type', VegetableOutlookAlert::class)->unreadNotifications();
+
         return response()->json([
             'notifications' => $notifications,
-            'unread_count' => $user->unreadNotifications()->count(),
+            'unread_count' => $unreadAlertCount,
         ]);
     }
 
