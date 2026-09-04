@@ -22,7 +22,7 @@ class PostReminderNotification extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['mail', WebPushChannel::class];
+        return ['database', WebPushChannel::class];
     }
 
     public function toWebPush(object $notifiable, self $notification): WebPushMessage
