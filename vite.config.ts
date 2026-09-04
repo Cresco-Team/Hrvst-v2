@@ -34,6 +34,7 @@ export default defineConfig({
             strategies: 'injectManifest',
             srcDir: 'resources/js',
             filename: 'sw.ts',
+            outDir: 'public',
 
             // REPLACES the old top-level `workbox: { globPatterns, navigateFallback }`
             // block — that key is silently ignored under injectManifest.
