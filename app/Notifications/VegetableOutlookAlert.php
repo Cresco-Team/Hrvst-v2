@@ -22,7 +22,7 @@ class VegetableOutlookAlert extends Notification
 
     public function via($notifiable): array
     {
-        return ['database', WebPushChannel::class];
+        return ['database'];
     }
 
     public function toArray($notifiable): array
