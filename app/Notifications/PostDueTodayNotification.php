@@ -22,7 +22,7 @@ class PostDueTodayNotification extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['database', WebPushChannel::class];
+        return [WebPushChannel::class];
     }
 
     public function toWebPush(object $notifiable, self $notification): WebPushMessage
@@ -41,17 +41,5 @@ class PostDueTodayNotification extends Notification
             ))
             ->data(['url' => route($routeName)])
             ->options(['TTL' => 3600]);
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    public function toArray(object $notifiable): array
-    {
-        return [
-            'post_id' => $this->post->id,
-            'type' => $this->post->type->value,
-            'scheduled_date' => $this->post->scheduled_date->toDateString(),
-        ];
     }
 }
