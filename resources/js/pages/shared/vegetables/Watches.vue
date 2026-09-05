@@ -12,6 +12,7 @@ import { useCapitalize } from '@/lib/utils'
 import { dashboard } from '@/routes'
 import { show, unwatch } from '@/routes/vegetables'
 import type { BreadcrumbItem } from '@/types'
+import { Item, ItemActions, ItemContent, ItemDescription, ItemGroup, ItemMedia, ItemTitle } from '@/components/ui/item'
 
 interface WatchRow {
     id: number
@@ -73,44 +74,51 @@ function stopWatching(row: WatchRow): void {
                     description="Watch a vegetable from its detail page to get notified about supply shifts."
                 />
 
-                <div
+                <ItemGroup
                     v-else
                     class="flex flex-col gap-2"
                 >
-                    <div
+                    <Item
                         v-for="row in watches"
                         :key="row.id"
-                        class="flex items-center gap-3 rounded-lg border p-3"
+                        variant="outline"
+                        class="transition-all hover:shadow-sm bg-primary/10 hover:bg-card hover:border-l-4 hover:border-l-primary"
+                        as-child
                     >
-                        <Avatar class="size-10 shrink-0 rounded-md">
-                            <AvatarImage
-                                :src="row.image_url"
-                                :alt="row.vegetable_name"
-                            />
-                            <AvatarFallback>{{ row.vegetable_name[0] }}</AvatarFallback>
-                        </Avatar>
+                        <Link :href="show(row.vegetable_id).url">
+                            <ItemMedia>
+                                <Avatar class="size-10 shrink-0 rounded-md">
+                                    <AvatarImage
+                                        :src="row.image_url"
+                                        :alt="row.vegetable_name"
+                                    />
+                                    <AvatarFallback>{{ row.vegetable_name }}</AvatarFallback>
+                                </Avatar>
+                            </ItemMedia>
 
-                        <div class="min-w-0 flex-1">
-                            <Link
-                                :href="show(row.vegetable_id).url"
-                                class="truncate font-medium hover:underline"
-                            >
-                                {{ row.vegetable_name }}
-                            </Link>
-                            <p class="text-xs text-muted-foreground">{{ row.category }}</p>
-                        </div>
+                            <ItemContent>
+                                <ItemTitle class="line-clamp-1">
+                                    {{ row.vegetable_name }}
+                                </ItemTitle>
+                                <ItemDescription>
+                                    <Badge :variant="bandVariant(row.last_notified_band)">
+                                        {{ bandLabel(row.last_notified_band) }}
+                                    </Badge>
+                                </ItemDescription>
+                            </ItemContent>
 
-                        <Badge :variant="bandVariant(row.last_notified_band)">{{ bandLabel(row.last_notified_band) }}</Badge>
-
-                        <Button
-                            variant="ghost"
-                            size="icon-sm"
-                            @click="stopWatching(row)"
-                        >
-                            <BellOff class="size-4" />
-                        </Button>
-                    </div>
-                </div>
+                            <ItemActions>
+                                <Button 
+                                    variant="ghost" 
+                                    size="icon-sm"
+                                    @click="stopWatching(row)"
+                                >
+                                    <BellOff class="size-4" />
+                                </Button>
+                            </ItemActions>
+                        </Link>
+                    </Item>
+                </ItemGroup>
             </Deferred>
         </div>
     </AppLayout>
