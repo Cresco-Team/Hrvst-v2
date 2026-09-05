@@ -8,7 +8,7 @@ use App\Notifications\VegetableOutlookAlert;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-class NotificationController extends Controller
+class lerNotificationController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
@@ -34,7 +34,9 @@ class NotificationController extends Controller
                 'created_at' => $n->created_at->diffForHumans(),
             ]);
 
-        $unreadAlertCount = $user->where('type', VegetableOutlookAlert::class)->unreadNotifications();
+        $unreadAlertCount = $user->unreadNotifications()
+            ->where('type', VegetableOutlookAlert::class)
+            ->count();
 
         return response()->json([
             'notifications' => $notifications,
