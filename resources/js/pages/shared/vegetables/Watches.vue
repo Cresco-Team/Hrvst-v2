@@ -111,7 +111,7 @@ function stopWatching(row: WatchRow): void {
                                 <Button 
                                     variant="ghost" 
                                     size="icon-sm"
-                                    @click="stopWatching(row)"
+                                    @click.stop="stopWatching(row)"
                                 >
                                     <BellOff class="size-4" />
                                 </Button>
