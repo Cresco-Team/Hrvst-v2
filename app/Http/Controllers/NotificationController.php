@@ -8,7 +8,7 @@ use App\Notifications\VegetableOutlookAlert;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-class lerNotificationController extends Controller
+class NotificationController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
